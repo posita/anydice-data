@@ -1,0 +1,115 @@
+function: successes SUM:n step STEP:n {
+  if SUM > 30 {result: 1 + 30/STEP}
+  if SUM >= 0 {result: 1 + SUM/STEP}
+  if SUM < -4 {result: -1}
+  result: 0
+}
+
+function: roll ATTR:d with SKILL:d vs D:n step STEP:n  {
+  SUM: [explode ATTR] + [explode SKILL] - D
+  result: [successes SUM step STEP]
+}
+
+function: with R:n add D:n {
+  if R > 0 & D > 0 {
+    result: [highest of R and D] + 1
+  }
+  if R > 0 { result: R }
+  result: 0
+}
+
+function: sum of A:n and B:n {
+  if A = B & A > 0 {
+    result: A + 1
+  }
+  if A > B {
+    result: A
+  }
+  result: B
+}
+
+function: sum of A:n and B:n and C:n {
+  M: [highest of A and [highest of B and C]]
+  L: [lowest of A and [lowest of B and C]]
+  if L > 0 {
+    if A = M {result: [sum of A and [sum of B and C]]}
+    if B = M {result: [sum of B and [sum of A and C]]}
+    if C = M {result: [sum of C and [sum of B and A]]}
+  }
+  if A = M & B = M {result: M + 1}
+  if A = M & C = M {result: M + 1}
+  if C = M & B = M {result: M + 1}
+  result: M
+}
+
+
+function: best of A:n and B:n {
+  H: [highest of A and B]
+  if A > 0 & B > 0 { result: H + 1 }
+  result: H
+}
+
+function: best of A:n and B:n and C:n {
+  H: [highest of [highest of A and B] and C]
+  if A > 0 & B > 0 & C > 0 { result: H + 1 }
+  if A > 0 & B > 0 { result: H + 1 }
+  if A > 0 & C > 0 { result: H + 1 }
+  if C > 0 & B > 0 { result: H + 1 }
+  result: H
+}
+
+function: support A:n with B:n for D:n damage {
+  X: [higher of A and B]
+  if X > 0 {
+    result: [higher of X and D]
+  }
+  result: 0
+}
+
+function: spread A:n {
+  if A < 2 {result: A}
+  X: 1
+  loop N over {1..A}{
+     X: X*2
+  }
+  if X > 64 {result: 64}
+  result: X
+}
+
+function: attack A:n with D:n step S:n {
+  R: [explode dD] + (A-1)d[explode d6]
+  result: [successes R step S]
+}
+
+function: ccc N:n {
+  if N < 0 {result: 0}
+  result: N
+}
+
+X:10
+
+output [ccc [roll d6 with d6 vs X+4 step 5]] named "2d6-4"
+output [ccc [roll d6 with d6 vs X+3 step 5]] named "2d6-3"
+output [ccc [roll d6 with d6 vs X+2 step 5]] named "2d6-2"
+output [ccc [roll d6 with d6 vs X+1 step 5]] named "2d6-1"
+output [ccc [roll d6 with d6 vs X step 5]] named "2d6"
+output [ccc [roll d8 with d6 vs X step 5]] named "1d8, 1d6"
+output [ccc [roll d10 with d6 vs X step 5]] named "1d10, 1d6"
+output [ccc [roll d12 with d6 vs X step 5]] named "1d12, 1d6"
+output [ccc [roll d14 with d6 vs X step 5]] named "1d14, 1d6"
+output [ccc [roll d14 with d8 vs X step 5]] named "1d14, 1d8"
+output [ccc [roll d14 with d10 vs X step 5]] named "1d14, 1d10"
+output [ccc [roll d14 with d12 vs X step 5]] named "1d14, 1d12"
+output [ccc [roll d14 with d14 vs X step 5]] named "1d14, 1d14"
+output [ccc [roll d14 with d6 vs X step 5] + 1] named "1d14, 1d6, 1"
+output [ccc [roll d14 with d8 vs X step 5] + 1] named "1d14, 1d8, 1"
+output [ccc [roll d14 with d10 vs X step 5] + 1] named "1d14, 1d10, 1"
+output [ccc [roll d14 with d12 vs X step 5] + 1] named "1d14, 1d12, 1"
+output [ccc [roll d14 with d14 vs X step 5] + 1] named "1d14, 1d14, 1"
+output [ccc [roll d14 with d6 vs X step 5] + 2] named "1d14, 1d6, 2"
+output [ccc [roll d14 with d8 vs X step 5] + 2] named "1d14, 1d8, 2"
+output [ccc [roll d14 with d10 vs X step 5] + 2] named "1d14, 1d10, 2"
+output [ccc [roll d14 with d12 vs X step 5] + 2] named "1d14, 1d12, 2"
+output [ccc [roll d14 with d14 vs X step 5] + 2] named "1d14, 1d14, 2"
+output [ccc [roll d14 with d6 vs X step 5] + 3] named "1d14, 1d6, 3"
+output [ccc [roll d6 with d6 vs X step 5] + 4] named "1d6, 1d6, 4"

@@ -1,0 +1,84 @@
+\ Attack Sequence \
+
+\ Hit Values \
+A: 3 	\ # Attacks \
+H: 4 	\ Hit Roll Target \
+HR: 0   \ Hit Re-Roll \
+W: 4 	\ Wound Roll Target \
+WR: 0   \ Wound Re-Roll \
+R: -1 	\ Rend (Negative Number) \
+D: 1d3	\ Damage \
+F: 7	\ Feel No Pain Roll Target \
+MWHT: 6 \ Mortal Wound on Hit Target \
+MWHD: 3 \ Mortal Wound on Hit Damage \
+MWWT: 6 \ Mortal Wound on Wound Target \
+MWWD: 0 \ Mortal Wound on Wound Damage \
+EDHT: 6 \ Extra Damage on Hit Target \
+EDHD: 0 \ Extra Damage on Hit Bonus \
+EDWT: 6 \ Extra Damage on Wound Target \
+EDWD: 0 \ Extra Damage on Wound Bonus \
+DOS: 0 \ Damage on Six; Either 1 or 0 \
+
+\ Die Values \
+HD: 1d6 \ Hit Die \
+HRD: 1d6\ Hit RR Die\
+WD: 1d6 \ Wound Die \
+WRD: 1d6\ Wound RR Die \
+SD: 1d6 \ Save Die\
+FD: 1d6 \ Feel No Pain Die \
+
+
+function: hit TO_HIT:s HREROLL:s {
+	if TO_HIT <= HR {result: HREROLL >= H}
+        if TO_HIT = 6 {result: DOS}
+        result: TO_HIT >= H
+}
+
+function: wound TO_WOUND:s WREROLL:s {
+	if TO_WOUND <= WR {result: WREROLL >= W} 
+        result: TO_WOUND >= W
+}
+
+function: save TO_SAVE:s {
+	result: TO_SAVE < S-R
+}
+
+function: gate HR:s WR:s SR:s D:s {
+	result: HR * WR * SR * D
+}
+
+function: fnp DICE:s{
+	if DICE < F {result: 1}
+	result: 0
+}
+
+\ Bonus Damage Calc: Hit, Hit RR, Wound, Wound RR, Damage \
+
+function: damage HIT:s HITRR:s WOUND:s WOUNDRR:s{
+	DAMAGE: D
+	if HIT <= HR {
+		if HITRR >= EDHT{DAMAGE: DAMAGE + EDHD}
+	}
+	else {
+		if HIT >= EDHT{DAMAGE: DAMAGE + EDHD}
+	}
+	if WOUND <= WR {
+		if WOUNDRR >= EDWT{DAMAGE: DAMAGE + EDWD}
+	}
+	else {
+		if WOUND >= EDWT{DAMAGE: DAMAGE + EDWD}
+	}
+	result: DAMAGE
+}
+
+\ Roll D6, ReRoll D6, RR Target, MW Target, MW Damage \
+function: mwonhit TO_HIT:s HREROLL:s RR:n MWT: n MWD: n{
+	if TO_HIT <= RR {result: (HREROLL >= MWT) * MWD} 
+        result: (TO_HIT >= MWT) * MWD
+}
+
+loop S over {2..7}{
+
+output Ad([gate [hit HD HRD] [wound WD WRD] [save SD] [damage HD HRD WD WRD]]d[fnp  FD] + d[mwonhit HD HRD HR MWHT MWHD]+ [hit HD HRD] * d[mwonhit WD WRD WR MWWT MWWD]) named "[A] Attacks, [H]+ To Hit w/ Re-Roll at <=[HR], [W]+ To Wound w/ Re-Roll at <=[WR], [S]+ Save w/ Rend [R], [D] Damage, [F]+ FNP"
+
+}

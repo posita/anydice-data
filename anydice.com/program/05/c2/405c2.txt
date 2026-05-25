@@ -1,0 +1,39 @@
+CRITICALFAIL: 0
+FAIL: 1
+SUCCESS: 2
+CRITICALSUCCESS: 3
+function: dodge ROLL:n plus DODGE vs DC:n {
+ if ROLL = 1 {
+  if ROLL + DODGE < DC {result: CRITICALFAIL}
+  if ROLL + DODGE < DC + 10 {result: FAIL}
+  result: SUCCESS
+ }
+ if ROLL = 20 {
+  if ROLL + DODGE < DC - 10 {result: FAIL}
+  if ROLL + DODGE < DC {result: SUCCESS}
+  result: CRITICALSUCCESS
+ }
+ if ROLL + DODGE < DC - 10 {result: CRITICALFAIL}
+ if ROLL + DODGE < DC {result: FAIL}
+ if ROLL + DODGE < DC + 10 {result: SUCCESS}
+ result: CRITICALSUCCESS
+}
+function: damage for DODGERESULT:n {
+ if DODGERESULT = CRITICALFAIL {
+  result: DAMAGE*2
+ }
+ if DODGERESULT = FAIL {
+  result: DAMAGE
+ }
+ if DODGERESULT = SUCCESS {
+  result: DAMAGE/2
+ }
+ result: 0
+}
+LV: 1
+PROF: 2
+ATTRIBUTE: 4
+DC: 10 + PROF + LV + ATTRIBUTE
+DEX: 2
+DAMAGE: 2d4
+output [damage for [dodge d20 plus DEX vs DC]] named "damage"

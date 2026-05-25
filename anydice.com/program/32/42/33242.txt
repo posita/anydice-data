@@ -1,0 +1,100 @@
+DICEDAMAGE: 2d8+1d6+2d8
+FLATDAMAGE: 5+5+5+1
+HITBONUS:5+5+1
+AC: 20
+ATTACKS: 3
+OPROHB: 0
+CRIT: 19
+CRITB: 0
+
+
+function: attack B:n HIT:n DD:n FD:n {
+  if HIT >= CRIT {
+    \on crit\
+    result: DD + FD + DD + CRITB
+  }
+  if HIT + B >= 9 {
+    \on hit\
+    result: DD + FD
+  } else {
+    \on miss\
+    result: 0
+  }
+}
+
+function: attackac B:n AC:n HIT:n DD:n FD:n {
+  result: [attack B-AC+9 HIT DD FD]
+}
+
+function: oproh OHB:n ATK:n {
+  if ATK = 0 {
+    result: 0
+  }
+  result: ATK + OHB * (1 + (1d20>=CRIT))
+}
+
+function: atk {
+   result: [attack HITBONUS 1d20 DICEDAMAGE FLATDAMAGE]
+}
+
+function: atkh H:n {
+   result: [attack HITBONUS+H 1d20 DICEDAMAGE FLATDAMAGE]
+}
+
+function: atkd D:d {
+   result: [attack HITBONUS 1d20 DICEDAMAGE+D FLATDAMAGE]
+}
+
+function: adv {
+   result: [highest of 1d20 and 1d20]
+}
+
+function: eadv {
+   result: [highest of 1d20 and [highest of 1d20 and 1d20]]
+}
+
+function: aatk {
+   result: [attack HITBONUS [adv] DICEDAMAGE FLATDAMAGE]
+}
+
+
+function: eatk {
+   result: [attack HITBONUS [eadv] DICEDAMAGE FLATDAMAGE]
+}
+
+function: atkac {
+   result: [attackac HITBONUS AC 1d20 DICEDAMAGE FLATDAMAGE]
+}
+
+function: aatkac {
+   result: [attackac HITBONUS AC [adv] DICEDAMAGE FLATDAMAGE]
+}
+
+function: eatkac {
+   result: [attackac HITBONUS AC [eadv] DICEDAMAGE FLATDAMAGE]
+}
+
+output [oproh OPROHB ATTACKSd[atk]] named "DPR"
+output [oproh OPROHB ATTACKSd[aatk]] named "DPR (advantage)"
+output [oproh OPROHB ATTACKSd[eatk]] named "DPR (elven)"
+
+output [oproh OPROHB ATTACKSd[atkac]] named "DPR Vs AC"
+output [oproh OPROHB ATTACKSd[aatkac]] named "DPR (advantage) Vs AC"
+output [oproh OPROHB ATTACKSd[eatkac]] named "DPR (elven) Vs AC"
+
+output [oproh OPROHB ([atk]+[aatk])] named "specific"
+output 4d[attackac 14 22 1d20 1d8 11] + 8d[attackac 14 22 1d20 1d10 5] named "specific2" 
+output 2d[attack 2 [adv] 1d10 17] + [attack 0 [adv] 4d12 5] named "specific3" 
+
+\function: rr one D:n DD:d {
+  if D = 1  {
+    result: DD
+  } 
+  result: D
+}
+function: two one D:n {
+  if D = 1  {
+    result: 2
+  } 
+  result: D
+}\

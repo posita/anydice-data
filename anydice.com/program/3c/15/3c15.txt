@@ -1,0 +1,181 @@
+\-----------------------------------------------------------
+@ Math for spellsong calculations.
+@
+@ Note: Anydice does not have boolean values, so TRUE and FALSE (and YES and NO, for ease of use) are defined below.
+@
+@ Note: Anydice only supports whole number values, so you can't multiply by, say, 1.5 directly. Instead, we're using a multiplier (3) and a divisor (2) together to emulate it.
+@ If, for example, you want to test what would happen if you got 1 iterations per 3.5 of the check result, you could put in 2 for the multiplier and 7 for the divisor (because 2/7 = 3.5). Easy!
+------------------------------------------------------------\
+
+\----------------\
+\ Defined Values \
+\ Do not modify  \
+\----------------\
+
+TRUE: 1
+FALSE: 0
+YES: TRUE
+NO: FALSE
+SAVENEGATES: 0
+SAVEHALF: 1
+SAVENOTALLOWED: 2
+
+
+\-----------------------------------------------------------
+@ User Variables
+@
+@ Input your options here for the monster and the spellsinger.
+------------------------------------------------------------\
+
+ROUNDSOFSPELLSINGING: 1    \-- Number of times the spellsinging will be repeated. -- \ \TODO: NYI\
+
+\-- Spellsinger stats --\
+SPELLSINGERBASEMODIFIER: 0
+SPELLSINGERBONUSSAVEDC: 0
+
+\-- Spellsong metasongs --\
+SPELLSONGAMPLIFIED: NO
+SPELLSONGEMPOWER: NO
+SPELLSONGHEIGHTENAPPLICATIONS: 0    \-- Enter the number of times Heighten is applied. Negative values may be inconsistent. --\
+SPELLSONGPIERCING: NO \TODO: NYI until monster resistances are added.\
+SPELLSONGREFRAIN: NO \TODO: NYI until monster resistances are added, because it'll be so much more likely to kick you into a damage type that's resisted, that the resistances factor becomes significant.\
+SPELLSONGOTHERMETASONGCHECKPENALTIES: 0
+
+\-- Monster stats --\
+MONSTERHP: 2d12
+MONSTERSAVEBONUS: 3
+MONSTERHASEVASION: NO
+MONSTERHASIMPROVEDEVASION: NO
+MONSTERAUTOFAILSAVEONNATURALONE: YES
+MONSTERAUTOSUCCEEDSAVEONNATURALTWENTY: YES
+\TODO: Monster resistances and immunities.\
+
+
+\-----------------------------------------------------------
+@ Spellsong System Options
+@
+@ Input your numbers here for the spellsong system.
+------------------------------------------------------------\
+
+\-- Effect iterations --\
+SPELLSONGBASEITERATIONS: 0
+SPELLSONGITERATIONSMULTIPLIER: 1
+SPELLSONGITERATIONSDIVISOR: 5
+
+\-- Saving throw type --\
+SPELLSONGBASESAVEDC: 10
+SPELLSONGSAVEDCPERITERATIONMULTIPLIER: 1
+SPELLSONGSAVEDCPERITERATIONDIVISOR: 1
+SPELLSONGSAVETYPE: SAVEHALF    \-- Use SAVENEGATES, SAVEHALF, or SAVENOTALLOWED only. Any other value will be inconsistent. --\
+
+\-- Damage --\
+SPELLSONGDAMAGEDICEPERITERATION: 2
+SPELLSONGDAMAGEDIETYPE: 1d4    \-- Include flat bonuses per die here (ex: magic missile's 1d4+1). --\
+
+\-- Metasongs --\
+
+\-- Amplified --\
+AMPLIFIEDCHECKMODIFIER: -5
+AMPLIFIEDBONUSDAMAGEPERDIE: 1
+
+\-- Empower --\
+EMPOWERCHECKMODIFIER: -5
+EMPOWERDAMAGEMULTIPLIER: 3
+EMPOWERDAMAGEDIVISOR: 2
+
+\-- Heighten --\
+HEIGHTENCHECKMODIFIERPERAPPLICATION: -5
+HEIGHTENDCMODIFIERPERAPPLICATION: 2
+
+
+\---------------------------------\
+\ Derived Values and Calualations \
+\ Do not modify beyond this point \
+\---------------------------------\
+
+\-----------\
+\ Functions \
+\-----------\
+
+function: saving throw using dice SAVEDIE:n succeeds with modifier MODIFIER:n against dc DC:n and autofail one FAILONE:n and autosucceed twenty SUCCEEDTWENTY:n {
+    if ((FAILONE = TRUE) & (SAVEDIE = 1)) {
+        result: 0
+    }
+    else if ((SUCCEEDTWENTY = TRUE) & (SAVEDIE = 20)) {
+        result: 1
+    }
+    else {
+        result: (SAVEDIE + MODIFIER) >= DC
+    }
+}
+
+
+\------------------------\
+\ Spellsong Calculations \
+\------------------------\
+
+SPELLSONGDAMAGEPERITERATION: SPELLSONGDAMAGEDICEPERITERATION d SPELLSONGDAMAGEDIETYPE
+if (SPELLSONGAMPLIFIED) {
+   SPELLSONGDAMAGEPERITERATION: SPELLSONGDAMAGEPERITERATION + SPELLSONGDAMAGEDICEPERITERATION * AMPLIFIEDBONUSDAMAGEPERDIE
+}
+
+SPELLSINGERMODIFIER: SPELLSINGERBASEMODIFIER - SPELLSONGOTHERMETASONGCHECKPENALTIES
+if (SPELLSONGAMPLIFIED) {
+   SPELLSINGERMODIFIER: SPELLSINGERMODIFIER + AMPLIFIEDCHECKMODIFIER
+}
+if (SPELLSONGEMPOWER) {
+   SPELLSINGERMODIFIER: SPELLSINGERMODIFIER + EMPOWERCHECKMODIFIER
+}
+if (SPELLSONGHEIGHTENAPPLICATIONS > 0) {
+   SPELLSINGERMODIFIER: SPELLSINGERMODIFIER + HEIGHTENCHECKMODIFIERPERAPPLICATION * SPELLSONGHEIGHTENAPPLICATIONS
+}
+
+SPELLSONGITERATIONS: [highest of 0 and SPELLSONGBASEITERATIONS + ((1d20 + SPELLSINGERMODIFIER) * SPELLSONGITERATIONSMULTIPLIER / SPELLSONGITERATIONSDIVISOR)]    \-- Never a negative number of iterations --\
+
+SPELLSONGDC: SPELLSONGBASESAVEDC + (SPELLSONGITERATIONS * SPELLSONGSAVEDCPERITERATIONMULTIPLIER / SPELLSONGSAVEDCPERITERATIONDIVISOR) + SPELLSINGERBONUSSAVEDC
+if (SPELLSONGHEIGHTENAPPLICATIONS > 0) {
+   SPELLSONGDC: SPELLSONGDC + HEIGHTENDCMODIFIERPERAPPLICATION * SPELLSONGHEIGHTENAPPLICATIONS
+}
+
+SPELLSONGDAMAGE: SPELLSONGITERATIONS d SPELLSONGDAMAGEPERITERATION
+if (SPELLSONGEMPOWER) {
+   SPELLSONGDAMAGE: SPELLSONGDAMAGE * EMPOWERDAMAGEMULTIPLIER / EMPOWERDAMAGEDIVISOR
+}
+
+
+\----------------------\
+\ Monster Calculations \
+\----------------------\
+
+MONSTERSAVECHANCE: [saving throw using dice 1d20 succeeds with modifier MONSTERSAVEBONUS against dc SPELLSONGDC and autofail one MONSTERAUTOFAILSAVEONNATURALONE and autosucceed twenty MONSTERAUTOSUCCEEDSAVEONNATURALTWENTY]
+
+if (SPELLSONGSAVETYPE = SAVENEGATES) {
+    MONSTERDAMAGETAKEN: SPELLSONGDAMAGE * MONSTERSAVECHANCE
+}
+else if (SPELLSONGSAVETYPE = SAVEHALF) {
+    if (MONSTERHASIMPROVEDEVASION) {
+        MONSTERDAMAGETAKEN: (SPELLSONGDAMAGE * MONSTERSAVECHANCE)/2
+    }
+    else if (MONSTERHASEVASION) {
+        MONSTERDAMAGETAKEN: (SPELLSONGDAMAGE * MONSTERSAVECHANCE)
+    }
+    else {
+        MONSTERDAMAGETAKEN: (SPELLSONGDAMAGE + SPELLSONGDAMAGE * MONSTERSAVECHANCE)/2
+    }
+}
+else {
+    MONSTERDAMAGETAKEN: SPELLSONGDAMAGE
+}
+
+MONSTERSURVIVES: MONSTERHP > MONSTERDAMAGETAKEN
+
+
+\--------\
+\ Output \
+\--------\
+
+output SPELLSONGITERATIONS named "spellsong iterations"
+output SPELLSONGDC named "spellsong save DC"
+output SPELLSONGDAMAGE named "spellsong damage"
+output MONSTERSAVECHANCE named "Monster chance to succeed on save vs. spellsong"
+output MONSTERSURVIVES named "Monster chance to survive vs. spellsong"

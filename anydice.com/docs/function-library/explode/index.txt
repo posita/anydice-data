@@ -1,0 +1,75 @@
+   AnyDice
+    1. AnyDice
+    2. Documentation
+
+                                  explode DIE
+
+   This function yields the exploded version of the DIE. Exploding a die
+   means that you keep rolling it as long as you roll its maximum possible
+   value. The final result will be the sum of all the rolled values. For
+   example, with one exploding d6 you could roll 6 + 6 + 6 + 4 for a total
+   of 22.
+
+   Note that a dice collection will be treated as a single die. So
+   [explode 2d6] will only explode when a total of 12 is rolled, in which
+   case another 2d6 is rolled and added to the result. If you want the two
+   d6 to explode independently, you can use 2d[explode d6].
+
+   It is theoretically possible to keep rolling the maximum value forever,
+   although the chance of doing so is infinitely small. If AnyDice were to
+   calculate this, it would take forever to complete. To prevent this from
+   happening, AnyDice will only calculate a few extra rolls. A consequence
+   of this is that the calculated odds will not be perfect. By default
+   AnyDice explodes at most twice, which is a reasonable default, but you
+   can set this to any positive amount you like.
+
+  Examples
+
+output [explode d6]
+output [explode 2d6]
+output 2d [explode d6]
+
+set "explode depth" to 1
+output [explode d6]
+
+set "explode depth" to 10
+output [explode d6]
+
+   Note that the highest number listed in these outputs will actually
+   never be rolled, because in reality the die would be rolled again. So
+   it can be taken to mean "any possible result above this value".
+
+  Do it yourself
+
+   If the maximum function depth is set to 10 (the default), this function
+   will work the same as the predefined explode function with explode
+   depth set to 8. This assumes you're not calling the function from
+   inside another function.
+function: explode DIE:d {
+ MAX: [maximum of DIE]
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = MAX { result: N + [explode DIE helper] }
+ result: N
+}
+
+  Variant explosions
+
+   If you want to keep rolling based on other criteria than the maximum
+   possible value, you'll have to create your own function. Here is an
+   example for exploding a d6 whenever the result is larger than 3.
+function: explode N:n {
+ if N > 3 { result: N + [explode d6] }
+ result: N
+}
+
+set "maximum function depth" to 5
+output [explode d6]
+
+   Because in this case the maximum function depth was set to 5, the
+   explode function will roll at most five dice in a row. By default, the
+   maximum depth is 10.
+
+   made by Jasper Flick

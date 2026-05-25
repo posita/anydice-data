@@ -1,0 +1,30 @@
+
+function: select INDICES:s from SEQUENCE:s {
+  RESULT: {}
+  loop INDEX over INDICES {
+    RESULT: {RESULT, INDEX@SEQUENCE}
+  }
+  result: RESULT
+}
+
+
+function: evaluate ROLL:s {
+   if (ROLL = X) >=1 {result: 3 } \Critical\
+   if (ROLL <= X) >= 2 { result: 2 }  \clean success\
+   if (ROLL <= X) >= 1 { result: 1 }  \mixed success\
+   result: 0 \failure\
+}
+
+function: evaluate ROLL:s with bonus BONUS:n {
+  ROLL_WITHOUT_LOWEST: [select {1 .. #ROLL-1} from ROLL]
+  LOWEST: (#ROLL)@ROLL
+  ROLL_WITH_BONUS: [sort {ROLL_WITHOUT_LOWEST, LOWEST + BONUS}]
+  result: [evaluate ROLL_WITH_BONUS]
+}
+
+\Defining Variables\
+X:50 \Skill level\
+N:2 \Number of Dice\
+BONUS:0
+output [evaluate 2d100 with bonus BONUS] named "0d8 with bonus [BONUS] (0=fail, 1=setback, 2=success, 3=crit)"
+

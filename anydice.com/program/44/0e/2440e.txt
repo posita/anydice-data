@@ -1,0 +1,73 @@
+\ This code outputs the probability of a given difference between a design roll and a craft roll. \
+\ 0 or higher indicates the craft action beat the design's Build Threshold. Negative values indicate how short it falls. \
+\ Edit the parameters below to customize the rolls. Default is 2 actions on the Faxe using Chui Dao for extra successes. \
+\ Now with proper rounding! \
+
+\ -------------------------- Parameters start here ------------------------- \
+
+\ Values to use for design rolls \
+NUMBER_OF_DICE: 10 \ Number of dice per roll. Cycling is 10. \
+NUMBER_OF_ROLLS: 4 \ Typically 4 rolls per action. \
+SUCCESS_THRESHOLD: 6 \ 10 - talent. Spiritual talent is 4, so 6 \
+DRIVE_MULTIPLIER: 10 \ 10 times drive. We currently have 10 \
+AUTO_SUCCESS: 0 \ Automatic successes. Typically 5 * (Grade) per pill/elixir \
+ROLL_ACTIONS_BY_WEEK: {1, 1} \ The number of actions each week. Each week is a number, separated by commas. \
+WEEKLY_MAXIMUM: 25 \ Maximum anam per week. Typically a natural wonder/treasure's capacity. A Moment of Eternity is 25 \
+USE_RAINBOW_EYES: 1 \ 1 if Rainbow Eyes is used, 0 if not. Assumes we don't run out of charges at any point \
+TARGET_SUCCESSES: 43 \ The number of successes desired. Set to 0 if you just want to see the number of successes \
+
+
+\ ---------------------------- Code starts here ---------------------------- \
+
+\ Timing change needed when rainbow eyes used \
+set "maximum function depth" to 7
+
+\ Roll exploding dice. 1 subtracts successes, T and greater adds, 10 you get an extra dice. With eyes set to 1 Courtesy of Wise Wolf. \
+function: roll RAWROLL:n with s T:n explode to REPLACEMENT:d with eyes EYES {
+  ROLL: 0
+  if RAWROLL = 1 & EYES = 0{
+    ROLL: -1
+  }
+  if RAWROLL >= T {
+    ROLL: 1
+  }
+  if RAWROLL = 10 | (RAWROLL = 1 & EYES = 1) {
+    ROLL: ROLL + [roll REPLACEMENT with s T explode to REPLACEMENT with eyes EYES]
+  }
+  result: ROLL 
+}
+
+\ Sum all dice separately by roll. Based on Wise Wolf's code. \
+function: roll dice NUMDICE:n thresh THRESHOLD:n rolls NUMROLLS:n multiplier MULT:n successes SUCCESS:n with eyes EYES:n {
+  ROLLMAXIMUM:(NUMDICE*THRESHOLD/9*2)
+
+  SEPARATEDHITS: 0
+  loop II over {1..NUMROLLS} {
+    ROLLHITS: 0
+    loop N over {1..NUMDICE} {
+      ROLL: [roll 1d10 with s THRESHOLD explode to 1d10 with eyes EYES]
+      ROLLHITS: ROLLHITS + ROLL
+    }
+    SEPARATEDHITS: SEPARATEDHITS + [lowest of ROLLMAXIMUM and [highest of 0 and ((ROLLHITS*MULT+5)/10)]]
+  }
+
+  result: SEPARATEDHITS + SUCCESS
+}
+
+\ Calculate cycling rolls. \
+TOTAL_SUCCESSES: 0
+loop WEEKLY_ACTION_COUNT over ROLL_ACTIONS_BY_WEEK {
+    ROLL_COUNT: 0
+    loop JJ over {1..WEEKLY_ACTION_COUNT} {
+        ROLL_COUNT : ROLL_COUNT + [roll dice NUMBER_OF_DICE thresh SUCCESS_THRESHOLD rolls NUMBER_OF_ROLLS multiplier DRIVE_MULTIPLIER successes AUTO_SUCCESS with eyes USE_RAINBOW_EYES]
+    }
+    ROLL_COUNT : [lowest of ROLL_COUNT and WEEKLY_MAXIMUM]
+    
+    TOTAL_SUCCESSES: TOTAL_SUCCESSES + ROLL_COUNT
+}
+
+
+\ Output the results. \
+output (TOTAL_SUCCESSES - TARGET_SUCCESSES) named "Successes beyond target"
+
+

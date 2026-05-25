@@ -1,0 +1,358 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 2d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 0]
+	miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 0]
+	crit 4d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 0]
+] named "1"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 2d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+	miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 3]
+	crit 4d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+] named "2"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 2d6+1d4+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+	miss [attack 1d20 plus 1 vs ac 10 for 2d6+1d4 plus 3]
+	crit 4d6+2d4+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+] named "3"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+	miss [attack 1d20 plus 1 vs ac 10 for 2d6+1d4 plus 4]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+] named "4"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6+1d4 plus 4]
+		crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+	]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+] named "5"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6+1d4 plus 4]
+		crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+	]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+] + [attack 1d20 plus 1 vs ac 10 for 2d6 plus 4] named "6"
+
+output [attack 1d20 plus 0 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack 1d20 plus 0 vs ac 10
+		hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 0 vs ac 10 for 2d6+1d4 plus 4]
+		crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+	]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+] + [attack 1d20 plus 0 vs ac 10 for 2d6 plus 4] named "8"
+
+output [attack 1d20 plus 0 vs ac 10
+	hit 3d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack 1d20 plus 0 vs ac 10
+		hit 3d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 0 vs ac 10 for 3d6 plus 4]
+		crit 6d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+	]
+	crit 6d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack 1d20 plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+] + [attack 1d20 plus 0 vs ac 10 for 2d6 plus 4] + [attack 1d20 plus -1 vs ac 10 for 2d6 plus 6] named "12"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 3d6 plus 5]
+		crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+	]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+] + [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5] + [attack 1d20 plus -1 vs ac 10 for 2d6 plus 6] named "13"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 3d6 plus 5]
+		crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+	]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+] + [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5] + [attack 1d20 plus -1 vs ac 10 for 2d6 plus 7] + [attack 1d20 plus -1 vs ac 10 for 2d6 plus 7] named "14"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 3d6 plus 5]
+		crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+	]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+] + [attack 1d20 plus 1 vs ac 10 for 2d6 plus 5] + [attack 1d20 plus 0 vs ac 10 for 2d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 2d6 plus 7] named "17"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 2d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 0]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 0]
+	crit 4d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 0]
+] named "1 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 2d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+	crit 4d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+] named "2 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 2d6+1d4+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6+1d4 plus 3]
+	crit 4d6+2d4+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 3]
+] named "3 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6+1d4 plus 4]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+] named "4 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6+1d4 plus 4]
+		crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+	]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+] named "5 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6+1d4 plus 4]
+		crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+	]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4]
+		]
+] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 4] named "6 ADV"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+1d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6+1d4 plus 4]
+		crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+	]
+	crit 4d6+2d4+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4] named "8 ADV"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 3d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 3d6 plus 4]
+		crit 6d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+	]
+	crit 6d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 2d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		crit 4d6+4 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4]
+		]
+] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 4] + [attack [highest 1 of 2d20] plus -1 vs ac 10 for 2d6 plus 6] named "12 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 3d6 plus 5]
+		crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+	]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5] + [attack [highest 1 of 2d20] plus -1 vs ac 10 for 2d6 plus 6] named "13 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 3d6 plus 5]
+		crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+	]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5] + [attack [highest 1 of 2d20] plus -1 vs ac 10 for 2d6 plus 7] + [attack [highest 1 of 2d20] plus -1 vs ac 10 for 2d6 plus 7] named "14 ADV"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 3d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 3d6 plus 5]
+		crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+	]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		crit 4d6+5 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5]
+		]
+] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 5] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 2d6 plus 7] named "17 ADV"

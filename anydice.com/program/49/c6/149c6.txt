@@ -1,0 +1,22 @@
+function: restrict ROLL:n to RANGE:s else REROLL:d {
+  if ROLL = RANGE { result: ROLL }
+  else { result: REROLL }
+}
+function: restrict ROLL:d to RANGE:s {
+  loop I over {1..20} {
+    ROLL: [restrict ROLL to RANGE else ROLL]
+  }
+  result: ROLL
+}
+
+function: middle of ROLL:s if lowest in RANGE:s {
+  REV: [reverse ROLL]  \ lowest first \
+  if 1@REV = RANGE { result: 2@REV }
+  else { result: -1 }
+}
+
+MAX: 10
+DIST: [middle of 3d20 if lowest in {1..MAX}]
+
+output DIST named "middle of 3d20 if lowest <= [MAX] (else -1)"
+output [restrict DIST to {1..20}] named "middle of 3d20 if lowest <= [MAX] (conditional)"

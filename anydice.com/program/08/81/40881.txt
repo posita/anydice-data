@@ -1,0 +1,15 @@
+\DIENUM is how many dice you roll, EXPLODE_ON is the number your dice should explode on (11 will do no explosions), IS_ROTE is wether or not you benefit from the Rote Action quality (1: yes, 0: no) \
+\This program will cut off each die after 5 successes, in order to truncate the results. This has a negligible effect on the outcome\
+DIENUM: 5
+EXPLODE_ON: 10
+IS_ROTE: 1
+
+function: explode ROLLEDVALUE:n on a N:n when using a D:d with max M:n successes IS_ROTE:n ROTE_ONCE:n{
+    if (M = 0) { result: 0 }
+    if (IS_ROTE = 1 & ROLLEDVALUE <= 7 & ROTE_ONCE = 0){result: [explode dD on a N when using a D with max M successes 1 1]}
+    if (ROLLEDVALUE >= N) { result: 1 + [explode dD on a N when using a D with max (M - 1) successes IS_ROTE ROTE_ONCE] }
+    if (ROLLEDVALUE >= 8) { result: 1 }
+    result: 0
+}
+
+output DIENUMd[explode d10 on a EXPLODE_ON when using a d10 with max 5 successes IS_ROTE 0]

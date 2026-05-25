@@ -1,0 +1,33 @@
+set "explode depth" to 10
+
+RANGE: 16
+DTIE: d{0,1}
+DCRIT: d{0:3,1,1,2}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: crit {
+  result: [crit DCRIT]
+}
+function: crit N:n {
+  if N = 2 { result: 1 + [crit DCRIT] }
+  result: N
+}
+
+function: ez {
+  result: [ez d6]
+}
+function: ez N:n {
+  if N = 6 { result: N + [crit] }
+  result: N
+}
+
+output [clamp [ez]-4 between -RANGE and RANGE] named "ezd6-4"
+output [clamp [ez]-[ez]-DTIE between -RANGE and RANGE] named "ezd6 vs"
+
+F: {-1..1}
+output d6-d6+4dF-DTIE named "d6+2dF vs"

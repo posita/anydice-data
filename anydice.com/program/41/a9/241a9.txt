@@ -1,0 +1,74 @@
+TN:4
+TOUGHNESS:6
+TRAIT:d12
+WILD:d6
+ATTACKBONUS: 0
+BONUSDIE:d6
+FUDGE:{-1..1}
+RAWBASEDAMAGE:[explode d6]+[explode d6]
+ALTBASEDAMAGE:2d6
+set "explode depth" to 4
+
+\~~~~~~~~~~~~~~~~~~~  CALCULATE ATTACK & NUMBER OF RAISES ~~~~~~~~~~~~~~~~~~~~\
+
+ATTACK: 2dFUDGE+[highest of [explode TRAIT] and [explode WILD]] + ATTACKBONUS
+ RAISES:(ATTACK - TN)/4 
+\ RAISES:1 \
+
+
+\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+
+
+\~~~~~~~~~~~~~~~~~~~  CALCULATE RAW DAMAGE & RAISES ~~~~~~~~~~~~~~~~~~~~\
+\~~~~~~~~~  i.e. exploding dice, +only 1 exploding d6 if there are *any* raise  ~~~~~~~~~~~~~\
+
+function: rawdamage R:n {
+  if R >=1 {
+    result: RAWBASEDAMAGE + [explode d6]
+  }
+  else {
+    result: RAWBASEDAMAGE
+  }
+}
+RAWWOUNDS: ([rawdamage RAISES] - TOUGHNESS)/4
+
+\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+
+
+
+
+\~~~~~~~~~~~~~~~~~~~  CALCULATE ALTERNATE DAMAGE & RAISES ~~~~~~~~~~~~~~~~~~~~\
+\~~~~~~~~~~~~~~~~~~~  i.e. non-exploding dice, +1d6 per raise  ~~~~~~~~~~~~~~~~~\
+
+ALTDAMAGE:ALTBASEDAMAGE + RAISESdBONUSDIE 
+ALTWOUNDS:(ALTDAMAGE - TOUGHNESS)/4 
+
+\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+
+
+
+\~~~~~~~~~~~~~~~~~~~  CALCULATE 2nd ALTERNATE DAMAGE & RAISES ~~~~~~~~~~~~~~~~~~~~\
+\~~~~~~~~~~~~~~~~~~~  i.e. exploding dice, +4 per raise  ~~~~~~~~~~~~~~~~~\
+
+ALTTWODAMAGE:RAWBASEDAMAGE + RAISES*4 
+ALTTWOWOUNDS:(ALTTWODAMAGE - TOUGHNESS)/4 
+
+\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+
+
+
+
+
+\ output ATTACK named "Attack value rolled" \
+\ output RAISES named "Number of raises" \
+
+\ output [rawdamage RAISES] named "Damage rolled: RAW" \
+\ output ALTDAMAGE named "Alt Damage rolled" \
+\ output [altdamage RAISES] named "Alt Damage rolled, loop method" \
+
+
+ output RAWWOUNDS named "RAW Wounds" 
+\ output ALTWOUNDS named "Non-exploding dice with [BONUSDIE] per raise" \
+ output ALTTWOWOUNDS named "Wounds from +4 dmg per raise" 
+
+

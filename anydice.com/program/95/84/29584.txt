@@ -1,0 +1,44 @@
+
+TARGET_AC:  14  \ target AC: attack hits if ATK + HIT >= AC \
+CRIT_THRESHOLD:   20  \ minimum attack roll to crit \
+HEX_CRIT_THRESHOLD: 19  \ minimum attack roll to crit with hex\
+
+DMG_MOD: 3 \damage modifier added on each successful hit\
+DMG_DIE:  1d8  \ damage rolled on successful hit \
+HIT_MOD: 3  \ bonus to attack roll \
+
+SECONDARY_DMG_DIE: 1d4 \ damage rolled on successful hit with offhand bonus action 
+attack \
+SECONDARY_DMG_MOD: 2 \damage modifier added on each successful hit with offhand bonus action attack\
+SECONDARY_HIT_MOD: 3 \ bonus to attack roll \
+
+
+
+
+
+ADVANTAGE_ROLL: [highest 1 of 2d20]
+ELVEN_ADVANTAGE_ROLL: [highest 1 of 3d20] 
+REGULAR_ROLL: 1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+
+function: R:n basicattack{
+    if R <= 1 { result: 0 } 
+    if R >= CRIT_THRESHOLD {result: (2 d DMG_DIE) + DMG_MOD}
+    if (R + HIT_MOD) >= TARGET_AC {result: (1 d DMG_DIE) + DMG_MOD}
+    if (R + HIT_MOD) < TARGET_AC {result: 0}
+}
+
+function: R:n secondaryattack{
+    if R <= 1 { result: 0 } 
+    if R >= CRIT_THRESHOLD {result: (2 d SECONDARY_DMG_DIE) + SECONDARY_DMG_MOD}
+    if (R + SECONDARY_HIT_MOD) >= TARGET_AC {result: (1 d SECONDARY_DMG_DIE) + SECONDARY_DMG_MOD}
+    if (R + SECONDARY_HIT_MOD) < TARGET_AC {result: 0}
+}
+
+
+
+
+output [REGULAR_ROLL basicattack] + [REGULAR_ROLL secondaryattack] named "a basic attatck and a secondary attack"
+
+output [REGULAR_ROLL basicattack] + [REGULAR_ROLL basicattack] named "two basic attacks"
+
+output [ADVANTAGE_ROLL basicattack] named "a single advantage attack"

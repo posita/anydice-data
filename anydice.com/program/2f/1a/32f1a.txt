@@ -1,0 +1,29 @@
+\ Assumption: 1 is always a critical failure, 20 is always a critical success - extreme level differences are not accounted for \
+
+function: floorzero N:n {
+ if N < 0 { result: 0 }
+ result: N
+}
+
+function: degree of success R:n B:n DC:n {
+ \ 1 is critical failure, 2 is failure, 3 is successs, 4 is critical success \
+ if R = 1 | (R + B) <= (DC - 10) { result : 1 }
+ if (R + B) <  DC { result: 2 }
+ if (R + B) >= DC & (R + B) < (DC + 10) { result: 3 }
+ result: 4
+}
+
+function: expected effect damage R:n B:n DC:n DR:n W:n {
+ \ R is the saving throw roll, which is always a d20, B is the bonus, e.g. 17, DC is the DC, DR is the damage roll e.g. 6d6, W is weakness (positive number) or resistance (negative) \
+ if R = 1 | (R + B) <= (DC - 10) { result: [floorzero (DR * 2 + W)] }
+ if (R + B) <  DC { result: [floorzero (DR + W)] }
+ if (R + B) >= DC & (R + B) < (DC + 10) { result: [floorzero (DR / 2 + W)] }
+ result: 0
+}
+
+function: reroll R:n under N:n {
+   if R < N { result: 1d20 } else {result: R}
+}
+
+output [degree of success 1d20 5 15] named "basic example DOS 1d20+5 against DC 15"
+output [expected effect damage d20 11 21 6d6 0] named "expected damage: random schmook vs regular fireball from a level 5 wizard"

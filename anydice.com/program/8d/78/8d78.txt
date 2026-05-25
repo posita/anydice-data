@@ -1,0 +1,33 @@
+function: diceroll DIE:n vs DIFFICULTY:n {
+\if DIE = 10 {result: 2}\
+\Uncomment the line above if rolling for a trait in which the character is specialized.\
+if DIE >= DIFFICULTY {result: 1}
+if DIE = 1 {result: -1}
+result: 0
+}
+\This sets the rule for rolling a die in oWoD.\
+\1 means a success, -1 means in rolling a “1” and losing a success, 0 means neither.\
+
+function: evaluate ROLL:s {
+if (ROLL > 0) > 0 {
+result: [highest of 0 and ROLL]
+}
+result: [highest of -1 and ROLL]
+}
+\This function accepts a sequence of numbers that are roll results. It checks if there are successes in a given sequence.\
+\If there are any, it returns either 0 (a fail) or a greater number (the amount of successes). It can’t be a botch, as at least one success was rolled.\
+\If no successes are spotted, it is either a botch or a fail. The function returns the number of points rolled.\
+
+DICEROLL: [diceroll d10 vs 8]
+\Sets the die type and difficulty.\
+AUTOSUCCESSES: 0
+\Amount of autosuccesses, if there are any.\
+\Not fully supported yet as rules for using autosuccesses with fails and botches aren’t fully understood yet.\
+loop P over {1..10} {
+output [evaluate P d DICEROLL] + AUTOSUCCESSES named "Dicepool of [P]"}
+\Loop calcuates things for every dicepool in a given range.\
+\Dice are rolled a given amount of times, written in a sequence, then evaluated, then autosuccesses are added.\
+
+
+
+

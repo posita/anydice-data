@@ -1,0 +1,57 @@
+
+DTEN: {0,1,2,3,4,5,6,7,8,9}
+
+function: SKILL_A:n ATTR_A:n versus SKILL_B:n ATTR_B:n {
+  result: [dDTEN un dDTEN skill SKILL_A attr ATTR_A versus dDTEN un dDTEN skill SKILL_B attr ATTR_B]
+}
+
+function: SKILL_A:n ATTR_A:n aversus SKILL_B:n ATTR_B:n {
+  result: [dDTEN un dDTEN skill SKILL_A+10 attr ATTR_A+10 versus dDTEN un dDTEN skill SKILL_B-10 attr ATTR_B-10] 
+}
+
+function: SKILL_A:n ATTR_A:n aaversus SKILL_B:n ATTR_B:n {
+  result: [dDTEN un dDTEN skill SKILL_A+20 attr ATTR_A+20 versus dDTEN un dDTEN skill SKILL_B-20 attr ATTR_B-20] 
+}
+
+function: ROLL_AI:s un ROLL_AII:s skill SKILL_A:n attr ATTR_A:n versus ROLL_BI:s un ROLL_BII:s skill SKILL_B:n attr ATTR_B:n {
+  ROLL_A: ROLL_AI*10+ROLL_AII
+  ROLL_B: ROLL_BI*10+ROLL_BII
+
+  SUCC_AI: ROLL_A <= ATTR_A 
+  SUCC_BI: ROLL_B <= ATTR_B
+  GSUCC_AI: ROLL_A <= SKILL_A
+  GSUCC_BI: ROLL_B <= SKILL_B
+  DUB_A: ROLL_AI = ROLL_AII
+  DUB_B: ROLL_BI = ROLL_BII
+  SUCC_A: SUCC_AI | DUB_A 
+  SUCC_B: SUCC_BI | DUB_B
+  GSUCC_A: GSUCC_AI | (SUCC_AI & DUB_A)
+  GSUCC_B: GSUCC_BI | (SUCC_BI & DUB_B)
+
+
+  if GSUCC_A & !GSUCC_B { result: 2 }
+  if GSUCC_B & !GSUCC_A { result: -2 }
+  if GSUCC_A & GSUCC_B { 
+     if ROLL_A > ROLL_B { result: 2 }
+     if ROLL_B > ROLL_A { result: -2 }
+  }
+
+  if SUCC_A & !SUCC_B { result: 1 }
+  if SUCC_B & !SUCC_A { result: -1 }
+  if SUCC_A & SUCC_B { 
+     if ROLL_A > ROLL_B { result: 1 }
+     if ROLL_B > ROLL_A { result: -1 }
+  }
+
+  result: 0
+}
+
+SK_A: 40
+ST_A: 70
+
+SK_B: 20
+ST_B: 50
+
+output [SK_A ST_A versus SK_B ST_B] named "[SK_A] - [ST_A] vs [SK_B] - [ST_B]"
+output [SK_A ST_A aversus SK_B ST_B] named "adv. [SK_A] - [ST_A] vs [SK_B] - [ST_B]"
+output [SK_A ST_A aaversus SK_B ST_B] named "doub. adv. [SK_A] - [ST_A] vs [SK_B] - [ST_B]"

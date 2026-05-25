@@ -1,0 +1,17 @@
+TO_HIT: 11   \ lowest attack roll that will hit \
+TO_CRIT: 19  \ lowest attack roll that will crit \
+
+HIT_DMG: d6 + 2  \ damage on normal hit \
+CRIT_DMG: d6     \ extra damage on critical hit \
+
+output (d20 >= TO_HIT) * HIT_DMG named "damage ignoring crits"
+output (d20 >= TO_CRIT) * CRIT_DMG named "extra damage from crits"
+
+function: total damage on ATTACK_ROLL:n {
+  DMG: 0
+  if ATTACK_ROLL >= TO_HIT { DMG: DMG + HIT_DMG }
+  if ATTACK_ROLL >= TO_CRIT { DMG: DMG + CRIT_DMG }
+  result: DMG
+}
+
+output [total damage on d20] named "total damage"

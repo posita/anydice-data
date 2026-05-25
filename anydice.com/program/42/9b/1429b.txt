@@ -1,0 +1,93 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+YES: 1
+NO: 0
+
+function: ATTACKS:s {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + ATTACK
+  }
+  result: SUM
+}
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d half MINHALF:n {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA MINHALF]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0 half NO]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d half MINHALF:n {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0 half MINHALF]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0 half NO]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d half MINHALF:n {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0 half MINHALF]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA half NO]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d half MINHALF:n {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA half MINHALF]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d MINHALF:n {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  if (ROLL + ATTACK >= AC) { result: (DAMAGE + EXTRA) }
+  result: (MINHALF * ((DAMAGE + EXTRA) / 2))
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+function: half DAMAGE:d EXTRA:n {
+  SUM: {0}
+  loop ROLL over DAMAGE {
+    if (ROLL = 1) { SUM: SUM + 2 }
+    else {SUM: SUM + ROLL}
+  }
+  result: (SUM + EXTRA) / 2
+}
+
+\ Here are some examples: \
+output [13 vs 18 crit 20 1 dmg 2d6+10]+[7 vs 18 crit 20 1 dmg 2d6+10] named "Slam full"
+output [13 vs 18 crit 20 1 dmg 1d8+7]+[13 vs 18 crit 20 1 dmg 2d6+7]+[7 vs 18 crit 20 1 dmg 2d6+7] named "Gore+2xSlam"
+output [13 vs 18 crit 20 1 dmg 2d6+10 1d6]+[7 vs 18 crit 20 1 dmg 2d6+10 1d6] named "Energy Attack full"
+output [13 vs 18 crit 20 1 dmg 2d8+10]+[7 vs 18 crit 20 1 dmg 2d8+10] named "Improved Damage full"
+output [13 vs 18 crit 20 1 dmg 2d8+7]+[11 vs 18 crit 20 1 dmg 1d6+3]+[11 vs 18 crit 20 1 dmg 1d6+3] named "Improved Damage+Wing Buffet"
+output [10 vs 17 crit 20 1 dmg 1d8+10 half YES] named "Trample x 1"
+output [10 vs 17 crit 20 1 dmg 1d8+10 half YES]+[10 vs 17 crit 20 1 dmg 1d8+10 half YES] named "Trample x 2"
+output [10 vs 17 crit 20 1 dmg 1d8+10 half YES]+[10 vs 17 crit 20 1 dmg 1d8+10 half YES]+[10 vs 17 crit 20 1 dmg 1d8+10 half YES] named "Trample x 3"
+output [10 vs 17 crit 20 1 dmg 1d8+10 half YES]+[10 vs 17 crit 20 1 dmg 1d8+10 half YES]+[10 vs 17 crit 20 1 dmg 1d8+10 half YES]+[10 vs 17 crit 20 1 dmg 1d8+10 half YES] named "Trample x 4" 
+output [13 vs 18 crit 20 1 dmg 2d6+10] named "Slam"
+output [13 vs 18 crit 20 1 dmg 2d6+7] named "Single Slam"
+output [13 vs 18 crit 20 1 dmg 1d8+7] named "Single Gore"
+output [13 vs 18 crit 20 1 dmg 2d6+10 1d6] named "Energy Attack"
+output [13 vs 18 crit 20 1 dmg 2d8+10] named "Improved Damage"
+
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \

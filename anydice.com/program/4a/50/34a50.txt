@@ -1,0 +1,50 @@
+function: setval A:n B:n C:n E:n F:n {
+  TOTAL:0
+  AA: Ad4
+  BB: Bd6
+  CC: Cd8
+  EE: Ed10
+  loop N over {1..10}{
+    COUNT: [count N in AA]+[count N in BB]+[count N in CC]+[count N in EE]+(F=N)
+    TOTAL: TOTAL + [setvalhelper COUNT]*N
+  }
+  result: TOTAL
+}
+
+function: setvalhelper COUNT:n{
+    if COUNT > 1{
+     result: COUNT
+    }
+  result: 0
+}
+
+function: setmax A:n B:n C:n E:n F:n {
+  BEST:0
+  AA: Ad4
+  BB: Bd6
+  CC: Cd8
+  EE: Ed10
+  loop N over {1..10}{
+    COUNT: [count N in AA]+[count N in BB]+[count N in CC]+[count N in EE]+(F=N)
+    BEST: [highest of BEST and N*[lowest of COUNT-1 and 1]]
+  }
+  result: BEST
+}
+
+function: setwidth A:n B:n C:n E:n F:n {
+  BEST:1
+  AA: Ad4
+  BB: Bd6
+  CC: Cd8
+  EE: Ed10
+  loop N over {1..10}{
+    COUNT: [count N in AA]+[count N in BB]+[count N in CC]+[count N in EE]+(F=N)
+    BEST: [highest of BEST and COUNT]
+  }
+  result: BEST
+}
+
+\All functions have the syntax [name #d4s #d6s #d8s #d10s {value of an expert die}]\
+output [setmax 1 1 1 2 0] named "Highest pair"
+output [setwidth 1 1 1 2 0] named "Width of widest set"
+output [setval 1 1 1 2 1] named "Set project value"

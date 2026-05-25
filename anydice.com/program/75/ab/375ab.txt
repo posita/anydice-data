@@ -1,0 +1,50 @@
+function: compare A:n B:n {
+  if A >= B {
+    result: 1
+  }
+
+  result: 0
+}
+
+function: delete S:s P:n {
+  TMP: {}
+
+  loop I over {0..21} {
+    if [S contains I] & P != I {
+      TMP: {TMP, I}
+    }
+  }
+
+  result: {TMP}
+}
+
+function: num rounds POINTS:n {
+  TURNS: 0
+  CUMULATIVE: 0
+  DECK: {0..21}
+  CURRENT: 1dDECK
+  DECK: [delete DECK CURRENT]
+
+  \
+  loop I over {1..22} {
+    CURRENT: 1dDECK
+    DECK: [delete DECK CURRENT]
+
+    TURNS: TURNS + 1
+    CUMULATIVE: CUMULATIVE + CURRENT
+
+    \\
+    if [compare CUMULATIVE POINTS] {
+      result: TURNS
+    }
+    \\
+  }
+  \
+
+  result: DECK
+}
+
+
+output [num rounds 50]
+X: [delete {0..21} 10]\1d{0..21}]\
+output X

@@ -1,0 +1,73 @@
+\* DIFS: {0 TRIVIAL, NORMAL 1, CONSIDERABLE 2, DIFÍCIL 3} Si no se dice nada, un éxito es suficiente (Dificultad 1 por defecto, Normal)
+Atributos: Pool que te permite por sesión bajar resultados de dados, o retirar dados (anunciando antes de tirar)?
+Habilidades: Admite modificadores a habilidades máximas (6, ó 7 potenciada por atributo) -> probar HABS: {0..10}
+Resumen: 6 Niveles Hab, 6 Niveles Atributo (+1 Hab), Pifia -1, Critico (+2 niveles de éxito)
+         1d10 Suerte [{1..3} +1 {8..10} -1], 3 Dificultades habituales{1..3} y 0 Fácil o 4 Pulp, Modifs +/- Nivel Hab           *\
+
+N: 4
+DADO: 10
+HABS: {0..7} \* HABS: {0..10} *\
+
+function: luck ROLLA:n and ROLLB:n{
+ RES: 0
+
+ if ([count {1..3} in ROLLA]) {
+   RES: RES +1
+ }
+ if ([count {8..10} in ROLLA]) {
+   RES: RES -1
+ }
+
+ result: RES
+}
+
+
+function: positiveorcero N:n{
+ RES: 0
+
+ if (N > 0) {
+   RES: N
+ }
+ result: RES
+}
+
+WEAPONDAMAGE: 4
+WEAPONADD: 2
+
+function: damage SUCCESS:n {
+ TOT: 0
+
+ if (SUCCESS = 0) {
+  TOT: 0
+ } else if (SUCCESS = 1 | SUCCESS = -1) {
+  TOT: WEAPONADD
+ } else if (SUCCESS = 2 | SUCCESS = -2) {
+  TOT: WEAPONADD * 2
+ } else if (SUCCESS = 3 | SUCCESS = -3) {
+  TOT: WEAPONADD * 3
+ } else if (SUCCESS = 4 | SUCCESS = -4) {
+  TOT: WEAPONADD * 4
+ } else if (SUCCESS = 5 | SUCCESS = -5) {
+  TOT: WEAPONADD * 5
+ }
+
+ if (SUCCESS<0) {
+  TOT: (TOT*-1) - dWEAPONDAMAGE
+ } else if (SUCCESS>=0) {
+  TOT: TOT + dWEAPONDAMAGE
+ }
+
+ result: TOT
+}
+
+BASE: WEAPONDAMAGE
+ADV: BASE + WEAPONADD * 2
+ADVP: BASE + WEAPONADD * 3
+loop HA over {HABS}{
+  loop HB over {HABS} {
+    SUCCESSESA: [count {1..HA} in NdDADO] + [luck d10 and d10]
+    SUCCESSESB: [count {1..HB} in NdDADO] + [luck d10 and d10]    
+    output [damage ([positiveorcero (SUCCESSESA)] - [positiveorcero (SUCCESSESB)]) ]
+      named  "[DAÑO ENFRENTADAS] Habilidad [HA]vs[HB]"
+  }
+}

@@ -1,0 +1,40 @@
+\
+ Trying to get X of a kind with up to two re-rolls of non-matching dice.
+ First going with any value, whichever gets the most matches.
+ Second going for one specific value.
+\
+
+function: match ROLL:s with MATCHES:n previous matches {
+ R: MATCHES + (ROLL = 1)
+ loop P over {2..6} {
+  COUNT: ROLL = P
+  if COUNT > R {
+   R: COUNT
+  }
+ }
+ result: R
+}
+
+function: reroll MATCHES:n {
+ result: [match (5 - MATCHES)d6 with MATCHES previous matches]
+}
+
+R: [match 5d6 with 0 previous matches]
+output R named "any, 0 rerolls"
+R: [reroll R]
+output R named "any, 1 rerolls"
+R: [reroll R]
+output R named "any, 2 rerolls"
+
+MATCH: d6 = 1
+
+function: reroll MATCHES:n {
+ result: MATCHES + (5 - MATCHES) d MATCH
+}
+
+R: 5d MATCH
+output R named "specific, 0 rerolls"
+R: [reroll R]
+output R named "specific, 1 rerolls"
+R: [reroll R]
+output R named "specific, 2 rerolls"

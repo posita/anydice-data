@@ -1,0 +1,20 @@
+set "maximum function depth" to 20
+function: diceroll DIE:n DIFFICULTY:n {
+ \if DIE = 10 {result: 2}\
+\Uncomment the line above if using Specialty feats.\
+ if DIE >= DIFFICULTY {result: 1}
+ if DIE = 1 {result: -1}
+ if ((DIE < DIFFICULTY) & (DIE !=1)) {result: 0}
+}
+\ This is the rule of rolling one single die.\
+\1 is a Success, 0 is a Fail, -1 is a Botch.\
+
+
+function: poolroll DICEPOOL:n DIFFICULTY:n CURRENT:n {
+CURRENT: CURRENT+[diceroll 1d10 DIFFICULTY]
+DICEPOOL: DICEPOOL-1
+if DICEPOOL = 0 {result: CURRENT}
+else {result: [poolroll DICEPOOL DIFFICULTY CURRENT]}}
+
+output [poolroll 10 6 0] named "Test"
+\Output for a Dicepool of TEN against a difficulty of 6\

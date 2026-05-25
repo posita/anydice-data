@@ -1,0 +1,90 @@
+F: d{-1..1}
+
+function: flip FN:n up for DICE:s {
+  SORTED_DICE: [reverse [sort DICE]]
+  TOTAL: 0
+  loop N over {1..FN} {
+    TOTAL: TOTAL + [absolute N@SORTED_DICE]
+  }
+  loop N over {FN + 1..#SORTED_DICE} {
+    TOTAL: TOTAL + N@SORTED_DICE
+  }
+  result: TOTAL
+}
+
+function: flip FN:n down for DICE:s {
+  SORTED_DICE: [sort DICE]
+  TOTAL: 0
+  loop N over {1..FN} {
+    TOTAL: TOTAL - [absolute N@SORTED_DICE]
+  }
+  loop N over {FN + 1..#SORTED_DICE} {
+    TOTAL: TOTAL + N@SORTED_DICE
+  }
+  result: TOTAL
+}
+
+function: ignore FN:n minuses for DICE:s {
+  SORTED_DICE: [reverse [sort DICE]]
+  TOTAL: 0
+  loop N over {1..FN} {
+    if N@SORTED_DICE > 0 {
+      TOTAL: TOTAL + [absolute N@SORTED_DICE]
+    }
+  }
+  loop N over {FN + 1..#SORTED_DICE} {
+    TOTAL: TOTAL + N@SORTED_DICE
+  }
+  result: TOTAL
+}
+
+function: ignore FN:n pluses for DICE:s {
+  SORTED_DICE: [sort DICE]
+  TOTAL: 0
+  loop N over {1..FN} {
+    if N@SORTED_DICE < 0 {
+      TOTAL: TOTAL + N@SORTED_DICE
+    }
+  }
+  loop N over {(FN + 1)..#SORTED_DICE} {
+    TOTAL: TOTAL + N@SORTED_DICE
+  }
+  result: TOTAL
+}
+
+output 4dF + 1 named "Roll +1"
+output 2d{+1,0,0} named "plus only die"
+
+output 4dF named "Regular Roll"
+
+output 4dF + 1d{+1,0,0} named "ADV 1 Die"
+output 4dF + [highest 1 of 2d{+1,0,0}] named "ADV 2 Die"
+output 4dF + [highest 1 of 3d{+1,0,0}] named "ADV 3 Die alt"
+output 4dF + [highest 1 of 4d{+1,0,0}] named "ADV 4 Die alt"
+output 4dF + 1 named "ADV 3 - Roll +1"
+output 4dF + 1d{+1,0,0} +1 named "ADV 4"
+output 4dF + 3d{+1,0,0} named "ADV 3 Die"
+output 4dF + 1d{+1,0} named "ADV half Die"
+
+output 4dF named "Regular Roll"
+output 3dF + 1d{+1,0,0} named "Skill die One no minuses"
+output [ignore 1 minuses for 4dF] named "Ignore One Minus"
+output 2dF + 2d{+1,0,0} named "Skill die Two no minuses"
+output 1dF + 3d{+1,0,0} named "Skill die Three no minuses"
+
+output 4dF named "Regular Roll"
+output [highest 4 of 5dF] named "Highest 4 of 5 dice"
+output [flip 1 up for 4dF] named "Tachyon Squadron Flip Up"
+output [flip 1 down for 4dF] named "Tachyon Squadron Flip Down"
+
+output 4dF named "Regular Roll"
+output [ignore 1 minuses for 4dF] named "Ignore One Minus"
+output [ignore 2 minuses for 4dF] named "Ignore 2 Minuses"
+output [ignore 3 minuses for 4dF] named "Ignore 3 Minuses"
+output [ignore 1 pluses for 4dF] named "Ignore Pluses"
+
+output 4dF named "Regular Roll"
+output 4dF + [count {1} in 1d6] named "Simple Polyhedral D6"
+output 4dF + [count {1,2} in 1d6] named "Simple Polyhedral D6"
+output 4dF + [count {1,2,3} in 1d6] named "Simple Polyhedral D6"
+output 4dF + [count {1,2,3,4} in 1d6] named "Simple Polyhedral D6"

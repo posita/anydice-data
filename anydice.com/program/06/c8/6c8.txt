@@ -1,0 +1,60 @@
+DICE: {0..9}
+	 	 	 	 		\  ~ Funktion för räkna resultatet för vanlig tärning  ~ \
+function: roll ROLLA:n ROLLB:n {
+  if ROLLA < VALUE { result: ROLLA + ROLLB}
+  else if COUNTWITHZERO { result: 0 }
+}
+	 	 	 	 		\  ~ Funktion för räkna resultatet för flippad tärning.  ~ \
+function: flipped ROLLA:n ROLLB:n {
+  if [highest of ROLLA and ROLLB] <= VALUE {
+    result: [roll [highest of ROLLA and ROLLB] [lowest of ROLLA and ROLLB]]
+  }
+  else if [lowest of ROLLA and ROLLB] <= VALUE {
+    result: [roll [lowest of ROLLA and ROLLB] [highest of ROLLA and ROLLB]]
+  }
+  else { result: 0 }
+}
+	 	 	 	 		\ ~ Funktion för satsad T100. Både flippad och vanlig.  ~ \
+function: gamble ROLLA:n ROLLB:n FLIPPED {	\ FLIPPED har 0 om vanlig tärning. 1 om flippad. \
+  if ROLLA < VALUE-2 { result: ROLLA + ROLLB + 4}
+  else if FLIPPED {
+    if ROLLB < VALUE-2 { result: ROLLB + ROLLA + 4 }
+  }
+  else if COUNTWITHZERO { result: 0 }
+}
+
+SKILLVALUE: 90		\ Färdighetsvärdet. \
+ROLLA: 1d(DICE)		\ Tärning 1, normalt tiotalstärningen. \
+ROLLB: 1d(DICE)		\ Tärning 2, normalt entalstärningen. \
+COUNTWITHZERO: 0	\ Om nollresultat (över 00) ska skrivas ut. \
+VALUE: SKILLVALUE/10	\ En beräkning som förenklar koden. \
+
+output {} named "FÄRDIGHETSSLAG"
+output [roll ROLLA ROLLB] named "1T100 mot [SKILLVALUE]"
+output [roll [lowest of ROLLA and ROLLB] [highest of ROLLA and ROLLB]] named "Flippad 1T100 mot [SKILLVALUE]"
+output [gamble ROLLA ROLLB 0] named "Satsad 1T100 mot [SKILLVALUE]"
+output [gamble ROLLA ROLLB 1] named "Satsad och flippad 1T100 mot [SKILLVALUE]"
+
+\ --- \
+VALUE: SKILLVALUE/10*2
+
+output {} named "GRUNDEGENSKAPERSSLAG"
+output 2d(DICE) named "2T10"
+output [gamble (ROLLA+ROLLB) 0 0] named "Satsad 2T10"
+
+
+\ --- \
+
+output {} named "SLÅ GRUNDEGENSKAPER, T6"
+output 3d6 named "3d6"
+output {1..3}@4d6 named "4T6, ta det de tre bästa"
+output {1..3}@4d6 named "5T6, ta det de tre bästa"
+
+\ --- \
+
+output {} named "SLÅ GRUNDEGENSKAPER, 4T10"
+output {2,4}@4d(DICE) named "Näst högsta och lägsta"
+output {1,4}@4d(DICE) named "Högsta och lägsta"
+output {2,3}@4d(DICE) named "Mellersta)"
+output {1,3}@4d(DICE) named "Högsta och näst lägsta"
+output {1,2}@4d(DICE) named "De två högsta"

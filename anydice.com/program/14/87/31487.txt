@@ -1,0 +1,104 @@
+\ Noma's Nova \
+\ Target's Attributes \
+
+TARGET_DEX: -1
+TARGET_CON: 3
+TARGET_INT: -20
+TARGET_BONUS: 3
+TARGET_ADV: 0
+TARGET_AC: 10 + TARGET_DEX
+
+\ Noma's Attributes \
+
+NOMA_PROF: 3
+NOMA_CHA: 5
+NOMA_SPELL_BONUS: 0
+NOMA_DAMAGE_BONUS: 0
+NOMA_CRIT_RANGE: 20
+
+SILVERY_ON_BLIGHT: 1
+
+\ Derived Attributes \
+
+NOMA_ATK: NOMA_PROF + NOMA_CHA + NOMA_SPELL_BONUS
+NOMA_DC: 8 + NOMA_ATK
+TARGET_DEX_SAVE: TARGET_DEX + TARGET_BONUS
+TARGET_CON_SAVE: TARGET_CON + TARGET_BONUS
+TARGET_INT_SAVE: TARGET_INT + TARGET_BONUS
+
+\ Functions \
+
+MISS: 0
+HIT: 1
+CRIT_HIT: 2
+
+function: ROLL:n plus ATK_BONUS:n to hit vs AC:n ac crits on CRIT_MIN:n{
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRIT_MIN { result: CRIT_HIT }
+  if ROLL + ATK_BONUS >= AC { result: HIT }
+  result: MISS
+}
+
+function: HIT_DAMAGE:n damage or CRIT_DAMAGE on crit for ATTACK_RESULT:n {
+ if ATTACKRESULT = CRITICALHIT { result: CRIT_DAMAGE }
+ if ATTACKRESULT = HIT { result: HIT_DAMAGE }
+ result: 0
+}
+
+function: reroll R:n out of S:n {
+  if R > S/2 { result: R }
+  result: 1dS
+}
+
+function: empower E:n on N:n die S:n {
+  DAMAGE: NdS
+  TOTAL_DAMAGE: 0
+  loop X over {1..N} {
+    if X <= N - E {
+      TOTAL_DAMAGE: TOTAL_DAMAGE + X @ DAMAGE
+    }
+    else {
+      TOTAL_DAMAGE: TOTAL_DAMAGE + [reroll X @ DAMAGE out of S]
+    }
+  }
+  result: TOTAL_DAMAGE
+}
+
+function: CONDITION:n for half A:n {
+  if CONDITION { result: A/2 } else { result: A }
+}
+
+\ Calculations \
+
+BLIGHT_SAVE: 1d20 + TARGET_CON_SAVE
+if TARGET_ADV {
+  BLIGHT_SAVE: [highest of BLIGHT_SAVE and (1d20 + TARGET_CON_SAVE)]
+}
+if SILVERY_ON_BLIGHT {
+  BLIGHT_SAVE: [lowest of BLIGHT_SAVE and (1d20 + TARGET_CON_SAVE)]
+}
+BLIGHT_DAMAGE: [BLIGHT_SAVE >= NOMA_DC for half [empower NOMA_CHA on 8 die 8] + NOMA_DAMAGE_BONUS] + 6d6
+
+MIND_WHIP_SAVE: 1d20 + TARGET_INT_SAVE
+if TARGET_ADV {
+  MIND_WHIP_SAVE: [highest of MIND_WHIP_SAVE and (1d20 + TARGET_INT_SAVE)]
+}
+MIND_WHIP_DAMAGE: [MIND_WHIP_SAVE >= NOMA_DC for half [empower NOMA_CHA on 3 die 6] + NOMA_DAMAGE_BONUS] + 6d6
+
+\ CHILL_TOUCH_DAMAGE: 0
+CHILL_TOUCH_ATK_ROLL: [highest 1 of 2d20]
+if CHILL_TOUCH_ATK_ROLL = 20 {
+  CHILL_TOUCH_DAMAGE: [empower NOMA_CHA on 4 die 8] + NOMA_DAMAGE_BONUS + 12d6
+}
+else if (CHILL_TOUCH_ATK_ROLL + NOMA_ATK) >= TARGET_AC {
+  CHILL_TOUCH_DAMAGE: [empower NOMA_CHA on 2 die 8] + NOMA_DAMAGE_BONUS + 6d6
+} \
+
+CHILL_TOUCH_DAMAGE: [empower NOMA_CHA on 2 die 8] + NOMA_DAMAGE_BONUS + 6d6
+
+\ Output \
+
+output BLIGHT_DAMAGE + CHILL_TOUCH_DAMAGE + MIND_WHIP_DAMAGE named "Total Damage"
+output BLIGHT_DAMAGE named "Blight Damage"
+output CHILL_TOUCH_DAMAGE named "Chill Touch Damage"
+output MIND_WHIP_DAMAGE named "Mind Whip Damage"

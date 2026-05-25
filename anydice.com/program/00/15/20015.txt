@@ -1,0 +1,173 @@
+AC: 17
+BAB: 4
+DEX: 4
+WIS: 2
+STR: 2
+
+output d20+1 named "Reflex"
+
+\ Standard action buffs \
+GUIDANCE: 1 \ +1 to-hit \
+WAR_BLESSING: 1 \ +1 to-hit \
+BLESS: 1 \ +1 to-hit \
+DIVINE_FAVOR: 3 \ +3 to-hit, +3 dmg \
+
+\ Permanent buffs \
+ENHANCEMENT: 1
+WEAPON_FOCUS: 1
+WEAPON_TRAINING: 1
+WEAPON_SPECIALIZATION: 2
+POINT_BLANK: 1
+
+\ Penalties \
+PENALTY_RAPID_SHOT: -2
+
+\ Other \
+WEAPON_OF_AWE: 2
+SACRED_DAMAGE: d6
+VITAL_STRIKE: d6
+AXIOMATIC: 2d6
+BANE: 2d6
+FIRE_BOLT: d4
+FAVORED_ENEMY: 2
+
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+
+  result: SUM
+}
+
+\ TODO: confirm crits \
+function: attack AC:n ac roll ROLL:n plus BONUS:n for DAMAGE:d and EXTRA_DAMAGE:d crit CRIT_MULTI:n on CRIT_THREAT:n {
+  TO_HIT: ROLL + BONUS
+
+  if (ROLL = 1 | TO_HIT < AC) {
+    result: 0
+  } else if (ROLL >= CRIT_THREAT) {
+    result: [crit CRIT_MULTI DAMAGE] + EXTRA_DAMAGE
+  } else {
+    result: DAMAGE + EXTRA_DAMAGE
+  }
+}
+
+output
+  [attack AC ac
+    roll d20 plus BAB+2 + STR+2 + WEAPON_FOCUS + ENHANCEMENT
+    for d8 + STR+2 + ENHANCEMENT
+    and 0
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus 1 + STR+2 + WEAPON_FOCUS + ENHANCEMENT
+    for d8 + STR+2 + ENHANCEMENT
+    and 0
+    crit 2 on 19
+  ]
+  named "Longsword (Benchmark) :: +12/+7 to-hit"
+
+output
+  [attack AC ac
+    roll d20 plus BAB+2 + DEX+1 + WEAPON_FOCUS + ENHANCEMENT
+    for d4 + DEX+1
+    and 0
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus 1 + DEX+1 + WEAPON_FOCUS + ENHANCEMENT
+    for d4 + DEX+1
+    and 0
+    crit 2 on 19
+  ]
+  named "Hand of Redemption :: +13/+8"
+
+output
+  [attack AC ac
+    roll d20 plus BAB + STR+2 + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR
+    for d8 + STR+2 + DIVINE_FAVOR + WEAPON_TRAINING
+    and SACRED_DAMAGE
+    crit 2 on 20
+  ]
+  named "Gavel :: +12 to-hit"
+
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d8 + ENHANCEMENT + DIVINE_FAVOR + WEAPON_TRAINING + 6
+    and SACRED_DAMAGE
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d8 + ENHANCEMENT + DIVINE_FAVOR + WEAPON_TRAINING + 6
+    and SACRED_DAMAGE
+    crit 2 on 19
+  ]
+  named "Crossbolter :: +14 to-hit"
+
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_TRAINING + DIVINE_FAVOR
+    for d8 + ENHANCEMENT + WEAPON_TRAINING + DIVINE_FAVOR
+    and SACRED_DAMAGE
+    crit 2 on 19
+  ]
+  named "Lawrod :: +13 to-hit"
+
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK
+    for d6 + ENHANCEMENT + WEAPON_TRAINING + POINT_BLANK + DIVINE_FAVOR
+    and 0
+    crit 2 on 19
+  ]
+  named "Lawgiver (Standard Execution) :: +15 to-hit"
+
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + ENHANCEMENT + WEAPON_TRAINING + POINT_BLANK + DIVINE_FAVOR
+    and 0
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + ENHANCEMENT + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK
+    and 0
+    crit 2 on 19
+  ]
+  named "Lawgiver (Rapid-Fire) :: +13 to-hit"
+
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + ENHANCEMENT + WEAPON_TRAINING + DIVINE_FAVOR
+    and SACRED_DAMAGE
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + ENHANCEMENT + WEAPON_TRAINING + DIVINE_FAVOR
+    and SACRED_DAMAGE
+    crit 2 on 19
+  ]
+  named "Lawgiver (Incendiary) :: +13 to-hit"
+
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT+2 + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + ENHANCEMENT+2 + WEAPON_TRAINING + DIVINE_FAVOR
+    and SACRED_DAMAGE + BANE
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT+2 + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + ENHANCEMENT+2 + WEAPON_TRAINING + DIVINE_FAVOR
+    and SACRED_DAMAGE + BANE
+    crit 2 on 19
+  ]
+  named "Lawgiver (Bane) :: +15 to-hit"
+

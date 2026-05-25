@@ -1,0 +1,34 @@
+function: attack ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: focusa ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ result: DAMAGE
+}
+
+function: focus ROLLONE:n and ROLLTWO:n vs AC:n {
+ if ROLLONE + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC & ROLLTWO + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: EXTRAATTACKd[focusa d20 vs ENEMYAC] + [attack d20 vs ENEMYAC] } 
+ result: EXTRAATTACKd[attack d20 vs ENEMYAC]
+}
+
+DAMAGEDICE: 1d8
+ATTACKMOD: 4
+DMGBONUS: 0
+DAMAGE: DAMAGEDICE + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2dDAMAGEDICE + ATTACKMOD + DMGBONUS
+
+EXTRAATTACK: 2
+ENEMYAC: d{9..17}
+CRITROLL: 20
+PROFICIENCY: 3
+ACCBONUS: 0
+
+output EXTRAATTACKd[attack d20 vs ENEMYAC] named "2 attacks"
+
+output 3d[attack d20 vs ENEMYAC] named "3 attacks"
+
+output [focus d20 and d20 vs ENEMYAC] named "Focused attack"

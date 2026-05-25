@@ -1,0 +1,33 @@
+AC: 20 \ AC des Gegners \
+STR: 5 \ Strength modifier \
+RAGE: 3 \ Rage extraschaden -> kommt bei beiden Waffen gleichermassen dazu, aber Waffen mit einem höheren to-hit bonus profitieren mehr \
+BRUTAL_CRIT: 5 \ 2 Extrawürfel bei einem Crit -> Waffen die öfter critten und einen höheren Waffenschaden haben profitieren mehr \
+CRIT_SCHWELLE: 19 \ Improved Crit-Range für Gorehowl \
+
+function: ironfang ROLL:n {
+  BONUS: 2
+  if ROLL = 20 {
+    result: (4 + BRUTAL_CRIT)d8 + STR + RAGE
+  } else if ROLL + STR + BONUS >= AC {
+    result: 2d8 + STR + RAGE
+  } else { 
+    result: 0
+  }
+}
+
+function: gorehowl ROLL:n BONUS:n WAFFEN_DMG:d {
+  if ROLL >= CRIT_SCHWELLE {
+    result: (2 + BRUTAL_CRIT)d(WAFFEN_DMG) + STR + RAGE
+  } else if ROLL + STR + BONUS >= AC {
+    result: 1d(WAFFEN_DMG) + STR + RAGE
+  } else { 
+    result: 0
+  }
+}
+
+ADVANTAGE: 1@2d20
+
+output [ironfang ADVANTAGE] named "Ironfang"
+output [gorehowl ADVANTAGE 0 1d12] named "Gorehowl"
+output [gorehowl ADVANTAGE 1 1d12] named "Gorehowl+1"
+output [gorehowl ADVANTAGE 2 1d12] named "Gorehowl+2"

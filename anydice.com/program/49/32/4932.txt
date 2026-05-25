@@ -1,0 +1,21 @@
+function:threshold A:n if below B:n {
+ if A < B { result: B} else{result: A}
+ result: A
+}
+
+function:limit A:n if above B:n {
+ if A > B { result: B} else{result: A}
+ result: A
+}
+
+CON:6 STR:9 AGI:6 INT:5 WIS:2 CHA:2  P\ROFICIENCY\:2
+DAMAGE\Ax\:2*STR  ARMOR_PEN:STR ARMOR:8 ARMOR_VALUE:ARMOR-[limit ARMOR_PEN if above ARMOR]
+
+HIT_DICE:(CON+P)d12 HP:52 HITS:[count {5..6} in (((STR+WIS)/2)+P)d6]-[count {5..6} in (((AGI+WIS)/2)+P)d6]
+X:((HITS*DAMAGE)-(HITS*ARMOR_VALUE))DAMAGE_DEALT:[threshold X if below 0]
+SHOCK_DAMAGE:DAMAGE-DAMAGE_DEALT
+
+DEATH:HP-DAMAGE_DEALT<=0 DISABLED:HP-DAMAGE_DEALT<=HP/2 BLOODIED:DAMAGE_DEALT>0 
+
+
+output ARMOR_VALUE

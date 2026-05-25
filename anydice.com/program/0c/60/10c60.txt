@@ -1,0 +1,56 @@
+function: skillchallenge SUCCESSES:n before FAILURES:n against DC:n {
+ ROLLS: SUCCESSES + FAILURES - 1
+ NUMFAILURES: 0
+ TOTAL: 0
+ loop N over {1..ROLLS}{
+  ROLL: [failureroll 1d20 vs DC]
+  TOTAL: TOTAL + ROLL
+ }
+ result: [lowest of TOTAL and FAILURES]
+}
+
+function: failureroll ROLL:n vs DC:n {
+ if ROLL >= CRITROLL { result: 0 } 
+ if ROLL = 1 { result: 1 }
+ if ROLL + PROFICIENCY + ABILITYMOD  >= DC { result: 0 }
+ result: 1
+}
+
+function: skillroll ROLL:n vs DC:n {
+ if ROLL >= CRITROLL { result: CRITRESULT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ABILITYMOD  >= DC { result: 1 }
+ result: 0
+}
+
+function: count VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ result: COUNT
+}
+
+
+\looped against DC range from 10-20\
+
+PROFICIENCY: 2
+ABILITYMOD: 3
+CRITROLL: 20
+CRITRESULT: 2
+TOTALSUCCESSES: 6
+TOTALFAILURES: 3
+
+LOWDC: 10
+HIGHDC: 20
+loop N over {LOWDC..HIGHDC}{
+  SKILLCHALLENGE: [skillchallenge TOTALSUCCESSES before TOTALFAILURES against N]
+  output [count {0..TOTALFAILURES - 1} in SKILLCHALLENGE] named "DC [N] success"
+}
+
+loop N over {LOWDC..HIGHDC}{
+  SKILLCHALLENGE: [skillchallenge TOTALSUCCESSES before TOTALFAILURES against N]
+  output SKILLCHALLENGE named "DC [N] failure"
+}
+
+

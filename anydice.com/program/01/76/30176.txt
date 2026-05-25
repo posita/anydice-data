@@ -1,0 +1,26 @@
+\
+PF2e
+ -1: Critical fail.
+ 0: Fail.
+ 1: Success.
+ 2: Critical success!
+
+ To simulate fortune effects, use 1@2d20 instead of 1d20 for "keep higher," or 2@2d20 for "keep lower."
+\
+
+function: pathfinder ROLL:n mod MOD dc DC {
+ SUCMOD: 0
+ if ROLL = 20 {SUCMOD: 1}
+ if ROLL = 1 {SUCMOD: -1}
+ 
+ OUTCOME: (ROLL + MOD >= DC)
+ if (ROLL + MOD) >= (DC + 10) {OUTCOME: 2}
+ if (ROLL + MOD) <= (DC - 10) {OUTCOME: -1}
+
+ OUTCOME: OUTCOME + SUCMOD
+ OUTCOME: [highest of OUTCOME and -1]
+ OUTCOME: [lowest of OUTCOME and 2]
+ result: OUTCOME
+}
+
+output [pathfinder 1@2d20 mod 8 dc 17]

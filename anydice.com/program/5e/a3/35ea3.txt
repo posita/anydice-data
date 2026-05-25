@@ -1,0 +1,26 @@
+L: 05     \Desired level               Best not to go past 20, it takes ages\
+H: 08     \Desired Hit Die size        Can do any integer, not just the standard dice\
+M: 10     \Maximum no. of hit dice     OSR typically uses 9 or 10 as a limit\
+C: 00     \Constitution bonus          Applied per HD, minimum 1 HP/HD\
+
+function: depth { result: 1 + [depth] }     \Minimally alters the recursion limits so results aren't truncated\
+set "maximum function depth" to L+2
+
+function: roll B {       \B is the number of dice rolled for a given level\
+ if B > M { result: [highest of 1 and 1dH + C] + [roll M-1] }
+ if B > 1 { result: [highest of 1 and 1dH + C] + [roll B-1] }
+ result: [highest of 1 and 1dH + C]
+ }
+
+function: best I X {     \I determines the Initial state, X keeps track of how many levels you've simulated\
+ if X > 1 { result: [highest of [roll X] and [best I X-1]] }
+ if I=1 { result: [highest of 1 and 1dH + C]}
+ if I=2 { result: [highest of 1 and [highest 1 of 2dH]+C] }
+ if I=3 { result: [highest of 1 and H+C] }
+ }
+
+\The full gamut of what the code can do\
+output [best 1 L] named "1st level flat HP"
+output [best 2 L] named "1st lvl Adv. HP"
+output [best 3 L] named "1st level max HP"
+output [roll L] named "LdH (for reference)"

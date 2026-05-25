@@ -1,0 +1,72 @@
+\    Chaladin Math    \
+\   by MisterPhoton   \
+
+\  Lets define some constants!  \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\  Character's Level  \
+CURLEV: 3
+
+\  Here are our character's ability mods  \
+STR :  1
+CON :  2
+DEX :  0
+INT : -1
+WIS :  3
+CHA :  4
+
+\  Current weapon stats  \
+\  Vicious Longsword +1  \
+WATKMOD  : 3 + 1
+WDMGDIE  : 1d8
+WDMGMOD  : 1
+CRITICAL : 1d12
+
+\  Function for Attack Rolls  \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + WATKMOD + CURLEV/2 >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + WATKMOD +CURLEV/2 >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\  Function for Damage Rolls  \
+function: NUMDIE dice mod ABIL damage for ATTACKS:s {
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = CRITICALHIT { D: D + NUMDIE * [maximum of WDMGDIE] + ABIL + WDMGMOD + CRITICAL }
+  else if A@ATTACKS = HIT { D: D + NUMDIE * WDMGDIE + ABIL + WDMGMOD }
+ }
+ result: D
+}
+
+function: melee basic attack {
+ result: [1 dice mod STR damage for [attack d20+STR vs DEFENSE]]
+}
+
+function: virtuous strike {
+ result: [1 dice mod CHA damage for [attack d20+CHA vs DEFENSE]]
+}
+
+function: valorous smite {
+ result: [2 dice mod CHA damage for [attack d20+CHA vs DEFENSE]]
+}
+
+DEFENSE: d{15..25}
+
+output [virtuous strike] named "Current Virtuous Strike"
+
+CURLEV  : 4
+WATKMOD : WATKMOD + 1
+
+output [virtuous strike] named "+Heavy Blade Expertise"
+
+WDMGDIE : 1d10
+WATKMOD : WATKMOD - 1
+
+output [virtuous strike] named "+Bastard Sword Prof"

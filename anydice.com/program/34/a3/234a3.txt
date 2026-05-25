@@ -1,0 +1,22 @@
+NUM_ATTACKS: 1
+ENEMY_AC: 15
+
+STR: 19
+PROF_BONUS: 3
+WPN_BONUS: 1
+GWM_ON: 1
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+TOTAL_DMG: 0
+loop N over {1..NUM_ATTACKS} {
+
+  ATK: [highest 1 of 2d20] + (STR-10)/2 + PROF_BONUS + WPN_BONUS - (5 * GWM_ON)
+  DMG: 2d[d6 reroll {1,2} as d6] + (STR-10)/2 + WPN_BONUS + (10 * GWM_ON)
+
+  TOTAL_DMG: TOTAL_DMG + (DMG * (ATK >= ENEMY_AC))
+}
+output TOTAL_DMG

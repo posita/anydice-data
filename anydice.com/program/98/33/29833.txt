@@ -1,0 +1,48 @@
+function: attack D:n plus B:n vs AC:n {
+    if D = 20 { result: 2 }
+    else if D+B >= AC { result: 1 }
+    else { result: 0 }
+}
+
+function: damage DD:n plus B:n if HIT:n {
+    if HIT = 2 { result: (DD*2)+B }
+    else if HIT = 1 { result: DD+B }
+    else { result: 0}
+}
+
+\ Attack Config: Normal or Advantage or Disadvantage \
+function: attconfig {
+    \ Normal: 1d20 \
+    \ Advantage: [highest 1 of 2d20] \
+    \ Disadvantage: [lowest 1 of 2d20] \
+
+    result: 1d20 \ Set Option Here \
+}
+
+\ Main Function: Attack for each AC from 5 to 20 (Level 5) \
+loop AC over {5..20} {
+    TOTAL_LS: 0 \ Total Damage with Longbow + Sharpshooter + Psychic Blades \
+    TOTAL_LSA: 0 \ Total Damage with Longbow + Sharpshooter + Psychic Blades w Advantage\
+    TOTAL_LN: 0 \ Total Damage with Longbow (Normal) + Psychic Blades \
+
+    \ Main Action (Attack w Sharpshooter) \
+    loop NOA over {1..2} {
+        HIT: [ attack [attconfig] plus 7 vs AC ]
+        TOTAL_LS: TOTAL_LS+[ damage 1d8 plus 16 if HIT ]
+
+        HIT: [ attack [highest 1 of 2d20] plus 7 vs AC ]
+        TOTAL_LSA: TOTAL_LSA+[ damage 1d8 plus 16 if HIT ]
+
+        HIT: [ attack [attconfig] plus 12 vs AC ]
+        TOTAL_LN: TOTAL_LN+[ damage 1d8 plus 6 if HIT ]
+    }
+    
+    \ Bonus Damage: Psychic Blades \
+    TOTAL_LS: TOTAL_LS+3d6
+    TOTAL_LSA: TOTAL_LSA+3d6
+    TOTAL_LN: TOTAL_LN+3d6
+
+    output TOTAL_LN named "LN:[AC]"
+    output TOTAL_LS named "LS:[AC]"
+    output TOTAL_LSA named "L+:[AC]"
+}

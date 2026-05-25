@@ -1,0 +1,43 @@
+A: 1
+WS: 5
+WS_MODIFIER: 0
+WS_FOE: 5
+S: 5
+T_FOE: 3
+ARMOR_SAVE_FOE: 5
+
+
+function: hit ATTACKS:n {
+  DICE: ATTACKS d6
+  result: [hit roll DICE]
+}
+
+function: hit roll DICE:s {
+  if(WS_FOE > WS * 2) { HITS: [count {5-WS_MODIFIER..6} in DICE] }
+  if(WS_FOE >= WS & WS_FOE <= WS * 2) { HITS: [count {4-WS_MODIFIER..6} in DICE]}
+  if(WS_FOE < WS) { HITS: [count {3-WS_MODIFIER..6} in DICE]}
+  result: [wound HITS]
+}
+
+function: wound HITS:n {
+  DICE: HITS d6
+  SIXES: [count {6} in DICE]
+  DIFF: T_FOE - S
+  if(DIFF > 1) { WOUNDS: 0 }
+  if(DIFF = 1) { WOUNDS: [count {5} in DICE]}
+  if(DIFF = 0) { WOUNDS: [count {4..5} in DICE]}
+  if(DIFF = -1) { WOUNDS: [count {3..5} in DICE]}
+  if(DIFF <= -2) { WOUNDS: [count {2..5} in DICE]}
+  result: [armor save WOUNDS with SIXES]
+}
+
+function: armor save WOUNDS:n with SIXES:n {
+  
+  CRITS: SIXES d6
+  DOUBLEWOUNDS: [count {1..2} in CRITS]
+  AUTOWOUNDS: [count {3..6} in CRITS]
+  DICE: WOUNDS d6 + (DOUBLEWOUNDS*2) d6
+  result: [count {1..ARMOR_SAVE_FOE-1 + [highest of 0 and S-3]} in DICE] + (AUTOWOUNDS*2)
+}
+
+output [hit A]

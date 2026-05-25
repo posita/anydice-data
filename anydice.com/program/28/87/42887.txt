@@ -1,0 +1,125 @@
+WEAP: 1d8
+BAB: 6
+WARDANCE: 3
+BOSSAC: 1
+Z: 4d6
+
+
+function: rollstrat CONDITION:n results A B {
+	if CONDITION { result: A } else { result: B }}
+
+function: rerollifunder N {
+	result: [rollstrat 1d20>N results 1d(20-N)+N 1d20]}
+
+function: knowread A:n {
+	result: (1 + (A > 15) + (A > 25) + (A > 30) + (A > 35)) }
+
+function: knowledge BOOST {
+	result: [knowread (BOOST + 1d20)]}
+
+function: know reroll N BOOST {
+	result: [knowread ([rerollifunder N] + BOOST)]}
+K: 7
+
+output 1d20+K named "d20 +K"
+output [knowledge K] named "knowboosttest"
+output [know reroll 15-K K] named "knowrerollboosttest"
+output 1 named "[rollstrat [knowledge K]>2 results ["
+output [knowledge K+4] named "knowloresong"
+
+function: attack ATT against AC {
+	result: 1d20 + ATT >= AC
+}
+
+function: rolldamage DAMD pa POW s STR t TWOHAND w WDANCE a ATTB dfi DFID ch CHARGE insp INSPIRE def AC {
+	result: ((WEAP + DFID)+(DAMD + TWOHAND*STR/2 + POW*(TWOHAND+1) + INSPIRE)*(1+CHARGE))*[attack (BAB + INSPIRE + (WDANCE*WARDANCE) + STR + ATTB+CHARGE*2) against AC]
+}
+
+
+SHINS: 3
+SHDFI: 3d6
+
+KNOWRANKS: 16
+BKNOW: [knowledge (10+KNOWRANKS)]
+
+KNOWBOOST: [knowledge (16+KNOWRANKS)]
+
+POWA: 6
+output 
+[rolldamage BKNOW pa POWA s 4 t 0 w 1 a BKNOW-POWA dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage BKNOW pa POWA s 4 t 0 w 1 a BKNOW-5-POWA dfi 0 ch 0 insp SHINS def BOSSAC] named "WD + PA + KNOW"
+
+output 
+[rolldamage 0 pa 0 s 4 t 0 w 1 a 0 dfi SHDFI+1 ch 0 insp 0 def BOSSAC]+
+[rolldamage 0 pa 0 s 4 t 0 w 1 a -5 dfi SHDFI+1 ch 0 insp 0 def BOSSAC] named "WD + DFI + HEART"
+
+output 
+[rolldamage 0 pa 0 s 4 t 0 w 1 a 0 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage 0 pa 0 s 4 t 0 w 1 a -5 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage -2 pa 0 s 4 t 0 w 1 a -5 dfi SHDFI ch 0 insp 0 def BOSSAC] named "WD + DFI + CLAW"
+
+output 
+[rolldamage BKNOW pa 0 s 4 t 0 w 1 a BKNOW dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage BKNOW pa 0 s 4 t 0 w 1 a BKNOW-5 dfi SHDFI ch 0 insp 0 def BOSSAC] named "WD + DFI + KNOW"
+
+output 
+[rolldamage 0 pa 0 s 4 t 0 w 1 a 0 dfi 0 ch 0 insp SHINS+1 def BOSSAC]+
+[rolldamage 0 pa 0 s 4 t 0 w 1 a -5 dfi 0 ch 0 insp SHINS+1 def BOSSAC]+
+[rolldamage -2 pa 0 s 4 t 0 w 1 a -5 dfi 0 ch 0 insp SHINS+1 def BOSSAC] named "WD + claw + HEART"
+
+
+output 
+[rolldamage BKNOW pa 0 s 4 t 0 w 1 a BKNOW dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage BKNOW pa 0 s 4 t 0 w 1 a BKNOW-5 dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage BKNOW-2 pa 0 s 4 t 0 w 1 a BKNOW-5 dfi 0 ch 0 insp SHINS def BOSSAC] named "WD + claw + KNOW"
+
+output 
+[rolldamage BKNOW pa 0 s 4 t 0 w 0 a BKNOW dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage BKNOW pa 0 s 4 t 0 w 0 a BKNOW-5 dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage BKNOW-2 pa 0 s 4 t 0 w 0 a BKNOW-5 dfi 0 ch 0 insp SHINS def BOSSAC] + 
+[rolldamage BKNOW-2 pa 0 s 4 t 0 w 0 a BKNOW-5 dfi 0 ch 0 insp SHINS def BOSSAC] 
+ named "KD NW NW"
+
+output 
+[rolldamage BKNOW pa 0 s 4 t 0 w 0 a BKNOW dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage BKNOW pa 0 s 4 t 0 w 0 a BKNOW-5 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage BKNOW-2 pa 0 s 4 t 0 w 0 a BKNOW-5 dfi SHDFI ch 0 insp 0 def BOSSAC] 
+ named "KD NW DFI"
+
+
+
+output 
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 0 a KNOWBOOST-1 dfi 0-0 ch 0 insp SHINS-1 def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 0 a KNOWBOOST-6 dfi 0-0 ch 0 insp SHINS-1 def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 0 a KNOWBOOST-6 dfi 0-0 ch 0 insp SHINS-1 def BOSSAC]
+named "DFA: KNOW + NW + NW"
+
+output 
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 0 a KNOWBOOST-1 dfi 0-0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 0 a KNOWBOOST-6 dfi 0-0 ch 0 insp SHINS def BOSSAC] 
+named "DFA: KNOW + NW + DFI"
+
+output 
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 0 a KNOWBOOST+1 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 0 a KNOWBOOST-4 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 0 a KNOWBOOST-4 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 0 a KNOWBOOST-4 dfi SHDFI ch 0 insp 0 def BOSSAC]
+named "DFA: KNOW + NW + NW + DFI 9"
+
+output 
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 1 a KNOWBOOST+1 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 1 a KNOWBOOST-4 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 1 a KNOWBOOST-4 dfi SHDFI ch 0 insp 0 def BOSSAC]
+named "DFA: KNOW + WD + CLAW + DFI 9"
+
+output 
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 1 a KNOWBOOST+1 dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage KNOWBOOST pa 0 s 4 t 0 w 1 a KNOWBOOST-4 dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 1 a KNOWBOOST-4 dfi 0 ch 0 insp SHINS def BOSSAC]+
+[rolldamage KNOWBOOST-2 pa 0 s 4 t 0 w 0 a KNOWBOOST-4 dfi 0 ch 0 insp SHINS def BOSSAC]
+named "DFA: KNOW + WD + CLAW + TAIL 9"
+
+output 
+[rolldamage BKNOW pa 0 s 4 t 0 w 1 a BKNOW+1 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage BKNOW pa 0 s 4 t 0 w 1 a BKNOW-4 dfi SHDFI ch 0 insp 0 def BOSSAC]+
+[rolldamage BKNOW-2 pa 0 s 4 t 0 w 1 a BKNOW-4 dfi SHDFI ch 0 insp 0 def BOSSAC] named "WD + DFI + KNOW + CLAW"

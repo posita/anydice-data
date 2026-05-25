@@ -1,0 +1,44 @@
+function: pokerdice Z:s wild Y:s {
+  X: {}
+  \ X contains values 1-6, representing 9-A.  Y contains values 2-7, representing 10-A, plus 7 is a wild value.
+   Combine the results of both sequences into X: \
+  loop P over {1..#Z} {
+    X: {P@Z, X}
+  }
+  loop P over {1..#Y} {
+    X: {P@Y, X}
+  }
+
+  \ Test for all one 'number' - including 7, which is wild.\
+  loop N over {1..6} {
+    if [count {N, 7} in X] = 5 {result: 7}
+  }
+  \ Test for four of the same numbers - including 7, which is wild.\
+  loop N over {1..6} {
+    if [count {N, 7} in X] = 4 {result: 6}
+  }
+  \ Test for a Full House - 3 of one, and a pair of the other. We don't look for wild in the pair, because then it could be four of a kind. \
+  loop N over {1..6} {
+    loop M over {1..6} {
+      if N != M & [count {N, 7} in X] = 3 & [count M in X] = 2 {result: 5}
+    }
+  }
+  \ Test for a natural straight - no wilds! \
+  if [count 1 in X] = 1 & [count 2 in X] = 1 & [count 3 in X] = 1 & [count 4 in X] = 1 & [count 5 in X] = 1 { result: 4}
+  if [count 6 in X] = 1 & [count 2 in X] = 1 & [count 3 in X] = 1 & [count 4 in X] = 1 & [count 5 in X] = 1 { result: 4}
+  \ Test for a straight with a wild. In this case, we want no more than 1 of each number, and no more than 2 wild 6s, as 3 wild sixes makes a Four of a kind! \
+  if [count 1 in X] < 2 & [count 2 in X] < 2 & [count 3 in X] < 2 & [count 4 in X] < 2 & [count 5 in X] < 2 & [count 6 in X] < 2 & [count 7 in X] < 3 { result: 4}
+  \ Three of a Kind \
+  loop N over {1..6} {
+    if [count {N, 7} in X] = 3 {result: 3}
+  }
+  \ Two Pair \
+  loop N over {1..6} {
+    loop M over {1..6} {
+      if N != M & [count N in X] = 2 & [count M in X] = 2 { result: 2}
+    }
+  }
+  result: 1
+}
+
+output [pokerdice 3d6 wild 2d{2..7}] named "poker"

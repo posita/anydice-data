@@ -1,0 +1,38 @@
+\ASSUMPTIONS:\
+\Using no resources, only features that are always available\
+\Nat 20 is crit, nat 1 is miss\
+\Enemies make saves at +4\
+\Only one enemy is in range for AoEs\
+\Enemy has no resistances\
+
+function: X:n crit for Y:n {
+  if X = 20 {result: Y}
+  result: 0
+}
+
+function: to hit AC:n at B:n {
+  result: (d20+B)>=AC
+}
+
+function: X:n miss {
+  if X = 1 {result: 0}
+  result: 1
+}
+
+function: ripple pulse X:n {
+  if X+4 >= 16 {result: 2d6/2}
+  result: 2d6
+}
+
+function: level L:n agony D:n {
+  if D = 1 { result: D+L }
+  result: D
+}
+
+loop AC over {10..25} {
+  output 0 named "AC [AC]"
+  output ((1d10+4)*[to hit AC at 8]+[d20 crit for 1d10])*[d20 miss] + ((1d10+4)*[to hit AC at 8]+[d20 crit for 1d10])*[d20 miss] named "Diana" \(Two Eldritch Blasts)\
+  output ((2d6+5)*[to hit AC at 8]+[d20 crit for 2d6])*[d20 miss] + ((2d6+5+3)*[to hit AC at 8]+[d20 crit for 2d6])*[d20 miss] + ((2d6+5)*[to hit AC at 8]+[d20 crit for 2d6])*[d20 miss] named "Sabrina" \(Three Cestus Attacks + Hourglass + Prof Damage)\
+  output ((2d8+5)*[to hit AC at 8]+[d20 crit for 2d8])*[d20 miss] + ((1d8+5)*[to hit AC at 8]+[d20 crit for 1d8])*[d20 miss] + [ripple pulse d20] named "Thamir" \(Green Flame Blade + Rapier Swing + Ripple Pulse)\
+  output (([level 2 agony 1d8]+[level 2 agony 1d8]+2)*[to hit AC at 10]+[d20 crit for [level 2 agony 1d8]+[level 2 agony 1d8]])*[d20 miss] named "Zilarra" \(Chill Touch w/ Agony lvl 2)\
+}

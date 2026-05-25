@@ -1,0 +1,59 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: bonusDamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BONUSCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BONUSHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: doubleAttack {
+ result: [damage for [attack d20 vs DEFENSE]] + [bonusDamage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+MISSDAMAGE: 0
+
+ATTACK: 6
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 2d8 +4
+output [attack] named "Battleaxe +1"
+
+ATTACK: 5
+HITDAMAGE: 2d4 + 3
+BONUSHITDAMAGE: 1d4 + 3
+CRITICALDAMAGE: 4d4 + 3
+BONUSCRITICALDAMAGE: 2d4 +3
+output [attack] named "Double Bladed Scimitar"
+
+

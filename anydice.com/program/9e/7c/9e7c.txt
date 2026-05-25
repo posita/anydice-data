@@ -1,0 +1,40 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT dmg DAMAGE mod EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod 0]
+}
+function: ATTACKS:s vs AC:n dmg DAMAGE:d mod EXTRA:d {
+  result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod EXTRA]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod 0]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA }
+  if (ROLL = 1) { result: 0 }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+HEB: 1d10+1d6
+GW: 1d12
+loop AC over {10,15,18,20} {
+  output [{8,8,8,8} vs AC dmg HEB mod +5] named "<span style='width: 150px; display: inline-block'>Warcerer 3/2</span><span style='width: 150px; display: inline-block'>Hex + EB + QEB</span> AC [AC]"
+}
+loop AC over {10,15,18,20} {
+  output [{8,8,8} vs AC dmg GW mod +7]    named "<span style='width: 150px; display: inline-block'>Barbarian 5</span><span style='width: 150px; display: inline-block'>Rage + Frenzy</span> AC [AC]"
+}
+loop AC over {10,15,18,20} {
+  output [{3,3,3} vs AC dmg GW mod +17]   named "<span style='width: 150px; display: inline-block'>Barbarian 5</span><span style='width: 150px; display: inline-block'>Rage + Frenzy + GWM</span> AC [AC]"
+}

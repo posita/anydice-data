@@ -1,0 +1,73 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: hunterdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGEHUNTER
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEHUNTER
+ }
+ result: MISSDAMAGE
+}
+
+function: arcanedamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGEARCANE
+  }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEARCANE
+ }
+ result: MISSDAMAGE
+}
+
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: hunterattack {
+ result: [hunterdamage for [attack d20 vs DEFENSE]]
+}
+
+function: arcaneattack {
+ result: [arcanedamage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{10..20}
+
+ATTACK:8
+HITDAMAGE: 1d6 + 4
+CRITICALDAMAGE: 2d6 +4
+
+HITDAMAGEHUNTER: 1d8 +4 
+CRITICALDAMAGEHUNTER: 2d8 +4
+
+HITDAMAGEARCANE: 1d10 +4
+CRITICALDAMAGEARCANE: 2d10+4
+MISSDAMAGE: 0
+
+output [attack] named "Pepperbox"
+output [hunterattack] named "Revolver"
+output [arcaneattack] named "Long Gun"

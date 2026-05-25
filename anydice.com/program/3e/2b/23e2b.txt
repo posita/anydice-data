@@ -1,0 +1,221 @@
+\-don't edit this-\
+YES:1
+NO:0
+
+\------------Edit Here----------------\
+DEX: 3           \-dexterity modifier\
+PROF: 4          \-proficiency modifier\
+ENEMYSTRMOD:3
+ENEMYISLARGE:NO
+GUNTHREAT:1      \-threat bonus received by guns-\
+CHAMPIONTHREAT:1 \-threat bonus that champions receive-\
+FOCUSTHREAT:3    \-threat bonus for focus shot-\
+FOCUSATK:5       \-attack bonus for focus shot-\
+FOCUSDAM:3       \-damage bonus for focus shot-\
+MAXTHREAT:10      \-maximum threat range-\
+ADVANTAGE:NO     \-does the attacker have advantage-\
+ISCHAMPION:YES    \-is the attacker a champion-\
+SEEAVGDAMDIST:YES \-see the average damage distribution for the data-\
+GUNDIESIZE:d10
+
+\**********READ ME**********\
+\---to interpret the output, click table and summary.
+If SEEAVGDAMDIST is set to NO:
+Positive # means shooting twice is favorable.
+Negative means focus shot is favorable.
+If SEEAVGDAMDIST is set to YES:
+The # is the average damage done per round (accounts for missing and crits)
+---\
+\****************************\
+
+\----------don't edit below here--------------\
+MISS:0
+HIT:1
+CRITHIT:2
+if ISCHAMPION=NO{
+ CHAMPIONTHREAT:0
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 20 - THREAT { result: CRITHIT }
+ if ROLL + ATTACK > DEFENSE { result: HIT}
+ result: MISS
+}
+function: strcontest ROLLATK:n vs ROLLDEF:n{
+ if ROLLATK = 1 {result: MISS}
+ if ROLLATK = 20 { result: HIT}
+ if ROLLATK + DEX > ROLLDEF + ENEMYSTRMOD {result: HIT}
+ result: MISS
+}
+
+
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITHIT {
+  result: CRITDAM
+ }
+ if ATTACKRESULT = HIT {
+  result: DAM
+ }
+ result: MISSDAM
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: advattack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+function: knockdownattackonce STRCONTESTRESULT:n{
+ if STRCONTESTRESULT = HIT {result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]} 
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: knockdownattacktwice STRCONTESTRESULT:n{
+ if STRCONTESTRESULT = HIT {result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]+[damage for [attack [highest 1 of 2d20] vs DEFENSE]]} 
+ result: [damage for [attack d20 vs DEFENSE]]+[damage for [attack d20 vs DEFENSE]]
+}
+function: knockdownattackthrice STRCONTESTRESULT:n{
+ if STRCONTESTRESULT = HIT {result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]+[damage for [attack [highest 1 of 2d20] vs DEFENSE]]+[damage for [attack [highest 1 of 2d20] vs DEFENSE]]} 
+ result: [damage for [attack d20 vs DEFENSE]]+[damage for [attack d20 vs DEFENSE]+[damage for [attack d20 vs DEFENSE]]]
+}
+
+
+
+\ DEFENSE: d{13..18} \
+
+loop DEFENSE over {10..25} {
+\
+DEX: 3
+PROF: 3
+GUNTHREAT:1
+CHAMPIONTHREAT:0
+FOCUSTHREAT:3
+FOCUSATK:3
+FOCUSDAM:3
+MAXTHREAT:5
+ADVANTAGE:YES
+\
+
+\ ---------------shoot twice with adv-------------------\
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT 
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF
+DAM: 2d10 + DEX
+CRITDAM: 3d10 + DEX + 10
+MISSDAM: 0
+\
+output [advattack] + [advattack] named "Shoot Twice ADV vs AC [DEFENSE]"
+\
+SHOOTONCEADV:[advattack]
+SHOOTTWICEADV:[advattack] + [advattack]
+SHOOTTHRICEADV:[advattack] + [advattack]+ [advattack]
+
+
+\ --------------focus shot with advantage-------------\
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT+FOCUSTHREAT
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF + FOCUSATK
+DAM: 2d10 + DEX + FOCUSDAM
+CRITDAM: 3d10 + DEX + 10 + FOCUSDAM
+MISSDAM: 0
+\
+output [advattack] named "Focus Shot ADV vs AC [DEFENSE]"
+\
+FOCUSSHOTADV:[advattack]
+
+\ --------------shooting------------------ \
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF
+DAM: GUNDIESIZE + GUNDIESIZE + DEX
+CRITDAM: GUNDIESIZE + GUNDIESIZE + GUNDIESIZE + DEX + [maximum of GUNDIESIZE]
+MISSDAM: 0
+\
+output [attack] + [attack] named "Shoot Twice vs AC [DEFENSE]"
+\
+SHOOT:[attack]
+SHOOTTWICE:[attack] + [attack]
+SHOOTTHRICE:[attack] + [attack] + [attack]
+if ENEMYISLARGE = YES {KDSHOOTTHRICE:[knockdownattackthrice [strcontest [lowest 1 of 2d20] vs d20]]
+}else{
+KDSHOOTTHRICE:[knockdownattackthrice [strcontest d20 vs d20]]
+}
+ 
+\ -----------------focus shot----------------------\
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT+FOCUSTHREAT
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF + FOCUSATK
+DAM: GUNDIESIZE + GUNDIESIZE + DEX + FOCUSDAM
+CRITDAM: GUNDIESIZE + GUNDIESIZE + GUNDIESIZE + DEX + [maximum of GUNDIESIZE] + FOCUSDAM
+MISSDAM: 0
+\output [attack] named "Focus Shot vs AC [DEFENSE]"
+\
+FOCUSSHOT:[attack]
+KDFOCUSSHOT:[knockdownattackonce [strcontest d20 vs d20]]
+
+\ -----------------chain sword----------------------\
+
+THREAT: 1+CHAMPIONTHREAT
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF
+DAM: 1d6 + DEX 
+CRITDAM: 1d6 + DEX + 6
+MISSDAM: 0
+\output [attack] named "Chain Sword vs AC [DEFENSE]"
+\
+CHAINSWORD:[attack]
+
+
+
+if SEEAVGDAMDIST = YES {
+ \
+ output CHAINSWORD + SHOOTTWICE named "Chain Sword + Shoot Twice vs AC [DEFENSE]"
+ output KDSHOOTTWICE named "Knock Down + Shoot Twice vs AC [DEFENSE]"
+ output CHAINSWORD + FOCUSSHOT named "Chain Sword + Focus Shot vs AC [DEFENSE]"
+ output KDFOCUSSHOT named "Knock Down + Focus Shot vs AC [DEFENSE]"
+ \
+ output SHOOTTHRICE + SHOOTTHRICE named "Shoot 6 vs AC [DEFENSE]"
+ \output FOCUSSHOT named "Focus Shot vs AC [DEFENSE]"\
+\
+ if ADVANTAGE = YES {
+  output SHOOTTWICEADV named "Shoot Twice ADV vs AC [DEFENSE]"
+  output FOCUSSHOTADV named "Focus Shot ADV vs AC [DEFENSE]"
+ }else{
+  output SHOOTTWICE named "Shoot Twice vs AC [DEFENSE]"
+  output FOCUSSHOT named "Focus Shot vs AC [DEFENSE]"
+ }
+}else{
+
+if ADVANTAGE = 1 {
+ output SHOOTTWICEADV - FOCUSSHOTADV named "Adv vs AC [DEFENSE]"
+} else {
+ output SHOOTTWICE - FOCUSSHOT named "vs AC [DEFENSE]"
+}
+}
+\
+}
+\
+loop AC over {5..25} {
+ output [attack d20 vs AC] named "[AC]"
+ output [attack d20 vs AC] named "[AC]"
+}
+\
+}
+\------------------------------------------------\

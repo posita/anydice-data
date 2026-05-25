@@ -1,0 +1,31 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1                { result: MISS       }
+    else if ROLL >= CRIT_RANGE { result: HIT + CRIT }
+    else if ROLL + BONUS >= AC { result: HIT        }
+    else                       { result: MISS       }
+}
+
+
+\ Attack with default miss value \
+function: attack ROLL:n plus BONUS:n vs AC:n hit DMG:d crit CRIT:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit CRIT on CRIT_RANGE]
+}
+
+\ Attack with default crit range \
+function: attack ROLL:n plus BONUS:n vs AC:n hit DMG:d miss MISS:d crit CRIT:d {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss MISS crit CRIT on 20]
+}
+
+\ Attack with default miss value and crit range \
+function: attack ROLL:n plus BONUS:n vs AC:n hit DMG:d crit CRIT:d {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit CRIT on 20]
+}
+
+
+ADV: [highest 1 of 2d20]
+
+loop AC over {10..20} {
+  output 2d[attack ADV plus 3 vs AC hit 1d8+10+3 crit 1d8 on 20] named "AC [AC] Two SS attacks with advantage"
+  output 2d[attack d20 plus 3 vs AC hit 1d8+10+3 crit 1d8 on 20]
+       + 2d[attack d20 plus 6 vs AC hit 7 crit 0 on 20] named "AC [AC] Two SS attacks without advantage plus extra 2 attacks"
+}

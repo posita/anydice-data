@@ -1,0 +1,78 @@
+function: attack ATTACK:s at RANGE:n against DEFENSE:s{
+ A: [sort ATTACK]
+ D: [sort DEFENSE]
+ DAM:0
+ DEF:1
+ loop N over A{
+  if N >= RANGE {
+   if N > DEF@D{
+    DAM:DAM+1
+   }else{
+    DEF: DEF +1
+   }
+  }
+ }
+ result: DAM
+}
+function: aimed ATTACK:s at RANGE:n against DEFENSE:s{
+ A: [sort ATTACK]
+ D: [sort DEFENSE]
+ AV: 1@A
+ DAM:0
+ DEF:1
+ loop N over {1..#A}{
+  if AV >= RANGE {
+   if AV > DEF@D{
+    DAM:DAM+1
+   }else{
+    DEF: DEF +1
+   }
+  }
+ }
+ result: DAM
+}
+
+function: attack ATTACK:s at RANGE:n dodged DEFENSE:s{
+ A: [sort ATTACK]
+ D: [sort DEFENSE]
+ DV: 1@D
+ DAM:0
+ DEF:1
+ loop N over A{
+  if N >= RANGE {
+   if N > DV | DEF > #D{
+    DAM:DAM+1
+   }else{
+    DEF: DEF +1
+   }
+  }
+ }
+ result: DAM
+}
+
+function: aimed ATTACK:s at RANGE:n dodged DEFENSE:s{
+ A: [sort ATTACK]
+ D: [sort DEFENSE]
+ AV: 1@A
+ DV: 1@D
+ DAM:0
+ DEF:1
+ loop N over {1..#A}{
+  if AV >= RANGE {
+   if AV > DV | DEF > #D{
+    DAM:DAM+1
+   }else{
+    DEF: DEF +1
+   }
+  }
+ }
+ result: DAM
+}
+
+output [attack 5d{1,0,3,4,0,6} at 1 against 3d6] named "Ra flame burst"
+
+output [aimed 5d{1,0,3,4,0,6} at 1 against 3d6] named "Aimed Ra flame burst" 
+
+output [attack 5d{1,0,3,4,0,6} at 1 dodged 3d6] named "Dodged Ra flame burst" 
+
+output [aimed 5d{1,0,3,4,0,6} at 1 dodged 3d6] named "Aimed and Dodged Ra flame burst"  

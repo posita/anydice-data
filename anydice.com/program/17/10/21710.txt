@@ -1,0 +1,50 @@
+PB: 3
+BONUS: 2 \ +2 if has Persuasion/Deception/Insigh/Intimidation/Investigation \
+COST: 100
+BCOST: 1
+
+
+\ Estimated values of items from tables \
+\ The subtracted figure is the average price to purchase. \
+TA: 50 - (200-50)/4
+TB: (500 + 1400 + 300 + 500 + 1800) / 5 - (1400-200)/4
+TC: (6800 + 850 + 500 + 500 + 500 + 1200) / 6 - (14000-1400)/4
+TD: 0 \ 4000 - (50000-14000)/4 \
+TE: 0 \ 5000 - 100000/2 \
+TF: (1400 + 3500)/2 - (200-1400)/2
+TG: 0 \ 7000 - (14000-1400)/2 \
+TH: 0 \ 8000 - (50000-14000)/2 \
+TI: 0 \ 9000 - 100000 \
+
+\ Table A is table 1, etc. \
+TABLES: {TA, TB, TC, TD, TE, TF, TG, TH, TI}
+
+\ You get 1d6 rolls on table A, but 1d4 on other tables. \
+function: rolls T:n {
+  if T = 1 { result: 1d6 }
+  result: 1d4
+}
+
+\ Estimate the value of hitting table T \
+function: value T:n {
+  result: [rolls T] * T@TABLES
+}
+
+\ Roll for a table \
+function: table ROLL:n {
+  if ROLL <  8 { result: 0 }
+  if ROLL < 11 { result: 1 }
+  if ROLL < 15 { result: 2 }
+  if ROLL < 18 { result: 3 }
+  if ROLL < 21 { result: 4 }
+  if ROLL < 24 { result: 5 }
+  if ROLL < 28 { result: 6 }
+  if ROLL < 32 { result: 7 }
+  if ROLL < 36 { result: 8 }
+  result: 9
+}
+
+TABLE: [table 1d20 + (2 * PB) + BONUS + BCOST]
+
+output TABLE named "table"
+output [value TABLE] - COST - BCOST*150 named "profit"

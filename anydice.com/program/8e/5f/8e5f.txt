@@ -1,0 +1,74 @@
+MISS: 0 
+HIT: 1 
+CRITICALHIT: 2 
+
+function: attack ROLL:n vs DEFENSE:n { 
+if ROLL = 1 { result: MISS } 
+if ROLL = 20 { 
+if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT } 
+result: HIT 
+} 
+if ROLL + ATTACK >= DEFENSE { result: HIT } 
+result: MISS 
+} 
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: uadamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITUADAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: UADAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: daggerdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAGGERDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: DAGGERDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack { 
+result: [damage for [attack d20 vs DEFENSE]] 
+} 
+
+function: unarmedattack {
+ result: [uadamage for [attack d20 vs DEFENSE]]
+}
+
+function: daggerattack {
+ result: [daggerdamage for [attack d20 vs DEFENSE]]
+}
+
+
+DEFENSE: d{10..20} 
+
+ATTACK: 7
+
+HITDAMAGE: d8 + 5
+CRITICALDAMAGE: 2d8 + 5
+UADAMAGE: 1d8 + 5 + 2d6
+CRITUADAMAGE: 2d8 + 5 + 4d6
+DAGGERDAMAGE: 1d4
+CRITDAGGERDAMAGE: 2d4
+MISSDAMAGE: 0 
+
+
+output [attack] named "Rapier"
+output [attack] + [daggerattack] named "Rapier + Dagger"
+output [attack] + [unarmedattack] named "Rapier + Sneak Attack"
+output [attack] + [attack] + [unarmedattack] + [daggerattack] named "Rapier + Sneak Attack + Dagger"

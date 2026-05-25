@@ -1,0 +1,56 @@
+
+DC : {-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}
+FS: 0
+FEAT : 0
+TOHIT : 5
+
+
+
+function: reroll ROLL:n {
+    if[{1,2} contains ROLL]{
+        result: 1d6
+    }
+    result: ROLL
+}
+
+function: twohander ROLL:n AC:s REROLL:n DMG:n{
+    if[{1} contains DMG]{
+        if[AC contains ROLL-5] {
+            result: 0
+        }
+        if[{1} contains REROLL]{
+            result: [reroll 1d6] + [reroll 1d6] + 15
+        }
+        result: 2d6 + 15
+    }
+    if[AC contains ROLL]{
+        result:0
+    }
+    if[{1} contains REROLL]{
+        result: [reroll 1d6] + [reroll 1d6] + 5
+    }
+    result: 2d6 + 5
+}
+
+
+function: twos ROLL:n AC:s OFFHAND:n BIGGERW:n{
+    if[AC contains ROLL]{
+        result: 0
+    }
+    if[{1} contains OFFHAND]{
+        if[{1} contains BIGGERW]{
+            result: 1d8+ 5
+        }
+        result: 1d6+5
+    }
+    if[{1} contains BIGGERW]{
+        result: 1d8
+    }
+    result: 1d6
+}
+
+output [twohander 1d20 + TOHIT DC FS FEAT] named "Two-Handed 1 Attack"
+output [twos 1d20+ TOHIT DC FS FEAT] + [twos 1d20+ TOHIT DC 1 FEAT] named "Dual-Wield 1+1 Attacks"
+
+output [twohander 1d20+ TOHIT DC FS FEAT] + [twohander 1d20+ TOHIT DC FS FEAT] named "Two-Handed Two Attacks"
+output [twos 1d20+ TOHIT DC FS FEAT] + [twos 1d20+ TOHIT DC 1 FEAT] + [twos 1d20+ TOHIT DC 1 FEAT] named "Dual-Wield 2+1 Attacks"

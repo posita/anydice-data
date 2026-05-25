@@ -1,0 +1,50 @@
+TARGET_AC: {14,14,14,15,16,16,16,17,18,18,18,18,19,19,19,19,20,20,20,20}
+PROF_BONUSES: {2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6}
+ROG_SNEAK_ATT_DICE: {1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10}
+BOOMING_DICE: {1,1,1,1,3,3,3,3,3,3,5,5,5,5,5,5,7,7,7,7} 
+WIZ: 1
+ROGUE: 4
+MOD: 4
+LEVEL: WIZ+ROGUE
+SNEAK: ROGUE@ROG_SNEAK_ATT_DICE
+PB: LEVEL@PROF_BONUSES
+AC: LEVEL@TARGET_AC	
+BOOMING: LEVEL@BOOMING_DICE
+CRITRANGE: 20
+WAILS: (SNEAK+1)/2
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d {
+    if ROLL >= CRITRANGE {
+    result: CRITABLEDAM + CRITABLEDAM + HITDAM
+    }
+        if ROLL = 1 {
+        result: 0
+        }
+            if ROLL >= AC - ATTACKBONUS {
+            result: CRITABLEDAM + HITDAM
+            }
+                else {
+                result: 0
+                }
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+output [roll 1@3d20 at plus PB+MOD vs ac AC for 1d8 +SNEAKd6 plus MOD+BOOMINGd8] + [roll 1@3d20 at plus PB+MOD vs ac AC for 1d8 +SNEAKd6 plus MOD+BOOMINGd8] named "Build Level [LEVEL]: [Rapier, booming, Elven advantage, secondary sneak attack and booming]"
+output [roll 1@3d20 at plus PB+MOD vs ac AC for 1d8 +SNEAKd6 plus MOD+BOOMINGd8] + [roll 1@3d20 at plus PB+MOD vs ac AC for 1d8 +SNEAKd6 plus MOD] named "Build Level [LEVEL]: [Rapier, booming, Elven advantage, secondary sneak attack]"
+output [roll 1@3d20 at plus PB+MOD vs ac AC for 1d8 +SNEAKd6 plus MOD+BOOMINGd8] named "Build Level [LEVEL]: [Rapier, booming, Elven advantage]"
+output [roll 1@2d20 at plus PB+MOD vs ac AC for 1d8 +SNEAKd6 plus MOD+BOOMINGd8] named "Build Level [LEVEL]: [Rapier, booming, regular advantage]"
+output [roll 1@3d20 at plus PB+MOD vs ac AC for 1d10 +SNEAKd6 plus MOD] named "Build Level [LEVEL]: [Heavy Crossbow, Elven advantage]"
+output [roll 1@2d20 at plus PB+MOD vs ac AC for 1d10 +SNEAKd6 plus MOD] named "Build Level [LEVEL]: [Heavy Crossbow, regular advantage]"
+output [roll 1d20 at plus PB+MOD vs ac AC for 1d10 +SNEAK plus MOD] named "Build Level [LEVEL]: [Heavy Crossbow]"

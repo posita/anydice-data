@@ -1,0 +1,90 @@
+\AMZUG 0-Spieler; 1-Gegner\
+\result: 0-Gegner hat gewonnen; 1-Spieler hat gewonnen; -1-unentschieden innerhalb der Rundenzahl\
+
+function: konter PROBE:n {
+ if PROBE > 0 {result: 1}
+ else {result: 0}
+}
+
+function: vert PROBE:n {result: PROBE-1}
+
+function: angriff PROBE:n GAT:n GDF:n {
+ if PROBE = -2 {result: 1}
+ if PROBE = -1 {result: [konter [probe 2d6 (GAT)]]}
+ if PROBE =  0 {result: [vert [probe 2d6 (GDF)]]}
+ if PROBE =  1 {result: [vert [probe 2d6 (GDF)]]-1}
+ if PROBE =  2 {result: -3}
+
+}
+
+function: kampf ANGR:n VERT:n KONTER:n LBN:n GLB:n {
+ if ANGR = 0 & KONTER = 2 {result: LBN-1}
+ TMP: GLB
+ if ANGR = 2 {
+  TMP: TMP+1
+  if TMP = -1 {result: -1}
+ } 
+ if ANGR > 0 {
+  if VERT = 0 {
+   if TMP = -2 {result: -1}
+   else {TMP: TMP+2}
+  }
+  if VERT = 1 {TMP: TMP+1}
+  result: TMP
+ }
+}
+
+function: duell LBN:n AUS:n ATT:n DEF:n GLB:n GAU:n GAT:n GDF:n AMZUG:n RUNDEN:n {
+ if RUNDEN = 0 {result: -1}
+ TLBN: LBN
+ TGLB: GLB
+ loop N over {1..AUS}{
+  TGLB: -TGLB-1
+  TMP: [kampf [probe 2d6+ATT] [probe 2d6+GDF] [probe 2d6+GAT] TLBN TGLB]
+  if TMP = 0 {result: AMZUG}
+  if TMP = -1 {result: -AMZUG+1}
+  if TMP > 0 {TLBN: TMP}
+  if TMP < -1 {TGLB: -TMP-1}   
+ }
+ TAMZ: -AMZUG+1
+ result: [duell TGLB GAU GAT GDF TLBN AUS ATT DEF TAMZ RUNDEN-1]
+}
+
+function: probe ROLL:n MOD:n {
+ if ROLL = 2 {
+  result: -2
+ }
+ else if ROLL+MOD < 7 {
+  result: -1
+ }
+ else if ROLL = 12 {
+  result: 2
+ }
+ else if 9 < ROLL+MOD {
+  result: 1
+ }
+ else 
+ {
+  result: 0
+ }
+}
+
+function: reroll ROLL:n {
+ if ROLL = 1 {
+  result: 2
+ }
+ else {
+  result: ROLL
+ }
+}
+
+output [highest 1 of 2d[reroll 1d6]] named "No1"
+\output 2d6 named "2d6"\
+\output 3d6 named "3d6"\
+\output [duell 1 1 0 0 1 1 0 0 1 1] named "Duell"\
+\output [kampf [probe 2d6] [probe 2d6] [probe 2d6] L G] named "Kampf"\
+\output [duell 6 4 0 0 6 4 0 0 0 1] named "Duell"\
+output [angriff [probe  2d6 (0)] 0 0] named "Angriff"
+output [angriff [probe  2d6 (2)] 2 0] named "Angriff"
+\output [probe [highest 2 of 3d6] (0)] named "Probe Advantage"\
+\output [probe [lowest 2 of 3d6] (0)] named "Probe Disadvantage"\

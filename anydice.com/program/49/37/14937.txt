@@ -1,0 +1,86 @@
+\does not take into account the exploding attacks Nott gets on rolls of 20
+this would theoretically make her maximum damage output infinite
+but the probabilities of higher outputs approach 0 so quickly
+that the actual increase of the mean is peanuts\
+
+AC: 16
+
+PROFICIENCY: 4
+
+BEAUREGARDDEX: 5
+FJORDCHA: 5
+NOTTDEX: 5
+NOTTSNEAK: 5d6
+YASHASTR: 3
+YASHARAGE: 3
+YASHANSHROUD: 9
+YASHADFURY: 1d6+4
+
+QSTAFF: 1d8+BEAUREGARDDEX
+QSTAFFCRIT: 2d8+BEAUREGARDDEX
+
+BEAUREGARD: 1d6+BEAUREGARDDEX
+BEAUREGARDCRIT: 2d6+BEAUREGARDDEX
+
+FALCHION: 1d8+FJORDCHA+PROFICIENCY+d6
+FALCHIONCRIT: 3d8+FJORDCHA+PROFICIENCY+2d6
+
+TINKERTOP: 1d6+NOTTDEX+1
+
+JUDGE: 2d[highest 1 of 2d6]+YASHASTR+YASHARAGE
+JUDGEBCRIT: [highest 1 of 2d6]
+
+function: beauregardqstaff ROLL:n vs AC:n {
+ if ROLL >= 20 { result: QSTAFFCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + BEAUREGARDDEX >= AC { result: QSTAFF }
+ result: 0
+}
+
+function: beauregard ROLL:n vs AC:n {
+ if ROLL >= 20 { result: BEAUREGARDCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + BEAUREGARDDEX >= AC { result: BEAUREGARD }
+ result: 0
+}
+
+function: falchion ROLL:n vs AC:n {
+ if ROLL >= 19 { result: FALCHIONCRIT +1 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + FJORDCHA +1 >= AC { result: FALCHION +1 }
+ result: 0
+}
+
+function: nottone A:n notttwo B:n {
+  if A + NOTTDEX + PROFICIENCY +1 >= AC & B + NOTTDEX + PROFICIENCY +1 >= AC {result: 2dTINKERTOP + NOTTSNEAK + YASHANSHROUD}     \two hits\
+  if A = 20 & B = 20 {result: 2dTINKERTOP + 2d6 + 2dNOTTSNEAK + YASHANSHROUD}                                                     \two crits\
+  if A = 1 & B = 1 {result: 0}                                                                                                    \two fails\
+  if A + NOTTDEX + PROFICIENCY +1 >= AC & B + NOTTDEX + PROFICIENCY +1 < AC {result: TINKERTOP + NOTTSNEAK + YASHANSHROUD}        \first hits, second misses\
+  if B + NOTTDEX + PROFICIENCY +1 >= AC & A + NOTTDEX + PROFICIENCY +1 < AC {result: TINKERTOP + NOTTSNEAK + YASHANSHROUD}        \first misses, second hits\
+  if A = 20 & B + NOTTDEX + PROFICIENCY +1 < AC {result: TINKERTOP + 1d6 + 2dNOTTSNEAK + YASHANSHROUD}                            \first crits, second misses\
+  if B = 20 & A + NOTTDEX + PROFICIENCY +1 < AC {result: TINKERTOP + 1d6 + 2dNOTTSNEAK + YASHANSHROUD}                            \first misses, second crits\
+  if A = 20 & B = 1 {result: TINKERTOP + 1d6 + 2dNOTTSNEAK + YASHANSHROUD}                                                        \first crits, second fails\
+  if B = 20 & A = 1 {result: TINKERTOP + 1d6 + 2dNOTTSNEAK + YASHANSHROUD}                                                        \first fails, second crits\
+  result: 0
+}
+
+function: yashaone A:n yashatwo B:n {
+  if A + YASHASTR + PROFICIENCY >= AC & B + YASHASTR + PROFICIENCY >= AC {result: 2dJUDGE + YASHANSHROUD + YASHADFURY}     \two hits\
+  if A = 20 & B = 20 {result: 2dJUDGE + 4d[highest 1 of 2d6] + YASHANSHROUD + YASHADFURY + 1d6 + 2dJUDGEBCRIT}       \two crits\
+  if A = 1 & B = 1 {result: 0}                                                                                             \two fails\
+  if A + YASHASTR + PROFICIENCY >= AC & B + YASHASTR + PROFICIENCY < AC {result: JUDGE + YASHANSHROUD + YASHADFURY}        \first hits, second misses\
+  if B + YASHASTR + PROFICIENCY >= AC & A + YASHASTR + PROFICIENCY < AC {result: JUDGE + YASHANSHROUD + YASHADFURY}        \first misses, second hits\
+  if A = 20 & B + YASHASTR + PROFICIENCY < AC {result: JUDGE + 2d6 + YASHANSHROUD + YASHADFURY + d6 + JUDGEBCRIT}          \first crits, second misses\
+  if B = 20 & A + YASHASTR + PROFICIENCY < AC {result: JUDGE + 2d6 + YASHANSHROUD + YASHADFURY + d6 + JUDGEBCRIT}          \first misses, second crits\
+  if A = 20 & B = 1 {result: JUDGE + 2d6 + YASHANSHROUD + YASHADFURY + d6 + JUDGEBCRIT}                                    \first crits, second fails\
+  if B = 20 & A = 1 {result: JUDGE + 2d6 + YASHANSHROUD + YASHADFURY + d6 + JUDGEBCRIT}                                    \first fails, second crits\
+  result: 0
+}
+
+output 2d[beauregardqstaff d20 vs AC]+2d[beauregard d20 vs AC] named "Beauregard makes 2 versatile attacks with her quarterstaff and uses Flurry of Blows"
+
+output 2d[falchion d20 vs AC] named "Fjord attacks twice with Summer's Dance against a cursed and hexed target"
+
+output [nottone d20 notttwo d20] named "Nott attacks twice with the Tinkertop Boltblaster 1000 and uses Fury of the Small"
+
+output [yashaone [highest 1 of 2d20] yashatwo [highest 1 of 2d20]] named "Yasha recklessly and savagely attacks twice with the Magician's Judge while raging and using Necrotic Shroud"

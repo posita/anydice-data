@@ -1,0 +1,95 @@
+CRITFAIL: 0
+FAIL: 1
+SUCCESS: 2
+CRITSUCCESS: 3
+
+
+function: save ROLL:n vs MODIFICADOR:n {
+ if ROLL = 1 {
+  if ROLL + MODIFICADOR >= DC { result: FAIL}
+  result: CRITFAIL 
+}
+ if ROLL = 20 {
+  if ROLL + MODIFICADOR >= DC { result: CRITSUCCESS }
+  result: SUCCESS
+ }
+ if ROLL + MODIFICADOR >= DC { 
+  if ROLL + MODIFICADOR - 10 >= DC{ result: CRITSUCCESS }
+  result: SUCCESS
+}
+ if ROLL + MODIFICADOR < DC{
+ if ROLL + MODIFICADOR + 10 < DC { result: CRITFAIL }
+ result: FAIL}
+}
+
+
+function: damage for SAVERESULT:n {
+ if SAVERESULT = CRITSUCCESS {
+  result: NODAMAGE
+ }
+if SAVERESULT = CRITFAIL {
+  result: DOUBLEDAMAGE
+ }
+ if SAVERESULT = SUCCESS {
+  result: HALFDAMAGE
+ }
+ result: NORMALDAMAGE
+}
+
+DC: 23
+
+MODIFICADOR: d{10..15}
+output [save d20 vs MODIFICADOR]
+
+function: save {
+ result: [damage for [save d20 vs MODIFICADOR]]
+}
+
+
+NORMALDAMAGE: 7d6
+HALFDAMAGE: NORMALDAMAGE/2
+NODAMAGE: 0
+DOUBLEDAMAGE: NORMALDAMAGE*2
+output [save]+[save] named "save"
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ 
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{22..28}
+
+ATTACK: 16
+output [attack d20 vs DEFENSE]
+
+
+HITDAMAGE: 2d12 + 4 + 4
+CRITICALDAMAGE: (2d12*2) + 8 + 8
+MISSDAMAGE: 0
+output [attack]+[attack]+[attack] named "Jeez"

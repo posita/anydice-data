@@ -1,0 +1,400 @@
+\ tarrasque 1-round \
+
+MISS: 0
+HIT: 1
+BGWF: {{1..2}, {3..10}:6}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+SKELEATTACK: 4
+MOUNTATTACK: 6
+BIGHITDAMAGE: 2d6 + 3
+BIGCRITICALDAMAGE: 4d6 + 3
+SMALLHITDAMAGE: 1d4 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+SKELEHITDAMAGE: 1d10 + 2
+SKELECRITICALDAMAGE: 2d10 + 2
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 2d6 + 4
+MOUNTSMALLCRITICALDAMAGE: 4d6 + 4 
+
+CHARACTERABILITYCHECKSTR: 20
+SAVESPELLHITDAMAGEONE: 8d4
+SAVESPELLMISSDAMAGEONE: 0
+SAVESPELLHITDAMAGETWO: 1d12
+SAVESPELLMISSDAMAGETWO: 0
+MISSDAMAGE: 0
+MONSTERABILITYCHECKSTR: -1
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+
+function: save spell one ROLL:n {
+ if ROLL + MONSTERABILITYCHECKSTR >= CHARACTERABILITYCHECKSTR{result: SAVESPELLMISSDAMAGEONE}
+ result: SAVESPELLHITDAMAGEONE
+}
+
+function: grapple PLAYERROLL:n vs enemy ENEMYROLL:n {
+ if PLAYERROLL + PLAYERATHLETICS <= ENEMYROLL + ENEMYATHLETICS{result: GRAPPLEMISSDAMAGE}
+ result: GRAPPLEHITDAMAGE
+}
+
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [[highest 1 of 2d20] vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackspo NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell one d20]
+  }
+  result: TOTAL
+}
+
+function: multiattackspt NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell two d20]
+  }
+  result: TOTAL
+}
+
+
+
+\ Level 1 \
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 2d6 + 3
+BIGCRITICALDAMAGE: 4d6 + 3
+AC:10
+output [bigmultiattack 1] named "level 1 greatsword vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 1 greatsword vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 1 greatsword vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 1 greatsword vs AC[AC]"
+
+
+\ Level 4 \
+
+CHARACTERABILITYCHECKSTR: 20
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 4 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 4 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 4 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +2
+output [multiattackspo 1] named "level 4 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 5 \
+
+CHARACTERABILITYCHECKSTR: 22
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 5 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 5 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 5 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +2
+output [multiattackspo 1] named "level 5 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 6 \
+
+CHARACTERABILITYCHECKSTR: 23
+SAVESPELLHITDAMAGEONE: 12d4
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 6 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 6 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 6 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +2
+output [multiattackspo 1] named "level 6 cloud of daggers vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 7 \
+
+CHARACTERABILITYCHECKSTR: 23
+SAVESPELLHITDAMAGEONE: 56d4
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 7 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 7 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 7 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +2
+output [multiattackspo 1] named "level 7 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 8 \
+
+CHARACTERABILITYCHECKSTR: 23
+SAVESPELLHITDAMAGEONE: 56d4 + 84
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 8 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 8 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 8 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +2
+output [multiattackspo 1] named "level 8 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 9 \
+
+CHARACTERABILITYCHECKSTR: 25
+SAVESPELLHITDAMAGEONE: 56d4 + 112
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 9 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 9 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 9 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +2
+output [multiattackspo 1] named "level 9 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 10 \
+
+CHARACTERABILITYCHECKSTR: 29
+SAVESPELLHITDAMAGEONE: 56d4 + 112
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 10 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 10 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 10 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +9
+output [multiattackspo 1] named "level 10 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 13 \
+
+CHARACTERABILITYCHECKSTR: 31
+SAVESPELLHITDAMAGEONE: 56d4 + 140
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 13 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 13 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 13 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +11
+output [multiattackspo 1] named "level 13 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 13 \
+
+CHARACTERABILITYCHECKSTR: 32
+SAVESPELLHITDAMAGEONE: 80d4 + 200
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +12
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+\ Level 17 \
+
+CHARACTERABILITYCHECKSTR: 34
+SAVESPELLHITDAMAGEONE: 80d4 + 200
+MONSTERABILITYCHECKSTR: -1
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +0
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +1
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+MONSTERABILITYCHECKSTR: +14
+output [multiattackspo 1] named "level 14 spike growth vs Grapple Save[MONSTERABILITYCHECKSTR]"
+
+
+
+
+
+
+
+
+
+
+output 216d4 + 324
+
+\540\
+
+output 192d4 + 192 + 1d4 + 2
+
+
+
+
+
+
+

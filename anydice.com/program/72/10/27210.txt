@@ -1,0 +1,82 @@
+function: add X:s to L:s {
+  result: [sort {L, X}]
+}
+
+function: remove duplicates from X:s that are in Y:s {
+  R: {}
+  \ for each dice in X... \
+  loop I over {1..#X} {
+    \ if there are fewer than 2 dice in the remaining list (we only ever care about the top 2... \
+    if #R < 2 {
+      \ if this number is not already in the pool... \
+      if [count I@X in R] = 0 {
+        \ check to see if this die is in the other pool \
+        if [count I@X in Y] = 0 {
+          \ if it isn't, add it to the remaining list \
+          R: [add I@X to R]
+        }
+      }
+    }
+    \ otherwise, move to the next die \
+  }
+  result: R
+}
+
+function: check result for RP:s positive and RN:s negative {
+  \ if the highest left over positive die is higher than the highest negative dice, record a positive result (yes...) \
+  if 1@RP > 1@RN {
+    \ if the second highest positive die is also higher than the highest negative die, it's a "yes and"! \
+    if 2@RP > 1@RN {
+      result: +3
+    }
+    \ if the second highest positive die is equal to the highest negative die, it's a "yes"! This is because there are no more dice in either pool (0's) \
+    if 2@RP = 1@RN {
+      result: +2
+    }
+    \ if the second highest positive die is lower than the highest negative die, it's a "yes but"! \
+    if 2@RP < 1@RN {
+      result: +1
+    }
+  }
+
+  \ if the highest left over negative die is higher than the highest positive dice, record a negative result (no...) \
+  if 1@RN > 1@RP {
+    \ if the second highest negative die is also higher than the highest positive die, it's a "no and"! \
+    if 2@RN > 1@RP {
+      result: -3
+    }
+    \ if the second highest negative die is equal to the highest positive die, it's a "no"! This is because there are no more dice in either pool (0's) \
+    if 2@RN = 1@RP {
+      result: -2
+    }
+    \ if the second highest negative die is lower than the highest positive die, it's a "no but"! \
+    if 2@RN < 1@RP {
+      result: -1
+    }
+  }
+
+  \ if the highest left over negative die is equal to the highest positive dice, the situation is "unresolved" (no dice left) \
+  if 1@RN = 1@RP {
+    result: 0
+  }
+}
+
+function: roll P:s pos and N:s neg {
+  \ remove all positive dice that are paired with negative dice \
+  RP: [remove duplicates from P that are in N]
+  \ remove all negative dice that are paired with positive dice \
+  RN: [remove duplicates from N that are in P]
+  \ check and return the result \
+  result: [check result for RP positive and RN negative]
+}
+
+
+output [roll 3d6 pos and 3d6 neg]
+
+\ +3 = Yes, and  \
+\ +2 = Yes       \
+\ +1 = Yes, but  \
+\ 0 = Unresolved \
+\ -1 = No, but   \
+\ -2 = No        \
+\ -3 = No, and   \

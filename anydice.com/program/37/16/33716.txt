@@ -1,0 +1,55 @@
+function: roll DICE:s keep highest {
+   result: 1@DICE
+}
+
+function: crit D:n {
+   if D = 6 { result: 1 + [crit d6] }
+   result: 0
+}
+
+
+function: contest A:n versus B:n {
+   result: A - B
+}
+
+function: max of A:n and B:n {
+   if A > B { result: A }
+   result: B
+}
+
+function: ace DICE:s {
+   MAX_ACE: 0
+   loop A over DICE {
+      if A = 6 {
+         MAX_ACE: [max of [explode d6] and MAX_ACE]
+      }
+   }
+   result: [highest 1 of DICE] + MAX_ACE
+}
+
+function: burst DICE:s up to N:n times {
+   MAX_BURST: 0
+   if N > 0 {
+      loop A over DICE {
+         if A = 6 {
+            MAX_BURST: [max of [burst d6 up to N - 1 times] and MAX_BURST]
+         }
+      }
+   }
+   result: [highest 1 of DICE] + MAX_BURST
+}
+
+function: burst DICE:s on B:n up to N:n times {
+   MAX_BURST: 0
+   if N > 0 {
+      loop A over DICE {
+         if A >= B {
+            MAX_BURST: [max of [burst d6 on B up to N - 1 times] and MAX_BURST]
+         }
+      }
+   }
+   result: [highest 1 of DICE] + MAX_BURST
+}
+
+output [burst 7d6 on 6 up to 4 times]
+

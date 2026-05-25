@@ -1,0 +1,32 @@
+function: ROLL:n with SUCCESSROLL:n over SUCCESS:n {
+  if SUCCESS < SUCCESSROLL {result: 0}
+  else { result: ROLL }
+}
+function: ROLL:n with SUCCESS:n { result: [ROLL with 1d100 over SUCCESS] }
+
+DEX_MOD: 4
+SPELL_MOD: 3
+
+WEAPON_DICE: 2
+SNEAK_DICE: 2
+GREENHIT_DICE: 1
+GREENEXTRA_DICE: 1
+BOOMHIT_DICE: 1
+BOOMEXTRA_DICE: 2
+
+function: boom TIMES TARGETS { X: (TIMES * BOOMHIT_DICE)d8 loop N over {1..TARGETS} { X: X + [BOOMEXTRA_DICEd8 with 1d100 over 30] } result: X }
+function: green TIMES { result: (TIMES * GREENHIT_DICE)d8 + (TIMES * GREENEXTRA_DICE)d8 + (TIMES * SPELL_MOD) }
+function: weapon TIMES TURNS { result: (TIMES * WEAPON_DICE)d8 + (TURNS * DEX_MOD) }
+function: sneak TURNS { result: (TURNS * SNEAK_DICE)d6 }
+
+output [sneak 1] + [weapon 1 1] + [boom 1 1]             named "BB"                         \ 0sp, 1   target, low  dmg (23),   +mobility \
+output [sneak 1] + [weapon 2 1] + [boom 2 2]             named "BB (twinned)"               \ 1sp, 2   target, ok   dmg (34),  ++mobility \
+output [sneak 1] + [weapon 2 1] + [boom 2 1]             named "BB (quick + attack)"        \ 2sp, 1-2 target, ok   dmg (32),   +mobility \
+output [sneak 2] + [weapon 2 2] + [boom 2 0]             named "BB (quick + ready)"         \ 2sp, 1-2 target, ok   dmg (40),   -mobility \
+
+output [sneak 1] + [weapon 1 1] + [green 1]              named "GFB"                        \ 0sp, 2   target, low  dmg (27.5), +mobility \
+output [sneak 1] + [weapon 2 1] + [green 2]              named "GFB (quick + attack)"       \ 2sp, 2   target, nice dmg (44),   +mobility \
+output [sneak 2] + [weapon 2 2] + [green 2]              named "GFB (quick + ready)"        \ 2sp, 2   target, nice dmg (55),   -mobility \
+
+output [sneak 1] + [weapon 3 1] + [boom 2 2] + [green 1] named "GFB (quick) + BB (twinned)" \ 3sp, 2-3 target, nice dmg (51),   +mobility \
+

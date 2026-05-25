@@ -1,0 +1,31 @@
+function: advantage NORMAL:s {
+F: [count 0 in NORMAL]
+SP: [count 10 in NORMAL]
+ST: [count 15 in NORMAL]
+
+S: {0:F*F, 1:[count 1 in NORMAL]*((F+1)*2-1), 2:[count 2 in NORMAL]*((F+2)*2-1), 3:[count 3 in NORMAL]*((F+3)*2-1), 4:[count 4 in NORMAL]*((F+4)*2-1), 5:[count 5 in NORMAL]*((F+5)*2-1), 6:[count 6 in NORMAL]*((F+6)*2-1), 7:[count 7 in NORMAL]*((F+7)*2-1), 8:[count 8 in NORMAL]*((F+8)*2-1), 10:SP*(39+(21-SP)*2-1)/2, 15:ST*(39+(21-ST)*2-1)/2}
+result: S
+}
+
+function: firstbowl MOD:n {
+F: 12 - MOD
+if F>20 {F: 20}
+else if F<0 {F: 0}
+
+result: {15:12-F, 1..8, 0:F}
+}
+
+function: secondbowl MOD:n FIRSTBOWL:n {
+if FIRSTBOWL=15 {result: {15:20}}
+else {F: 12 - MOD + [{5..8} contains FIRSTBOWL]*2
+      if F>20 {F: 20}
+      else if F<0 {F: 0}
+
+      result: {FIRSTBOWL:F, (FIRSTBOWL+1)..8, 10:12+FIRSTBOWL-F}
+  }
+}
+
+
+loop N over {0..8,15} {
+output [advantage [secondbowl 10 N]] named "[N]"
+}

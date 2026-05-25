@@ -1,0 +1,51 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs AC:n {
+ if ROLL >= 18 { result: CRIT }
+ if ROLL = 1 { result: MISS }
+ if ROLL + TOHIT >= AC {result: HIT}
+ result: MISS
+}
+
+function: damage for ATKRSLT:n {
+ if ATKRSLT = CRIT { result: CRITDMG }
+ if ATKRSLT = HIT { result: HITDMG }
+ if ATKRSLT = MISS { result: MISSDMG }
+}
+
+function: swing {
+ result: [damage for [attack ([highest 1 of 1d20]) vs AC]]
+}
+
+function: save ROLL:n {
+ if ROLL + SAVEMOD >= 8+TOHIT { result: SAVEEFFECT*TARGETS }
+ result: EFFECT*TARGETS
+}
+
+function: sa A:n B:n {
+ if A < B { result: B }
+ result: A
+}
+
+TOHIT: 9\Belt of Storm Giant Strength\ + 7\PROF/ioun\ + 3\Magic Bonus\ - 5\GWM\
+AC: 25
+
+HITDMG: 1d{{1,2}, {3..12}:7} + 2d8 + 9 + 3 + 10
+CRITDMG: 3d{{1,2}, {3..12}:7} + 4d8 + 9 + 3 + 10
+MISSDMG: 0
+output [swing] named "GWM"
+
+HITDMG: [sa HITDMG HITDMG]
+CRITDMG: [sa CRITDMG CRITDMG]
+output [swing] named "SA-GWM"
+
+HITDMG: 1d{{1,2}, {3..12}:7} + 2d8 + 9 + 3
+CRITDMG: 3d{{1,2}, {3..12}:7} + 4d8 + 9 + 3
+MISSDMG: 0
+output [swing] named "No GWM"
+
+HITDMG: [sa HITDMG HITDMG]
+CRITDMG: [sa CRITDMG CRITDMG]
+output [swing] named "SA- No GWM"

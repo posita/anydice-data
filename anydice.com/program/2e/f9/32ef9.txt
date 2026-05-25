@@ -1,0 +1,30 @@
+STAT   : 2    \ Weapon Stats                                         \
+MIN    : 40    \ Minimum - 40 on shop, 0 otherwise                    \
+PASS   : 1    \ Supplementary Stats (these are assumed Fabled)       \
+REROLL : 0    \ Amount of Rerolls assumed (>2 will always be UNKNOWN)\ 
+
+              \ Most useful view:                                    \
+              \ View: Export - Data: At Least                        \
+
+
+function: X:n wear id {
+  if      X  = 1  { result: 3 }
+  else if X <= 6  { result: 2 }
+  else if X <= 16 { result: 1 }
+  else { result: 0 }
+}
+
+function: decrease X:n wear {
+  result: [highest of 0 and ([d100 wear id] - X)]
+}
+
+function: wear X:n {
+  if X = 3      { result: 5 }
+  else if X = 2 { result: 3 }
+  else if X = 1 { result: 1 }
+  else          { result: 0 }
+}
+
+function: wear is annoying { result: [ wear [decrease REROLL wear] ] }
+
+output ((STATd(101-MIN)+PASS*101+MIN*STAT)/(STAT+PASS))+[wear is annoying]-1 named "results for nerds"

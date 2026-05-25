@@ -1,0 +1,43 @@
+\Joe Paladin damage calculation\
+MODIFIER:4
+\Info box end\
+
+
+MOD:MODIFIER
+
+function: crit A:n B:n {
+DAMAGE:0
+loop N over {1..(A*2)}{
+DIE: [gwm 1dB B]
+DAMAGE:DAMAGE+DIE}
+result:DAMAGE
+}
+
+function: gwm A:n B:n {
+if A<=2 {result:1dB}
+else {result:A}
+}
+
+function: longsword CR:n {
+if CR=1 {
+result:[crit 1 8]
+}else {result: [gwm 1d8 8]}
+}
+
+function: greatsword CR:n {
+if CR=1 {result:[crit 1 8]}
+else {
+DAMAGE:0
+loop N over {1..2}{
+DIE:[gwm 1d8 8]
+DAMAGE:DAMAGE+DIE
+}
+result:DAMAGE
+}
+}
+
+
+
+
+output [longsword 0]+MOD named "Longsword"
+output [greatsword 0]+MOD named "Greatsword"

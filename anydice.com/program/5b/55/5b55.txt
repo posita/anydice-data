@@ -1,0 +1,53 @@
+STRENGTH: 0
+BAB: 3
+AC: 15
+ATTACKS: 2
+HITMOD_ONE: BAB + STRENGTH + -2
+WEP_ONE: 1d8
+CRITMOD_ONE: 2
+THREAT_ONE: 19
+HITMOD_TWO: BAB + STRENGTH + -2
+WEP_TWO: 1d6
+CRITMOD_TWO: 2
+THREAT_TWO: 19
+
+loop LOOP over {1..ATTACKS} {
+ if LOOP=1 { HITMOD:   HITMOD_ONE }
+ if LOOP=1 { WEP:         WEP_ONE }
+ if LOOP=1 { CRITMOD: CRITMOD_ONE }
+ if LOOP=1 { THREAT:   THREAT_ONE }
+ if LOOP=2 { HITMOD:   HITMOD_TWO }
+ if LOOP=2 { WEP:         WEP_TWO }
+ if LOOP=2 { CRITMOD: CRITMOD_TWO }
+ if LOOP=2 { THREAT:   THREAT_TWO }
+ if LOOP=3 { HITMOD:   HITMOD_TRE }
+ if LOOP=3 { WEP:         WEP_TRE }
+ if LOOP=3 { CRITMOD: CRITMOD_TRE }
+ if LOOP=3 { THREAT:   THREAT_TRE }
+ if LOOP=4 { HITMOD:   HITMOD_FOR }
+ if LOOP=4 { WEP:         WEP_FOR }
+ if LOOP=4 { CRITMOD: CRITMOD_FOR }
+ if LOOP=4 { THREAT:   THREAT_FOR }
+
+NORMHIT: WEP + STRENGTH
+CRITHIT: CRITMOD d (WEP + STRENGTH)
+
+function: DTWENTY:n vs AC {
+ if DTWENTY = 1 { result: 0 }
+ if DTWENTY >= THREAT & DTWENTY + HITMOD >= AC {
+  result: [threat d20]
+ }
+ if DTWENTY + HITMOD >= AC | DTWENTY = 20 { result: NORMHIT }
+ result: 0
+}
+
+function: threat DTWENTY:n {
+ if DTWENTY = 1 { result: NORMHIT }
+ if DTWENTY + HITMOD >= AC | DTWENTY = 20 {
+  result: CRITHIT
+ }
+ result: NORMHIT
+}
+
+output [d20 vs AC]
+}

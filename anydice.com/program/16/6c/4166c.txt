@@ -1,0 +1,38 @@
+POOL:6
+DIFFICULTY:6
+MULTI:0
+CELERITY:0
+
+
+
+\\
+
+function: roll ROLL:s {
+ if 1@ROLL < 1 & (#ROLL)@ROLL = -1 {
+  result: -1
+ }
+ result: [highest of 0 and ROLL]
+}
+
+function: roll ROLL:n with willpower {
+ result: [highest of 0 and ROLL + 1]
+}
+
+function: specialty N:n {
+ if N = 10 { result: 2 }
+ if N = 1 { result: -1 }
+ result: N >= Z
+}
+
+Z: DIFFICULTY+MULTI*(1-CELERITY)
+
+NORMAL: d{-1:1, 0:(Z - 2), 1:(11 - Z)}
+
+SPECIALTY: [specialty d10]
+
+X: POOL-MULTI
+
+output [roll X d NORMAL] named "normal"
+output [roll X d SPECIALTY] named "speciality"
+output [roll X d NORMAL with willpower] named "normal willpower"
+output [roll X d SPECIALTY with willpower] named "speciality willpower"

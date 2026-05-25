@@ -1,0 +1,28 @@
+HITROLL: 2              \minimum d20 roll needed to hit\
+HITDAMAGE: d10 + 11     \damage on a normal hit\
+CRITROLL: 15            \minimum d20 roll needed to score critical hit\
+CRITDAMAGE: 2d10 + 17   \damage on a critical hit\         
+ATTACKS: 4              \number of attacks per round\
+HITPOINTS: 190          \number of hitpoints enemy has\
+ADVANTAGE: 1            \1=no advantage, 2=advantage\
+
+function: attackroll ROLL:n
+{
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL >= HITROLL { result: HITDAMAGE }
+ result: 0
+}
+
+loop ROUNDS over {1..10} 
+{
+  loop N over {1..ATTACKS} 
+    {
+      RL: [highest 1 of ADVANTAGEd20]
+      HITPOINTS: HITPOINTS-[attackroll RL]
+    }
+  output HITPOINTS<=0 named "dead in [ROUNDS] round(s)"
+}
+
+RL: [highest 1 of ADVANTAGEd20]
+output [attackroll RL] named "Damage taken"

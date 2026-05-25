@@ -1,0 +1,86 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if ROLL = 1 {result: 0}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n critrange RANGE:n{
+if ROLL >= RANGE {result: DICE + DICE + FLOAT}
+if ROLL = 1 {result: 0}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d critrange RANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+output [attack 1d20 plus 8 vs ac 16 
+hit 2d4+1d8+5+3 + [attack 1d20 plus 8 vs ac 16 for 2d4+1d8 plus 5] + [attack 1d20 plus 8 vs ac 16 for 1d4+1d8 plus 5] 
+miss [attack 1d20 plus 8 vs ac 16 
+      hit 2d4+1d8+5+3 + [attack 1d20 plus 8 vs ac 16 for 1d4+1d8 plus 5] 
+      miss [attack 1d20 plus 8 vs ac 16 for 1d4+1d8 plus 8]
+      crit 4d4+2d8+5+3 + [attack 1d20 plus 8 vs ac 16 for 1d4+1d8 plus 5] critrange 20]
+crit 4d4+2d8+5+3 + [attack 1d20 plus 8 vs ac 16 for 2d4+1d8 plus 5] + [attack 1d20 plus 8 vs ac 16 for 1d4+1d8 plus 5] critrange 20] named "Dervish 5"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 + 1d6 plus 4] + [attack 1d20 plus 1 vs ac 10 for 1d10 + 1d6 plus 4] named "Warlock baseline 5"
+
+output [attack 1d20 plus 0+2-5 vs ac 10 for 1d6 plus 13] + [attack 1d20 plus 0+2-5 vs ac 10 for 1d6 plus 13] + [attack 1d20 plus 0+2-5 vs ac 10 for 1d6 plus 13] named "Elite baseline 5"
+
+output [attack 1d20 plus 10 vs ac 18 
+hit 2d4+2d8+9+4 + [attack 1d20 plus 10 vs ac 18 for 2d4+2d8 plus 9] + [attack 1d20 plus 10 vs ac 18 for 1d4+2d8 plus 9] 
+miss [attack 1d20 plus 10 vs ac 18 
+      hit 2d4+2d8+9+4 + [attack 1d20 plus 10 vs ac 18 for 1d4+2d8 plus 9] 
+      miss [attack 1d20 plus 10 vs ac 18 for 1d4+2d8 plus 9+4]
+      crit 4d4+4d8+9+4 + [attack 1d20 plus 10 vs ac 18 for 1d4+2d8 plus 9] critrange 20]
+crit 4d4+4d8+5+3 + [attack 1d20 plus 10 vs ac 18 for 2d4+2d8 plus 9] + [attack 1d20 plus 10 vs ac 18 for 1d4+2d8 plus 9] critrange 20] named "Dervish 12"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 1 vs ac 10 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 1 vs ac 10 for 1d10 + 1d6 plus 5] named "Warlock baseline 12"
+
+output 34 named "Elite baseline 12"
+
+output [attack 1d20 plus 10 vs ac 18 
+hit 2d[reroll 1d4 as 1d4 if less than 3]+2d8+9+4 + [attack 1d20 plus 10 vs ac 18 for 2d[reroll 1d4 as 1d4 if less than 3]+2d8 plus 9] + [attack 1d20 plus 10 vs ac 18 for 1d[reroll 1d4 as 1d4 if less than 3]+2d8 plus 9] 
+miss [attack 1d20 plus 10 vs ac 18 
+      hit 2d[reroll 1d4 as 1d4 if less than 3]+2d8+9+4 + [attack 1d20 plus 10 vs ac 18 for 1d[reroll 1d4 as 1d4 if less than 3]+2d8 plus 9] 
+      miss [attack 1d20 plus 10 vs ac 18 for 1d[reroll 1d4 as 1d4 if less than 3]+2d8 plus 9+4]
+      crit 4d[reroll 1d4 as 1d4 if less than 3]+4d8+9+4 + [attack 1d20 plus 10 vs ac 18 for 1d[reroll 1d4 as 1d4 if less than 3]+2d8 plus 9] critrange 20]
+crit 4d[reroll 1d4 as 1d4 if less than 3]+4d8+5+3 + [attack 1d20 plus 10 vs ac 18 for 2d[reroll 1d4 as 1d4 if less than 3]+2d8 plus 9] + [attack 1d20 plus 10 vs ac 18 for 1d[reroll 1d4 as 1d4 if less than 3]+2d8 plus 9] critrange 20] named "Dervish 12 plus GWF"

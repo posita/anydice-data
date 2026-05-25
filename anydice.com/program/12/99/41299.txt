@@ -1,0 +1,55 @@
+\ Mixed dice: compute lowest/mid/high among d20, d6, and attribute die
+
+function: hipart N:n { result: N / 10000 }
+function: midpart N:n { result: (N / 100) - 100 * [hipart N] }
+function: lopart N:n { result: N - 100 * (N / 100) }
+
+function: lowestthree N:n {
+  H: [hipart N]
+  M: [midpart N]
+  L: [lopart N]
+  result: [lowest of H and [lowest of M and L]]
+}
+
+function: highestthree N:n {
+  H: [hipart N]
+  M: [midpart N]
+  L: [lopart N]
+  result: [highest of H and [highest of M and L]]
+}
+
+function: medianthree N:n {
+  H: [hipart N]
+  M: [midpart N]
+  L: [lopart N]
+  LO: [lowestthree N]
+  HI: [highestthree N]
+  result: H + M + L - LO - HI
+}
+
+loop A over {6,8,10,12,20} {
+  T: d20*10000 + d6*100 + dA
+  output [lowestthree T] named "attr d[A] low"
+  output [medianthree T] named "attr d[A] mid"
+  output [highestthree T] named "attr d[A] high"
+}
+
+output [lowest of 3d20] named "3d20 low"
+output [middle of 3d20] named "3d20 mid"
+output [highest of 3d20] named "3d20 high"
+
+set "position order" to "highest first"
+
+function: mainplusedges ATTR:n and D6S:s {
+  BEST: 1@D6S
+  MAINISD: BEST > ATTR
+  MAINVAL: [highest of ATTR and BEST]
+  EDGES: (D6S >= 5) - (MAINISD * (BEST >= 5))
+  result: MAINVAL + EDGES
+}
+
+loop A over {6,8,10,12,20} {
+  loop N over {1..10} {
+    output [mainplusedges dA and Nd6] named "attr d[A] + [N]d6"
+  }
+}

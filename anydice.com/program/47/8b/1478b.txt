@@ -1,0 +1,44 @@
+function: edged N:n {
+  if N = 6 {
+    result: 1 + [edged d6] 
+  }
+  if N = 5 {
+    result: 1
+  } 
+  result: 0
+}
+
+function: edie {
+  result: [edged d6]
+}
+
+function: die {
+  result: d{0,0,1}
+}
+
+function: reroll N:n {
+  if N < 5 {
+    result: [count {5, 6} in d6] 
+  }
+  result: 1
+}
+
+function: rdie {
+  result: [reroll d6] 
+}
+
+F: 14
+B: 1 + F + 3
+S: F + F
+
+BR: [lowest of (Bd [rdie]) and F]
+SR: Sd [die]
+
+output [highest of (BR - SR) and 0] named "Net Hits"
+
+D: F + F
+DR: Dd [rdie]
+
+DMG: [lowest of [highest of (SR * 2 - DR) and 0] and (F * 2)]
+
+output [highest of (11 - DMG) and 0] named "Health" 

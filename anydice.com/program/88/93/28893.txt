@@ -1,0 +1,50 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack DICE:d{
+ result: AMOUNT_ATTACKSd[damage for [attack DICE vs DEFENSE]]
+}
+
+loop DEFENSE over {10, 15, 20} {
+
+HITDAMAGE: d{1,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10} + 17
+CRITICALDAMAGE: 2d{1,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10} + 17
+MISSDAMAGE: 0
+
+ATTACK: 5
+AMOUNT_ATTACKS: 6
+\ output [attack 1@2d20] named "6 with GWM vs [DEFENSE]" \
+
+AMOUNT_ATTACKS: 7
+output [attack 1@2d20] named "7 with GWM vs [DEFENSE]"
+
+
+HITDAMAGE: d{1,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10} + 7
+CRITICALDAMAGE: 2d{1,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10} + 7
+
+ATTACK: 10
+AMOUNT_ATTACKS: 6
+\ output [attack 1@2d20] named "6 vs AC [DEFENSE]" \
+
+AMOUNT_ATTACKS: 7
+output [attack 1@2d20] named "7 vs AC [DEFENSE]"
+
+}

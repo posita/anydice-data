@@ -1,0 +1,30 @@
+FIREARMS: 2
+ATHLETICS: 2
+HAS_STOCK: 1
+TOOK_AIM: 1
+OTHER_BONUS: 0
+SHOTS: 3
+
+STABZN: 2*HAS_STOCK + 2*(FIREARMS>2) + 2*(ATHLETICS>2) + 2*(ATHLETICS>5)
+BONUS: FIREARMS + 2*TOOK_AIM - 2*(SHOTS-STABZN>1) - 2*(SHOTS-STABZN>3) + OTHER_BONUS
+
+function: rollshot {
+  if SHOTS > 3 {
+    SHOT: 1d12
+    result: SHOT * (SHOT > 1)
+  }
+  SHOT: 2d6
+  result: SHOT * (SHOT > 2)
+}
+
+function: shot {
+  SHOT: [rollshot]
+  result: SHOT > 0 & (SHOT = 12 | (SHOT + BONUS) > 9)
+}
+
+HITS: 0
+loop S over {1..SHOTS} {
+  HITS: HITS + [shot]
+}
+
+output HITS

@@ -1,0 +1,49 @@
+\ Hammer of Math Angry Dice Calculator \
+\ This is used to calculate the chance of getting a double with a target value. Like Double 4+. \
+
+TARGET: 6 \ Minimum die roll needed. \
+TARGETA: 6 \ Minimum die roll needed for Double Check. \
+TARGETB: 6 \ Minimum die roll needed for Double Check. \
+POOL: 8d6 \ Pool of dice. Normally 8. Re-rolls would add to it. \
+
+\ Function to check. Basically a bastardized count function. \
+
+function: check TARGET:n in POOL:s to NUMBER:n 
+{
+COUNT: 0
+loop P over {TARGET..6}
+{
+COUNT: COUNT + {(P = POOL) >= NUMBER}
+}
+result: COUNT > 0
+}
+
+\ Function to check for multiple conditions. Even more bastardized. \
+
+function: doublecheck TARGETA:n TARGETB:n in POOL:s to NUMBERA:n NUMBERB:n 
+{
+COUNT: 0
+loop P over {TARGETA..6}
+{
+COUNT: COUNT + {(P = POOL) >= NUMBERA}
+}
+loop P over {TARGETB..6}
+{
+COUNT: COUNT + {(P = POOL) >= NUMBERB}
+}
+result: COUNT > 0
+}
+
+output [check TARGET in POOL to 2] named "[POOL] Chance of Double [TARGET]+"
+
+output [doublecheck TARGET 7 in POOL to 2 1] named "Doublecheck [POOL] Chance of Double [TARGET]+"
+
+output [doublecheck 3 7 in POOL to 2 1] named "Martial Excellence"
+
+output [doublecheck 4 1 in POOL to 2 3] named "Total Carnage"
+
+output [doublecheck 5 1 in POOL to 2 3] named "Warp Blades"
+
+output [doublecheck 6 4 in POOL to 2 3] named "Unbridled Bloodlust"
+
+output [check 6 in POOL to 3] named "Reborn in Blood"

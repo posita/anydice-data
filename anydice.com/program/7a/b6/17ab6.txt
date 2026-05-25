@@ -1,0 +1,31 @@
+DEATH: 99
+
+function: sicken ROLL:n plus SICKNESS:n {
+ if ROLL <= 6 { result: SICKNESS + 2 }
+ if ROLL > 6 & ROLL < 10 { result: SICKNESS + 1 }
+ if ROLL >= 10 & SICKNESS > 0 { result: 0 }
+}
+
+function: heal ROLL:n SICKNESS:n {
+ if ROLL > 6 & SICKNESS > 0 { result: SICKNESS - 1 }
+ result: SICKNESS
+}
+
+function: deathcheck SICKNESS:n {
+ if SICKNESS > 5 { result: 1 }
+ result: 0
+}
+
+function: cycle SICKNESS:n CON:n WIS:n {
+  if [deathcheck SICKNESS] = 0 {
+   SICKNESS: [sicken 2d6+CON plus SICKNESS]
+   result: [heal 2d6+WIS SICKNESS]
+  }
+  result: DEATH
+}
+
+SICKNESS: 0
+loop N over {1..10} {
+  SICKNESS: [cycle SICKNESS 0 0]
+  output SICKNESS named "After [N] days"
+}

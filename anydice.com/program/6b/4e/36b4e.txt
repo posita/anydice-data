@@ -1,0 +1,59 @@
+\\\*** Base Damage Calc Info ***\\\
+ENEMY_AC: d{14..18} \looped against enemy AC from 14-18, DMG suggested AC from CR4-16\
+LEVEL: 5
+STAT_MOD: 4
+PROF: (LEVEL+7)/4
+
+\\\*** Attack A ***\\\
+ATTACK_DICE_A: 2d6
+BONUS_DAM_MOD_A: 0
+BONUS_DICE_A: 0
+HIT_BONUS_A: 0
+MAGIC_A: 0
+SINGLE_HIT_A: 0
+N_ATTACKS_A: 2
+
+\\\*** Attack B ***\\\
+ATTACK_DICE_B: 2d6
+BONUS_DAM_MOD_B: 10
+BONUS_DICE_B: 0
+HIT_BONUS_B: -5
+MAGIC_B: 0
+SINGLE_HIT_B: 0
+N_ATTACKS_B: 2
+BA_GWM_CRIT: 0 \"0" if no BA attack on crit, "1" if yes\
+
+\\\*** General Info ***\\\
+CRIT_RANGE: 20
+CRIT_BONUS: 0 \Any additional dice used specifically for a critical\
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+
+
+\\\*** Functions ***\\\
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT_RANGE { result: CRITICALDAMAGE }
+ if ROLL + ATTACK >= ENEMY_AC { result: HITDAMAGE }
+ result: 0
+}
+
+function: single ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACK >= ENEMY_AC { result: SINGLEDAMAGE }
+ result: 0
+}
+
+ATTACK: STAT_MOD + PROF + MAGIC_A + HIT_BONUS_A
+HITDAMAGE: ATTACK_DICE_A + STAT_MOD + MAGIC_A + BONUS_DAM_MOD_A + BONUS_DICE_A
+CRITICALDAMAGE: 2dATTACK_DICE_A + STAT_MOD + MAGIC_A + BONUS_DAM_MOD_A + 2dBONUS_DICE_A + CRIT_BONUS
+SINGLEDAMAGE: SINGLE_HIT_A
+output N_ATTACKS_Ad[attack NORMAL_HIT vs ENEMY_AC] + [single NORMAL_HIT vs ENEMY_AC] named "Atk A"
+output N_ATTACKS_Ad[attack HIT_ADV vs ENEMY_AC] + [single NORMAL_HIT vs ENEMY_AC] named "Adv Atk A"
+
+ATTACK: STAT_MOD + PROF + MAGIC_B + HIT_BONUS_B
+HITDAMAGE: ATTACK_DICE_B + STAT_MOD + MAGIC_B + BONUS_DAM_MOD_B + BONUS_DICE_B
+CRITICALDAMAGE: 2dATTACK_DICE_B + STAT_MOD + MAGIC_B + BONUS_DAM_MOD_B + 2dBONUS_DICE_B + CRIT_BONUS + BA_GWM_CRITd(ATTACK_DICE_B + MAGIC_B + BONUS_DAM_MOD_B + BONUS_DICE_B)
+SINGLEDAMAGE: SINGLE_HIT_B
+output N_ATTACKS_Bd[attack NORMAL_HIT vs ENEMY_AC] + [single NORMAL_HIT vs ENEMY_AC] named " Atk B"
+output N_ATTACKS_Bd[attack HIT_ADV vs ENEMY_AC] + [single NORMAL_HIT vs ENEMY_AC] named "Adv Atk B"

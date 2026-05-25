@@ -1,0 +1,57 @@
+
+\** Attack Roll Function **\
+function: attackrollevade ROLL:n vs EVADE:n {
+ if ROLL = 1 & EVADE != 1 { result: CRITDAMAGE } 
+ if ROLL <= GREAT & EVADE > OPGREAT { result: CRITDAMAGE } 
+ if ROLL <= GREAT & EVADE <= OPGREAT { result: 0 } 
+ if ROLL <= GOOD & EVADE > OPGOOD { result: DAMAGE } 
+ if ROLL <= GOOD & EVADE <= OPGOOD { result: 0 } 
+ if ROLL <= NORMAL & EVADE > OPNORMAL { result: DAMAGE } 
+ if ROLL <= NORMAL & EVADE <= OPNORMAL & EVADE != 100 { result: 0 } 
+ if ROLL = 100 {result: 0}
+ result: 0
+}
+
+function: attackrollcounter ROLL:n vs EVADE:n {
+ if ROLL = 1 & EVADE != 1 { result: CRITDAMAGE } 
+ if ROLL <= GREAT & EVADE > 1 { result: CRITDAMAGE } 
+ if ROLL <= GREAT & EVADE = 1 { result: -10 } 
+ if ROLL <= GOOD & EVADE > OPGREAT { result: DAMAGE } 
+ if ROLL <= GOOD & EVADE <= OPGREAT { result: -10 } 
+ if ROLL <= NORMAL & EVADE > OPGOOD { result: DAMAGE } 
+ if ROLL <= NORMAL & EVADE <= OPGOOD & EVADE != 100 { result: -10 } 
+ if ROLL > NORMAL & EVADE > OPNORMAL {result: 0}
+ if ROLL = 100 {result: -10}
+ result: -10
+}
+
+\** Attack looped against enemy AC from 15-20 **\
+AC: d{80..90}
+
+\** Edit Here **\
+ABILITYMOD: 4
+DMGBONUS: 0
+ATTACKTIMES: 1
+DAMAGE: 1d8 + ABILITYMOD + DMGBONUS
+CRITDAMAGE: 2d8 + ABILITYMOD + DMGBONUS
+STATUS: 80
+NORMAL: STATUS
+GOOD: STATUS/2
+GREAT: STATUS/5
+OPSTATUS: 0
+OPNORMAL: OPSTATUS
+OPGOOD: OPSTATUS/2
+OPGREAT: OPSTATUS/5
+
+\** Output with Normal, Advantage and Disadvantage **\
+\**output ATTACKTIMESd[attackrollevade d100 vs d100] named "normal attack evade"
+output ATTACKTIMESd[attackrollevade [lowest 1 of 2d100] vs d100] named "attack with advantage evade"
+output ATTACKTIMESd[attackrollevade [lowest 1 of 3d100] vs d100] named "attack with double advantage evade"
+output ATTACKTIMESd[attackrollevade [highest 1 of 2d100] vs d100] named "attack with disadvantage evade"
+output 2*(ATTACKTIMES)d[attackrollevade [highest 1 of 3d100] vs d100] named "double attack with disadvantage evade"**\
+
+output ATTACKTIMESd[attackrollcounter d100 vs d100] named "normal attack counter"
+output ATTACKTIMESd [attackrollcounter [lowest 1 of 2d100] vs d100] named "attack with advantage counter"
+output ATTACKTIMESd[attackrollcounter [lowest 1 of 3d100] vs d100] named "attack with double advantage counter"
+output ATTACKTIMESd[attackrollcounter [highest 1 of 2d100] vs d100] named "attack with disadvantage counter"
+output 2*(ATTACKTIMES)d [attackrollcounter [highest 1 of 2d100] vs d100] named "double attack with disadvantage couter" 

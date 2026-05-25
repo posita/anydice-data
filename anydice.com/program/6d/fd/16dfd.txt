@@ -1,0 +1,56 @@
+HITS: 3
+ACCURACY: 10
+ACCMOD: 0
+EVASION: 10
+EVAMOD: 0
+
+LAYERS: 2
+TOUGHNESS: 9
+TOUMOD: 0
+PENETRATION: 11
+PENMOD: 0
+
+\ Calculations Below \
+
+ACCURACY: ACCURACY - 10
+ACCURACY: ACCURACY + ACCMOD
+EVASION: EVASION - ACCURACY
+EVASION: EVASION + EVAMOD
+
+TOUGHNESS: TOUGHNESS - 10
+TOUGHNESS: TOUGHNESS + TOUMOD
+PENETRATION: PENETRATION - TOUGHNESS
+PENETRATION: PENETRATION + PENMOD
+
+function: ROLL:s against CHECK:n{
+ SUCCESSES: 0
+ loop I over {1..#{ROLL}}{
+  if I@{ROLL} >= CHECK{
+   SUCCESSES: SUCCESSES + 1
+  }
+  else {
+   if I@{ROLL} = 20{
+    SUCCESSES: SUCCESSES + 1
+   }
+  }
+ }
+ result: SUCCESSES
+}
+
+HITSUCCESSES: [HITSd20 against EVASION]
+BLOCKSUCCESSES: [LAYERSd20 against PENETRATION]
+
+NETSUCCESSES: HITSUCCESSES - BLOCKSUCCESSES
+
+function: clip NET:n{
+ if NET < 0{
+  NET: 0
+ }
+ result: NET
+}
+
+output [clip NETSUCCESSES] named "Wounds"
+output EVASION named "Evasion Total"
+output PENETRATION named "Penetration Total"
+output HITSUCCESSES named "Hit Successes"
+output BLOCKSUCCESSES named "Block Successes"

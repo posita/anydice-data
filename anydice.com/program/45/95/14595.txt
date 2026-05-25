@@ -1,0 +1,91 @@
+OVMISS: 0
+MISS: 0
+HIT: 1
+OVHIT: 2
+CRHIT: 3
+TIE: -1
+DICE: 10
+
+
+ATTATRIB: 17
+ATTRANK: 0
+
+WEPMODIFY: 9 
+WEAPON: 3d8
+NUMATT: 1
+
+DEFATRIB: 0
+DEFRANK: 0
+DR: 0
+
+
+function: combat ATTROLL:n vs DEFROLL:n {
+ if (ATTROLL + ATTATRIB + ATTRANK)  > (DEFROLL + DEFATRIB + DEFRANK) {
+  if (ATTROLL + ATTATRIB + ATTRANK)  - (DEFROLL + DEFATRIB + DEFRANK) >= (DICE/2) {result: OVHIT}
+  if (ATTROLL + ATTATRIB + ATTRANK)  - (DEFROLL + DEFATRIB + DEFRANK) >= DICE {result: CRHIT}
+  result: HIT
+ }
+ if ATTROLL + ATTATRIB + ATTRANK  < DEFROLL + DEFATRIB + DEFRANK { 
+  if (ATTROLL + ATTATRIB + ATTRANK)  - (DEFROLL + DEFATRIB + DEFRANK) <= -DICE {result: OVMISS}
+  result: MISS
+ }
+ if ATTROLL + ATTATRIB + ATTRANK  = DEFROLL + DEFATRIB + DEFRANK {
+  if ATTRANK > DEFRANK {result: HIT}
+  if ATTRANK < DEFRANK {result: MISS}
+  result: TIE
+ }
+}
+
+function: whatismax{
+ if DICE = 10 {result: 30}
+ result: 40
+}
+function: redice{
+ if DICE = 10 {result: d10}
+ result: d20
+}
+
+DAMAGE: WEAPON + WEPMODIFY
+OVDAMAGE: WEAPON + WEPMODIFY + (WEPMODIFY/2)
+CRDAMAGE: WEAPON + WEPMODIFY + WEPMODIFY
+NODAMAGE: 0
+OVNODAMAGE: 0
+
+function: damage for COMBATRESULT:n {
+ if COMBATRESULT = HIT {
+  result: DAMAGE - DR
+ }
+ if COMBATRESULT = OVHIT {
+  result: OVDAMAGE - DR
+ }
+ if COMBATRESULT = CRHIT{
+  result: CRDAMAGE - DR
+ }
+ if COMBATRESULT = MISS{
+  result: NODAMAGE
+ }
+ if COMBATRESULT = OVMISS{
+  result: OVNODAMAGE
+ }
+ if COMBATRESULT = TIE{
+  result: TIE
+ }
+}
+
+DCTOTALNPC: 0
+loop DCCHECK over {0..[whatismax]} 
+{
+ loop MULTIATTACK over {1..NUMATT}{
+  DCTOTALNPC : DCTOTALNPC + [damage for [combat [redice]-((MULTIATTACK-1)*4) vs ([redice]+DCCHECK)-((MULTIATTACK-1)*2)]]
+ }
+ output DCTOTALNPC named "Total Damage with d[DICE] at NPC DC [DCCHECK]"
+ DCTOTALNPC: 0
+}
+
+loop DCCHECK over {0..[whatismax]} 
+{
+ loop MULTIATTACK over {1..NUMATT}{
+  \output [combat [redice]-((MULTIATTACK-1)*4) vs DCCHECK -((MULTIATTACK-1)*2)] named "MULTIATTACK [MULTIATTACK] with d[DICE] at Player DC [DCCHECK]"\
+  output [damage for [combat [redice]-((MULTIATTACK-1)*4) vs (DCCHECK)]] named "ATTACK [MULTIATTACK] DAMAGE with d[DICE] at Player DC [DCCHECK]"
+ }
+}

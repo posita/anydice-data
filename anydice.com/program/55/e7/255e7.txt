@@ -1,0 +1,113 @@
+
+function: check successes in ROLL:s by APP:n 
+{
+ FSUC: 0 \final max score current\
+ CRIT: 0 \6 count\
+ BOTCH: 0 \1 count\
+ \CSUC temporary score holder\
+ 
+ loop I over {1..6} \I is checker\
+ {
+  CSUC: 0
+  
+  loop J over {1..#ROLL} 
+  {
+   if J@ROLL = I 
+   { 
+    if I=6 
+     {
+     CRIT: CRIT +1
+     }
+    else
+     {
+      CSUC: CSUC +1
+     }
+     
+     if I=1
+     {
+      BOTCH: BOTCH +1
+     }
+   }
+   
+  }
+
+  if FSUC < CSUC
+   {
+   FSUC: CSUC
+   }
+ } \I loop ends\
+ 
+ if APP=1
+{
+ if (FSUC < CRIT) { FSUC: CRIT }
+ FSUC: FSUC-BOTCH
+ if (FSUC<0) {FSUC:0}
+}
+else if APP=2
+{
+ if (FSUC < CRIT) { FSUC: CRIT }
+ if BOTCH>0 {FSUC: FSUC-1}
+ if FSUC<0 {FSUC:0}
+}
+else if APP=4
+{
+ if FSUC<CRIT 
+  { 
+   FSUC: CRIT 
+  }
+ else
+  {
+   if CRIT>0 { FSUC: FSUC+1 }
+  }
+}
+else if APP=5
+{
+ FSUC: FSUC+CRIT
+}
+
+ result: FSUC
+}
+
+KEY:3
+
+if KEY=1
+{
+
+ROLL: {1,1,4,4,4,6,6}
+loop T over {1..5} {
+  output [check successes in ROLL by T] named "[N] dice rolled with [T] approach"
+ }
+
+}
+else if KEY=2
+{
+
+loop N over {4..5} {
+ ROLL: Nd6
+ loop T over {1..5} {
+  output [check successes in ROLL by T] named "[N] dice rolled with [T] approach"
+ }
+}
+
+}
+else if KEY=3
+{
+
+T:5
+loop N over {4..7} {
+ ROLL: Nd6
+ output [check successes in ROLL by T] named "[N] dice rolled with [T] approach"
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+

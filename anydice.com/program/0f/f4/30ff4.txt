@@ -1,0 +1,61 @@
+function: attack D:n plus B:n vs AC:n {
+    if D = 20 { result: 2 }
+    else if D = 19 { result: 2 }
+    else if D+B >= AC { result: 1 }
+    else { result: 0 }
+}
+
+function: damage DD:n plus B:n if HIT:n {
+    if HIT = 2 { result: (DD*2)+B }
+    else if HIT = 1 { result: DD+B }
+    else { result: 0 }
+}
+
+\ Attack Config: Normal or Advantage or Disadvantage \
+function: attconfig {
+    \ Normal: 1d20 \
+    \ Advantage: [highest 1 of 2d20] \
+    \ Disadvantage: [lowest 1 of 2d20] \
+
+    result: 1d20 \ Set Option Here \
+}
+
+\ Main Function: Attack for each AC from 5 to 20 (Level 5) \
+loop AC over {10..25} {
+    TOTAL_FT: 0 \ Flametongue w Action Surge + HB Curse + Hex \
+    TOTAL_BB: 0 \ Booming Blade w Action Surge + HB Curse + Hex \
+    TOTAL_EB: 0 \ E Blast w Action Surge + HB Curse + Hex \
+
+    \ Main Action + ASurge \
+    loop NOA over {1..4} {
+        \ Flametongue x4 \
+        HIT: [ attack [attconfig] plus 9 vs AC ]
+        TOTAL_FT: TOTAL_FT+[ damage 1d8+3d6 plus 9 if HIT ]
+
+        \ Eldritch Blast x4 \
+        HIT: [ attack [attconfig] plus 8 vs AC ]
+        TOTAL_EB: TOTAL_EB+[ damage 1d10+1d6 plus 8 if HIT ]
+    }
+
+    \ Flametongue Attack + Quickened Spell BB \
+    HIT: [ attack [attconfig] plus 9 vs AC ]
+    TOTAL_FT: TOTAL_FT+[ damage 2d8+3d6 plus 9 if HIT ]
+
+    \ Eldritch Blast + Quickened Spell EB \
+    loop NOA over {1..2} {
+        \ Eldritch Blast x2 \
+        HIT: [ attack [attconfig] plus 8 vs AC ]
+        TOTAL_EB: TOTAL_EB+[ damage 1d10+1d6 plus 8 if HIT ]
+    }
+
+    \ Booming Blade + ASurge + Quickened \
+    loop NOA over {1..3} {
+        HIT: [ attack [attconfig] plus 9 vs AC ]
+        TOTAL_BB: TOTAL_BB+[ damage 2d8+3d6 plus 9 if HIT ]
+    }
+
+    output TOTAL_FT named "NA vs:[AC]"
+    output TOTAL_BB named "BB vs:[AC]"
+    output TOTAL_EB named "EB vs:[AC]"
+}
+

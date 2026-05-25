@@ -1,0 +1,146 @@
+\Anydice SotDL Attack\
+\How Badly Will This Creature Fuck Up Starting Characters?\
+
+\Add the attack modifier\
+ATTACKMOD: 0
+BEARMOD: 6
+
+\Total Boons\
+BOONS: 0
+
+\Total Banes\
+BANES: 1
+
+\Standard Damage\
+BASICDAMAGE: 0
+BEARDAMAGE: 2d6+1
+
+\Attack Roll 20+ effect\
+PLUSDAMAGE: 0
+BEARPLUS: 12
+
+\Extra damage effects (such as fire)\
+XDAMAGE: 0
+MAULDAMAGE: 2d6
+
+\Opponent Strength\
+STRENGTH: d{8..11}
+NONESTRENGTH: d{8..12}
+ETHREESTRENGTH: d{8..13}
+MSEVENSTRENGTH: d{8..14}
+BEARSTRENGTH: 16
+SLYPHSTRENGTH: 8+1
+
+\Opponent Agility\
+AGILITY: d{8..12}\ 8,9,10,10,10,11,12\
+NONEAGILITY: d{8..13}
+ETHREEAGILITY: d{8..14}
+MSEVENAGILITY: d{8..15}
+BEARAGILITY: 10
+SLYPHAGILITY: 11+1+1+1
+
+\Opponent Intellect\
+INTELLECT: d{9..11}
+NONEINTELLECT: d{9..12}
+ETHREEINTELLECT: d{9..13}
+MSEVENINTELLECT: d{9..14}
+BEARINTELLECT: 7
+SLYPHINTELLECT: 9
+
+\Opponent Will\
+WILL: d{9..11}
+NONEWILL: d{9..12}
+ETHREEWILL: d{9..13}
+MSEVENWILL: d{9..14}
+BEARWILL: 9
+SLYPHWILL: 11+1+1+1
+
+\Opponent Health\
+HEALTH: d{8..11,14}
+NONEHEALTH: d{10..20}
+NTWOHEALTH: d{12..25}
+ETHREEHEALTH: d{14..31}
+EFOURHEALTH: d{18..37}
+EFIVEHEALTH: d{20..43}
+ESIXHEALTH: d{22..48}
+MSEVENHEALTH: d{24..54}
+MEIGHTHEALTH: d{26..59}
+MNINEHEALTH: d{28..64}
+MTENHEALTH: d{30..69}
+BEARHEALTH: 55
+SLYPHHEALTH: SLYPHSTRENGTH+6+5+4+3+5+4+3+5+4
+
+\Opponent Defense\
+DEFENSE: d{8..15} \9,10,10,10,11,12,13\
+NONEDEFENSE: d{9..13}
+ETHREEDEFENSE: d{9..14}
+MSEVENDEFENSE: d{9..15}
+BEARDEFENSE: 14
+SLYPHDEFENSE: SLYPHAGILITY
+
+\Opponent Perception\
+PERCEPTION: d{9..12} \10,11,9,12,11,10\
+SLYPHPERCEPTION: SLYPHINTELLECT + 1
+
+\You’re done!\
+
+function: cancel out BO:n BA:n {
+ if BO=BA {CANCEL: 0} else {if BO>BA {CANCEL: BO-BA} else {CANCEL: BA-BO}}
+ if CANCEL=0 {result: 0} else {if BO>BA {result: [highest 1 of CANCELd6]} else {result: -[highest 1 of CANCELd6]}}
+}
+
+function: hit A:n B:n {
+ if A>=B {result: 1} else {result: 0}
+}
+
+ROLL: d20+ATTACKMOD+[cancel out BOONS BANES]
+BEARROLL: d20+BEARMOD
+
+function: attack A:n defense D:n damage OW:n plus damage P:n {
+ if A>=D {DAMAGE: OW} else {DAMAGE: 0}
+ if A>=20 {if A>=(D+5) {CRIT: P} else {CRIT: 0}} else {CRIT: 0}
+ result: DAMAGE+CRIT
+}
+
+function: surprise hit P:n A:n D:n {
+ SPOTTED: [hit P 10]
+ HIT: [hit A D]
+ if SPOTTED=1 {result: 0} else {result: HIT}
+}
+
+function: surprise attack P:n A:n defense D:n damage OW:n plus damage PD:n {
+ if A>=D {DAMAGE: OW} else {DAMAGE: 0}
+ if A>=20 {if A>=(D+5) {CRIT: PD} else {CRIT: 0}} else {CRIT: 0}
+ if P>=10 {result: 0} else {result: DAMAGE+CRIT}
+}
+
+function: maul A:n B:n defense D:n {
+ if A>=D {DONE: BEARDAMAGE} else {DONE: 0}
+ if A>=20 {if A>=(D+5) {CRIT: BEARPLUS} else {CRIT: 0}} else {CRIT: 0}
+ if B>=D {DTWO: BEARDAMAGE} else {DTWO: 0}
+ if B>=20 {if A>=(D+5) {CRITTWO: BEARPLUS} else {CRITTWO: 0}} else {CRITTWO: 0}
+ result: DONE+CRIT+DTWO+CRITTWO+MAULDAMAGE
+}
+
+function: challenge C:n damage D:n {
+ if (d20+(C-10))>10 {result: D} else {result: 0}
+}
+
+BACKROGUEROLL: d20+(NONEAGILITY-10)+[cancel out BOONS BANES]
+BACKROGUEBOON: 1d4
+
+function: backrogue R:n defense DEF:n boon BA:n\ bane BE:n\ {
+ if R>=DEF {HURT: 1d6+1} else {HURT: 0}
+ if BA=1 {CRITHURT: 2d6} else {CRITHURT: 0}
+\ if BA>BE {CRITHURT: 2d6} else {CRITHURT: 0}\
+ result: HURT+CRITHURT
+}
+
+SWARMSCI: d20+NONEAGILITY+[cancel out BOONS BANES]
+
+function: swarm A:n {
+ if A>=10 {result: 3d6} else {result: 0}
+}
+
+output [backrogue BACKROGUEROLL defense DEFENSE boon BACKROGUEBOON] named "Scenario 1"
+output [swarm SWARMSCI] named "Scenario 2"

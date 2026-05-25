@@ -1,0 +1,34 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 5 
+HITDAMAGE: 1d4+ 1d6 + 5
+CRITICALDAMAGE: 2d4+2d6+5
+MISSDAMAGE: 0
+
+output [damage for [attack d20 vs 20]] named "Normal"
+
+CRITICALDAMAGE: 1d4+1d6+10+5
+
+output [damage for [attack d20 vs 20]] named "House Rule"

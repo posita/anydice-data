@@ -1,0 +1,73 @@
+function: attack ROLL:n {
+if ROLL = 1 & ROLL+TO_HIT < AC+10  {result: 0}
+if ROLL = 1 & ROLL+TO_HIT >= AC+10  {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+TO_HIT < AC {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+TO_HIT >= AC {result: 2*FCRIT_DICE + 2*DMG_MOD + FATAL_DICE}
+if ROLL+TO_HIT >= AC & ROLL+TO_HIT < AC+10 {result: DMG_DICE + DMG_MOD}
+if ROLL+TO_HIT >= AC & ROLL+TO_HIT >= AC+10 {result: 2*FCRIT_DICE + 2*DMG_MOD + FATAL_DICE}
+
+result: 0}
+
+function: secattack ROLL:n {
+NEW_HIT:TO_HIT-4
+if ROLL = 1 & ROLL+NEW_HIT+10 < AC+10  {result: 0}
+if ROLL = 1 & ROLL+NEW_HIT+10 >= AC+10  {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+NEW_HIT < AC {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+NEW_HIT >= AC {result: 2*CRIT_DICE + 2*DMG_MOD }
+if ROLL+NEW_HIT >= AC & ROLL+NEW_HIT < AC+10 {result: DMG_DICE + DMG_MOD}
+if ROLL+NEW_HIT >= AC & ROLL+NEW_HIT >= AC+10 {result: 2*CRIT_DICE + 2*DMG_MOD }
+
+result: 0}
+
+function: fsecattack ROLL:n {
+NEW_HIT:TO_HIT-5
+if ROLL = 1 & ROLL+NEW_HIT< AC+10  {result: 0}
+if ROLL = 1 & ROLL+NEW_HIT>= AC+10  {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+NEW_HIT< AC {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+NEW_HIT>= AC {result: 2*FCRIT_DICE + 2*DMG_MOD + FATAL_DICE}
+if ROLL+NEW_HIT>= AC & ROLL+NEW_HIT< AC+10 {result: DMG_DICE + DMG_MOD}
+if ROLL+NEW_HIT>= AC & ROLL+NEW_HIT>= AC+10 {result: 2*FCRIT_DICE + 2*DMG_MOD + FATAL_DICE}
+
+result: 0}
+
+function: thattack ROLL:n {
+NEW_HIT:TO_HIT-10
+if ROLL = 1 & ROLL+NEW_HIT+10 < AC+10  {result: 0}
+if ROLL = 1 & ROLL+NEW_HIT+10 >= AC+10  {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+NEW_HIT < AC {result: DMG_DICE + DMG_MOD}
+if ROLL >= CRIT & ROLL+NEW_HIT >= AC {result: 2*FCRIT_DICE + 2*DMG_MOD + FATAL_DICE}
+if ROLL+NEW_HIT >= AC & ROLL+NEW_HIT < AC+10 {result: DMG_DICE + DMG_MOD}
+if ROLL+NEW_HIT >= AC & ROLL+NEW_HIT >= AC+10 {result: 2*FCRIT_DICE + 2*DMG_MOD + FATAL_DICE}
+
+result: 0}
+
+
+DMG_DICE: 2d6
+FCRIT_DICE: 2d10
+CRIT_DICE: 2d6
+FATAL_DICE: 1d10
+DMG_MOD: 8
+TO_HIT: 11
+
+CRIT: 20
+
+
+
+
+
+loop AC over {20..26} {
+HIT_ON: AC - TO_HIT
+SECHIT_ON: AC - (TO_HIT - 4)
+FSECHIT_ON: AC - (TO_HIT - 5)
+THHIT_ON: AC - (TO_HIT - 10)
+
+output [attack d20] named "First 2d8+8 Fatal d10 Attack: [AC] AC (hit on: [HIT_ON])"
+output [fsecattack d20] named "Second 2d8+8 Fatal 1d10 Attack: [AC] AC (hit on: [FSECHIT_ON])"
+output [secattack d20] named "Second 2d6+8 Agile d10 Attack: [AC] AC (hit on: [SECHIT_ON])"
+output [thattack d20] named "Third 2d8+8 Fatal d10 Attack: [AC] AC (hit on: [THHIT_ON])"
+
+output [attack d20]+[secattack d20] named "[AC] AC - Expected 2 attacks, Fatal/Agile"
+output [attack d20]+[fsecattack d20] named "[AC] AC - Expected 2 attacks, Fatal/Fatal"
+output [attack d20]+[secattack d20]+[thattack d20] named "[AC] AC - Expected 3 attacks"
+output 0 named "blank"
+}

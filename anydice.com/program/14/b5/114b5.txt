@@ -1,0 +1,55 @@
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: sharpshoot ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS -5 >= AC { result: DAMAGE + 10 }
+ result: 0
+}
+
+function: newshoot ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE + (2 * PROFICIENCY) }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+loop ENEMYAC over {12..22} {
+
+ATTACKMOD: 3
+DMGBONUS: 0
+\loop PROFICIENCY over {1..6} {\
+PROFICIENCY: 3
+ACCBONUS: 2
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[sharpshoot d20 vs ENEMYAC] named "SS_OLD, Prof: [PROFICIENCY], AC:[ENEMYAC]"
+output ATTACKTIMESd[newshoot d20 vs ENEMYAC] named "SS_NEW, Prof: [PROFICIENCY], AC:[ENEMYAC]"
+\}\
+}
+
+\looped against enemy AC from 15-20\
+loop ENEMYAC over {12..22} {
+
+ATTACKMOD: 3
+DMGBONUS: 0
+\loop PROFICIENCY over {1..6} {\
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 1d8 + 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d8 + 2d6 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[sharpshoot d20 vs ENEMYAC] named "DW_OLD, Prof: [PROFICIENCY], AC:[ENEMYAC]"
+output ATTACKTIMESd[newshoot d20 vs ENEMYAC] named "DW_NEW, Prof: [PROFICIENCY], AC:[ENEMYAC]"
+\}\
+}
+

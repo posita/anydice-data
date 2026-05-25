@@ -1,0 +1,38 @@
+function: advantage D:d {
+  result: [highest 1 of 2dD]
+}
+
+function: single D:d {result: 1d((#{D}+(#D)-1)/(#D))}
+
+function: gwf D:d {\\A:{}\\S:[single D]\\F:#{S}\\loop I over{1..#{S}}{if I<3{A:{A,S}}else{A:{A,I:F}}}result:(#D)dA}
+
+function: dpr w WEA:d m GWM:n f GWF:n att ATT:n sa SA:n {
+  ADV: [advantage d20]
+  NOR: 1d20
+  result: [dpa w WEA r ADV ad 1 m GWM f GWF sa SA su (GWF>0)]
+         +(ATT-1)d[dpa w WEA r NOR ad 0 m 0 f GWF sa 0 su (GWF>0)]
+}
+function: dpa w WEA:d r ROLL:n ad ADV:n m GWM:n f GWF:n sa SA:n su SU:n{
+  if (ROLL+10-(GWM>0)*5)>12 {
+    if ROLL>18 {
+      result: [hit w WEA cr 1 m GWM f GWF s SA]
+    } else {
+      result: [hit w WEA cr 0 m GWM f GWF s SA]
+    }
+  } else {
+    result: 0
+  }
+}
+function: hit w WEA:d cr CRIT:n m GWM:n f GWF:n s SA:n{
+RES:5 if(GWM>0){RES:RES+10}
+if(GWF<1){RES:RES+WEA}else{RES:RES+[gwf WEA]}
+if(SA>0){if(GWF<1){RES:RES+7d6}else{RES:RES+[gwf 7d6]}}
+if(CRIT>0){
+if(GWF<1){RES:RES+WEA+([single WEA])if(SA>0){RES:RES+7d6}}
+else{RES:RES+([gwf WEA])+([gwf ([single WEA])])if(SA>0){RES:RES+[gwf 7d6]}}
+}
+result:RES
+}
+output [dpr w 2d6 m 1 f 1 att 4 sa 0] named "GS by AR"
+output [dpr w 1d12 m 1 f 1 att 4 sa 0] named "GA by AR"
+output [dpr w 1d8 m 0 f 0 att 3 sa 1] named "DW by AR"

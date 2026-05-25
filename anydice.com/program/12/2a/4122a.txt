@@ -1,0 +1,23 @@
+function: drop COUNT:n of VALUES:s from DICE:s {
+  TOTAL: [count VALUES in DICE]
+
+  if TOTAL = 0 { result: DICE }
+  if TOTAL < COUNT { COUNT: TOTAL }
+
+  loop N over {1..#DICE} {
+    if [VALUES contains {N}@DICE] {
+      result: {1..N-1}@DICE + {N+COUNT..#DICE}@DICE
+    }
+  }
+}
+
+function: replace COUNT:n of VALUES:s from DICE:s with CARDS:s {
+  TOTAL: [count VALUES in DICE]
+
+  if TOTAL = 0 { result: DICE }
+  if TOTAL < COUNT { COUNT: TOTAL }
+
+  result: [drop COUNT of VALUES from DICE] + CARDS
+}
+
+output [replace 1 of {8..10} from 1d10 with 1d14]

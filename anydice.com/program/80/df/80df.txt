@@ -1,0 +1,104 @@
+\output [lowest 1 of 2d6] named "2d6 drop high"
+output 1d6 named "1d6"
+output [lowest 1 of 2d10] named "2d10 drop high"
+output 1d10 named "1d10"
+output 1d10+1d6 named "1d10+1d6"\
+
+\output 2d10 named "2d10"
+output [highest 2 of 3d10] named "3d10 drop low"
+output 2d10+1d6 named "2d10+1d6"
+output [highest 2 of 3d10]+1d6 named "3d10 drop low+1d6"
+output 2d10+2d6 named "2d10+2d6"\
+
+\output {d10}
+output {d10,d6}
+output {d10,d10,d6}\
+
+function: droplow a A:n b B:n c C:n {
+ if A > C {
+  if A > B {
+   if B > C { result: A + B }
+   else { result: A + C }
+  }
+  else { result: B + A }
+ } else { 
+  if A > B { result: A + C }
+  else { result: B + C }
+ }
+}
+
+\output 2d10 named "2d10"
+output [droplow a d10 b d10 c d6] named "2d10+1d6 drop low"
+output [highest 2 of 3d10] named "3d10 drop low"
+output 2d10+1d6 named "2d10+1d6"
+output 2d10+2d6 named "2d10+2d6"\
+
+ARMOR: 7
+\output [highest of 0 and 2d10-ARMOR] named "2d10-[ARMOR]"
+output [highest of 0 and [droplow a d10 b d10 c d6]-ARMOR] named "2d10+1d6 drop low-[ARMOR]"
+output [highest of 0 and [highest 2 of 3d10]-ARMOR] named "3d10 drop low-[ARMOR]"
+output [highest of 0 and 2d10+1d6-ARMOR] named "2d10+1d6-[ARMOR]"
+output [highest of 0 and 3d10-ARMOR] named "3d10-[ARMOR]"
+output [highest of 0 and 2d10+2d6-ARMOR] named "2d10+2d6-[ARMOR]"\
+
+function: highest N:n of A:s and B:s {
+result: {1..N}@[sort {A, B}]
+}
+function: lowest N:n of A:s and B:s {
+ result: {1..N}@[reverse [sort {A, B}]]
+}
+function: attack A:s defense D:n {
+ result: A-D >= 0
+}
+function: damage D:s armor A:n {
+ result: [highest of 0 and D-A]
+}
+\function: damage vs armor A:n {\
+
+DEF:12
+ARM:7
+ATK: 2d10+1d6
+DMG: 3d10+1d6 \[highest 4 of 2d10 and 2d6]\
+
+\output [attack ATK defense DEF] named "[ATK] >= [DEF]"
+output [damage DMG armor ARM] named "[DMG] - [ARM]"
+output [attack ATK defense DEF]*[damage DMG armor ARM] named "([ATK] >= [DEF])*([DMG] - [ARM])"\
+
+\output [lowest 2 of 3d10]
+output 2d10 named "2d10"
+output [highest 2 of 2d10 and 1d6]
+output [highest 2 of 3d10]\
+
+\ output [damage [highest 2 of 2d10 and 1d6] armor A] named "highest 2 of 2d10 and 1d6 - [A]"
+ output [damage [highest 2 of 3d10] armor A] named "highest 2 of 3d10 - [A]"
+ output [damage 2d10+1d6 armor A] named "2d10+1d6 - [A]"
+ output [damage [highest 3 of 2d10 and 2d6] armor A] named "highest 3 of 2d10 and 2d6 - [A]"
+ output [damage 2d10+2d6 armor A] named "2d10+2d6 - [A]"
+ output [damage 3d10+1d6 armor A] named "3d10+1d6 - [A]"\
+\}\
+
+\output [damage 2d10 armor 10] named "2d10-10"\
+
+DMG: {2d10,[highest 2 of 2d10 and 1d6],[highest 2 of 3d10],2d10+1d6,[highest 3 of 2d10 and 2d6],2d10+2d6,3d10+1d6}
+\output DMG\
+\loop D over {1..7} {
+ output D@DMG
+}\
+
+
+output [lowest 2 of 2d10 and 1d6] named "lowest 2 of 2d10 and 1d6"
+output [lowest 2 of 3d10] named "lowest 2 of 3d10"
+output 2d10 named "2d10"
+output [highest 2 of 2d10 and 1d6] named "highest 2 of 2d10 and 1d6"
+output [highest 2 of 3d10] named "highest 2 of 3d10"
+output 2d10+1d6 named "2d10+1d6"
+output [highest 3 of 2d10 and 2d6] named "highest 3 of 2d10 and 2d6"
+output 3d10 named "3d10"
+output [highest 3 of 3d10 and 1d6] named "highest 3 of 3d10 and 1d6"
+output 2d10+2d6 named "2d10+2d6"
+output 3d10+1d6 named "3d10+1d6"
+output 2d10+3d6 named "2d10+3d6"
+output 4d10 named "4d10"
+output 3d10+2d6 named "3d10+2d6"
+
+

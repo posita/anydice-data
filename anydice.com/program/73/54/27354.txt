@@ -1,0 +1,70 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1           { result: 0 }
+    if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG }
+    if ROLL + BONUS >= AC { result: DMG }
+    result: 0
+}
+
+function: dblattack ROLLA:n and ROLLB:n prof PROFBONUS:n modifier MODBONUS vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLLA = 1           
+    { 
+       if ROLLB  = 1 
+       {
+          result: 0
+       } 
+       if ROLLB  >= CRIT_RANGE 
+       {
+          result: DMG + CRIT_DMG
+       } 
+       if ROLLB + PROFBONUS + MODBONUS >= AC 
+       {
+          result: DMG
+       } 
+       result: 0 
+    }
+    if ROLLA >= CRIT_RANGE 
+    {
+       if ROLLB  = 1 
+       {
+          result: DMG + CRIT_DMG + MODBONUS
+       } 
+       if ROLLB  >= CRIT_RANGE 
+       {
+          result: DMG + CRIT_DMG + DMG + CRIT_DMG + MODBONUS
+       } 
+       if ROLLB + PROFBONUS + MODBONUS >= AC 
+       {
+          result: DMG + DMG + CRIT_DMG + MODBONUS
+       } 
+       result: DMG + CRIT_DMG + MODBONUS
+    }
+    
+
+    if ROLLA + PROFBONUS + MODBONUS >= AC 
+    {
+       if ROLLB  = 1 
+       {
+          result: DMG + MODBONUS
+       } 
+       if ROLLB  >= CRIT_RANGE 
+       {
+          result: DMG + CRIT_DMG + DMG + MODBONUS
+       } 
+       if ROLLB + PROFBONUS + MODBONUS >= AC 
+       {
+          result: DMG + DMG + MODBONUS
+       } 
+       result: DMG + MODBONUS 
+    }
+    result: 0
+}
+
+output 1d6+3+1d8+2d6 named "damage"
+
+output [highest 3 of 4d6]
+
+output [attack d20 plus 5 vs 1d10+10 for 1d6+2d6+1d8+3 crit 1d6+1d8+2d6 on 20] named "one hit"
+
+output [attack [highest 1 of 2d20] plus 5 vs 1d10+10 for 1d6+2d6+1d8+3 crit 1d6+1d8+2d6 on 20] named "one hit with adv "
+
+output [dblattack [highest 1 of 2d20] and [highest 1 of 2d20] prof 2 modifier 3 vs 1d10+10 for 1d6+2d6 crit 1d6+2d6 on 20]

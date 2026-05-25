@@ -1,0 +1,91 @@
+function: dam DAM:d att ATT:n skill SKILL:n lostrate LR:n first F:n aim AIM:n aimtype AIMT:n vital FVITAL:n SVITAL:n plasma PLASMA:n master MASTER:n con CON:n prof PROF:n shield SHIELD:n av AV:n rolled D:s {
+ ROLL: 1@D + 2@D
+ if ((!PROF | CON < 10) & (1@D = 2@D & 1@D >= CON)) | (PLASMA & 1@D = 2@D & 1@D >= PLASMA) {
+  result: -1
+ }
+ AT: ATT + SKILL + ( LR * 2 )
+ if !F | AIMT = 1 { AT: AT + AIM }
+ if F & AIMT = 2 { AT: AT + ( AIM / 2 ) }
+ if !F { AT: AT - FVITAL }
+ if F { AT: AT - SVITAL }
+ if ROLL > ( AT ) {
+  result: 0
+ }
+ XS: AT - ROLL
+ DAMAGE: DAM
+ if SHIELD {
+  DAMAGE: [maximum of DAM]
+ }
+ EXTRADAM: 0
+ SINGLE: ( RATE - LR = 1 )
+ if MASTER = 1 {
+  EXTRADAM: XS
+ }
+ if MASTER = 2 {
+  if !F {
+   EXTRADAM: XS
+  }
+  if F {
+   EXTRADAM: XS / 2
+  }
+ }
+ if MASTER = 3 {
+  if !F {
+   EXTRADAM: XS
+  }
+  if F {
+   EXTRADAM: [lowest of XS and SKILL]
+  }
+ }
+ if MASTER = 4 {
+  if !F {
+   EXTRADAM: XS
+  }
+ }
+ DAMAGE: DAMAGE + EXTRADAM
+ if !F | AIMT = 1 { DAMAGE: DAMAGE + AIM }
+ if F & AIMT = 2 { DAMAGE: DAMAGE + ( AIM / 2 ) }
+ if !F { DAMAGE: DAMAGE + FVITAL }
+ if F { DAMAGE: DAMAGE + SVITAL }
+ if 1@D = 2@D & (PROF | 1@D = 1 | 1@D <= (CON - 10)) {
+  DAMAGE: DAMAGE * 2
+ }
+ if !PLASMA {
+  DAMAGE: DAMAGE - AV
+ }
+ if PLASMA {
+  DAMAGE: DAMAGE - [floor (AV - [maximum of DAM])]
+ }
+ DAMAGE: [floor DAMAGE]
+ result: DAMAGE
+}
+
+function: floor DAM:n {
+ if DAM < 0 {
+  result: 0
+ }
+ result: DAM
+}
+
+function: dam DAM:d att ATT:n skill SKILL:n lostrate LR:n aim AIM:n aimtype AIMT:n vital FVITAL:n SVITAL:n plasma PLASMA:n master MASTER:n con CON:n prof PROF:n shield SHIELD:n av AV:n rate RATE:n {
+ DAMAGE: 0
+ loop F over {0..(RATE-LR-1)} {
+  DAMAGE: DAMAGE + [dam DAM att ATT skill SKILL lostrate LR first F aim AIM aimtype AIMT vital FVITAL SVITAL plasma PLASMA master MASTER con CON prof PROF shield SHIELD av AV rolled 2d10]
+ }
+ result: [floor DAMAGE]
+}
+
+\ edit the lines below with the relevant information for your attack \
+
+\ VVV IMPORTANT LINE VVV \
+PER: 11
+SKL: 8
+ARMOUR: 4
+output [dam 1d8 att PER skill SKL lostrate 0 aim 0 aimtype 1 vital 0 0 plasma 0 master 1 con 10 prof 1 shield 0 av ARMOUR rate 3] named "Cougar Rate 3 Core"
+output [dam 1d8 att PER skill SKL lostrate 0 aim 0 aimtype 2 vital 0 3 plasma 0 master 2 con 10 prof 1 shield 0 av ARMOUR rate 3] named "Cougar Rate 3 Half-Bonuses"
+output [dam 1d8 att PER skill SKL lostrate 0 aim 0 aimtype 3 vital 0 6 plasma 0 master 4 con 10 prof 1 shield 0 av ARMOUR rate 3] named "Cougar Rate 3 One Only"
+output [dam 2d10+2 att PER skill SKL lostrate 0 aim 0 aimtype 1 vital 0 0 plasma 8 master 1 con 10 prof 1 shield 0 av ARMOUR rate 1] named "PR95 Rate 1 Core"
+output [dam 2d10+2 att PER skill SKL lostrate 0 aim 12 aimtype 1 vital 0 0 plasma 8 master 1 con 10 prof 1 shield 0 av ARMOUR rate 1] named "PR95 Aimed Rate 1 Core"
+\ ^^^ IMPORTANT LINE ^^^ \
+
+\ The analysis has critical fails miss but does not account for the jamming of the weapon preventing further attacks, so results will be slightly skewed to higher damage when using non-profession or low condition at rates > 1 \

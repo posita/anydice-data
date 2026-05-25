@@ -1,0 +1,70 @@
+function: attack ROLL:n    plus BONUS:n    vs AC:n    for DMG:d    crit CRIT_DMG:d    on CRIT_RANGE:n {
+    if ROLL = 1           { result: 0 }
+    if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG }
+    if ROLL + BONUS >= AC { result: DMG }
+    result: 0
+}
+\ define profundidade de exploding dice \ 
+set "explode depth" to 5
+
+\ mais variaveis \
+\ output [attack [highest 1 of 2d20]   plus 2 + 3   vs 13  for 1d6 + 3 + 2d6   crit 1d6 + 2d6  on 20] \
+
+\ variáveis ---------------- \
+\ MOD: modificador na jogada de ataque\
+\ AC: classe de armadura do oponente \
+\ CRIT: range do critico (20, 19-20, 18-20, etc) \
+MOD:  0
+AC:   0
+CRIT: 20
+\ -------------------------- \
+\ output Nd4 named "[N]d4" \
+\ output 1dN named "1d[N]" \
+
+loop M over {1 ,2}{
+ loop N over {4, 6, 8, 10, 12}{
+  output [attack  1d20  plus MOD vs AC for MdN   crit MdN   on CRIT] named  "normal [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN   crit MdN   on 19] named  "crit19 [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN   crit MdN   on 18] named  "crit18 [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN   crit M+1dN   on CRIT] named  "+1dicecrit [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN   crit M+2dN   on CRIT] named  "+2dicecrit [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN   crit MdN+1 on CRIT] named  "crit+1 [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN   crit MdN+2 on CRIT] named  "crit+2 [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN   crit MdN+5 on CRIT] named  "crit+5 [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for MdN+1 crit MdN+1 on CRIT] named  "normal+1 [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for M+1dN crit M+1dN on CRIT] named  "+1dice [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for [explode MdN]       crit [explode MdN]       on CRIT] named  "explode [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for [highest 1 of MdN]  crit [highest 1 of MdN]  on CRIT] named  "dmg_adv [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for Md{2..N}            crit Md{2..N}            on CRIT] named  "always_reroll1 [M]d[N]"
+  output [attack  1d20  plus MOD vs AC for Md{3..N}            crit Md{3..N}            on CRIT] named  "always_reroll2 [M]d[N]"
+
+  output [attack  1d20  plus MOD vs AC for [explode [highest 1 of M+1d4]]  crit [explode [highest 1 of M+1d4]]  on CRIT] named  "explode_damage_advantage [M]d4"
+  output [attack  1d20  plus MOD vs AC for [explode Md{2..4}]  crit [explode Md{2..4}]  on CRIT] named  "explode_reroll_1 [M]d4"
+  output [attack  1d20  plus MOD vs AC for [explode Md{3..4}]  crit [explode Md{3..4}]  on CRIT] named  "explode_reroll_1&2 [M]d4"
+ }
+}
+
+\ rerolagens precisam ser feitas de uma forma separada, só funcionam com \
+loop M over {1, 2}{
+ loop N over {4, 6, 8, 10, 12}{
+  output Md{1..2:2, 3..N:N+2} named "reroll2_once [M]d[N]"
+ }
+}
+
+loop M over {1, 2}{
+ loop N over {4, 6, 8, 10, 12}{
+  output Md{1:2, 2..N:N+2} named "reroll1_once [M]d[N]"
+ }
+}
+
+\ reroll formula \
+\ https://rpg.stackexchange.com/questions/115193/how-can-i-calculate-the-distribution-of-roll-4d6-keep-rerolling-1s-and-2s-and/115232#115232 \
+\ para rerolar 1 e 2 toda vida de um 1d6 \
+\ output 1d{3..6} named "1d6 always reroll 1&2" \
+
+\ para rerolar 1 e 2 somente uma vez de um 1d6 \
+\ como se o dado primeiro rolasse do 1 ao 6, mas dentro do 1 tem mais 6 possibilidades (do 1 ao 6), então o dado possui na verdade 11 faces \
+\ output 1d{{2..6},{1..6}} named "1d6 reroll 1 once" \
+
+\ exploding dice \
+\ [explode 1d4] \

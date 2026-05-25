@@ -1,0 +1,34 @@
+\ https://rpg.stackexchange.com/questions/97265/implementing-multiattack-in-anydice \
+function: multiattack X:n times AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [d20 attack AC with BONUS deal DAMAGE extra CRITBONUSDAMAGE with critrange CRITRANGE]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+function: ROLL:n attack AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n {
+   if(ROLL >= CRITRANGE){ \crit and autohit\
+      result: DAMAGE + CRITBONUSDAMAGE 
+   }
+   if(ROLL = 1) { result:0 } \nat 1 -> miss\
+   if(ROLL + BONUS < AC) { result: 0 } \miss\
+   result: DAMAGE \hit\
+}
+AC: 16
+
+HITBONUS: 3+4
+output 
+[d20 attack AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20] + 
+[d20 attack AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20]
+named "Addition"
+
+output 
+[multiattack 2 times AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20]
+named "Multiattack"
+
+
+output 
+[d20 attack AC with (HITBONUS) deal 1d4+3+d6 extra 1d6 with critrange 20]*2
+named "Times 2"

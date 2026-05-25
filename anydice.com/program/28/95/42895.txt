@@ -1,0 +1,147 @@
+SHOP: 0 \ 0 = false, 1 = true \
+BOSS: 0 \ 0 = false, 1 = true \
+UNIQUE_PASSIVES_BUGGED: 1 \ 1 = current behaviour, 0 = cap unique passives to one roll each \
+
+\ === WEAPON STATS === \
+\ Number of stat ranges per weapon \
+WEAPON_STATS: {
+  2, \ Great Sword \
+  2, \ Healing Staff \
+  2, \ Bow \
+\ 1,   Rune of the Forgotten \
+  2, \ Defender's Aegis \
+  0, \ Orb of Potency \
+  2, \ Vampiric Staff \
+  3, \ Poison Dagger \
+  3, \ Wand of Absorption \
+  4, \ Flame Staff \
+  2, \ Energy Staff \
+  3, \ Spirit Staff \
+  2, \ Arcane Scepter \
+  2, \ Resurrection Staff \
+  2, \ Glacial Axe \
+  4, \ Vanguard's Banner \
+  3, \ Culling Scythe \
+\ 3,   Rune of Celebration \
+  3, \ Staff of Purity \
+  5, \ Leeching Scythe \
+  3, \ Foul Fish \
+\ 6,   Rune of Luck \
+  3, \ Staff of Corruption \
+  3, \ Soul Tithe \
+  4, \ Briar-Heart Staff \
+  3, \ Arbiter's Edge \
+  3, \ Wounding Crossbow \
+  4, \ Bleeding Gaze \
+  3  \ Conduit Claw \
+}
+WEAPON_DIE: d(WEAPON_STATS)
+
+\ === PASSIVE STATS === \
+\ Number of stat ranges per passive \
+PASSIVE_STATS: {
+  1, \ Strength \
+  1, \ Magic \
+  1, \ Health Point \
+  1, \ Weapon Point \
+  1, \ Physical Resistance \
+  1, \ Magic Resistance \
+  1, \ Lifesteal \
+  1, \ Thorns \
+  1, \ Mana Tap \
+  1, \ Absolve \
+  1, \ Safeguard \
+  2, \ Critical \
+  1, \ Discharge \
+  1, \ Kamikaze \
+  1, \ Regeneration \
+  1, \ Energize \
+  1, \ Sprout \
+  1, \ Enrage \
+  2, \ Sacrifice \
+  1, \ Snail \
+  1, \ Knowledge \
+  1, \ Giant Slayer \
+  2, \ Adaptation \
+  2, \ Resonance \
+  2, \ Living Hive \
+  2, \ Lone Wolf \
+  1  \ Frost Armor \
+}
+PASSIVE_DIE: d(PASSIVE_STATS)
+
+\ === UNIQUE PASSIVE STATS === \
+\ Passives that can only roll once across all slots \
+\ Each gets a sentinel (identity) and a ranges (real stat-range count) \
+\ To add a new unique passive: \
+\   1. Define XX_SENTINEL and XX_RANGES \
+\   2. Add an entry to UNIQUE_STATS \
+\   3. Add an if-line to passive, decode, and cap uniques \
+DS_SENTINEL: 101
+DS_RANGES:   3
+UNIQUE_STATS: {
+  3  \ Double Strike \
+}
+TOTAL_PASSIVES: #PASSIVE_STATS + #UNIQUE_STATS
+
+function: passive R:n {
+  if R = 1 { result: DS_SENTINEL } \ Double Strike \
+  result: PASSIVE_DIE
+}
+
+function: decode P:n {
+  if P = DS_SENTINEL { result: DS_RANGES } \ Double Strike \
+  result: P
+}
+
+function: cap uniques A:n B:n C:n {
+  if UNIQUE_PASSIVES_BUGGED = 1 { result: [decode A] + [decode B] + [decode C] }
+  DECODED: [decode A] + [decode B] + [decode C]
+  REROLLS: 0
+  REFUND: 0
+  \ Double Strike \
+  DS_EXTRAS: (A = DS_SENTINEL) + (B = DS_SENTINEL) + (C = DS_SENTINEL) - 1
+  if DS_EXTRAS > 0 {
+    REROLLS: REROLLS + DS_EXTRAS
+    REFUND: REFUND + DS_EXTRAS * DS_RANGES
+  }
+  \ Add more unique passives here following the same pattern \
+  if REROLLS = 0 { result: DECODED }
+  if REROLLS = 1 { result: DECODED - REFUND + PASSIVE_DIE }
+  result: DECODED - REFUND + PASSIVE_DIE + PASSIVE_DIE
+}
+
+function: W:n weapon {
+  P_A: [passive d(TOTAL_PASSIVES)]
+  P_B: 0
+  P_C: 0
+  if W = 0    { P_B: [passive d(TOTAL_PASSIVES)] }
+  if BOSS = 1 { P_C: [passive d(TOTAL_PASSIVES)] }
+  result: [roll W + [cap uniques P_A P_B P_C] stats] - 1
+}
+
+function: X:n worn {
+  if      X  = 1  { result: 5 }
+  else if X <= 6  { result: 3 }
+  else if X <= 16 { result: 1 }
+  else { result: 0 }
+}
+
+function: roll X:n stats {
+  if SHOP = 1 { result: 40 + (Xd61/X) + [d100 worn] }
+  result: (Xd101/X) + [d100 worn]
+}
+
+function: dismantle X:n {
+  if      X <= 20  { R: 1 }
+  else if X <= 40  { R: 3 }
+  else if X <= 60  { R: 5 }
+  else if X <= 80  { R: 25 }
+  else if X <  95  { R: 300 }
+  else if X < 100  { R: 1000 }
+  else { R: 5000 }
+  if BOSS = 1 { result: R * 3 / 2 }
+  result: R
+}
+
+output [dismantle [WEAPON_DIE weapon]]

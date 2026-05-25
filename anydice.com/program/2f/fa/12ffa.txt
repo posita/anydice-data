@@ -1,0 +1,75 @@
+function: shortsword ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SHORTSWORD }
+ result: 0
+}
+
+function: shortswordtwf ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT-ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SHORTSWORD }
+ result: 0
+}
+
+function: shortswordtwftwo ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT-ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS -2 >= AC { result: SHORTSWORD }
+ result: 0
+}
+
+
+function: shortswordtwfthree ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT-ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS -2 -2 >= AC { result: SHORTSWORD }
+ result: 0
+}
+
+function: shortswordtwffour ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT-ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS -2 -2 -2 >= AC { result: SHORTSWORD }
+ result: 0
+}
+
+function: greatsword ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: GREATSWORDCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: GREATSWORD }
+ result: 0
+}
+
+function: shortsworddamagedie ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT+2d6 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SHORTSWORD+1d6 }
+ result: 0
+}
+
+ENEMYAC: d{18..23}
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 18
+ATTACKTIMES: 4
+SHORTSWORD: 1d6 + ATTACKMOD + DMGBONUS
+SHORTSWORDCRIT: 2d6 + ATTACKMOD + DMGBONUS
+GREATSWORD: 2d{{1..2}:2, {3..6}:6}+ATTACKMOD+DMGBONUS
+GREATSWORDCRIT: 4d{{1..2}:2, {3..6}:6}+ATTACKMOD+DMGBONUS
+
+
+\level 20 champion with fighting style\
+
+output ATTACKTIMESd[shortsword d20 vs ENEMYAC]+d[shortswordtwf d20 vs ENEMYAC] named "TWF RAW"
+
+output ATTACKTIMESd[greatsword d20 vs ENEMYAC] named "greatsword RAW"
+
+output ATTACKTIMESd[shortsword d20 vs ENEMYAC]+d[shortswordtwf d20 vs ENEMYAC]+d[shortswordtwftwo d20 vs ENEMYAC]+d[shortswordtwfthree d20 vs ENEMYAC]+d[shortswordtwffour d20 vs ENEMYAC] named "TWF kos's house rule (additional attack per Extra Attack at -2, cumulative per atk)"
+
+output ATTACKTIMESd[shortsworddamagedie d20 vs ENEMYAC] named "TWF Mearls's house rule (no BA, add offhand to all attacks)"
+
+output ATTACKTIMESd[shortsword d20 vs ENEMYAC]+[shortsword d20 vs ENEMYAC] named "TWF Mearls's house rule (no BA)"

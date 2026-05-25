@@ -1,0 +1,21 @@
+function: decroll ROLL:n NEXT:n{
+  if ROLL = 1 {result: 0}
+  if (NEXT = 0) | (NEXT = 1) {result: 0}
+  result: ROLL + NEXT
+}
+
+function: roll SEQ:s{
+  LEN: #SEQ
+  NEXT: [decroll 1d((LEN-1)@SEQ) 1d((LEN)@SEQ)]
+  loop N over {2..(LEN-1)} {
+    NEXT: [decroll 1d((LEN-N)@SEQ) NEXT]
+  }
+  result: NEXT
+}
+
+\ S: {20,12,10,8,6,4} \
+
+output [roll {12,10,8,6,4}] named "12 -> 4"
+output [roll {12,10,8,6}]   named "12 -> 6"
+output [roll {12,10,8}]     named "12 -> 8"
+output [roll {12,10}]       named "12 -> 10"

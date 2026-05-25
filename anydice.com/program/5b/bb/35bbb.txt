@@ -1,0 +1,144 @@
+\ Dices based on D4 \
+_QUATRE: d{0..3}
+Q: d{0..3}
+
+function: limited A:n minus B:n {
+ if (A-B)<=0 { result: A }
+ result: A-(A-B)
+}
+
+function: overflowing pairing SEQUENCE:s on TARGET:n {
+ TEMP: {}
+ OF: {}
+ COUNT_UN: 0
+ COUNT_DEUX: 0
+ COUNT_TROIS: 0
+ TOTAL: 0
+ loop M over {1..#SEQUENCE} {
+    COUNT_UN: COUNT_UN + (M@SEQUENCE = 1)
+    COUNT_DEUX: COUNT_DEUX + (M@SEQUENCE = 2)
+    COUNT_TROIS: COUNT_TROIS + (M@SEQUENCE = 3)
+ }
+ loop N over {1..3} {        \ 3= Max of Dice \
+    if (N = 1) & (N >= TARGET) { TOTAL: TOTAL + COUNT_UN }
+    if (N = 2) & (N >= TARGET) { TOTAL: TOTAL + COUNT_DEUX }
+    if (N = 3) & (N >= TARGET) { TOTAL: TOTAL + COUNT_TROIS }
+ }
+
+ LDU: [limited COUNT_DEUX minus COUNT_UN]
+ LTU: [limited COUNT_TROIS minus COUNT_UN]
+ LTD: [limited COUNT_TROIS minus COUNT_DEUX]
+ LTLD: [limited (COUNT_TROIS-LTU) minus COUNT_DEUX]
+
+ if (TARGET = 2) { TOTAL: TOTAL + COUNT_UN/2 }
+ if (TARGET = 3) { TOTAL: TOTAL + LDU + (COUNT_DEUX-LDU)/2 }
+ if (TARGET = 4) { TOTAL: TOTAL + LTU + LTLD + (COUNT_DEUX-LTLD)/2 + (COUNT_TROIS-LTU-LTLD)/2 }
+ if (TARGET = 5) { TOTAL: TOTAL + LTD + (COUNT_TROIS-LTD)/2 }
+ if (TARGET = 6) { TOTAL: TOTAL + COUNT_TROIS/2 }
+
+ result: TOTAL
+}
+
+
+
+
+
+\                                         Normal Count    Pairing
+Target: 2++   ->   Total= 8 = 4(3s) + 2(2s)   2(1s+1s)
+Target: 3++   ->   Total= 6 = 4(3s)           2(2s+1s) + 0(2s+2s)
+Target: 4++   ->   Total= 5 =                 4(3s+1s) + 0(3s+2s) + 2(2s+2s) + 0(3s+3s
+Target: 5++   ->   Total= 3 =                 2(3s+2s) + 1(3s+3s) : 2x3 + 2x2 + 1x3 + 1x3 = 2x2 + 3x(1+1+2)
+Target: 6++   ->   Total= 2 =                 4(3s+3s)
+
+
+4++
+Roll: {3,3,3,2,2,2,2,2,2}
+
+Roll: {3,3,3,3,2,2,2,2,1,1,1,1,1,0} 25/13 = 4 + 0 + 2*2/2 = 6
+Roll: {3,3,3,3,2,2,2,2,2,1,1,1,0,0} 25/12 = 3 + 1 + 2*2/2 = 6
+
+
+Roll: {3,3,3,3,2,2,1,1,1,1,1,0}
+UN: {1,1,1,1,1,0}  = 5
+DEUX: {2,2}      = 2
+TROIS: {3,3,3,3} = 4
+SUM: {7,9,6}         -> (1s+2s),(1s+3s),(2s+3s)
+
+Roll: {3,3,2,1,1,1,1,1,0} 13/8 = 2 + 0 + 0 = 2
+Roll: {3,3,3,2,2,1,1,0,0} 15/7 = 2 + 1 + 0 = 3
+Roll: {2,2,2,2,2,1,1,0,0}
+Roll: {1,1,1,1,0,0,0,0,0}
+Roll: {0,0,..}
+
+START: {1..TARGET}@TEMP
+T: TARGET-NUM
+3@TEMP
+
+on 2+
+ NUM: (TARGET+1)/2                 \min number essential to pairing\
+ if (1@SEQUENCE >= NUM) {
+   loop N over {1..#SEQUENCE} {
+     \do the separating of the sequences.\
+   }
+
+Roll_0: {3,3,2,1,1,1,0,0,0,0} -> 2(3s) & 1(2s) & 3(1s) & 4(0s)
+Roll_1: {3,3,3,3,3,3,3,3,3,1} -> 9(3s) & 1(1s)
+Roll_2: {3,3,3,3,3,3,2,2,2,1} -> 6(3s) & 3(2s) & 1(1s)
+Roll_3: {3,3,2,2,2,2,2,2,2,0} -> 2(3s) & 7(2s) & 1(0s)
+Roll_4: {3,3,2,2,2,2,1,1,1,0} -> 2(3s) & 4(2s) & 3(1s) & 1(0s)
+Roll_5: {2,2,2,2,2,1,1,1,1,0} -> 5(2s) & 4(1s) & 1(0s)
+
+LOWPART: {1,1,1,1,1,0}
+UN: {1:LOWPART} = {1,1,1,1,1}  = 5  -> remove the 0s
+DEUX: {1,1}      = 2
+TROIS: {1,1,1,1} = 4
+
+     0 + 0 + 0 + 6++: (TROIS)/2
+     0 + 0 + 0 + 5++: (TROIS+{1..TROIS}@DEUX)/2
+     0 + 0 + 0 + 4++: (TROIS+({1..TROIS}@{1:UN+DEUX}) + ({(TROIS-UN)..DEUX}@DEUX))/2
+  TROIS+ 0 + 0 + 3++: (DEUX+ {1..DEUX}@UN)/2
+  TROIS+DEUX+0 + 2++: (UN)/2
+ TROIS+DEUX+UN + 1++: 0
+
+4++
+roll 0 =2 : (2 + 2) + abs?(-1..1)1 
+roll 1 =5 : (9 + 1) + (8..0)0
+roll 2 =5 : (6 + 4) + (5..3)3
+roll 3 =4 : (2 + 2) + (1..7)7
+roll 4 =4 : (2 + 2) + (-1..4)4
+roll 5 =2 : (0 + 0) + (-4..5)5
+
+   \DEUX_UN: {1..#UN}DEUX
+   if(TARGET=2) {result: TOTAL + UN/2}
+   if(TARGET=6) {result: TOTAL + TROIS/2}\
+
+ }
+
+
+tableau des SOMMEs de 1 à 3 (9 sum)
+faire une Sequence sans les chiffres >= TARGET
+\
+
+
+
+
+
+
+T: 2
+POOL: 10
+
+\
+output [overflowing pairing POOLdQ on 1] named "bis count pairing [POOL]d4 TEST"
+output [overflowing pairing POOLdQ on 2] named "bis count pairing [POOL]d4 TEST"
+output [overflowing pairing POOLdQ on 3] named "bis count pairing [POOL]d4 TEST"
+output [overflowing pairing POOLdQ on 4] named "bis count pairing [POOL]d4 TEST"
+output [overflowing pairing POOLdQ on 5] named "bis count pairing [POOL]d4 TEST"
+output [overflowing pairing POOLdQ on 6] named "bis count pairing [POOL]d4 TEST"\
+
+H: d{0,0,2,3}
+output 10dH
+output 10d(dQ=1)
+output 10d(dQ>=1)
+output 10d(dQ>=2)
+output 10d(dQ>=3)
+

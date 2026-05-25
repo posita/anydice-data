@@ -1,0 +1,45 @@
+RANGE: 40
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+DIE: d20
+DIEMAX: [maximum of DIE]
+
+
+DZFIVE: d{0..5}
+function: extend {
+  result: [extend DIE]
+}
+function: extend N:n {
+  if N = DIEMAX { result: DIEMAX + [explode DZFIVE] }
+  \if N = 1 { result: 1 - [explode DZFIVE] }\
+  result: N
+}
+
+function: tie {
+  result: [tie d2]
+}
+function: tie N:n {
+  if N = 1 { result: -1 }
+  result: 1
+}
+
+function: test A:n vs B:n {
+  if A = B { result: [tie] }
+  if A < B { result: -1 }
+  result: 1
+}
+
+set "explode depth" to 10
+DIEMID: DIEMAX / 2+1
+
+output [clamp [extend]-DIEMID between -RANGE and RANGE] named "d20+luck-[DIEMID]"
+
+output [clamp [extend]-[extend] between -RANGE and RANGE]-d2+1 named "d20+luck vs"
+
+output [clamp [extend [highest 1 of 4d20]]-[extend [highest 1 of 4d20]]-d2+1 between -RANGE and RANGE] named "d20[4]+luck vs"
+

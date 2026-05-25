@@ -1,0 +1,30 @@
+function: check X:n target T:n accuracy A:n difficulty D:n bonus B:n {
+    if A = D {
+        if X + B >= 20 { result : 2 }
+        if X + B >= T { result : 1 }
+        result : 0
+    }
+    if A > D {
+        A : A - D
+        if X + 1@XAd6 + B >= 20 { result : 2 }
+        if X + 1@XAd6 + B >= T { result : 1 }
+        result : 0
+    }
+    if D > A {
+        D : D - A
+        if X - D@Dd6 + B >= 20 { result : 2 }
+        if X - D@Dd6 + B >= T { result : 1 }
+        result : 0
+    }
+}
+
+function: attack X:n target T:n accuracy A:n difficulty D:n grit G:n {
+    X : [check X target T accuracy A difficulty D bonus G]
+    if X > 0 {
+        H : 1d(1@Xd6)
+        H : [highest of H and 2]
+    } else { H : 2 }
+    result : H
+}
+
+output [attack 1d20 target 10 accuracy 0 difficulty 0 grit 0]

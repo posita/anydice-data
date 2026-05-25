@@ -1,0 +1,47 @@
+\**** Damage calculator full basic damage dealing list ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: PAMCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+\*** PAM ***\
+function: pam ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: PAMCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: PAMDMG }
+ result: 0
+}
+
+
+\Defining Dice for attacks and Crits\
+DIE_ONE: [d6 gwf d6 reroll {1,2}]
+DIE_TWO: [d6 gwf d6 reroll {1,2}]
+DIE_THREE: [d6 gwf d6 reroll {1,2}]
+DIE_FOUR: [d6 gwf d6 reroll {1,2}]
+DIE_FIVE: [d4 gwf d4 reroll {1,2}]
+DIE_SIX: [d4 gwf d4 reroll {1,2}]
+DIE_SEVEN: [d10 gwf d10 reroll {1,2}]
+DIE_EIGHT: [d10 gwf d10 reroll {1,2}]
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+PAMATTACK: 0
+PAMCRIT: 0
+PAMDMG: 0
+\DAMAGE: DIE_SEVEN + ATTACKMOD + DMGBONUS
+\CRITDAMAGE: DIE_SEVEN + DIE_EIGHT + ATTACKMOD + DMGBONUS
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] + PAMATTACKd[pam [highest 1 of 2d20] vs ENEMYAC] named "attack with advantage"
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] + PAMATTACKd[pam d20 vs ENEMYAC] named "normal attack"
+output ATTACKTIMESd[attackroll [lowest 1 of 2d20] vs ENEMYAC] + PAMATTACKd[pam [lowest 1 of 2d20] vs ENEMYAC] named "attack with disadvantage"

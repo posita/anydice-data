@@ -1,0 +1,25 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+output
+[attack 1@2d20 plus 3 + 3 + 1 - 5 vs 15
+    hit  2d6 + 3 + 2 + 1 + 10 + 1d6 + 3 + [attack 1@2d20 plus 3 + 3 + 1 - 5 vs 15 for 2d6 + 16          crit 2d6       on 20]
+    miss                                  [attack 1@2d20 plus 3 + 3 + 1     vs 15 for 2d6 + 6 + 1d6 + 3 crit 2d6 + 1d6 on 20]
+    crit 4d6 + 3 + 2 + 1 + 10 + 2d6 + 3 + [attack 1@2d20 plus 3 + 3 + 1 - 5 vs 15 for 2d6 + 16          crit 2d6       on 20] on 20
+] named "level 6 Gamera with GWM, Rage, and Reckless Attack. If the first attack misses, no GWM on the second attack. Doesn't  account for GWM's bonus action attack on crit or kill"
+

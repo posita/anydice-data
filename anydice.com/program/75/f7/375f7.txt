@@ -1,0 +1,32 @@
+ACCURACY: 1d6
+TESTEVASION: 8
+TESTARMOR: 1
+
+function: armordiff INCOMINGDAMAGE:n vs ARMOR:n {
+ if INCOMINGDAMAGE >= ARMOR { result: INCOMINGDAMAGE-ARMOR }
+ result: 0
+}
+
+function: antimaterielrifle ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 0
+ if ROLL = 1 { OUTGOINGDAMAGE: 0}
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d{2,2,3,4,5,6}]
+ }
+ if ROLL >= DEFENSE { OUTGOINGDAMAGE: 1d{2,2,3,4,5,6}}
+ result: [armordiff OUTGOINGDAMAGE vs ARMOR]
+}
+
+output [antimaterielrifle  d20+ACCURACY vs TESTEVASION and TESTARMOR] named "Anti-Materiel Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+function: assaultrifle ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 2
+ if ROLL = 1 { OUTGOINGDAMAGE: 2}
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d{2,2,3,4,5,6}]
+ }
+ if ROLL >= DEFENSE { OUTGOINGDAMAGE: 1d{2,2,3,4,5,6}}
+ result: OUTGOINGDAMAGE-ARMOR
+}
+
+output [assaultrifle d20 vs TESTEVASIONand TESTARMOR] named "Anti-Materiel Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"

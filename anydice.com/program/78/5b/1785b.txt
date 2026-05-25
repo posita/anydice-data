@@ -1,0 +1,48 @@
+
+\calculates the probability for all damage across multiple attacks\
+function: doturn ATTACKS:n ATKBONUS:n AC:n DICESEQ:d{
+ HITS: [rollhits ATTACKS ATKBONUS AC]
+ DMGTOTAL: 0
+ loop N over {#(HITS)}{
+  DMGTOTAL: DMGTOTAL + (N@HITS * [rolldamage DICESEQ])
+ }
+ result: DMGTOTAL
+}
+
+\gives the odds of hitting x amount of attacks across ATTACKS against AC with ATKBONUS\
+function: rollhits ATTACKS:n ATKBONUS:n AC:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS}{
+  TOTAL: TOTAL + ((d20+ATKBONUS) >= AC)
+ }
+ result: TOTAL
+}
+
+\rolls damage for a single attack based on given dice sequence\
+\wrapper only, might add collateral/resistances calc later\
+function: rolldamage DICESEQ:d{
+ result: DICESEQ
+}
+\===Target stat block===\
+ENEMY_AC: 18
+ENEMY_STR: 10
+ENEMY_DEX: 10
+ENEMY_CON: 10
+\=======================\
+
+ATTACKS_IN_TURN: 2
+\==have to manually toggle sharpshooter feature modifiers for now==\
+G_ATK_BONUS: 5
+FEATDMG: 10
+\==================================================================\
+
+\output [rollhits ATTACKS_IN_TURN G_ATK_BONUS ENEMY_AC] named "rollhits"\
+
+\following outputs give probabilities of damage in player turn\
+output 0 named "AC= [ENEMY_AC] Hit bonus= [G_ATK_BONUS]"
+output [doturn ATTACKS_IN_TURN   G_ATK_BONUS ENEMY_AC FEATDMG+2d10+4]     named "hunting rifle damage" \nice powercreep\
+output [doturn ATTACKS_IN_TURN/2 G_ATK_BONUS ENEMY_AC FEATDMG+2d12+1d8+4] named "bad news default ammo"
+output [doturn ATTACKS_IN_TURN/2 G_ATK_BONUS ENEMY_AC FEATDMG+3d12+4]     named "bad news AP ammo"
+output [doturn ATTACKS_IN_TURN/2 G_ATK_BONUS ENEMY_AC FEATDMG+2d12+4]     named "bad news Magical ammo"
+output [doturn ATTACKS_IN_TURN/2 G_ATK_BONUS ENEMY_AC FEATDMG+1d12+2d6]   named "bad news Incendiary ammo"
+output [doturn ATTACKS_IN_TURN/2 G_ATK_BONUS ENEMY_AC FEATDMG+1d12+3d8+4] named "bad news HE ammo"

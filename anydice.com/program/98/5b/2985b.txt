@@ -1,0 +1,20 @@
+function: skillcheck ROLL:n max MAX:n mod MODIFIER:n
+{
+  if      ROLL = MAX { result: -MAX - MODIFIER }
+  else if ROLL = 1   { result: [lowest of -1 and -1 + MODIFIER] }
+  else               { result: ROLL + MODIFIER }
+}
+
+function: skillcheck mod MODIFIER:n { result: [skillcheck d20 max 20 mod MODIFIER] }
+function: skillcheck                { result: [skillcheck mod 0] }
+
+function: disadvantage mod MODIFIER:n { result: [lowest 1 of 2d[skillcheck mod MODIFIER]] }
+function: disadvantage                { result: [disadvantage mod 0] }
+
+function: advantage mod MODIFIER:n { result: [highest 1 of 2d[skillcheck mod MODIFIER]] }
+function: advantage                { result: [advantage mod 0] }
+
+output [highest 3 of 4d6] named "character rolling"
+output [disadvantage] named "disadvantage"
+output [advantage] named "advantage"
+output [skillcheck] named "regular"

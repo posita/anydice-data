@@ -1,0 +1,146 @@
+\ Attack Sequence for AoS - calculates the number of wounds inflicted. \
+\ Original by Hammer of Math, modified by Dave Hall. This should work for both combat and shooting. \
+
+\ Attack Values \
+A: 1 	\ # Attacks \
+H: 4 	\ Hit Roll Target \
+HR: 0   \ Hit Re-Roll - 0=none, 1=re-roll 1's, 2=re-roll all \
+W: 4 	\ Wound Roll Target \
+WR: 0   \ Wound Re-Roll - 0=none, 1=re-roll 1's, 2=re-roll all \
+S: 4    \ Save \
+R: 0 	\ Rend (Negative Number) \
+D: 2 	\ Damage \
+F: 4	\ Feel No Pain Roll Target \
+MWHT: 6 \ Mortal Wound on Hit Target \
+MWHD: 0 \ Mortal Wound on Hit Damage \
+MWWT: 6 \ Mortal Wound on Wound Target \
+MWWD: 0 \ Mortal Wound on Wound Damage \
+EDHT: 6 \ Extra Damage on Hit Target \
+EDHD: 0 \ Extra Damage on Hit Bonus \
+EDWT: 6 \ Extra Damage on Wound Target \
+EDWD: 0 \ Extra Damage on Wound Bonus \
+
+
+\ Die Values \
+HD: 1d6 \ Hit Die \
+HRD: 1d6\ Hit RR Die\
+WD: 1d6 \ Wound Die \
+WRD: 1d6\ Wound RR Die \
+SD: 1d6 \ Save Die\
+FD: 1d6 \ Feel No Pain Die \
+
+\ Hit roll with re-rolls \
+function: hit HROLL:s HREROLL:s {
+    if HROLL < H {                            \ hit failed \
+        if ( HR = 1 & HROLL = 1 ) | HR > 1 {  \ re-roll 1's AND Hit Roll = 1 OR re-roll all \
+            result: HREROLL >= H              \ use re-roll dice \
+        }
+        else {                                \ result = fail \
+            result: 0
+        }
+    }
+    else {                                    \ result = pass \
+        result: 1
+    }
+}
+
+\ Wound roll with re-rolls \
+function: wound WROLL:s WREROLL:s {
+    if WROLL < W {                            \ wound failed \
+        if ( WR = 1 & WROLL = 1 ) | WR > 1 {  \ re-roll 1's AND Hit Roll = 1 OR re-roll all \
+            result: WREROLL >= W              \ use re-roll dice \
+        }
+        else {                                \ result = fail \
+            result: 0
+        }
+    }
+    else {                                    \ result = pass \
+        result: 1
+    }
+}
+
+\ Save roll - result of 1 means Failed Save (i.e. the wound goes through to cause damage) \
+function: save SROLL:s {
+    if SROLL = 1 {result: 1}  \ Save roll of 1 always fails \
+    result: SROLL < S-R
+}
+
+\ Feel No Pain roll - applied to all damage inflicted (normal and Mortal Wounds) \
+\ Ignore damage (result = 0) if roll >= FNP Target \
+function: fnp FROLL:s{
+	if FROLL < F {result: 1}
+	result: 0
+}
+
+
+\loop H over {1..6} {
+    output [hit HD HRD] named "[H]+ to Hit"
+}\
+\loop W over {1..6} {
+    output [wound WD WRD] named "[W]+ to Wound"
+}\
+\loop S over {1..6} {
+    output [save SD] named "[S]+ Save failed"
+}\
+\output [hit HD HRD] * [wound WD WRD] * [save SD] named "Hits, wounds and goes through"\
+\output [hit HD HRD] * [wound WD WRD] * [save SD] * D named "Damage through (1 attack)"\
+output Ad([hit HD HRD] * [wound WD WRD] * [save SD] * D) named "Total Damage"
+output Ad(([hit HD HRD] * [wound WD WRD] * [save SD] * D)d[fnp  FD]) named "Total Damage after FNP"
+
+
+\ ***Original instructions*** \
+\ function: hit TO_HIT:s HREROLL:s { \
+	\if TO_HIT = 6 {result: 0} \
+\        if TO_HIT <= HR {result: HREROLL >= H} 
+        result: TO_HIT >= H
+}
+
+function: wound TO_WOUND:s WREROLL:s {
+	if TO_WOUND <= WR {result: WREROLL >= W} 
+        result: TO_WOUND >= W
+}
+
+function: save TO_SAVE:s {
+	if TO_SAVE = 1 {result: 1}
+        result: TO_SAVE < S-R
+}
+
+function: gate HR:s WR:s SR:s D:s {
+	result: HR * WR * SR * D
+}
+
+function: fnp DICE:s{
+	if DICE < F {result: 1}
+	result: 0
+} \
+
+\ Bonus Damage Calc: Hit, Hit RR, Wound, Wound RR, Damage \
+
+\function: damage HIT:s HITRR:s WOUND:s WOUNDRR:s{
+	DAMAGE: D
+	if HIT <= HR {
+		if HITRR >= EDHT{DAMAGE: DAMAGE + EDHD}
+	}
+	else {
+		if HIT >= EDHT{DAMAGE: DAMAGE + EDHD}
+	}
+	if WOUND <= WR {
+		if WOUNDRR >= EDWT{DAMAGE: DAMAGE + EDWD}
+	}
+	else {
+		if WOUND >= EDWT{DAMAGE: DAMAGE + EDWD}
+	}
+	result: DAMAGE
+} \
+
+\ Roll D6, ReRoll D6, RR Target, MW Target, MW Damage \
+\function: mwonhit TO_HIT:s HREROLL:s RR:n MWT: n MWD: n{
+	if TO_HIT <= RR {result: (HREROLL >= MWT) * MWD} 
+        result: (TO_HIT >= MWT) * MWD
+}
+
+loop S over {-1..7}{
+
+output Ad([gate [hit HD HRD] [wound WD WRD] [save SD] [damage HD HRD WD WRD]]d[fnp  FD] + d[mwonhit HD HRD HR MWHT MWHD]+ [hit HD HRD] * d[mwonhit WD WRD WR MWWT MWWD]) named "[S]+ Save"
+
+} \

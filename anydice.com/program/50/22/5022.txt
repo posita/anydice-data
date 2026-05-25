@@ -1,0 +1,55 @@
+function: chaosdie step C {
+   if C = 0  {result: 0}
+   if C = 1  {result: 1d2}
+   if C = 2  {result: 1d3}
+   if C = 3  {result: 1d4}
+   if C = 4  {result: 1d6}
+   if C = 5  {result: 1d8}
+   if C = 6  {result: 1d10}
+   if C = 7  {result: 1d12}
+   if C = 8  {result: 1d20}
+}
+function: roll ABILITYROLL:n vs ABILITY:n with CHAOSDIE:n chaos {
+   RANKS: 0
+   if ABILITYROLL <= ABILITY {RANKS: 1}
+   if ABILITYROLL <= (ABILITY+1)/2 {RANKS: 2}
+   if ABILITYROLL <= (ABILITY+2)/5 {RANKS: 3}
+   if CHAOSDIE = 1 {
+      if RANKS > 0 {RANKS: 0}
+      else {RANKS: -1}
+   }
+   if CHAOSDIE >=6 {RANKS: RANKS +1}
+   result: RANKS
+}
+
+function: roll ABILITYROLL:n vs ABILITY:n with EXTRADIE:n skill and CHAOSDIE:n chaos {
+   RANKS: 0
+   if ABILITYROLL <= ABILITY {RANKS: 1}
+   if ABILITYROLL <= (ABILITY+1)/2 {RANKS: 2}
+   if ABILITYROLL <= (ABILITY+2)/5 {RANKS: 3}
+
+   if CHAOSDIE = 1 {
+      if RANKS > 0 {RANKS: 0}
+      else {RANKS: -1}
+   } else if EXTRADIE = 1 {
+      if RANKS > 0 {RANKS: 0}
+      else {RANKS: -1}
+   } else {
+      if CHAOSDIE >=6 {RANKS: RANKS +1}
+      if EXTRADIE >=6 {RANKS: RANKS +1}
+   }
+
+   if RANKS > 4 {RANKS: 4}
+   result: RANKS
+}
+
+
+loop Z over {0,2,3,4}{  
+   CHAOSDIE: [chaosdie step Z]
+   loop B over {3..7}{
+       EXTRADIE: [chaosdie step B]
+       loop A over {10,12,14,16,18,20}{
+           output [roll 1d20 vs A with EXTRADIE skill and CHAOSDIE chaos] named "Skill [A]+[EXTRADIE]+[CHAOSDIE]"
+       }
+  }
+}

@@ -1,0 +1,45 @@
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+function: hits {
+    X:[d6 reroll {RRS} as d6]
+    result: [count {BS..6} in SHOTSdX]
+}
+
+function: woundon{
+       if S > T * 2 {
+        result:2
+    }
+ if S > T {
+        result:3
+    }
+
+    if S = T {
+        result:4
+    }
+    if S <= T / 2 {
+        result:6
+    }
+    if S < T {
+        result:5
+    }
+
+}
+
+function: wounds {
+     Y:[d6 reroll {RRW} as d6]
+     WC: [lowest of [count {[woundon]..6} in SHOTSdY] and (SHOTS-[hits])]
+     result: WC
+}
+
+SHOTS: 20
+BS: 4
+RRS:{1}
+RRW:{1}
+S:7
+T:4
+output [hits]named "hit count"
+output [woundon] named "wound on"
+output [wounds]named "wound count"

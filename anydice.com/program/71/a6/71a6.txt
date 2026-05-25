@@ -1,0 +1,42 @@
+function: advantage D:d {
+  result: [highest 1 of 2dD]
+}
+
+function: single D:d {result: 1d((#{D}+(#D)-1)/(#D))}
+
+function: gwf D:d {\\A:{}\\S:[single D]\\F:#{S}\\loop I over{1..#{S}}{if I<3{A:{A,S}}else{A:{A,I:F}}}result:(#D)dA}
+
+function: dpr w WEA:d m GWM:n f GWF:n att ATT:n {
+  ADV: [advantage d20]
+  NOR: 1d20
+  result: [dpa w WEA r ADV ad 1 m GWM f GWF s 1]
+         +(ATT-1)d[dpa w WEA r NOR ad 0 m 0 f GWF s 0]
+}
+function: dpa w WEA:d r ROLL:n ad ADV:n m GWM:n f GWF:n s SA:n{
+  if (ROLL+10-(GWM>0)*5)>12 {
+    if ROLL>18 {
+      result: [hit w WEA cr 1 m GWM f GWF s SA]
+    } else {
+      result: [hit w WEA cr 0 m GWM f GWF s SA]
+    }
+  } else {
+    result: 0
+  }
+}
+function: hit w WEA:d cr CRIT:n m GWM:n f GWF:n s SA:n{
+RES:5 if(GWM>0){RES:RES+10}
+if(GWF<1){RES:RES+WEA}else{RES:RES+[gwf WEA]}
+if(SA>0){if(GWF<1){RES:RES+7d6}else{RES:RES+[gwf 7d6]}}
+if(CRIT>0){
+if(GWF<1){RES:RES+WEA+([single WEA])if(SA>0){RES:RES+7d6}}
+else{RES:RES+([gwf WEA])+([gwf ([single WEA])])if(SA>0){RES:RES+[gwf 7d6]}}
+}
+result:RES
+}
+\output [dpr w 2d6 m 1 f 1] named "damage per round GrSw"\
+output [hit w 2d6 cr 1 m 1 f 1 s 1]+[hit w 2d6 cr 0 m 0 f 1 s 0] named "GS"
+output [hit w 1d12 cr 1 m 1 f 1 s 1]+[hit w 1d12 cr 0 m 0 f 1 s 0] named "GA"
+output [hit w 1d8 cr 1 m 0 f 0 s 1]+[hit w 1d8 cr 0 m 0 f 0 s 0]+[hit w 1d8 cr 0 m 0 f 0 s 0] named "DW"
+output [dpr w 2d6 m 1 f 1 att 2] named "GS by AR"
+output [dpr w 1d12 m 1 f 1 att 2] named "GA by AR"
+output [dpr w 1d8 m 0 f 0 att 3] named "DW by AR"

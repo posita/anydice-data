@@ -1,0 +1,52 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack roll ROLL:n  {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 { result: HIT }
+ else { result: HIT }
+}
+
+function: damage with ATTACKRESULT:n and damage dice DAMAGE:d {
+  if ATTACKRESULT = MISS {
+    result: 0
+  }
+
+  if ATTACKRESULT = CRITICALHIT {
+    result: DAMAGE + DAMAGE
+  }
+
+  result: DAMAGE
+}
+
+function: chaos bolt with leap prob LP:s {
+  result: LP * ONE_CHAOS_BOLT
+}
+
+LEAP_PROB_FIVE:  d{1:28672, 2:3584, 3:448, 4:56, 5:7, 6:1}
+LEAP_PROB_FOUR:  d{1:3584,  2:448,  3:56,  4:7,  5:1}
+LEAP_PROB_THREE: d{1:448,   2:56,   3:7,   4:1}
+LEAP_PROB_TWO:   d{1:56,    2:7,    3:1}
+LEAP_PROB_ONE:   d{1:7,     2:1}
+LEAP_PROB_ZERO:  d{1:1}
+
+CHAOS_BOLT_DAMAGE_DICE: 2d8 + 1d6
+ONE_CHAOS_BOLT: [damage with [attack roll d20] and damage dice CHAOS_BOLT_DAMAGE_DICE]
+CHAOS_BOLT_LP_FIVE: [chaos bolt with leap prob LEAP_PROB_FIVE]
+CHAOS_BOLT_LP_FOUR: [chaos bolt with leap prob LEAP_PROB_FOUR]
+CHAOS_BOLT_LP_THREE: [chaos bolt with leap prob LEAP_PROB_THREE]
+CHAOS_BOLT_LP_TWO: [chaos bolt with leap prob LEAP_PROB_TWO]
+CHAOS_BOLT_LP_ONE: [chaos bolt with leap prob LEAP_PROB_ONE]
+CHAOS_BOLT_LP_ZERO: [chaos bolt with leap prob LEAP_PROB_ZERO]
+
+output CHAOS_BOLT_LP_FIVE named "chaos bolt, leap prob 5"
+output CHAOS_BOLT_LP_FOUR named "chaos bolt, leap prob 4"
+output CHAOS_BOLT_LP_THREE named "chaos bolt, leap prob 3"
+output CHAOS_BOLT_LP_TWO named "chaos bolt, leap prob 2"
+output CHAOS_BOLT_LP_ONE named "chaos bolt, leap prob 1"
+output CHAOS_BOLT_LP_ZERO named "chaos bolt, leap prob 0"
+
+CHROMATIC_ORB_DAMAGE_DICE: 3d8
+CHROMATIC_ORB: [damage with [attack roll d20] and damage dice CHROMATIC_ORB_DAMAGE_DICE]
+output CHROMATIC_ORB named "chromatic orb"

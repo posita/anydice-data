@@ -1,0 +1,110 @@
+MISS: 0
+RIFLE_HIT: 1d10
+RIFLE_HIT_MAX: 10
+RIFLE_CRIT: 2d10
+RIFLE_CRIT_MAX: 20
+
+PISTOL_HIT: 1d6
+PISTOL_HIT_MAX: 6
+PISTOL_CRIT: 2d6
+PISTOL_CRIT_MAX: 12
+
+SHOTGUN_HIT: 3d6
+SHOTGUN_HIT_MAX: 18
+SHOTGUN_CRIT: 6d6
+SHOTGUN_CRIT_MAX: 36
+
+DYNAMITE: 3d6
+
+SKILL_BONUS: 3
+PROF_BONUS: 3
+
+HP: 15
+
+function: rifleattack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: RIFLE_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: RIFLE_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: rifleheadshot ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: RIFLE_CRIT_MAX + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: RIFLE_HIT_MAX + SKILL_BONUS }
+  result: MISS
+}
+
+function: riflecentre ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: RIFLE_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS + 5 >= AC { result: RIFLE_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: shotgunattack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: SHOTGUN_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: SHOTGUN_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: shotgunheadshot ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: SHOTGUN_CRIT_MAX + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: SHOTGUN_HIT_MAX + SKILL_BONUS }
+  result: MISS
+}
+
+function: shotguncentre ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: SHOTGUN_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS + 5 >= AC { result: SHOTGUN_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: pistolattack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: PISTOL_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: PISTOL_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: pistolheadshot ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: PISTOL_CRIT_MAX + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: PISTOL_HIT_MAX + SKILL_BONUS }
+  result: MISS
+}
+
+function: pistolcentre ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: PISTOL_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS + 5 >= AC { result: PISTOL_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: dynamite ROLL:n {
+  if ROLL + SKILL_BONUS + PROF_BONUS >= 10 { result: DYNAMITE }
+  result: MISS
+}
+
+loop AC over {10,15,20,25} {
+  output 0 named ""
+  output 0 named "[AC] AC"
+  output 0 named ""
+  output [rifleattack d20 vs AC] named "Rifle"
+  output [rifleattack d20 vs AC] + [rifleattack d20 vs AC] named "Rifle Flurry"
+  output [rifleheadshot d20 vs AC] named "Rifle Headshot"
+  output [riflecentre d20 vs AC] named "Rifle Centre"
+  output [shotgunattack d20 vs AC] named "Point-Blank Shotgun"
+  output [shotgunattack d20 vs AC] + [shotgunattack d20 vs AC] named "Point-Blank Shotgun Flurry"
+  output [shotgunheadshot d20 vs AC] named "Point-Blank Shotgun Headshot"
+  output [shotguncentre d20 vs AC] named "Point-Blank Shotgun Centre"
+  output [pistolattack d20 vs AC] named "Pistol"
+  output [pistolattack d20 vs AC] + [pistolattack d20 vs AC] + [pistolattack d20 vs AC] named "Desperado Flurry"
+  output [pistolheadshot d20 vs AC] + [pistolattack d20 vs AC] named "Desperado Headshot"
+  output [pistolcentre d20 vs AC] + [pistolattack d20 vs AC] named "Desperado Centre"
+  output [dynamite d20] named "Dynamite"
+  output [dynamite d20] + [pistolattack d20 vs AC] named "Desperado Dynamite"
+}

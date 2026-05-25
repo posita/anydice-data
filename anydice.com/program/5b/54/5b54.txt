@@ -1,0 +1,172 @@
+N_ABILITY: 2
+N_PROFICIENCY: 1
+N_BONUS: 0
+N_DIFFICULTY: 2
+N_CHALLENGE: 0
+N_SETBACK: 0
+
+
+
+
+
+
+
+
+
+
+
+
+J: N_ABILITY
+K: N_PROFICIENCY
+L: N_BONUS
+
+X: N_DIFFICULTY
+Y: N_CHALLENGE
+Z: N_SETBACK
+
+function: get abil suc A:n
+{
+ result: A@{1,0,1,2,0,1,2,0}
+} 
+
+function: get abil adv A:n
+{
+ result: A@{1,0,1,2,0,1,2,0}
+} 
+
+function: get prof suc A:n
+{
+ result: A@{0,0,0,1,1,1,1,1,2,1,2,0}
+} 
+
+function: get prof adv A:n
+{
+ result: A@{2,1,2,0,0,1,0,1,0,1,0,0}
+} 
+
+function: get bons suc A:n
+{
+ result: A@{0,0,1,1,0,0}
+} 
+
+function: get bons adv A:n
+{
+ result: A@{0,0,0,0,1,1}
+} 
+
+function: get diff suc A:n
+{
+ result: A@{-0,-1,-1,-0,-0,-0,-2,-0}
+} 
+
+function: get diff adv A:n
+{
+ result: A@{-1,0,-1,-1,0,-2,0,-1}
+} 
+
+function: get chal suc A:n
+{
+ result: A@{0,0,0,-1,-1,-1,-1,-1,-2,0,-2,0}
+} 
+
+function: get chal adv A:n
+{
+ result: A@{-2,-1,-2,-1,-1,0,-1,0,0,0,0,0}
+} 
+
+function: get setb suc A:n
+{
+ result: A@{0,0,-1,-1,0,0}
+} 
+
+function: get setb adv A:n
+{
+ result: A@{0,0,0,0,-1,-1}
+} 
+
+function: roll ABIL:n PROF:n BONS:n against DIFF:n CHAL:n SETB:n for TYPE:n
+{
+  A: ABILd8
+  AS: 0
+  loop N over {1..ABIL}{
+    AS: AS + [get abil suc N@A]
+  }
+
+  AA: 0
+  loop N over {1..ABIL}{
+    AA: AA + [get abil adv N@A]
+  }
+
+  P: PROFd12
+  PS: 0
+  loop N over {1..PROF}{
+    PS: PS + [get prof suc N@P]
+  }
+
+  PA: 0
+  loop N over {1..PROF}{
+    PA: PA + [get prof adv N@P]
+  }
+
+  B: BONSd6
+  BS: 0
+  loop N over {1..BONS}{
+    BS: BS + [get bons suc N@B]
+  }
+
+  BA: 0
+  loop N over {1..BONS}{
+    BA: BA + [get bons adv N@B]
+  }
+
+  D: DIFFd8
+  DS: 0
+  loop N over {1..DIFF}{
+    DS: DS + [get diff suc N@D]
+  }
+
+  DA: 0
+  loop N over {1..DIFF}{
+    DA: DA + [get diff adv N@D]
+  }
+
+  C: CHALd12
+  CS: 0
+  loop N over {1..CHAL}{
+    CS: CS + [get chal suc N@C]
+  }
+
+  CA: 0
+  loop N over {1..CHAL}{
+    CA: CA + [get chal adv N@C]
+  }
+
+  S: SETBd6
+  SS: 0
+  loop N over {1..SETB}{
+    SS: SS + [get setb suc N@S]
+  }
+
+  SA: 0
+  loop N over {1..SETB}{
+    SA: SA + [get setb adv N@S]
+  }
+ 
+  TS: AS + PS + BS + DS + CS + SS
+  TA: AA + PA + BA + DA + CA + SA
+
+  RESULT: 0
+  if TYPE = 1
+  {
+    RESULT: TS
+  }
+  else
+  {
+    RESULT: TA
+  }
+
+  result: RESULT
+}
+
+output [roll J K L against X Y Z for 1] named "Net Successes on [J]/[K]/[L] against [X]/[Y]/[Z]"
+output [roll J K L against X Y Z for 2] named "Net Advantages on [J]/[K]/[L] against [X]/[Y]/[Z]"

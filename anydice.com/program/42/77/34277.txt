@@ -1,0 +1,29 @@
+\ counts number of pairs, 3-of-a-kind, 4-of-a-kind, etc. in a sequence \
+\ includes superior hands in results; e.g. 3-of-a-kind can count as a pair, 4-of-a-kind can count as TWO pairs, etc. \
+\ AMOUNT: elements in a set (e.g. 2 to look for pairs, 3 to look for 3-of-a-kind, etc.) \
+\ VALUES: the numbers that can legally be part of a set \
+\ DICE: the sequence to search \
+function: AMOUNT:n of a kind from VALUES:s in DICE:s {
+    SETS: 0
+    loop I over VALUES {
+        SETS: SETS + ([count I in DICE] / AMOUNT)
+    }
+    result: SETS
+}
+
+TRAIT: 1
+SKILL: 3
+ROLL: SKILLd6
+WPN_DMG: 1
+
+NUM_SUCC: [count {1..TRAIT} in ROLL]
+SUCC: NUM_SUCC > 0
+output NUM_SUCC named "Successes in [ROLL] <= [TRAIT]"
+XATK: [count {1..TRAIT} in ROLL] >= WPN_DMG
+output XATK named "Chance of Extra Attacks with [WPN_DMG] Damage"
+HDSHT: [2 of a kind from {1} in ROLL]
+output HDSHT named "Headshots in [ROLL]"
+output XATK * HDSHT named "Chance of Headshot on Second Attack"
+output XATK * XATK * HDSHT named "Chance of Headshot on Third Attack"
+TOTAL_HDSHT: HDSHT + (XATK * HDSHT) + (XATK * XATK * HDSHT)
+output TOTAL_HDSHT named "Combined Chance of Headshot on HFR Automatic Attack"

@@ -1,0 +1,128 @@
+AC: 16 \enemy ac\
+DEXMOD: 2 \enemy dex mod\
+STRMOD: 3 \enemy str mod\
+
+PROF: 3 \pc prof\
+MYCHAMOD: 5 \pc cha mod\
+MYDEXMOD: 3 \pc dex mod\
+DC: 8 + PROF + MYCHAMOD + 2 \difficulty for saving throws\
+SPD: PROF + MYDEXMOD \bonus to hit dexterity\
+SPC: PROF + MYCHAMOD + 2 \bonus to hit charisma spell\
+CRIT: 20 \minimum to crit\
+
+
+\### FUNCTIONS ###\
+set "position order" to "lowest first"
+
+
+function: atk ROLL:n h MOD:n DICE:d BONUS:n {
+ if ROLL >= CRIT { result: 2dDICE+BONUS} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + MOD >= AC { result: 1dDICE+BONUS}
+ result: 0
+}
+
+
+function: atkc ROLL:n h MOD:n DICE:d BONUS:n {
+ if ROLL >= 2 { result: 2dDICE+BONUS} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + MOD >= AC { result: 1dDICE+BONUS}
+ result: 0
+}
+
+function: absorb ROLL:n BONUS:n {
+if ROLL > 0 {result: ROLL + BONUS}
+result: 0
+}
+
+function: adh ROLL:n MOD:n dc DC:n DMG:n {
+if ROLL+MOD >= DC { result : DMG/2}
+result : DMG
+}
+
+function: adz ROLL:n MOD:n dc DC:n DMG:n {
+if ROLL+MOD >= DC { result : 0}
+result : DMG
+}
+
+function: rerollones NUM:n dice DICE:n {
+ COUNT: 0
+ loop P over {1..NUM} {
+  COUNT: COUNT + [implode 1dDICE]
+ }
+ result: COUNT
+}
+
+function: implode N:n {
+ if N = 1 { result: 1dDICE }
+ result: N
+}
+
+function: empower DICE:s under N:n roll M:n {
+ COUNT: 0
+ EMPOWERED: 0
+ loop P over {1..#DICE} {
+  if EMPOWERED < MYCHAMOD & P@DICE < N {
+  COUNT: COUNT + 1dM
+  EMPOWERED: EMPOWERED+1
+  } else {
+  COUNT: COUNT + P@DICE
+  }
+ }
+ result: COUNT
+}
+
+\### LEVEL 0 ATTACKS/CQNTRIPS ###\
+output [atk 1d20 h SPD 1d4 0] named "lvl 0 dagger offhand"
+output [atk 1d20 h SPD 1d8 MYDEXMOD] named "lvl 0 light crossbow"
+output [atk 1d20 h SPD 1d4 MYDEXMOD]+[atk 1d20 h SPD 1d4 0] named "lvl 0 dagger full round"
+output [atk 1d20 h MYCHAMOD+PROF+1 1d6 MYCHAMOD+1] named "lvl 0 Sharren Blade"
+output [atk 1d20 h SPC 2d8 0] named "lvl 0 lighting grasp+"
+output [atk [highest 1 of 2d20] h SPC 2d8 0] named "lvl 0 lighting grasp+ vs metal"
+output [adz 1d20 DEXMOD dc DC 2d8+6] named "lvl 0 create bonfire+"
+output [atk 1d20 h SPC 2d10 6] named "lvl 0 fire bolt+"
+output [atk 1d20 h MYCHAMOD+PROF+1 1d6+2*1d8 MYCHAMOD+1] named "lvl 0 Sharren Blade and Necrotic Swing"
+output [atkc [highest 1 of 2d20] h SPC 2d8 0] named "lvl 0 lighting grasp+ vs held person"
+
+\### LEVEL 1 SPELLS ###\
+output 0 named "-"
+\output [absorb ([atk 1d20 h SPD 1d4 MYDEXMOD]+[atk 1d20 h SPD 1d4 0]) 1d6] named "lvl 1 absorb element and dagger full round"\
+output [atk 1d20 h SPC 2d8+1d6 0] named "lvl 1 absorb element and lightning grasp+"
+\output 3d4+3 named "lvl 1 magic missile"\
+\output [adh 1d20 DEXMOD dc DC 3d6+6] named "lvl 1 burning hand"\
+output [atk [highest 1 of 2d20] h SPC 2d8+1d6 0] named "lvl 1 absorb element and lightning grasp+ vs metal"
+output [atk 1d20 h SPC 2d8+1d6 6] named "lvl 1 absorb element fire and lightning grasp+"
+output [atk [highest 1 of 2d20] h SPC 2d8+1d6 6] named "lvl 1 absorb element fire and lightning grasp+ vs metal"
+output [atkc [highest 1 of 2d20] h SPC 2d8+1d6 6] named "lvl 1 absorb element fire and lightning grasp+ vs held person"
+
+\### LEVEL 2 SPELLS ###\
+output 0 named "-"
+output [adh 1d20 DEXMOD dc DC 2d6] named "lvl 2 flaming sphere"
+output [adh 1d20 DEXMOD dc DC 3d6] named "lvl 2 dragon's breath"
+\output [adh 1d20 DEXMOD dc DC 3d8+6] named "lvl 2 Aganazzar's Scorcher"\
+output [adh 1d20 DEXMOD dc DC 4d6+6] named "lvl 2 burning hand"
+output [adh 1d20 DEXMOD dc DC 2d6]+[atk 1d20 h SPC 2d10 6] named "lvl 2 flaming sphere and lvl 0 fire bolt+"
+output [absorb 3d[atk 1d20 h SPC 2d6 0] 6] named "lvl 2 three scorching rays"
+output [absorb 3d[atk [highest 1 of 2d20] h SPC 2d6 0] 6] named "lvl 2 three scorching rays with advantage"
+output [atkc [highest 1 of 2d20] h SPC 2d8+2d6 6] named "lvl 2 absorb element fire and lightning grasp+ vs held person"
+
+\### LEVEL 3 SPELLS ###\
+output 0 named "-"
+output [adh 1d20 DEXMOD dc DC 3d6] named "lvl 3 flaming sphere"
+output [adh 1d20 DEXMOD dc DC 4d6] named "lvl 3 dragon's breath"
+output [adh 1d20 DEXMOD dc DC 4d6] named "level 3 meteor double"
+output [adh 1d20 DEXMOD dc DC 5d6+6] named "lvl 3 burning hand"
+\output [adh 1d20 DEXMOD dc DC 4d8+6] named "lvl 3 Aganazzar's Scorcher"\
+output [adh 1d20 DEXMOD dc DC 3d6]+[atk 1d20 h SPC 2d10 6] named "lvl 3 flaming sphere and lvl 0 fire bolt+"
+\output [adh 1d20 DEXMOD dc DC [empower 4d8 under 5 roll 8]+6] named "lvl 3 Aganazzar's Scorcher empowered"\
+output [adh 1d20 DEXMOD dc DC 4d6]+[atk 1d20 h SPC 2d10 6] named "level 3 meteor double and lvl 0 fire bolt+"
+output [absorb 4d[atk 1d20 h SPC 2d6 0] 6] named "lvl 3 four scorching rays"
+output [adh 1d20 DEXMOD dc DC 8d6+6] named "lvl 3 fire ball"
+output [adh 1d20 DEXMOD dc DC [empower 8d6 under 4 roll 6]+6] named "lvl 3 fire ball empowered"
+output [absorb 4d[atk [highest 1 of 2d20] h SPC 2d6 0] 6] named "lvl 3 four scorching rays with advantage"
+output [absorb [empower 4d[atk [highest 1 of 2d20] h SPC 2d6 0] under 4 roll 6] 6] named "lvl 3 four scorching rays with advantage empowered"
+output [absorb 3d[adh 1d20 DEXMOD dc DC 4d6] 6] named "level 3 meteor double three times (3 turns)"
+output [atkc [highest 1 of 2d20] h SPC 2d8+3d6 6] named "lvl 3 absorb element fire and lightning grasp+ vs held person"
+
+
+

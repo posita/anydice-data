@@ -1,0 +1,34 @@
+\ Pathfinder 2 Weapon Damage Calculator
+original by /u/57r4wb3rry 2013, PF2 update by @headsetruler \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACK is your attack bonus (e.g. 10)
+AC is the opponent's armor class (e.g. 17)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a bow) otherwise leave blank
+DAMAGE is the damage you deal with your weapon (e.g. 2d8+4) \
+
+
+function: ATTACK:n vs AC:n dmg DAMAGE:d {
+  result: [1d20 plus ATTACK ac AC crit 0 dmg DAMAGE]
+}
+function: ATTACK:n vs AC:n crit CRITEXTRA:d dmg DAMAGE:d {
+  result: [1d20 plus ATTACK ac AC crit CRITEXTRA dmg DAMAGE]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit CRITEXTRA:d dmg DAMAGE:d {
+  SUCCESSES: 0
+  if (ROLL = 20){ SUCCESSES: SUCCESSES + 1 }
+  if (ROLL = 1) { SUCCESSES: SUCCESSES - 1 }
+  if (ROLL + ATTACK >= AC) { SUCCESSES: SUCCESSES + 1 }
+  if (ROLL + ATTACK - 10 >= AC) { SUCCESSES: SUCCESSES + 1 }
+  if (ROLL + ATTACK + 10 < AC) { SUCCESSES: SUCCESSES - 1 }
+  if (SUCCESSES < 0) { SUCCESSES: 0 }
+  if (SUCCESSES > 2) { SUCCESSES: 2 }
+  result: DAMAGE * SUCCESSES + [SUCCESSES gt 1] * CRITEXTRA
+}
+
+function: LEFT:n gt RIGHT:n {result: LEFT>RIGHT}
+
+output [10 vs 18 dmg 2d10+6] named "Normal"
+output [10 vs 18 dmg 2d4+6] named "Agile"
+

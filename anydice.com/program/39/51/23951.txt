@@ -1,0 +1,41 @@
+\
+Cyberpunk RED Autofire Analysis Tool
+----------------------------------
+Input Values:
+ ATTR:   Attribute (REF for Shooting, DEX for Melee and Throwing)
+ SKILL:  Appropriate skill (Shoulder Arms, Melee Weapon, etc.)
+ MISC:   Catch-all to-hit bonus (Smartlink, Targeting Scope, etc.)
+         NOTE: Do not input Aimed Shot penalty, that is already calculated.
+ AUTO:   Maximum possible multiplier from Autofire
+ DV:     Input value from Range Table.
+ BODY:   SP of target's torso armour
+\
+
+\Input Values\
+ATTR: 8
+SKILL: 6
+MISC: 0
+AUTO: 4
+DV: 17
+\Target SP\
+BODY: 11
+
+\PROGRAM STARTS HERE\
+
+DIE: d{1-1d10, 2, 3, 4, 5, 6, 7, 8, 9, 10+1d10}
+
+function: autofire ROLL:s {
+MUL: ROLL + ATTR + SKILL + MISC - DV
+if MUL > AUTO {result: AUTO}
+else if MUL > 0 {result: MUL}
+else {result: 0} }
+
+HURT: 2d6*[autofire DIE] - BODY
+
+function: damage WOUNDS:s {
+if WOUNDS > -1 {result: WOUNDS}
+else {result: 0} }
+
+output [damage HURT] named "Expected Damage (Autofire)"
+
+\Freedom's Flame\

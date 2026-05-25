@@ -1,0 +1,78 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BARDATTACK: 3 + 3 + 2
+GRIFFONATTACK: 6
+HITDAMAGE: 1d6 + 3
+CRITICALDAMAGE: 2d6 + 3
+MISSDAMAGE: 0
+GRIFFONDAMAGEBEAK: 1d8 + 4
+GRIFFONCRITICALDAMAGEBEAK: 2d8 + 4
+GRIFFONDAMAGECLAWS: 2d6 + 4 
+GRIFFONCRITICALDAMAGECLAWS: 4d6 + 4
+AC: 20
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: griffon damage for ATTACKRESULTBEAK:n and ATTACKRESULTCLAWS:n {
+  TOTAL: 0
+  if ATTACKRESULTBEAK = CRITICALHIT {
+    TOTAL: TOTAL + GRIFFONCRITICALDAMAGEBEAK
+  }
+  if ATTACKRESULTBEAK = HIT {
+    TOTAL: TOTAL + GRIFFONDAMAGEBEAK
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  if ATTACKRESULTCLAWS = CRITICALHIT {
+    TOTAL: TOTAL + GRIFFONCRITICALDAMAGECLAWS
+  }
+  if ATTACKRESULTCLAWS = HIT {
+    TOTAL: TOTAL + GRIFFONDAMAGECLAWS
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  result: TOTAL
+}
+
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [d20 vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 2d20] vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+output [multiattack 2] named "Level 5 hand xbow w/o SS w/ 16 dex vs AC[AC]"
+
+BARDATTACK: 3 + 3 + 2 - 5
+HITDAMAGE: 1d6 + 3 + 10
+CRITICALDAMAGE: 2d6 + 3 + 10
+output [multiattack 2] named "Level 5 hand xbow w/ SS w/ 16 dex vs AC[AC]"
+
+BARDATTACK: 4 + 3 + 2
+HITDAMAGE: 1d6 + 4
+CRITICALDAMAGE: 2d6 + 4
+output [multiattack 2] named "Level 5 hand xbow w/o SS w/ 18 dex vs AC[AC]"

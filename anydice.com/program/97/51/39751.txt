@@ -1,0 +1,54 @@
+WEAPON:       3d10
+STAT:         53
+EXTRASTAT:    0
+BONUSES:      10
+STATMODIFIER: 3
+DEFENSE:      0
+
+CRIT:         0
+ARCANE:       1
+SU:           0
+
+CRAFTMODIFIER:0
+
+if SU {
+  STAT: STAT + STAT/2
+  EXTRASTAT: EXTRASTAT + EXTRASTAT/2
+  STATMODIFIER: STATMODIFIER + 1
+}
+
+if CRIT {
+ CRIT: 2
+}
+else {
+ CRIT: 1
+}
+if ARCANE {
+ ARCANE: 2
+}
+else {
+ ARCANE: 1
+}
+
+if CRAFTMODIFIER = 0 {
+  CRAFTMODIFIER: 1
+}
+
+function: minimum of DIE:d {
+ result: 1@{DIE}
+}
+function: maximum of DIE:d {
+ result: 1@[reverse {DIE}]
+}
+function: average of DIE:d {
+ result: (#{DIE}/2)@{DIE}
+}
+
+ATTACK: ARCANE * ( (WEAPON + (STAT + EXTRASTAT)*STATMODIFIER + BONUSES)*CRIT*CRAFTMODIFIER - DEFENSE)
+MINATTACK: ARCANE * ( ([minimum of WEAPON] + (STAT + EXTRASTAT)*STATMODIFIER + BONUSES)*CRIT*CRAFTMODIFIER - DEFENSE)
+AVERATTACK: ARCANE * ( ([average of WEAPON] + (STAT + EXTRASTAT)*STATMODIFIER + BONUSES)*CRIT*CRAFTMODIFIER - DEFENSE)
+MAXATTACK: ARCANE * ( ([maximum of WEAPON] + (STAT + EXTRASTAT)*STATMODIFIER + BONUSES)*CRIT*CRAFTMODIFIER - DEFENSE)
+output MINATTACK named "Minimum Damage"
+output AVERATTACK named "Average Damage"
+output MAXATTACK named "Maximum Damage"
+output ATTACK named "Damage"

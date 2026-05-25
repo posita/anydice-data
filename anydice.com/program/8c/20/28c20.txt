@@ -1,0 +1,73 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+PROFICIENCYBONUS: 4
+MISSDAMAGE: 0
+AC: 20
+ASHSTRIDE: 4d6
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+
+\Booming Blade + Crystal Scimitar Melee Attack\
+ATTACKMODIFIER: 5
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 1d6 + 3d8 + 5
+CRITICALDAMAGE: 2d6 + 6d8 + 5
+BBCS: [damage for [attack d20 vs AC]] 
+
+\Crystal Scimitar Melee Attack\
+ATTACKMODIFIER: 5
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 1d6 + 1d8 + 5
+CRITICALDAMAGE: 2d6 + 2d8 + 5
+CS: [damage for [attack d20 vs AC]] 
+
+\2 Booming Blade Crystal Scimitar + Crystal Scimitar + Ashardalon's Stride (Level 6)\
+output 2dBBCS + CS + ASHSTRIDE named "Ashardalon's Stride Strategy"
+
+
+\Steel Wind Strike Spell Attack\
+ATTACKMODIFIER: 4
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 6d10
+CRITICALDAMAGE: 12d10
+STEELSTRIKE: [damage for [attack d20 vs AC]] 
+
+\Steel Wind Strike Spell Attack in Darkness\
+ATTACKMODIFIER: 4
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 6d10
+CRITICALDAMAGE: 12d10
+STEELSTRIKEADV: [damage for [attack [highest 1 of 2d20] vs AC]] 
+
+
+
+
+
+loop ENEMIES over {1..5} {
+ \Steel Wind Strike + Ashardalon's Stride\
+ output ENEMIESdSTEELSTRIKE + ENEMIESd(ASHSTRIDE) named "[ENEMIES] Enemy (SWS+AS)"
+ \Steel Wind Strike in Darkness\
+ output ENEMIESdSTEELSTRIKEADV named "[ENEMIES] Enemy (SWS+DARK)"
+ \Steel Wind Strike\
+ output ENEMIESdSTEELSTRIKE named "[ENEMIES] Enemy (SWS)"
+ \Booming Blade Crystal Scimitar + Ashardalon's Stride\
+ output 2dBBCS + CS + ENEMIESdASHSTRIDE named "[ENEMIES] Enemy (BB+CS+AS)"
+}

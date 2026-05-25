@@ -1,0 +1,77 @@
+SIDES: 20
+
+function: swap random from BONUS:s and PENALTY:s with RB:n and RP:n {
+if RB@BONUS < RP@PENALTY {
+result: BONUS-PENALTY + 2*RP@PENALTY - 2*RB@BONUS
+}
+else {
+result: BONUS-PENALTY
+}
+}
+
+function: swap SWAPA:s and SWAPB:s plus BONUS:s minus PENALTY:s {
+if (SWAPA > SWAPB) {
+result: SWAPA + BONUS - SWAPB - PENALTY
+}
+else {
+result: SWAPB + BONUS - SWAPA - PENALTY
+}
+}
+
+function: swap totals between BONUS:n and PENALTY:n {
+if PENALTY > BONUS {
+result: PENALTY-BONUS
+}
+else {
+result: BONUS-PENALTY
+}
+}
+
+function: swap BONUSA:n with PENALTYA:n and BONUSB:n with PENALTYB:n {
+if (BONUSA > PENALTYA) {
+TOTAL: BONUSA - PENALTYA
+}
+else {
+TOTAL: PENALTYA - BONUSA
+}
+if (BONUSB > PENALTYB) {
+result: TOTAL + BONUSB - PENALTYB
+}
+else {
+result: TOTAL + PENALTYB - BONUSB
+}
+}
+
+function: highest minus lowest of ROLLS:s {
+result: {1,2}@ROLLS - {3,4}@ROLLS
+}
+
+function: skill effect tier TIER:s {
+if (TIER <= 0) {
+result: 2d20-2d20
+}
+if (TIER = 1) {
+result: [swap 1dSIDES and 1dSIDES plus 1dSIDES minus 1dSIDES]
+}
+if (TIER = 2) {
+result: [swap totals between 2dSIDES and 2dSIDES]
+}
+if (TIER = 3) {
+result: [swap 1dSIDES with 1dSIDES and 1dSIDES with 1dSIDES]
+}
+result: [highest minus lowest of 4dSIDES]
+}
+
+function: skill roll rank RANK:s {
+if (RANK > 0) {
+TIER: (RANK + 1d4 - 1) / 3
+result: [skill effect tier TIER]
+}
+else {
+result: 2d20-2d20
+}
+}
+
+loop N over {0..0} {
+output [skill roll rank N] named "Rank [N]"
+}

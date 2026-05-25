@@ -1,0 +1,65 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+PROFICIENCY: 4
+CONDUIT: 1d4
+SAVAGE_CONDUIT: 1@2d4
+CAUSTIC: 2
+HELLDUSK: 1d6
+SAVAGE_HELLDUSK: 1@2d6
+STR_MOD: 5
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+BALDURAN: 2d6 + 3 + STR_MOD
+SAVAGE_BALDURAN: 1@2d6 + 3 + STR_MOD
+SAVAGE_CRIMSON: 1@2d6 + 9
+SAVAGE_BLOODTHIRST: 1@2d4 + 2
+MARTIAL: 1d6
+
+loop TARGET_AC over { 16..22 } {
+
+   CRITICAL_THRESHOLD: 17
+   DAMAGE_BONUS: STR_MOD + CONDUIT + HELLDUSK + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY - 5 + 1d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with BALDURAN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with BALDURAN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with BALDURAN and DAMAGE_BONUS ] named "Balduran's GWM vs AC[TARGET_AC]"
+
+   WIS_MOD: 4
+   CRITICAL_THRESHOLD: 20
+   DAMAGE_BONUS: STR_MOD  + STR_MOD + WIS_MOD + WIS_MOD + 1d4 + 1d10 
+   HIT_BONUS: STR_MOD + STR_MOD + 1d4 + PROFICIENCY + 1d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with MARTIAL and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with MARTIAL and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with MARTIAL and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with MARTIAL and DAMAGE_BONUS ] named "Martial Arts vs AC[TARGET_AC]"
+
+   CRITICAL_THRESHOLD: 16
+   DAMAGE_BONUS: STR_MOD + SAVAGE_CONDUIT + SAVAGE_HELLDUSK
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with SAVAGE_CRIMSON and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with SAVAGE_CRIMSON and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with SAVAGE_BLOODTHIRST and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with SAVAGE_BLOODTHIRST and DAMAGE_BONUS ] named "TWF Savage vs AC[TARGET_AC]"
+
+   \ Group the results prettier. \
+   output {0} named ""
+}

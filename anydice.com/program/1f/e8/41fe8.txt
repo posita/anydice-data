@@ -1,0 +1,43 @@
+A: 5
+AUTO_WOUNDS: d6+1
+TO_HIT: 4
+TO_WOUND: 3
+ARMOR_SAVE_FOE: 0
+WARD_SAVE_FOE: 0
+MW: 7
+
+function: hit ATTACKS:n {
+  result: [count {TO_HIT..6} in ATTACKS d6]
+}
+
+function: wound HITS:n {
+  result: [count {TO_WOUND..6} in HITS d6] + AUTO_WOUNDS
+}
+
+function: armorsave WOUNDS:n {
+  if(ARMOR_SAVE_FOE = 0) {
+    result: WOUNDS
+  } else {
+    result: [count {1..ARMOR_SAVE_FOE-1} in WOUNDS d6]
+  }
+}
+
+function: wardsave WOUNDS:n {
+  if(WARD_SAVE_FOE = 0) {
+    result: WOUNDS
+  } else {
+    result: [count {1..WARD_SAVE_FOE-1} in WOUNDS d6]
+  }
+}
+
+function: mw test ROLL:s as REROLL:n {
+  if 0 = ROLL {
+    result: ROLL + REROLL
+  } else {
+    result: ROLL
+  }
+}
+
+output [wardsave [armorsave [wound [hit A]]]] named "Wunden"
+output 2d6 <= MW named "MW-Test"
+output (2d6 <= MW) + (2d6 <= MW) named "MW-Test with reroll"

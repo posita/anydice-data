@@ -1,0 +1,100 @@
+DEX: 3
+PROF: 3
+DC: 14
+HP: 24
+
+function: damage with A:n at J and B:n at K to hit C {
+ X: 0
+ Y: 0
+ if A > C {X: 1dJ + 3d6 + 3}
+ if B > C {Y: 1dK}
+ if A = 20 {X: X+J}
+ if B = 20 {Y: Y+K}
+ result: X + Y
+}
+
+function: damageadv A:n at J and B:n at K to hit C {
+ X: 0
+ Y: 0
+ if A > C {
+  X: 1dJ + 3d6 + 3
+  X: X+J
+ }
+ if B > C {Y: 1dK}
+ result: X + Y
+}
+
+function: damagepoison A:n at J and B:n to hit C {
+ X: 0
+ Y: 0
+ if A > C {
+  X: 1dJ + 3d6 + 3
+  if B < 10 {
+   Y: 1d4
+  }
+ }
+ if A = 20 {X: X+J}
+ result: X + Y
+}
+
+function: damagepoisonadv A:n at J and B:n to hit C {
+ X: 0
+ Y: 0
+ if A > C {
+  X: 1dJ + 3d6 + 3
+  X: X+J
+  if B < 10 {
+   Y: 1d4
+  }
+ }
+ result: X + Y
+}
+
+function: swords {
+ result: [damage with (1d20+DEX+PROF) at 6 and (1d20+DEX+PROF) at 6 to hit DC]
+}
+
+function: rapier {
+ result: [damage with (1d20+DEX+PROF) at 8 and 0 at 0 to hit DC]
+}
+
+function: swordsadv {
+ result: [damageadv ([highest of 1d20 and 1d20]+DEX+PROF) at 6 and (1d20+DEX+PROF) at 6 to hit DC]
+}
+
+function: rapieradv {
+ result: [damageadv ([highest of 1d20 and 1d20]+DEX+PROF) at 8 and 0 at 0 to hit DC]
+}
+
+function: greater A:n than B:n {
+ if A > B {result: 1}
+ result: 0
+}
+
+function: poison A:n B:n {
+ if (A < 10 & B > 0) { result: 1d4 }
+ result: 0
+}
+
+function: poisonarrow {
+ result:  [damagepoison (1d20+DEX+PROF) at 8 and 1d20 to hit DC]
+}
+
+function: poisonarrowadv {
+ result:  [damagepoisonadv ([highest of 1d20 and 1d20]+DEX+PROF) at 8 and 1d20 to hit DC]
+}
+
+function: surpriselongbow A:n {
+ if (A >= HP | A = 0) {result: A}
+ result: -1
+}
+
+output [greater[swords] than [rapier]] named "Dual Swords greater than Rapier"
+output [swords] named "Dual Short Swords"
+output [rapier] named "Rapier/Longbow"
+output [greater[swordsadv] than [rapieradv]] named "Dual Swords greater than Rapier surprise"
+output [swordsadv] named "Dual Short Swords surprise round"
+output [rapieradv] named "Rapier/Longbow surprise round"
+output [poisonarrow] named "Longbow With Poisoned Arrow"
+output [poisonarrowadv] named "Longbow With Poisoned Arrow Surprise"
+output [surpriselongbow [poisonarrowadv]] named "Longbow Surprise Round Poison, -1 is dmg < [HP] and != 0"

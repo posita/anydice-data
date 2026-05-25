@@ -1,0 +1,58 @@
+CA                : 18
+MARGEMDECRITICO   : 20
+BONUSDEATAQUEUM   : 4 + 3 + 1
+BONUSDEATAQUEDOIS : 4 + 3 
+BLESS             : 0
+BOND              : 0
+
+ELDRITCHBLAST     : 1d10
+CARISMA           : 4
+HEXBLADECURSE     : 0
+IVORYCLAW         : 3d6
+SHARDFIRE         : 2d10*2/3
+SHARDNECROTIC     : 3d6/2
+HEX               : 0
+
+
+ERRO              : 0
+
+function: ataqueum DADO:n vs CA :n {
+ if DADO = 1                               { result: ERRO}
+ if DADO = 20 | DADO = MARGEMDECRITICO     { result: 2*ELDRITCHBLAST + 2*HEX + HEXBLADECURSE + CARISMA + SHARDNECROTIC + IVORYCLAW}      
+ if DADO + BONUSDEATAQUEUM>= CA            { result: ELDRITCHBLAST + HEX + HEXBLADECURSE + CARISMA + SHARDNECROTIC}
+ result: ERRO
+}
+
+function: ataquedois DADO:n vs CA :n {
+ if DADO = 1                               { result: ERRO}
+ if DADO = 20 | DADO = MARGEMDECRITICO     { result: 2*ELDRITCHBLAST + 2*HEX + HEXBLADECURSE + CARISMA + SHARDNECROTIC}      
+ if DADO + BONUSDEATAQUEDOIS>= CA          { result: ELDRITCHBLAST + HEX + HEXBLADECURSE + CARISMA + SHARDNECROTIC}
+ result: ERRO
+}
+
+output [ataqueum [highest 1 of 3d20] vs (CA-BLESS-BOND)] + 
+       [ataqueum [highest 1 of 3d20] vs (CA-BLESS)]      +
+       [ataqueum [highest 1 of 3d20] vs (CA-BLESS)]      + 
+       [ataqueum [highest 1 of 3d20] vs (CA-BLESS)]
+        named "Ivory Claw 2 SP"
+
+
+output [ataquedois [highest 1 of 3d20] vs (CA-BLESS-BOND)] + SHARDFIRE +
+       [ataquedois [highest 1 of 3d20] vs (CA-BLESS)]      +
+       [ataquedois [highest 1 of 3d20] vs (CA-BLESS)]      + SHARDFIRE +
+       [ataquedois [highest 1 of 3d20] vs (CA-BLESS)]
+        named "Fire Shard 2 SP"
+
+
+output [ataqueum [highest 1 of 3d20] vs (CA-BLESS-BOND)] - 2*SHARDNECROTIC + 
+       [ataqueum [highest 1 of 3d20] vs (CA-BLESS)]      +
+       [ataqueum [highest 1 of 3d20] vs (CA-BLESS)]      + 
+       [ataqueum [highest 1 of 3d20] vs (CA-BLESS)]
+        named "Ivory Claw 1 SP"
+
+
+output [ataquedois [highest 1 of 3d20] vs (CA-BLESS-BOND)] + SHARDFIRE - 2*SHARDNECROTIC +
+       [ataquedois [highest 1 of 3d20] vs (CA-BLESS)]      +
+       [ataquedois [highest 1 of 3d20] vs (CA-BLESS)]      + 
+       [ataquedois [highest 1 of 3d20] vs (CA-BLESS)]
+        named "Fire Shard 1 SP"

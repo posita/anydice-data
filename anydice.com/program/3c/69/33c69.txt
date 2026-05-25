@@ -1,0 +1,74 @@
+\ attack result definitions \
+MISS: 0
+HIT: 1
+CRITICAL_HIT: 2
+
+\ attack result vs defense \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL + ATTACK_MOD >= DEFENSE + 10 {
+   result: CRITICAL_HIT
+ }
+ if ROLL = 20 {
+  if ROLL + ATTACK_MOD >= DEFENSE { result: CRITICAL_HIT }
+  result: HIT
+ }
+
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+
+\ damage result \
+function: damage for ATTACK_RESULT:n {
+ if ATTACK_RESULT= CRITICAL_HIT {
+  result: CRITICAL_DAMAGE
+ }
+ if ATTACK_RESULT= HIT {
+  result: HIT_DAMAGE
+ }
+ result: MISS_DAMAGE
+}
+
+\ define attack modifier \
+ATTACK_ATTRIBUTE_BONUS: +4
+ATTACK_PROFICIENCY_BONUS: +13
+ATTACK_ITEM_BONUS: +1
+ATTACK_MOD: ATTACK_ATTRIBUTE_BONUS + ATTACK_PROFICIENCY_BONUS + ATTACK_ITEM_BONUS
+
+\ define physical damage \
+DAMAGE_WEAPON_SPECIALIZATION: +3
+DAMAGE_ATTRIBUTE_BONUS: +4
+STRIKING_RUNE: +1
+WEAPON_DAMAGE: (1+STRIKING_RUNE)d12
+PHYSICAL_DAMAGE: WEAPON_DAMAGE + DAMAGE_ATTRIBUTE_BONUS + DAMAGE_WEAPON_SPECIALIZATION
+
+\ define spell damage \
+SPELL_STRIKE: 1
+SPELL_LEVEL: 4
+SPELL_DAMAGE: (1+SPELL_LEVEL)d6
+
+\ define sneak damage \
+SNEAK_DAMAGE_APPLIES: 1
+SNEAK_EXTRA_DICE: +1
+SNEAK_DAMAGE: (1+SNEAK_EXTRA_DICE)d6
+
+\ calculate strike total damage \
+HIT_DAMAGE: PHYSICAL_DAMAGE + SPELL_STRIKE*SPELL_DAMAGE + SNEAK_DAMAGE_APPLIES*SNEAK_DAMAGE
+CRITICAL_DAMAGE: 2*HIT_DAMAGE
+MISS_DAMAGE: 0
+
+\ define AC range of monster \
+MONSTER_AC_MIN: 27
+MONSTER_AC_MAX: 29
+MONSTER_MAX_HP: 155
+
+\
+loop AC over {MONSTER_AC_MIN..MONSTER_AC_MAX} {
+ output [attack d20 vs AC] named "[AC]"
+}
+\
+loop AC over {MONSTER_AC_MIN..MONSTER_AC_MAX} {
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}

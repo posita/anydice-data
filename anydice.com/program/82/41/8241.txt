@@ -1,0 +1,63 @@
+function: reroll A:n as B:n {
+  if( A<=2 ) {result: B}
+  else {result: A}
+}
+
+function: twoweap A attacks and B:n crits {
+ CRIT: 0
+ REG: 0 
+ if (B>0) {
+  loop I over {1..B} {
+   CRIT: CRIT + 2d8
+  }
+  CRIT: CRIT + B*5
+ }
+ 
+ loop I over {1..A-B} {
+  REG: REG + 1d8 + 5
+ }
+ result: CRIT + REG
+}
+
+function: duel A attacks and B:n crits {
+ CRIT: 0
+ REG: 0 
+ if (B>0) {
+  loop I over {1..B} {
+   CRIT: CRIT + 2d8
+  }
+  CRIT: CRIT + B*7
+ }
+ 
+ loop I over {1..A-B} {
+  REG: REG + 1d8 + 7
+ }
+ result: CRIT + REG
+}
+
+function: gweap A attacks and B:n crits extra C:n on hit{
+ CRIT: 0
+ REG: 0
+ if (B>0) {
+  loop I over {1..B} {
+   CRIT: CRIT + [reroll 1d6 as 1d6] + [reroll 1d6 as 1d6] + [reroll 1d6 as 1d6] + [reroll 1d6 as 1d6]
+  }
+  CRIT: CRIT + B*5 + B*C
+  REG: REG + [reroll 1d6 as 1d6] + [reroll 1d6 as 1d6] + 5 + C
+ }
+ loop N over {1..A-B}{
+  REG: REG + [reroll 1d6 as 1d6] + [reroll 1d6 as 1d6] + 5 + C
+ }
+ result: REG + CRIT 
+}
+
+output [twoweap 3 attacks and 0 crits] named "simple two weapons (no feat no mastery feat)"
+output [duel 2 attacks and 0 crits] named "single weapon (no mastery feat)"
+output [gweap 2 attacks and 1 crits extra 0 on hit] named "simple great weapon (no feat)"
+
+output [twoweap 4 attacks and 0 crits] named "simple two weapons (w mastery feat)"
+output [duel 3 attacks and 0 crits] named "single weapon (w mastery feat)"
+output [gweap 3 attacks and 0 crits extra 0 on hit] named "simple great weapon (w feat)"
+
+
+

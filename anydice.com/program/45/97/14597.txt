@@ -1,0 +1,39 @@
+AC:     13 \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:   20  \ minimum attack roll to crit \
+
+NORMAL: 1d20
+ADVANTAGE: 1@2d20
+DISADVANTAGE: 2@2d20
+
+function: attack ROLL:n plus H:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + H >= AC
+}
+
+function: multiattack TIMES:n DIE:d MOD:n NORMDMG:d CRITBONUS:d FIRSTDMG:d {
+  if TIMES <= 0 { result:0 }
+  
+  result: [roll damage [attack DIE plus MOD] TIMES-1 DIE MOD NORMDMG CRITBONUS FIRSTDMG]
+}
+
+function: attack DIE:d MOD:n NORMDMG:d CRITBONUS:d FIRSTDMG:d {
+  result: [multiattack 1 DIE MOD NORMDMG CRITBONUS FIRSTDMG]
+}
+
+function: roll damage HIT:n TIMES:n DIE:d MOD:n NORMDMG:d CRITBONUS:d FIRSTDMG:d {
+  if HIT = 1 { result: NORMDMG + FIRSTDMG + [multiattack TIMES DIE MOD NORMDMG CRITBONUS 0] }
+  if HIT = 2 { result: NORMDMG + CRITBONUS + FIRSTDMG + FIRSTDMG + [multiattack TIMES DIE MOD NORMDMG CRITBONUS 0]}
+
+  result: [multiattack TIMES DIE MOD NORMDMG CRITBONUS FIRSTDMG]
+}
+
+
+
+
+
+
+
+
+

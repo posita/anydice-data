@@ -1,0 +1,90 @@
+\ Input:                                                               \
+\ COUNT - Number of d10s to roll.                                      \
+\ TARGET - the target number. Only "2-10" are meaningful.              \
+
+\ Output:                                                              \
+\ -1    Botch. No successes, at least one 1                            \
+\  0    Failure                                                        \
+\  1+   Number of successes after subtracting a success for each       \
+\             1 rolled.  If at least one success was rolled, 1s cannot \
+\             take this below 0.                                       \
+
+
+function: owod roll COUNT:n dice target TARGET:n {
+  RELABELED: {1, 2:(TARGET-2), 9:(10-TARGET), 10}
+  result: [owod roll COUNT d RELABELED target TARGET]
+}
+
+function: onestepastrology roll COUNT:n dice target TARGET:n {
+  RELABELED: {1, 2:(TARGET-2), 9:(10-TARGET), 10}
+  result: [owod roll COUNT d RELABELED target TARGET]
+}
+
+function: twostepastrology roll COUNT:n dice target TARGET:n {
+  RELABELED: {1, 2:(TARGET-2), 9:(10-TARGET), 10}
+  result: [owodtwo roll COUNT d RELABELED target TARGET]
+}
+
+function: owod roll ROLL:s target TARGET:n {
+  \ I use "BOTCH" to mean a roll of 1, which isn't how  Storyteller    \
+  \ defines it. A super success is a roll of 10 when specialized.      \
+
+  \ Build up lists of which numbers are successes, botches, and  \
+  \ super successes.                                             \
+  MAXSUCCESS: 10
+  SUCCESSROLLS: {TARGET..MAXSUCCESS}
+  BOTCHROLLS: {1}
+
+  \ Count how many of each type (successes, botches, super successes) \
+  SUCCESSES: [count SUCCESSROLLS in ROLL]
+  BOTCHES: [count BOTCHROLLS in ROLL]
+
+
+  \ If zero successes and at least one botch, the roll is a botch \
+  if (SUCCESSES = 0) & (BOTCHES > 0) {
+	\ If you want to know how badly you botched, uncomment the \
+	\ next line: \
+	\ result: -BOTCHES \
+    result: -1
+  }
+  if BOTCHES > SUCCESSES {
+    \ If there are more botches than successes, then we simply fail \
+    result: 0
+  }
+  result: SUCCESSES-BOTCHES
+}
+
+
+
+function: owodtwo roll ROLL:s target TARGET:n {
+  \ I use "BOTCH" to mean a roll of 1, which isn't how  Storyteller    \
+  \ defines it. A super success is a roll of 10 when specialized.      \
+
+  \ Build up lists of which numbers are successes, botches, and  \
+  \ super successes.                                             \
+  MAXSUCCESS: 10
+  SUCCESSROLLS: {TARGET..MAXSUCCESS}
+  BOTCHROLLS: {1}
+
+  \ Count how many of each type (successes, botches, super successes) \
+  SUCCESSES: [count SUCCESSROLLS in ROLL]
+  BOTCHES: [count BOTCHROLLS in ROLL]
+
+
+  \ If zero successes and at least one botch, the roll is a botch \
+  if (SUCCESSES = 0) & (BOTCHES > 0) {
+	\ If you want to know how badly you botched, uncomment the \
+	\ next line: \
+	\ result: -BOTCHES \
+    result: -1
+  }
+  if BOTCHES > SUCCESSES {
+    \ If there are more botches than successes, then we simply fail \
+    result: 0
+  }
+  result: [owod roll SUCCESSES-BOTCHES dice target 6]
+}
+
+
+output [onestepastrology roll 13 dice target 8]
+output [twostepastrology roll 13 dice target 6]

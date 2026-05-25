@@ -1,0 +1,62 @@
+ HC_F: 6    HC_C: 5    HC_W: 3
+ HF_F: 5    HF_C: 3    HF_W: 6
+ HV_F: 3    HV_C: 6    HV_W: 5
+ HM_F: 7    HM_C: 7    HM_W: 7
+VAG_F: 5   VAG_C: 6   VAG_W: 3
+RDT_F: 3   RDT_C: 6   RDT_W: 5
+DEA_F: 6   DEA_C: 3   DEA_W: 5
+HCM_F: 5   HCM_C: 8   HCM_W: 7
+CHR_F: 3   CHR_C: 6   CHR_W: 5
+PRI_F: 3   PRI_C: 6   PRI_W: 5
+UPC_F: 5   UPC_C: 6   UPC_W: 3
+ACR_F: 7   ACR_C: 5   ACR_W: 8
+TTR_F: 3   TTR_C: 5   TTR_W: 6
+\ Normal Attack \
+function: an A:s B:s {result: (1d10+A) >= (1d10+B)}
+
+\ Attacker Advantage \
+function: aa A:s B:s {result: ([highest 1 of 2d10]+A) >= (1d10+B)}
+
+\ Defender Advantage \
+function: ad A:s B:s {result: (1d10+A) >= ([highest 1 of 2d10]+B)}
+
+\ Normal Attack Damage \
+function: and A:s B:s C:s {result: ([an A B]) * (C)}
+
+\ Attacker Advantage \
+function: aad A:s B:s C:s {result: ([aa A B]) * (C)}
+
+\ Defender Advantage \
+function: add A:s B:s C:s {result: ([ad A B]) * (C)}
+
+\ Add Damage, A is the attack calc, D is damage \
+function: atk A:s D:s {result: (A) * (D)}
+
+
+
+\ - Example One Single Unit Attack Count - \
+\ - House Vela defending with Count Intel against Vagrants - \
+ATTACK: [an VAG_C HV_C]
+DEM_V_HV: [atk ATTACK 2d8]
+ASS_V_HV: [atk ATTACK 2d6+2]
+COU_V_HV: [atk ATTACK 1d6]
+
+output ATTACK named "1: Attack Chance"
+output ASS_V_HV >= 4 named "1: Destroyed by Ass"
+output DEM_V_HV >= 4 named "1: Destroyed by Dem"
+output ATTACK named "1: Counter Chance"
+output COU_V_HV >= 4 named "1: Destroyed Ass"
+output COU_V_HV >= 10 named "1: Destroyed Dem"
+
+
+
+\ - Example Two Full Attack Defence Calcs - \
+\ - Houses Minor Defend on Lone Against All Vagrant Assets - \
+ATTACK_B: [an VAG_C HM_C]
+DEM_V_HM: [atk ATTACK_B 2d8]
+ASS_V_HM: [atk ATTACK_B 2d6+2]
+
+output ATTACK_B named "2: Attack Chance"
+output (DEM_V_HM) + (ASS_V_HM) >= 16 named "2: Attack with Dem + Ass"
+output (DEM_V_HM) + (DEM_V_HM) >= 16 named "2: Attack with Dem + Dem"
+output (DEM_V_HM) + (ASS_V_HM) + (DEM_V_HM) >= 16 named "2: All against"

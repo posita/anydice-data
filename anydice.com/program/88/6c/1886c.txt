@@ -1,0 +1,56 @@
+AC: 21
+AB: 11
+
+EB: 1d10+6
+SG: 4d8
+
+ATT: 1d20+AB>=AC
+ADV: [highest 1 of 2d20]+AB>=AC
+DIS: [lowest 1 of 2d20]+AB>=AC
+
+function: sum N:n times D:d {
+ if N > 1 {result: D + [sum N-1 times D]}
+ result: D
+}
+
+output [sum 3 times ATT*EB] named "2b) 3 Eldritch Blast, damage" 
+output [sum 3 times DIS*EB] named "2b) 3 Eldritch Blast /w disadvantage, damage" 
+output [sum 3 times ADV*EB] named "2b) 3 Eldritch Blast /w advantage, damage" 
+
+output [sum 6 times ATT*EB] named "2b) 6 Eldritch Blast, damage" 
+output [sum 6 times DIS*EB] named "2b) 6 Eldritch Blast /w disadvantage, damage" 
+output [sum 6 times ADV*EB] named "2b) 6 Eldritch Blast /w advantage, damage" 
+
+
+\output ATT named "1a) Shocking Grasp, hit chance"\
+\output [sum 4 times DIS] named "1b) 4 Eldritch Blast /w disadvantage, chance to hit N times"\
+\output [sum 4 times DIS]>=1 named "1c) 4 Eldritch Blast /w disadvantage, chance to hit at least once"\
+
+\output ATT*SG named "2a) Shocking Grasp, damage"\
+\output [sum 4 times DIS*EB] named "2b) 4 Eldritch Blast /w disadvantage, damage"\
+
+\output ADV named "3a) Shocking Grasp /w Advantage"\
+\output [sum 4 times DIS]>=1 named "3b) 4 Eldritch Blast /w disadvantage, hit at least once"\
+
+\output ADV*SG named "4a) Shocking Grasp /w Advantage, damage"\
+\output [sum 4 times DIS*EB] named "4b) 4 Eldritch Blast /w disadvantage, damage"\
+
+
+\function: hit with D:n on N:n {\
+\ if N = 4 { result: D }\
+\ if D = 0 { result: [hit with DIS on N+1] }\
+
+\ result: 1 + [sum 4-N times ATT]\
+\}\
+
+\output [hit with DIS on 1] named "5a) 4 Eldritch Blast /w disadvantage until first hit, chance to hit"\
+
+\function: dmg with D:n on N:n {\
+\ if N = 4 { result: D }\
+\ if D = 0 { result: [dmg with DIS*EB on N+1] }\
+
+\ result: EB + [sum 4-N times ATT*EB]\
+\}\
+
+\output [dmg with DIS*EB on 1] named "5b) 4 Eldritch Blast /w disadvantage until first hit, damage"\
+

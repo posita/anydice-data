@@ -1,0 +1,23 @@
+function: death throw ROLL:n {
+  if ROLL = 1 { result: -2 }
+  if ROLL = 20 { result: 100 }
+  if ROLL >= 10 { result: 1 }
+  result: -1
+}
+
+function: survive ROLL:n {
+  FAILS: 0
+  SUCCESSES: 0
+
+  THROW: [death throw ROLL]
+  SUCCESSES: SUCCESSES + [highest of 0 and THROW]
+  FAILS: FAILS - [lowest of 0 and THROW]
+
+  if SUCCESSES >= 100 { result: 2 } \ regain 1 hp \
+  if SUCCESSES >= 3 { result: 1 } \ stabilize \
+  if FAILS >= 3 { result: 0 } \ death \
+
+  result: [survive d20]
+}
+
+output [survive d20]

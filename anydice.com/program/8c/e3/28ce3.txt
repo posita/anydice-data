@@ -1,0 +1,31 @@
+set "position order" to "lowest first"
+
+function: target TARGET:n crit CRIT:n given SEQUENCE:s {
+ COUNT: 0
+ COUNT: COUNT + (SEQUENCE <= TARGET)
+ COUNT: COUNT + (SEQUENCE <= CRIT)
+ result: COUNT
+}
+function: damage EFFECT:n in SEQUENCE:s {
+ COUNT: 0
+ COUNT: COUNT + (SEQUENCE = 1)
+ COUNT: COUNT + (SEQUENCE = 2)*2
+ COUNT: COUNT + (SEQUENCE >= 5)*(1+EFFECT)
+ result: COUNT
+}
+function: damage piercing PIERCE:n viscous VIC:n vs ARMOR:n armor SEQUENCE:s {
+ COUNT: 0
+ DR: ARMOR
+ COUNT: COUNT + (SEQUENCE = 1)
+ COUNT: COUNT + (SEQUENCE = 2)*2
+ COUNT: COUNT + (SEQUENCE >= 5)*(1+VIC)
+ DR: DR - (SEQUENCE >= 5)*PIERCE
+ if DR < 0 { DR: 0 }
+ COUNT: COUNT - DR
+ if COUNT < 0 { result: 0 }
+ result: COUNT
+}
+\output [target 13 crit 4 given 2d20]\
+\output [damage 1 in 7d6]\
+output [damage piercing 0 viscous 1 vs 3 armor 7d6]
+output [damage piercing 1 viscous 1 vs 3 armor 7d6]

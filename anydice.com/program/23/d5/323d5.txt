@@ -1,0 +1,29 @@
+
+set "maximum function depth" to 3
+
+function: torgdice ROLL:n {
+  if ROLL = 10 { result: ROLL + [torgdice d20] }
+  if ROLL = 20 { result: ROLL + [torgdice d20] }
+  result: ROLL
+}
+
+function: torgmod FINAL:n {
+  BONUSES: {-10,-8,-6,-6,-4,-4,-2,-2,-1,-1,0,0,1,1,2,3,4,5,6,7}
+
+  if FINAL <= 20 { result: FINAL@BONUSES }
+
+  BONUS: 7
+
+  FINAL_OFFSET: FINAL - 20
+
+  loop N over {0..39} {
+    if FINAL_OFFSET > N*5 { BONUS: BONUS+1 }
+  }
+  result: BONUS
+}
+
+SKILLS: {5..18}
+
+loop SKILL over SKILLS {
+    output (SKILL + [torgmod [torgdice d20]]) named "Torg action total for skill [SKILL]"
+}

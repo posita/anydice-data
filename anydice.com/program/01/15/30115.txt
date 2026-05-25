@@ -1,0 +1,76 @@
+\ ATT is the number of Attacks, SKILL is WS or BS target number - so 3+ would be 3 - MOD is 1, 0, or -1 for hit roll modifiers \
+ATT: 20
+SKILL: 3
+MOD: 0
+\ TOUGH is the wound roll target number based on Strenght Toughness comparison, WMOD is the modifier to the wound roll \
+TOUGH: 3
+WMOD: 0
+
+function: ATTACK:n attacks {
+ HIT: 0 
+ loop N over {1.. ATTACK}{
+   HIT: HIT + [hitroll d6]
+ }
+ result: HIT
+}
+
+function: hitroll ROLL:s{
+ X: 0
+ if (ROLL = 6){
+  X: X + SUSTAIN
+  if (LETHAL = 1){
+   X: X + 10000
+   result: X
+  }
+ }
+ if (ROLL + MOD >= SKILL){
+  X: X+1
+ }
+ result: X
+}
+
+function: HITS:n wounds {
+ LETHALHITS: 0
+ if (HITS >= 10000){
+  LETHALHITS: HITS / 10000
+  HITS: HITS - (LETHALHITS * 10000)
+ }
+ WOUND: 0 
+ loop N over {1.. HITS}{
+   WOUND: WOUND + [woundroll d6]
+ }
+ result: WOUND + LETHALHITS
+}
+
+function: woundroll ROLL:s{
+ X: 0
+ if (ROLL + WMOD >= TOUGH){
+  X: X+1
+ }
+ result: X
+}
+
+\ If the attack has lethal hits or sustained hits, set those here. SUSTAIN is the number of extra hits, and LETHAL is a 1 if it has lethal hits and a 0 otherwise \
+SUSTAIN: 0
+LETHAL: 0
+
+output [[ATT attacks]wounds] named "[ATT] Attacks at [SKILL]+ WS/BS"
+
+\ For comparing the relative values of adding Lethal or Sustained or both \
+\
+SUSTAIN: 0
+LETHAL: 1
+
+output [[ATT attacks]wounds] named "Lethal Hits"\
+\
+SUSTAIN: 1
+LETHAL: 0
+
+output [[ATT attacks]wounds] named "Sustained Hits"\
+\
+SUSTAIN: 1
+LETHAL: 1
+
+output [[ATT attacks]wounds] named "Lethal Sustained Hits"\
+
+\ remove the comments top around the desired comparisons \

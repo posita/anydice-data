@@ -1,0 +1,176 @@
+function: roll TENSA:n and ONESA:n under SKILLA:n vs TENSB:n and ONESB:n under SKILLB:n
+{
+ if TENSA*10+ONESA > SKILLA
+ {
+    if ONESA = 0 | ONESA = 5
+    { 
+       A: 4
+    }
+    else 
+    { 
+       A: 3
+    }
+ }
+ if TENSA*10+ONESA <= SKILLA
+ {
+     if ONESA = 0 | ONESA = 5
+     {
+         A: 1
+     }
+     else 
+     {
+         A: 2
+     }
+ }
+ if TENSB*10+ONESB > SKILLB
+ {
+    if ONESB = 0 | ONESB = 5
+    { 
+       B: 4
+    }
+    else 
+    { 
+       B: 3
+    }
+ }
+ if TENSB*10+ONESB <= SKILLB
+ {
+     if ONESB = 0 | ONESB = 5
+     {
+         B: 1
+     }
+     else 
+     {
+         B: 2
+     }
+ }
+ if A < B
+ {
+         result: 1
+ }
+ if A > B
+ {
+         result: 2
+ }
+ if A = B
+ {
+         if TENSA*10+ONESA = TENSB*10+ONESB
+         {
+             result: 3
+         }
+         if TENSA*10+ONESA < TENSB*10+ONESB
+         {
+             result: 1
+         }
+         else
+         {
+             result: 2
+         }
+ }
+
+}
+
+function: roll DIEONE:n under SKILLONE:n vs DIETWO:n under SKILLTWO:n 
+{
+   if DIEONE <= SKILLONE & DIETWO > SKILLTWO
+   {
+       result: 1
+   }
+   if DIEONE > SKILLONE & DIETWO <= SKILLTWO
+   {
+       result: 2
+   }
+   if DIEONE <= SKILLONE & DIETWO <= SKILLTWO
+   { 
+       if DIEONE <= DIETWO
+       {
+           result: 1
+       }
+       else
+       {
+           result: 2
+       }
+    }
+    if DIEONE > SKILLONE & DIETWO > SKILLTWO
+    { 
+           result: 1
+    }
+}
+
+function: alt DIEONE:n under SKILLONE:n vs DIETWO:n under SKILLTWO:n 
+{
+   if DIEONE > SKILLONE & DIETWO > SKILLTWO
+   { 
+           result: 0
+   }
+   if DIEONE <= SKILLONE & DIETWO > SKILLTWO
+   {
+       result: 1
+   }
+   if DIEONE > SKILLONE & DIETWO <= SKILLTWO
+   {
+       result: 2
+   }
+   if DIEONE <= SKILLONE & DIETWO <= SKILLTWO
+    { 
+       if DIEONE < DIETWO
+       {
+           result: 1
+       }
+       if DIETWO < DIEONE 
+       {
+           result: 2
+       }
+       else
+       {
+           result: 0
+       }
+    }
+    if DIEONE > SKILLONE & DIETWO > SKILLTWO
+    { 
+           result: 0
+    }
+}
+
+function: reroll DIEONE:n under SKILLONE:n vs DIETWO:n under SKILLTWO:n 
+{
+   if DIEONE > SKILLONE & DIETWO > SKILLTWO
+   { 
+           result: [reroll DIEONE under SKILLONE vs DIETWO under SKILLTWO]
+   }
+   if DIEONE <= SKILLONE & DIETWO > SKILLTWO
+   {
+       result: 1
+   }
+   if DIEONE > SKILLONE & DIETWO <= SKILLTWO
+   {
+       result: 2
+   }
+   if DIEONE <= SKILLONE & DIETWO <= SKILLTWO
+    { 
+       if DIEONE < DIETWO
+       {
+           result: 1
+       }
+       if DIETWO < DIEONE 
+       {
+           result: 2
+       }
+       else
+       {
+           result: [reroll DIEONE under SKILLONE vs DIETWO under SKILLTWO]
+       }
+    }
+    if DIEONE > SKILLONE & DIETWO > SKILLTWO
+    { 
+           result: 0
+    }
+}
+
+HIGHER:55
+LOWER:50
+
+output [roll 1d10-1 and 1d10-1 under HIGHER vs 1d10-1 and 1d10-1 under LOWER] named "Harnmaster"
+output [roll 1d100 under HIGHER vs 1d100 under LOWER] named "Blackjack with more skilled wins draws"
+output [alt 1d100 under HIGHER vs 1d100 under LOWER] named "Blackjack with draw if both fail"
+output [reroll 1d100 under HIGHER vs 1d100 under LOWER] named "Blackjack with reroll if both fail"

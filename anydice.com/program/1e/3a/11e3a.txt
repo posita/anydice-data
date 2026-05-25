@@ -1,0 +1,32 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n dealing HITDAMAGE:d damage CRITICALDAMAGE:d critdamage {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+ATTACK: 7
+loop AC over {10..20}{
+output 
+  [damage for [attack d20 vs AC] dealing 2d6+4 damage 4d6+4 critdamage] +
+  [damage for [attack d20 vs AC] dealing 1d10+4 damage 2d10+4 critdamage] +
+  [damage for [attack d20 vs AC] dealing 1d10+4 damage 2d10+4 critdamage]
+  named "[AC]"
+}

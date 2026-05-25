@@ -1,0 +1,45 @@
+SELFPROF:3
+SMOD: SELFPROF+5
+
+PROF: 3
+AC: 18
+SHIELD: 0
+DEXSAVE: PROF+4
+WISSAVE: PROF+4
+
+X: [lowest 1 of 2d20]
+Y: [highest 1 of 2d20]
+Z: 1d20
+
+\ HOLD SORCERER ********************** \
+ \ Action Economy: ABT(A) \
+ \ Resource Economy: Chrono, Heightened Spell X2 (3SP)\
+ \ Action Hold person Heightened, Bonus action Font of Magic(3rd level slot), Reaction Counterspell/Silvery Barbs\
+SHA: 8+SMOD<X+WISSAVE
+SHB: 1 != (SHA|8+SMOD<Z+WISSAVE)
+
+ATK: (2d6)*(1d20+SMOD>AC)
+SHHIT: (20*6)*(SHB=1) 
+SHMISS: (SHB=0)*(ATK+ATK+ATK+ATK+ATK)
+output SHHIT named "Hold Hit"
+output SHMISS named "Hold Miss"
+
+\ SORCERER *********************** \
+ \ Action Economy: ATA, risks attacks at disadvantage\ 
+ \ Resource Economy: Transmuted Spell(1SP) \
+SR:(2*6)*((Y>AC-SMOD+6*SHIELD)+(Y>AC-SMOD)+(Y>AC-SMOD)+(Y>AC-SMOD)+(Y>AC-SMOD)) 
+\output SR named "Scorching Ray"\
+
+ \ Action Economy: A(R)TA, risks attacks if saved, uses reaction\ 
+ \ Resource Economy: One use of Restore Balance, Heightened Spell(3SP) \
+HB:(9*6)-( (9*6/2)*(8+SMOD<X+DEXSAVE)*((8+SMOD<X+WISSAVE)|(8+SMOD<X+WISSAVE)) ) 
+\output HB named "Hold Bolt" \
+
+ \ Action Economy: A, no risked turn between \ 
+ \ Resource Economy: One use of Restore Balance, Heightened Spell(3SP) \
+ 
+RBY: (9*6)/(1+(8+SMOD<X+DEXSAVE)) 
+RBX: (9d6)/(1+(8+SMOD<X+DEXSAVE)) 
+\output RBY named "Raw Bolt One Turn"\
+\output RBY+RBX named "Raw Bolt Two Turn"\
+

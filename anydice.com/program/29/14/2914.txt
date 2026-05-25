@@ -1,0 +1,24 @@
+\ Converts the values greater than 1000 to exploding 10's \
+function: convert SUM:n {
+ if SUM >= 1000 {
+  TENSROLLED: SUM / 1000
+  result: SUM - TENSROLLED * 990 + TENSROLLED d [explode d10]
+ }
+ result: SUM
+}
+
+\ To have it reroll any 1's, change from d[1..9, 1000} to d[2..9, 1000} \
+function: ROLLSIZE:n k KEEPSIZE:n {
+ result: [convert [highest KEEPSIZE of ROLLSIZE d{1..9, 1000}]]
+}
+
+
+\ Show values for a dicepool of 2 to 10 keeping 2 to 6 \ 
+loop KEEP over {2..6} {
+  loop POOL over {2..10} {
+\ Only rolls if the dicepool is greater than the number of kept dice \ 
+   if POOL >= KEEP {
+     output [POOL k KEEP] named "[POOL]k[KEEP]"
+   }
+  }
+}

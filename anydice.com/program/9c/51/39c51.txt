@@ -1,0 +1,24 @@
+function: evaluate ROLL:s {
+ SUCCESSES: ROLL >= 7
+ if SUCCESSES > 0 { result: SUCCESSES + (ROLL = 10) }
+ if [count 1 in ROLL] { result: -1 }
+ result: 0
+}
+
+function: evaluate nines ROLL:s {
+ SUCCESSES: ROLL >= 7
+ if SUCCESSES > 0 { result: SUCCESSES + (ROLL >= 9) }
+ if [count 1 in ROLL] { result: -1 }
+ result: 0
+}
+
+function: none ROLL:s {
+ if [count 1 in ROLL] { ROLL = [none ROLL] }
+ SUCCESSES: ROLL >= 7
+ if SUCCESSES > 0 { result: SUCCESSES + (ROLL = 10) }
+ result: 0
+}
+
+output [evaluate 5 d10] named "Double 10s"
+output [evaluate nines 5 d10] named "Double 9s"
+output [none 5d10] named "Reroll 1s"

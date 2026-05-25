@@ -1,0 +1,38 @@
+function: att ATT:n conf CONF:n damage DAM:d plus DAMBONUS hitting TOHIT critting TOCRIT mult CRITMULT {
+ HIT: 0
+ CRIT: 0
+ if ATT >= TOHIT {
+  HIT: 1
+ }
+ if ATT = 20 {
+  HIT: 1
+ }
+ if ATT >= TOCRIT {
+  if CONF >= TOHIT {
+   CRIT: 1
+  }
+  if CONF = 20 {
+   CRIT: 1
+  }
+ }
+ LP: 0
+ if HIT {
+  LP : 1
+ }
+ if HIT & CRIT {
+  LP : CRITMULT
+ }
+ DAMAGE: 0
+ loop X over {1..LP} {
+  DAMX: [roll DAM] + DAMBONUS
+  DAMY: DAMAGE
+  DAMAGE: DAMX + DAMY
+ }
+ result: DAMAGE
+}
+
+function: roll DICE:n {
+ result: DICE
+}
+
+output [att 1d20 conf 1d20 damage 1d12 plus 3 hitting 11 critting 20 mult 2] named "expected damage"

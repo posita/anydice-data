@@ -1,0 +1,49 @@
+\ Whether to round up (1) or not (0). \
+RU: 1
+
+SING: 3d12
+MULT: 3d6 + 2d8
+
+\ Testing our basic assumptions on more complex input \
+output MULT named "MULT simulation"
+
+\
+Derive the same introspection results, on standard dice, multiple sizes.
+
+Due to computation time limits, we cannot re-derive all die sizes. Ideally, you should keep to the AnyDice philosophy, and build an estimated die as the average of all dice. This eliminates, e.g., rounding errors. But attempting this means we don't know that our computations will complete before timing out. Guessing it is, statistics it is, and so we will deal with the rounding errors that result.
+\
+
+\ Test whether single-size expressions work on multi-size dice. \
+output	#MULT				named "MULT test die count (X)"
+output	{MULT}				named "MULT test support"
+output	#{MULT}				named "MULT test support range"
+output	1@{MULT}			named "MULT test die count, from support"
+output	#{MULT}@{MULT}			named "MULT test maximum"
+output	#{MULT}@{MULT} / #MULT		named "MULT test die size (X)"
+output	(#{MULT} + #MULT - 1) / #MULT	named "MULT test die size, fast (X)"
+output	(#{MULT}@{MULT}+1@{MULT}+RU)/2	named "MULT test computed average"
+
+\
+Here is where lazy intuition breaks, and we have to see what AnyDice is actually doing
+in these expressions (actual programming!) when multiple dice are involved.
+
+Our first non-mapping operation (X) is the die count: #MULT.
+We already have another expression that gave the correct die count: 1@{MULT}
+
+This is because AnyDice expands dice into all their possible outcomes in a {}. Read that
+until it makes sense. This is why the expression for computing the average maps properly:
+(
+  #{MULT}@{MULT}    -- This is a tautology; we ask AnyDice for the max, and so we get it.
+  + 1@{MULT}        -- This is true whenever we use dice whose min value always == 1.
+  + RU              -- AnyDice always rounds numbers to integers. This behavior still works.
+) / 2               -- Half of the max + min is the unweighted mean, aka the average.
+
+Let's retry the others, then, replacing #MULT with 1@{MULT}:
+\
+output	#{MULT}@{MULT} / 1@{MULT}	named "MULT test die size, fix?"
+output	(#{MULT}+1@{MULT}-1) / 1@{MULT}	named "MULT test die size, fix?, alt"
+
+\ Close, but AnyDice is rounding our result (by truncation?). So we try again. \
+\ We can't make AnyDice not round; we can only reverse its bias for rounding down. \
+output	(#{MULT}@{MULT}+1) / 1@{MULT}	named "MULT die size"
+output	(#{MULT}+1@{MULT}) / 1@{MULT}	named "MULT die size, alt"

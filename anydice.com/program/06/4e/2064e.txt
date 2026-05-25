@@ -1,0 +1,51 @@
+function : damage DAMAGE:d DPLUS:n attack DICE:s APLUS:n vs AC:n
+{
+	MULTIPLIER : 0
+	OUT : 0
+	if (DICE = 20) {MULTIPLIER : 2}
+	else if (DICE + APLUS >= AC) {MULTIPLIER : 1}
+	else if (DICE = 1) {MULTIPLIER : 0}
+	
+	if (MULTIPLIER > 0)
+	{
+		OUT : DPLUS + MULTIPLIERdDAMAGE
+	}
+	
+	result : OUT
+}
+
+
+function : great weapon fighter DICE:s
+{
+ H : 0
+ loop N over {1..#DICE}
+ {
+  if N@DICE > 2 {H : H + N@DICE}
+  else {H : H + 1d6}
+ }
+ result : H
+}
+
+function : great weapon master DAMAGE:d DPLUS:n attack DICE:s APLUS vs AC:n
+{
+ result : [damage DAMAGE DPLUS+10 attack DICE APLUS-5 vs AC]
+}
+
+function : get modifiers DICE:d
+{
+ result : (DICE - 10)/2
+}
+
+HM : 1@6d[get modifiers [highest 3 of 4d6]] + 4
+
+D : [great weapon fighter 2d6]
+HD : [highest 1 of 2d20]
+
+loop N over {1..20}
+{
+ NA : [damage D + 1d8 0 attack HD 0 vs N]
+ GWMA : [great weapon master D + 1d8 0 attack HD 0 vs N]
+ output NA named "ADV NA (AC - PLUS) [N]"
+ output GWMA named "GWMA NA (AC - PLUS) [N]"
+ output GWMA - NA named "ADV (AC - PLUS) [N]"
+}

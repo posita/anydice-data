@@ -1,0 +1,40 @@
+function: get oofs in SEQUENCE:s {
+  result: [count {1} in SEQUENCE] 
+} 
+
+function: get successes in SEQUENCE:s {
+  result: [count {4,5,6} in SEQUENCE]
+}
+
+function: get double successes in SEQUENCE:s {
+  result: [count {4,5} in SEQUENCE] + ([count {6} in SEQUENCE] * 2)
+}
+
+function: get doubles success chance for TN:n in SEQUENCE:s {
+  result: if [get double successes in SEQUENCE] >= TN
+}
+
+function: get success chance for TN:n in SEQUENCE:s {
+  result: [get successes in SEQUENCE] >= TN
+}
+
+function: get difference between doubles and singles chance for TN:n in SEQUENCE:s {
+  result: [get doubles success chance for TN in SEQUENCE] - [get success chance for TN in SEQUENCE]
+}
+
+\
+output [get oofs in DIEPOOL] named "# of OOFS"
+output [get successes in DIEPOOL] named "# of POWS"
+output [get double successes in DIEPOOL] named "# of POWS (6 = double)"
+\
+
+loop N over {2..6} {
+  DIEPOOL: 6d6
+  TN: N
+
+  \
+  output [get success chance for TN in DIEPOOL] named "TN=[TN] (single)"
+  output [get doubles success chance for TN in DIEPOOL] named "TN=[TN] (double)"
+  \
+  output [get difference between doubles and singles chance for TN in DIEPOOL] named "TN=[TN] (difference in success chance between single & double"
+}

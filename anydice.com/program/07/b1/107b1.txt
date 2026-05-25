@@ -1,0 +1,144 @@
+\ Inputs \
+DEFENSE: 17
+LEVEL: 20
+CRIT_DAMAGE: LEVEL
+
+\ Weapon Characteristics \
+WEAPON_DICE_THROWN: 1d8
+WEAPON_NUMBER_THROWN: 2
+
+WEAPON_DICE_MELEE: 1d8
+WEAPON_NUMBER_MELEE: 1
+
+WEAPON_DICE_GWM: 1d6
+WEAPON_NUMBER_GWM: 2
+
+\ Attack Characteristics \
+OTHER_DAMAGE_MOD_DT: 2+2 \ Rage + Dueling \
+OTHER_DAMAGE_MOD_GWM: 2 \ Rage \
+OTHER_DAMAGE_DICE: 1d8 \ Brute Force \ 
+CRIT_RANGE: 20
+GWF_Y: 2
+GWF_N: 0
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+
+\ GWM \
+GWMATTACK: -5
+GWMDAMAGE: 10
+
+\ Character Stats \
+MOD: (LEVEL+3)/8+3
+MAGIC: 3
+PROF: (LEVEL+7)/4
+
+\ Code \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackadv ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: gwmattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: gwmattackadv ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll R:n under N:n {
+   if R <= N {result: WEAPON_DICE_THROWN} else {result: R}
+}
+
+function: reroll R:n under N:n {
+   if R <= N {result: WEAPON_DICE_MELEE} else {result: R}
+}
+
+function: attack {
+ result: [damage for [attack NORMAL_HIT vs DEFENSE]]
+}
+
+function: attackadv {
+ result: [damage for [attackadv HIT_ADV vs DEFENSE]]
+}
+
+
+function: gwmattack {
+ result: [damage for [gwmattack NORMAL_HIT vs DEFENSE]]
+}
+
+function: gwmattackadv {
+ result: [damage for [gwmattackadv HIT_ADV vs DEFENSE]]
+}
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_NUMBER_MELEEd[reroll WEAPON_DICE_MELEE under GWF_N] + MOD + MAGIC  + OTHER_DAMAGE_MOD_DT + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_MELEEd[reroll WEAPON_DICE_MELEE under GWF_N]) + MOD + MAGIC + OTHER_DAMAGE_MOD_DT + 2dOTHER_DAMAGE_DICE + CRIT_DAMAGE
+MISSDAMAGE: 0
+output [attack] named "Melee"
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_NUMBER_MELEEd[reroll WEAPON_DICE_MELEE under GWF_N] + MOD + MAGIC  + OTHER_DAMAGE_MOD_DT + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_MELEEd[reroll WEAPON_DICE_MELEE under GWF_N]) + MOD + MAGIC + OTHER_DAMAGE_MOD_DT + 2dOTHER_DAMAGE_DICE + CRIT_DAMAGE
+MISSDAMAGE: 0
+output [attackadv] named "Adv Melee"
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_NUMBER_THROWNd[reroll WEAPON_DICE_THROWN under GWF_N] + MOD + MAGIC  + OTHER_DAMAGE_MOD_DT + OTHER_DAMAGE_DICE
+CRITICALDAMAGE:2d(WEAPON_NUMBER_THROWNd[reroll WEAPON_DICE_THROWN under GWF_N]) + MOD + MAGIC + OTHER_DAMAGE_MOD_DT + 2dOTHER_DAMAGE_DICE + CRIT_DAMAGE
+MISSDAMAGE: 0
+output [attack] named "Ranged"
+
+
+ATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBER_GWMd[reroll WEAPON_DICE_GWM under GWF_N] + MOD + MAGIC + OTHER_DAMAGE_MOD_GWM + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_GWMd[reroll WEAPON_DICE_GWM under GWF_N]) + MOD + MAGIC + OTHER_DAMAGE_MOD_GWM + 2dOTHER_DAMAGE_DICE  + GWMDAMAGE + CRIT_DAMAGE
+MISSDAMAGE: 0
+output [gwmattack] named "GWM Comparison"
+
+ATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBER_GWMd[reroll WEAPON_DICE_GWM under GWF_Y] + MOD + MAGIC + OTHER_DAMAGE_MOD_GWM + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_GWMd[reroll WEAPON_DICE_GWM under GWF_Y]) + MOD + MAGIC + OTHER_DAMAGE_MOD_GWM + 2dOTHER_DAMAGE_DICE + GWMDAMAGE + CRIT_DAMAGE
+MISSDAMAGE: 0
+output [gwmattackadv] named "Adv GWM Comparison"

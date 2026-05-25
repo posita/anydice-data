@@ -1,0 +1,27 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n crit CONF:n {
+ if ROLL >= CRITROLL { if CONF>=AC{result:CRITCONF} else{result:CRITDAMAGE}} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+\ENEMYAC: d{15..20}\
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+WEAPON: d4
+WEAPMOD: 1
+DAMAGE: WEAPMODdWEAPON + ATTACKMOD + DMGBONUS
+CRITDAMAGE: WEAPMODdWEAPON+WEAPON + ATTACKMOD + DMGBONUS
+CRITCONF: WEAPMODdWEAPON+[maximum of WEAPON]*WEAPMOD+ATTACKMOD+DMGBONUS
+
+loop ENEMYAC over {7..30}{
+ output [attackroll d20 vs ENEMYAC crit d20] named "Fgtr1 Greataxe [ENEMYAC]"
+}
+

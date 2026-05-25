@@ -1,0 +1,33 @@
+AC: 18
+MAPFLURRY: {0, 2, 4, 4, 4, 4, 4}
+
+function: DIE:n BONUS:n MAP:n against AC:n {
+ RESULT: 0
+ HIT: DIE+BONUS-MAP
+ if HIT >= AC+10 { RESULT:2 }
+ if HIT < AC+10 { RESULT:1 }
+ if HIT < AC { RESULT:0 }
+
+ if DIE = 20 { RESULT: RESULT+1 }
+ if DIE = 1 { RESULT: RESULT-1 }
+ 
+ if RESULT > 2 { result: 2}
+ if RESULT < 0 { result: 0}
+ result: RESULT
+}
+
+function: hatchet damage RESULT{
+ result: (d6+4) * RESULT
+}
+
+function: ranger damage {
+ DAMAGE: 0
+ loop N over {1..4} {
+  DAMAGE: DAMAGE + (1d6+4) * [d20 9 N@{MAPFLURRY} against AC]
+ }
+ result: DAMAGE
+
+}
+
+
+output [ranger damage] named "Ranger"

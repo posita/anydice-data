@@ -1,0 +1,42 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack HITROLL vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 5 + 2
+HITROLL: [highest 1 of 3d20]
+HITDAMAGE: 1d6+1
+CRITICALDAMAGE: 7+1d6+1
+MISSDAMAGE: 0
+output [attack] named "Magic-Shortsword"
+
+ATTACK: 5 + 2
+HITROLL: d20 
+HITDAMAGE: 1d6
+CRITICALDAMAGE: 6+1d6
+output [attack] named "Dagger"

@@ -1,0 +1,38 @@
+function: select INDICES:s from SEQUENCE:s {
+  RESULT: {}
+  loop INDEX over INDICES {
+    RESULT: {RESULT, INDEX@SEQUENCE}
+  }
+  result: RESULT
+}
+
+function: ROLL:s drop highest up to LIMIT:n unless EXCLUDE:s {
+  \ assumes ROLL is sorted in descending order! \
+  OFFSET: 1 + (ROLL > LIMIT) 
+  if OFFSET > #ROLL | OFFSET@ROLL = EXCLUDE { result: ROLL }
+  result: [select {1 .. OFFSET-1, OFFSET+1 .. #ROLL} from ROLL]
+}
+
+function: roll ROLL:s disadvantage DIS:s {
+  POOL: [sort ROLL]
+  loop D over DIS {
+    if D > 1 { POOL: [POOL drop highest up to D unless 1] }
+  }
+  SUM: {1,2}@POOL
+  ONES: (ROLL = 1) + (DIS = 1)
+  result: 10*SUM + ONES
+}
+
+\ tests with fixed rolls \
+output [roll {2,3} disadvantage 1] named "2,3 with extra 1 added, total of first 2 dice is 5"
+output [roll {2,3} disadvantage 4] named "4 knocks out 3, leaving only 2"
+output [roll {1,2} disadvantage 2] named "2 knocks out 2, leaving only 1"
+output [roll {4,4} disadvantage 4] named "4 knocks out one 4, leaving 4"
+output [roll {2,4} disadvantage 1] named "2,4 with extra 1 added, total of first 2 dice is 6"
+
+\ actual distributions \
+loop N over {2..4} {
+  output [roll Nd4 disadvantage {}] named "[N]d4 with no disadvantage dice" 
+  output [roll Nd4 disadvantage 1d4] named "[N]d4 with one disadvantage die" 
+  output [roll Nd4 disadvantage 2d4] named "[N]d4 with two disadvantage dice" 
+}

@@ -1,0 +1,41 @@
+function: gwf vi A:n B:n {
+ if A < B { result: 1d6 }
+ result: A
+}
+function: gwf viii A:n B:n {
+ if A < B { result: 1d8 }
+ result: A
+}
+function: gwf x A:n B:n {
+ if A < B { result: 1d10 }
+ result: A
+}
+GWFTWOVI: [gwf vi 1d6 3]*2
+GWFVIII: [gwf viii 1d8 3]
+GWFX: [gwf x 1d10 3]
+output GWFTWOVI named "GWF2d6"
+output GWFVIII named "GWF8"
+output GWFX named "GWF10"
+
+CRIT: [highest 1 of 3d20] > 18 
+output CRIT named "Crit chance"
+TOTALHIT: [highest 1 of 2d20+9] > 17
+output TOTALHIT named "Full hit chance"
+HIT: TOTALHIT - CRIT
+output HIT named "Hit chance"
+
+output 1d10+5+4+4d8+3d8+1d8 named "DMGBASE"
+
+DMGGWFONE: GWFX+5+4+GWFVIII*4+GWFVIII*3+GWFVIII+GWFTWOVI
+output DMGGWFONE named "DMGGWF One"
+DMGGWFTWO: GWFX+5+4+GWFVIII*3+GWFVIII
+output DMGGWFTWO named "DMGGWF Two"
+DMGGWFTHR: GWFX+5+4+GWFVIII*2+GWFVIII
+output DMGGWFTHR named "DMGGWF Three"
+DMGGWFTOTAL: DMGGWFONE+DMGGWFTWO+DMGGWFTHR
+output DMGGWFTOTAL named "FULL DG / CDG"
+
+CDG: DMGGWFTOTAL*2
+output CDG named "FULL CDG"
+DPR: CDG*CRIT + TOTALHIT*DMGGWFTOTAL
+output DPR named "FULL DPR"

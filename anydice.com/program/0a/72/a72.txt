@@ -1,0 +1,291 @@
+STR:2 DEX:4 BAB: 4
+REFDEFENSE:4
+DR: 6
+\Format:\
+\NAME:damgedice\
+\NAMEV:vsDRDice\
+\NAMEATT:Attack stat. 0 if no stat bonus to attack. STR+STR/2 for 2hand, 
+
+STR otherwise\
+
+\Daggers\
+DAGGER: 1d4	DAGGERV: 1d4
+PARRY:1d6	PARRYV:1d4
+PDAGGER: 1d6 	PDAGGERV: 1d6
+CINQ: 1d10	CINQV:1d4
+STIL: 1d6	STILV: 1d12
+
+\Swords\
+SSWORD: 1d4	SSWORDV: 2d4
+SHORT:1d8	SHORTV:1d4	
+SWORD: 1d8	SWORDV: 1d8
+SCIM: 1d10	SCIMV: 1d4
+LSWORD: 1d12	LSWORDV: 1d8
+CLAY: 2d10	CLAYV: 1d8
+ZWEI: 2d10	ZWEIV:1d8
+
+\Bows\
+RXBOW: 1d8 	RXBOWV: 1d6	
+SBOW: 1d4	SBOWV: 1d4
+BOW: 1d6	BOWV: 1d6
+LBOW: 1d6	LBOWV: 1d10
+XBOW: 2d8	XBOWV: 2d10
+HXBOW: 2d10	HXBOWV: 2d10
+
+\Polearms\
+STAFF: 1d4	STAFFV: 1d4
+SPEAR: 1d4	SPEARV: 2d4
+HAL: 1d10	HALV: 1d10
+GLAI: 2d8	GLAIV:1d6
+TRID: 3d4	TRIDV:1d6
+LANCE: 1d8	LANCEV: 3d6
+SCY: 1d10	SCYV: 1d10
+
+\Axes\
+HURL: 1d6	HURLV: 1d4
+AX: 1d8		AXV: 1d6
+PAX: 1d8	PAXV: 3d6
+BEARD:1d10	BEARDV:1d4 \arcswing\
+BAX: 2d8	BAXV: 1d10
+
+\Hammers and Maces\
+TONFA: 1d6	TONFAV:-DEX 
+HAM:1d10	HAMV:-DEX
+FLAIL: 1d8	FLAILV:-DEX \flail hits two locations, needs two separate 
+
+dex reductions\
+MSTAR: 2d10	MSTARV:-DEX
+PFLAIL:2d8	PFLAILV:-DEX
+WHAM: 2d12	WHAMV:-DEX
+
+\Firearms\
+PISTOL:3d6	PISTOLV:2d8
+MUSK:3d12	MUSKV:2d10
+
+\Misc\
+MFIST: 1d4	MFISTV: 1d4
+BFIST: 1d12	BFISTV: 0
+BOX: 2d6	BOXV: 0
+WHIP: 1d6	WHIPV: 1d6
+WCHLITE:1d4	WCHLITEV:0
+WCH:2d4		WCHV:0
+
+
+function: highstat
+{
+	if STR>=DEX
+	{result: STR}
+	else {result: DEX}
+}
+
+function: ATTEMPTS:n attacks ROLL:n
+{ 
+ DAMAGE: 0
+  loop X over {1..ATTEMPTS}
+ {
+  if ROLL > 0
+    {
+     DAMAGE: DAMAGE+[damageroll]
+    }
+ }
+result:DAMAGE
+}
+
+function: simulate NUMATTACKS
+{
+DAMAGE: 0
+loop X over {1..NUMATTACKS}
+{
+DAMAGE:DAMAGE+[damageroll]
+}
+
+result: DAMAGE
+}
+
+function: damageroll
+{
+result: [floor ((WEAPON+ATTSTAT)-[floor (DR/DRMOD-(VSDR+DEX))])]
+}
+
+function: attackroll
+{
+result: ((1d20+HITSTAT+ACC+BAB)-(1d20+REFDEFENSE))
+}
+
+function: floor DICE:n
+{
+
+if DICE<0
+{
+result:0
+}
+else
+{
+result:DICE
+}
+}
+
+
+
+\RXBOWTIER\
+WEAPON: RXBOW VSDR: RXBOWV ATTSTAT: 0 DRMOD: 1 HITSTAT:DEX ACC:0
+output [7 attacks [attackroll]] named "Repeating Crossbow"
+
+\1 Second Weapons\
+
+WEAPON: DAGGER VSDR: DAGGERV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0
+output [6 attacks [attackroll]] named "Dagger"
+
+WEAPON: SBOW VSDR: SBOWV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0
+output [6 attacks [attackroll]] named "Short Bow"
+
+WEAPON: TONFA  VSDR: TONFAV ATTSTAT: STR DRMOD:2 HITSTAT:STR ACC:0
+output [6 attacks [attackroll]] named "Tonfa"
+
+WEAPON: MFIST VSDR: MFISTV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:1
+output [6 attacks [attackroll]] named "Monk's Fist"
+
+\2 Second Weapons\
+
+WEAPON: SSWORD VSDR: SSWORDV ATTSTAT:STR DRMOD:1 HITSTAT:DEX ACC:2
+output [5 attacks [attackroll]] named "SideSword"
+
+WEAPON: PDAGGER VSDR: PDAGGERV ATTSTAT:STR DRMOD:1 HITSTAT:STR ACC:0
+output [5 attacks [attackroll]] named "Punching Dagger"
+
+WEAPON: PARRY VSDR: PARRYV ATTSTAT:STR DRMOD:1 HITSTAT:DEX ACC:0
+output [5 attacks [attackroll]] named "Parrying Dagger"
+
+WEAPON: SHORT VSDR: SHORTV ATTSTAT:STR DRMOD:1 HITSTAT:[highstat] ACC:0
+output [5 attacks [attackroll]] named "Short Sword"
+
+WEAPON: STAFF VSDR: STAFFV ATTSTAT:STR+STR/2 DRMOD: 1 HITSTAT:DEX ACC:0
+output [5 attacks [attackroll]] named "Staff"
+
+WEAPON: BFIST VSDR: BFISTV ATTSTAT:STR DRMOD:1 HITSTAT:STR ACC:1
+output [5 attacks [attackroll]] named "Boxer's Fist"
+
+WEAPON: HURL VSDR: HURLV ATTSTAT:STR DRMOD:1 HITSTAT:STR ACC:3
+output [5 attacks [attackroll]] named "Hurlbat"
+
+WEAPON: BOW VSDR: BOWV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0
+output [5 attacks [attackroll]] named "Bow"
+
+WEAPON: HAM VSDR: HAMV ATTSTAT:STR+STR/2 DRMOD: 1 HITSTAT:STR ACC:0
+output [5 attacks [attackroll]] named "Hammer"
+
+WEAPON: WHIP VSDR: WHIPV ATTSTAT:STR DRMOD:1 HITSTAT:DEX ACC:1
+output [5 attacks [attackroll]] named "Whip"
+
+WEAPON:WCHLITE VSDR:WCHLITEV ATTSTAT:STR DRMOD:2 HITSTAT:DEX ACC:0
+output [5 attacks [attackroll]] named "Light Weighted Chain"
+
+\3 Second Weapons\
+
+WEAPON: SWORD VSDR: SWORDV ATTSTAT: STR DRMOD:1 HITSTAT:[highstat] ACC:0
+output [4 attacks [attackroll]] named "Sword"
+
+WEAPON: SCIM VSDR:SCIMV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0
+output [4 attacks [attackroll]] named "Scimitar"
+
+WEAPON: AX VSDR: AXV ATTSTAT: STR DRMOD:1 HITSTAT:STR ACC:0
+output [4 attacks [attackroll]] named "Axe"
+
+WEAPON: FLAIL VSDR: FLAILV ATTSTAT:STR DRMOD:2 HITSTAT:STR ACC:-1
+output [4 attacks [attackroll]] named "Flail"
+
+WEAPON: SPEAR VSDR: SPEARV ATTSTAT: STR DRMOD:1 HITSTAT:[highstat] ACC:0
+output [4 attacks [attackroll]] named "Spear"
+
+WEAPON: STIL VSDR: STILV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0
+output [4 attacks [attackroll]] named "Stiletto"
+
+WEAPON: LBOW VSDR: LBOWV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0
+output [4 attacks [attackroll]] named "Long Bow"
+
+WEAPON: CINQ VSDR: CINQV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0
+output [4 attacks [attackroll]] named "Cinquedea"
+
+
+\4 Second Weapons\
+
+WEAPON: LSWORD VSDR: LSWORDV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:[highstat] 
+
+ACC:0
+output [4 attacks [attackroll]] named "Longsword"
+
+WEAPON: HAL VSDR: HALV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [4 attacks [attackroll]] named "Halberd"
+ 
+WEAPON: PAX VSDR: PAXV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [4 attacks [attackroll]] named "Pick Axe"
+
+WEAPON: MSTAR VSDR: MSTARV ATTSTAT: STR DRMOD:2 HITSTAT:STR ACC:0
+output [4 attacks [attackroll]] named "Morning Star"
+
+WEAPON: XBOW VSDR: XBOWV ATTSTAT: 0 DRMOD:1 HITSTAT:DEX ACC:0
+output [4 attacks [attackroll]] named "Crossbow"
+
+WEAPON: GLAI VSDR: GLAIV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [4 attacks [attackroll]] named "Glaive"
+
+WEAPON: TRID VSDR: TRIDV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:[highstat] 
+
+ACC:0
+output [4 attacks [attackroll]] named "Trident"
+
+WEAPON: BEARD VSDR: BEARDV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [4 attacks [attackroll]] named "Bearded Axe (One Hit)"
+
+\WEAPON: BEARD VSDR: BEARDV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [simulate 8] named "Bearded Axe (Both Hit)" Need to implement 
+
+arcswing\ 
+
+WEAPON: WCH VSDR: WCHV ATTSTAT: STR+STR/2 DRMOD:2 HITSTAT:DEX ACC:0
+output [4 attacks [attackroll]] named "Weighted Chain"
+
+WEAPON: PFLAIL VSDR: PFLAILV ATTSTAT: STR+STR/2 DRMOD:2 HITSTAT:STR ACC:0
+output [4 attacks [attackroll]] named "Pole Flail"
+
+
+\5 Second Weapons\
+
+WEAPON: CLAY VSDR: CLAYV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [3 attacks [attackroll]] named "Claymore"
+
+WEAPON: BAX VSDR: BAXV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [3 attacks [attackroll]] named "Battle Axe"
+
+WEAPON: WHAM VSDR: WHAMV ATTSTAT: STR+STR/2 DRMOD:2 HITSTAT:STR ACC:0
+output [3 attacks [attackroll]] named "War Hammer"
+
+WEAPON: LANCE VSDR: LANCEV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:DEX ACC:0
+output [3 attacks [attackroll]] named "Lance"
+
+WEAPON: HXBOW VSDR: HXBOWV ATTSTAT: 0 DRMOD:1 HITSTAT:DEX ACC:0
+output [3 attacks [attackroll]] named "Heavy Crossbow"
+
+WEAPON: SCY  VSDR: SCYV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [3 attacks [attackroll]] named "Scythe (One Hit)"
+
+\WEAPON: SCY  VSDR: SCYV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [simulate 6] named "Scythe (Both Hit)" pending implementation\
+
+\WEAPON: PISTOL VSDR: PISTOLV ATTSTAT:STR DRMOD:1 HITSTAT:DEX ACC:0
+output [simulate 3] named "Pistol" requires Deviation\
+
+
+\6 Second WEapons\
+WEAPON: ZWEI VSDR: ZWEIV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [2 attacks [attackroll]] named "Zweihander (Single Hit)"
+
+\WEAPON: ZWEI VSDR: ZWEIV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:STR ACC:0
+output [simulate 4] named "Zweihander (Both Hit)" needs Arcswing\
+
+\WEAPON: MUSK VSDR: MUSKV ATTSTAT:STR DRMOD:1 HITSTAT:DEX ACC:0
+output [simulate 2] named "Musket" needs Deviation\
+
+\COUCHEDLANCETIER\
+\WEAPON: LANCE VSDR: LANCEV ATTSTAT: STR+STR/2 DRMOD:1 HITSTAT:DEX ACC:0
+output [simulate 1]+1d12 named "Lance" needs its own implementation\

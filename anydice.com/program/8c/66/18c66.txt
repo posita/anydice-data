@@ -1,0 +1,79 @@
+function: pro M:n D:n L:n
+{
+  X:0
+  loop I over {1..M} {X:X+(1dD >= L)}
+  result:X
+}
+
+function: statCalc STAT:n MAX:n
+{
+  X:0
+  loop I over {1..7} 
+  {
+    if (STAT >= 1)
+    {
+      X:I
+      STAT:STAT - 1
+    }
+  }
+  result:X
+}
+
+C:14
+W:3
+G:3
+U:17
+B:0
+
+loop MIGHT over {1..7}
+{
+loop RESILIENCE over {1..7}
+{
+loop FINESSE over {1..7}
+{
+loop SMARTS over {1..7}
+{
+if (MIGHT +RESILIENCE +FINESSE +SMARTS = C)
+{
+    ATTACK: [statCalc MIGHT+SMARTS+G MIGHT]
+    BLOCK: [statCalc RESILIENCE+SMARTS+G RESILIENCE]
+    DOGE: [statCalc FINESSE+SMARTS+G FINESSE]
+
+    C_MIGHT:MIGHT-ATTACK
+    C_RESILIENCE:RESILIENCE-BLOCK
+    C_FINESSE:FINESSE-DOGE
+    C_SMARTS:SMARTS
+
+    if (C_MIGHT > C_RESILIENCE & C_MIGHT > C_FINESSE & C_MIGHT > C_SMARTS) 
+    {
+      OTHER:[statCalc C_MIGHT+SMARTS+G MIGHT]
+      C_MIGHT:C_MIGHT-OTHER
+    }
+    else if (C_RESILIENCE > C_FINESSE & C_RESILIENCE > C_SMARTS)
+    {
+      OTHER:[statCalc C_RESILIENCE+SMARTS+G RESILIENCE]
+      C_RESILIENCE:C_RESILIENCE-OTHER
+    }
+    else if (C_FINESSE > C_SMARTS)
+    {
+      OTHER:[statCalc C_FINESSE+SMARTS+G FINESSE]
+      C_FINESSE:C_FINESSE-OTHER
+    }
+    else
+    {
+      OTHER:C_SMARTS+SMARTS+G
+      if (OTHER>14){OTHER:14}
+    }
+
+    GROUP:ATTACK
+    if (GROUP > BLOCK) {GROUP: BLOCK}
+    if (GROUP > DOGE) {GROUP: DOGE}
+    if (GROUP > OTHER/2) {GROUP: OTHER/2}
+    output [pro MIGHT+W+(GROUP*B) 20 (U-ATTACK-GROUP)] + 
+           [pro RESILIENCE+W+(GROUP*B) 20 (U-BLOCK-GROUP)] + 
+           [pro FINESSE+W+(GROUP*B) 20 (U-DOGE-GROUP)]-12 named "[MIGHT]-[RESILIENCE]-[FINESSE]-[SMARTS] ([ATTACK]-[BLOCK]-[DOGE]_[OTHER])"
+}
+}
+}
+}
+}

@@ -1,0 +1,41 @@
+function: rollatk DIE:n plus BONUS:n vs AC:n {
+ if DIE = 20 { result: CRITDMG}
+ if DIE = 1 { result: 0}
+ if DIE + BONUS >= AC { result: DMG}
+ result: 0
+}
+
+function: rollmatk NATKS:n atks on DIE plus BONUS:n vs AC:n {
+ TOTAL: 0
+ loop X over {1..NATKS}{
+  DMG: [rollatk DIE plus BONUS vs AC]
+  TOTAL: TOTAL + DMG
+ }
+ result: TOTAL
+}
+
+function: ovrcombat ROUNDS:n of combat with NATKS:n atks on a DIE plus BONUS:n vs AC:n{
+ TOTAL: 0
+ loop X over {1..ROUNDS}{
+  DMG: [rollmatk NATKS on DIE plus BONUS vs AC]
+  TOTAL: TOTAL + DMG
+ }
+ result: TOTAL
+}
+
+
+DMG: 1d10+5
+CRITDMG: (1d10*2)+5
+TOATK: 8
+output [ rollmatk 2 atks on 1d20 plus TOATK vs 16] named "Sil w/ Pistol 2 shots vs 16ac"
+
+DMG: 1d10+5
+CRITDMG: 2d10+5
+TOATK: 8
+output [ rollmatk 2 atks on [highest 1d20 of 2d20] plus TOATK vs 16] named "Sil w/ Pistol 2 shots vs 16ac"
+
+
+DMG: 2d6+5
+CRITDMG: (2d6)*2+5
+TOATK: 8
+output [ rollmatk 2 atks on 1d20 plus TOATK vs 16] named "Tyggs w/ Greatsword 2 hits vs 16ac"

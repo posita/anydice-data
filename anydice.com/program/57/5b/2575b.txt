@@ -1,0 +1,31 @@
+\ Target Number: 2d12 challenge dice \
+\ Roll: Xd6 count highest \
+\ Any bonus 5s add +1, any bonus 6s add +2 \
+
+\ Player rolls dice pool d6s, counts highest, counts Fives (+1), Sixes (+2) and Ones (-1) \
+function: PLAYER:s roll {
+  HIGH: 1@PLAYER
+  ONES: [count {1} in PLAYER] - (1@PLAYER = 1)  \ count any ones except highest roll \
+  FIVES: [count {5} in PLAYER] - (1@PLAYER = 5)  \ count any fives except highest roll \
+  SIXES: [count {6} in PLAYER] - (1@PLAYER = 6)  \ count any sixes except highest roll \
+  result: 1@PLAYER + FIVES + (2*SIXES) - ONES    \ result is highest roll + fives + 2*sixes - ones \
+}
+
+\ Ironsworn-like, randomized target \
+function: the PLAYER:n and CHALLENGE:s {
+ result: (PLAYER >= 1@CHALLENGE) + (PLAYER >= 2@CHALLENGE)
+}
+
+\ FATE-like, Fixed Target, Weak Hit (Target), Strong Hit (Target + 2), Critical (Target + 4) \
+function: the PLAYER:n target SHIFTS:n {
+ result: (PLAYER >= SHIFTS) + (PLAYER >= (SHIFTS + 2)) + (PLAYER >= (SHIFTS + 4))
+}
+
+  output [the [2@2d6 roll] and 2d10] named "0d6"
+loop MOD over {1..8}{
+  output [the [MODd6 roll] and 2d10] named "[MOD]d6"
+}
+
+loop MOD over {1..8}{
+  output [MODd6 roll] named "player prob[MOD]"
+}

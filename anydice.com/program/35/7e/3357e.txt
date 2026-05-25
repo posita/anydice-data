@@ -1,0 +1,23 @@
+function: nco helper N:n AMAX:n DMAX:n AROLL:n DROLL:n {
+  if AROLL > DROLL {
+    if N = 6 { result: 5 + AROLL - DROLL }
+    result: N
+  }
+  A: AMAX - AROLL
+  D: DMAX - DROLL
+  if N = 2 { result: A > D }
+  X: d(N-1) = N-1
+  result: [nco helper N-1 A D AdX DdX]
+}
+
+function: nco A:n D:n {
+  X: d6 = 6
+  result: [nco helper 6 A D AdX DdX]
+}
+
+loop A over {1..5} {
+  loop D over {0..6} {
+    output [nco A D] named "action [A]d6, danger [D]d6"
+  }
+}
+

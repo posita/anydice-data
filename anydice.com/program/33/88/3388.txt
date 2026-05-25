@@ -1,0 +1,31 @@
+static bool VerifyBetResult(string serverSeed, string clientSeed, string betNumber, 
+                            long betResult, string serverSeedHash = null)
+{
+    Func<string, byte[]> strtobytes = s => Enumerable
+        .Range(0, s.Length / 2)
+        .Select(x => byte.Parse(s.Substring(x * 2, 2), NumberStyles.HexNumber))
+        .ToArray();
+    byte[] server = strtobytes(serverSeed);
+    byte[] client = BitConverter.GetBytes(long.Parse(clientSeed));
+    byte[] number = Encoding.ASCII.GetBytes(betNumber);
+    byte[] serverhash = serverSeedHash == null ? null : strtobytes(serverSeedHash);
+    byte[] data = number.Concat(server).Concat(client).ToArray();
+    using (SHA512 sha512 = new SHA512Managed())
+    {
+        if (serverhash != null)
+            using (SHA256 sha256 = new SHA256Managed())
+                if (!sha256.ComputeHash(server).SequenceEqual(serverhash))
+                    throw new Exception("Server seed hash does not match server seed");
+        byte[] hash = sha512.ComputeHash(sha512.ComputeHash(data));
+        while (true)
+        {
+            for (int x = 0; x <= 61; x += 3)
+            {
+                long result = (hash[x] << 16) | (hash[x + 1] << 8) | hash[x + 2];
+                if (result < 16000000)
+                    return result % 1000000 == betResult;
+            }
+            hash = sha512.ComputeHash(hash);
+        }
+    }
+}

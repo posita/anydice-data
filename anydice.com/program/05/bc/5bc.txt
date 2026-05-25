@@ -1,0 +1,80 @@
+\ This program calculates the probability distribution of a simple test in Dragon Age, including stunt points. Created by Matt Morrison, Feb 2011. I place this in the public domain. Version 1. \
+
+\ To use this program, set the BONUS and TN variables to the values you want and then click the Calculate button. You might also want to click the Graph button. \
+BONUS: 4          \ The bonus on the roll. \
+TN: 10            \ The target number for the roll. \
+
+
+
+
+
+
+
+
+\ Create the dice. \
+DIEA: d6
+DIEB: d6
+DRAGON: d6
+
+\ Sum the dice and show the rolls. \
+SUM: DIEA+DIEB+DRAGON+BONUS
+output SUM named "Roll with bonus"
+
+\ Convert the sequence of possible rolls into a sequence where rolls that don't pass the TN are all lumped together in a single "fail" value, represented by a 0.\
+function: VALUES:s meets target TN:n
+{
+  R: {}               \ This is where results will go. \
+  loop I over {1..#VALUES}  \ Loop over each possible roll value. \
+  {
+    VALUE: I@VALUES   \ Get the roll value. \
+    if VALUE < TN     \ Did it pass the TN? \
+    { 
+      R: {R, 0}       \ It failed. Add a "fail" value to the result. \
+    }
+    else
+    {
+      R: {R, VALUE}   \ It passed. Add this value to the result. \
+    } 
+  }
+  result: R           \ Return the result. \
+}
+SUCCESSROLLS: [SUM meets target TN]
+
+\ Show the results. \
+output SUCCESSROLLS named "Result (0 indicates failing the TN)"
+
+\ Now determine which rolls generated stunts. \
+function: stunt points from VALUES:s with dice DICEA:s DICEB:s and dragon DRAGONDICE:s
+{
+  R: {}                     \ This is where results will go. \
+  loop I over {1..#VALUES}  \ Loop over each possible roll value. \
+  {
+    VALUE: I@VALUES         \ Get the roll value. \
+    if VALUE = 0            \ This will be zero if we failed the TN. \
+    {
+      R: {R, 0}             \ Did not meet TN. Add a "fail" value to the result. \
+    }
+    else
+    {
+      DIEA: I@DICEA         \ Get the value of die A. \
+      DIEB: I@DICEB         \ Get the value of die B. \
+      DRAGON: I@DRAGONDICE  \ Get the value of the dragon die. \
+      
+      \ Check for doubles. \
+      DOUBLES: (DIEA=DIEB)|(DIEA=DRAGON)|(DIEB=DRAGON)
+      if !DOUBLES
+      { 
+        R: {R, 0}           \ Did not generate stunts. Add a "fail" value to the result. \
+      }
+      else
+      {
+        R: {R, DRAGON}      \ Generate stunts. Add the number of stunt points to the result. \
+      }
+    }
+  }
+  result: R           \ Return the result. \
+}
+STUNTPOINTS: [stunt points from SUCCESSROLLS with dice DIEA DIEB and dragon DRAGON]
+
+\ Show the number of stunt points. \
+output STUNTPOINTS named "Stunt points (0 indicates not generating stunts)"

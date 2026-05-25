@@ -1,0 +1,27 @@
+POOL: 5
+PSKILL: 5
+NSKILL: 5
+
+HITS: POOLd(d6 <= PSKILL)
+TAKES: POOLd(d6 <= NSKILL)
+
+function: evaluate PSUM:n vs NSUM:n {
+ PC: PCHI - PSUM
+ NC: NCHI - NSUM
+ if PC < 0 {
+  if NC < 0 { result: 3 } \ 3: player win - tie \
+  result: 2               \ 2: nemesis win \
+ }
+ if NC < 0 { result: 1 }  \ 1: player win \
+ result: 0                \ 0: no deaths  \
+}
+
+loop CHI over {1..20} {
+ PCHI: CHI
+ NCHI: CHI                \ or CHI + CHI/10, CHI + CHI/2, etc \
+ loop ROUND over {1..10} {
+  H: ROUNDdHITS
+  T: ROUNDdTAKES
+  output [evaluate T vs H] named "[PCHI] chi, round [ROUND]"
+ }
+}

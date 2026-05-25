@@ -1,0 +1,36 @@
+\** Strike function, Power Attack function **\
+function: strike ROLL:n vs AC:n {
+ if ROLL >= CRITROLL {if ROLL + TOHIT >= AC{result: CRITDAMAGE} if ROLL + TOHIT +10 <= AC {result: 0} result: DAMAGE} 
+ if ROLL = 1 {if ROLL + TOHIT >= AC+10{result: DAMAGE} result: 0}
+ if ROLL + TOHIT >= AC {if ROLL + TOHIT >= AC+10{result: CRITDAMAGE} result: DAMAGE }
+ result: 0
+}
+function: pattack ROLL:n vs AC:n {
+ if ROLL >= CRITROLL {if ROLL + TOHIT >= AC{result: CRITPDAMAGE} if ROLL + TOHIT +10 <= AC {result: 0} result: PDAMAGE} 
+ if ROLL = 1 {if ROLL + TOHIT >= AC+10{result: PDAMAGE} result: 0}
+ if ROLL + TOHIT >= AC {if ROLL + TOHIT >= AC+10{result: CRITPDAMAGE} result: PDAMAGE }
+ result: 0
+}
+
+\** Enemy AC **\
+ENEMYAC: 16
+
+\** Player Stats **\
+TOHIT: 11
+ABILITYSCORE: 4
+BONUS: 0
+DEADLY: 0
+CRITROLL: 20
+DAMAGEDIE: 1d10
+DIEAMOUNT: 1
+DAMAGE: DAMAGEDIE * DIEAMOUNT + ABILITYSCORE + BONUS
+CRITDAMAGE: DAMAGE*2 + DEADLY
+PDAMAGE: DAMAGEDIE * DIEAMOUNT + DAMAGEDIE + ABILITYSCORE + BONUS
+CRITPDAMAGE: PDAMAGE*2+DEADLY
+
+
+output d[strike d20 vs ENEMYAC]+d[strike d20 vs ENEMYAC+5]+d[strike d20 vs ENEMYAC+10] named "strike, strike, strike"
+output d[pattack d20 vs ENEMYAC]+d[strike d20 vs ENEMYAC+10] named "Power strike, strike"
+output d[pattack d20 vs ENEMYAC+5]+d[strike d20 vs ENEMYAC] named "strike, Power strike"
+output d[strike[highest 1 of 2d20] vs ENEMYAC]+d[strike d20 vs ENEMYAC+5] named "True strike, strike, strike"
+output d[pattack[highest 1 of 2d20] vs ENEMYAC] named "True Srike, Power Attack"

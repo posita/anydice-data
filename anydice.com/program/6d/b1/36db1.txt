@@ -1,0 +1,45 @@
+MODF: -4
+MODM: 1
+
+ROLL_F_ONE: 1d10+MODF
+ROLL_F_TWO: 1d10+MODF
+ROLL_F_THREE: 1d10+MODF
+ROLL_F_FOUR: 1d10+MODF
+ROLL_F_FIVE: 1d10+MODF
+ROLL_M_ONE: 1d10+MODM
+ROLL_M_TWO: 1d10+MODM
+ROLL_M_THREE: 1d10+MODM
+ROLL_M_FOUR: 1d10+MODM
+ROLL_M_FIVE: 1d10+MODM
+
+HITS_N: 0
+function: compare A:n to B:n for C:n {
+if A > B {result: C + 1}
+result: C
+}
+HITS_A: [compare ROLL_M_ONE to ROLL_F_ONE for HITS_N]
+HITS_B: [compare ROLL_M_TWO to ROLL_F_TWO for HITS_A]
+HITS_C: [compare ROLL_M_THREE to ROLL_F_THREE for HITS_B]
+HITS_D: [compare ROLL_M_FOUR to ROLL_F_FOUR for HITS_C]
+HITS_E: [compare ROLL_M_FIVE to ROLL_F_FIVE for HITS_D]
+function: check A:n {
+if A > 2 {result: 1}
+result: 0
+}
+function: collapse A:n {
+if A < 1 {result: 1}
+result: A
+}
+function: tally B:n including A:n {
+if A = 0 {result: 0}
+result: B
+}
+
+TOTAL: 0
+CHANCE: [check HITS_E]
+EQ: 9-(HITS_E-3)
+X: 10d20
+Y: (X/10)-EQ
+Z: [collapse Y]
+TOTAL: [tally Z including CHANCE]
+output TOTAL

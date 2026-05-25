@@ -1,0 +1,61 @@
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL = 20 { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+function: DAMAGE:d with savage SAVAGE:n {
+   if SAVAGE = 1 {
+      result: [ highest of DAMAGE and DAMAGE ]
+   }
+   result: DAMAGE
+}
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n for SAVAGE:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { 
+      CRIT: DICE + DICE
+      result: [ CRIT with savage SAVAGE ] + MOD
+   }
+   
+   result: [ DICE with savage SAVAGE ] + MOD
+}
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   result: [ attack with BONUS vs AC rolling ROLL with DICE and MOD for 0 ]
+}
+
+function: savage attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   result: [ attack with BONUS vs AC rolling ROLL with DICE and MOD for 1 ]
+}
+
+PROFICIENCY: 3
+RAGE_BONUS: 2
+ADVANTAGE: [ highest 1 of 2d20 ]
+EVERBURN: 2d6 + 1d4
+TARGET_AC: 15
+
+STR_MOD: 5
+DAMAGE_BONUS: STR_MOD + RAGE_BONUS
+HIT_BONUS: STR_MOD + PROFICIENCY
+output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with EVERBURN and DAMAGE_BONUS ] named "asi reckless"
+
+STR_MOD: 4
+DAMAGE_BONUS: STR_MOD + RAGE_BONUS
+HIT_BONUS: STR_MOD + PROFICIENCY
+output [ savage attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with EVERBURN and DAMAGE_BONUS ] named "savage reckless"
+
+DAMAGE_BONUS: STR_MOD + RAGE_BONUS + 10
+HIT_BONUS: STR_MOD + PROFICIENCY - 5
+output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with EVERBURN and DAMAGE_BONUS ] named "gwm reckless"

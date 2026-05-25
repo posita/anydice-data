@@ -1,0 +1,40 @@
+function: test A:n against S:s {
+  loop N over [reverse {1..#S}]{
+    if A >= N@S { result: N@S }
+  }
+  result: 0
+}
+
+function: roll A:n and B:n against S:s {
+  loop N over [reverse {1..#S}]{
+    if A+B >= N@S { if A >= B { result: N@S } else { result: N@S-1 } }
+  }
+  result: 0
+}
+
+function: roll A:n with C:n and B:n against S:s {
+  loop N over [reverse {1..#S}]{
+    if [highest of A+B and [highest of A+C and B+C]] >= N@S { if A >= B | C >= B { result: N@S } else { result: N@S-1 } }
+  }
+  result: 0
+}
+
+function: roll A:n and B:n with C:n against S:s {
+  loop N over [reverse {1..#S}]{
+    if [lowest of A+B and [lowest of A+C and B+C]] >= N@S { if A >= B & A >= C { result: N@S } else { result: N@S-1 } }
+  }
+  result: 0
+}
+
+S: {10,13}
+A: {3,6,9,12}
+
+output [test d12 against A] named "0"
+output [test d12+1 against A] named "+1"
+output [test d12+2 against A] named "+2"
+output [test d12+3 against A] named "+3"
+output [test d12+4 against A] named "+4"
+output [test d12+5 against A] named "+5"
+
+output [test [lowest 1 of 2d12] against A] named "-"
+output [test [highest 1 of 2d12] against A] named "+"

@@ -1,0 +1,249 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n fail FAIL:n success SUCCESS:n{
+if SAVE >= DC {result: SUCCESS}
+if SAVE < DC {result: FAIL}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 1d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3]
+	miss [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3]
+	crit 2d6+3 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3]
+] named "1 (no ADV)"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 1d10+4 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+		success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]]
+	miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+	crit 2d10+4 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+		success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]]
+] named "4 (no ADV)"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 1d10+4 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 4] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+		success [attack 1d20 plus 1 vs ac 10 
+			hit 1d10+4 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+			miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			crit 2d10+4 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+		]
+	]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 1d10+4 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+		]
+		miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+		crit 2d10+4 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+		]
+	]
+	crit 2d10+4 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 4] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+		success [attack 1d20 plus 1 vs ac 10 
+			hit 1d10+4 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+			miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			crit 2d10+4 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+		]
+	]
+] named "5 (no ADV)"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 1d10+4 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+1d6 plus 3] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+		success [attack 1d20 plus 0 vs ac 10 
+			hit 1d10+1d6+3 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+			miss[attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			crit 2d10+2d6+3 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+			
+		]
+	]
+	miss [attack 1d20 plus 0 vs ac 10
+		hit 1d10+1d6+3 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+		]
+		miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+		crit 2d10+2d6+3 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+		]
+	]
+	crit 2d10+4 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+1d6 plus 3] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+		success [attack 1d20 plus 0 vs ac 10 
+			hit 1d10+1d6+3 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+			miss[attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			crit 2d10+2d6+3 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+			]
+			
+		]
+	]
+] named "7 (no ADV)"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 1d10+8 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+		success [attack 1d20 plus 1 vs ac 10 
+			hit 1d10+8 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+			miss[attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			crit 2d10+8 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+		]
+	]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 1d10+8 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+		]
+		miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+		crit 2d10+8 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+		]
+	]
+	crit 2d10+8 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+		success [attack 1d20 plus 1 vs ac 10 
+			hit 1d10+8 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+			miss[attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			crit 2d10+8 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+		]
+	]
+] named "8 (no ADV)"
+
+output [attack 1d20 plus 1 vs ac 10
+	hit 1d10+9 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+		success [attack 1d20 plus 1 vs ac 10 
+			hit 1d10+9 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+			miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			crit 2d10+9 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+		]
+	]
+	miss [attack 1d20 plus 1 vs ac 10
+		hit 1d10+9 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+		]
+		miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+		crit 2d10+9 + [savethrow 1d20 vs dc 11 
+			fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+			success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+		]
+	]
+	crit 2d10+9 + [savethrow 1d20 vs dc 11 
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+		success [attack 1d20 plus 1 vs ac 10 
+			hit 1d10+9 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+			miss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			crit 2d10+9 + [savethrow 1d20 vs dc 11 
+				fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+				success [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+			]
+		]
+	]
+] named "9 (no ADV)"

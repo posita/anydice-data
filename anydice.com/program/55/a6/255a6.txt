@@ -1,0 +1,41 @@
+\ This function returns +1 if A wins, -1 if B wins and 0 if it's a draw: \
+
+function: ATTR_A:n versus ATTR_B:n and NDICEA:n y NDICEB:n {
+  \ make relabeled d12s where anything above the target becomes zero: \
+  
+\ Jugador A tira 2 dados \
+
+DA: {1..1}@NDICEAd{1..ATTR_A, 0:(12-ATTR_A)}
+DB: {1..1}@NDICEBd{1..ATTR_B, 0:(12-ATTR_B)}
+
+  \ call a helper function to freeze the rolls: \
+  result: [roll DA versus DB]
+}
+
+
+function: roll ROLL_A:s versus ROLL_B:s {
+  SUCC_A: ROLL_A > 0
+  SUCC_B: ROLL_B > 0
+
+  \ higher number of successes wins: \
+  if SUCC_A != 0 & SUCC_B = 0 { result: +1 }
+  if SUCC_A = 0 & SUCC_B != 0 { result: -1 }
+
+  \ Check critical hits: \
+  if ROLL_A = 1 & ROLL_B = 1 { result: 0 }
+  if ROLL_A = 1 & ROLL_B != 1 { result: 1 }
+  if ROLL_A != 1 & ROLL_B = 1 { result: -1 }
+
+\ otherwise do a lexicographic comparison: \
+  result: (ROLL_A > ROLL_B) - (ROLL_A < ROLL_B)
+}
+
+\ Salida introducir aquí: \
+
+A:7 \ Atributo jugador A\ 
+B:7 \ Atributo jugador B\ 
+NDICEA:2 \número de dados jugador A\ 
+NDICEB:1 \ número de dados jugador B\ 
+
+
+output [A versus B and NDICEA y NDICEB] named "[A] vs. [B] con [NDICEA] y [NDICEB] dados "

@@ -1,0 +1,28 @@
+\ Count hits with fails adding +1 \
+
+function: hit on HIT:n in ROLL:s at MOD:n {
+  HITS: 0
+  FAILS: -1
+  loop RES over {1..#ROLL} {
+    if RES@ROLL + MOD >= HIT { HITS: HITS + (RES@ROLL+MOD)/4 }
+    else { FAILS: FAILS + 1 }
+  }
+  if FAILS > 0 {
+    BPOOL: FAILS
+    loop RESTWO over {1..#ROLL} {
+      if RESTWO@ROLL+MOD < HIT {
+        if (RESTWO@ROLL + MOD + BPOOL) >= HIT {
+		  HITS: HITS + (RESTWO@ROLL+MOD+BPOOL)/4
+		  BPOOL: BPOOL - (HIT - (RESTWO@ROLL+MOD))
+		}
+      }
+    }
+  }
+  result: HITS
+}
+
+loop J over {4,6,8,10,12}{
+ loop I over {1,2,3,4,5} {
+  output [hit on 4 in IdJ at -2] named "[I]d[J] hits"
+ }
+}

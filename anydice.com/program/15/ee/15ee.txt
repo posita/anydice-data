@@ -1,0 +1,108 @@
+set "maximum function depth" to 20
+
+ATKWEAPONLOW: 2
+ATKWEAPONMED: 0
+ATKWEAPONHIGH: 0
+
+ATKCOMPUTER: 1
+ATKSHIELD: 0
+ATKHULL: 2
+
+ATKINIT: 1
+
+DEFWEAPONLOW: 2
+DEFWEAPONMED: 0
+DEFWEAPONHIGH: 0
+
+DEFCOMPUTER: 1
+DEFSHIELD: 0
+DEFHULL: 2
+
+DEFINIT: 1
+
+LOWDAMAGE: 1
+MEDDAMAGE: 2
+HIGHDAMAGE: 4
+
+MAXROUNDS: 10
+
+function: attacker combat {
+  TARGETHP: 1 + DEFHULL
+  result: [loop attacker [attacker fire] until TARGETHP 1]
+}
+
+function: loop attacker ATTACK:n until TARGET STEP {
+  if STEP = 14 {result: 100}
+  if ATTACK >= TARGET {result: 1}
+  result: 1 + [loop attacker [attacker fire] until TARGET-ATTACK STEP+1]
+}
+
+function: defender combat {
+  TARGETHP: 1 + ATKHULL
+  result: [loop defender [defender fire] until TARGETHP 1]
+}
+
+function: loop defender ATTACK:n until TARGET STEP {
+  if STEP = 14 {result: 200}
+  if ATTACK >= TARGET {result: 1}
+  result: 1 + [loop defender [defender fire] until TARGET-ATTACK STEP+1]
+}
+
+function: number of victories for DAMAGE:n vs HP {
+  result: DAMAGE >= HP
+}
+
+function: attacker fire {
+  TOTALDAMAGE: 0
+  loop N over {1..ATKWEAPONLOW} {
+    TOTALDAMAGE: TOTALDAMAGE + LOWDAMAGE * [attack 1d6 with ATKCOMPUTER computers vs DEFSHIELD shields]
+  }
+  loop N over {1..ATKWEAPONMED} {
+    TOTALDAMAGE: TOTALDAMAGE + MEDDAMAGE * [attack 1d6 with ATKCOMPUTER computers vs DEFSHIELD shields]
+  }
+  loop N over {1..ATKWEAPONHIGH} {
+    TOTALDAMAGE: TOTALDAMAGE + HIGHDAMAGE * [attack 1d6 with ATKCOMPUTER computers vs DEFSHIELD shields]
+  }
+  result: TOTALDAMAGE
+}
+
+function: defender fire {
+  TOTALDAMAGE: 0
+  loop N over {1..DEFWEAPONLOW} {
+    TOTALDAMAGE: TOTALDAMAGE + LOWDAMAGE * [attack 1d6 with DEFCOMPUTER computers vs ATKSHIELD shields]
+  }
+  loop N over {1..DEFWEAPONMED} {
+    TOTALDAMAGE: TOTALDAMAGE + MEDDAMAGE * [attack 1d6 with DEFCOMPUTER computers vs ATKSHIELD shields]
+  }
+  loop N over {1..DEFWEAPONHIGH} {
+    TOTALDAMAGE: TOTALDAMAGE + HIGHDAMAGE * [attack 1d6 with DEFCOMPUTER computers vs ATKSHIELD shields]
+  }
+  result: TOTALDAMAGE
+}
+
+function: attack ROLL:n with COMPUTERS:n computers vs SHIELDS:n shields {
+  if ROLL = 6 { result: 1 }
+  if ROLL = 1 { result: 0 }
+  MODROLL: ROLL+COMPUTERS-SHIELDS
+  if MODROLL >= 6 { result: 1 }
+  result: 0
+}
+
+function: prepare output DIFFERENCE:n {
+  if DIFFERENCE < 50 & DIFFERENCE > -50 {result: DIFFERENCE < 0}
+  else {result: -1}
+}
+
+ORIGATKCOMPUTER: ATKCOMPUTER
+ORIGATKSHIELD: ATKSHIELD
+ORIGATKWEAPONHIGH: ATKWEAPONHIGH
+loop N over {0..3} {
+  loop M over {0..1} {
+    loop O over {0..2} {
+      ATKCOMPUTER: N+ORIGATKCOMPUTER
+      ATKSHIELD: M+ORIGATKSHIELD
+      ATKWEAPONHIGH: O+ORIGATKWEAPONHIGH
+      output [prepare output ([attacker combat] - [defender combat])] named "[N] computer adv, [M] shield adv, [O] weapon adv - defender init"
+    }
+  }
+}

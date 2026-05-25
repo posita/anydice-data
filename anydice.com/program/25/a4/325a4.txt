@@ -1,0 +1,62 @@
+
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+function: lowest of A:n and B:n {
+ if A < B { result: A }
+ result: B
+}
+
+
+\Rogue 1.4.8 random monster generator\
+\There are two used, level monsters and roaming monsters\
+function: cap A:s {
+  if A >= 5 {
+    result: 4
+  }
+  if A <= 1 {
+    result: 2
+  }
+  result: A
+}
+
+\loop FLOOR_NUMBER over {1..26}{\
+\  MONSTER_LEVEL: 1d6 + 1d7 - 5\
+\ if MONSTER_LEVEL < 1{\
+\   MONSTER_LEVEL: 1d6 + 1\
+\ }\
+\ if MONSTER_LEVEL > 26{\
+\   MONSTER_LEVEL: 1d6 + 22\
+\ }\
+\ MONSTER_LEVEL: MONSTER_LEVEL - 1\
+\  output MONSTER_LEVEL named "[FLOOR_NUMBER]"\
+
+
+function: constrain monster roll ROLL:s using REROLL:s {
+  OUT: ROLL
+  if ROLL < 1 {
+    OUT: REROLL
+  } else if ROLL > 26 {
+    OUT: REROLL + 21
+  }
+  result: OUT
+}
+
+function: get roll for native monsters on floor FLOOR:n {
+  ROLL: FLOOR + d{0..4} + d{0..5} - 5
+  REROLL: d{0..4} + 1
+  OUT: [constrain monster roll ROLL using REROLL]
+  result: OUT
+}
+function: roll for monsters on floor FLOOR:n {
+  ROLL: [get roll for native monsters on floor FLOOR]
+  REROLL: [
+
+\  REROLL: [get reroll for native monsters ROLL]\
+  result: ROLL
+}
+
+loop I over {1..26}{
+  output [roll for monsters on floor I] named "Floor [I]"
+}

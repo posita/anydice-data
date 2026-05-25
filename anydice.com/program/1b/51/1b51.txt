@@ -1,0 +1,131 @@
+\Experimental Lunar Reckoning Dice Calculations - January 2, 2012\
+\A work in progress, by FM\
+\For Something Awful Forums\
+
+\Horribly inefficient code ahead! While many of the issues I have are specific to AnyDice's constrained programming syntax and environment, just as many are caused by the fact that I have not programmed in around seven years, and I wasn't particularly good at it when I was doing it.\
+\The 'Export' function is a standard CSV format, and if I could get an export of that in some form from another source, I could make graphs on my own in Excel.\
+\I *think* this is all accurate and bug-free, in terms of how it adhers to the logic of the game, but I could be horribly wrong.\
+
+\Initializing values\
+AROLLVALUE: 0
+EROLLVALUE: 0
+
+\Function for the main dice roll. Returns its value +100 if a straight and its value negative and minus 100 if a triple.\
+\A type of 0 is an attack die. A type of any other value is an evasion die.\
+\Because a straight relies on the independent values of each die, and because I couldn't figure out how to do it other way, each die is called individually.\
+function: lunardice A:n and B:n and C:n {
+  \Triples\
+  if A = B {
+    if B = C {
+      result: (0-100) - (A + B + C)
+    }
+  }
+  \Straights - probably a better way to do this rather than brute forcing it?\
+  if (A != B) & (A != C) & (B != C) {
+    if (B = A + 2) & (B = C + 1) {
+      result: A + B + C + 100
+    }
+    if (B = A + 1) & ((B = C - 1) | (B = C + 2)) {
+      result: A + B + C + 100
+    }
+    if (B = A - 1) & ((B = C - 2) | (B = C + 1)) {
+      result: A + B + C + 100
+    }
+    if (B = A - 2) & (B = C - 1) {
+      result: A + B + C + 100
+    }
+  }
+  \Standard roll\
+  result: A+B+C
+}
+
+\Simple tests below. Not really useful without active comparison, though try taking a look at them by uncommenting; it's hilarious how some values are so much less likely to pop up because they can be created by straights or triples.\
+\output 3d6\
+\output [lunardice 1d6 and 1d6 and 1d6]\
+
+\And now, the damage function! Brace yourself.\
+
+\Function Syntax: damage <Attack roll> <Attack bonus> <Evasion roll> <Evasion bonus> <base damage> <damage step> <max damage> <minimum of damage range> <maximum of damage range> <Precise boolean>\
+\AROLL and EROLL are lunardice calls. PRECISE is a boolean. All others are integers.\
+\This logic may not be an exact implementation - I forget exactly how triples on evasion work at this hour and melee has its own issues - but it's more than accurate enough for my purposes currently.\
+function: damage AROLL:n ABONUS:n EROLL:n EBONUS:n BDAM:n DSTEP:n MDAM:n MINSTEP:n MAXSTEP:n PRECISE:n {
+  \Automiss and Autoevade\
+  if AROLL < -100 {
+    result: 0
+  }
+  if (AROLL < 100) & (EROLL > 100) {
+    result: 0
+  }
+  \Autohit and Critical\
+  if (AROLL > 100) & (EROLL < 100) {
+    \Autohit when attack would otherwise miss\
+    if (((AROLL - 100) + ABONUS) - (EROLL + EBONUS)) < MINSTEP {
+      result: MDAM
+    }
+    \Crit when attack would hit\
+    else {
+      if PRECISE != 0 {
+        result: MDAM*3
+      }
+      else {
+        result: MDAM*2
+      }
+    }
+  }
+  \Dual Straights - should be redundant, but here just in case.\
+  if (AROLL > 100) & (EROLL > 100) {
+    AROLL: AROLL - 100
+    EROLL: EROLL - 100
+  }
+  \Evade Botch\
+  if (AROLL > -100) & (EROLL < -100) {
+    result: MDAM
+  }
+  \Normal Rolls - Equal Attack and Evasion\
+  if (AROLL + ABONUS) = (EROLL + EBONUS) {
+    result: BDAM
+  }
+  \Normal Rolls - Attack greater than Evasion\
+  if (AROLL + ABONUS) > (EROLL + EBONUS) {
+    \Don't surpass Max Damage!\
+    if ((AROLL + ABONUS) - (EROLL + EBONUS)) >= MAXSTEP {
+      result: MDAM
+    }
+  }
+  \Normal Rolls - Evasion greater than Attack\
+  if (EROLL + EBONUS) > (AROLL + ABONUS) {
+    \Don't deal negative damage!\
+    if ((AROLL + ABONUS) - (EROLL + EBONUS)) < MINSTEP {
+      result: 0
+    }
+  }
+result: ((AROLL + ABONUS) - (EROLL + EBONUS)) * DSTEP + BDAM
+}
+
+
+\Initializing values\
+ATTACK:[lunardice 1d6 and 1d6 and 1d6]
+EVADE: [lunardice 1d6 and 1d6 and 1d6]
+ABONUS: 7
+EBONUS: 7
+
+\Setting Evade to a fixed value of 10 will test Passive Evasion, which can be done if you uncomment this line.\
+\EVADE: 10\
+
+\Test with a Linear Cannon\
+output [damage ATTACK ABONUS EVADE EBONUS 12 6 12 (0-1) 0 0] named "Heavy Linear +7 Attack/+7 Evade"
+\Test with an Autocannon\
+output [damage ATTACK ABONUS EVADE EBONUS 7 1 12 (0-6) 5 0] named "Light++ Ballistic +7 Attack/+7 Evade"
+\Test with an Assault Rifle\
+output [damage ATTACK ABONUS EVADE EBONUS 8 2 12 (0-3) 2 0] named "Medium+ Ballistic +7 Attack/+7 Evade"
+\Test with a Battle Rifle\
+output [damage ATTACK ABONUS EVADE EBONUS 8 2 12 (0-3) 2 1] named "Medium+ Ballistic +7 Attack/+7 Evade"
+\Test with a Linear Magnum\
+output [damage ATTACK ABONUS EVADE EBONUS 9 3 12 (0-2) 1 0] named "Light++ Linear +7 Attack/+7 Evade"
+\Test with a Linear Rifle\
+output [damage ATTACK ABONUS EVADE EBONUS 8 4 12 (0-1) 1 0] named "Medium+ Linear +7 Attack/+7 Evade"
+\Test with a Sniper Rifle\
+output [damage ATTACK ABONUS EVADE EBONUS 8 4 12 (0-1) 1 1] named "Heavy Ballistic +7 Attack/+7 Evade"
+
+\Standard evasion for Heavyweights is +3, standard evasion for Lightweights is +10. At least as it stands currently. That may well change if HP values get too wildly far appart or I can't control PC APU frame stats effectively. Under my current calculations, with health counts as they are and attack at +7, all three weight classes have a reasonably equivalent time-to-kill with the weapons I've tested.\
+\The way part builds cross over involves selection of parts currently - and a bonus given when all parts are of the same weight class. I might reduce the Heavy and Light health bonuses to 10% to keep the crossover advantage from being too large.\

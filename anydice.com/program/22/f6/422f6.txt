@@ -1,0 +1,60 @@
+AC: 20
+ATTACK: 12
+ROLL: 1d20
+DAMAGE: (1d6 + 6)
+CRIT: (DAMAGE * 2 + 1d10)
+
+function: strike ROLL:n ATTACK:n AC:n DAMAGE CRIT {
+  if ((ROLL = 1) | (ROLL + ATTACK < AC - 10)) {
+    result: 0
+  }
+  if ((ROLL = 20) | (ROLL + ATTACK >= AC + 10)) {
+    result: CRIT
+  } else {
+    if (ROLL + ATTACK >= AC) {
+      result: DAMAGE
+    }
+  }
+  result: 0
+}
+
+output [strike ROLL ATTACK AC DAMAGE CRIT] named "Strike"
+output [strike ROLL ATTACK AC DAMAGE CRIT] + [strike ROLL ATTACK-5 AC DAMAGE CRIT] named "2 Strikes"
+output [strike ROLL ATTACK AC (1d10+7) ((1d10 + 7)*2)] named "Gunsword Strike"
+
+DC: 19
+SAVE: 9
+SPELL_FAILURE_DAMAGE: (3d4)*2
+SPELL_CRIT_FAILURE_DAMAGE: (SPELL_FAILURE_DAMAGE * 2)
+SPELL_SUCCESS_DAMAGE: (SPELL_FAILURE_DAMAGE / 2)
+SPELL_CRIT_SUCCESS_DAMAGE: 0
+
+function: spellcheck ROLL:n DC SAVE SCFD SFD SSD SCSD {
+  if (ROLL = 1 | (ROLL + SAVE <= DC - 10)) {
+    result: SCFD
+  }
+  if ((ROLL = 20) | (ROLL + SAVE >= DC + 10)) {
+    result: SCSD
+  }
+  if (ROLL + SAVE >= DC) {
+    result: SSD
+  }
+  result: SFD
+}
+
+output [spellcheck 1d20 DC SAVE SPELL_CRIT_FAILURE_DAMAGE SPELL_FAILURE_DAMAGE SPELL_SUCCESS_DAMAGE SPELL_CRIT_SUCCESS_DAMAGE] named "Spell Check"
+
+function: healing ROLL:n PROF PROF_BONUS WISDOM DC {
+  if (ROLL = 20 | ROLL + PROF_BONUS + WISDOM >= DC + 10) {
+    result: 4d8 + PROF*5
+  }
+  if (ROLL = 1 | ROLL + PROF_BONUS + WISDOM < DC - 10) {
+    result: -1d8
+  }
+  if (ROLL + PROF_BONUS + WISDOM >= DC) {
+    result: 2d8 + PROF*5
+  }
+  result: 0
+}
+
+output [healing ROLL 1 7 1 15] named "Healing"

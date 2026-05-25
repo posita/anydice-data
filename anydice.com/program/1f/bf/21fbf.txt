@@ -1,0 +1,41 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n crit on CRIT:s {
+ if ROLL = 1 { result: MISS }
+ if ROLL = CRIT {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE crit on CRITRANGE]]
+}
+
+DEFENSE: d{10..20}
+
+ATTACK: +5
+HITDAMAGE: d12 + 3
+CRITICALDAMAGE: d12+12+3
+MISSDAMAGE: 0
+
+CRITRANGE: {18..20}
+output [attack] named "Critrange 18-20"
+
+CRITRANGE: {19..20}
+output [attack] named "Critrange 19-20"
+
+CRITRANGE: {20}
+output [attack] named "Critrange 20"

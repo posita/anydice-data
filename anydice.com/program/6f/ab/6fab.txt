@@ -1,0 +1,32 @@
+\*** Dice Mechanic using an Advantage or Disadvantage Die using a three success spread instead of two***\
+
+ADVANTAGE:0 \* Enter A if advantage applies or -1 if disadvantage applies. Use 0 if neither apply *\
+FATE_CHANCE:6 \* Enter the difficulty level for advantage or disadvantage to be applied *\
+
+function: evaluate ROLL:s FATE:s{
+ SUCCESS: ROLL >= 5
+ 
+ if ADVANTAGE = 0 { FATE_RESULT: 0 } \* If normal roll, then do not modify the # of successes rolled*\
+ else { FATE_RESULT: FATE >= FATE_CHANCE } \* Else determine if the fate die results in advantage or disadvantage being applied *\
+
+ if FATE_RESULT = 1 \* if equal to one then it means fate is being applied *\
+ { 
+   if ADVANTAGE = 1 { SUCCESSES: SUCCESS + 1 } \* if advantage is being applied then add 1 to the successes rolled *\
+   else { SUCCESSES: SUCCESS - 1 } \* otherwise we are dealing with disadvantage so subtract 1 success instead *\
+ }
+ else
+ {
+   SUCCESSES: SUCCESS \* neither advantage or disadvantage applies so just use the successes rolled *\
+ }
+
+ \* determine results based upon successes rolled *\
+ if SUCCESSES = 1 { result: 1}
+ else if SUCCESSES = 2 { result: 2}
+ else if SUCCESSES > 2 { result: 3} \* successes greater than 2 count as 3 regardless of how many were actually rolled *\
+ else { result: 0}
+}
+
+loop DICE over {2..6} {
+ DIE: DICE
+ output [evaluate DICE d6 1d10] named "[DIE]d"
+}

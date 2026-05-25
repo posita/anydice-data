@@ -1,0 +1,61 @@
+function: D:n rollunder T:n {
+if D <= T { result: D }
+result: 0
+}
+
+function: compare A:n vs B:n {
+if A=0 | A < B { result: -1 }
+result: A - B
+}
+
+function: comparewin A:n vs B:n {
+R: [compare A vs B]
+if R < 0 { result: -1}
+result: 1
+}
+
+function: highest DICE:s under T:n {
+if 1@DICE <= T { result: 1@DICE }
+result: #DICE@DICE
+}
+
+function: crit D:n T:n {
+if D = T { result: 1 + [crit 1d6 T]}
+result: 0
+}
+
+function: D:s rollundertwo T:n {
+ B: 0
+ R: 0
+ if 1@D <= T {
+  R: 1@D
+  B: B + 1
+  if 1@D = #D@D {
+   B: B + 1
+  }
+ }
+ else {
+  if #D@D <= T {
+   R: #D@D
+  }
+ }
+\static crit
+ if R = T {B: B + 1}\
+ B: B + [crit R T]
+ result: R + B
+}
+
+loop T over {1..6} {
+\ output [d6 rollunder T] named "d6 rollunder [T]"\
+\ output [[highest 2d6 under T] rollunder T] named "highest 2d6 rollunder [T]"\
+ output [2d6 rollundertwo T] named "2d6 rollundertwo [T]"
+}
+
+
+loop ATT over {1..6} {
+loop DEF over {1..6} {
+\output [compare [1d6 rollunder ATT] vs [1d6 rollunder DEF]] named "[ATT] vs [DEF]"\
+\output [compare d6+ATT vs d6+DEF] named "[ATT] vs [DEF]"\
+\output [compare [[highest 2d6 under ATT] rollunder ATT] vs [[highest 2d6 under DEF] rollunder DEF]] named "[ATT] vs [DEF]"\
+}
+}

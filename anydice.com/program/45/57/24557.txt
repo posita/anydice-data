@@ -1,0 +1,61 @@
+function: countsuccesses SEQUENCE:s {
+ COUNT: 0
+ CRIT_DICE_COUNT: 0
+ FAILURE_COUNT: 0
+
+ loop P over {1..#SEQUENCE} {
+  if (P@SEQUENCE = 10) {
+   CRIT_DICE_COUNT: CRIT_DICE_COUNT + 1
+   if (CRIT_DICE_COUNT = 2) {
+    CRIT_DICE_COUNT: 0
+    COUNT: COUNT + 1
+   }
+  }
+
+  COUNT: COUNT + (P@SEQUENCE > 5)
+ }
+
+ if (COUNT > FAILURE_COUNT) {
+  COUNT: COUNT - FAILURE_COUNT
+ }
+ else {
+  COUNT: 0
+ }
+
+ result: COUNT
+}
+
+function: countfailures SEQUENCE:s {
+ COUNT: 0
+
+ loop P over {1..#SEQUENCE} {
+  if (P@SEQUENCE = 1) {
+   COUNT: COUNT + 1
+  }
+ }
+
+ result: COUNT
+}
+
+function: countcrits SEQUENCE:s {
+ COUNT: 0
+ CRIT_DICE_COUNT: 0
+
+ loop P over {1..#SEQUENCE} {
+  if (P@SEQUENCE = 10) {
+   CRIT_DICE_COUNT: CRIT_DICE_COUNT + 1
+   if (CRIT_DICE_COUNT = 2) {
+    CRIT_DICE_COUNT: 0
+    COUNT: COUNT + 1
+   }
+  }
+ }
+
+ result: COUNT
+}
+
+D: 7d10
+
+output [countsuccesses D] named "successes [D]"
+output [countcrits D] named "crits [D]"
+output [countfailures D] named "failures [D]"

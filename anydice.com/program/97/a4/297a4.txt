@@ -1,0 +1,45 @@
+\ CONFIGURE \
+
+ORDER_MIN:  2
+ORDER_MAX:  6
+EXERTION:   0 \ -1 - strain equal to order | 0 - none | 1+ - strain amount \
+HIDE_ADEPT: 0 \ 0 - show checks with advantage | 1 - hide checks with advantage \
+
+
+\ FUNCTIONS \
+
+function: banana for reference { result: 0 }
+
+function: get manifestation dice for ORDER:n {
+  ALL:  {4, 6, 8}
+  MID:  {6, 8}
+  HIGH: {8}
+
+  if ORDER < 4 { result: ALL } else
+  if ORDER = 4 { result: MID }
+  result: HIGH
+}
+
+function: manifest power at ORDER:n with DIE:n {
+  if EXERTION = -1 { STRAIN: ORDER } else
+  if EXERTION > -1 { STRAIN: EXERTION} else { STRAIN: 0 }
+
+  if DIE > ORDER { result: STRAIN }
+  if DIE = ORDER { result: STRAIN + 1 }
+  result: STRAIN + ORDER
+}
+
+
+\ PROGRAM \
+
+output [banana for reference] named "Average strain from..."
+
+loop ORDER over {ORDER_MIN..ORDER_MAX} {
+  MANIFEST: [get manifestation dice for ORDER]
+  loop SIZE over MANIFEST {
+    output [manifest power at ORDER with 1dSIZE] named "[ORDER] @ 1d[SIZE]"
+    if !HIDE_ADEPT {
+      output [manifest power at ORDER with 1@2dSIZE] named "[ORDER] @ 2d[SIZE]"
+    }
+  }
+}

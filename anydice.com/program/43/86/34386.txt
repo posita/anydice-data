@@ -1,0 +1,63 @@
+I_BREAKS: 3    \number of break tokens in the pool\
+I_HOPES: 0     \number of hope tokens in the pool\
+
+RED: {1000, 100, 1, 101, 101, 1002}
+BLACK: {1100, 101, 101, 1002, 102, 1202}
+WHITE: {1101, 1201, 301, 1102, 302, 1203}
+
+function: condense FACE:n {
+  BREAKS: I_BREAKS
+  HOPES: I_HOPES
+  if FACE >= 1000 {
+    DOTS: FACE / 1000
+    if HOPES > 0 {
+      HOPES: HOPES - DOTS
+      FACE: FACE + DOTS
+      if HOPES < 0 {
+        FACE: FACE + HOPES
+      }
+    }
+    FACE: FACE - (1000 * DOTS)
+  }
+
+  if FACE >= 100 {
+    POTENTIALS: FACE / 100
+    if HOPES > 0 {
+      HOPES: HOPES - POTENTIALS
+      FACE: FACE + POTENTIALS
+      if HOPES < 0 {
+        FACE: FACE + HOPES
+      }
+    }
+    if BREAKS > 0 {
+      BREAKS: BREAKS - POTENTIALS
+      FACE: FACE + POTENTIALS
+      if BREAKS < 0 {
+        FACE: FACE + BREAKS
+      }
+    }
+    FACE: FACE - (100 * POTENTIALS)
+  }
+  result: FACE
+}
+
+function: rolls A:n plus B:n power P:d bonus Q:s tohit H:n{
+  RESULT: 1d0
+  ROLL: d10 + B >= H
+  loop X over {1..A}{
+    if X=1 {
+      RESULT: RESULT + (ROLL * (P+Q))
+    }
+    else {
+      RESULT: RESULT + (ROLL * P)
+    }
+  }
+
+  RESULT: [condense RESULT]
+  
+  result: RESULT
+
+}
+
+output [rolls 2 plus 0 power 1dBLACK bonus 1dRED tohit 8] named "Jawbone Axe"
+output [rolls 1 plus 0 power 2dBLACK bonus 1dRED tohit 8] named "Whalebone Bident"

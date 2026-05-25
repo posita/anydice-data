@@ -1,0 +1,58 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITTRESHOLD {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKS:s {
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = CRITICALHIT { D: D + CRITICAL }
+  else if A@ATTACKS = HIT { D: D + DAMAGE }
+ }
+ result: D + [extra damage for ATTACKS]
+}
+
+function: extra damage for ATTACKS:s {
+ if [ATTACKS contains CRITICALHIT] {
+  result: [maximum of QUARRY]
+ }
+ if [ATTACKS contains HIT] { result: QUARRY }
+ result: 0
+}
+
+function: attack {
+ result: [damage for d[attack d20 vs DEFENSE]]
+}
+
+ATTACK  : 19 + 3
+QUARRY: 3d8
+CRITTRESHOLD: 18
+
+DEFENSE: 25
+DAMAGE  : 11 + d4
+CRITICAL: 11 + 4 + 3d12
+output [attack] named "Piercing Strike against Blizzard Dragon"
+
+DEFENSE: 26
+DAMAGE  : 14 + d4
+CRITICAL: 14 + 4 + 3d12
+output [attack] named "Sly Flourish against Blizzard Dragon"
+
+DEFENSE: 27
+DAMAGE  : 11 + d4
+CRITICAL: 11 + 4 + 3d12
+output [attack] named "Piercing Strike against Earthquake Dragon"
+
+DEFENSE: 30
+DAMAGE  : 14 + d4
+CRITICAL: 14 + 4 + 3d12
+output [attack] named "Sly Flourish against Earthquake Dragon"

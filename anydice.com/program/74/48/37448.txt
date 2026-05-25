@@ -1,0 +1,45 @@
+function: is botch N:n {
+  \ Ziehe einen Erfolg ab, wenn eine 12 gewürfelt wurde \
+  if N = 12 { 
+    result: -1 
+  }
+  result: 0
+}
+
+function: is skilled crit N:n S:n {
+  \ Addiere einen Erfolg, wenn eine 1 gewürfelt wurde, NUR WENN Skill größer als 0 ist \
+  if N = 1 & S > 0 { 
+    result: 1 
+  }
+  result: 0
+}
+
+function: is success N:n S:n {
+  \ Addiere einen Erfolg, wenn die Zielnummer nicht überschritten wurde \
+  if N <= (4 + S) { 
+    result: 1 
+  }
+  result: 0
+}
+
+function: roll against S:n {
+  \ Würfle und gebe die Anzahl der Erfolge zurück \
+  ROLL: d12
+  result: [is botch ROLL] + [is skilled crit ROLL S] + [is success ROLL S]
+} 
+
+function: erfolge ATTRIBUTE:n SKILL:n {
+  \ Für jeden Punkt im Attribut würfle einen W12 und werte ihn gegen SKILL aus \
+  TOTAL: 0
+  loop I over {1..ATTRIBUTE} {
+    TOTAL: TOTAL + [roll against SKILL]
+  }
+  result: TOTAL
+}
+
+\ Simuliere für verschiedene Attribute und verschiedene Skillwerte  \
+loop ATTRIB over {3..3} {
+  loop SKILL over {0..6} {
+    output [erfolge ATTRIB SKILL] named "Amyrith ([ATTRIB]d12 vs 4+[SKILL])"
+  }
+}

@@ -1,0 +1,91 @@
+AC: 16
+\Target's AC\
+ATTACKBONUS: 5
+\Your attack bonus\
+DAMAGEBONUS: 3
+\From STR, magic weapons, whetstones, etc.\
+NORMALDAMAGE: 1d8 + DAMAGEBONUS
+\Your weapon's damage after all modifiers\
+DR: 6
+\Target's Damage Reduction\
+
+ATTACKROLL: 1d20 + ATTACKBONUS
+\Let's see if we hit\
+CRITICALCONFIRMATION: 1d20 + ATTACKBONUS
+
+function: hit ac ARMORCLASS:n with attbonus BONUS:n rolling TOTALROLL:n confirming CONFIRMATION:n {
+if TOTALROLL = (BONUS + 20) {
+\Critical threat scored\
+if CONFIRMATION = TOTALROLL {
+\Another natural 20\
+result: 3
+\we have just scored a crit, deal x3 damage\
+}
+else {
+\We did not roll a natural 20 for crith confirmation\
+if CONFIRMATION >= ARMORCLASS {
+result: 3
+\Confirmed, but not with a natural 20\
+}
+else {
+\Critical hit not confirmed\
+result: 1
+}
+}
+}
+else {
+\Not a critical threat\
+if TOTALROLL >= ARMORCLASS {
+result: 1
+}
+else {
+result: 0
+}
+}
+}
+
+function: clampatzero NUMBER:n {
+if (NUMBER < 0) {result: 0}
+result: NUMBER
+}
+\If the number is less than 0, makes it equal 0\
+
+TOTALDISTANCE: 1099
+TOTALDAMAGEDEALT: 0
+loop STEP over {1..14} {
+
+\We are shooting for the last increment. We want to shoot down a target at 1099 feet, so 9 increments\
+INCREMENT: TOTALDISTANCE / 110
+\We calculate the current range increment\
+
+\This is how many feet are left\
+CURRENTATTACKBONUS: ATTACKBONUS - (INCREMENT * 2)
+
+\Something feels off, let's debug\
+output TOTALDISTANCE named "Current shot distance"
+
+\output CURRENTATTACKBONUS named "Current attack bonus"\
+\output AC named "AC"\
+\output INCREMENT + 1 named "Current shot increment"\
+\output ATTACKROLL named "ATTACKROLL"\
+\output CRITICALCONFIRMATION named "CRITICALCONFIRMATION"\
+
+ATTACKROLL: 1d20 + CURRENTATTACKBONUS 
+NORMALDAMAGEMULTIPLIER: [hit ac AC with attbonus CURRENTATTACKBONUS rolling ATTACKROLL confirming CRITICALCONFIRMATION]
+\output DAMAGEMULTIPLIER named "Average damage multiplier, AC [AC]"\
+
+NORMALDAMAGEDEALT: NORMALDAMAGEMULTIPLIER d NORMALDAMAGE
+NORMALDAMAGEDEALT: NORMALDAMAGEDEALT - DR
+NORMALDAMAGEDEALT: [clampatzero NORMALDAMAGEDEALT]
+
+output NORMALDAMAGEDEALT named "Damage dealt, shot [STEP], at [TOTALDISTANCE] feet"
+
+TOTALDAMAGEDEALT: TOTALDAMAGEDEALT + NORMALDAMAGEDEALT
+output TOTALDAMAGEDEALT named "Total damage dealt at step [STEP]"
+
+TOTALDISTANCE: TOTALDISTANCE - 80
+\The Fighter moves a bit closer\
+
+
+output 0 named "___________"
+}

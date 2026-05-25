@@ -1,0 +1,32 @@
+PROF_BONUS: 3
+\Action\
+APP_SKILL: 5
+REROLL_CAP: 2
+DMG_DIE: 12
+ATTACKS_MADE: 6
+\Bonus Action\
+USE_BONUS: 1
+APP_SKILL_TWO: 5
+REROLL_CAP_TWO: 0
+DMG_DIE_TWO: 6
+ATTACKS_MADE_TWO: 1
+
+function: reroll A:n B:d R:n{
+ if A <= R { result: B}
+ result: A
+}
+function: attack A:n mod M:n dmg D:d mod N:n reroll R:n against ac C:n{
+ if A = 20 {result: 2*D + N}
+ if (A + M) > C {result: [reroll D D R] + N}
+ if A = 0 {result: 0}
+ result: 0
+}
+loop T over {([lowest of APP_SKILL and APP_SKILL_TWO] + PROF_BONUS)..20} {
+ function: run the numbers PROF_BONUS APP_SKILL REROLL_CAP DMG_DIE ATTACKS_MADE USE_BONUS APP_SKILL_TWO REROLL_CAP_TWO DMG_DIE_TWO ATTACKS_MADE_TWO{
+  X: {}
+  loop N over {1..ATTACKS_MADE}{X: X + [attack 1d20 mod (APP_SKILL + PROF_BONUS) dmg d{1..DMG_DIE} mod APP_SKILL reroll REROLL_CAP against ac T]}
+  if USE_BONUS = 1 {loop N over {1..ATTACKS_MADE_TWO}{X: X + [attack 1d20 mod (APP_SKILL_TWO + PROF_BONUS) dmg d{1..DMG_DIE_TWO} mod APP_SKILL_TWO reroll REROLL_CAP_TWO against ac T]}}
+  result: X
+ }
+ output [run the numbers PROF_BONUS APP_SKILL REROLL_CAP DMG_DIE ATTACKS_MADE USE_BONUS APP_SKILL_TWO REROLL_CAP_TWO DMG_DIE_TWO ATTACKS_MADE_TWO] named "AC [T]"
+}

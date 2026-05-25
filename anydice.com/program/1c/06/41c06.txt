@@ -1,0 +1,55 @@
+\ --- CONFIGURATION --- \
+ATT_TARGET: 4
+DEF_TARGET: 3
+
+ATT_DICE: 5
+DEF_DICE: 5
+
+\ --- CORE DICE MECHANIC --- \
+\ 1 = Success, 0 = Failure \
+function: success in ROLL:n TARGET:n {
+  if ROLL >= TARGET { result: 1 }
+  result: 0
+}
+
+\ --- REROLL LOGIC --- \
+\ This rolls a pool of dice and rerolls exactly one failure if it exists \
+function: smart reroll POOL:s TARGET:n {
+  SUCCESSES: [success in POOL TARGET]
+  FAILS: (POOL < TARGET)
+  if FAILS > 0 {
+    result: SUCCESSES + [success in d6 TARGET]
+  }
+  result: SUCCESSES
+}
+
+\ --- RESOLUTION LOGIC --- \
+\ 1 = Dead (H > S), 0 = Push (H = S), -1 = Held (S > H) \
+function: resolve HITS:n SAVES:n {
+  if HITS > SAVES { result: 1 }
+  if HITS = SAVES { result: 0 }
+  result: -1
+}
+
+\ --- DEFINE THE SCENARIOS --- \
+
+\ 1. Baseline: Standard 5v5 \
+HITS_STD: ATT_DICE d [success in d6 ATT_TARGET]
+SAVES_STD: DEF_DICE d [success in d6 DEF_TARGET]
+output [resolve HITS_STD SAVES_STD] named "1. Baseline (5 vs 5)"
+
+\ 2. Attacker +1 Die (The Ceiling Breaker) \
+HITS_PLUS: (ATT_DICE + 1) d [success in d6 ATT_TARGET]
+output [resolve HITS_PLUS SAVES_STD] named "2. Attacker +1 Die (6 vs 5)"
+
+\ 3. Attacker Reroll (The Consistency Buff) \
+HITS_RR: [smart reroll ATT_DICE d6 ATT_TARGET]
+output [resolve HITS_RR SAVES_STD] named "3. Attacker 1x Reroll (5 vs 5)"
+
+\ 4. Defender +1 Die (The Anchor) \
+SAVES_PLUS: (DEF_DICE + 1) d [success in d6 DEF_TARGET]
+output [resolve HITS_STD SAVES_PLUS] named "4. Defender +1 Die (5 vs 6)"
+
+\ 5. Defender Reroll (The Reliable Armor) \
+SAVES_RR: [smart reroll DEF_DICE d6 DEF_TARGET]
+output [resolve HITS_STD SAVES_RR] named "5. Defender 1x Reroll (5 vs 5)"

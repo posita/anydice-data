@@ -1,0 +1,31 @@
+function: new check ROLL:s with BONUS:n{
+ result: (ROLL + BONUS > 9) + (ROLL + BONUS > 14) + (ROLL + BONUS > 19) + (ROLL + BONUS > 24) + (ROLL + BONUS > 29)
+}
+
+function: old check ROLL:s with BONUS:n on DC:n{
+ result: ROLL + BONUS > DC
+}
+
+function: new N players SEQ bonuses{
+  T: 0
+  loop I over {1..N}{
+    T: T + [new check d20 with I@SEQ]
+  }
+  result: T >= N
+}
+
+function: old N players DC difficulty SEQ bonuses{
+  T:0
+  loop I over {1..N}{
+    T: T + [old check d20 with I@SEQ on DC]
+  }
+  result: T >= N / 2
+}
+
+function: compare N players DC difficulty SEQ bonuses{
+  result: [new N players SEQ bonuses] - [old N players DC difficulty SEQ bonuses]
+}
+
+loop X over {8..15}{
+  output [compare 4 players X difficulty {0,0,0,0} bonuses] named "DC: [X]"
+}

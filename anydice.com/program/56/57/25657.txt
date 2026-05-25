@@ -1,0 +1,36 @@
+MISS: 0
+HIT: 1
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damagea for ATTACKRESULT:n {
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEA
+ }
+ result: MISSDAMAGE
+}
+
+function: damageb for ATTACKRESULT:n {
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEB
+ }
+ result: MISSDAMAGE
+}
+
+function: poison CONSAVE:n {
+ if CONSAVE+4 < 15 {
+  result: 4d6
+ }
+ result:(4d6)/2
+}
+
+ATTACK: 6
+HITDAMAGEA: 2d4 + 4d6 + [poison d20] + 3
+HITDAMAGEB: 2d4 + [poison d20] + 3
+MISSDAMAGE: 0
+
+output [damagea for [attack [highest 1 of 2d20] vs 15]] + [damageb for [attack [highest 1 of 2d20] vs 15]]

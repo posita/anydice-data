@@ -1,0 +1,28 @@
+ATTACK_COUNT: 1
+CRIT_AT: 19
+ATTACK_MOD: 4 + 2 + 2
+AC: 15
+
+ADVANTAGE_ATTACK:    [highest 1 of 2d20]
+NORMAL_ATTACK:       1d20
+DISADVANTAGE_ATTACK: [lowest 1 of 2d20]
+
+ADVANTAGE_CRIT:    ADVANTAGE_ATTACK    >= CRIT_AT
+NORMAL_CRIT:       NORMAL_ATTACK       >= CRIT_AT
+DISADVANTAGE_CRIT: DISADVANTAGE_ATTACK >= CRIT_AT
+
+NORMAL_DAMAGE:   1d6 + 4 + 2 + 1d6
+ADD_CRIT_DAMAGE: 1d6         + 1d6
+
+ADVANTAGE_DID_HIT:    ADVANTAGE_ATTACK+ATTACK_MOD >= AC    & ADVANTAGE_ATTACK != 1
+NORMAL_DID_HIT:       NORMAL_ATTACK+ATTACK_MOD >= AC       & NORMAL_ATTACK != 1
+DISADVANTAGE_DID_HIT: DISADVANTAGE_ATTACK+ATTACK_MOD >= AC & DISADVANTAGE_ATTACK != 1
+
+output ADVANTAGE_DID_HIT    * 100 named "Advantage Hit Chance    (%)"
+output NORMAL_DID_HIT       * 100 named "Normal Hit Chance       (%)"
+output DISADVANTAGE_DID_HIT * 100 named "Disadvantage Hit Chance (%)"
+
+output NORMAL_DAMAGE                     named "Average Hit Damage"
+output (NORMAL_DAMAGE * ADVANTAGE_DID_HIT + ADD_CRIT_DAMAGE * ADVANTAGE_CRIT) * ATTACK_COUNT named "Average Advantage Attack Damage Per Turn"
+output (NORMAL_DAMAGE * NORMAL_DID_HIT + ADD_CRIT_DAMAGE * NORMAL_CRIT) * ATTACK_COUNT named "Average Normal Attack Damage Per Turn"
+output (NORMAL_DAMAGE * DISADVANTAGE_DID_HIT + ADD_CRIT_DAMAGE * DISADVANTAGE_CRIT) * ATTACK_COUNT named "Average Disadvantage Attack Damage Per Turn"

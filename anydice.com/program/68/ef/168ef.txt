@@ -1,0 +1,49 @@
+AC: 18
+WEAPON: 2d8
+HIT: 8
+DEX: 4
+DUELING: 2
+
+set "maximum function depth" to 10
+
+
+function: roll A:d take highest{
+ result: [highest 1 of A]
+}
+function: attack with WEAPON:d adding EXTRA:d{
+ result: WEAPON+DEX+DUELING+EXTRA
+}
+function: critical attack with WEAPON:d adding EXTRA:d and bursting CRITBURST:d{
+ result: WEAPON+WEAPON+DEX+DUELING+EXTRA+EXTRA+CRITBURST+CRITBURST
+}
+function: attack using ROLL:n with EXTRA:d extra damage per hit N:n times and bursting CRITBURST:d damage CHARGES:n times{
+ DAMAGE:0
+ if ROLL = 20{
+   if CHARGES >0{
+    DAMAGE: [critical attack with WEAPON adding EXTRA and bursting CRITBURST]
+    CHARGES: CHARGES - 1
+   } 
+   else {
+    DAMAGE: [critical attack with WEAPON adding EXTRA and bursting 0]
+   }
+  }
+  else {
+   if ROLL+HIT > AC{
+    DAMAGE: [attack with WEAPON adding EXTRA]
+   }
+   else{
+    DAMAGE: 0
+   }
+  }
+  NEW: N-1
+  if NEW > 0 {
+   result: DAMAGE + [attack using [roll 3d20 take highest] with EXTRA extra damage per hit NEW times and bursting CRITBURST damage CHARGES times]
+  }
+  else {
+   result: DAMAGE
+  }
+}
+
+
+output [attack using [roll 3d20 take highest] with 0 extra damage per hit 3 times and bursting 6d6 damage 1 times] named "Rush Attack"
+

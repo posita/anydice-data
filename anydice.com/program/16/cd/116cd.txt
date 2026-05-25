@@ -1,0 +1,40 @@
+TARGET_AC: 15
+ADVANTAGE: 1
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+ATTACK: 4
+BITEDAMAGE: d6 + 2
+BITECRITICALDAMAGE: 2d6 + 2
+CLAWDAMAGE: d4 + 2
+CLAWCRITICALDAMAGE: 2d4 + 2
+MISSDAMAGE: 0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n with HITDAMAGE:n and CRITDAMAGE:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+if ADVANTAGE = 1 {
+output [damage for [attack [highest 1 of 2d20] vs TARGET_AC] with BITEDAMAGE and BITECRITICALDAMAGE] named "Bite"
+output [damage for [attack [highest 1 of 2d20] vs TARGET_AC] with CLAWDAMAGE and CLAWCRITICALDAMAGE] named "Claw"
+} else {
+output [damage for [attack d20 vs TARGET_AC] with BITEDAMAGE and BITECRITICALDAMAGE] named "Bite"
+output [damage for [attack d20 vs TARGET_AC] with CLAWDAMAGE and CLAWCRITICALDAMAGE] named "Claw"
+}

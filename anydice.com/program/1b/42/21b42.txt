@@ -1,0 +1,46 @@
+output 4d{-1,0,1} named "BASE 4dF"
+function: restrict ROLL:n to RANGE:s else REROLL:d {
+  if ROLL = RANGE { result: ROLL }
+  else { result: REROLL }
+}
+function: restrict ROLL:d to RANGE:s {
+  loop I over {1..20} {
+    ROLL: [restrict ROLL to RANGE else ROLL]
+  }
+  result: ROLL
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+
+loop G over {0} {
+loop P over {0} {
+F: {-1,0,1}
+A: P+4
+BASE: AdF
+LL: [lowest 4 of (P+4)dF]
+SPEC: {0,0,-1}
+SPECI:{1,0,0}
+output LL + [count -1 in BASE]dSPEC + [count 1 in BASE]dSPECI+G named "[A]dF-[P]+[G]"
+}
+}
+
+loop G over {0} {
+loop P over {0..14} {
+F: {-1,0,1}
+A: P+4
+BASE: AdF
+LL: [lowest 4 of (P+4)dF]
+SPEC: {0,0,-1}
+output LL + [count -1 in BASE]dSPEC+G named "[A]dF-[P]+[G]"
+}
+}

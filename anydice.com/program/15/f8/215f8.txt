@@ -1,0 +1,18 @@
+function: advantage A disadvantage D { result: [helper A roll (A+D+1)d20] }
+function: helper A:n roll ROLL:s {
+  MID: (A+1)@ROLL
+  loop SKIP over {0 .. #ROLL/2} {
+    DMAX: [absolute MID - (1+SKIP)@ROLL]
+    DMIN: [absolute MID - (#ROLL-SKIP)@ROLL]
+    if DMAX > DMIN { result: (1+SKIP)@ROLL }
+    if DMIN > DMAX { result: (#ROLL-SKIP)@ROLL }
+  }
+  result: MID
+}
+
+loop SUM over {0..3} {
+  loop ADV over {0..SUM} {
+    DIS: SUM - ADV
+    output [advantage ADV disadvantage DIS] named "advantage [ADV], disadvantage [DIS]"
+  }
+}

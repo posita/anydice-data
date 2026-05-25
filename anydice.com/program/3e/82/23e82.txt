@@ -1,0 +1,37 @@
+ROLL_COUNT: 3
+CRIT_THRESHOLD: 19
+DEX: 5
+PROF_BONUS: 4
+
+TO_HIT: DEX + PROF_BONUS
+FLAT_DAMAGE: DEX
+
+ENEMY_AC: 18
+
+
+MISS: 0
+HIT:  1
+CRIT: 2
+
+function: when DIE:n less than X:n use REPLACEMENT {
+    if DIE < X { result: REPLACEMENT }
+    result: DIE
+}
+
+function: attack ROLL:n vs AC:n with BONUS:n {
+    if ROLL = 1               { result: MISS }
+    if ROLL >= CRIT_THRESHOLD { result: CRIT }
+    if ROLL + BONUS >= AC     { result: HIT  }
+
+    result: MISS
+}
+
+function: damage from DICE:d for ATTACK_RESULT:n with BONUS:n {
+    if ATTACK_RESULT = CRIT { result: 2dDICE + BONUS }
+    if ATTACK_RESULT = HIT  { result:   DICE + BONUS }
+
+    result: MISS
+}
+
+output 3d[damage from 3d6 for [attack 1@ROLL_COUNTd20 vs ENEMY_AC with TO_HIT] with FLAT_DAMAGE] + 2d8+4 named "Flame Tongue"
+output 4d[damage from 1d6 for [attack 1@ROLL_COUNTd20 vs ENEMY_AC with TO_HIT + 2] with FLAT_DAMAGE + 2] + 2d8+4 named "Scimitar of Speed"

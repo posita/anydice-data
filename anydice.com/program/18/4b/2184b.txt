@@ -1,0 +1,75 @@
+
+function: ROLL:n bonus B:n dc DC:n {
+  if ROLL=1 { result: 0 }
+  if ROLL=20 { result: 2 }
+  result: (ROLL+B) >= DC
+}
+
+function: attack ac AC:n ab AB:n adv ADV:n dm DM:d dmb DMB:n {
+  result: [dmg hit [[adv ADV] bonus AB dc AC] dm DM dmb DMB]
+}
+
+function: dmg hit HIT:n dm DM:d dmb DMB:n {
+  if HIT=0 { result: 0 }
+  if HIT=1 { result: DM + DMB }
+  if HIT=2 { result: DM + DM + DMB }
+}
+
+function: adv ADVS {
+  ADV:0
+  BREAK:0
+  loop X over {ADVS} { if !BREAK {
+    if ADV=0 { ADV: X }
+    if (ADV>0&X<0)|(ADV<0&X>0) { ADV:0 BREAK:1 }
+  } }
+  if ADV<0 { result: 2@2d20 }
+  if ADV>0 { result: 1@2d20 }
+  result: 1d20
+}
+
+function: adv A:n B:n {
+  if A<0 & B>0 { result: 0 }
+  if A=0 { result: B }
+  result: A
+}
+
+function: C:n then T else F {
+  if C { result: T }
+  result: F
+}
+
+function: C:n and then T {
+  if C { result: C + T }
+  result: 0
+}
+
+function: javelin ac AC:n adv ADV:n pb PB:n {
+  result: [attack ac AC ab 3 + PB adv ADV dm 1d6 dmb 3]
+}
+  
+function: rapier ac AC:n adv ADV:n pb PB:n {
+  result: [attack ac AC ab 3 + PB adv ADV dm 1d8 dmb 3]
+}
+
+function: bite ac AC:n adv ADV:n pb PB:n {
+  result: [attack ac AC ab 4 adv ADV dm 1d6 dmb 2 + PB]
+}
+
+function: claw ac AC:n adv ADV:n pb PB:n {
+  result: [attack ac AC ab 4 adv ADV dm 1d4 dmb 2 + PB]
+}
+
+function: pounce ac AC:n adv ADV:n pb PB:n cm CM:n {
+  result: [[claw ac AC adv ADV pb PB] and then [[1d20 bonus CM dc 12] then 0 else [bite ac AC adv {ADV,1} pb PB]]]
+}
+
+AC:10
+ADV:0
+PB:2
+CM:0
+
+output [javelin ac AC adv ADV pb PB] named "Javelin"
+output [rapier ac AC adv ADV pb PB] named "Rapier"
+output [bite ac AC adv ADV pb PB] named "Bite"
+output [claw ac AC adv ADV pb PB] named "Claw"
+output [pounce ac AC adv ADV pb PB cm CM] named "Pounce"

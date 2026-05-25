@@ -1,0 +1,66 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MAGICMISS: 3
+
+function: magic ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MAGICMISS
+}
+
+function: save ROLL:n plus SAVE:n vs DC:n {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 {
+  result: MISS
+ }
+ if ROLL + SAVE >= DC
+ {
+  result: MAGICMISS
+ }
+ result: HIT
+}
+
+function: attack ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for REGROLL:n when ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: REGROLL + REGROLL
+ }
+ if ATTACKRESULT = HIT {
+  result: REGROLL
+ }
+ if ATTACKRESULT = MAGICMISS {
+  result: REGROLL/2
+ }
+ result: 0
+}
+
+function: multiattack with NUM:n attacks using DIE:d plus MOD:n with CHANCE:n to hit{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE + MOD when [attack 1d20 plus CHANCE vs 15]]
+ }
+ result: RESULT
+}
+
+
+function: area magic hit NUM:n targets using DIE:d with CHANCE:n against DC:n{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE when [save 1d20 plus CHANCE vs DC]]
+ }
+ result: RESULT
+}

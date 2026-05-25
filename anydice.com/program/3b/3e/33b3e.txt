@@ -1,0 +1,76 @@
+function: cut R:s at T:n {
+  if R > T { result: 0 }
+  result: R
+}
+
+function: success R:s at T:n {
+  if R > T { result: 0 }
+  if R = 1 { result: 2 }
+  result: 1
+}
+
+function: decide R:s {
+  if 1@R <= 0 { result: 0 }
+  result: 1@R + (R > 0) - 1
+}
+
+function: margin N:n over T:n {
+  M: N - T
+  if M < -100 { result: 0 }
+  if M > 100 { result: 3 }
+  result: M
+}
+
+loop M over { 4, 6, 8, 10, 12 } {
+  output [ highest of [ explode 1d6 ] and [ explode 1dM ] ] named "Savage Worlds d[M]"
+}
+
+
+function: gurps M:n {
+  if M < 0 { result: -1 }
+  result: M
+}
+
+loop M over { 3..18 } {
+  output [ gurps (M - 3d6) ] named "GURPS x [M]"
+}
+
+
+function: eaba R:s {
+  result: 1@R + 2@R + 3@R
+}
+
+loop M over { 1..15 } {
+  N: M / 3
+  B: M - N * 3
+  output [ eaba Nd6 ] + B named "EABA [N]d+[B]"
+}
+
+loop M over { 1..10 } {
+  output [ count 6 in Md6 ] named "Vaesen [M]d"
+}
+
+loop M over { 2..19 } {
+  D: [ success 1d20 at M ]
+  output 2dD named "2d20 vs [M]"
+}
+
+loop M over { 1..5 } {
+  output 1@Md10 named "Spire [M]d"
+}
+
+
+loop M over { 1..5 } {
+  output 1@Md6 named "Blades [M]d"
+}
+
+
+F: [ cut 1d10 at 4 ]
+loop M over { 0..10 } {
+  output [ decide MdF ] named "[M]d10"
+}
+
+G: { 1, 2, 3, 0, 0, 0 }
+loop M over { 0..10 } {
+  output [ decide MdG ] named "[M]d6"
+}

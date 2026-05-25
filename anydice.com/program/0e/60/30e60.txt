@@ -1,0 +1,39 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+HIT_ROLL: [highest 1 of 3d20]
+HIT_MOD: 0
+AC: 8
+
+output [roll HIT_ROLL plus HIT_MOD against AC damage 2d6+4 crit 2d(2d6)+4 on {20}] named "Baseline (greatsword)"
+output [roll HIT_ROLL plus HIT_MOD against AC damage 1d8+4 crit 2d(1d8)+4 on {20}] named "Baseline (longbow)"
+
+DMG: 3d6
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG crit 2d(DMG) on {19,20}] named "LP+RoA"
+
+DMG: 3d6 + (3+(4-1))d10
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG crit 2d(DMG) on {19,20}] named "LP+RoA, striking Inflict Wounds"
+
+
+
+output 3d[roll HIT_ROLL plus -5+2 against AC damage 1d6+10 crit 2d6+10 on {20}] named "XBE+SS+Archery"
+output 2d[roll HIT_ROLL against AC damage 1d10+10 crit 2d10+10 on {20}] named "Agonizing Blast + Quickened"
+
+output 3d[roll HIT_ROLL against AC damage 2d4 crit 5d4 on {20}] named "Jim's MM"

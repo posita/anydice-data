@@ -1,0 +1,36 @@
+MAGICBONUS: 1
+ATKBONUS: 5 + MAGICBONUS
+DMGBONUS: 3 + MAGICBONUS
+TARGETAC: 10 + 1d10
+BASEDMG: 2d10 + DMGBONUS
+BASEDMGTWO: 2d10 + DMGBONUS
+CRITDMG: 4d10 + DMGBONUS
+CRITDMGTWO: 4d10 + DMGBONUS
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+output
+[attack d20 plus ATKBONUS vs TARGETAC hit BASEDMG miss 0 crit CRITDMG on 20]
+named "Advanced Riflery"
+
+output
+[attack d20 plus ATKBONUS vs TARGETAC
+    hit  BASEDMG + [attack d20 plus ATKBONUS vs TARGETAC hit BASEDMGTWO miss 0 crit CRITDMGTWO on 20]
+    miss           [attack d20 plus ATKBONUS vs TARGETAC hit BASEDMGTWO miss 0 crit CRITDMGTWO on 20]
+    crit CRITDMG + [attack d20 plus ATKBONUS vs TARGETAC hit BASEDMGTWO miss 0 crit CRITDMGTWO on 20] on 20
+] named "Advanced Riflery 2 Attacks"
+
+output 9d4 + 9 named "LAW ROCKET"
+
+output 8d6 named "BAZOOKA"

@@ -1,0 +1,110 @@
+\ =============    ATTACK   ============ \
+
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+function: twist DE:n DIE:d {
+  if DE <= 1 {
+    result: 1@{DIE}
+  } 
+  if DE = 2 {
+    result: [lowest of DIE and DIE]
+  }
+  if DE = 3 {
+    result: [highest of DIE and DIE]
+  }
+  if DE >= 4 {
+    result: 1@[reverse {DIE}]
+  }
+}
+
+function: ttf DIE:d {
+  result: (DIE-1)/5+1
+}
+
+\ ====================================== \
+
+\ ==============   SAVES   ============= \
+
+function: save ROLL:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    if ROLL >= DC {
+        result: S_DMG
+    }
+    if ROLL < DC {
+        result: F_DMG
+    }
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for half {
+    result: [save ROLL vs DC-MOD for F_DMG damage or F_DMG/2 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for none {
+    result: [save ROLL vs DC-MOD for F_DMG damage or 0 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success with crit fail on CRITS:s for CRIT_DMG:d {
+  if [CRITS contains ROLL] {
+    result: CRIT_DMG
+  } 
+
+  result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+} 
+
+\ ====================================== \
+
+\ ==============   MISC    ============= \
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s then save SAVE:n plus S_MOD:n vs DC:n for F_DMG: n or S_DMG:n on success{
+    
+    if ROLL = 20 | ROLL >= (AC-MOD) {
+        HIT_DMG: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+        RIDER_DMG: [save SAVE vs DC-S_MOD for F_DMG damage or S_DMG on success]
+        result: HIT_DMG + RIDER_DMG
+    }
+    result: 0
+}
+
+\ ====================================== \
+
+
+HIT_ROLL: [highest 1 of d20]
+HIT_MOD: 9
+SAVE_ROLL: [lowest 1 of d20]
+SAVE_MOD: 6
+AC: 18
+DC: 14
+
+F_DMG: 6
+DMG: 3d10
+output 2d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] named "Ketamine Ape"
+
+HIT_MOD: 8
+F_DMG: 5
+DMG: 4d6
+S_BITE: ((((HIT_ROLL+HIT_MOD >= AC) & (SAVE_ROLL+SAVE_MOD) < DC) / (HIT_ROLL+HIT_MOD >= AC) + 1) * 4d8/2)
+output 2d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] + S_BITE named "Deep Spider" 
+
+
+

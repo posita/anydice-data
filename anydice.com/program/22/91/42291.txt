@@ -1,0 +1,117 @@
+\ --- CONSTANTS & SETTINGS --- \
+PMISS: 1
+PHIT: 2
+PCRIT: 3
+MISS: 400
+HIT: 500
+CRIT: 600
+MISSCOMP: 401
+HITCOMP: 501
+CRITCOMP: 601
+MISSOP: 402
+HITOP: 502
+CRITOP: 602
+OPA: 5
+OPB: 6
+
+DAMAGEA: 1d6
+MOD: 5
+DEFENSE: 14
+
+\ --- FUNCTIONS --- \
+
+function: attack ROLL:n plus MOD:n vs DEF:n {
+  if ROLL = 20 { result: PCRIT }
+  if ROLL + MOD >= DEF { result: PHIT }
+  result: PMISS
+}
+
+function: opportunity ROLL:n VALA:n VALB:n {
+  if ROLL = 1 { result: 2 }
+  if ROLL = 2 { result: 4 }
+  if ROLL = 5 { result: VALA }
+  if ROLL = 6 { result: VALB }
+  result: 0
+}
+
+function: attackstakes ROLL:n plus MOD:n plus OPP:n vs DEF:n {
+  if ROLL = 20 { result: 300 + OPP }
+  if ROLL + MOD + OPP >= DEF { result: 200 + OPP }
+  result: 100 + OPP
+}
+
+function: stakes BASE:n {
+  if BASE >= 300 { 
+    if BASE >= 305 { result: CRITOP }
+    if BASE >= 302 { result: CRITCOMP }
+    result: CRIT
+  }
+  if BASE >= 200 {
+    if BASE >= 205 { result: HITOP }
+    if BASE >= 202 { result: HITCOMP }
+    result: HIT
+  }
+  if BASE >= 105 { result: MISSOP }
+  if BASE >= 102 { result: MISSCOMP }
+  result: MISS
+}
+
+function: damagestakes STATUS:n for DIE:d plus MOD:n {
+  if STATUS >= 600 { result: [maximum of DIE] + MOD } 
+  if STATUS = HITOP { result: [maximum of DIE] + MOD }
+  if STATUS >= 500 { result: DIE + MOD } 
+  if STATUS = MISSOP { result: [maximum of DIE] }
+  result: 0
+}
+
+function: grazestakes STATUS:n for DIE:d plus MOD:n {
+  if STATUS >= 600 { result: [maximum of DIE] + MOD }
+  if STATUS = HITOP { result: [maximum of DIE] + MOD }
+  if STATUS >= 500 { result: DIE + MOD }
+  if STATUS = MISSOP { result: [maximum of DIE] }
+  result: DIE 
+}
+
+function: damagebase STATUS:n for DIE:d plus MOD:n {
+  if STATUS = PCRIT { result: [maximum of DIE] + MOD }
+  if STATUS = PHIT { result: DIE + MOD }
+  result: 0
+}
+
+function: grazebase STATUS:n for DIE:d plus MOD:n {
+  if STATUS = PCRIT { result: [maximum of DIE] + MOD }
+  if STATUS = PHIT { result: DIE + MOD }
+  result: DIE
+}
+
+function: gaindice RESULT:n {
+  if RESULT = PCRIT { result: [highest 1 of 3d20] }
+  if RESULT = PHIT { result: [highest 1 of 2d20] }
+  result: 1d20
+}
+
+\ --- DEFINE BUILDING BLOCKS --- \
+
+OPPVAL: [opportunity 1d6 OPA OPB]
+GSTAT: [attack 1d20 plus MOD vs DEFENSE]
+GDIE: [gaindice GSTAT]
+
+ADV: [highest 1 of 2d20]
+STD: 1d20
+
+\ GRAZE BLOCKS \
+GRSADV: [grazestakes [stakes [attackstakes ADV plus MOD plus OPPVAL vs DEFENSE]] for DAMAGEA plus MOD]
+GRSGAIN: [grazestakes [stakes [attackstakes GDIE plus MOD plus OPPVAL vs DEFENSE]] for DAMAGEA plus MOD]
+GRSSTD: [grazestakes [stakes [attackstakes STD plus MOD plus OPPVAL vs DEFENSE]] for DAMAGEA plus MOD]
+GADV: [grazebase [attack ADV plus MOD vs DEFENSE] for DAMAGEA plus MOD]
+GGAIN: [grazebase [attack GDIE plus MOD vs DEFENSE] for DAMAGEA plus MOD]
+GSTD: [grazebase [attack STD plus MOD vs DEFENSE] for DAMAGEA plus MOD]
+
+\ DAMAGE BLOCKS \
+DRSADV: [damagestakes [stakes [attackstakes ADV plus MOD plus OPPVAL vs DEFENSE]] for DAMAGEA plus MOD]
+DRSGAIN: [damagestakes [stakes [attackstakes GDIE plus MOD plus OPPVAL vs DEFENSE]] for DAMAGEA plus MOD]
+DRSSTD: [damagestakes [stakes [attackstakes STD plus MOD plus OPPVAL vs DEFENSE]] for DAMAGEA plus MOD]
+DADV: [damagebase [attack ADV plus MOD vs DEFENSE] for DAMAGEA plus MOD]
+DGAIN: [damagebase [attack GDIE plus MOD vs DEFENSE] for DAMAGEA plus MOD]
+DSTD: [damagebase [attack STD plus MOD vs DEFENSE] for DAMAGEA plus MOD]
+

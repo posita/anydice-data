@@ -1,0 +1,36 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+ATTACK: 10
+AC: 21
+
+output [ATTACK vs AC crit 20 3 dmg 1d6+6] named "bow"
+output [ATTACK-1 vs AC crit 20 3 dmg 1d6+8] named "bow + deadly aim"
+output [{ATTACK-2,ATTACK-2} vs AC crit 20 3 dmg 1d6+6] named "bow + rapid shot"
+output [{ATTACK-3,ATTACK-3} vs AC crit 20 3 dmg 1d6+8] named "bow + rapid shot + deadly aim"

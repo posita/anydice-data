@@ -1,0 +1,23 @@
+function: evaluate ROLL:s at SKILL:n {
+ SUCCESSES: ROLL <= SKILL+1
+ if SUCCESSES > 0 { result: SUCCESSES + (ROLL=0) }
+ result: 0
+}
+loop LEVEL over {0..5} {
+ loop DICE over {1..5} {
+  output [evaluate DICE d{0..9} at LEVEL] named "[DICE]d@[LEVEL]"
+ }
+}
+\
+function: nwod R:n skill N:n {
+ if N = 0 { result: 1 + [nwod R skill d{0..9}] }
+ result: N <= R
+}
+
+NWOD: [nwod 0 skill d10]
+loop Y over {0..5} {
+loop N over {1..5} {
+ output [lowest of 10 and Nd[nwod Y skill d{0..9}]] named "[N]d@[Y]"
+}
+}
+\

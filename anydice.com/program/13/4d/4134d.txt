@@ -1,0 +1,46 @@
+
+\-- Death Save --\
+
+
+SAVE_DC: 10
+BONUS: +0
+
+CONSCIOUS: 2
+SUCCEEDED: 1
+FAILED: -1
+FAILED_TWICE: -2
+
+IS_ALIVE: 1
+IS_DEAD: 0
+
+function: save N:n {
+  if N  = 20      {result: CONSCIOUS} 
+  if N  = 1       {result: FAILED_TWICE}
+  if N + BONUS >= SAVE_DC {result: SUCCEEDED} 
+  result: FAILED
+}
+
+
+function: roll saves ABC:s D:s E:s{
+  if [ABC contains CONSCIOUS] {result: IS_ALIVE}
+  if [count SUCCEEDED in ABC] >= 3 {result: IS_ALIVE}
+  if ([count FAILED in ABC]  + 2 * [count FAILED_TWICE in ABC]) >= 3 {result: IS_DEAD}
+
+  if [D contains CONSCIOUS] {result: IS_ALIVE}
+  if ([count  SUCCEEDED  in ABC] + [count SUCCEEDED in D])      >= 3 {result: IS_ALIVE}
+  if ( [count FAILED in ABC] + 2 * [count FAILED_TWICE in ABC] 
+     + [count FAILED in D  ] + 2 * [count FAILED_TWICE in D  ]) >= 3 {result: IS_DEAD}
+
+  if [E contains CONSCIOUS] {result: IS_ALIVE}
+  if ([count SUCCEEDED in ABC] + [count SUCCEEDED  in D]+ [count SUCCEEDED in E]) >= 3 {result: IS_ALIVE} 
+  if (  [count FAILED in ABC] + 2 * [count FAILED_TWICE in ABC] 
+      + [count FAILED in D  ] + 2 * [count FAILED_TWICE in D  ] 
+      + [count FAILED in E  ] + 2 * [count FAILED_TWICE in E  ]) >= 3 {result: IS_DEAD} 
+  result: -1 \ Should be unreachable\
+}
+
+function: death save {result: [roll saves 3d[save d4+d4] [save d20] [save d20]]}
+
+output [death save] named "Death Save Survival"
+
+

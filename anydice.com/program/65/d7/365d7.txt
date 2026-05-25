@@ -1,0 +1,447 @@
+\ 
+ANYDICE Code for the Virtually Real RPG.  
+Released under CC-SA by Virtually Real Games 2023
+As examples of custom exploding dice systems.
+\
+ 
+\ Initializers \
+
+CRIT:       0              \ A crit is rolling a 0                 \
+CHOPBRILL:  1              \ Set to 1 to remove brilliant tail     \
+
+set "maximum function depth" to 10
+
+\ 
+Virtually Real skill system separates training from experience.
+The number in the square brackets is your training, the number of
+dice to roll.  Your experience in the skill determine's the modifier.
+
+The number of dice to roll is as follows :
+        [1]     Secondary skill, untrained
+        [2]     Primary Skill, trained
+        [3]     Elite (master craftsman, olympic atheletes)
+        [4]     Supernatural (non-human; need [3] in the attribute)
+        [5]     Deific (divine; need [4] or [5] in the attribute)
+
+Brilliant results will roll an extra d6 on the following natural rolls,
+the last column shows the normal critical failure results.
+
+        [1]     6               1
+        [2]     12              2
+        [3]     17,18           3
+        [4]     22-24           4
+        [5]     27-30           5,6
+
+If the extra/exploded die is a 6, add +2 to the total and roll another die.
+If you keep rolling 6's, keep adding 2 and roll another die.
+If it wasn't a 6, on rolls of
+        [1]     Don't add anything more
+        [2+]    Add the result on the die and stop
+
+Most modifiers on the character sheet, such as skill levels are
+fixed-value modifiers.  The curve and chances of brilliant or
+critical results do not change.  The min, max, and average values
+change with the modifier.  In practice, this will be a skill level
+and possibly 1 other modifier.  
+
+Inspiration is a somewhat random bonus that adds just under 2, but 
+additional sources of inspiration give steadily lower benefits. Any
+source of inspiration will slowly decrease critical failure rates
+and increase your chances of a brilliant.  
+
+A shortcoming is the reverse of inspiration.  Shortcomings mainly
+come from the condition chart, applied to most combat rolls. Use 
+shortcomings and inspiration for random situational modifiers where 
+precision is unavailable or undesirable.  
+
+Add +1 die per source of inspiration and drop the lowest die rolled.  Add
++1 to the critical range (total, not per source).
+
+You can have Inspirations and Shortcomings on the same roll.
+A special mechanic causes results to swing like an inverse bell
+curve.
+
+NOTE: The results shown are die roll results.  Your skill LEVEL
+and any fixed modifiers are added if the result is not critical.
+This is then compared to the target number.  Degrees of success
+matter!
+\
+
+\ What rolls are brilliant for this many dice \ 
+function: brilliant of DICE:d {
+  if CHOPBRILL = 0 {
+    MAX: [maximum of DICE] +2
+    if MAX = 8 { result: { 6 } } 
+    BR: {}
+    loop N over {1..#DICE} {
+      if N = 1 {
+        BR: BR
+      }
+      else {
+        BR: {BR, MAX-N}
+      }
+    }
+    result: {BR}
+  }
+  else { result: {99} }
+}
+
+\ returns the set of critical rolls for this many dice \
+function: critical plus LEVEL:n of DICE:d {
+  if #DICE > 4 { 
+    LEVEL: LEVEL+1 
+  }
+  else { 
+    CRIT: {#DICE} 
+  }
+  N: #DICE
+  loop S over {1 .. LEVEL} {
+    N: N+1
+    CRIT: {CRIT,N}
+  }
+  result: {CRIT}  
+}
+
+\ explode helper for [2]+ dice rolls \
+function: explodeb ROLLEDVALUE:n {
+ if ROLLEDVALUE = 6 { 
+   result: 2 + [explodeb d6] 
+ }
+  else {
+    result: ROLLEDVALUE
+  }
+}
+
+\ explode helper for [1] die rolls \
+function: explodec ROLLEDVALUE:n {
+  if ROLLEDVALUE = 6 { result: 2 + [explodec d6] }
+  result: 0
+}
+
+\ The new explode function with crit and brilliant ranges \
+function: explode ROLLEDVALUE:n crit CRITR:s bril BRIL:s {
+if [CRITR contains ROLLEDVALUE] { result: CRIT }
+ if BRIL = 6 &  ROLLEDVALUE = 6 { result: ROLLEDVALUE + [ explodec d6 ] }
+ if ROLLEDVALUE = BRIL { result: ROLLEDVALUE + [explodeb d6] }
+ result: ROLLEDVALUE
+}
+
+\ My replacement explode function, wrapping the above \
+function: explode DICE:d {
+  if #DICE = 1 {
+    result: [explode DICE crit 1 bril 6]
+  }
+  result: [explode DICE crit [critical plus 0 of DICE] bril [brilliant of DICE]]
+}
+
+\ Middle x values of a roll with start and end \
+function: mid NUM:n start PENALTY:n of SET:s {
+ S: [sort SET]
+ R: {}
+ START: PENALTY+1
+ END: NUM+PENALTY
+ loop P over {START..END} {
+  R: {P@S, R}
+ }
+ result: R
+}
+
+\ Edge x values of a roll with start and end \
+function: swing NUM:n start PENALTY:n of SET:s {
+  S: [reverse [sort SET]]      \ line up values \ 
+  B: #S - NUM - PENALTY        \ Bonuses \
+  A: #S + 1                    \ Round middle down (+1) or up (+2) \
+  N: A/2 - PENALTY             \ Middle down by penalty dice \
+  if N < 1 {                   \ Min 1st die \
+    N: 1
+  }
+  N: N + B                     \ Up by Bonuses \
+  if N > #S {
+    N: #S
+  }
+  R: {}
+  if N@S < 4 {                 \ Choose sides \
+    loop P over {1 .. NUM} {
+      R: {P@S,R}
+    }   
+  }
+  else {
+    loop P over {#S-NUM+1 .. #S} {
+      R: {P@S,R}
+    }
+  }
+  result: R
+}
+
+\ Shortcoming + Inspiration \
+function: complex DICE:d bonus BONUS:n penalty SHORT:n {
+  TOTALDICE: #DICE + BONUS + SHORT
+  NEWCRIT: 0
+  if BONUS & SHORT {
+    result: [explode [swing #DICE start SHORT of TOTALDICEd6] crit [critical plus 0 of DICE] bril [brilliant of DICE]]
+  }
+  else { 
+    if BONUS > 0 {
+      NEWCRIT: 1
+    }
+    result: [explode [mid #DICE start SHORT of TOTALDICEd6] crit [critical plus NEWCRIT of DICE] bril [brilliant of DICE]]
+  }
+}
+
+function: complex DICE:d bonus BONUS:n penalty SHORT:n crit CRITR: n {
+  TOTALDICE: #DICE + BONUS + SHORT
+  if BONUS & SHORT {
+    result: [explode [swing #DICE start SHORT of TOTALDICEd6] crit [critical plus CRITR of DICE] bril [brilliant of DICE]]
+  }
+  else { 
+    NEWCRIT: 0
+    if BONUS > 0 {
+      NEWCRIT: 1
+    }
+    NEWCRIT: NEWCRIT + CRITR
+    result: [explode [mid #DICE start SHORT of TOTALDICEd6] crit [critical plus NEWCRIT of DICE] bril [brilliant of DICE]]
+  }
+}
+
+
+\
+Utility functions that use the above
+\
+RANGE: 1    \ Default penalty for ranged attacks, increase beyond effective range \
+
+function: ranged bonus B:n penalty P:n crit C:n {
+  P: P + RANGE \ range penalty dice \
+  C: C + 1     \ +1 crit for ranged? \
+  result: [complex 2d6 bonus B penalty P crit C]
+}
+function: ranged bonus B:n penalty P:n {
+  result: [ranged bonus B penalty P crit 0]
+}
+function: melee bonus B:n penalty P:n {
+  result: [complex 2d6 bonus B penalty P]
+}
+function: defense bonus B:n penalty P:n {
+  result: [complex 2d6 bonus B penalty P]
+}
+function: dodge bonus B:n penalty P:n {
+  result: [complex 1d6 bonus B penalty P]
+}
+function: failby SEQ: s {    \ degrees of failure tables \
+  R: {}
+  loop P over {1 .. #SEQ} {
+    if P@SEQ >= 1 {
+      if P@SEQ >= 3  {
+        if P@SEQ >= 6 {
+          if P@SEQ >= 10 {
+            if P@SEQ >= 16 {
+              R: {R,5}
+            } else {
+              R: {R,4}
+            }
+          } else {
+            R: {R,3}
+          }
+        } else {
+          R: {R,2}
+        }
+      } else {
+        R: {R,1}
+      }
+    } else {
+      R: {R,0}
+    }
+  }
+  result: R
+}
+function: wound ATK:s minus DEF:s {
+  result: [wound ATK minus DEF armor 0 ap 0 dam 0]
+}
+function: wound ATK:s minus DEF:s dam D:n {
+  result: [wound ATK minus DEF armor 0 ap 0 dam D]
+}
+function: wound ATK:s minus DEF:s armor AD:n ap AP:n dam D:n {
+  R: {}
+  loop P over {1 .. #ATK} {
+    if P@ATK = CRIT {
+      R: {R, 0}           \ crit miss does not wound \
+    }
+    if P@DEF = CRIT {     \ crit defense could be -1 \
+      DAM: P@ATK
+    } else {
+      DAM: P@ATK - P@DEF
+    }
+    if (DAM > 0) {        \ Sucessful hit \
+      ARMOR: AD - AP      \ Armor AD is reduced by weapon AP \
+      if ARMOR < 0 {
+        ARMOR: 0
+      }
+      DAM: DAM - ARMOR    \ Damage is reduced by armor \
+      if DAM > 0 {        \ Weapon damaged body? \
+        DAM: DAM + D      \ .. then D modifier applies \
+      }
+      R: {R, DAM}
+    } else {
+      R: {R, 0}           \ Miss! \
+    }
+  }
+  result: R
+}
+function: dc DC:n SEQ:s {
+  result: [dc DC SEQ crit ((DC*3)+2) ]
+}
+function: dc DC:n SEQ:s crit CRITR:n {
+  R: {}
+  loop P over {1..#SEQ} {
+    if P@SEQ > DC {
+      if P@SEQ > (DC * 2) {
+        if P@SEQ >= CRITR {
+          R: {R,22}
+        } else {
+          R: {R,16}
+        }
+      } else {
+        R: {R,10}
+      }
+    } else {
+
+      if P@SEQ > 0 {
+        R: {R,4}
+      } else {
+        R: {R,0}
+      }
+    }
+  }
+  result: R
+}
+function: save ROLL:s vs DC:s {
+  R: {}
+  loop P over {1 .. #DC} {
+    if P@ROLL = CRIT {
+      if P@DC <=4 {      \ don't roll DC 4 \
+        R: {R}
+      } else {
+        R: {R,P@DC}
+      }
+    } else {
+      if P@DC <= 4 {
+        R: {R}
+      } else {
+        RESULT: P@DC - P@ROLL
+        if RESULT > 0 {
+          R: {R,RESULT}
+        } else {
+          R: {R,0}
+        }
+      }
+    }
+  }
+  result: R
+}
+function: xp SEQ:s {         \ XP and effect bonus lookups \
+  R: {}
+  loop P over {1 .. #SEQ} {
+    if P@SEQ >= 10 {
+      if P@SEQ >= 25 {
+        if P@SEQ >= 37 {
+          R: {R,5}
+        } else {
+          R: {R,4}
+        }
+      } else {
+        if P@SEQ >= 16 {
+          R: {R,3}
+        } else {
+          R: {R,2}
+        }
+      }
+    } else {
+      if P@SEQ >=6 {
+        R: {R,1}
+      } else {
+        if P@SEQ = CRIT {
+          R: {R,CRIT}
+        } else {
+          R: {R,0}     \ increasing crits on an XP check rarely means anything \
+        }
+      }
+    }
+  }
+  result: R
+}
+function: roll SEQ:s plus LEVEL:n {        \ roll plus skill level, crits are 0's   \
+  result: [roll SEQ plus LEVEL crit 0]
+}
+function: roll SEQ:s plus LEVEL:n crit CRITR:n {
+  R: {}                                    \ set crits to output a different number \
+  loop P over {1 .. #SEQ} {
+    if P@SEQ >= 1 {
+      R: {P@SEQ+LEVEL, R}
+    } else {
+      if P@SEQ = CRIT {
+        R: {CRITR,R}
+      } else {
+        R: {0,R}
+      }
+    }
+  }
+  result: R
+}
+function: hitmod SIZE:n {
+  HIT: {-2,-1,-1,-1,0,0,0,0,0,1,1,1,1,2,2,2,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8}
+  result: SIZE@HIT
+}
+function: sprint capacity CAP:n height SIZE:n level LEVEL:n {
+  result: [sprint capacity CAP height SIZE level LEVEL extra 0]
+}
+function: sprint capacity CAP:n height SIZE:n level LEVEL:n extra DICE:n intimacy INT:n {
+  DICE: 2+CAP+LEVEL+DICE+INT  \ BDY is set to 2  \
+  result: [sprint DICEd6 capacity CAP height SIZE level LEVEL intimacy INT]
+}
+function: sprint SEQ:s capacity CAP:n height SIZE:n level LEVEL:n intimacy INT:n {
+  QTR: {6,4,3,2,1}
+  INC: CAP@QTR
+  TOTAL: 0
+  TIME: 0
+  BUMPS: LEVEL
+ 
+  loop P over {1 .. [lowest of #SEQ and 4]} {
+    ADD: P@SEQ
+    if ADD > 1 {
+      if ADD >= SIZE {
+        if BUMPS > 0 {
+          BUMPS: BUMPS-1
+          ADD: SIZE
+        } else {
+          ADD: SIZE-1
+        }
+      }
+      if (SIZE > 6) {
+        ADD: ADD + [hitmod SIZE]
+      }
+      TOTAL: TOTAL+(ADD * 16)
+      TIME: TIME+INC
+    }
+  }
+  if TIME < 1 {
+    TIME: INC
+  }
+  result: TOTAL / TIME
+}
+function: roll SEQ:s {           \ No level to add \
+  result: [roll SEQ plus 0]
+}
+
+
+\
+Add the code for what you want to graph here
+\
+
+\ Demo of inverted bell curves \
+loop P over {0..4} {
+  output [complex 3d6 bonus P penalty P] named "3d6 w/[P] A/D's"
+}
+\ 2 Advantage, 4 Disadvantages \
+output [complex 3d6 bonus 2 penalty 4] named "3d6 w/2A 4D"
+
+
+

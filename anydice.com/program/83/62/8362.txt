@@ -1,0 +1,53 @@
+DEF: 15
+RDEF: 20
+DC: 7
+OCV: 9
+DCV: 9
+SPD: 5
+CON: 18
+STUN: 36
+MISS: 0
+HIT: 1
+
+function: attack roll ROLL:n {
+ if ROLL = 18 { result: MISS }
+ if ROLL = 3 { result: HIT }
+ if OCV + 11 - ROLL >= DCV { result: HIT }
+ result: MISS
+}
+
+output [attack roll 3d6]
+
+function: normal attack body ROLL:s vs DEF:n {
+ result: [highest of {ROLL = 6} + {ROLL > 1} - DEF and 0]
+}
+
+
+function: normal attack stun ROLL:s vs DEF:n {
+ result: [highest of ROLL - DEF and 0]
+}
+
+function: killing attack body ROLL:s vs RDEF:n {
+ result: [highest of ROLL - RDEF and 0]
+}
+
+function: killing attack stun ROLL:s vs DEF:n resistant RDEF:n and stun modifier SMOD:s {
+ result: [highest of (ROLL *  SMOD - DEF) and [highest of ROLL - RDEF and 0]]
+}
+
+function: chance to stun normal CON:n l ROLL:s l DEF:n {
+ if [normal attack stun ROLL vs DEF] > CON {result: 1}
+ result: 0
+}
+
+function: chance to stun killing CON:n l ROLL:s l DEF:n l RDEF:n l SMOD:s {
+ if [killing attack stun ROLL vs DEF resistant RDEF and stun modifier SMOD] > CON {result: 1}
+ result: 0
+}
+
+output [normal attack body DCd6 vs DEF] named "normal damage BODY roll"
+output [normal attack stun DCd6 vs DEF] named "normal damage STUN roll"
+output [killing attack body {DC/3}d6 vs RDEF] named "killing Damage BODY roll"
+output [killing attack stun {DC/3}d6 vs DEF resistant RDEF and stun modifier d3] named "killing damage STUN roll"
+output [chance to stun normal CON l DCd6 l DEF] named "chance to stun normal"
+output [chance to stun killing CON l {DC/3}d6 l DEF l RDEF l d3] named "chance to stun killing"

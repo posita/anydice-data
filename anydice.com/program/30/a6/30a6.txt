@@ -1,0 +1,29 @@
+function: pick N:n of SEQ:s {
+  if N > #SEQ { N: #SEQ }
+  if N < 1 { N: 1 }
+  N: #SEQ - N + 1
+  result: N@SEQ
+}
+
+function: critpickhelper SEQ:s crit CRIT:n fail FAIL:n {
+  CRITTING: 0
+  CRITTING: CRITTING + (SEQ >= CRIT)
+  CRITTING: CRITTING - (SEQ <= FAIL) + CRITTING
+  result: CRITTING
+}
+
+function: critpick N:n of SEQ:s critting on CRIT:n and failing on FAIL:n {
+  CRITTING: 0
+  CRITTING: CRITTING + (SEQ >= CRIT)
+  CRITTING: CRITTING - (SEQ <= FAIL)
+  \if CRITTING > 0 {result: [pick (N+1) of SEQ]}
+  if CRITTING < 0 {result: [pick (N-1) of SEQ]}\
+  result: [pick (N + CRITTING) of SEQ]}
+
+\output [critpick 2 of 3d20 critting on 20 and failing on 0]\
+\output [critpick 3 of 5d20 critting on 20 and failing on 0]\
+\output [critpick 3 of 5d20 critting on 19 and failing on 0]\
+output [pick 3 of 5d20]
+output [critpick 3 of 5d20 critting on 20 and failing on 1]
+output [critpick 3 of 5d20 critting on 19 and failing on 1]
+output [critpick 3 of 5d20 critting on 15 and failing on 1]

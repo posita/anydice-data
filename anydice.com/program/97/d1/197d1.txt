@@ -1,0 +1,73 @@
+CRIT: 42
+
+function: damage NUMBER:n and SIDES:n plus MOD:n against RESISTANCE:n {
+  if NUMBER > RESISTANCE {
+    result: (NUMBER-RESISTANCE)dSIDES + MOD
+  } else {
+    result: 0
+  }
+}
+
+function: resolveattackuntrained ATTACKROLL:n vs DODGE:n with NUMBER:n and SIDES:n plus MOD:n against RESISTANCE:n {
+  UNTRAINEDCRIT: NUMBER * SIDES
+  if ATTACKROLL > (UNTRAINEDCRIT - 1) {
+    result: [damage NUMBER and SIDES plus MOD against 0]
+  } else {
+    if ATTACKROLL > (DODGE - 1) {
+      result: [damage NUMBER and SIDES plus MOD against RESISTANCE]
+    } else {
+      result: 0
+    }
+  }
+}
+
+function: resolveattacknormal ATTACKROLL:n vs DODGE:n with NUMBER:n and SIDES:n plus MOD:n against RESISTANCE:n {
+  if ATTACKROLL > (CRIT - 1) {
+    result: [damage NUMBER and SIDES plus MOD against 0]
+  } else {
+    if ATTACKROLL > (DODGE - 1) {
+      result: [damage NUMBER and SIDES plus MOD against RESISTANCE]
+    } else {
+      result: 0
+    }
+  }
+}
+
+function: resolveattack ATTACKROLL:n vs DODGE:n with NUMBER:n and SIDES:n plus MOD:n against RESISTANCE:n {
+  if (NUMBER * SIDES) < CRIT {
+    result: [resolveattackuntrained ATTACKROLL vs DODGE with NUMBER and SIDES plus MOD against RESISTANCE]
+  } else {
+    result: [resolveattacknormal ATTACKROLL vs DODGE with NUMBER and SIDES plus MOD against RESISTANCE]
+  }
+}
+
+function: attack NUMBER:n and SIDES:n plus MOD:n vs DODGE:n and RESISTANCE:n {
+  ATTACKROLL: NUMBERdSIDES + MOD
+  result: [resolveattack ATTACKROLL vs DODGE with NUMBER and SIDES plus MOD against RESISTANCE]
+}
+
+function: untrained vs DODGE:n and RESISTANCE:n {
+  result: [attack 2 and 12 plus 2 vs DODGE and RESISTANCE]
+}
+
+function: novice vs DODGE:n and RESISTANCE:n {
+  result: [attack 3 and 16 plus 3 vs DODGE and RESISTANCE]
+}
+
+function: skilled vs DODGE:n and RESISTANCE:n {
+  result: [attack 4 and 12 plus 4 vs DODGE and RESISTANCE]
+}
+
+function: expert vs DODGE:n and RESISTANCE:n {
+  result: [attack 6 and 8 plus 6 vs DODGE and RESISTANCE]
+}
+
+function: master vs DODGE:n and RESISTANCE:n {
+  result: [attack 8 and 6 plus 8 vs DODGE and RESISTANCE]
+}
+
+output [untrained vs 30 and 0]
+output [novice vs 30 and 0]
+output [skilled vs 30 and 0]
+output [expert vs 30 and 0]
+output [master vs 30 and 0]

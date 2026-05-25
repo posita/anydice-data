@@ -1,0 +1,24 @@
+function: POOL:n DIE with up to REROLLS:n rerolls {
+  result: [reroll up to REROLLS misses for POOL d DIE]
+}
+
+function: reroll up to R:n misses for ROLL:s {
+  MISSES: ROLL = 0
+  HITS: ROLL > 0
+  CRITS: ROLL > 1
+  if R <= 0 | MISSES = 0 {
+    if CRITS {
+     result: HITS + [reroll up to R misses for CRITS d DIE]
+    }
+    result: HITS
+  }
+  result: HITS + [reroll up to (R - MISSES) misses for ([lowest of MISSES and R] + CRITS) d DIE]
+}
+
+MELEE: d{0,0,1,1,1,2}
+RANGED: d{0,0,0,1,1,2}
+DEFENSE: d{0,0,0,0,1,2}
+
+set "maximum function depth" to 6 \ Limit recursion \
+
+output [4 RANGED with up to 2 rerolls] named "MELEE"

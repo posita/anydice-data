@@ -1,0 +1,52 @@
+STR: 25
+INT: 27
+STRROLL: [highest 1 of 2d20]+5 >= STR
+
+function: oneround I:n  {
+  PERCENT: {}
+  if I = 1 {
+    PERCENT: [highest 1 of 2d20]+9 >= INT
+  } else {
+    PERCENT: 1d20+9 >= INT
+  } 
+  result: PERCENT
+}
+
+function: oneroundint I:n  {
+  PERCENT: {}
+  if I = 1 {
+    PERCENT: [highest 1 of 2d20]+9+1d4 >= INT
+  } else {
+    PERCENT: 1d20+9+1d4 >= INT
+  } 
+  result: PERCENT
+}
+
+function: allrounds N:n ROLL:n  {
+  TOTAL: 0
+  loop Y over {1..N}{
+    CHANCE: [oneround ROLL]
+    TOTAL: TOTAL | CHANCE
+  }
+  result: TOTAL
+}
+
+function: allroundsint N:n {
+  TOTAL: 0
+  loop Y over {1..N}{
+    CHANCE: [oneroundint STRROLL]
+    TOTAL: TOTAL | CHANCE
+  }
+  result: TOTAL
+}
+
+output [oneround [highest 1 of 2d20]+5 >= STR] named "one round double help"
+output [oneround 1d20+5+1d4 >= STR] named "one round d4 Strength search help"
+output [oneroundint 1d20+5 >= STR] named "one round d4 Int"
+
+output [allrounds 5 STRROLL] named "full rounds"
+output [allrounds 5 STRROLL+1d4] named "full rounds d4 Strength"
+output [allroundsint 5 ] named "full rounds d4 Int"
+
+
+

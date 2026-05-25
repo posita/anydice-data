@@ -1,0 +1,63 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: hunterdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGEHUNTER
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEHUNTER
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: hunterattack {
+ result: [hunterdamage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{10..20}
+
+ATTACK: 10
+HITDAMAGE: d8 + 5
+CRITICALDAMAGE: 2d8 + 5
+HITDAMAGEHUNTER: d8 +d6 + 5
+CRITICALDAMAGEHUNTER: 2d8 + d6 + 5
+MISSDAMAGE: 0
+output [attack] named "Longbow+1"
+
+output [hunterattack] named "Longbow+1 Hunter's Mark"
+
+output [attack] + [attack] named "Longbow+1, two attacks (or Hordebreaker)"
+
+output [hunterattack] + [attack] named "Longbow+1, Hunter's Mark and Hordebreaker"
+
+output [attack] + [attack] + [attack] named "Longbow+1, two attacks and Hordebreaker"
+
+output[hunterattack] + [attack] + [attack] named "Longbow+1, one attack with Hunter's Mark, one without, and Hordebreaker"
+
+output [hunterattack] + [hunterattack] + [attack] named "Longbow+1, two attacks with Hunter's Mark and Hordebreaker"

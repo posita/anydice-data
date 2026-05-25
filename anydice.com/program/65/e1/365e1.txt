@@ -1,0 +1,92 @@
+Q: d{0..3}      \Custom D4 Dice\
+
+
+
+function: size of ROLL:s without TN:n plus {          \ Remove Xs & above from the Hits roll \
+ COUNT: 0
+ loop N over {1..#ROLL} {
+   if(N@ROLL < TN){ result: #ROLL -N+1 }
+ }
+ result: 0
+}
+
+function: compare X:n and Y:n {          \ Find nbr of dices for Saves Roll from comparison table using -1/0/+1 \
+ if(X > Y){ result: 1 }
+ if(X < Y){ result: -1 }
+ result: 0
+}
+
+\*****************************************************************************\
+function: find saves type SV:n from HITSROLL:s using U_S:s {             \find nbr of dices used to roll the saves\
+ if(SV=0){result: #HITSROLL}                                      \ 0: reuse same nbr of dices than Hits Roll \
+ if(SV=1){result: [size of HITSROLL without 3 plus]}              \ 1: remove 3s from the Hits Roll \
+ if(SV=2){result: [size of HITSROLL without 2 plus]}              \ 2: remove 2+s from the Hits Roll \
+ if(SV=3){result: #HITSROLL-[size of HITSROLL without 3 plus]}    \ 3: use only 3s from the Hits Roll \
+ if(SV=4){result: [window crop 1@U_S - 3@U_S]}                    \ 4: M-BV gives the nbr of Saves dices (=0 if under 0) \
+ if(SV=5){result: (#HITSROLL)+[compare 5@U_S and 6@U_S]-((2@U_S)/10)}      \ 5: Compare SizeUnit vs SizeUnit & Body \
+ result: 0
+}
+function: find saves modifier type SV:n from HITSROLL:s using U_S:s {     \find the save modifier\
+ if(SV=0){result: 0}                                      \ 0: None \
+ if(SV=1){result: 3@U_S - 4@U_S}                          \ 1: Velocity Defender - Velocity of the Attacks \
+ if(SV=2){result: 0}                                      \ 2:  \
+ result: 0
+}
+
+function: window crop SEQUENCE:n {                  \ limit the display range between [-1;100] \
+ MIN: 0
+ MAX: 100
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+
+function: roll hits HITS:d {       \ roll Hits Roll \
+ result: HITS
+}
+function: roll saves SAVES:d {
+ result: SAVESdQ
+}
+function: get unsaved hits from HITSROLL:s and SAVESROLL:s {                 \ get Unsaved Hits \
+ result: HITSROLL-[window crop SAVESROLL]
+}
+function: apply modifiers HITSMOD:n and SAVESMOD:n to SEQ:s {          \ apply All modifiers \
+ result: SEQ+HITSMOD+SAVESMOD
+}
+
+function: roll HITSROLL:n {
+ result: 4@HITSROLL
+}
+
+function: do combat up to step NBR:n with DATAS:s  and UNIT_STATS:s {
+ S_UN: [roll hits (1@DATAS)dQ]
+ S_DEUX: [find saves type (4@DATAS) from S_UN using UNIT_STATS]
+ S_TROIS: [roll saves S_DEUX]
+ S_QUATRE: [get unsaved hits from S_UN and S_TROIS]
+ S_CINQ: [apply modifiers (2@DATAS) and (3@DATAS) to S_QUATRE]
+ if(NBR=1){result: S_UN}                          \roll hits-roll\
+ if(NBR=2){result: S_DEUX}                        \find save\
+ if(NBR=3){result: S_TROIS}                       \roll save\
+ if(NBR=4){result: [window crop S_QUATRE]}        \get the Unsaved Hits (limited from 0 to 100)\
+ if(NBR=5){result: [window crop S_CINQ]}          \apply modifiers\
+ result: 0
+}
+
+
+
+POOL: 2
+HITS_MOD: 0             SAVES_MOD: 0
+SV_TYPE: 5
+DATAS: {POOL, HITS_MOD, SAVES_MOD, SV_TYPE}
+
+CH_MOV: 4               CH_BODY: 40
+DEF_VELOCITY: 2         ATT_VELOCITY: 5
+UNIT_DEF_SIZE: 10       UNIT_ATT_SIZE: 10
+UNIT_STATS: {CH_MOV, CH_BODY, DEF_VELOCITY, ATT_VELOCITY, UNIT_DEF_SIZE, UNIT_ATT_SIZE}
+
+output [do combat up to step 1 with DATAS and UNIT_STATS] named "hits roll [POOL]A"
+output [do combat up to step 2 with DATAS and UNIT_STATS] named "find save"             \output POOLd(dQ>=3)\
+output [do combat up to step 3 with DATAS and UNIT_STATS] named "roll save"
+output [do combat up to step 4 with DATAS and UNIT_STATS] named "get unsaved hits"
+output [do combat up to step 5 with DATAS and UNIT_STATS] named "get final hits modified"
+

@@ -1,0 +1,56 @@
+\TODO: Gets Hot!, on 1 to hit damage yourself.\
+\TODO: Multiple shots.\
+\TODO: Nd6 Rending.\
+\TODO: Melee combat.\
+\TODO: Cover saves.\
+
+\Return values for failures\
+NOTHIT: 1
+NOTPEN: 2
+
+\Rending USR\
+\outputs: rending dice\
+function: rend DICE:n {
+ if DICE = 6 { result: 6 + d3 }
+ result: DICE
+}
+
+function: hit DICE:n BS:n TWINLINK:n {
+ if DICE >= 7-BS {
+  result: 1
+ }
+ else {
+  if TWINLINK = 1 {
+   result: [hit d6 BS 0]
+  }
+  if BS > 5 {
+   result: [hit d6 BS-5 0]
+  }
+ result: 0
+ }
+}
+
+function: penetrate HITROLL:n STRENGTH:n N:n RENDING:n { 
+ if HITROLL = 1 {
+  if RENDING = 1 {
+   result: STRENGTH+[rend d6]
+  }
+  result: STRENGTH+Nd6
+ }
+ else { result: NOTHIT }
+}
+
+function: graph PENROLL:n GLANCE:n {
+ loop AV over {10..14}{
+  if PENROLL+GLANCE > AV {
+   if AV < 15 { result: AV } else { result: 14 }
+  }
+  result: PENROLL
+ }
+}
+
+MELTAGUN: [graph [penetrate [hit d6 4 0] 8 2 0] 0]
+
+loop N over {1..2} {
+ output NdMELTAGUN named "[N]d"
+}

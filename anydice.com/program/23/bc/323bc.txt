@@ -1,0 +1,63 @@
+function: attack ATTACK:d {
+  result: ATTACK
+}
+
+function: reroll R:n N:n D:d{ 
+  if R < N { result: D } else {result: R}
+}
+
+function: rollhit R:n M:n AC:n {
+  ROLL: R + M
+  if ROLL >= AC { result:  1} else { result: 0}
+}
+
+function: rolldamage H:n RE:n R:d M:n {
+  DAMAGE: 0
+  if H = 1 {
+    if RE = 1 {DAMAGE: [reroll R 3 R] + M}
+    else {DAMAGE: [attack R]+M}
+  }
+  result: DAMAGE
+}
+
+function: roll X:n RH:d MH:n AC:n RD:d MD:n RE:n {
+  TOTAL: 0
+  loop N over {1..X} {
+    HIT: [rollhit RH MH AC]
+    DAMAGE: [rolldamage HIT RE RD MD]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+function: multiattackreroll X:n Y:d M:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [reroll Y 3 Y] + M
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+function: multiattack X:n Y:d M:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [attack Y] + M
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+
+MULTIATTACK: 3
+ATTACK: 1d8
+MODIFIER: 4+2
+
+MULTIATTACKB: 3
+ATTACKB: 1d6
+MODIFIERB: 4+2
+
+output [multiattackreroll MULTIATTACK ATTACK MODIFIER] + [multiattack MULTIATTACKB ATTACKB MODIFIERB] named "Barb2Monk5"
+output [rollhit 1d20 8 15] named "Roll Hit"
+output [rolldamage 1 1 1d8 6] named "Roll Damage"
+output [roll 3 1d20 8 15 1d8 6 1] named "Roll"

@@ -1,0 +1,39 @@
+function: clamp N:n between MIN:n and MAX:n {
+  if N <= MIN { result: MIN }
+  if N >= MAX { result: MAX }
+  result: N
+}
+
+
+loop N over {2..6} {
+ output [highest 2 of Nd6] named "best 2 of [N]d6"
+}
+
+
+function: test N:n vs TN:n {
+  if N = 6 { result: 1 + [test d6 vs TN] }
+  if N >= TN { result: 1 }
+  result: 0
+}
+
+\
+loop TN over {5,4,3} {
+  loop N over {0..6} {
+     output [clamp (N+1)d[test d6 vs TN] between 0 and 3] named "Rank [N] vs [TN]"
+  }
+}
+\
+
+\
+output [clamp 6d[test d6 vs 4] - 6d[test d6 vs 4] between -3 and 3]
+output [clamp 2d6-7 between -3 and 3]
+
+output [clamp 6d[test d6 vs 4] - 2d[test d6 vs 4] between -3 and 3]
+output [clamp 2d6-5 between -3 and 3]
+\
+\
+loop N over {1,2,5,10} {
+  output [clamp Nd[test d6 vs 4] between -3 and 3]
+}
+output 2d{0,0,0,0,0,1,1,1,1,2}
+\

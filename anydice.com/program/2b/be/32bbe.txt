@@ -1,0 +1,34 @@
+\ Torchdice 3e Probability Calculator\
+\ This calculator tells the probability of your rolls for the Torchdice 3e system based on your dice, t, and e(ie in Discord).  \
+\ TO USE YOU NEED TO SCROLL TO THE BOTTOM OF THE CODE AND ONLY CHANGE THE NUMBERS IN THE LAST LINE                              \
+\ Here Is The Format:                                                                                                           \
+\ [be A threshold B explode C]                                                                                                  \
+\ A is the number of dice being rolled                                                                                          \
+\ B is the target number.                                                                                                       \
+\ C is the explosion threshold.                                                                                                 \
+\                                                                                                                               \
+\ Set maximum function depth value to 10 if C is 12, 7 for if C is 10, and 5 if C is 8 OR 6                                     \
+\ Click "At Least" if you want to see the probability of meeting or exceeding a desired result.                                 \
+
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T explode E{
+  if ROLL >= E {result: 1+[rollexploding 1d12 threshold T explode E]}
+  result: [roll ROLL threshold T]
+}
+
+function: be DICE:n threshold T explode E{
+  RES:0
+  loop N over {1..DICE} {
+    RES:RES+[rollexploding 1d12 threshold T explode E]
+  }
+  result:RES
+}
+
+set "maximum function depth" to 10
+\ Set maximum function depth value to 10 if C is 12, 7 for if C is 10, and 5 if C is 8 OR 6                                     \
+
+output [be 100 threshold 12 explode 12]

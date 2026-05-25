@@ -1,0 +1,31 @@
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 2}
+  result: 0
+}
+
+function: wrapper DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplode 1d6 threshold T]}
+    else {if E {RES:RES+[rollexploding 1d6 threshold T]}
+      else {if R {RES:RES+[rerollfailures 1d6 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+
+function: b DICE:n{
+  result:[wrapper DICE threshold 4 explode 0 reroll 0]
+}
+
+function: be DICE:n{
+  result:[wrapper DICE threshold 4 explode 1 reroll 0]
+}
+
+function: gr DICE:n{
+  result:[wrapper DICE threshold 3 explode 0 reroll 1]
+}
+
+output [b 6] + 1

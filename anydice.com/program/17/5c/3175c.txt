@@ -1,0 +1,95 @@
+AC: 18
+MAPFLURRY: {0, 2, 4, 4, 4, 4, 4}
+MAP: {0, 5, 10, 10, 10}
+MAPAGILE: {0, 4, 8, 8, 8, 8, 8}
+HEROPOINTS: 1
+
+function: DIE:n BONUS:n MAP:n against AC:n house{
+ RESULT: 0
+ HIT: DIE+BONUS-MAP
+ if HIT >= AC+10 { RESULT:2 }
+ if HIT < AC+10 { RESULT:1 }
+ if HIT < AC { RESULT:0 }
+
+ if DIE = 20 { RESULT: RESULT+1 }
+ if DIE = 1 { RESULT: RESULT-1 }
+ 
+ if RESULT > 2 { result: 2}
+ if RESULT < 1 & HEROPOINTS > 0{ 
+  HEROPOINTS: HEROPOINTS-1
+  result: [d10+10 BONUS MAP against AC house] 
+ }
+ if RESULT < 0 { result: 0}
+ result: RESULT
+}
+
+function: DIE:n BONUS:n MAP:n against AC:n normal{
+ RESULT: 0
+ HIT: DIE+BONUS-MAP
+ if HIT >= AC+10 { RESULT:2 }
+ if HIT < AC+10 { RESULT:1 }
+ if HIT < AC { RESULT:0 }
+
+ if DIE = 20 { RESULT: RESULT+1 }
+ if DIE = 1 { RESULT: RESULT-1 }
+ 
+ if RESULT > 2 { result: 2}
+ if RESULT < 1 & !HEROPOINTS{ 
+  HEROPOINTS: HEROPOINTS > 0
+  result: [d20 BONUS MAP against AC normal] 
+ }
+ if RESULT < 0 { result: 0}
+ result: RESULT
+}
+
+function: hatchet damage RESULT:n {
+ result: (d6+4) * RESULT
+}
+
+function: aquebus damage RESULT:n {
+ if RESULT = 2 { result: (1d8 + 3) * 2 + 1d12 }
+ else { result: (1d8 + 3) * RESULT }
+}
+
+function: ranger damage house{
+ DAMAGE: 0
+ loop N over {1..3} {
+  DAMAGE: DAMAGE + [hatchet damage [d20 9 N@{MAPFLURRY} against AC house]]
+ }
+ result: DAMAGE
+}
+
+function: gunslinger damage house{
+ DAMAGE: 0
+ loop N over {1..2} {
+  DAMAGE: DAMAGE + [aquebus damage [d20 11 N@{MAP} against AC house]]
+ }
+ result: DAMAGE
+}
+
+function: ranger damage normal{
+ DAMAGE: 0
+ loop N over {1..3} {
+  DAMAGE: DAMAGE + [hatchet damage [d20 9 N@{MAPFLURRY} against AC normal]]
+ }
+ result: DAMAGE
+}
+
+function: gunslinger damage normal{
+ DAMAGE: 0
+ loop N over {1..2} {
+  DAMAGE: DAMAGE + [aquebus damage [d20 11 N@{MAP} against AC normal]]
+ }
+ result: DAMAGE
+}
+
+
+
+output [ranger damage house] named "Ranger House"
+HEROPOINTS: 1
+output [gunslinger damage house] named "Gunslinger House"
+HEROPOINTS: 1
+output [ranger damage normal] named "Ranger Normal"
+HEROPOINTS: 1
+output [gunslinger damage normal] named "Gunslinger Normal"
+HEROPOINTS: 1

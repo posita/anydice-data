@@ -1,0 +1,48 @@
+set "maximum function depth" to 4
+
+function: pierce DIE:d {
+ MAX: [maximum of DIE]
+ result: [pierce DIE helper]
+}
+
+function: pierce N:n helper {
+ if N = MAX { result: N - 1 + [pierce DIE helper] }
+ result: N
+}
+
+function: piercetwenty DIE:d {
+ MAX: [maximum of DIE]
+ result: [piercetwenty DIE helper]
+}
+
+function: piercetwenty N:n helper {
+ if N = MAX { result: N - 1 + [pierce 1d6] }
+ result: N
+}
+
+function: ROLL:n with ATTACKBONUS:n vs DEFENSE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= 20 {
+  if ROLL + ATTACKBONUS >= DEFENSE { result: 2 }
+  result: 1
+ }
+ result: ROLL + ATTACKBONUS >= DEFENSE
+}
+
+function: damage for ATTACKS:s {
+ if ATTACKS = 1 { D: 2d[pierce DAMAGE] + 1 }
+ else if ATTACKS = 2 { D: 2d[pierce DAMAGE] + 1 }
+ else if ATTACKS = 0 { D: 0 }
+ result: D
+}
+
+ATTACK: 7
+DAMAGE: 1d8
+
+output[[piercetwenty 1d20] with ATTACK vs [pierce 1d12]]
+
+output[[piercetwenty 1d20] with ATTACK vs [piercetwenty 1d20]]
+
+output[damage for [[piercetwenty 1d20] with ATTACK vs [pierce 1d12]]]
+
+output[damage for [[piercetwenty 1d20] with ATTACK vs [piercetwenty 1d20]]]

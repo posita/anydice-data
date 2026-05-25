@@ -1,0 +1,29 @@
+function: sign of NUMBER:n {
+  if NUMBER > 0 { result: +1 }
+  if NUMBER < 0 { result: -1 }
+  result: 0
+}
+
+A: 4d4 +0
+D: 1d12 + 4
+
+WINNER: [sign of A - D] 
+output WINNER named "single round: +1 = Adaptive win, -1 = Disciplined win, 0 = tie"
+
+function: restrict ROLL:n to RANGE:s else REROLL:d {
+  if ROLL = RANGE { result: ROLL }
+  else { result: +1 }
+}
+function: restrict ROLL:d to RANGE:s {
+  loop I over {1..20} {
+    ROLL: [restrict ROLL to RANGE else ROLL]
+  }
+  result: ROLL
+}
+
+ROUND: [restrict WINNER to {+1,-1}] = +1
+output ROUND named "single round where Adaptive wins ties: 1 = Adaptive win, 0 = Disciplined win"
+
+output 5dROUND named "number of Adaptive wins over 5 rounds"
+
+output 5dROUND >= 3 named "probability of Adaptive winning at least 3 rounds out of 5"

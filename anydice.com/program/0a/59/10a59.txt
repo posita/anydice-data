@@ -1,0 +1,28 @@
+                                                \****************************************************************************\
+EAC: 20                                         \ Enemy AC                                                                   \
+GHM: 9                                          \ Global Hit Modifier                                                        \
+GCT: 20                                         \ Global Crit Threshold                                                      \
+HIT: 1d20                                       \ Hit Dice (Don't Change)                                                    \
+                                                \****************************************************************************\
+function: acc A:n B:n C:n D:n E:n F:n{          \ Begin ACC function                                                         \
+if A=1 {result: 0}                              \ if 1d20 equals 1, miss                                                     \
+else if A>1 & A<C & A+B < EAC {result: 0}       \ if 1d20 plus attack mod is less than enemy AC, miss                        \
+else if A>1 & A<C & A+B > EAC {result: D+E+F}   \ if 1d20 != 20 & added attack dice is more than enemy AC, calculate damage  \
+else if A>=C {result: D*2+E+F}                  \ if 1d20 equals 20, double dice and add damage modifiers.                   \
+}                                               \ End ACC function                                                           \
+                                                \****************************************************************************\
+
+                                                \***********************\
+function: gwf A:n B:n{                          \ Great Weapon Fighting \
+   if A < 3 {result: B} else {result: A}        \ Great Weapon Fighting \
+}                                               \ Great Weapon Fighting \
+                                                \***********************\
+
+\***********************************************************************\
+\        Example: output [acc HIT GHM GCT 1d6 5 0]                      \
+\ Fuction | Hit Die | Hit Mod | Crit Req | DMG Dice | DMG Mod | ETC DMG \
+\***********************************************************************\
+
+output [acc HIT GHM GCT [gwf 1d6 1d6]+[gwf 1d6 1d6]+[gwf 1d6 1d6] 5 0]+[acc HIT GHM GCT [gwf 1d6 1d6]+[gwf 1d6 1d6]+[gwf 1d6 1d6] 5 2]+[acc HIT GHM GCT [gwf 1d6 1d6]+[gwf 1d6 1d6]+[gwf 1d6 1d6] 5 2] named "Dobor"
+
+

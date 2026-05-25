@@ -1,0 +1,47 @@
+function: damage D:d DBONUS:d R:n RBONUS:n AC:n {
+ DAMAGEA: 0
+ DAMAGEB: 0
+ if R = 1 { result: 0 }
+ if R = 20 { result: D+D+DBONUS }
+ if R+RBONUS >= AC { result: D+DBONUS}
+ result: 0
+}
+function: damage critfish DA:d DB:d DBONUS:n SNEAK:d RA:n RB:n RBONUS:n AC:n {
+ SNEAKA: 0
+ SNEAKB: SNEAK
+ if RA = 20 {
+  SNEAKA: SNEAK
+  SNEAKB: 0
+ }
+ result: [damage DA+SNEAKA DBONUS RA RBONUS AC]+[damage DB+SNEAKB DBONUS RB RBONUS AC]
+}
+function: damage DA:d DB:d DBONUS:n SNEAK:d RA:n RB:n RBONUS:n AC:n {
+ SNEAKA: 0
+ SNEAKB: SNEAK
+ if RA = 20 {
+   SNEAKA: SNEAK
+   SNEAKB: 0
+ }
+ if RA != 1 {
+  if RA+RBONUS>=AC {
+    SNEAKA: SNEAK
+    SNEAKB: 0
+  }
+ }
+ result: [damage DA+SNEAKA DBONUS RA RBONUS AC]+[damage DB+SNEAKB DBONUS RB RBONUS AC]
+}
+
+AC: 15
+SNEAK: 2d6
+STR: 1
+DEX: 4
+PROFICIENCY: 3
+DBONUS: DEX
+ABONUS: DEX+PROFICIENCY
+
+output [damage critfish 1d6 1d4 DBONUS SNEAK [highest 1 of 3d20] [highest 1 of 3d20] ABONUS AC] named "daggerx2 in flank critfish"
+output [damage 1d6 1d4 5+2 SNEAK [highest 1 of 2d20] [highest 1 of 2d20] 5+PROFICIENCY AC] named "daggerx2 in flank angry hill giant str"
+output [damage 1d6 1d4 DBONUS SNEAK [highest 1 of 3d20] [highest 1 of 3d20] ABONUS AC] named "daggerx2 in flank"
+output [damage 1d8+SNEAK DBONUS [highest 1 of 3d20] ABONUS AC] named "longbow"
+output [damage 1d6+SNEAK DBONUS [highest 1 of 3d20] ABONUS AC] named "dagger"
+output [damage 1d4+SNEAK 4 [highest 1 of 3d20] ABONUS AC] named "whip"

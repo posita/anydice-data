@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/docs/">
+		<meta property="og:type" content="website">
+		<meta property="og:title" content="Introspection, AnyDice Documentation">
+		<meta property="og:description" content="Documentation for AnyDice, the online dice probability calculator.">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Introspection, AnyDice Documentation</title>
+		<link href="../docs.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"headline": "Introspection, AnyDice Documentation",
+			"description": "Documentation for AnyDice, the online dice probability calculator.",
+			"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/documentation/", "name": "Documentation" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Documentation</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1 itemprop="name headline">Introspection</h1>
+				</header>
+				
+				<p>AnyDice provides two operations that allow you to query a value about its contents.
+
+<h3>Length</h3>
+
+You can perform the unary <code>#</code> operation to get the length of a value. What that means depends on the type of value involved.
+
+<dl>
+	<dt>Sequences</dt>
+	<dd>The length of a sequence is equal to how many numbers is contains. So <code>#{2,4,6}</code> yields <code>3</code>.</dd>
+	<dt>Collections of dice</dt>
+	<dd>The length of a collection of dice is equal to the number of dice it contains. So <code>#(3d6)</code> yields <code>3</code>. Note the
+	parentheses, without them it would be intepreted as <code>(#3)d6</code>, which would yield <code>1d6</code>.</dd>
+	<dt>A single die</dt>
+	<dd>A single die is considered to be a collection containing one die, so its length will always be <code>1</code>.</dd>
+	<dt>Numbers</dt>
+	<dd>The length of a number is equal to how many digits it has.</dd>
+</dl>
+
+<h3>Accessing</h3>
+
+Using the <code>@</code> operation, you can retrieve individual numbers stored inside a value. You can either provide the position of a single
+value to retrieve, or a sequence of positions, in which case the retrieved values are summed. If you ask for a position that does not exist,
+the result for that position will be <code>0</code>.
+
+<dl>
+	<dt>Sequences</dt>
+	<dd>For sequences, the number at the indicated position will be retrieved. So <code>1@{2,4,6}</code> yields <code>2</code>,
+	<code>3@{2, 4, 6}</code> yields <code>6</code>, <code>{1,3}@{2,4,6}</code> yields <code>8</code>, and <code>{1,2,2}@{2,4,6}</code>
+	yields <code>10</code>.</dd>
+	<dt>Collections of dice</dt>
+	<dd>When accessing collection of dice, the dice will be order from highest value to lowest value. So <code>1@3d6</code> will select the highest
+	rolled value, while <code>3@3d6</code> will select the lowest rolled value. <code>{1,2}@3d6</code> will sum the highest two of the rolled values,
+	discarding the lowest rolled value.	The result of the operation is a new die containing the selected
+	values of all possible rolls and their appropriate odds.</dd>
+	<dt>A single die</dt>
+	<dd>A single die is considered to be a collection containing one die, so only the first positions will contain a useful value.</dd>
+	<dt>Numbers</dt>
+	<dd>For numbers, the digit at the indicated position will be retrieved, starting at the most significant – the leftmost – digit. So
+	<code>1@246</code> yields <code>2</code>, while <code>{1..3}@246</code> yields <code>12</code>.</dd>
+</dl>
+
+If you want to, you can configure AnyDice to reverse the positions of dice in collections and of digits in numbers.
+
+<pre>set "position order" to "lowest first"
+
+output 1@3d6 named "lowest die"
+output 1@246 named "least significant digit"
+
+set "position order" to "highest first" \ the default behavior \
+
+output 1@3d6 named "highest die"
+output 1@246 named "most significant digit"</pre>
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+	</body>
+</html>

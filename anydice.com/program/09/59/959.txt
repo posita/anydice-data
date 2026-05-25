@@ -1,0 +1,28 @@
+\ Roll two pools of dice, ROLL and CANCEL.
+  Matching values in both pools eliminate each other.
+  The result is the highest value remaining in ROLL.
+  Can result in zero if ROLL doesn't have more dice than CANCEL. \
+
+function: highest of ROLL:s canceled by CANCEL:s {
+ \ Using a recursive approach. \
+ result: [1 vs 1]
+}
+
+function: R vs C {
+ \ Only the highest value in ROLL matters,
+   so if CANCEL doesn't reach that value or is empty,
+   that's the result. \
+ if R@ROLL > C@CANCEL | C > #CANCEL { result: R@ROLL }
+ 
+ \ If the highest value of both pools are equal, remove those and try again. \
+ if R@ROLL = C@CANCEL { result: [R + 1 vs C + 1] }
+ 
+ \ Otherwise, get rid of the unmatched high value of CANCEL and try again. \
+ result: [R vs C + 1]
+}
+
+\ N is the size of ROLL, M is the size of CANCEL. \
+M: 2
+loop N over {1..4} {
+ output [highest of Nd6 canceled by Md6] named "[N]c[M]"
+}

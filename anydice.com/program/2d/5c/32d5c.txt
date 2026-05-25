@@ -1,0 +1,82 @@
+output 3d6 named "3d6"
+
+function: highest N:n of A:s B:s{
+    result: {1..N}@[sort {A, B}]
+}
+
+function: highest N:n of A:s B:s C:s {
+    result: {1..N}@[sort {A, B, C}]
+}
+
+function: highest of A:n B:n C:n {
+ if A > B {
+  if A > C {
+   result: A
+  }else{
+   if B > C {
+    result: B
+   }else{
+    result: C
+   }
+  }
+ }else{
+  if B > C {
+   result: B
+  }else{
+   if A > C {
+    result: A
+   }else{
+    result: C
+   }
+  }
+ }
+}
+
+
+
+loop A over {0,4,6,8,10,12}{ \A\
+ loop B over {0,4,6,8,10,12}{ \B\
+  loop C over {0,4,6,8,10,12}{ \C\
+   loop D over {6}{ \D\
+    if A >= 1 {
+     XR: 1dA
+     X:  [count {4..12,8..12,12} in XR]
+     XK: [count {1} in XR]
+    } else {
+     XR: 0
+     X:  0
+     XK: 0
+    }
+
+    if B >= 1 {
+     YR: 1dB 
+     Y:  [count {4..12,8..12,12} in YR]
+     YK: [count {1} in YR]
+    } else {
+     YR: 0
+     Y:  0
+     YK: 0
+    }
+
+    if C >= 1 {
+     ZR: 1dC
+     Z:  [count {4..12,8..12,12} in ZR]
+     ZK: [count {1} in ZR]
+    } else {
+     ZR: 0
+     Z:  0
+     ZK: 0
+    }
+    
+    H: [highest of XR YR ZR]   
+
+    K: XK + XK + XK
+    E: X + Y + Z 
+    output E named "[A],[B],[C]"
+\    output 1dA+1dB+1dC named "[A],[B],[C]"\
+\    output [highest 2 of 1dA 1dB 1dC] named "[A],[B],[C]=2d[D]"\
+\     output [highest 2 of 1dA 1dB 1dC] named "[A],[B],[C]"\
+   }
+  }
+ }
+}

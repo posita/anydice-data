@@ -1,0 +1,38 @@
+MISS: 0
+HIT: 1
+CRITICAL_HIT: 2
+function: roll with ADVANTAGE:n advantage {
+ if ADVANTAGE = 2 { result: [highest 1 of 3d20] }
+ if ADVANTAGE = 1 { result: [highest 1 of 2d20] }
+ if ADVANTAGE = 0 { result: 1d20 }
+}
+function: roll ROLL:n attack ATTACK:n vs DEFENSE:n with CRITICAL:n to crit {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITICAL { result: CRITICAL_HIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: deal damage with RESULT:n critical {
+ if RESULT = CRITICAL_HIT { result: CRITICAL_DAMAGE }
+ result: HIT_DAMAGE
+}
+function: damage at ATTACK:n attack with ADVANTAGE:n advantage with CRITICAL:n critical {
+ SUCCESS: [roll [roll with ADVANTAGE advantage] attack ATTACK vs AC with CRITICAL to crit]
+ if SUCCESS > 0 {
+  DAMAGE: DAMAGE + [deal damage with SUCCESS critical]
+ }
+ result: DAMAGE
+}
+
+DEX: 10
+PROF: 5
+AC: 23
+DAMAGE: 0
+
+HIT_DAMAGE: 2d6 + 1d4 + DEX
+CRITICAL_DAMAGE: 4d6 + 2d4 + DEX
+loop ATK over {1..36} {
+ DAMAGE: DAMAGE + [damage at (DEX + PROF) attack with 0 advantage with 20 critical]
+}
+
+output DAMAGE named "[DAMAGE] with Curse"

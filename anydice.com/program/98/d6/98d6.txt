@@ -1,0 +1,32 @@
+function: simplify X:n {
+ if X < 1 { result: 0 }
+ else { result: X }
+}
+function: X:n weaksoft { result: Xd{2, 2, 1, 1, 1, 1, 0, 0} }
+function: X:n hardattack { result: Xd{200, 200, 100, 1, 100, 0, 0, 0} }
+function: X:n weakarmor { result: Xd{2, 1, 1, 0, 0, 0, 0, 0} }
+function: X:n strongarmor { result: Xd{3, 2, 2, 1, 1, 1, 0, 0} }
+
+function: R:n AR:n penetration P:n AK:n {
+ P: R/100
+ AK: R - (P*100)
+ result: AK - (AR - P)
+}
+
+
+\function: R:n AR:n penetration P:n AK:n {
+ if R < 99 { AK: R }
+ else {
+  if R > 199 { AK: R - 200}
+  else { AK: R - 100 }
+ }
+ P: (R - AK)/100
+ result: AK - (AR - P)
+}\
+output [1 weaksoft]
+output [1 strongarmor]
+
+output [simplify [([2 weaksoft]+[1 hardattack]) [1 weakarmor] penetration 0 0]] named "2 Soft 1 Hard - 1 Weak Armor"
+
+output [simplify [(0+[1 hardattack]) [1 weakarmor] penetration 0 0]] named "1 Hard - 1 Weak Armor"
+output [simplify [(0+[2 hardattack]) [1 weakarmor] penetration 0 0]] named "2 Hard - 1 Weak Armor"

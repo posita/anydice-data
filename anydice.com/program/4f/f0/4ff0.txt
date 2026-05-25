@@ -1,0 +1,27 @@
+function: chaosdie step C {
+   if C = 1  {result: 1d4}
+   if C = 2  {result: 1d6}
+   if C = 3  {result: 1d8}
+   if C = 4  {result: 1d10}
+   if C = 5  {result: 1d12}
+}
+function: roll ABILITYROLL:n vs ABILITY:n with CHAOSDIE:n chaos {
+   RANKS: 0
+   if ABILITYROLL <= ABILITY {RANKS: 1}
+   if ABILITYROLL <= (ABILITY+1)/2 {RANKS: 2}
+   if ABILITYROLL <= (ABILITY+2)/5 {RANKS: 3}
+   if CHAOSDIE = 1 {
+      if RANKS = 0 {RANKS: -1}
+      else {RANKS: 0}
+   }
+   if CHAOSDIE >=6 {RANKS: RANKS +1}
+   result: RANKS
+}
+
+
+loop B over {1..5}{
+  CHAOSDIE: [chaosdie step B]
+      loop A over {10,12,14,16,18}{
+      output [roll 1d20 vs A with CHAOSDIE chaos] named "Skill [A]+[CHAOSDIE]"
+  }
+}

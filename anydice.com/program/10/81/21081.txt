@@ -1,0 +1,58 @@
+function: damage single attack X:n {
+    if X = 20 {
+        result: 2d6+(2*SNEAKATTACKDICE)d6+DEX
+    }
+    if X != 20 & X + TOHIT >= ENEMYAC {
+        result: 1d6+SNEAKATTACKDICEd6+DEX
+    }
+    if X + TOHIT < ENEMYAC {
+        result: 0
+    }
+}
+
+function: damage double attack X:n Y:n {
+    if X = 20 {
+        if Y = 20 {
+            result: 2d6+(2*SNEAKATTACKDICE)d6+DEX+2d6+DEX
+        }
+          if Y != 20 & Y + TOHIT >= ENEMYAC {
+            result: 2d6+(2*SNEAKATTACKDICE)d6+DEX+1d6+DEX
+        }
+          if Y + TOHIT < ENEMYAC {
+            result: 2d6+(2*SNEAKATTACKDICE)d6+DEX
+        }
+    }
+      if X != 20 & X + TOHIT >= ENEMYAC {
+        if Y = 20 {
+            result: 1d6+SNEAKATTACKDICEd6+DEX+2d6+DEX
+        }
+          if Y != 20 & Y + TOHIT >= ENEMYAC {
+            result: 1d6+SNEAKATTACKDICEd6+DEX+2d6+DEX
+        }
+          if Y + TOHIT < ENEMYAC {
+            result: 1d6+SNEAKATTACKDICEd6+DEX
+        }
+    }
+    if X + TOHIT < ENEMYAC {
+        if Y = 20 {
+            result: 2d6+(2*SNEAKATTACKDICE)d6+DEX
+        }
+        if Y != 20 & Y + TOHIT >= ENEMYAC {
+            result: 1d6+SNEAKATTACKDICEd6+DEX
+        }
+        if Y + TOHIT < ENEMYAC {
+            result: 0
+        }
+    }
+}
+LEVEL: 4		\<--Change these\
+DEX: 4			\<--parameters\
+ENEMYAC: 13		\<--only.\
+PROF: LEVEL@{2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6}
+SNEAKATTACKDICE: LEVEL@{1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10}
+TOHIT: DEX + PROF
+output [damage double attack (d20) (d20)] named "Attacking twice"
+output [damage single attack ([highest 1 of 2d20])] named "Attacking once with Steady Aim"
+output [damage single attack ([highest 1 of 3d20])] named "Attacking once with Steady Aim and Elven Accuracy"
+output [damage double attack ([highest 1 of 2d20]) ([highest 1 of 2d20])] named "Attacking twice if there is an advantage bot"
+output [damage double attack ([highest 1 of 3d20]) ([highest 1 of 3d20])] named "Attacking twice with Elven Accuracy if there is an advantage bot"

@@ -1,0 +1,55 @@
+function: shortsword ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SHORTSWORD }
+ result: 0
+}
+
+function: shortswordtwf ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT-ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SHORTSWORD-ATTACKMOD }
+ result: 0
+}
+
+function: shortswordtwftwo ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT-ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS -2 >= AC { result: SHORTSWORD-ATTACKMOD }
+ result: 0
+}
+
+function: greataxe ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: GREATAXECRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: GREATAXE }
+ result: 0
+}
+
+function: shortsworddamagedie ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTSWORDCRIT+2d6 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SHORTSWORD+1d6 }
+ result: 0
+}
+
+ENEMYAC: d{18..23}
+
+ATTACKMOD: 7
+DMGBONUS: 4
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+SHORTSWORD: 1d6 + ATTACKMOD + DMGBONUS
+SHORTSWORDCRIT: 2d6 + ATTACKMOD + DMGBONUS+3d6
+GREATAXE: 1d12+ATTACKMOD+DMGBONUS
+GREATAXECRIT: 2d12+ATTACKMOD+DMGBONUS+3d12
+
+output ATTACKTIMESd[shortsword [highest 1 of 2d20] vs ENEMYAC]+d[shortswordtwf [highest 1 of 2d20] vs ENEMYAC] named "TWF RAW"
+
+output ATTACKTIMESd[shortsword [highest 1 of 2d20] vs ENEMYAC]+d[shortswordtwf [highest 1 of 2d20] vs ENEMYAC]+d[shortswordtwftwo [highest 1 of 2d20] vs ENEMYAC] named "TWF house rule (additional attack at -2)"
+
+output 3d[greataxe [highest 1 of 2d20] vs ENEMYAC] named "berserker w/ greataxe"
+
+output 3d[shortsworddamagedie[highest 1 of 2d20] vs ENEMYAC] named "berserker TWF house rule 2 (no BA, add offhand to all attacks)"

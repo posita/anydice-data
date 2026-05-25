@@ -1,0 +1,71 @@
+CUSAA : d{ -2, -1, -1, 0, 0, 1, 1, 2, 0, 0, +1, +2 }
+CUSAB : d{ -2, -1, -1, 0, 0, 1, 1, 2, 0, 0, -1, -2 }
+CUSBA : d{ -2, -1, -1, 1, 1, 2, 0, 0 }
+CUSBB : d{ -2, -1, -1, 1, 1, 2, 0, 0, 0, 0 }
+FATE: 4d{-1,0,1}
+
+function: lookup B:s with A:n {
+    result : A@B
+}
+
+function: steel A:n of H:n and L:n {
+    if A >= H+4 { result: 4 } else if A >= H+2 { result: 3 } else if A >= H { result: 2 }
+                              else if A >= L+2 { result: 1 } else if A >= L { result: 0 }
+    else {result: [lookup {-1,-1,-2,-2,-3,-3,-4,-4,-4,-4,-4} with (L-A)] }
+}
+
+function: iron A:d vs D:d {
+    result: [steel A of 1@D and 2@D]
+}
+
+function: steelx A:n of H:n and L:n {
+    if A > H { result: 3 } else if A = H { result: 2 }
+    else if A > L { result: 1 } else if A = L { result: 0 }
+    else {result: [highest of -4 and (A-L)] }
+}
+
+function: ironx A:d vs D:d {
+    result: [steelx A of 1@D and 2@D]
+}
+
+function: rerolling A:n and B:n try X:n {
+    if X>3 { result: -4 }
+    C: A-B
+    if (C < -3) | (C > 3) { result: [rerolling d6 and d6 try X+1] } else { result: C }
+}
+
+function: banded A:n {
+    if (A < 0) { result: -1 }
+    result: A
+}
+
+function: vbanded A:n {
+    if (A < 0) { result: -1 }
+    if (A < 2) { result: 0 }
+    result: 1
+}
+
+function: unbanded A:n {
+    \ if (A >= 0) { result: 0 } \
+    result: A
+}
+
+
+output [banded FATE]            named "(a) 4dF"
+\
+output CUSAA + CUSAB   named "(b) custom 2d12"
+output CUSBA + CUSBB   named "(c) custom d8+d10"
+output [lookup {0,-4,-4,-3,-3,-2,-2,-2,-1,-1,-1,0,0,0,1,1,1,2,2,2,3,3,4,4} with 2d12]     named "(d) 2d12"
+output [lookup {0,0,-4,-3,-3,-2,-2,-1,-1,0,0,1,1,2,2,3,3,4} with 3d6] named "(e) 3d6"
+\
+
+output [banded [ironx d6 vs 2d10]] named "(f) d6 vs 2d10"
+output [banded [ironx d6 vs 2d8]] named "(g) d6 vs 2d8"
+\output [iron d6 vs 2d12] named "(?) d6 vs 2d12"\
+
+\
+output [rerolling d6 and d6 try 0] named "(h) rerolling d6-d6"
+output [lookup {-3,-2,-2,-1,-1,0,1,1,2,2,3} with (d6-d6)+6] named "(j/k) d6-d6"
+; output [lookup {0,-3,-2,-2,-1,-1,0,1,1,2,2,3} with 2d6] named "(j/k) 2d6"
+output [lookup {0,-4,-3,-2,-1,-1,0,1,1,2,3,4} with 2d6] named "(m) 2d6"
+\

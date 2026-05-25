@@ -1,0 +1,102 @@
+\ Write the static modifier here (a whole number), then push the "Calculate" button below. \
+STATMOD: 5
+\ After it's done calculating, you can view tables of the % probabilities of each roll. \
+\ You can click the "Graph" tab below to see a line graph of the probabilities. \
+\ You can click the "At Least" tab below to see the probability of at least that roll occurring. \
+
+
+
+
+
+
+output 1d20+STATMOD named "1d20 & Static [STATMOD]"
+
+ITERATIONS: [absolute STATMOD]/10 + 1
+VARIMOD: 0
+TRUE: 1
+FALSE: 0
+CONT: TRUE
+TEMPMOD: [absolute STATMOD]
+loop N over {0..ITERATIONS}{if CONT{
+   if ( TEMPMOD > 10 )
+   {
+      VARIMOD: VARIMOD + 1d20
+      TEMPMOD: TEMPMOD - 10
+   }
+   else if ( TEMPMOD = 10 )
+   {
+      VARIMOD: VARIMOD + 1d20
+      TEMPMOD: TEMPMOD - 10
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 9 )
+   {
+      VARIMOD: VARIMOD + 2d8
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 8 )
+   {
+      VARIMOD: VARIMOD + 3d4
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 7 )
+   {
+      VARIMOD: VARIMOD + 2d6
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 6 )
+   {
+      VARIMOD: VARIMOD + 1d12
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 5 )
+   {
+      VARIMOD: VARIMOD + 1d10
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 4 )
+   {
+      VARIMOD: VARIMOD + 1d8
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 3 )
+   {
+      VARIMOD: VARIMOD + 1d6
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 2 )
+   {
+      VARIMOD: VARIMOD + 1d4
+      CONT: FALSE
+   }
+   else if ( TEMPMOD = 1 )
+   {
+      VARIMOD: VARIMOD + 1
+      CONT: FALSE
+   }
+}}
+
+if ( STATMOD > 0 )
+{
+   output 1d20+VARIMOD named "1d20 & Variable [STATMOD]"
+}
+else if ( STATMOD < 0 )
+{
+   output 1d20-VARIMOD named "1d20 & Variable [STATMOD]"
+}
+
+if ( STATMOD < -1 | STATMOD > 1 ) { output VARIMOD named "Separate Variable [STATMOD]" }
+
+CHANCEROLL: 3d6
+output CHANCEROLL+STATMOD named "3d6 & Static [STATMOD]"
+
+if ( STATMOD > 0 )
+{
+   CHANCEROLL: CHANCEROLL + VARIMOD
+}
+else if ( STATMOD < 0 )
+{
+   CHANCEROLL: CHANCEROLL - VARIMOD
+}
+
+output CHANCEROLL named "3d6 & Variable [STATMOD]"

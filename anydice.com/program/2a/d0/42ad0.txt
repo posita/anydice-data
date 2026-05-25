@@ -1,0 +1,39 @@
+\ ORP DICE SIMULATOR \
+ATTACK:     9
+QUALITY:    3
+CRIT_VALUE: 6  \hit dice result needed for Crit; set to 7 to disable\
+AP:         1  
+CRIT_AP:    4  \added to regular AP on Crit\
+DAMAGE:     1
+DEFENSE:    2
+FNP:        7  \set to 7 to disable\
+
+
+\ Derived save thresholds \
+SAVE:      DEFENSE + AP
+CRIT_SAVE: DEFENSE + AP + CRIT_AP
+
+\ FNP step \
+function: fnp N:n threshold F:n {
+  if N <= 0 { result: 0 }
+  if F > 6  { result: N }
+  if F <= 1 { result: 0 }
+  result: [count {1..F-1} in N d 6]
+}
+
+\ Single attack die result \
+function: one die a A:n w W:n cw CW:n q Q:n c C:n s S:n cs CS:n dmg D:n f F:n {
+  if A >= C {
+    if CW < CS { result: [fnp D threshold F] }
+    result: 0
+  }
+  if A >= Q {
+    if W < S { result: [fnp D threshold F] }
+    result: 0
+  }
+  result: 0
+}
+
+SINGLE: [one die a d6 w d6 cw d6 q QUALITY c CRIT_VALUE s SAVE cs CRIT_SAVE dmg DAMAGE f FNP]
+
+output ATTACK d SINGLE

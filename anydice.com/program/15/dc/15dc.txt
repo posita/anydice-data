@@ -1,0 +1,55 @@
+MISS: 0
+NORMALHIT: 1
+
+CRITICALCONFIRM: 0
+
+function: ROLL:n plus ATTACK:n vs AC:n th THREAT:n x MUL:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= AC {
+  result: [threat d20 plus ATTACK vs AC for MUL]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n plus ATTACK:n vs AC:n for MUL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK + CRITICALCONFIRM >= AC | ROLL = 20 {
+  result: MUL
+ }
+ result: NORMALHIT
+}
+
+function: HIT:n for DAMAGE:d crit CRITDMG:d {
+  if HIT > MISS {
+    RESULT: DAMAGE
+    loop N over {2..HIT} {
+      RESULT: RESULT + DAMAGE + CRITDMG
+    }
+    result: RESULT
+  }
+  else {
+    result: 0
+  }
+}
+
+function: DIE:n storm DMG:d {
+  if DIE = 20 {
+    result: DMG
+  }
+  result: 0
+}
+
+function: double N {
+  result: N + N
+}
+
+STRENGTH: 4
+BAB: 25
+AC: 35
+ATK: 5 + STRENGTH + BAB
+THD: STRENGTH*3/2
+OHD: STRENGTH
+
+output [[d20 plus ATK vs AC th 19 x 2] for 1d8+OHD+1d6+2d8 crit 1d10] named "hemorrhaging"
+output [[d20 plus ATK vs AC th 19 x 2] for 1d8+OHD+1d6 crit 1d10] + [d20 storm 15d6] named "electric storm"

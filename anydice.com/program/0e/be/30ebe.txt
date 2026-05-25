@@ -1,0 +1,48 @@
+DICEDAMAGE: 1d12+2d4
+FLATDAMAGE:15
+HITBONUS: -1
+ATTACKS: 3
+OPROHB: 2d8
+OPROHT: 2
+CRIT: 20
+
+function: attack B:n HIT:n DD:n FD:n {
+  if HIT >= CRIT {
+    \on crit\
+    result: DD * 2 + FD
+  }
+  if HIT + B >= 8 {
+    \on hit\
+    result: DD + FD
+  } else {
+    \on miss\
+    result: 0
+  }
+}
+
+function: oproh OHB:d ATK:n {
+  if ATK = 0 {
+    result: 0
+  }
+  result: ATK + OHB
+}
+
+output OPROHTd[oproh OPROHB [attack HITBONUS 1d20 DICEDAMAGE FLATDAMAGE]] + (ATTACKS-OPROHT)d[attack HITBONUS 1d20 DICEDAMAGE FLATDAMAGE] named "DPR"
+output OPROHTd[oproh OPROHB [attack HITBONUS [highest of 1d20 and 1d20] DICEDAMAGE FLATDAMAGE]] + (ATTACKS-OPROHT)d[attack HITBONUS [highest of 1d20 and 1d20] DICEDAMAGE FLATDAMAGE] named "DPR (advantage)"
+output OPROHTd[oproh OPROHB [attack HITBONUS [highest of 1d20 and [highest of 1d20 and 1d20]] DICEDAMAGE FLATDAMAGE]] + (ATTACKS-OPROHT)d[attack HITBONUS [highest of 1d20 and [highest of 1d20 and 1d20]] DICEDAMAGE FLATDAMAGE] named "DPR (elven)"
+
+
+
+
+\function: rr one D:n DD:d {
+  if D = 1  {
+    result: DD
+  } 
+  result: D
+}
+function: two one D:n {
+  if D = 1  {
+    result: 2
+  } 
+  result: D
+}\

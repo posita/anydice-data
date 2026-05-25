@@ -1,0 +1,47 @@
+YES: 1
+NO: 0
+
+\------------- Set variables below --------------\
+
+ATTACKS:               3
+ENEMY_AC:              15
+
+ABILITY_MODIFIER:      3
+PROFICIENCY_BONUS:     3
+MISC_ATTACK_BONUS:     2
+
+ADVANTAGE:             NO
+ELVEN_ACCURACY:        NO
+MIN_CRIT:              20
+GREAT_WEAPON_MASTER:   NO
+GREAT_WEAPON_FIGHTING: NO
+HALF_ORC:              NO
+
+WEAPON_DIE_COUNT:      1
+WEAPON_DIE:            d6
+MISC_DAMAGE_BONUS:     0
+
+ONCE_PER_TURN_DAMAGE:  0
+
+
+\---------------- Code is below -----------------\
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+TOTAL: 0
+
+NAT: [highest 1 of (1 + ADVANTAGE + ADVANTAGE*ELVEN_ACCURACY)d20]
+ATK: NAT + ABILITY_MODIFIER + PROFICIENCY_BONUS + MISC_ATTACK_BONUS - (5 * GREAT_WEAPON_MASTER)
+
+output ATK >= ENEMY_AC named "Hit Chance"
+
+DMG: (WEAPON_DIE_COUNT + (WEAPON_DIE_COUNT + HALF_ORC)*(NAT >= MIN_CRIT))d[WEAPON_DIE reroll {0..GREAT_WEAPON_FIGHTING*2} as WEAPON_DIE] + ABILITY_MODIFIER + MISC_DAMAGE_BONUS + (10 * GREAT_WEAPON_MASTER)
+
+TOTAL: (ATTACKS)d(DMG * (ATK >= ENEMY_AC))
+
+TOTAL: TOTAL + ONCE_PER_TURN_DAMAGE * ([lowest 1 of (ATTACKS)d(ATK)] >= ENEMY_AC)
+
+output TOTAL named "Average Damage per Turn"

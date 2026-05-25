@@ -1,0 +1,76 @@
+\ Noma's Nova \
+
+\ Target's Attributes \
+
+TARGET_DEX: -1
+TARGET_CON: 3
+TARGET_INT: 0
+TARGET_BONUS: 3
+TARGET_ADV: 0
+TARGET_AC: 15 + TARGET_DEX
+
+\ Noma's Attributes \
+
+NOMA_PROF: 3
+NOMA_CHA: 5
+NOMA_SPELL_BONUS: 0
+
+\ Derived Attributes \
+
+NOMA_ATK: NOMA_PROF + NOMA_CHA + NOMA_SPELL_BONUS
+NOMA_DC: 8 + NOMA_ATK
+TARGET_DEX_SAVE: TARGET_DEX + TARGET_BONUS
+TARGET_CON_SAVE: TARGET_CON + TARGET_BONUS
+TARGET_INT_SAVE: TARGET_INT + TARGET_BONUS
+
+\ Functions \
+
+MISS: 0
+HIT: 1
+CRIT_HIT: 2
+
+function: ROLL:n plus ATK_BONUS:n to hit vs AC:n ac crits on CRIT_MIN:n{
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRIT_MIN { result: CRIT_HIT }
+  if ROLL + ATK_BONUS >= AC { result: HIT }
+  result: MISS
+}
+
+function: HIT_DAMAGE:n damage or CRIT_DAMAGE on crit for ATTACK_RESULT:n {
+ if ATTACKRESULT = CRITICALHIT { result: CRIT_DAMAGE }
+ if ATTACKRESULT = HIT { result: HIT_DAMAGE }
+ result: 0
+}
+
+function: CONDITION:n for half A:n {
+  if CONDITION { result: A/2 } else { result: A }
+}
+
+MID_EMPOWERED_D_SIX: {1, 2, 3, {4..6}:3}
+LOW_EMPOWERED_D_SIX: {1, 2, {3..6}:4}
+MID_EMPOWERED_D_EIGHT: {1, 2, 3, 4, {5..8}:3}
+LOW_EMPOWERED_D_EIGHT: {{1..3}:3, {4..8}:11}
+
+\ Calculations \
+
+BLIGHT_SAVE: 1d20 + TARGET_CON_SAVE
+if TARGET_ADV {
+  BLIGHT_SAVE: [highest of BLIGHT_SAVE and (1d20 + TARGET_CON_SAVE)]
+}
+BLIGHT_DAMAGE: [BLIGHT_SAVE >= NOMA_DC for half 8dLOW_EMPOWERED_D_EIGHT] + 6dLOW_EMPOWERED_D_SIX
+
+PSYCHIC_LANCE_SAVE: 1d20 + TARGET_INT_SAVE
+if TARGET_ADV {
+  PSYCHIC_LANCE_SAVE: [highest of PSYCHIC_LANCE_SAVE and (1d20 + TARGET_INT_SAVE)]
+}
+PSYCHIC_LANCE_DAMAGE: [PSYCHIC_LANCE_SAVE >= NOMA_DC for half 7dLOW_EMPOWERED_D_SIX] + 6dLOW_EMPOWERED_D_SIX
+
+CHILL_TOUCH_DAMAGE: 2dMID_EMPOWERED_D_EIGHT + 6dMID_EMPOWERED_D_SIX
+
+\ Output \
+
+output BLIGHT_DAMAGE + PSYCHIC_LANCE_DAMAGE + CHILL_TOUCH_DAMAGE named "Damage Ignoring Relentless Endurance"
+output BLIGHT_DAMAGE + PSYCHIC_LANCE_DAMAGE named "Damage Burning Relentless Endurance"
+\ output BLIGHT_DAMAGE named "Blight Damage"
+output PSYCHIC_LANCE_DAMAGE named "Psychic Lance Damage"
+output CHILL_TOUCH_DAMAGE named "Chill Touch Damage" \

@@ -1,0 +1,51 @@
+POW: 10
+DEF: 12
+ARM: 18
+MELEE: 1
+
+
+function: compare ROLL:n {
+  result: [highest 1 of ATT] - [middle 1 of ATT] = 0
+}
+
+function: norm ATT:n TGT:n {
+  if ATT >= TGT {
+    if MELEE {
+      DAM: 3d6 + POW - ARM
+      result: [highest of 0 and DAM]
+    }
+    DAM: 2d6 + POW - ARM
+    result: [highest of 0 and DAM]
+  }
+  result: 0
+}
+
+function: crit ATT:n TGT:n FST:n SEC:n {
+  if ATT >= TGT {
+    if FST = SEC {
+      if MELEE {
+        DAM: 4d6 + POW - ARM
+        result: [highest of 0 and DAM]
+      }
+      DAM: 3d6 + POW - ARM
+      result: [highest of 0 and DAM]
+    }
+  }
+  result: 0
+}
+
+function: barrier {
+  ATT: 2d6 + 2
+  result: [norm ATT DEF]
+}
+
+function: deadeye {
+  ATT: 3d6
+  FST: [highest 1 of ATT]
+  SEC: [middle 1 of ATT]
+  result: [crit ATT DEF FST SEC]
+}
+
+
+output [barrier]
+output [deadeye]

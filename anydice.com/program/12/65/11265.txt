@@ -1,0 +1,80 @@
+CULTAHOLIC:  {02,04,05,08,09,11,14,17,18,20,23,25,26}
+WRESTLETALK: {02,03,05,08,10,11,14,16,18,20,23,25,26}
+
+function: maybe X {result: d{X,X,X,X,0}}
+
+MATCH_ONE:      2 \[maybe d2   ]\ \Brock Lesnar © vs. Roman Reigns\
+MATCH_TWO:      [maybe d2+2 ] \Alexa Bliss © vs. Ronda Rousey\
+MATCH_THREE:    5 \[maybe d2+4 ]\ \AJ Styles © vs. Samoa Joe\
+MATCH_FOUR:     8 \[maybe d2+6 ]\ \The Bludgeon Brothers (Harper and Rowan) © vs. The New Day (Big E, Kofi Kingston, and/or Xavier Woods)\
+MATCH_FIVE:     [maybe d2+8 ] \Braun Strowman (MITB holder) vs. Kevin Owens\
+MATCH_SIX:      11 \[maybe d2+10]\ \Dolph Ziggler © (with Drew McIntyre) vs. Seth Rollins (with Dean Ambrose)\
+MATCH_SEVEN:    14 \[maybe d3+12]\ \Carmella © vs. Becky Lynch vs. Charlotte Flair\
+MATCH_EIGHT:    [maybe d2+15] \Cedric Alexander (c) vs. Drew Gulak\
+MATCH_NINE:     18 \[maybe d2+17]\ \Shinsuke Nakamura © vs. Jeff Hardy\
+MATCH_TEN:      20 \[maybe d2+19]\ \Finn Bálor vs. Baron Corbin\
+MATCH_ELEVEN:   23 \[maybe d2+21]\ \Daniel Bryan vs. The Miz\
+MATCH_TWELVE:   25 \[maybe d2+23]\ \Rusev and Lana vs. Andrade "Cien" Almas and Zelina Vega\
+MATCH_THIRTEEN: 26 \[maybe d2+25]\ \The B-Team (Bo Dallas and Curtis Axel) © vs. The Revival (Dash Wilder and Scott Dawson)\
+
+function: tie between A:n and B:n winning over C:n and D:n {
+  result: [tie between A and B and B winning over [highest of C and D]]
+}
+
+function: tie between A:n and B:n and C:n winning over D:n {
+  if A = B {
+    if A = C {
+      if A > D {
+        result: 1
+      }
+      else {result: 0}
+    }
+    else {result: 0}
+  }
+  else {result: 0}
+}
+
+function: tie between A:n and B:n and C:n and D:n {
+  if A = B {
+    if A = C {
+      if A = D {
+        result: 1
+      }
+      else {result: 0}
+    }
+    else {result: 0}
+  }
+  else {result: 0}
+}
+
+
+WRESTLETALK_SCORE: 2
+CULTAHOLIC_SCORE: 4
+
+WRESTLETALK_WIN: 6
+CULTAHOLIC_WIN: 8
+
+WRESTLETALKCULTAHOLIC_WIN: 13
+
+function: calculate PROPERTY {result: [PROPERTY with results MATCH_ONE MATCH_TWO MATCH_THREE MATCH_FOUR MATCH_FIVE MATCH_SIX MATCH_SEVEN MATCH_EIGHT MATCH_NINE MATCH_TEN MATCH_ELEVEN MATCH_TWELVE MATCH_THIRTEEN]}
+
+function: PROPERTY:n with results ONE:n TWO:n THREE:n FOUR:n FIVE:n SIX:n SEVEN:n EIGHT:n NINE:n TEN:n ELEVEN:n TWELVE:n THIRTEEN:n {
+  
+
+  WRESTLETALKSCORE: [WRESTLETALK contains ONE]+[WRESTLETALK contains TWO]+[WRESTLETALK contains THREE]+[WRESTLETALK contains FOUR]+[WRESTLETALK contains FIVE]+[WRESTLETALK contains SIX]+[WRESTLETALK contains SEVEN]+[WRESTLETALK contains EIGHT]+[WRESTLETALK contains NINE]+[WRESTLETALK contains TEN]+[WRESTLETALK contains ELEVEN]+[WRESTLETALK contains TWELVE]+[WRESTLETALK contains THIRTEEN]
+  CULTAHOLICSCORE: [CULTAHOLIC contains ONE]+[CULTAHOLIC contains TWO]+[CULTAHOLIC contains THREE]+[CULTAHOLIC contains FOUR]+[CULTAHOLIC contains FIVE]+[CULTAHOLIC contains SIX]+[CULTAHOLIC contains SEVEN]+[CULTAHOLIC contains EIGHT]+[CULTAHOLIC contains NINE]+[CULTAHOLIC contains TEN]+[CULTAHOLIC contains ELEVEN]+[CULTAHOLIC contains TWELVE]+[CULTAHOLIC contains THIRTEEN]
+
+
+  if PROPERTY = WRESTLETALK_SCORE {result: WRESTLETALKSCORE}
+  else if PROPERTY = CULTAHOLIC_SCORE {result: CULTAHOLICSCORE}
+  else if PROPERTY = WRESTLETALK_WIN {result: WRESTLETALKSCORE>CULTAHOLICSCORE}
+  else if PROPERTY = CULTAHOLIC_WIN {result: CULTAHOLICSCORE>WRESTLETALKSCORE}
+  else if PROPERTY = WRESTLETALKCULTAHOLIC_WIN {result: [tie between WRESTLETALKSCORE and CULTAHOLICSCORE winning over 0 and 0]}
+}
+
+output [calculate WRESTLETALK_SCORE] named "Wrestletalk's score"
+output [calculate CULTAHOLIC_SCORE] named "Cultaholic's score"
+
+output [calculate WRESTLETALK_WIN] named "Wrestletalk wins"
+output [calculate CULTAHOLIC_WIN] named "Cultaholic wins"
+output [calculate WRESTLETALKCULTAHOLIC_WIN] named "Tie"

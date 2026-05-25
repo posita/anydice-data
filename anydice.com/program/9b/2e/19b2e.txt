@@ -1,0 +1,67 @@
+\ Creak the Unkind Weapon Damage \
+DEFENSE: d{24} \ Set AC of enemy \
+FRENZY: 0      \ Using Barbarian Frenzy \
+VERSATILE: 1   \ Using Versatile (2-handed) strike \
+ATTACKS: 2 + FRENZY
+BRUTAL: 2
+PROF: 5
+STR: 6
+MISSDAMAGE: 0
+BATTLEAXE: 8
+LONGSWORD: 8
+STAFF: 6
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ ATTACK: PROF + STR + MAGIC
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if VERSATILE { WEAPON: WEAPON + 2 }
+ HITDAMAGE: dWEAPON + STR + MAGIC + EXTRADMG
+ CRITICALDAMAGE: (1 + BRUTAL)dWEAPON + EXTRADMG
+ if ATTACKRESULT = CRITICALHIT { result: CRITICALDAMAGE }
+ if ATTACKRESULT = HIT { result: HITDAMAGE }
+ result: MISSDAMAGE
+}
+function: attack { result: [damage for [attack 1d20 vs DEFENSE]] }
+function: reckless { result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]] }
+
+\ +1 Battleaxe \ SHOW: 1
+WEAPON: BATTLEAXE
+MAGIC: 1
+EXTRADMG: 0
+if SHOW {
+ output ATTACKSd[attack] named "+1 Battleaxe"
+ output ATTACKSd[reckless] named "Reckless +1 Battleaxe"
+}
+
+\ Flame Tongue \ SHOW: 1
+WEAPON: STAFF
+MAGIC: 3
+FIREDMG: 2d6
+EXTRADMG: FIREDMG
+if SHOW {
+ output ATTACKSd[attack] named "FlameTongue"
+ output ATTACKSd[reckless] named "Reckless FlameTongue"
+}
+
+\ Staff of Striking \ SHOW: 1
+WEAPON: STAFF
+MAGIC: 3
+loop CHARGES over {0..3}{
+ EXTRADMG: CHARGES * 1d6
+ if SHOW {
+  output ATTACKSd[attack] named "Staff of Striking w/ [CHARGES]chgs"
+  output ATTACKSd[reckless] named "Reckless Staff of Striking w/ [CHARGES]chgs"
+ }
+}

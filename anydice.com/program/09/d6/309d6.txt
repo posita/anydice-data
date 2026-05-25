@@ -1,0 +1,65 @@
+function: ROLL:n rerollones as REROLL:d {
+  if ROLL = 1 { 
+                   result: REROLL
+                  }
+  result: ROLL
+}
+
+function: countrerolls ROLL:n {
+  if ROLL = 1 { 
+                   result: 1 + [countrerolls d6]
+                  }
+  result: 0
+}
+
+\X: [d6 rerollones as d6]\
+\Q: [d3 rerollones as d3]\
+\Y: [countmissed d6 N]\
+\Z: [countrerolls d6]\
+\output 1d20+2+[highest 1 of 1d6] >19 named "Crit chance"\
+\output 4d[highest 1 of 2dX] named "Crit DZ"\
+\output 4dX named "DZ"\
+\output 5d6 + 3 named "Damage normal"\
+\output 4dZ named "rerolls"\
+\output 8dZ named "rerolls crit"\
+
+\output 8d[highest 1 of 2dX] + 6 named "Damage boosted"\
+\output 5d(1d20 + 3 + [highest 1 of 3d6] > 19)\
+
+\FIRST ROLL (4->3 structure)\
+\destruction: 0%\
+\hull check: 0%\
+
+\SECOND ROLL (3->2 structure)\
+\destruction:\
+\DESTR_THREE_TWO: [count 1 in 2d6] = 2 \
+\output DESTR_THREE_TWO = 1 named "destroyed 3->2"\
+\hull check:\
+\output [2d6 contains 1] - (DESTR_THREE_TWO = 1) = 1 named "hull check 3->2"\
+
+\THIRD ROLL (2->1 structure)\
+\destruction:\
+\DESTR_TWO_ONE: [count 1 in 3d6] >= 1\
+\output DESTR_TWO_ONE named "destroyed 2->1"\
+
+\DPR calculator: ASSUMES EVA 10, EDEF 10, 0 HASE, 0 ARM, >1/SCENE ONLY\
+SAVETARGET: 13
+HIT: 1d20+2 > 10
+MISS: 1d20+2 <= 10
+HITA: 1d20+2+1d6 > 10
+MISSA: 1d20+2+1d6 <= 10
+HITAA: 1d20+2+[highest 1 of 2d6] > 10
+MISSAA: 1d20+2+[highest 1 of 2d6] <= 10
+SAVE: 1d20<13
+
+output 2d6 * (HIT*HITAA*HITAA | HIT*MISSAA*HITAA | MISS*MISS*HIT | MISS*HIT*HITAA) + 
+       4 +
+       2 * HIT +
+       2 * (HIT*HITAA | MISS*HIT) +
+       1d6 * (HIT | MISS*HIT) +
+       1d6 * SAVE * (HIT | MISS*HIT)
+
+
+
+
+

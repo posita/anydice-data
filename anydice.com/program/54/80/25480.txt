@@ -1,0 +1,58 @@
+function: mydiceres R:s {
+  if R < 4 {
+    result: 0
+  }
+  result: 1
+}
+
+function: mydice {
+  result: {0,0,0,1,1,1}
+}
+
+function: dangerdice {
+  result: {0, -1}
+}
+
+function: adjustrollsimple R:s {
+  if R < 0 {
+    result: 0
+  }
+  if R > 1 {
+    result: 1
+  }
+  result: R
+}
+
+function: adjustroll R:s {
+  if R < -1 {
+    result: -1
+  }
+  if R > 2 {
+    result: 3
+  }
+  result: R
+}
+
+function: roll N M {
+  result: Nd[mydice] + Md[dangerdice]
+}
+
+function: realroll N M {
+  result: [adjustroll [roll N M]]
+}
+
+
+
+loop D over {4, 6, 8, 12, 20} {
+loop N over {3..6}{
+  loop M over {N-3..N} {
+    output [adjustrollsimple Nd[mydiceres 1dD] + Md[dangerdice]] named "roll [N] skill [D] difficulty [M]"
+  }
+}
+}
+
+loop N over {1..6} {
+  loop M over {1..6} {
+    output [realroll N M] named "roll [N] difficulty [M]"
+  }
+}

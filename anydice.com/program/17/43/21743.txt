@@ -1,0 +1,80 @@
+PB: 3
+BONUS: 2 \ +2 if has Persuasion/Deception/Insigh/Intimidation/Investigation \
+COST: 100
+BCOST: 1
+LIMIT: 1000 \ maximum outlay \
+
+\ Estimated values of items from tables \
+\ The subtracted figure is the average price to purchase. \
+TA: 50
+TB: (500 + 1400 + 300 + 500 + 1800) / 5
+TC: (6800 + 850 + 500 + 500 + 500 + 1200) / 6
+TD: 0 \ 4000 - (50000-14000)/4 \
+TE: 0 \ 5000 - 100000/2 \
+TF: (1400 + 3500)/2
+TG: 0 \ 7000 - (14000-1400)/2 \
+TH: 0 \ 8000 - (50000-14000)/2 \
+TI: 0 \ 9000 - 100000 \
+
+\ Table A is table 1, etc. \
+TABLES: {TA, TB, TC, TD, TE, TF, TG, TH, TI}
+
+\ Minimum selling prices from TFC rules \
+MSP: {13, 50, 350, 3500, 12500, 100, 700, 7000, 25000}
+
+\ Average purchase prices \
+APP: {(200-50)/4,
+      (1400-200)/4,
+      (14000-1400)/4,
+      (50000-14000)/4,
+      100000/2,
+      (1400-200)/2,
+      (14000-1400)/2,
+      (50000-14000)/2,
+      100000}
+
+\ You get 1d6 rolls on table A, but 1d4 on other tables. \
+function: rolls T:n {
+  if T = 1 { result: 1d6 }
+  result: 1d4
+}
+
+function: limit X:n Y:n {
+  if X > LIMIT { result: 0 }
+  result: Y
+}
+
+function: outlay T:n {
+  X: [rolls T] * T@APP
+  result: [limit X X]
+}
+
+function: income T:n {
+  X: [rolls T] * T@APP
+  Y: [rolls T] * T@TABLES
+  result: [limit X Y]
+}
+
+\ Roll for a table \
+function: table ROLL:n {
+  if ROLL <  8 { result: 0 }
+  if ROLL < 11 { result: 1 }
+  if ROLL < 15 { result: 2 }
+  if ROLL < 18 { result: 3 }
+  if ROLL < 21 { result: 4 }
+  if ROLL < 24 { result: 5 }
+  if ROLL < 28 { result: 6 }
+  if ROLL < 32 { result: 7 }
+  if ROLL < 36 { result: 8 }
+  result: 9
+}
+
+TABLE: [table 1d20 + (2 * PB) + BONUS + BCOST]
+OUTLAY: [outlay TABLE]
+INCOME: [income TABLE]
+
+output TABLE named "table"
+output TABLES named "prices"
+output OUTLAY named "outlay"
+output INCOME named "income"
+output INCOME- OUTLAY - COST - BCOST*150 named "profit"

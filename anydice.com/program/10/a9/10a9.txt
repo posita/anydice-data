@@ -1,0 +1,54 @@
+\
+ 3 is removed from play
+ 2 is flee
+ 1 is initiative loss
+ 0 is nothing
+\
+
+\ conversion of result range 0-6 to results listed above \
+CONVERSION: {0, 0, 1, 1, 2, 3}
+
+\ pips define how many bonus pips the attacker and defender have, none by default \
+ATTACKPIPS: 0
+DEFENSEPIPS: 0
+
+function: ATTACK:s vs DEFENSE:s {
+ A: 1@ATTACK
+ AP: 1
+ APIPS: ATTACKPIPS
+ DPIPS: DEFENSEPIPS
+ loop P over {1..#DEFENSE} {
+  D: P@DEFENSE
+  if APIPS & A < 6 {
+   \ boost attack with pips \
+   BOOST: [lowest of APIPS and 6 - A]
+   A: A + BOOST
+   APIPS: APIPS - BOOST
+  }
+  if DPIPS & D < A {
+  \ boost defense with pips \
+   BOOST: [lowest of DPIPS and A - D]
+   D: D + BOOST
+   DPIPS: DPIPS - BOOST
+  }
+  if D >= A {
+   \ eliminate \
+   AP: AP + 1
+   A: AP@ATTACK
+  }
+  else {
+   \ defense falls short \
+   result: A@CONVERSION
+  }
+ }
+ result: A@CONVERSION
+}
+
+\ loop output to show various attack pip bonus amounts \
+ATTACK: 3d6
+DEFENSE: 2d6
+loop DEFENSEPIPS over {0..2} {
+ loop ATTACKPIPS over {0..2} {
+  output [ATTACK vs DEFENSE] named "+[ATTACKPIPS] pip attack, +[DEFENSEPIPS] pip defense" 
+ }
+}

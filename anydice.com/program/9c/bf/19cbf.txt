@@ -1,0 +1,33 @@
+\
+X: how often to attack
+ADV: -1 means Disadvantage, +1 means advantage, 0 means neither. Higher numbers are supported and keep adding 1 die. For example +2 would simulate Elven Accuracy, -4 would mean take 5 dice and take the lowest.
+AC: Target armor class
+BONUS: To hit bonus
+DAMAGE: damage dealt on a hit, can take complex dice for example [highest 1 of 2d10]+3+d6
+CRITBONUSDAMAGE: damage added on a crit. Do not include the base damage of a hit.
+CRITRANGE: Lowest number on a die that causes a crit. 20 for most characters, 18 for a high level Champion.
+Special thanks to Moonsilver and https://rpg.stackexchange.com/questions/97265/implementing-multiattack-in-anydice
+\
+function: multiattack X:n times advantage ADV:n target AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n{
+    if (ADV < 0) { ROLL:  [lowest 1 of (1+(-ADV))d20] } \DISADVANTAGE\
+    else { ROLL: [highest 1 of (1+ADV)d20] } \Advantage or neither\
+    result:Xd[ROLL attack target AC with BONUS deal DAMAGE extra CRITBONUSDAMAGE with critrange CRITRANGE]
+}
+
+function: ROLL:n attack target AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n {
+   if(ROLL >= CRITRANGE){ \crit and autohit\
+      result: DAMAGE + CRITBONUSDAMAGE 
+   }
+   if(ROLL = 1) { result:0 } \nat 1 -> miss\
+   if(ROLL + BONUS < AC) { result: 0 } \miss\
+   result: DAMAGE \hit\
+}
+
+
+\LEVEL 8\
+PROF: 3
+MOD: 5
+RAGE: 2
+
+AC: 17
+output [multiattack 4 times advantage 0 target AC with (PROF+MOD) deal 1d10+MOD+d6 extra 1d10+d6 with critrange 20] named "Baseline Warlock level 8 vs AC [AC]"

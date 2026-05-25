@@ -1,0 +1,70 @@
+GWFS:{1,2,{3..6}:4} GWFTE:{1,2,{3..10}:6} GWFTW:{1,2,{3..12}:7} \in order, great weapon fighting d6, d10, d12\
+
+ATTACK_BONUS:13
+ATTACK_BONUS_DIE:0 \1d4 for bless\
+TARGET_AC:18
+ADVANTAGE:0  \-1 is disadvantage, 0 is normal, 1 is advantage, 2 is trivantage\
+DAMAGE: 2d10 + 17 + 1d8
+DAMAGER: 1d8 + 12 + 1d8
+SMITE: 6d8 + 5d8
+FLOURISH: 1d8
+CRIT_DAMAGE:2d8
+CRIT_RANGE:19 \20 for most people, 19/18 for champions\
+MULTIATTACK:2
+
+S: 1
+TOTAL:0
+
+if ADVANTAGE=0 {ROLL:1d20}
+if ADVANTAGE=1 {ROLL:1@2d20}
+if ADVANTAGE=2 {ROLL:1@3d20}
+if ADVANTAGE=-1 {ROLL:2@2d20}
+
+ROLL:ROLL+ATTACK_BONUS_DIE
+
+
+function: attack ROLLA:n and ROLLB:n {
+ HIT: 0
+ CRIT: 0
+ TOTAL: 0
+ if ROLLA >=CRIT_RANGE { 
+   CRIT: 1
+   TOTAL: TOTAL + CRIT_DAMAGE 
+ }
+ if ROLLB >=CRIT_RANGE { 
+   CRIT: 1
+   TOTAL: TOTAL + CRIT_DAMAGE 
+ }
+ if ROLLA + ATTACK_BONUS >= TARGET_AC {
+   HIT: 1
+   TOTAL: TOTAL + DAMAGE
+ }
+ if ROLLB + ATTACK_BONUS >= TARGET_AC {
+   HIT: 1
+   TOTAL: TOTAL + DAMAGE 
+ }
+ if HIT = 1 {
+   TOTAL: TOTAL + SMITE
+ }
+ if CRIT = 1 {
+   TOTAL: TOTAL + SMITE
+ }
+
+ result:TOTAL
+}
+
+function: attackrapier ROLL:n {
+ if ROLL = 1 {result:0 }
+ if ROLL >=CRIT_RANGE {result:DAMAGER+CRIT_DAMAGE }
+ if ROLL + ATTACK_BONUS >= TARGET_AC { result:DAMAGER }
+ result:0
+}
+
+function: multiattack MULTIATTACK:n {
+TOTAL:0
+loop N over {1..MULTIATTACK} {
+ TOTAL:TOTAL+[attack ROLL and ROLL]
+ }
+result:TOTAL
+}
+output [attack ROLL and ROLL] + [attackrapier ROLL]

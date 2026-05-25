@@ -1,0 +1,58 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..18}
+
+ATTACK: 6
+HITDAMAGE: d4 + 4 
+CRITICALDAMAGE: 2d4 + 8
+MISSDAMAGE: 0
+output [attack] named "Fist"
+output 2d[attack] named "Fist + Bonus"
+
+ATTACK: 7
+HITDAMAGE: d4 + 5
+CRITICALDAMAGE: 2d4 + 10
+MISSDAMAGE: 0
+output [attack] named "Fist improved"
+
+ATTACK: 7
+HITDAMAGE: d12 + 5 + 2
+CRITICALDAMAGE: 2d12 + 10 + 4
+MISSDAMAGE: 0
+output [attack] named "Barbar Rage Battleaxe"
+
+ATTACK: 5
+HITDAMAGE: d6 + 3
+CRITICALDAMAGE: 2d6 + 6
+output [attack] named "Shortsword"
+
+ATTACK: 5
+HITDAMAGE: d8 + 3
+CRITICALDAMAGE: 2d8 + 6
+output [attack] named "Spear"

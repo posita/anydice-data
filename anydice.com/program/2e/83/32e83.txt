@@ -1,0 +1,33 @@
+\  0 = Fail \
+\  1 = Fail with Advantage \
+\  2 = Fail with Threat \
+\ 10 = Success \
+\ 11 = Success with Advantage \
+\ 12 = Success with Threat \
+
+function: adv WEAL:n NEUTRAL:n THREAT:n {
+  if NEUTRAL >= WEAL & NEUTRAL >= THREAT {
+    result: 0
+  }
+  else if WEAL = THREAT {
+    result: 0
+  }
+  else if WEAL > NEUTRAL & WEAL > THREAT {
+    result: 1
+  }
+  else if THREAT > NEUTRAL & THREAT > WEAL {
+    result: 2
+  }
+  result: 255
+}
+function: success WEAL:n NEUTRAL:n THREAT:n MOD:s TN:s {
+  result: ((WEAL+NEUTRAL+THREAT+MOD > TN) * 10) + [adv WEAL NEUTRAL THREAT]
+}
+
+loop TN over {8,10,12,14,16,18}{
+  loop MOD over {0..5}{
+    loop N over {4,6,8}{
+      output [success 1d6 1d6 1dN MOD TN] named "Action 1d6+1d6+1d[N]+[MOD] vs [TN]"
+    }
+  }
+}

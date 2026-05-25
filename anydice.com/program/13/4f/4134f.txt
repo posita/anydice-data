@@ -1,0 +1,37 @@
+function: elvenaccuracy {
+  result: [highest 1 of 3d20]
+}
+
+function: advantage {
+  result: [highest 1 of 2d20]
+}
+
+function: normal {
+  result: [highest 1 of 1d20]
+}
+
+function: attackoutcome ROLL:n {
+  if ROLL = 1 { result: 0 }
+  if ROLL = 20 { result: 2 }
+  if ROLL >= 7 { result: 1 }
+  result: 0
+}
+
+function: emphasis N:n size S:n {
+ if N <= 2 {
+   result: dS
+ }
+ result: N
+}
+
+set "explode depth" to 4
+output 2d[explode d[emphasis d8 size 8]] named "2 dice"
+
+function: sorcburstdamage OUTCOME:n {
+  NU: OUTCOME*2
+  result: NUd[explode d[emphasis d8 size 8]]
+}
+
+output [sorcburstdamage [attackoutcome[normal]]] named "Normal"
+output [sorcburstdamage [attackoutcome[advantage]]] named "Advantage"
+output [sorcburstdamage [attackoutcome[elvenaccuracy]]] named "EA"

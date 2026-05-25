@@ -1,0 +1,75 @@
+ATTRIBUTE: 2
+LEVEL: 2
+MAGIC: 2
+\
+SIZE: 4
+POWER_TWENTY: ATTRIBUTE+LEVEL+2*MAGIC
+output POWER_TWENTY named "POWER_TWENTY"
+\
+POWER_TWELVE: (ATTRIBUTE+LEVEL+3*MAGIC)/2
+output POWER_TWELVE named "POWER_TWELVE"
+
+function: get largest die size with A:n or less sides {
+  if A <= 4 {result: 4}
+  if A <= 6 {result: 6}
+  if A <= 8 {result: 8}
+  if A <= 10 {result: 10}
+  if A <= 12 {result: 12}
+  if A <= 20 {result: 20}
+}
+
+POWER_DICE_SIZE: [get largest die size with POWER_TWELVE or less sides]
+output POWER_DICE_SIZE named "POWER_DICE_SIZE"
+
+
+function: highest of A:s if highest is not greater than B else zero {
+  SORTED: [sort A]
+  HIGHEST: 1 @ SORTED
+  if HIGHEST > B {result: 0} else {result: HIGHEST} 
+}
+
+function: lowest of A:s if highest is not greater than B else zero {
+  SORTED: [sort A]
+  HIGHEST: 1 @ SORTED
+  LOWEST: #SORTED @ SORTED
+  if HIGHEST > B {result: 0} else {result: LOWEST} 
+}
+
+function: lowest of A:s where anything below or equal to B is zero {
+  SORTED: [sort A]
+  LOWEST: #SORTED @ SORTED
+  if LOWEST <= B {result: 0} else {result: LOWEST} 
+}
+
+function: highest of A:s where anything below or equal to B is zero {
+  SORTED: [sort A]
+  loop N over SORTED {
+    if N <= B {result: 0} else {result: N}
+  }
+  result: 0
+}
+
+\
+output
+    [      lowest of 2dSIZE if highest is not greater than POWER_TWELVE else zero]
+    named "lowest of 2dSIZE if highest is not greater than POWER_TWELVE else zero"
+output
+    [      highest of 2dSIZE if highest is not greater than POWER_TWELVE else zero]
+    named "highest of 2dSIZE if highest is not greater than POWER_TWELVE else zero"
+\
+output 2 @ 2dPOWER_DICE_SIZE named "Power die with disadvantage"
+output 1dPOWER_DICE_SIZE named "Power Die"
+output 1 @ 2dPOWER_DICE_SIZE named "Power die with advantage"
+\
+output
+    [      lowest of 2dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero]
+    named "lowest of 2dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero"
+output
+    [      lowest of 3dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero]
+    named "lowest of 3dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero"
+\
+\
+output
+    [      highest of 2dSIZE where anything below or equal to (SIZE-POWER) is zero]
+    named "highest of 2dSIZE where anything below or equal to (SIZE-POWER) is zero"
+\

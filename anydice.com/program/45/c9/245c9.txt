@@ -1,0 +1,39 @@
+function: hitdice {
+    if ELVEN_ACCURACY = 1 {result: 1@3d20}
+    if ADVANTAGE = 1 {result: 1@2d20}
+    result: 1d20
+}
+
+function: critcheck ATK_ROLL:n {
+    if ATK_ROLL >= CRIT_RANGE {
+        result: 1
+    }
+    result: 0
+}
+
+function: gwf DMG_DICE:n times SIDES:n {
+    result: DMG_DICEd{{1..2}, {3..SIDES}:SIDES/2+1}
+}
+
+function: gwfcheck DMG_DICE:n times SIDES:n {
+    if GREAT_WEAPON_FIGHTING = 1 {result: [gwf DMG_DICE times SIDES]}
+    result: DMG_DICEdSIDES
+}
+
+function: damage {
+    if CRIT_HIT = 1 {result:[gwfcheck 1d12 times SIDES]}
+    result: [gwfcheck DMG_DICE times SIDES]
+}
+
+DMG_DICE: 1
+SIDES: 12
+ADVANTAGE: 0
+ELVEN_ACCURACY: 0
+CRIT_RANGE: 20
+EXTRA_CRIT_DICE: 0
+
+CRIT_DMG: 2d(DMG_DICEdSIDES) + EXTRA_CRIT_DICE
+ATK_ROLL: [hitdice]
+CRIT_HIT: [critcheck ATK_ROLL]
+
+output [damage]

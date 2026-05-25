@@ -1,0 +1,46 @@
+function: attack D:n plus B:n vs AC:n {
+    if D = 20 { result: 2 }
+    else if D = 19 { result: 2 }
+    else if D+B >= AC { result: 1 }
+    else { result: 0 }
+}
+
+function: damage DD:n plus B:n if HIT:n {
+    if HIT = 2 { result: (DD*2)+B }
+    else if HIT = 1 { result: DD+B }
+    else { result: 0}
+}
+
+\ Attack Config: Normal or Advantage or Disadvantage \
+function: attconfig {
+    \ Normal: 1d20 \
+    \ Advantage: [highest 1 of 2d20] \
+    \ Disadvantage: [lowest 1 of 2d20] \
+
+    result: 1d20 \ Set Option Here \
+}
+
+\ Main Function: Attack for each AC from 5 to 20 (Level 5) \
+loop AC over {15..20} {
+    TOTAL_NA: 0 \ Total Damage with Longbow + Sharpshooter + Dread Ambusher + Favored Foe + Sneak Attack \
+    TOTAL_AA: 0 \ w Advantage \
+
+    \ Main Action (Attack w Sharpshooter + Bonus Action Attack) \
+    loop NOA over {1..2} {
+        HIT: [ attack [attconfig] plus 12 vs AC ]
+        TOTAL_NA: TOTAL_NA+[ damage 2d6+5d8 plus 12 if HIT ]
+
+        HIT: [ attack [highest 1 of 2d20] plus 12  vs AC ]
+        TOTAL_AA: TOTAL_AA+[ damage 2d6+5d8 plus 12 if HIT ]
+    }
+    
+    \ Bonus Attack: Dread Ambusher + Sneak Attack \
+    HIT: [ attack [attconfig] plus 12 vs AC ]
+    TOTAL_NA: TOTAL_NA+[ damage 2d6+7d8 plus 12 if HIT ]
+    
+    HIT: [ attack [highest 1 of 2d20] plus 12 vs AC ]
+    TOTAL_AA: TOTAL_AA+[ damage 2d6+7d8 plus 12 if HIT ]
+
+    output TOTAL_NA named "NA:[AC]"
+    output TOTAL_AA named "AA:[AC]"
+}

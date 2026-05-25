@@ -1,0 +1,97 @@
+\REMEMBER TO SET [Data] BUTTON TO "At Least"\
+output -1 named "remember to set Data button to At Least"
+
+\LEVEL 12 SIMULATION\
+
+USING_GUIDANCE_POTION:  1  \0 or 1 -- at 400g/16hr~=25g/hr\
+CURSEDNESS:             0  \0 to 10\
+HEADBAND_BONUS:         3  \may be borrowed\
+
+NUM_GEMS_TO_SIM:        {2}
+\advantages:   expensive prayer DC15,   Enhance Mind spell (2mp/hr Astral, 5-6mp for 8-16hr Rowan,    Prodigal\
+  ROWAN_ADV_TO_SIM:     {0,1}
+  ASTRAL_ADV_TO_SIM:    {}
+
+ASTRAL_BASE_CMI_BONUS:  5
+ROWAN_BASE_CMI_BONUS:   9+4+5
+
+DC_ADJUST:              -5  \assumes item is well-paired\
+
+HYPOTHETICAL_NERF:      1
+
+\------------------------------------------------------- Advantage\
+
+function: POWER x adv DICE {
+  if POWER=0 {
+    result: DICE
+  } else {
+    result: [highest of DICE and [POWER-1 x adv DICE]]
+  }
+}
+function: adv DICE {
+  result: [1 x adv DICE]  \or [highest of X and X]\
+}
+function: double adv DICE {
+  result: [2 x adv DICE]
+}
+
+\------------------------------------------------------- Game logic\
+
+ROWAN:1 \enum\
+ASTRAL:2
+
+GUIDANCE_DICE: USING_GUIDANCE_POTION * 1d4   \1d4 if using potion, else 0\
+
+function: collapse X:n below THRESHOLD {  \sets all negative results to FAILURE\
+  if X>=THRESHOLD {result: X} else {result: -1}
+}
+
+function: NUM_GEMS:n gems by CRAFTER with ADV advantage {
+  TOTAL_ADV: ADV
+  if CRAFTER=ROWAN {
+    CURSEBUFFED_CMI: ROWAN_BASE_CMI_BONUS + CURSEDNESS
+  }
+  if CRAFTER=ASTRAL {
+    CURSEBUFFED_CMI: ASTRAL_BASE_CMI_BONUS
+  }
+  DIE: [TOTAL_ADV x adv d20]
+  
+  SUCCESSES: (CURSEBUFFED_CMI+HEADBAND_BONUS) + DIE + GUIDANCE_DICE
+  DC: 10 + DC_ADJUST
+  if HYPOTHETICAL_NERF {EXTRA_DIE: d20} else {EXTRA_DIE: DIE}
+  EXTRA_DIE: d20 * HYPOTHETICAL_NERF
+  loop N over {2..NUM_GEMS} {
+    SUCCESSES: SUCCESSES + EXTRA_DIE
+    DC: DC + 20
+  }
+  EXCESS_SUCCESSES: SUCCESSES - DC
+  result: [collapse EXCESS_SUCCESSES/3 below NUM_GEMS]
+}
+
+USINGGUIDANCEPOTION: USING_GUIDANCE_POTION \bugfixes for a parser bug\
+
+output {} named "(#,%) = (achievable boundMana,%P(succ))"
+
+loop NUMGEMS over NUM_GEMS_TO_SIM {
+  output {} named "🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽 [NUMGEMS] gems💎 🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽"
+
+  loop CRAFTER over {ROWAN,ASTRAL} {
+    if CRAFTER=ROWAN {ADV_TO_SIM: ROWAN_ADV_TO_SIM} else {ADV_TO_SIM: ASTRAL_ADV_TO_SIM}
+
+    loop ADV over ADV_TO_SIM {
+      RESULT: [NUMGEMS gems by CRAFTER with ADV advantage]
+      output {} named "________ +[ADV]🎲 ________"
+      if CRAFTER=ROWAN {
+        output RESULT named "+[ADV]🎲adv, 🟣Rowan..... [NUMGEMS] gems, (pray/spell/(?Prodi)), potion=[USINGGUIDANCEPOTION]"
+      }
+      if CRAFTER=ASTRAL {
+        output RESULT named "+[ADV]🎲adv, 🔵Astral..... [NUMGEMS] gems (pray/spell/Prodi), potion=[USINGGUIDANCEPOTION]"
+      }
+
+    }
+
+    if CRAFTER=ROWAN {
+      output {} named "🔽 🔽 🔽 🔽 🔽 🔽 🔽 "
+    }
+  }
+}

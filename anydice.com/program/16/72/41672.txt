@@ -1,0 +1,39 @@
+\----------------ESTRUTURA DO SISTEMA----------------\
+DADO:{-1, 2, 3, 4, 5, 6, 7, 10}
+A: 3dDADO
+B: 1@2dDADO+1@2dDADO+1@2dDADO
+C: 2@2dDADO+2@2dDADO+2@2dDADO
+NORMAL: A 
+COM_VANTAGEM: B
+COM_DESVANTAGEM: C
+\----------------ANALISE DE ACERTOS CRíTICOS----------------\
+function: critico em VARIAVEL:d{
+ result: [{10} contains VARIAVEL]+[{10} contains VARIAVEL]+[{10} contains VARIAVEL]
+}
+CRITA:[critico em dDADO]
+CRIT_NORMAL:CRITA
+CRITB:[critico em 1@2dDADO]
+CRIT_COM_VANTAGEM:CRITB
+CRITC:[critico em 2@2dDADO]
+CRIT_COM_DESVANTAGEM:CRITC
+\----------------EXCLUSIVOS DO PERSONAGEM----------------\
+DADOINICIAL:1   \<- Estas duas variaveis são\                        
+DMGFLOOR: 1       \<- determinadas pela arma. \         
+DADOBONUS:0                              
+DMGMOD:0
+DMGBONUS:0
+ATKMOD:2
+ATKBONUS:0
+DANO: DADOINICIAL+DMGFLOOR+DMGMOD+DMGBONUS+DADOBONUS
+\----------------ALVO----------------\                        
+REACAO: 1 \+1 favorece jogador, -1 empate favorece inimigo\
+REACAOMOD: 2
+\----------------CALCULO----------------\
+
+function: ataque TIPO:d critico MODELO:d vs defesa DC:d rigido{
+ DANOCRITA: MODELOdDADOINICIAL + MODELOdDADOBONUS
+ result: [highest of [lowest of  TIPO + ATKMOD + ATKBONUS - (DC +  + REACAOMOD) + REACAO and 1] and 0]\*(DANO+DANOCRITA)\
+}
+
+\Coloque a jogada equivalente no lugar de TIPO e MODELO. Ex: A e CRITA/NORMAL e CRIT_NORMAL\
+output [ataque COM_VANTAGEM critico CRIT_COM_VANTAGEM vs defesa NORMAL rigido] named "Ex: Disparo Preciso"

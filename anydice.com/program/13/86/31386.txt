@@ -1,0 +1,131 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attackpf ROLL:n plus TOHIT:n vs ac AC:n for DAMAGE:d map MAP:n{
+if ROLL = 20 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC+10 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC {result: DAMAGE}
+if (TOHIT + ROLL - 5*MAP) < AC {result: 0}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n crit CRIT:n fail FAIL:n success SUCCESS:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: SUCCESS}
+if ROLL = 1 {result: CRIT}
+if ROLL + FLOAT < DC-10 {result: CRIT}
+if ROLL + FLOAT < DC {result: FAIL}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n for DAMAGE:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: DAMAGE/2}
+if ROLL = 1 {result: DAMAGE*2}
+if ROLL + FLOAT < DC-10 {result: DAMAGE*2}
+if ROLL + FLOAT < DC {result: DAMAGE}
+}
+
+output [attack [highest 1 of 3d20] plus 11 vs ac 20 for 1d8+3d8+12d6 plus 5+4d8] + [attack [highest 1 of 3d20] plus 11 vs ac 20 for 1d8+3d8+12d6 plus 5+4d8]
+
+output [attack [highest 1 of 3d20] plus 11 vs ac 20
+    hit 1d8+3d8+12d6+5+4d8
+    miss 0
+    crit 2d8+6d8+24d6+5+4d8
+    crange 19] + [attack [highest 1 of 3d20] plus 11 vs ac 20
+    hit 1d8+3d8+12d6+5+4d8
+    miss 0
+    crit 2d8+6d8+24d6+5+4d8
+    crange 19] named "Inquisitive 17 Champion 3"
+
+output [attack [highest 1 of 3d20] plus 11 vs ac 20 for 1d8+3d8+13d6 plus 5+4d8+6] + [attack [highest 1 of 3d20] plus 11 vs ac 20 for 1d8+3d8+13d6 plus 5+4d8] + [savethrow 1d20+6 vs dc 18 for 4d8 suck] + [savethrow 1d20+6 vs dc 18 for 4d8 suck] named "Inquisitive 19 Genie 1 Create Bonfire 18 CHA"
+
+output [attack [highest 1 of 3d20] plus 11 vs ac 20 for 1d8+3d[reroll 1d8 as 2 if less than 2]+13d6 plus 5+4d[reroll 1d8 as 2 if less than 2]+6] + [attack [highest 1 of 3d20] plus 11 vs ac 20 for 1d8+3d[reroll 1d8 as 2 if less than 2]+13d6 plus 5+4d[reroll 1d8 as 2 if less than 2]] + [savethrow 1d20+6 vs dc 17 for 4d8 suck] + [savethrow 1d20+6 vs dc 17 for 4d8 suck] named "Inquisitive 19 Genie 1 Create Bonfire 16 CHA EA"
+
+output [attack [highest 1 of 3d20] plus 11+1 vs ac 20
+    hit 1d8+3d8+13d6+5+4d8+1
+    miss 0
+    crit 3d8+6d8+26d6+5+4d8+1
+    crange 20] + [attack [highest 1 of 3d20] plus 11+1 vs ac 20
+    hit 1d8+3d8+13d6+5+4d8+1
+    miss 0
+    crit 3d8+6d8+26d6+5+4d8+1
+    crange 20] named "Inquisitive 19 Forge 1 Piercer"
+
+output [attack [highest 1 of 3d20] plus 11+1 vs ac 20
+    hit 1d8+3d[reroll 1d8 as 2 if less than 2]+13d6+5+4d[reroll 1d8 as 2 if less than 2]+1
+    miss 0
+    crit 2d8+6d[reroll 1d8 as 2 if less than 2]+26d6+5+4d[reroll 1d8 as 2 if less than 2]+1
+    crange 20] + [attack [highest 1 of 3d20] plus 11+1 vs ac 20
+    hit 1d8+3d[reroll 1d8 as 2 if less than 2]+13d6+5+4d[reroll 1d8 as 2 if less than 2]+1
+    miss 0
+    crit 2d8+6d[reroll 1d8 as 2 if less than 2]+26d6+5+4d[reroll 1d8 as 2 if less than 2]+1
+    crange 20] named "Inquisitive 19 Forge 1 Elemental Adept"
+
+output [attack [highest 1 of 3d20] plus 11+1 vs ac 20
+    hit 1d8+3d8+13d6+5+4d8+1
+    miss 0
+    crit 2d8+6d8+26d6+5+4d8+1
+    crange 20] + [attack [highest 1 of 3d20] plus 11+1 vs ac 20
+    hit 1d8+3d8+13d6+5+1+4d8
+    miss 0
+    crit 2d8+6d8+26d6+5+1+4d8
+    crange 20] + [savethrow 1d20+6 vs dc 17 for 4d8 suck] + [savethrow 1d20+6 vs dc 17 for 4d8 suck] named "Inquisitive 19 Forge 1 Magic Initiate CB 16 CHA"
+
+output [attack [highest 1 of 3d20] plus 11+1 vs ac 20 for 1d8+3d8+12d6 plus 5+4d8+6+1] + [attack [highest 1 of 3d20] plus 11+1 vs ac 20 for 1d8+3d8+12d6 plus 5+1+4d8] + [savethrow 1d20+6 vs dc 17 for 4d8 suck] + [savethrow 1d20+6 vs dc 17 for 4d8 suck] named "Inquisitive 17 Genie 1 Forge 1 Create Bonfire 16 CHA"

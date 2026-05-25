@@ -1,0 +1,74 @@
+\\\*** Base Damage Calc Info ***\\\
+ENEMY_AC: d{14..18}  \looped against enemy AC from 14-18, DMG suggested AC from CR4-16\
+LEVEL: 11
+STAT_MOD: 5
+TURNS: 1
+
+\\\*** Attack Reaper Spirit ***\\\
+ATTACK_DICE_A: 1d10
+BONUS_DAM_MOD_A: 8
+BONUS_DICE_A: 0
+HIT_BONUS_A: 0
+MAGIC_A: 0
+N_ATTACKS_A: TURNS*3
+
+\\\*** Attack Fighter Spirit ***\\\
+ATTACK_DICE_B: 1d6
+BONUS_DAM_MOD_B: 8
+BONUS_DICE_B: 0
+HIT_BONUS_B: 0
+MAGIC_B: 0
+N_ATTACKS_B: TURNS*3
+
+\\\*** Attack Barb Spirit ***\\\
+ATTACK_DICE_D: 1d12
+BONUS_DAM_MOD_D: 8
+BONUS_DICE_D: 0
+HIT_BONUS_D: 0
+MAGIC_D: 0
+N_ATTACKS_D: TURNS*3
+
+\\\*** Attack XBE&SS Fighter ***\\\
+ATTACK_DICE_C: 1d6
+BONUS_DAM_MOD_C: 10
+BONUS_DICE_C: 0
+HIT_BONUS_C: -5
+MAGIC_C: 2
+N_ATTACKS_C: TURNS*4
+
+\\\*** General Info ***\\\
+CRIT_RANGE: 20
+CRIT_BONUS: 0 \Any additional dice used specifically for a critical\
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+PROF: (LEVEL+7)/4
+
+\\\*** Functions ***\\\
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT_RANGE { result: CRITICALDAMAGE }
+ if ROLL + ATTACK >= ENEMY_AC { result: HITDAMAGE }
+ result: 0
+}
+
+ATTACK: 9 \\\ Spell Mod \\\
+HITDAMAGE: ATTACK_DICE_A + MAGIC_A + BONUS_DAM_MOD_A + BONUS_DICE_A
+CRITICALDAMAGE: 2dATTACK_DICE_A + MAGIC_A + BONUS_DAM_MOD_A + 2dBONUS_DICE_A + CRIT_BONUS
+output N_ATTACKS_Ad[attack HIT_ADV vs ENEMY_AC] named "(Adv) Reaper Spirit"
+
+ATTACK: 9 \\\ Spell Mod \\\
+HITDAMAGE: ATTACK_DICE_B + MAGIC_B + BONUS_DAM_MOD_B + BONUS_DICE_B
+CRITICALDAMAGE: 2dATTACK_DICE_B + MAGIC_B + BONUS_DAM_MOD_B + 2dBONUS_DICE_B + CRIT_BONUS
+output N_ATTACKS_Bd[attack NORMAL_HIT vs ENEMY_AC] named "Fighter Spirit"
+
+ATTACK: 9 \\\ Spell Mod \\\
+HITDAMAGE: ATTACK_DICE_D + MAGIC_D + BONUS_DAM_MOD_D + BONUS_DICE_D
+CRITICALDAMAGE: 2dATTACK_DICE_D + MAGIC_D + BONUS_DAM_MOD_D + 2dBONUS_DICE_D + CRIT_BONUS
+output N_ATTACKS_Dd[attack HIT_ADV vs ENEMY_AC] named "(Adv) Barb Spirit"
+
+ATTACK: STAT_MOD + PROF + MAGIC_C + HIT_BONUS_C
+HITDAMAGE: ATTACK_DICE_C + STAT_MOD + MAGIC_C + BONUS_DAM_MOD_C + BONUS_DICE_C
+CRITICALDAMAGE: 2dATTACK_DICE_C + STAT_MOD + MAGIC_C + BONUS_DAM_MOD_C + 2dBONUS_DICE_C + CRIT_BONUS
+output N_ATTACKS_Cd[attack NORMAL_HIT vs ENEMY_AC] named "XBE Fighter"
+output N_ATTACKS_Cd[attack HIT_ADV vs ENEMY_AC] named "Adv XBE Fighter"
+output 2*N_ATTACKS_Cd[attack HIT_ADV vs ENEMY_AC] named "Nova XBE Fighter"

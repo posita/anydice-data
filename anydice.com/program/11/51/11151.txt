@@ -1,0 +1,69 @@
+function: gwf ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: GWFCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: GWFDAMAGE }
+ result: 0
+}
+
+function: dueling ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: DUELCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DUELDAMAGE }
+ result: 0
+}
+
+function: twf ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: TWFCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: TWFDAMAGE }
+ result: 0
+}
+
+function: archery ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: ARCHCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS + 2 >= AC { result: ARCHDAMAGE }
+ result: 0
+}
+
+function: defense ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: DEFCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DEFDAMAGE }
+ result: 0
+}
+
+ENEMYAC: d{12..19}
+
+ATTACKMOD: 5
+GWF: 0
+DUEL: 0
+TWF: 0
+ARCH: 0
+
+PROFICIENCY: 3
+CRITROLL: 20
+EXTRAATTACK: 2
+DMGBONUS: 0
+ACCBONUS: 0
+
+GWFDAMAGE: 2d{{1..2}, {3..6}:4} + ATTACKMOD + GWF + DMGBONUS
+GWFCRITDAMAGE: 3d{{1..2}, {3..6}:4} + ATTACKMOD + GWF + DMGBONUS
+
+TWFDAMAGE: 1d6 + ATTACKMOD + TWF + DMGBONUS
+TWFCRITDAMAGE: 2d6 + ATTACKMOD + TWF + DMGBONUS
+
+DUELDAMAGE: 1d8 + ATTACKMOD + DUEL + DMGBONUS + 2
+DUELCRITDAMAGE: 2d8 + ATTACKMOD + DUEL + DMGBONUS + 2
+
+ARCHDAMAGE: 1d8 + ATTACKMOD + ARCH + DMGBONUS
+ARCHCRITDAMAGE: 2d8 + ATTACKMOD + ARCH + DMGBONUS
+
+DEFDAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+DEFCRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+
+output EXTRAATTACKd[gwf d20 vs ENEMYAC] named "GWF"
+output (EXTRAATTACK + 1)d[twf d20 vs ENEMYAC] named "TWF"
+output EXTRAATTACKd[dueling d20 vs ENEMYAC] named "Dueling"
+output EXTRAATTACKd[archery d20 vs ENEMYAC] named "Archery"
+output EXTRAATTACKd[defense d20 vs ENEMYAC] named "Defense/Protection/None"

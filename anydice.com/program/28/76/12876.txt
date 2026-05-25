@@ -1,0 +1,52 @@
+STANDARD: {0,0,0,0,0,0,1,1,1,1,1,-1,-1,-1,-1,-1,2,-2, 1000, -1000}
+set "maximum function depth" to 20
+
+function: remove cards S:s from DECK:s {
+  loop J over {1 .. #S} {
+    DECK: [remove card J@S from DECK]
+  }
+  result: DECK
+}
+
+function: remove card I:n from DECK:s {
+  NEW: {}
+  FOUND: 0
+  loop J over {1 .. #DECK} {
+    if I = J@DECK {
+      if FOUND = 1 { NEW: {NEW, J@DECK} }
+      FOUND: 1
+    }
+    else { NEW: {NEW, J@DECK} }
+  }
+  result: NEW
+}
+
+function: modify ATTACK with DECK:s {
+ result: [modify ATTACK with dDECK using DECK helper]
+}
+
+function: modify ATTACK with DECK:n using DECKSEQ:s helper {
+ if DECK = 1000 {
+  result: ATTACK * 2
+ }
+ if DECK = -1000 {
+  result: 0
+ }
+ if DECK >= 10 {
+  ATTACK: ATTACK + (DECK / 10)
+  result: [modify ATTACK with [remove card DECK from DECKSEQ]]
+ }
+ if DECK <= -10 {
+  ATTACK: ATTACK + (DECK / 10)
+  result: [modify ATTACK with [remove card DECK from DECKSEQ]]
+ }
+ result: ATTACK+DECK
+}
+
+BASEATTACK: 3
+output [modify BASEATTACK with STANDARD] named "Standard deck (Attack [BASEATTACK])"
+output [modify BASEATTACK with {STANDARD,10}] named "Added +1r (Attack [BASEATTACK])"
+output [modify BASEATTACK with [remove cards {-1} from {STANDARD,1}]] named "Swapped -1 for +1 (Attack [BASEATTACK])"
+output [modify BASEATTACK with [remove cards {1} from {STANDARD,10}]] named "Swapped +1 for +1r (Attack [BASEATTACK])"
+output [modify BASEATTACK with [remove cards {1,1,1,1,1} from {STANDARD,10,10,10,10,10}]] named "Swapped ALL +1 for +1r (Attack [BASEATTACK])"
+output [modify BASEATTACK with [remove cards {0,0,0,0} from STANDARD]] named "Removed four 0s (Attack [BASEATTACK])"

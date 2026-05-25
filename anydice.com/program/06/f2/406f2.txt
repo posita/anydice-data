@@ -1,0 +1,66 @@
+function: straight S:s {
+ PREV: 1@S
+ RUN: 1
+ BEST: 0
+ loop E over S {
+  DIFF: [absolute E - PREV]
+  if DIFF > 1 {
+   RUN: 1
+  } else if DIFF = 1 {
+   RUN: RUN + 1
+  }
+  PREV: E
+  BEST: [highest of RUN and BEST]
+ }
+ result: BEST
+}
+
+function: run S:s at I:n by N:n{
+ if ![S contains I] {
+  result: 0
+ } else {
+  result: [run S at I+N by N]+1
+ } 
+} 
+
+function: straight S:s mod M:n {
+ PREV: 1@S
+ RUN: 1
+ BEST: 0
+
+ HIGH: 0
+ LOW: [maximum of S]+1
+ NEWHIGH: 0
+ loop E over S {
+  DIFF: [absolute E - PREV]
+  if DIFF > 1 {
+   RUN: 1
+   NEWHIGH: 0
+  } else if DIFF = 1 {
+   RUN: RUN + 1
+   NEWHIGH: [highest of NEWHIGH and PREV]
+   if RUN >= BEST {
+    HIGH: NEWHIGH
+    LOW: [lowest of LOW and E]
+   }
+  }
+  PREV: E
+  BEST: [highest of RUN and BEST]
+ }
+
+ if BEST < M & BEST < #S {
+  if HIGH = M & [S contains 1] {
+   BEST: BEST + ([run S at 1 by 1])
+  }
+  if LOW = 1 & 1@S = M {
+   BEST: BEST + ([run S at M by -1])
+  }
+ }
+ result: BEST
+}
+ 
+
+
+
+output [straight 6d6]
+output [straight 6d6 mod 6]

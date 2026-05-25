@@ -1,0 +1,79 @@
+\ Stats and skills both have value ranges in steps of 0,d2,d4,d6,d8,d10,d10+d2,d10+d4,d10+d6,d10+d8,2d10 \
+\ d10 is the average value of a stat, and 0 is untrained in a skill \
+STAT: d10+d0
+SKILL: d4+d0
+MOD: 0
+\ Difficulty check ranks are 1-7 (named Effortless, Easy, Average, Difficult, Challenging, Ambitious, and Improbable) \
+\ Use a difficulty of 0 for a custom DC (just set the modifier to whatever; even dice) \
+DCDIFF: 3
+DCMOD: 0
+\ Results of -2,-1,0,1,2 are Fumble,Failure,Tie/Partial/Graze,Success,Critical \
+
+
+
+
+
+
+
+
+
+
+
+function: check SCORE:n vs DC:n {
+ \ Fumble \
+ if SCORE <= DC / 2 {
+  result: -2
+ }
+ \ Failure \
+ if SCORE < DC {
+  result: -1
+ }
+ \ Tie / Partial / Graze \
+ if SCORE = DC {
+  result: 0
+ }
+ \ Critical \
+ if SCORE >= DC * 2 {
+  result: 2
+ }
+ \ Success \
+ if SCORE > DC {
+  result: 1
+ }
+}
+
+function: ceil X:n div by Y:n {
+ \ crude approximation \
+ result: (1000000*X+999999*Y)/(1000000*Y)
+}
+
+SCORE: STAT+SKILL+MOD
+DC: [ceil (10+[maximum of SKILL])*DCDIFF div by 6]
+\ Expected DCs at given difficulties will be exported into a table for GM convenience \
+
+output SCORE named "Score"
+
+if DCDIFF = 0 {
+ output [check SCORE vs DCMOD] named "Score vs Custom DC"
+}
+if DCDIFF = 1 {
+ output [check SCORE vs DC+DCMOD] named "Score vs DC [DC]+[DCMOD] (Effortless DC)"
+}
+if DCDIFF = 2 {
+ output [check SCORE vs DC+DCMOD] named "Score vs DC [DC]+[DCMOD] (Easy DC)"
+}
+if DCDIFF = 3 {
+ output [check SCORE vs DC+DCMOD] named "Score vs DC [DC]+[DCMOD] (Average DC)"
+}
+if DCDIFF = 4 {
+ output [check SCORE vs DC+DCMOD] named "Score vs DC [DC]+[DCMOD] (Difficult DC)"
+}
+if DCDIFF = 5 {
+ output [check SCORE vs DC+DCMOD] named "Score vs DC [DC]+[DCMOD] (Challenging DC)"
+}
+if DCDIFF = 6 {
+ output [check SCORE vs DC+DCMOD] named "Score vs DC [DC]+[DCMOD] (Ambitious DC)"
+}
+if DCDIFF = 7 {
+ output [check SCORE vs DC+DCMOD] named "Score vs DC [DC]+[DCMOD] (Improbable DC)"
+}

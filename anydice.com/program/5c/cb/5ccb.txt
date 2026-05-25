@@ -1,0 +1,50 @@
+function: degree ROLL:s at TN:n advantage A:n {
+ SORT: [sort ROLL]
+
+ if [count 10 in SORT] = #SORT | (A < 0 & 2@SORT = 10) {
+  result: 0
+ }
+ 
+ X: 0
+ 
+ if A >= 0 {
+  if 2@[reverse SORT] = 1 {
+   X: [highest of X and 2]
+  }
+  loop FD over {1..(#SORT-1)}{
+   loop LD over {(FD + 1)..(#SORT)}{
+    if FD@SORT + LD@SORT <= TN {
+     if FD@SORT = LD@SORT & 2 * FD@SORT > X {
+      X: 2 * FD@SORT
+     }
+     X: [highest of X and FD@SORT]
+    }
+   }
+  }
+ }
+ 
+ if A < 0 {
+  if 1@SORT = 1 {
+   X: [highest of X and 2]
+  }
+  if 1@SORT + 2@SORT < TN {
+   if 1@SORT = 2@SORT {
+    X: [highest of X and (2 * 1@[reverse SORT])]
+   }
+   X: [highest of X and 1@[reverse SORT]]
+  }
+ }
+
+ result: X
+}
+
+
+loop N over {11..11}{
+ output [degree 5d10 at N advantage 1] named "TN [N] advantage 3"
+ output [degree 4d10 at N advantage 1] named "TN [N] advantage 2"
+ output [degree 3d10 at N advantage 1] named "TN [N] advantage 1"
+ output [degree 2d10 at N advantage 0] named "TN [N] normal"
+ output [degree 3d10 at N advantage -1] named "TN [N] disadvantage 1"
+ output [degree 4d10 at N advantage -1] named "TN [N] disadvantage 2"
+ output [degree 5d10 at N advantage -1] named "TN [N] disadvantage 3"
+}

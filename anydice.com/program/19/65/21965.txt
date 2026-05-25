@@ -1,0 +1,351 @@
+HD: [highest of d8 and 4]
+T: 8+(7*17)
+C: 0
+loop N over {1..16} {
+ T: T+HD
+}
+output T named "hp"
+
+PROF: 6  \ Paw Stars Proficiency Bonus \
+COUNTCRITS: 1 \ 1 = yes, 0 = no \
+SHOWUPGRADES: 0 \ 1 = yes, 0 = no \ 
+ISFIEND: 1 \ for donnovan smite, xia solaris \
+ELISFAV: 1 \ elion is enemy favored \
+VALTENSORS: 1 \ valiente tensors transform \
+SENTINEL: 1 \ valiente Sentinel \
+COUNTSURGE: 1 \ belbin, xia action surge \
+DONLOWHP: 2 \ set how many dice for low hp \
+SSRGWM: 1 \ use sharpshooter/gwm \
+BELINCARNATION: 1 \ Belbin unleash incarnation \
+BLESS: 0 \ Blessed buff: 0 or 1d4 \
+MARKDEATH: 1 \ elion's mark for death \
+WARCRY: 1 \ xia's war cry \
+
+
+ELHTM: 3d6 \ Elion's hunters mark \
+
+\ Thorinn \
+THORCHA: 12 \ charisma mod \
+THORHP: 325 \ hp \ 
+THORRAY: 5d{{1..2}, {3..8}:5}+THORCHA \ ray of frost cantrip \
+THORICESTORM: 2d8+9d{{1..2}, {3..6}:4}+THORCHA \ ice storm lvl 4 \
+THORCONECOLD: 14d{{1..2}, {3..8}:5}+THORCHA \ cone of cold lvl 5 \
+THORINVEST: 11d{{1..2}, {3..6}:4}+THORCHA \ investiture lvl 6 single blast \
+THORFREEZESPHERE: 17d{{1..2}, {3..6}:4}+THORCHA \ freezing sphere lvl 6 \
+THORWALLICE: 17d{{1..2}, {3..6}:4}+THORCHA \ wall of ice lvl 6 \
+THORBLIZ: 15d{{1..2}, {3..10}:6}+THORCHA \ blizzard lvl 7 \
+THORDRAG: 16d{{1..2}, {3..6}:4}+THORCHA \ illusory dragon lvl 8 \
+THORWINTERWRATH: 18d{{1..2}, {3..6}:4}+THORCHA \ winters wrath lvl 9 \
+
+THORNUMTAR: 1
+THORRA: THORNUMTAR*(THORWINTERWRATH+THORBLIZ) \ 1st round, wrath + quick bliz \
+THORRB: THORNUMTAR*(THORWINTERWRATH+THORBLIZ) \ 2nd round, wrath + quick bliz \
+THORRC: THORNUMTAR*(THORWINTERWRATH+THORFREEZESPHERE) \ 3rd round, wrath + quick freeze sphere \
+THORLEGDPR: THORRAY+THORRAY+THORRAY \ 3 legendary action ray frost \
+THORDPRM: (THORRA+THORRB+THORRC)/3 \ max aoe dpr to each target \
+THORDPRS: THORINVEST+THORRAY+THORLEGDPR \ single target dpr \
+
+\
+output THORLEGDPR named "Thorinn leg act dpr"
+output THORDPRM named "Thorinn AoE DPR per target"
+output THORDPRS named "Thorinn single DPR w/ leg"
+output THORHP named "Thorinn HP"
+\
+
+\ Belbin \
+BELDEX: 9
+BELEAC: 29
+BELSAVE: 10
+BELHP: 249
+BELMHBON: 5
+BELOHBON: 5
+BELCRTPERMH: 27
+BELCRTPEROH: 14 
+BELNUMATTMH: 15
+BELNUMATTOH: 15
+BELMH: 1d8+2d6+BELMHBON+BELDEX \ 1d8 pierce, 2d6 acid \
+BELOH: 1d8+BELOHBON+BELDEX
+if (MARKDEATH = 1) {
+   BELMH: BELMH+ELHTM
+   BELOH: BELOH+ELHTM
+}
+BELATT: BELMH+BELOH
+BELRND: BELATT+BELATT+BELATT+BELATT \ att, ex att, ex att(3), hasted \
+if (BELINCARNATION = 1) {
+   BELRND: BELRND+BELATT \ unleashed incarnation attack \
+}
+BELSURGE: BELATT+BELATT+BELATT+BELATT+BELATT+BELATT \ 2 action surges \
+if (WARCRY = 1) {
+   BELRND: BELRND+BELATT
+   BELSURGE: BELSURGE+BELATT+BELATT
+   BELNUMATTMH: BELNUMATTMH+3
+   BELNUMATTOH: BELNUMATTOH+3
+}
+BELDPR: BELRND
+if (COUNTSURGE = 1) {
+   BELDPR: BELDPR+(BELSURGE/3)
+   BELNUMATTMH: BELNUMATTMH+6
+   BELNUMATTOH: BELNUMATTOH+6
+   if (WARCRY = 1) {
+      BELNUMATTMH: BELNUMATTMH+2
+      BELNUMATTOH: BELNUMATTOH+2
+   }
+}
+BELNUMCRTMH: (BELCRTPERMH*BELNUMATTMH)/100
+BELNUMCRTOH: (BELCRTPEROH*BELNUMATTOH)/100
+BELCRTDMGMH: BELMH-BELMHBON-BELDEX \ mh - mods \ 
+BELCRTDMGOH: BELOH-BELOHBON-BELDEX \ oh - mods \
+BELCRT: (BELNUMCRTMH*BELCRTDMGMH)+(BELNUMCRTOH*BELCRTDMGOH)
+if (COUNTCRITS = 1) {
+   BELDPR: BELDPR+(BELCRT/3)
+}
+BELHEAL: (6*(4d4+4)+8*(2d6+8)+1d10+16)/15
+
+output BELDPR named "Belbin DPR"
+
+\ Donnovan \
+DONLDR: 18 \ Inspiring Leader Temp HP bonus \
+DONSTR: 10 \ Strength Bonus \
+DONEAC: 23 \ Effective AC \
+DONSAVE: 15 \ Effective Save Bonus \
+DONHP: 210 \ normal form hp \
+DONWEPBON: 2
+DONLOWHPDMG: DONLOWHPd8 \ Drengskapr hp damage 1 die per 1/4th hp missing \
+if (SHOWUPGRADES = 1) {
+   DONSTR: 11
+   DONWEPBON: 5
+   DONLOWHPDMG: DONLOWHPd12
+}
+DONIDS: 1d8 \ Improved Divine Smite \
+DONGWMDMG: PROFd6
+DONWEP: 1d{{1..2}, {3..12}:7}+DONWEPBON+DONLOWHPDMG+DONIDS+DONSTR \ 1d12 gwf+wep bonus+hp damage+ids+str \
+DONATTNOR: DONWEP \ normal attack \
+DONATTGWM: DONWEP+DONGWMDMG \ gwm attack \
+DONATT: DONATTNOR \ set attack calc to type \ 
+if (SSRGWM = 1) {
+   DONATT: DONATTGWM
+}
+DONSMT: 135+1d8 \ 31d8 3-3-3 3-3-2 2-2-1 max smites 3 turns \
+DONSMTFIEND: 36+1d8 \ extra smith vs fiend/undead for 9 smites in 3 turns \ 
+DONSMTTOT: DONSMT \ total smite in 3 turns \
+if (ISFIEND = 1) {
+   DONSMTTOT: DONSMTTOT+DONSMTFIEND
+}
+DONCRTPER: 14 \ crit percentage: 14% for 3d20kh1 \
+DONNUMATT: 9 \ number attacks in 3 rounds \ 
+if (SHOWUPGRADES = 1) {
+   DONNUMATT: 12 \ drengskaper extra attack \
+}
+DONCRTDMG: DONATT-DONSTR-DONWEPBON+1d{{1..2}, {3..12}:7} \ crit = weapon damage - mods + savage attacker \
+DONNUMCRT: (DONNUMATT * DONCRTPER) / 100 \ number crits per 3 turns \
+DONCRT: DONNUMCRT*DONCRTDMG \ crit damage per 3 rounds \
+DONRND: DONATT+DONATT+DONATT \ attack, extra attack, hasted attack \
+if (SHOWUPGRADES = 1) {
+   DONRND: DONRND+DONATT \ drengskapr extra attack \
+}
+DONDPR: ((3*DONRND)+(DONNUMCRT*DONATT)+DONSMTTOT) / 3 \ 3 rounds of attacks, gwm bonus, smites \
+if (COUNTCRITS = 1) {
+   DONDPR: DONDPR+(DONCRT/3)
+}
+DONHEAL: 45
+\
+output DONDPR named "Donnovan DPR"
+\
+
+
+\ Elion \
+ELDEX: 13 \ dexterity bonus \
+ELEAC: 30 \ effective ac \ 
+ELSAVE: 20 \ effective save bonus \
+ELHP: 243 \ normal form hp \
+ELWEPBON: 3 \ weapon +hit/dmg \ 
+ELSSR: PROFd6 \ sharpshooter damage \
+ELFVE: 1d12 \ favored enemy \
+ELPLW: 2d8 \ planar warrior \
+ELELEMENT: 4d6  \ liamoria's elemental damage \
+ELWEP: 3d8+ELWEPBON+ELDEX+ELELEMENT \ fey'irra + elemental damage \
+ELATTNOR: ELWEP \ standard weapon attack \
+ELATTSSR: ELWEP+ELSSR \ sharpshooter shot \
+ELATT: ELATTNOR \ set attack type normal/ssr \
+if (SSRGWM = 1) {
+   ELATT: ELATTSSR
+}
+if (ELISFAV = 1) {
+   ELATT: ELATT+ELFVE
+}
+
+ELCRTPER: 38 \ crit percentage \
+ELNUMATTS: 9 \ number single target attacks 3 rounds \
+ELNUMATTM: 21 \ number multi target attacks 3 rounds \
+
+ELSRND: ELATT+ELATT+ELATT+ELPLW+(3*ELHTM) \ s target, attack, extra attack, haste attack, planar warrior, hunters mark \
+ELMRND: ELATT+ELATT+ELATT+ELATT+ELATT+ELATT+ELATT+ELPLW \ 6 aoe attacks, haste attack, planar warrior \
+if (WARCRY = 1) {
+   ELNUMATTS: ELNUMATTS+3
+   ELSRND: ELSRND+ELATT+ELHTM
+}
+ELCRTDMGS: ELATT-ELWEPBON-ELDEX+ELHTM+(ELPLW/3) \ crit damage is weapon attack minus mods \
+if (MARKDEATH = 1) {
+   ELSRND: ELSRND+((ELNUMATTS/3)*ELHTM)
+   ELCRTDMGS: ELCRTDMGS+ELHTM
+}
+ELCRTDMGM: ELATT-ELWEPBON-ELDEX \ crit damage is weapon attack minus mods \
+ELNUMCRTS: (ELNUMATTS*ELCRTPER)/100 \ number single target crits in 3 rounds \
+ELNUMCRTM: (ELNUMATTM*ELCRTPER)/100 \ number multi target crits in 3 rounds \
+ELCRTS: ELNUMCRTS*ELCRTDMGS \ single target crit damage in 3 rounds \
+ELCRTM: ELNUMCRTM*ELCRTDMGM \ multi target crit damage in 3 rounds \
+ELSDPR: ELSRND \ single target dpr \
+ELMDPR: ELMRND \ multi target dpr \
+if (COUNTCRITS = 1) {
+   ELSDPR: ELSDPR+(ELCRTS/3)
+   ELMDPR: ELMDPR+(ELCRTM/3)
+}
+ELHEAL: (8*(5*(3d6)))/15 \ healing spirit full party each round after sigurd is downed \
+
+output ELSDPR named "Elion Single DPR"
+output ELMDPR named "Elion Multi DPR"
+
+JONINT: 9
+JONEAC: 31
+JONSAVE: 11
+JONDPR: 4d12+JONINT+4d12+JONINT
+JONAWD: 43
+JONHP: 208+JONAWD
+JONHEAL: 2+JONINT
+
+output JONDPR named "Jonas Single DPR"
+
+\ Valiente \ 
+VALDEX: 13 \ dexterity modifier \
+VALEAC: 39 \ effective ac \
+VALSAVE: 8 \ effective save bonus \
+VALHP: 130 \ normal form hp \
+VALWEPBON: 3 \ nohl +hit/dmg bonus \
+VALWEPBBON: 5 \ morthingi wep bon \
+VALWEP: 1d8+2d8+VALWEPBON+VALDEX \ 1d8 piercing + 2d8 necrotic + wepbon + dex \
+VALWEPB: 1d4+VALWEPBBON+VALDEX \ morthingi attack \
+VALSAT: 13d6 \ 12d6 sneak attack \
+VALBOOM: 4d8 \ booming blade \
+VALATTS: VALWEP
+VALATTDW: VALWEP+VALWEPB \ mh,of \
+if (MARKDEATH = 1) {
+   VALATTS: VALATTS+ELHTM
+   VALATTDW: VALATTDW+ELHTM+ELHTM
+}
+VALCRTPER: 14
+VALNUMATTS: 6
+VALNUMATTDW: 12
+if (VALTENSORS = 1) {
+   VALATTS: VALATTS+2d12
+   VALATTDW: VALATTDW+2d12
+}
+VALRNDS: VALATTS+VALBOOM+VALSAT+VALATTS \ attack, booming, sneak, hasted attack \
+VALRNDDW: VALATTDW+VALSAT+VALATTDW \ mh,of,sneak, hasted mh,of \
+if (SENTINEL = 1) {
+   VALRNDS: VALRNDS+VALATTS+VALSAT
+   VALRNDDW: VALRNDDW+VALATTDW+VALSAT
+   VALNUMATTS: VALNUMATTS+3
+   VALNUMATTDW: VALNUMATTDW+3
+}
+if (VALTENSORS = 1) {
+   VALRNDS: VALRNDS+VALATTS
+   VALRNDDW: VALRNDDW+VALATTDW
+   VALNUMATTS: VALNUMATTS+3
+   VALNUMATTDW: VALNUMATTDW+6
+}
+if (WARCRY = 1) {
+   VALRNDS: VALRNDS+VALATTS
+   VALRNDDW: VALRNDDW+VALATTDW
+   VALNUMATTS: VALNUMATTS+3
+   VALNUMATTDW: VALNUMATTDW+6
+}
+VALNUMCRTS: (VALNUMATTS*VALCRTPER)/100 \ crits single in 3 rnd\
+VALNUMCRTDW: (VALNUMATTDW*VALCRTPER)/100 \ crits dualweild in 3 rnd\
+VALCRTDMGS: 2*(VALATTS-VALWEPBON-VALDEX+VALBOOM+VALSAT)
+VALCRTDMGDW: VALATTDW-VALWEPBON-VALWEPBBON-VALDEX-VALDEX+VALSAT
+VALCRTS: VALNUMCRTS*VALCRTDMGS
+VALCRTDW: VALNUMCRTDW*VALCRTDMGDW
+VALDPRS: VALRNDS
+VALDPRDW: VALRNDDW
+if (COUNTCRITS = 1) {
+   VALDPRS: VALDPRS+(VALCRTS/3)
+   VALDPRDW: VALDPRDW+(VALCRTDW/3)
+}
+VALHEAL: (8*(4d4+4))/15
+
+output VALDPRS named "Valiente shield DPR"
+output VALDPRDW named "Valiente dw DPR"
+
+\ Xia \
+XIASTR: 12 
+XIAEAC: 24
+XIASAVE: 13
+XIAHP: 226
+XIAMHBON: 5
+XIAOHBON: 5
+XIARGE: 2d8
+XIABRU: 4d8
+XIACRTPERMH: 38
+XIACRTPEROH: 27
+XIANUMATTMH: 9
+XIANUMATTOH: 9
+XIAMH: 2d8+XIAMHBON+XIASTR+XIARGE
+XIAOH: 1d8+XIAOHBON+XIASTR+XIARGE
+if (ISFIEND = 1) {
+   XIAMH: XIAMH+2d8
+}
+if (MARKDEATH = 1) {
+   XIAMH: XIAMH+ELHTM
+   XIAOH: XIAOH+ELHTM
+}
+XIAATT: XIAMH+XIAOH
+XIARND: XIAATT+XIAATT+XIAATT \ attack, extra attack, haste attack \
+XIASURGE: XIAATT+XIAATT \ action surge \ 
+if (WARCRY = 1) {
+   XIARND: XIARND+XIAATT
+   XIANUMATTMH: XIANUMATTMH+3
+   XIANUMATTOH: XIANUMATTOH+3
+}
+XIADPR: XIARND
+if (COUNTSURGE = 1) {
+   XIADPR: XIADPR+(XIASURGE/3)
+   XIANUMATTMH: XIANUMATTMH+2
+   XIANUMATTOH: XIANUMATTOH+2
+}
+XIANUMCRTMH: (XIACRTPERMH*XIANUMATTMH)/100
+XIANUMCRTOH: (XIACRTPEROH*XIANUMATTOH)/100
+XIACRTDMGMH: XIAMH+XIABRU-XIAMHBON-XIASTR \ mh + brutal crit - mods \
+XIACRTDMGOH: XIAOH+XIABRU-XIAOHBON-XIASTR \ oh + brutal crit - mods \
+XIACRT: (XIANUMCRTMH*XIACRTDMGMH)+(XIANUMCRTOH*XIACRTDMGOH)
+if (COUNTCRITS = 1) {
+   XIADPR: XIADPR+(XIACRT/3)
+}
+XIAHEAL: (10*(4d4+4))/15
+
+output XIADPR named "Xia DPR"
+
+output [highest 1 of 3d20]+PROF+BELDEX+BELMHBON+BLESS named "Belbin Hit%"
+\
+output [highest 1 of 3d20]+DONSTR+PROF+DONWEPBON+BLESS named "Donnovan Hit%"
+\
+if (SSRGWM = 1) {
+   output [highest 1 of 3d20]+ELDEX+PROF+ELWEPBON-5+BLESS named "Elion SSR Hit%"
+}
+else {
+   output [highest 1 of 3d20]+ELDEX+PROF+ELWEPBON+BLESS named "Elion Hit%"
+}
+output 8+PROF+JONINT named "Jonas Save DC"
+output [highest 1 of 3d20]+PROF+VALDEX+VALWEPBON+BLESS named "Valiente Hit%"
+output [highest 1 of 3d20]+PROF+XIASTR+XIAMHBON+BLESS named "Xia Hit%"
+
+PSHP: BELHP+ELHP+JONHP+VALHP+XIAHP
+PSDPR: BELDPR+ELSDPR+JONDPR+VALDPRS+XIADPR 
+output PSDPR named "Paw Stars DPR"
+
+GOLDDRAGONHP: 378
+SILVERDRAGONHP: 365
+PLANETARHP: 300
+PSDHP: GOLDDRAGONHP+SILVERDRAGONHP*2+PLANETARHP*2+PSHP
+output PSDHP named "Paw Stars DHP"
+
+

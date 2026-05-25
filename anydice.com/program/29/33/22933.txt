@@ -1,0 +1,67 @@
+function: depth { result: 1 + [depth] }
+set "maximum function depth" to 5
+
+HIN_DIE: d{0, 0, 0, 0, -3, -3}
+ADV_DIE: d{0, 0, 0, 0, 3, 3}
+EXPLODING_HIN_DIE: d{0, 0, 0, 0, -3, -4}
+EXPLODING_ADV_DIE: d{0, 0, 0, 0, 3, 4}
+
+N_DIE_PROPOSAL_A: d{-4, -3, -2, -1, -1, 0, 0, 1, 1, 2, 3, 4}
+N_DIE_PROPOSAL_B: d{-5, -4, -2, -1, -1, 0, 0, 1, 1, 2, 4, 5}
+
+OLD_N_DIE: d{-4, -4, -3, -2, -1, 0, 0, 1, 2, 3, 4, 4}
+\output OLD_N_DIE named "OLD Neutral Die - no Explosion"\
+
+function: oldexplode A:n {
+ if A = -4 { result: -3 + [oldexplode d{-1,-1,-1,-1,-2,-2,-2,-3,-3,-4}] }
+ if A = 4 { result: 3 + [oldexplode d{1,1,1,1,2,2,2,3,3,4}] }
+ result: A
+}
+function: single explode A:n {
+ if A = -2 { result: -1 + HIN_DIE }
+ if A = -4 { result: -3 + HIN_DIE }
+ if A = 2 { result: 1 + ADV_DIE }
+ if A = 4 { result: 3 + ADV_DIE }
+ result: A
+}
+function: explode A:n {
+ if A = -2 { result: -1 + [explode EXPLODING_HIN_DIE] }
+ if A = -4 { result: -3 + [explode EXPLODING_HIN_DIE] }
+ if A = -5 { result: -3 + [explode EXPLODING_HIN_DIE] + [explode EXPLODING_HIN_DIE] }
+ if A = -7 { result: -6 + [explode EXPLODING_HIN_DIE] }
+ if A = 2 { result: 1 + [explode EXPLODING_ADV_DIE] }
+ if A = 4 { result: 3 + [explode EXPLODING_ADV_DIE] }
+ if A = 5 { result: 3 + [explode EXPLODING_ADV_DIE] + [explode EXPLODING_ADV_DIE] }
+ if A = 7 { result: 6 + [explode EXPLODING_ADV_DIE] }
+ result: A
+}
+function: number of successes A:n {
+ if A > 0 { result: 1 + A/3 }
+ if A < 0 { result: -1 + A/3 }
+ result: 0
+}
+function: level of success A:n {
+ NUM_SUCCESS: [number of successes A]
+ if NUM_SUCCESS > 0 { result: 1 + NUM_SUCCESS / 2 }
+ if NUM_SUCCESS < 0 { result: -1 + NUM_SUCCESS / 2 }
+ result: 0
+}
+
+output [oldexplode OLD_N_DIE] named "OLD Neutral Die with explosion"
+output [single explode OLD_N_DIE] named "dN used 7/4/2021"
+output [explode N_DIE_PROPOSAL_A] named "dN w/ explosion Proposal A"
+output [explode N_DIE_PROPOSAL_B] named "dN w/ explosion Proposal B"
+
+output [number of successes [oldexplode OLD_N_DIE]] named "success distribution of OLD dN"
+output [number of successes [single explode OLD_N_DIE]] named "success distribution of dN used 7/4/2021"
+output [number of successes [explode N_DIE_PROPOSAL_A]] named "success distribution of Proposal A dN"
+output [number of successes [explode N_DIE_PROPOSAL_B]] named "success distribution of Proposal B dN"
+
+output [level of success [oldexplode OLD_N_DIE]] named "success LEVEL distribution of OLD dN"
+output [level of success [single explode OLD_N_DIE]] named "success LEVEL distribution of dN used 7/4/2021"
+output [level of success [explode N_DIE_PROPOSAL_A]] named "success LEVEL distribution of Proposal A dN"
+output [level of success [explode N_DIE_PROPOSAL_B]] named "success LEVEL distribution of Proposal B dN"
+
+output 4d{-1..1} named "Fudge Factor 4"
+output 3d6 -10 named "3d6"
+output 2d10 -11 named "2d10"

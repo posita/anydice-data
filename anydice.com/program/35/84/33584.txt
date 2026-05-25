@@ -1,0 +1,61 @@
+function: runcombat X:n {
+ TOTAL: 0
+ loop N over {1..X} {
+  DAMAGE: [attack N]
+  TOTAL: TOTAL + DAMAGE
+ }
+ result: TOTAL
+}
+
+function: attack SURGE:n {
+ GRAPPLEDAMAGE:0
+ if (D = 8){
+  GRAPPLEDAMAGE: [grappledamage]
+ }
+ TOTALDAMAGE: 0
+ loop N over {1..EXTRAATTACK} {
+  TOTALDAMAGE: TOTALDAMAGE + [TOTALDAMAGE makeattack ADVANTAGEd20]
+ }
+ if (SURGE){
+  loop N over {1..EXTRAATTACK} {
+   TOTALDAMAGE: TOTALDAMAGE + [TOTALDAMAGE makeattack ADVANTAGEd20]
+  }
+ }
+ result: TOTALDAMAGE + GRAPPLEDAMAGE
+}
+
+function: DAMAGE:n makeattack ROLLS:s {
+ result: [DAMAGE attackdamage 1@ROLLS]
+}
+
+function: DAMAGE:n attackdamage ROLL:n {
+ if (DAMAGE > 0){
+  if (ROLL = 20 & DAMAGE){
+   result: 2dD+2d6+STR
+  }else if (ROLL+STR+PB >= AC){
+   result: 1dD+d6+STR
+  }else{
+   result: 0
+  }
+ }else{
+  if (ROLL = 20 & DAMAGE){
+   result: 2dD+STR
+  }else if (ROLL+STR >= AC){
+   result: 1dD+STR
+  }else{
+   result: 0
+  }
+ }
+}
+
+function: grappledamage {
+ result: 1d4
+}
+
+STR:3
+PB: 2
+AC:17
+D:8
+ADVANTAGE:2
+EXTRAATTACK:1
+output [runcombat 1]

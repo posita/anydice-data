@@ -1,0 +1,59 @@
+\https://docs.google.com/document/d/13mQZmddA8hjiuwpHQgpCKYzfkFiYFgLEgZ72lWVrPZo/edit?usp=sharing\
+\You can check the link above for updates. If the link you used to get to the program on AnyDice is different from the link below, you should probably use the latter.\
+\http://anydice.com/program/8d8f\
+\The instruction for this program is in the bottom.\
+
+function: diceroll DIE:n vs DIFFICULTY:n {
+\if DIE = 10 {result: 2}\
+\Uncomment the line above if rolling for a trait in which the character is specialized or 10 grants two successes for any other reason.\
+\Alternatively, use the function provided below.\
+if DIE >= DIFFICULTY {result: 1}
+if DIE = 1 {result: -1}
+result: 0
+}
+\This sets the rule for rolling a die in oWoD.\
+\For technical reasons, die is not specified yet. But it only works with D10.\
+\1 means a success, -1 means rolling a “1” and losing a success, 0 means neither.\
+
+function: specialtyroll DIE:n vs DIFFICULTY:n {
+if DIE = 10 {result: 2}
+if DIE >= DIFFICULTY {result: 1}
+if DIE = 1 {result: -1}
+result: 0
+}
+\Same as above, but gives 2 successes if a “10” is rolled.\
+\Note that it shouldn’t affect the amount of Botches at all (if there is at least one “10”, it is already not a Botch, if there are no, specialty didn’t work at all), only the amount of Fails or Successes. Especially the amount of successes at greater difficulties, such as 9 or 10.\
+\In terms of average amount of successes per die or dicepool, it effctively reduces the difficulty by 1.\
+\Didn’t check the chance to fail or succeed though.\
+
+function: smartevaluate ROLL:s {
+if (ROLL > 0) > 0 {
+result: ROLL
+}
+if (ROLL = -1) > 0 {
+result: -10
+}
+result: 0
+}
+
+\This function accepts a sequence of numbers that are roll results from the function(s) above.\
+\It checks if there are successes (results of 1) in a given sequence.\
+
+\If there are any, it returns the raw roll result. For simple actions (single rolls) positive results are Success (different degrees of them), other numbers are Fails, Botch is already impossible. For extended actions or if you plan to add automatical successes, it is actually important if “1”s outnumber successes or not.\
+\Then it checks for “1”s. If there are any, as we already know that there are no successes, it declares a Botch (results in -10)\
+\If neither “1”s nor successes are rolled, it returns 0 as the only possible result.\
+\Because of possible result of -10, this is not usable for calculating mean.\
+\Rules for applying automatic successes to botched rolls or losing them due to 1s are not specified in the Corebook. Hence I decided to only display if the roll botches, fails or succeeds, and the amount of points scored, and the exact result is at Storyteller’s discretion.\
+
+loop DICEPOOL over {1..5} {
+loop DIFFICULTY over {6..6} {
+DICEROLL: [diceroll d10 vs DIFFICULTY]
+output [smartevaluate DICEPOOL d DICEROLL] named "Dicepool of [DICEPOOL] vs difficulty of [DIFFICULTY]"}}
+
+\Specify the ranges of the DICEPOOL (between 1 and ~250) and the DIFFICULTY (between 2 and 10)\
+\Every dicepool within range will be rolled against every difficulty within range. \
+\The loops roll a given amount of dice against a given difficulty, evaluating the sequences for a possible Botches, then return the result of a roll.\
+\If -10 is returned, it is a Botch. Positive numbers are different degrees of success, other negative are different degrees of fail.\
+
+\What can you do with AnyDice.com:\
+\”Normal” gives you the odds of every possible result. “At least” and “At most” give the odds of getting at least or at most this amount of points respectively, useful when, for example, you need at least a given amount of successes. “Summary” contains some useful statistical things like calculated mean and standard deviation, but check if it is representative.\

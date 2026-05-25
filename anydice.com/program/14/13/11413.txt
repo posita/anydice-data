@@ -1,0 +1,63 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + TOHIT >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+function: dpr {
+ result: [damage for [attack d20 vs AC]]
+}
+
+AC: 13
+
+LVL: 6
+DEX: 3
+
+MCSAD: (LVL-1)/2
+FSAD: (LVL+1)/2
+PROF: 2+((LVL-1)/4)
+
+TOHIT: DEX+PROF+2
+HITDAMAGE: 1d10+DEX+MCSADd6
+CRITDAMAGE: 2d10+DEX+(2*MCSAD)d6
+output [dpr] named "MC Normal vs AC [AC]"
+
+TOHIT: DEX+PROF-3
+HITDAMAGE: 1d10+DEX+MCSADd6+10
+CRITDAMAGE: 2d10+DEX+(2*MCSAD)d6+10
+output [dpr] named "MC Power vs AC [AC]"
+
+TOHIT: DEX+PROF+3
+HITDAMAGE: 1d10+DEX+1+MCSADd6
+CRITDAMAGE: 2d10+DEX+(2*MCSAD)d6
+output [dpr] named "MC NP vs AC [AC]"
+
+\TOHIT: DEX+PROF
+HITDAMAGE: 1d8+DEX+FSADd6
+CRITDAMAGE: 2d8+DEX+(2*FSAD)d6
+output [dpr] named "Full Normal vs AC [AC]"
+
+TOHIT: DEX+PROF-5
+HITDAMAGE: 1d8+DEX+FSADd6+10
+CRITDAMAGE: 2d8+DEX+(2*FSAD)d6+10
+output [dpr] named "Full Power vs AC [AC]"
+
+TOHIT: DEX+1+PROF
+HITDAMAGE: 1d8+DEX+1+FSADd6
+CRITICALDAMAGE: 2d8+DEX+1+(2*FSAD)d6
+output [dpr] named "Full NP vs AC [AC]"\

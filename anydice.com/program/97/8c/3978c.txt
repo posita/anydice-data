@@ -1,0 +1,145 @@
+ATK: 1@2d20 \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:    +13  \ bonus to attack roll \
+AC:      10  \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:   18  \ minimum attack roll to crit \
+DMG:   2d6  \ damage rolled on successful hit \
+BONUS: 2d10  \ bonus damage on first hit \
+LEVEL: 9 \ level the spell is cast at (+1 from tattoo) \
+
+
+function: reroll INIROLL:n {
+   if INIROLL + HIT < AC { result: 1d20 }
+   if INIROLL <= 1 { result: 1d20 }
+   else {
+   result: INIROLL
+   }
+}
+ENDATK: [reroll ATK]  \ accounts for seeking spell metamagic \
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 {result: 0}   \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+ATTACK: [attack ENDATK]  \ optimization: precalculate the miss/hit/crit probabilities \
+
+function: multiattack N:n times {
+  result: [roll ATTACK to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    result: FIRSTHIT d (DMG + BONUS) + (N-1) d (ATTACK d DMG)
+  } else {
+    result: [roll ATTACK to multiattack N-1 times]
+  }
+}
+set "maximum function depth" to 999
+
+function: calculate BASESP:n cost {
+  if BASESP - 1 = 8 {result: 11}
+  if BASESP - 1 = 7 {result: 10}
+  if BASESP - 1 = 6 {result: 9}
+  if BASESP - 1 = 5 {result: 7}
+  if BASESP - 1 = 4 {result: 6}
+  if BASESP - 1 = 3 {result: 5}
+  if BASESP - 1 = 2 {result: 3}
+}
+function: chance of SEEKING:n {
+  if SEEKING = 20 {result: 0}
+  if SEEKING = 1 {result: 1}
+  if SEEKING + HIT >= AC {result: 0}
+  else {result: 1}
+}
+SEEKCOST: [chance of ATK]
+
+function: acc test SEEKCOST:n {
+  result: SEEKCOST
+}
+
+function: volley X:n Y:d {
+  TOTAL: 0
+  loop Z over {1..X} {
+    COST: [acc test Y]
+    TOTAL: TOTAL + COST
+  }
+  result: TOTAL
+}
+
+output [multiattack (LEVEL + 1) times] named "Scorching Ray"
+output ([calculate LEVEL cost] + 2 + [volley (LEVEL + 1) SEEKCOST]) named "Spell Cost (Scorching Ray)"
+
+
+
+
+
+
+
+
+
+ATK:  1@2d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:    +13  \ bonus to attack roll \
+AC:      20  \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:   18  \ minimum attack roll to crit \
+DMG:   1d10  \ damage rolled on successful hit \
+BONUS: 2d10  \ bonus damage on first hit \
+
+
+function: reroll INIROLL:n {
+   if INIROLL + HIT < AC { result: 1d20 }
+   if INIROLL <= 1 { result: 1d20 }
+   else {
+   result: INIROLL
+   }
+}
+ENDATK: [reroll ATK]  \ accounts for seeking spell metamagic \
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+ATTACK: [attack ENDATK]  \ optimization: precalculate the miss/hit/crit probabilities \
+
+function: multiattack N:n times {
+  result: [roll ATTACK to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    result: FIRSTHIT d (DMG + BONUS) + (N-1) d (ATTACK d DMG)
+  } else {
+    result: [roll ATTACK to multiattack N-1 times]
+  }
+}
+set "maximum function depth" to 999
+
+function: chance of SEEKING:n {
+  if SEEKING = 20 {result: 0}
+  if SEEKING = 1 {result: 1}
+  if SEEKING + HIT >= AC {result: 0}
+  else {result: 1}
+}
+SEEKCOST: [chance of ATK]
+
+function: acc test SEEKCOST:n {
+  result: SEEKCOST
+}
+
+function: volley X:n Y:d {
+  TOTAL: 0
+  loop Z over {1..X} {
+    COST: [acc test Y]
+    TOTAL: TOTAL + COST
+  }
+  result: TOTAL
+}
+
+output [multiattack 3 times] named "Eldritch Blast"
+output (2 + [volley 3 SEEKCOST]) named "Spell Cost (Eldritch Blast)"

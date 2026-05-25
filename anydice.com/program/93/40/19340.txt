@@ -1,0 +1,82 @@
+\ Static Variables \
+FAILURE: 0
+SUCCESS: 1
+CRIT: 2
+
+\ Dynamic Variables \
+DC: 16
+ATTACK: 9
+HITDAMAGE: 2d6 + 8
+CRITDAMAGE: 4d6 + 8
+GWMATTACK: ATTACK - 5
+GWMHITDAMAGE: HITDAMAGE + 10
+GWMCRITDAMAGE: CRITDAMAGE + 10
+MISSDAMAGE: 0
+
+\ Dice Roll Functions \
+function: advantage {
+ result: [highest 1 of 2d20]
+}
+function: regular {
+ result: d20
+}
+function: disadvantage {
+ result: [lowest 1 of 2d20]
+}
+
+\ Saving Throw Function \
+function: savingthrow ROLL:n plus SAVE:n {
+ if ROLL + SAVE >= DC { result: FAILURE }
+ result: SUCCESS
+}
+
+\ Attack Function \
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: FAILURE }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATTACK >= AC { result: SUCCESS }
+ result: FAILURE
+}
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: FAILURE }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + GWMATTACK >= AC { result: SUCCESS }
+ result: FAILURE
+}
+
+\ Damage Function \
+function: damage for RESULT:n {
+ if RESULT = CRIT {result: CRITDAMAGE }
+ if RESULT = SUCCESS { result: HITDAMAGE }
+ result: MISSDAMAGE
+}
+function: gwmdamage for RESULT:n {
+ if RESULT = CRIT {result: GWMCRITDAMAGE }
+ if RESULT = SUCCESS { result: GWMHITDAMAGE }
+ result: MISSDAMAGE
+}
+
+\ Average Damage \
+function: averagedamage vs AC:n {
+ result: [damage for [attack [advantage] vs AC]]
+}
+function: averagegwmdamage vs AC:n {
+ result: [damage for [attack [advantage] vs AC]]
+}
+
+\ Function Calls \
+\
+loop SAVE over {0..DC-2} {
+ output [savingthrow [advantage] plus SAVE] named "[SAVE]"
+}
+
+loop AC over {5..30} {
+ output [attack [regular] vs AC] named "[AC]"
+}
+
+loop AC over {10, 15, 20} {
+ output [damage for [attack [advantage] vs AC]] named "[AC]"
+}
+\
+output [averagedamage vs 10] named "Regular"
+output [averagegwmdamage vs 10] named "GWM"

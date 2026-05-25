@@ -1,0 +1,31 @@
+NUMBEROFDICE: 80
+SUCCESSTHRESHOLD: 6
+MULTIPLIER: 10
+
+
+function: roll RAWROLL:n with s T:n explode to REPLACEMENT:d {
+  ROLL: 0
+  if RAWROLL = 1 {
+    ROLL: -1
+  }
+  if RAWROLL >= T {
+    ROLL: 1
+  }
+  if RAWROLL = 10 {
+    ROLL: ROLL + [roll REPLACEMENT with s T explode to REPLACEMENT]
+  }
+  result: ROLL 
+}
+function: roll DICE:d with s T:n {
+  result: [roll DICE with s T explode to DICE]
+}
+
+HITS: 0
+loop N over {1..NUMBEROFDICE} {
+  HITS: HITS + [roll 1d10 with s SUCCESSTHRESHOLD]
+}
+output [highest of -1 and ((HITS * MULTIPLIER) / 10)]
+
+
+
+

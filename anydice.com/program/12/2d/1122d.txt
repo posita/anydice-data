@@ -1,0 +1,60 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGEA } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: ATKDAMAGE}
+ result: 0
+}
+
+function: shadowblade ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGEB } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SBDAMAGE}
+ result: 0
+}
+
+function: bb ROLL:n vs AC:n BOOM {
+ if ROLL >= CRITROLL {
+  if BOOM = 1 {
+   result: CRITDAMAGEB + 4d8
+  }
+  else {
+   result: CRITDAMAGEB
+  }
+ }
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC {
+  if BOOM = 1 {
+   result: WMDAMAGE + 2d8
+  }
+  else {
+   result: WMDAMAGE
+  }
+ }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{10..20}
+
+ATTACKMOD: 5
+DMGBONUS: 4
+PROFICIENCY: 3
+ACCBONUS: 1
+CRITROLL: 20
+ATKDAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+SBDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+WMDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGEA: 2d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGEB: 4d8 + ATTACKMOD + DMGBONUS
+ATTACKTIMES: 2
+output ATTACKTIMESd[shadowblade d20 vs ENEMYAC] named "Shadowblade Attack"
+output ATTACKTIMESd[shadowblade [highest 1 of 2d20] vs ENEMYAC] named "Shadowblade Attack with adv"
+output [bb d20 vs ENEMYAC 0] + [attackroll d20 vs ENEMYAC] named "War Magic"
+output [bb d20 vs ENEMYAC 1] + [attackroll d20 vs ENEMYAC] named "War Magic + Boom"
+output [bb d20 vs ENEMYAC 0] + [shadowblade d20 vs ENEMYAC] named "War Magic with SB"
+output [bb d20 vs ENEMYAC 0] + [shadowblade [highest 1 of 2d20] vs ENEMYAC] named "War Magic with SB with adv"
+output [bb d20 vs ENEMYAC 1] + [shadowblade d20 vs ENEMYAC] named "War Magic with SB with boom"
+output [bb d20 vs ENEMYAC 1] + [shadowblade [highest 1 of 2d20] vs ENEMYAC] named "War Magic with SB with adv with boom"
+output 3d[attackroll d20 vs ENEMYAC] named "Haste 3 attacks"

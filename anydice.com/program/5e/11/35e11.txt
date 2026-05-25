@@ -1,0 +1,23 @@
+
+function : hit pf DVAL:n PLUS:n vs AC:n
+{
+ V : ((DVAL = 20) * 10) + ((DVAL = 1) * -10) + DVAL + PLUS
+ D : (V >= AC) + (V >= AC + 10) 
+ result : D
+}
+CUS : [hit pf 1d20 18 vs 30] + [hit pf 1d20 13 vs 30] + [hit pf 1d20 8 vs 30]
+EIN : [hit pf 1d20 23 vs 24] + ([hit pf 1d20 19 vs 24] + [hit pf 1d20 15 vs 24])
+DMGCUS : 0
+DMGEIN : 0
+
+NEIN : 1
+STILLGOING : 1
+loop T over {1..10}
+{
+ DMGCUS : DMGCUS + STILLGOING * ((NEIN>0)dEIN*(2d10 + 11))
+ NCUS   : [highest of (4 - DMGCUS/140) and 0]
+ DMGEIN : DMGEIN  + STILLGOING * (NCUSdCUS * (2d10 + 9))
+ NEIN   : [highest of 1d(2 - DMGEIN/175) and 0]
+ STILLGOING : ((NEIN=0)-(NCUS=0))=0
+ output (NEIN=0) - (NCUS=0)
+}

@@ -1,0 +1,36 @@
+\** GREAT WEAPON FIGHTING **\
+\
+  the first parameter is evaluated as a die roll, the second is evaluated as a die,
+  a die cannot be rolled within a function and assigned to a variable (this sucks).
+  the only way to evaluate a die roll is to pass it as an argument; DAMAGE_ROLL
+  and DAMAGE_DIE must be the same, i.e. d6 & d6
+\
+function: gwf with DAMAGE_ROLL:n rolled on DAMAGE_DIE:d {
+   if DAMAGE_ROLL < 5 { result: dDAMAGE_DIE }
+   result: DAMAGE_ROLL
+}
+\ so, we define another function to call the first one \
+function: gwf with die DIE:d { result: [gwf with DIE rolled on DIE] }
+
+\** CRITICAL HIT (OR MISS) **\
+\
+  the only way to evaluate a die roll is to pass it as an argument, so ROLL must be 'd20'
+  I can't see away around the tight coupling between function definition and function call.
+\
+function: is ROLL:n a crit or miss with damage DAMAGE:d {
+   if ROLL = 20 { result: dDAMAGE+dDAMAGE }
+   if ROLL = 1 { result: 0 }
+   result: dDAMAGE
+}
+\ so, we define another function to call the first one \
+function: return crit or miss with damage DAMAGE:d { result: [is d20 a crit or miss with damage DAMAGE] }
+
+\ END DEFINITIONS \
+
+function: figher damage roll { result: [return crit or miss with damage 1d[gwf with die d12]]}
+
+
+
+output [figher damage roll] named "figher (one hit)"
+output [figher damage roll]+[figher damage roll] named "figher (two hits)"
+

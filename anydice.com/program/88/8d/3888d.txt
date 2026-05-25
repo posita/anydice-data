@@ -1,0 +1,67 @@
+ATT: 95 \Attacker Skill level (After Difficulty Modifiers)\
+DEF: 95 \Defender skill level (After Difficulty Modifiers)\
+
+function: critical range V:n {
+if V-V/10*10 > 0{result:V/10+1}
+else{result:V/10}
+}
+
+function: fumble range V:n {
+if V>100 {result:99}
+else{result:98}
+}
+
+function: attack chance A:n {
+if A <= [critical range ATT] {result: 2}
+if (A <= ATT & A <96)| A <=5 {result: 1}
+if A > [fumble range ATT] {result: -1}
+if A > ATT | A >=96 {result: 0}}
+
+function: defend chance D:n {
+if D <= [critical range DEF] {result: 2}
+if (D <= DEF & D <96)| D <=5 {result: 1}
+if D > [fumble range DEF] {result: -1}
+if D > DEF | D >=96 {result: 0}
+}
+
+function: outcome chance A:n and D:n {
+ATTACK_RESULT:[attack chance A]
+DEFEND_RESULT:[defend chance D]
+if ATTACK_RESULT>0 & DEFEND_RESULT>0 & ATTACK_RESULT=DEFEND_RESULT {
+if A>D {result: 1}
+if D>A {result: 0}
+if A=D {result: -2}
+}
+if ATTACK_RESULT > DEFEND_RESULT & ATTACK_RESULT>0 {result: 1}
+if DEFEND_RESULT > ATTACK_RESULT & DEFEND_RESULT>0 {result: 0}
+if ATTACK_RESULT <=0 & DEFEND_RESULT <=0{result:-1}
+}
+
+function: victor compared chance A:n and D:n {
+ATTACK_RESULT:[attack chance A]
+DEFEND_RESULT:[defend chance D]
+if ATTACK_RESULT>0 & DEFEND_RESULT>0 & ATTACK_RESULT=DEFEND_RESULT {
+if A>D {result: 1}
+if D>A {result: 0}
+if A=D {}
+}
+if ATTACK_RESULT > DEFEND_RESULT & ATTACK_RESULT>0 {result: 1}
+if DEFEND_RESULT > ATTACK_RESULT & DEFEND_RESULT>0 {result: 0}
+if ATTACK_RESULT<=0 & DEFEND_RESULT <= 0{}
+}
+
+function: se chances A:n and D:n {
+ATTACK_RESULT:[attack chance A]
+DEFEND_RESULT:[defend chance D]
+if ATTACK_RESULT>0 & DEFEND_RESULT<ATTACK_RESULT{result: ATTACK_RESULT-DEFEND_RESULT}
+if DEFEND_RESULT>0 & DEFEND_RESULT>ATTACK_RESULT>0 {result: ATTACK_RESULT-DEFEND_RESULT}
+if ATTACK_RESULT<=0 & DEFEND_RESULT <= 0{result:-4}
+if DEFEND_RESULT = ATTACK_RESULT {result: 0}
+}
+
+\0 means defender wins, 1 means attacker wins, -1 means both fail/fumble -2 means you both succeed but rolled the same number\
+output [outcome chance d100 and d100] named "'All' Opposed Roll Outcomes"
+\0 means defender wins, 1 means attacker wins\
+output [victor compared chance d100 and d100] named "Opposed Roll Chances"
+\negative numbers are Degrees of Success for the defender, Positive for the attacker, -4 means you've both failed\
+output [se chances d100 and d100] named "Differential Roll Chances"

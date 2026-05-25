@@ -1,0 +1,18 @@
+function: save DC mod MOD {
+  result: (1d20 + MOD) >= DC
+}
+
+function: downs DAMAGE hp HP dc DC mod MOD {
+  SAVEDAMAGE: DAMAGE / ([save DC mod MOD] + 1)
+  result: SAVEDAMAGE >= HP
+}
+
+function: numdowned DAMAGE:n hps HPS dc DC mods MODS {
+  SUM: 0
+  loop N over {1..#HPS} {
+    SUM: SUM + [downs DAMAGE hp N@HPS dc DC mod N@MODS]
+  }
+  result: SUM
+}
+
+output [numdowned 16d6 hps {60, 45, 44, 59, 52} dc 18 mods {3, 1, 5, 3, 2}]

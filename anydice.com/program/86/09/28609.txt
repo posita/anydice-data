@@ -1,0 +1,40 @@
+ATK:   d20     \ use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:   +7  
+AC:    16 
+CRIT:  20  
+MULTI: 3
+RANGE: 5
+
+function: attack ROLL:n TOTAL:n {
+  if ROLL <= 1 { result: 0 }     
+  if ROLL >= CRIT { result: TOTAL + 1 }
+  if TOTAL > 1 {
+    HITS: 0
+    loop I over {0..(TOTAL-1)} {
+       if ROLL + HIT >= AC + (RANGE * I) {HITS: HITS + 1}
+    }
+    result: HITS
+  } else {
+    result: ROLL + HIT >= AC
+  }
+}
+
+function: multiattack N:n times {
+  if N > 0 {
+    HITS: 0 
+    loop I over {1..N} {
+      HITS: HITS + [attack ATK 1] 
+    }
+    result: HITS
+  } else {
+    result: 0
+  }
+}
+
+function: fullattack N:n total{
+  HIT: HIT + ((N-1) * MULTI)
+  result: [attack ATK N]
+}
+
+output [multiattack 2 times] named "Attacks"
+output [fullattack 2 total] named "Single"

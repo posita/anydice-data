@@ -1,0 +1,66 @@
+function : damage DAMAGE:d DPLUS:n attack DICE:s APLUS:n vs AC:n
+{
+	MULTIPLIER : 0
+	OUT : 0
+	if (DICE = 20) {MULTIPLIER : 2}
+	else if (DICE + APLUS >= AC) {MULTIPLIER : 1}
+	
+	if (MULTIPLIER > 0)
+	{
+		OUT : DPLUS
+		loop N over {1..MULTIPLIER}
+		{
+			OUT : OUT + DAMAGE
+		}
+	}
+	
+	result : OUT
+}
+
+function : subtract HP:n MHP:n with DAMAGE:s
+{
+	if (HP <= 0)
+	{
+		if (DAMAGE > 0)
+		{
+			result : [highest of HP - 2 and -3]
+		}
+		else
+		{
+			result : HP
+		}
+	}
+	else if (DAMAGE >= MHP + HP)
+	{
+		result : -3
+	}
+	else
+	{
+		result : [highest of HP - DAMAGE and 0]
+	}
+}
+
+C : 2
+H : {6,9,11}
+A : {12,14,19}
+
+
+
+loop J over {1..#H}
+{
+        HP : J@H
+        AC : J@A
+        Q : J@H
+	Q : [subtract Q J@H with [damage 1d6 2 attack d20 4 vs J@A]]
+        Q : [subtract Q J@H with [damage 1d6 2 attack [lowest 1 of 2d20] 4 vs J@A]]
+        output Q named "Player (HP : [HP], AC : [AC]) first attack"
+	loop N over {1..C}
+	{
+		
+
+
+		Q : [subtract Q J@H with [damage 1d6 2 attack d20 3 vs J@A]]
+		output Q named "Player (HP : [HP], AC : [AC]) follow up #[N]"
+	}
+	
+}

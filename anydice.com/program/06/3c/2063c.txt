@@ -1,0 +1,47 @@
+function : damage DAMAGE:d DPLUS:n attack DICE:s APLUS:n vs AC:n
+{
+	MULTIPLIER : 0
+	OUT : 0
+	if (DICE = 20) {MULTIPLIER : 2}
+	else if (DICE + APLUS >= AC) {MULTIPLIER : 1}
+	else if (DICE = 1) {MULTIPLIER : 0}
+	
+	if (MULTIPLIER > 0)
+	{
+		OUT : DPLUS + MULTIPLIERdDAMAGE
+	}
+	
+	result : OUT
+}
+
+
+function : great weapon fighter DICE:s
+{
+ H : 0
+ loop N over {1..#DICE}
+ {
+  if N@DICE > 2 {H : H + N@DICE}
+  else {H : 1dH}
+ }
+ result : H
+}
+
+function : great weapon master DAMAGE:d DPLUS:n attack DICE:s APLUS vs AC:n
+{
+ result : [damage DAMAGE DPLUS+10 attack DICE APLUS-5 vs AC]
+}
+
+
+HM : 4 + 2
+
+D : [great weapon fighter 2d6]
+HD : [highest 1 of 2d20]
+HDB : 1d20
+loop N over {10..20}
+{
+ GWMAS : [great weapon master D+1d8 0 attack HDB HM vs N]
+ GWMA : [great weapon master D 0 attack HD HM vs N]
+ NA : [damage D 0 attack HDB HM vs N]
+
+ output (GWMA > NA) * 1 + (GWMAS > NA) * 2 named "GWM works better AC [N]"
+}

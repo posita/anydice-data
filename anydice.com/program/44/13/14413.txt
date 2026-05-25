@@ -1,0 +1,17 @@
+N: 20  \- number of independent trials -\
+P: 5   \- success rate per trial (percent, assumed to be <= 50) -\
+
+function: round A:n per B:n { result: (A + B/2) / B }
+AVG: [round N*P per 100]
+
+output Nd(d100 <= P) named "exact binomial with N=[N], P=[P]%"
+
+if N*P <= 100 { output d100 <= N*P named "d100 approximation for N*P < 1" }
+
+FUDGE: d{-1,0,+1}
+if AVG >= 1   { output AVG + AVGdFUDGE named "Fudge dice approximation for N*P > 1" }
+if AVG >= 10  { output AVG +  3 * [round N*P per  1000]dFUDGE named "Fudge dice approximation for N*P > 10" }
+if AVG >= 100 { output AVG + 10 * [round N*P per 10000]dFUDGE named "Fudge dice approximation for N*P > 100" }
+
+if N*P >= 10 & N*P <= 200 { output 2d(d20 <= [round N*P per 10]) named "Poisson approximation with 2d20 (for 0.1 < N*P < 2)" }
+if N*P >= 25 & N*P <= 500 { output 5d(d20 <= [round N*P per 25]) named "Poisson approximation with 5d20 (for 0.25 < N*P < 5)" }

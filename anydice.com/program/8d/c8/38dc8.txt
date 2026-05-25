@@ -1,0 +1,95 @@
+output (231d{0,0,0,1}-171)
+
+function: base D:d {
+ R: {}
+ S: [reverse [sort {D}]]
+ I: 1
+ loop N over {1..#S}{
+  I: I-1
+  if I = 0 {
+   R: {R, (N@S)/(#D)}
+   I: #D
+  }
+ }
+ result: R
+}
+
+function: S:n higher than C:n {
+ if S>=C {
+  result: 0+C
+ }
+ else {
+  result: 0-C
+ }
+}
+function: clamp S:d from A:n to B:n {
+ result: [highest of A and [lowest of B and S]]
+}
+
+function: roll S:d vs C:d {
+ result: [highest 1 of #Cd[[highest 1 of S] higher than d[base C]]]
+}
+
+function: threshold N:n to S:s {
+ O: [sort S]
+ R: -1
+ D: #S
+ loop M over O {
+  if M <= N {
+   if R < M {
+    R:N*100+D
+   }
+  }
+  D:D-1
+ }
+ if R = -1 {
+  R:N*100
+ }
+ result:R
+}
+function: N:n mod M:n {
+ result: N-(N/M)*M
+}
+
+function: smul S:s N:n {
+ R:{}
+ loop M over S {
+  R:{R,M*N}
+ }
+ result: R
+}
+
+function: sadd S:s N:n {
+ R:{}
+ loop M over S {
+  R:{R,M+N}
+ }
+ result: R
+}
+
+\X:[threshold 1d8 to [sadd [smul {1..12} 2] 1-2]]
+output X
+output [X mod 100]\
+
+OW:0
+WC:1
+
+loop S over {12,8,6} {
+ loop SC over {1,2} {
+  loop A over {0,2,3,5} {
+   output 0 named "A:[A]"
+   loop W over {6,6,8,12} {
+    if W = OW {
+     WC:WC+1
+    }
+    else {
+     WC:1
+    }
+    OW:W
+    output 1d[clamp [roll SCdS vs WCdW]-A from 0 to 12] named "[SC]d[S] vs [WC]d[W]"
+    \output [[threshold [roll SCdS vs WCdW] to [sadd [smul {1..12} A+1] 0-A]] mod 100] named "roll [SC]d[S] vs [WC]d[W] | -[A]"\
+   }
+  }
+  output 0 named "---"
+ }
+}

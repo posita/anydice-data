@@ -1,0 +1,66 @@
+function: roll ACTIVE:s with BONUS:s against TARGET:n {
+  ALUCY:  1@ACTIVE
+  AREN:   2@ACTIVE
+  ASEPH:  3@ACTIVE
+  AKARL:  4@ACTIVE
+  AAMALIA:5@ACTIVE
+  AISSAC: 6@ACTIVE
+  AJORY:  7@ACTIVE
+  LUCY:   1d20 + 1@BONUS
+  REN:    1d20 + 2@BONUS
+  SEPH:   1d20 + 3@BONUS
+  KARL:   1d20 + 4@BONUS
+  AMALIA: 1d20 + 5@BONUS
+  ISSAC:  1d20 + 6@BONUS
+  JORY:   1d20 + 7@BONUS
+  RLUCY:   ALUCY*LUCY >= TARGET
+  RREN:    AREN*REN   >= TARGET
+  RSEPH:   ASEPH*SEPH >= TARGET
+  RKARL:   AKARL*KARL >= TARGET
+  RAMALIA: AAMALIA*AMALIA >= TARGET
+  RISSAC:  AISSAC*ISSAC   >= TARGET
+  RJORY:   AJORY*JORY     >= TARGET
+  
+  result: RLUCY | RREN | RSEPH | RKARL | RAMALIA | RISSAC | RJORY
+}
+
+SNEAK: {2,-1,14,2,3,2,9}
+RECON: {4,9,8,6,6,5,12}
+CRAFT: {7,10,5,8,18,9,7}
+MOBIL: {0,2,4,1,0,2,2}
+PERCP: {1,2,4,3,4,4,8}
+MICRO: {3,3,2,6,8,7,5}
+
+\ Lucy, Ren, Seph, Karl, Amalia, Issac, Jory \
+SCOUT: {0,0,1,0,1,0,1}
+SRECON: [roll SCOUT with RECON against 24]
+SPERCP: [roll SCOUT with PERCP against 18]
+SSNEAK: [roll SCOUT with SNEAK against 1d20 + 9]
+SMOBIL: [roll SCOUT with MOBIL against 18]
+
+output (SRECON | SPERCP) & (SSNEAK | SMOBIL) named "Scout Success"
+
+CAMP: {0,0,0,0,1,1,1}
+CCRAFT: [roll CAMP with CRAFT against 28]
+CMICRO: [roll CAMP with MICRO against 18]
+CMOBIL: [roll CAMP with MOBIL against 15]
+CSNEAK: [roll CAMP with SNEAK against 1d20 + 6]
+
+output (CCRAFT| CMICRO) & CMOBIL & CSNEAK named "Camp Success"
+
+function: sumroll BONUS:s against TARGET:n {
+  LUCY:   1d20 + 1@BONUS
+  REN:    1d20 + 2@BONUS
+  SEPH:   1d20 + 3@BONUS
+  KARL:   1d20 + 4@BONUS
+  AMALIA: 1d20 + 5@BONUS
+  ISSAC:  1d20 + 6@BONUS
+  JORY:   1d20 + 7@BONUS
+  
+  result: LUCY + REN + SEPH + KARL + AMALIA + ISSAC + JORY >= 7*TARGET
+}
+
+output [sumroll MOBIL against 16]     named "RUNAWAY Mobility"
+output [sumroll SNEAK against 1d20+6] named "RUNAWAY Sneak"
+output [sumroll MOBIL against 16] & [sumroll SNEAK against 1d20+6] named "RUNAWAY Success"
+

@@ -1,0 +1,83 @@
+\ V5 OPTIMIZED CALCULATOR \
+
+\ CONFIGURATION \
+POOL: 6
+HUNGER: 2
+
+\ CUSTOM DICE DEFINITIONS (For Speed) \
+\ We map d10 faces to simpler ID numbers to prevent timeouts. \
+
+\ Normal Die Mapping: \
+\ 1-5 (Fail) -> 0 \
+\ 6-9 (Success) -> 1 \
+\ 10 (Crit) -> 2 \
+DIE_NORMAL: {0:5, 1:4, 2:1}
+
+\ Hunger Die Mapping: \
+\ 1 (Bestial Trigger) -> -1 \
+\ 2-5 (Fail) -> 0 \
+\ 6-9 (Success) -> 1 \
+\ 10 (Crit) -> 2 \
+DIE_HUNGER: {-1:1, 0:4, 1:4, 2:1}
+
+
+\ FUNCTION: V5 MECHANICS \
+\ Accepts sequences (:s) of our custom dice \
+function: vtm five N:s H:s {
+  \ Count the specific faces in the rolled pool \
+  
+  \ Normal Dice Counts \
+  N_SUCC: [count 1 in N]
+  N_CRIT: [count 2 in N]
+  
+  \ Hunger Dice Counts \
+  H_BESTIAL: [count -1 in H]
+  H_SUCC: [count 1 in H]
+  H_CRIT: [count 2 in H]
+
+  \ Derived Stats \
+  TOTAL_CRITS: N_CRIT + H_CRIT
+  
+  \ Critical Bonus: 2 extra successes for every pair of 10s \
+  CRIT_BONUS: 2 * (TOTAL_CRITS / 2)
+  
+  \ Base Successes (Natural 6+ and 10s count as 1 initially) \
+  BASE_SUCC: N_SUCC + H_SUCC + N_CRIT + H_CRIT
+  
+  TOTAL_SUCCESS: BASE_SUCC + CRIT_BONUS
+
+  \ FLAGS \
+  IS_CRIT_WIN: TOTAL_CRITS >= 2
+  IS_MESSY: IS_CRIT_WIN & (H_CRIT > 0)
+  IS_BESTIAL: (TOTAL_SUCCESS = 0) & (H_BESTIAL > 0)
+
+  \ OUTPUT LOGIC \
+  \ Uncomment the lines inside the backslashes below to switch modes. \
+
+  \ MODE A: Total Successes (Standard) \
+  result: TOTAL_SUCCESS
+
+  \ MODE B: Narrative Outcomes \
+  \ -1: Bestial Failure \
+  \  0: Failure \
+  \  1: Success \
+  \  2: Clean Critical \
+  \  3: Messy Critical \
+  
+  \ To use Mode B, comment out 'result: TOTAL_SUCCESS' above and uncomment below: \
+  
+  \ if IS_BESTIAL { result: -1 } \
+  \ if TOTAL_SUCCESS = 0 { result: 0 } \
+  \ if IS_MESSY { result: 3 } \
+  \ if IS_CRIT_WIN { result: 2 } \
+  \ result: 1 \
+}
+
+\ CALCULATE POOL SIZES \
+\ Ensure non-negative numbers \
+N_AMT: [highest of 0 and POOL - HUNGER]
+H_AMT: [lowest of POOL and HUNGER]
+
+\ EXECUTE \
+\ We pass the Dice Rolls into the function as sequences \
+output [vtm five N_AMT d DIE_NORMAL H_AMT d DIE_HUNGER] named "Outcomes"

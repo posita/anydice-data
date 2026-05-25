@@ -1,0 +1,34 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n SB BOOMA BOOMB {
+ if ROLL >= CRITROLL {
+   DAMAGE: 2d8 + DMGBONUS
+   if SB { DAMAGE: DAMAGE + 2d8 }
+   if BOOMA { DAMAGE: DAMAGE + 2d8 }
+   if BOOMB { DAMAGE: DAMAGE + 4d8 }
+   result: DAMAGE
+ }
+ if ROLL = 1 { result: 0 }
+ if ROLL + ACCBONUS >= AC {
+   DAMAGE: 1d8 + DMGBONUS
+   if SB { DAMAGE: DAMAGE + 1d8 }
+   if BOOMA { DAMAGE: DAMAGE + 1d8 }
+   if BOOMB { DAMAGE: DAMAGE + 2d8 }
+   result: DAMAGE
+ }
+ result: DAMAGE
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{10..20}
+
+DMGBONUS: 8
+ACCBONUS: 9
+CRITROLL: 20
+output 2d[attackroll(d20+ACCBONUS) vs ENEMYAC 0 0 0] named "2 atks"
+output 2d[attackroll(d20+ACCBONUS) vs ENEMYAC 1 0 0] named "2 atks w/ shadow blade"
+output  d[attackroll(d20+ACCBONUS) vs ENEMYAC 0 1 0] + d[attackroll(d20+ACCBONUS) vs ENEMYAC 0 0 0] named "booming blade w/ war magic"
+output  d[attackroll(d20+ACCBONUS) vs ENEMYAC 0 1 1] + d[attackroll(d20+ACCBONUS) vs ENEMYAC 0 0 0] named "booming blade w/war magic + boom"
+output  d[attackroll(d20+ACCBONUS) vs ENEMYAC 1 1 0] + d[attackroll(d20+ACCBONUS) vs ENEMYAC 1 0 0] named "booming blade w/ war magic w/ shadow blade"
+output  d[attackroll(d20+ACCBONUS) vs ENEMYAC 1 1 1] + d[attackroll(d20+ACCBONUS) vs ENEMYAC 1 0 0] named "booming blade w/war magic + boom w/ shadow blade"
+output 3d[attackroll(d20+ACCBONUS) vs ENEMYAC 0 0 0] named "3 atks w/ haste"

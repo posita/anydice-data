@@ -1,0 +1,42 @@
+function : damage DAMAGE:d DPLUS:n attack DICE:s APLUS:n vs AC:n
+{
+	MULTIPLIER : 0
+	OUT : 0
+	if (DICE = 20) {MULTIPLIER : 2}
+	else if (DICE + APLUS >= AC) {MULTIPLIER : 1}
+	
+	if (MULTIPLIER > 0)
+	{
+		OUT : DPLUS
+		loop N over {1..MULTIPLIER}
+		{
+			OUT : OUT + DAMAGE
+		}
+	}
+	
+	result : OUT
+}
+
+
+function : great weapon fighter DICE:s
+{
+ H : 0
+ loop N over {1..#DICE}
+ {
+  if N@DICE > 2 {H : H + N@DICE}
+  else {H : H + 1d6}
+ }
+ result : H
+}
+
+function : great weapon master DAMAGE:s DPLUS:n attack DICE:s APLUS vs AC:n
+{
+ result : [damage DAMAGE DPLUS+10 attack DICE APLUS-5 vs AC]
+}
+
+loop J over {6..25}
+{
+ HITA : [damage [great weapon fighter 2d6]+1d8 0 attack [highest 1 of 2d20] 5 vs J]
+ HITB : [great weapon master [great weapon fighter 2d6]+1d8 0 attack [highest 1 of 2d20] 5 vs J]
+ output HITA < HITB named "AC [J]"
+}

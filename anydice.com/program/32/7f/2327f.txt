@@ -1,0 +1,45 @@
+\----------------------------------------------------------------------\
+\         --- ~~~~~ === THE ONE RING RPG 2nd Ed === ~~~~~ ---          \
+\----------------------------------------------------------------------\
+\ In results : -1  means failure                                       \
+\               0+ means success                                       \
+\               1  means success with ONE 6 rolled on the skill dice   \
+\               2  means success with TWO 6 rolled on the skill dice   \
+\               3  means success with THREE 6 rolled on the skill dice \
+\----------------------------------------------------------------------\
+
+
+function: tortest skill SKILL:n weary WEARY:n difficulty DIFF:n advantage ADV:n {
+\ A _The One Ring rpg_ skill check
+  Call it like : 
+  output [tortest skill 2 weary NO difficulty 14 advantage -1] named "Difficulty 14 skill 2, no weary, disadvantage"
+\
+  if WEARY = 0 { SD: SKILLd6} else {SD:SKILLd{0:3,4,5,6} }
+  if ADV < 0 {FEATD: 2@2d{1..10,0,DIFF}}
+  if ADV = 0 {FEATD: 1d{1..10,0,DIFF}}
+  if ADV > 0 {FEATD: 1@2d{1..10,0,DIFF}}
+  result: (FEATD+SD >= DIFF)*([count 6 in SD]+1) -1
+}
+
+YES: 1
+NO: 0
+
+
+loop DIFFICULTY over {13..18} {
+  loop SKILL over {0..3} {
+    if SKILL=0 {
+      output [tortest skill SKILL weary NO difficulty DIFFICULTY advantage 0] named "--- Difficulty [DIFFICULTY] ---"
+      output [tortest skill SKILL weary NO difficulty DIFFICULTY advantage -1] named "Difficulty [DIFFICULTY], ill-favoured"
+      output [tortest skill SKILL weary NO difficulty DIFFICULTY advantage 1] named "Difficulty [DIFFICULTY], favoured"
+    }
+    else {
+      output [tortest skill SKILL weary NO difficulty DIFFICULTY advantage 0] named "Difficulty [DIFFICULTY] skill [SKILL]"
+      output [tortest skill SKILL weary NO difficulty DIFFICULTY advantage -1] named "Difficulty [DIFFICULTY] skill [SKILL], ill-favoured"
+      output [tortest skill SKILL weary NO difficulty DIFFICULTY advantage +1] named "Difficulty [DIFFICULTY] skill [SKILL], favoured"
+      output [tortest skill SKILL weary YES difficulty DIFFICULTY advantage 0] named "Difficulty [DIFFICULTY] skill [SKILL], weary"
+      output [tortest skill SKILL weary YES difficulty DIFFICULTY advantage -1] named "Difficulty [DIFFICULTY] skill [SKILL], weary, ill-favoured"
+      output [tortest skill SKILL weary YES difficulty DIFFICULTY advantage +1] named "Difficulty [DIFFICULTY] skill [SKILL], weary, favoured"
+    }
+  }
+}
+    

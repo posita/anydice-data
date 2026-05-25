@@ -1,0 +1,72 @@
+STRMOD: 4
+PROF: 3
+WEAP: +1
+
+ATMOD: STRMOD+WEAP
+TOHIT: STRMOD+PROF +WEAP
+
+
+LOO: 1
+ACA: 17
+ACB: 20    \ if you want to loop \
+ADV: 1
+BLESS: 1
+NOR: 1
+GWM: 1
+CRIT: 1
+PERC: 0
+
+\output 2d{{3..6}:4, {1..2}} + ATMOD named "DPA"\
+
+DIEONE: 1d20
+DIETWO: [highest 1 of 2d20]
+GS: 2d{{3..6}:4, {1..2}}
+
+if ADV{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+X: ( TOHIT+DIETWO >= AC )
+
+output X *(GS+ATMOD +(DIETWO=20)*CRIT*GS) named "adv [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}
+
+if GWM{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+X: ( TOHIT-5+DIETWO >= AC )
+
+output X *(GS+ATMOD+10 +(DIETWO=20)*CRIT*GS) named "adv GWM [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}}
+}
+
+\ normal \
+
+if NOR{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+X:( TOHIT  +DIEONE >= AC )
+
+output X *(GS+ATMOD +(DIEONE=20)*CRIT*GS) named "[AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}
+
+if GWM{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+X:( TOHIT-5  +DIEONE >= AC )
+
+output X *(GS+ATMOD+10 +(DIEONE=20)*CRIT*GS) named "GWM [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}}
+
+if BLESS{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+X:( TOHIT  +DIEONE +1d4 >= AC )
+output X *(GS+ATMOD +(DIEONE=20)*CRIT*GS) named "Bless [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}
+if GWM{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+X:( TOHIT-5  +DIEONE +1d4 >= AC )
+output X *(GS+ATMOD+10 +(DIEONE=20)*CRIT*GS) named "Bless GWM [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}}}
+}

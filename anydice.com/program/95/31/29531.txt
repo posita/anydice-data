@@ -1,0 +1,33 @@
+ATK:  1d20 \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:    +11  \ bonus to attack roll \
+AC:      13  \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:   20  \ minimum attack roll to crit \
+DMG:   1d10 + 6 \ damage rolled on successful hit \
+BONUS: 0 \ bonus damage on first hit \
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+
+function: multiattack N:n times {
+  result: [roll [attack ATK] to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    DAMAGE: FIRSTHIT d (DMG + BONUS)
+    loop I over {2..N} {
+      DAMAGE: DAMAGE + [attack ATK] d DMG
+    }
+    result: DAMAGE
+  } else {
+    result: [roll [attack ATK] to multiattack N-1 times]
+  }
+}
+
+output [multiattack 6 times]

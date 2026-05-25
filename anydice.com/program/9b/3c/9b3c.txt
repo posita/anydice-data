@@ -1,0 +1,59 @@
+output 4d{-1,0,1}  named "4dF"
+
+SMART: {-1,-1,0,0,1,1}
+set "maximum function depth" to 4
+
+function: explodemax ROLLEDVALUE:n {
+ if ROLLEDVALUE < 1 { result: 0 }
+ if ROLLEDVALUE = 1 { result: 1 + [explodemax dSMART] }
+ result: ROLLEDVALUE
+}
+
+function: explodemin ROLLEDVALUE:n {
+ if ROLLEDVALUE > -1 { result: 0 }
+ if ROLLEDVALUE = -1 { result: -1 + [explodemin dSMART] }
+ result: ROLLEDVALUE
+}
+
+function: explode ROLLEDVALUE:n {
+ if ROLLEDVALUE = 1  { result: 1 + [explodemax dSMART] }
+ if ROLLEDVALUE = -1 { result: -1 + [explodemin dSMART] }
+ result: ROLLEDVALUE
+}
+
+output [explode dSMART] named "smart d6"
+
+output [explode d6] named "exploded d6"
+
+output [middle 1 of 3d6] named "middle 1 of 3d6"
+
+output [middle 1 of 3d6] - [middle 1 of 3d6] named "middle 1 of 3d6 - middle 1 of 3d6"
+output [highest 1 of 3d6] - [highest 1 of 3d6] named "highest 1 of 3d6 - highest 1 of 3d6"
+
+output [lowest 3 of 4d6] named "lowest 3 of 4d6"
+
+function: lowhigh X:n w Y:n HIGH:n {
+if X=Y {result:0}
+if (X>4 & Y>4) {result:0}
+if (X>4 & Y<5) {result:-1 * Y}
+if (Y>4 & X<5) {result:X}
+if HIGH=0 {
+   if X>Y {result:-1 * Y}
+   if Y>X {result:X}
+} else
+{
+   if X>Y {result:X}
+   if Y>X {result:-1 * Y}
+}
+}
+
+output [lowhigh 1d4 w 1d4 0] named "LowHigh d4 Low"
+output [lowhigh d{1,2,3,4,4,4} w d{1,2,3,4,4,4} 0] named "LowHigh 6 Low"
+output [lowhigh 1d4 w 1d4 1] named "LowHigh d4 High"
+output [lowhigh d{1,2,3,4,1,1} w d{1,2,3,4,1,1} 1] named "LowHigh 6 High"
+
+output d{0,0,1,2,3,4} - d{0,0,1,2,3,4} named "d6 vs d6, convert +/-5 to 0"
+
+loop N over {4,6,8} {
+  output Nd2 + -N named "Coins"
+}

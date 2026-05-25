@@ -1,0 +1,44 @@
+function: runcombat X:n {
+ TOTAL: 0
+ loop N over {1..X} {
+  DAMAGE: [attack N]
+  TOTAL: TOTAL + DAMAGE
+ }
+ result: TOTAL
+}
+
+function: attack SURGE:n {
+ TOTALDAMAGE: [0 makeattack ADVANTAGEd20]
+ TOTALDAMAGE: TOTALDAMAGE + [TOTALDAMAGE makeattack ADVANTAGEd20]
+
+ result: TOTALDAMAGE
+}
+
+function: DAMAGE:n makeattack ROLLS:s {
+ result: [DAMAGE attackdamage 1@ROLLS]
+}
+
+function: DAMAGE:n attackdamage ROLL:n {
+ if (DAMAGE > 0){
+  if (ROLL = 20 & DAMAGE){
+   result: 2d8+2d6+2d6+2d4+STR
+  }else if (ROLL+STR >= AC){
+   result: 1d8+d6+d6+d4+STR
+  }else{
+   result: 0
+  }
+ }else{
+  if (ROLL = 20 & DAMAGE){
+   result: 2d8+2d6+STR
+  }else if (ROLL+STR >= AC){
+   result: 1d8+d6+STR
+  }else{
+   result: 0
+  }
+ }
+}
+
+STR:5
+AC:16
+ADVANTAGE:2
+output [runcombat 2]

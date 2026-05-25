@@ -1,0 +1,54 @@
+function: attack DAMAGE:n DAMAGEDRN:n PROT:n PROTDRN:n{
+  if (DAMAGE + DAMAGEDRN) <= (PROT + PROTDRN) { result: 0 }
+  result: (DAMAGE + DAMAGEDRN) - (PROT + PROTDRN)
+}
+
+function: attackcompare DAMAGE:n DAMAGEBONUS:n DAMAGEDRN:n PROT:n PROTDRN:n{
+  if (DAMAGE + DAMAGEDRN + DAMAGEBONUS) <= (PROT + PROTDRN) { result: 0 }
+  if (DAMAGE + DAMAGEDRN) >= (PROT + PROTDRN) { result: DAMAGEBONUS }
+  result: (DAMAGE + DAMAGEDRN + DAMAGEBONUS) - (PROT + PROTDRN)
+}
+
+
+
+
+
+
+function: drn{
+
+result: [drnsplode 1d6] + [drnsplode 1d6]
+
+}
+
+function: drnsplode ROLLEDVAL:n{
+
+if ROLLEDVAL = 6{result: 5 + [drnsplode 1d6]}
+result: ROLLEDVAL
+
+}
+
+function: mrcheck PENBONUS PENDRN:n MR MRDRN:n{
+
+if (11 + PENBONUS + PENDRN) >= (MR + MRDRN){ result: 1}
+else{
+result: 0
+}
+
+}
+
+function: attackstokill DMG:n HP:n DEPTH{
+
+if DMG >= HP {
+result: DEPTH
+}
+else{
+result: [attackstokill DMG (HP - DMG) (DEPTH+1)]
+}
+
+
+}
+
+set "maximum function depth" to 20
+
+
+output [attack 8 [drn] 4 [drn]]

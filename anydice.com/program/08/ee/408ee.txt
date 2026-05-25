@@ -1,0 +1,24 @@
+\DIENUM is how many dice you roll, EXPLODE_ON is the lowest number your dice should explode on (11 will do no explosions), IS_ROTE and Is_Advanced is wether you benefit from the respective die trick (1: yes, 0: no)\
+\Chances & Averages shown will be negligibly lower then actual, Higher max gets closer to actual, but will negatively impact performance\ 
+\Chances to get at least MAX success or less should be correct\
+DIENUM: 3
+EXPLODE_ON: 8
+IS_ROTE: 0
+IS_ADVANCED: 1
+MAX: 5
+\MAX <0 removes the limit\
+
+function: explode ROLLEDVALUE:n on a N:n when using a D:d with max M:n successes IS_ROTE:n ROTE_ONCE:n{
+    if (M = 0) {result: 0}
+    if (ROLLEDVALUE >= N) { result: 1 + [explode dD on a N when using a D with max (M - 1) successes IS_ROTE ROTE_ONCE] }
+    if (ROLLEDVALUE >= 8) { result: 1 }
+    if (IS_ROTE = 1 & ROTE_ONCE = 0){result: [explode dD on a N when using a D with max M successes 1 1]}
+    result: 0
+}
+
+if IS_ADVANCED != 1 {
+output DIENUMd[explode d10 on a EXPLODE_ON when using a d10 with max MAX successes IS_ROTE 0]
+}
+else {
+output [highest of DIENUMd[explode d10 on a EXPLODE_ON when using a d10 with max MAX successes IS_ROTE 0] and DIENUMd[explode d10 on a EXPLODE_ON when using a d10 with max MAX successes IS_ROTE 0] ]
+}

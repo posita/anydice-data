@@ -1,0 +1,38 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d or crit CRIT_DMG:d on CRIT_RANGE:n or VORPAL
+{
+    if ROLL = 1           {result: 0 }
+    if ROLL = 20          {result: VORPAL}
+    if ROLL >= CRIT_RANGE {result: CRIT_DMG}
+    if ROLL + BONUS >= AC {result: DMG}
+    result: 0
+}
+
+D: 3
+AC: 22
+PROF: 6
+MOD: 5
+OATH: 1
+EXTRA: 2
+BONUS: PROF + MOD + OATH
+DMG: 1d[gwf d10]+4d[gwf d6] + MOD + OATH + EXTRA
+CRIT_DMG: 2d[gwf d10]+8d[gwf d6] + MOD + OATH + EXTRA
+VORPAL: 2d[gwf d10]+8d[gwf d6]+12d[gwf d8] + MOD + OATH + EXTRA
+CRIT: 18
+
+output [highest 1 of 2d[attack [highest 1 of Dd20] plus BONUS vs AC for DMG or crit CRIT_DMG on CRIT or VORPAL]] named "Savage Attack"
+output [highest 1 of 2d[attack [highest 1 of Dd20] plus BONUS vs AC for DMG or crit CRIT_DMG on CRIT or VORPAL]] + [attack [highest 1 of Dd20] plus BONUS vs AC for DMG or crit CRIT_DMG on CRIT or VORPAL] + [attack [highest 1 of Dd20] plus BONUS vs AC for DMG or crit CRIT_DMG on CRIT or VORPAL] + [attack [highest 1 of Dd20] plus BONUS vs AC for DMG or crit CRIT_DMG on CRIT or VORPAL] named "Savage Attack + 3 Standard Attacks"

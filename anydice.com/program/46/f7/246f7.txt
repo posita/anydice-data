@@ -1,0 +1,62 @@
+function: hit VALUE:n SHAKEN:n {
+  if VALUE + ATTACK_MOD < PARRY { result: -1 }
+  if VALUE + ATTACK_MOD < PARRY + 4 { result: [damage DAMAGE_DIE SHAKEN] }
+  result: [damage DAMAGE_DIE + [explode d6] SHAKEN]
+}
+
+function: damage VALUE:n SHAKEN:n {
+  if VALUE < TOUGHNESS {result: -1}
+  if VALUE < TOUGHNESS + 4 {
+    if SHAKEN {result: 1}
+    result: 0
+  }
+  result: (VALUE-TOUGHNESS)/4
+}
+
+function: N:n attacks {
+  WOUNDS: 0
+  SHAKEN: 0
+  loop I over {1..N} {
+    ATTACK_RESULT: [hit ATTACK SHAKEN > 0]
+    SHAKEN: ATTACK_RESULT >= 0 | SHAKEN
+    WOUNDS: WOUNDS + [highest of 0 and ATTACK_RESULT]
+  }
+  result: WOUNDS
+}
+
+PARRY: 4
+TOUGHNESS: 4
+WILD_DIE: [explode d6]
+DAMAGE_DIE: 2d [explode d6]
+
+ATTACK: [highest of WILD_DIE and [explode d6]]
+ATTACK_MOD: 0
+output [1 attacks] named "single attack k6"
+
+ATTACK_MOD: -2
+output [2 attacks] named "two attacks k6"
+
+ATTACK_MOD: -4
+output [3 attacks] named "three attacks k6"
+
+
+ATTACK: [highest of WILD_DIE and [explode d8]]
+ATTACK_MOD: 0
+output [1 attacks] named "single attack k8"
+
+ATTACK_MOD: -2
+output [2 attacks] named "two attacks k8"
+
+ATTACK_MOD: -4
+output [3 attacks] named "three attacks k8"
+
+
+ATTACK: [highest of WILD_DIE and [explode d10]]
+ATTACK_MOD: 0
+output [1 attacks] named "single attack k10"
+
+ATTACK_MOD: -2
+output [2 attacks] named "two attacks k10"
+
+ATTACK_MOD: -4
+output [3 attacks] named "three attacks k10"

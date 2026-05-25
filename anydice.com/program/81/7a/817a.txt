@@ -1,0 +1,33 @@
+SKILL: 1
+REROLL: 5
+OPPSKILL: 2
+OPPREROLL: 0
+DICE: 5
+TYPE: 6
+
+function: rolling S:n {
+ result: (DICE d (d TYPE <= S))
+}
+function: rerolling A:n by RR:n with S:n {
+ R: [lowest of (DICE-A) and RR]
+ RES: A + R d (d TYPE <= S)
+ NR: RR-R
+ if NR > 0 & A < DICE {
+  result: [rerolling RES by NR with S]
+ } else {
+  result: RES
+}}
+function: compare A:n with B:n {
+ if A>B {
+  result: 1
+ } else {
+  if A<B {
+   result: -1
+  } else {
+   result: 0
+}}}
+
+PL: [rerolling [rolling SKILL] by REROLL with SKILL]
+OPP: [rerolling [rolling OPPSKILL] by OPPREROLL with OPPSKILL]
+output PL - OPP
+output [compare PL with OPP]

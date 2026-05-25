@@ -1,0 +1,27 @@
+function: nwod R:n again N:n {
+ if N >= R { result: 1 + [nwod R again d10] }
+ result: N >= 8
+}
+
+function: extend RES:n attempts ATTEMPTS:n dice DICE:d total RUNNINGTOTAL:n target TARGET:n {
+ if ATTEMPTS <= 0 { result: RUNNINGTOTAL }
+ NEWTOTAL: RUNNINGTOTAL + RES
+ if RES = 0 { NEWTOTAL: 0 }
+ else if RES >= 5 { NEWTOTAL: NEWTOTAL + 2 }
+ if NEWTOTAL >= TARGET { result: NEWTOTAL }
+ else { result: [extend DICE attempts ATTEMPTS - 1 dice DICE total NEWTOTAL target TARGET] }
+}
+
+function: count N:n {
+ if N = 0 { result: 1 }
+ result: 1 + [count N - 1]
+}
+
+NWOD: [nwod 10 again d10]
+
+N: 5
+
+output [count 5]
+output [lowest of 10 and 4dNWOD]
+output [lowest of 10 and (N * N)dNWOD]
+output [lowest of 10 and [extend [lowest of 10 and NdNWOD] attempts N dice [lowest of 10 and NdNWOD] total 0 target 6]]

@@ -1,0 +1,78 @@
+\ SETTINGS \
+\ Probability to have advantage/hex/target move after attack \
+ADVWEIGHT: 0 HEXWEIGHT: 0 MOVE: 0
+\ Levels to calculate ( eg. {4..20}) \
+LEVELRANGE: {4}
+\ Calculate Elven Accurracy 0 = NO, 1 = YES, {0,1} = BOTH \
+EARANGE: {0}
+\ Calculate Great Weapon Master 0 = NO, 1 = YES(Use always), {0,1} = BOTH, {2} = Only on advantage \
+GWMRANGE: {0,2}
+\ 0 = ONLY BOOMING, 1 = BOTH, 2 ONLY MULTI (All only where available) \
+\ ATTACKS: 1 in graph implies usage of BB \
+ATTACKMODE: 2
+
+function: damage X:n  STAT:n GWM:n ATTACKS:n HEX:n LEVEL:n{
+    PROF: (LEVEL-1)/4+2 
+    AC: LEVEL@{13,13,13,14,15,15,15,16,16,17,17,17,18,18,18,18,19,19,19,19} 
+    BOOMDIE: LEVEL@{0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3}
+    if HEX { CRIT: 18 HEX: PROF } else { CRIT: 19 }
+    if ATTACKS < 2 { 
+        if MOVE {BOOM: MOVE*( (BOOMDIE+1)d8 )/100 + BOOMDIEd8} 
+        else { BOOM: BOOMDIEd8 }
+    } else { BOOM: 0 }
+    DAMAGE: 0
+    loop N over {1..ATTACKS}{
+        if X > CRIT {DAMAGE: DAMAGE + 2*(2d6) + STAT + HEX + GWM*10 + 2*BOOM} 
+        else {
+            if X + STAT + PROF - GWM*5 >= AC {DAMAGE: DAMAGE + 2d6 + STAT + HEX + GWM*10 + BOOM}
+        }
+    }
+    result: DAMAGE
+}
+
+function: setadv STAT:n EA:n GWM:n SMARTGWM:n ATTACKS:n HEX:n LEVEL:n{
+    NDIE: 2 + EA 
+    ADV:  [ damage 1@NDIEd20 STAT GWM ATTACKS HEX LEVEL ]
+    if SMARTGWM  {
+        NONADV: [ damage 1@1d20 STAT 0 ATTACKS HEX LEVEL ]
+    } else {
+        NONADV: [ damage 1@1d20 STAT GWM ATTACKS HEX LEVEL ]
+    }
+    
+    result: (ADVWEIGHT * ADV + (100 - ADVWEIGHT) * NONADV ) / 100
+}
+
+function: combine EA:n GWM:n SMARTGWM:n ATTACKS:n LEVEL:n{
+    if (ATTACKS-1) > LEVEL/5 { result: 0 }
+    if LEVEL < (( EA + GWM ) * 4) { result: 0 }
+    if LEVEL > 7 & !( EA | GWM ) { result: 0 }
+    if ( LEVEL < 4 ) { STAT: 4 } 
+    else {
+        if ( LEVEL < 8 & ( EA | GWM )) { STAT: 4 } 
+        else {
+            if ( LEVEL < 12 & EA & GWM ) { STAT: 4 } 
+            else { STAT: 5 }
+        }
+    }
+    result: (HEXWEIGHT * [ setadv STAT EA GWM SMARTGWM ATTACKS 1 LEVEL ] + (100 - HEXWEIGHT) * [ setadv STAT EA GWM SMARTGWM ATTACKS 0 LEVEL ])/100
+}
+
+loop LEVEL over LEVELRANGE{
+    if (ATTACKMODE < 1 | LEVEL < 5) { ATTACKRANGE: {1} } 
+    else { 
+        if ATTACKMODE = 1 { ATTACKRANGE: {1,2} } 
+        else { ATTACKRANGE: {2} }  
+    }
+    loop ATTACKS over ATTACKRANGE {
+        loop EA over EARANGE{
+           loop GWMV over GWMRANGE{
+               if GWMV > 0 { GWM: 1 } else { GWM: 0 }
+               if GWMV > 1 { SMARTGWM: 1 } else { SMARTGWM: 0 }
+               if ( ( LEVEL >= (( EA + GWM ) * 4) )
+               & !( LEVEL > 7 & !( EA | GWM ) ) ) {
+                   output [ combine EA GWM SMARTGWM ATTACKS LEVEL] named "LEVEL: [LEVEL], EA: [EA], GWM: [GWMV], ATTACKS: [ATTACKS]"
+                }
+            }
+        }
+    }
+}

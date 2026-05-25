@@ -1,0 +1,58 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+function: lowest of A:n and B:n {
+ if A < B { result: A }
+ result: B
+}
+
+
+
+function: evaluate ROLL:s {
+ SUCCESSES: ROLL >= 7
+ if SUCCESSES > 0 { result: SUCCESSES + (ROLL = 10) }
+ if [count 1 in ROLL] { result: -1 }
+ result: 0
+}
+
+
+
+
+
+
+function: wibble N:n F:n G:n ATT:n DEF:n ARM:n WPN:n{
+
+     if N = 2 { result: 1 }
+     Y:  N-ATT+ADJDEF
+     if Y <= 7 {
+      BON: 7-Y
+      if WPN = 1 { DAMAGE: [lowest of F and G] + BON }
+      if WPN = 2 { DAMAGE: F }
+      if WPN = 3 { DAMAGE: [highest of F and G] + BON }
+      if DAMAGE >  DEF {
+       result: DAMAGE
+      }else{
+       result: 0
+      }
+     }
+     result: 0
+    
+ 
+}
+ 
+
+loop ATT over {1..3}{
+  loop DEF over {1..3}{ 
+   loop ARM over {0..3}{
+    ADJDEF: DEF+ARM
+    if ADJDEF > 6 { ADJDEF: 6 }
+    loop WPN over {1..3}{
+    
+     O: [wibble 2d6 1d6 1d6 ATT DEF ARM WPN]
+     output O named " attack [ATT] defense [DEF] armour [ARM] weapon [WPN]"
+ }  
+}
+  }
+ }
+

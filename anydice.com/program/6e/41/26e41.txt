@@ -1,0 +1,44 @@
+\**** Damage Calculator for level 17 fighter for question 115624 ****\
+LUCKYCOUNTER: 3
+
+\LUCKYD is pass in through every function call because I couldn't call it dynamically\
+\It's only used if we have lucky rolls left\
+function: attackroll ROLL:n vs AC:n LUCKYCOUNTER:n LUCKYD:n{
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+\recursively call attackroll using the lucky die\
+ if LUCKYCOUNTER > 0 & LUCKYD > 0 {
+  LUCKYCOUNTER: LUCKYCOUNTER - 1
+  result: [attackroll LUCKYD vs AC 0 0]
+ }
+ result: 0
+}
+
+\AC variable, can be a die\
+ENEMYAC: 19
+\looped against enemy AC from 15-20\
+\ENEMYAC: d{15..20}\
+
+ATTACKMOD: 5 \Strength Bonus\
+DMGBONUS: 10 \Great Weapon Master\
+PROFICIENCY: 6
+ACCBONUS: -5 \Great Weapon Master\
+CRITROLL: 18 \Crit Range\
+ATTACKTIMES:7 \Assuming a crit happens\
+GWFDIE: {{1..2}:2, {3..8}:8} \Great Weapon Fighting Style adjustment\
+DAMAGE: 4dGWFDIE + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 8dGWFDIE + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC LUCKYCOUNTER 1d20] named "GWM Champion Bugbear surprise"
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 18
+ATTACKTIMES:7
+GWFDIE: {{1..2}:2, {3..6}:8}
+DAMAGE: 4dGWFDIE + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 8dGWFDIE + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC LUCKYCOUNTER 1d20] named "Champion Bugbear surprise"
+output 2dGWFDIE

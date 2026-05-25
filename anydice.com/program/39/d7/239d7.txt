@@ -1,0 +1,66 @@
+function: R:n min M:n {
+ if R < M { result: M }
+ result: R
+}
+function: N:n is odd {
+ result: N/2 = (N-1)/2
+}
+function: X mod Y {
+ result: X-(X/Y)*Y
+}
+
+function: td STAT {
+ DIEONE:STAT
+ DIETWO:0
+ NUMD:2
+ if STAT>12 {
+  NUMD:STAT/6
+  DIEONE:12 
+  DIETWO:2*[STAT mod 6]\ 13 -> 2, 14-> 4, 18 -> 0 (since NUMD=3)\
+ }
+ else if [STAT is odd]{ \5\
+  DIEONE:STAT+1\6\
+  DIETWO:STAT-1\4\
+  NUMD:1
+ } 
+
+ if ADV>0{DICE:[highest NUMD of (NUMD+ADV)dDIEONE]}
+ else if ADV<0{DICE:[lowest NUMD of (NUMD-ADV)dDIEONE]}
+ else{DICE:NUMDdDIEONE}
+ result: DICE + 1dDIETWO + SKdPR
+}
+
+function: tdmin STAT {
+ result:[[td STAT] min STAT/2+SK*PR]
+}
+
+function: dnd STAT {
+ if ADV>0{R:1@2d20}
+ else if ADV<0{R:2@2d20}
+ else {R:1d20}
+ result: (R + (STAT-10)/2 + SK*PR)
+}
+
+function: dndmin STAT {
+ result: [[dnd STAT] min STAT-5]
+}
+
+PR:6
+SK:2
+ADV:1
+
+loop N over {1..8}{
+ STAT:N*2+4
+ output [tdmin STAT] named "[STAT]"
+}
+\loop N over {1..8}{
+ STAT:N*2+4
+ output [tdmin STAT] named "[STAT](2)"
+}\
+
+
+
+loop N over {1..8}{
+ STAT:N*2+4
+ output [dnd STAT] named "DnD[STAT]"
+}

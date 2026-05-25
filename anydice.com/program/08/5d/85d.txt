@@ -1,0 +1,90 @@
+function: ROLL:n vs AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  if ROLL >= THREAT {
+   result: [threat d20]
+  }
+  result: DAMAGE
+ }
+ result: 0
+}
+
+function: threat ROLL:n {
+ if ROLL = 1 { result: DAMAGE }
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: CRITICAL d DAMAGE
+ }
+ result: DAMAGE
+}
+
+function: finesse{
+ ATTACK: ATTACK + BAB + DEXTERITY
+ result: [d20 vs AC]
+}
+
+AC: d{14..22}
+BAB: 2
+DEXTERITY: 3
+STRENGTH: 2
+
+ATTACK: 1
+THREAT: 19
+CRITICAL: 2
+DAMAGE: d6 + STRENGTH
+output [finesse] named "F shortsword"
+
+ATTACK: 1
+THREAT: 18
+CRITICAL: 2
+DAMAGE: d6 + STRENGTH
+output [finesse] named "F rapier"
+
+ATTACK: 0
+THREAT: 20
+CRITICAL: 2
+DAMAGE: 2d4 + STRENGTH * 3 / 2
+output [finesse] named "spiked chain"
+
+ATTACK: 1 - 4
+THREAT: 18
+CRITICAL: 2
+DAMAGE: d6 + STRENGTH
+PRIMARY: [finesse]
+DAMAGE: d6 + STRENGTH / 2
+output PRIMARY + [finesse] named "2× F rapier"
+
+ATTACK: 1 - 2
+THREAT: 18
+CRITICAL: 2
+DAMAGE: d6 + STRENGTH
+PRIMARY: [finesse]
+ATTACK: -2
+THREAT: 20
+DAMAGE: d4 + STRENGTH / 2
+output PRIMARY + [finesse] named "F rapier + light spiked shield"
+
+ATTACK: 1 - 2
+THREAT: 18
+CRITICAL: 2
+DAMAGE: d6 + STRENGTH
+PRIMARY: [finesse]
+ATTACK: -2
+THREAT: 19
+DAMAGE: d6 + STRENGTH / 2
+output PRIMARY + [finesse] named "F rapier + shortsword"
+
+ATTACK: 1 - 2
+THREAT: 19
+CRITICAL: 2
+DAMAGE: d6 + STRENGTH
+PRIMARY: [finesse]
+DAMAGE: d6 + STRENGTH / 2
+output PRIMARY + [finesse] named "2× F shortsword"
+
+ATTACK: -2
+THREAT: 20
+CRITICAL: 2
+DAMAGE: 2d4 + STRENGTH
+PRIMARY: [finesse]
+DAMAGE: 2d4 + STRENGTH / 2
+output PRIMARY + [finesse] named "2× spiked chain"

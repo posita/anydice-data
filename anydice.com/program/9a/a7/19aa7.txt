@@ -1,0 +1,50 @@
+WS: 3
+NA: 2
+NM: 6
+WOUNDS: 18
+function: reroll N:n below B:n {
+ if N < B { result: d6 }
+ result: N
+}
+
+function: rerollones N:n {
+ if N = 1 { result: d6 }
+ result: N
+}
+
+function: rollmore N:n at D:n {
+ if N >= D { result: {N >= WS, d6 >= WS} }
+ result: N >= WS
+}
+
+function: autohit N:n at D:n {
+ if N >= D { result: {N >= WS, 1} }
+ result: N >= WS
+}
+
+set "maximum function depth" to 2
+HITS: (NA*NM)d[autohit [rerollones d6] at 6]
+output HITS named "HITS"
+
+WOUNDROLLS: HITSd([reroll d6 below 5] >= 5)
+SV: 4
+
+if 0 {
+BLADE: d6>=5
+FLSV: (HITSd(d6>2))d(d6<(SV+BLADE))
+}
+
+FLSV: WOUNDROLLS d(d6<SV)
+
+DAMAGE: FLSV
+FNP: DAMAGEd(d6<5)
+CHANCE: FNP>=WOUNDS
+output FNP named "Damage"
+output CHANCE named "Chance to kill"
+
+
+function: onesastwo N:n  {
+ if N < 2 { result: 2 }
+ result: N
+}
+output 2d[onesastwo d6]+3

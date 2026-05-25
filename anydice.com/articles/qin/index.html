@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/articles/qin/">
+		<meta property="og:type" content="article">
+		<meta property="og:image" content="https://anydice.com/articles/qin/margins-at-least.png">
+		<meta property="og:description" content="How to get the dice probabilities for Qin.">
+		<meta property="og:title" content="Qin">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Qin</title>
+		<link href="../articles.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"mainEntity": {
+				"@type": "Article",
+				"@id": "https://anydice.com/articles/qin/#article",
+				"headline": "Qin",
+				"alternativeHeadline": "Yin Yang Dice",
+				"description": "How to get the dice probabilities for Qin.",
+				"datePublished": "2011-02-19",
+				"author": { "@type": "Person", "name": "Jasper Flick", "@id": "https://catlikecoding.com/jasper-flick/#person" },
+				"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+				"image": "https://anydice.com/articles/qin/margins-at-least.png"
+			},
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/articles/", "name": "Articles" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Articles</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1>Qin</h1>
+					<p>Yin Yang Dice</p>
+				</header>
+				
+				<p>A while ago someone chatted with me about the dice mechanic of <em>Qin: the Warring States</em>. Though I have no firsthand experience with the game, I believe this is how it works.</p>
+				
+				<p>You roll two ten-sided dice, counting the 10s as 0s. If they roll equal, you've achieved balance and automatically succeed with a margin set to whatever the dice rolled. If you rolled double zero, however, you fail. So there's always at least a 1% chance of failure and at least a 9% chance to succeed with a margin between one and nine.</p>
+				
+				<p>When the dice roll different, you subtract the lower from the higher and add your character's Aspect and Skill. Then you subtract some target number from that to end up with your margin of success, or simply failure if the result is less than one. Aspects range from one to five, while Skills range from zero to six.</p>
+				
+				<section>
+					<h2>What are the Odds?</h2>
+					
+					<p>Let's ask <a href="../../program/6525/graph/at_least.html">AnyDice</a> what the odds are versus a target value of 5, for all possible aspect plus skill values. Here's one way to do that.</p>
+					
+					<pre>function: qin MODIFIER vs TARGET {
+ result: [roll 2d{0..9}]
+}
+
+function: roll YY:s {
+ if 1@YY = 2@YY { result: 1@YY }
+ result: [highest of 0 and 1@YY - 2@YY + MODIFIER - TARGET]
+}
+
+loop ASPECTSKILL over {1..11} {
+ output [qin ASPECTSKILL vs 5] named "+[ASPECTSKILL]"
+}</pre>
+					
+					<p>And here are the results, showing margin of success, using the at-least graph view. It kinda looks like a "balance achieved" stick from which "aspect plus skill" threads hang.</p>
+					
+					<figure>
+						<img src="margins-at-least.png" width="500" height="260">
+						<figcaption>Probability draperies.</figcaption>
+					</figure>
+					
+					<p>In case you're only interested in succeeding and don't care for the marging, a slight adjustment in the code is all that is needed. In this case the transposed view is most useful.</p>
+					
+					<pre>loop ASPECTSKILL over {1..11} {
+ output [qin ASPECTSKILL vs 5] > 0 named "+[ASPECTSKILL]"
+}</pre>
+					
+					<figure>
+						<img src="success-transposed.png" width="500" height="260">
+						<figcaption>If aspect plus skill match the target, you're good to go.</figcaption>
+					</figure>
+					
+					<p>It's always fun learning about new games and dice mechanics and helping people figure out the odds. So don't hesitate to start a chat if you catch me online!</p>
+				</section>
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+		
+		<script src="../articles.js"></script>
+	</body>
+</html>

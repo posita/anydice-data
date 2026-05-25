@@ -1,0 +1,132 @@
+
+
+function: highst B:s{
+ L: 0
+ M: 0
+ loop N over B{
+  if L = 0{
+   L: N
+  }else if M = 0{
+   M: N
+  }else if N>L{
+   if L>M{
+    M: N
+   }else{
+    L: N
+   }
+  }else if N>M{
+   M:N
+  }
+ }
+ result: L+M
+}
+
+
+function: lowst B:s{
+ L: 0
+ M: 0
+ loop N over B{
+  if L = 0{
+   L: N
+  }else if M = 0{
+   M: N
+  }else if N<L{
+   if L<M{
+    M: N
+   }else{
+    L: N
+   }
+  }else if N<M{
+   M:N
+  }
+ }
+ result: L+M
+}
+
+
+function: min N:n{
+ if N < 1{
+  result: 0 
+ }else{
+  result: N
+ }
+}
+
+
+function: roll A:n B:n{
+ C: 0
+ if (A = 6){
+  C:1
+ } 
+ if (B = 6){
+  C: C+1
+ }
+ S: 10*(A + B)+ C
+ result: S
+}
+
+function: roll ac A:n B:n C:n{
+ X: 0
+ if (A = 6){
+  X:1
+ } 
+ if (B = 6){
+  X: X+1
+ }
+ if (C = 6){
+  X: X+1
+ }
+ S: 10*[highst {A, B, C}] + X
+ result: S
+}   
+
+\Roll Inaccuracy\
+function: roll in A:n B:n C:n{
+ X: 0
+ if (A = 6){
+  if (B = 6){
+   if (C = 6){
+    X: 2
+   }else{
+    X: 1
+   }
+  }else if (C = 6){
+   X: 1
+  }else if (B = 6){
+   if (C = 6){
+    X: 1
+   }
+  }
+ }
+ S: 10*[lowst {A, B, C}] + X
+ result: S
+}  
+
+\Parses for Sum\
+function: parser N:n{
+ R: N/10
+ result: R
+}
+
+\Parses for Crits\
+function: parsec N:n{
+ R: N/10
+ C: N-R*10
+ result: C
+}
+
+function: iterator X:n D:d{
+ S: 0
+ loop N over {1..X}{
+  S: S + D
+ }
+ result: S
+}
+
+X: 1
+X: X + [parsec [roll 1d6 1d6]]
+A: 1
+
+output [min (Xd6 + X*X - X*A)]
+output [min ([iterator 2*X [explode d3]] - 2*A)]
+output [min (Xd12 -A)]

@@ -1,0 +1,65 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 18 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+DEFENSE: d{14..25}
+function: reroll DIE:d {
+ result: [reroll DIE helper]
+}
+
+function: reroll N:n helper {
+ if N < 3 { result: DIE}
+ result: N
+}
+
+ATTACK: 11
+HITDAMAGE: d12 + 5
+CRITICALDAMAGE: 5d12 + 5
+MISSDAMAGE: 0
+output [attack] named "Greataxe"
+
+HITDAMAGE: [reroll d12] + 5
+CRITICALDAMAGE: 5d[reroll d12] + 5
+output [attack] named "Greataxe GWF"
+
+HITDAMAGE: d12 + 5
+CRITICALDAMAGE: 6d12 + 5
+output [attack] named "Greataxe 1 extra crit"
+
+HITDAMAGE: [reroll d12] + 5
+CRITICALDAMAGE: 6d[reroll d12] + 3
+output [attack] named "Greataxe GWF 1 extra crit"
+
+HITDAMAGE: 2d6 + 5
+CRITICALDAMAGE: 7d6 + 5
+output [attack] named "Greatsword"
+
+HITDAMAGE: 2d[reroll d6] + 5
+CRITICALDAMAGE: 7d[reroll d6] + 5
+output [attack] named "Greatsword GWF"
+
+HITDAMAGE: 2d6 + 5
+CRITICALDAMAGE: 8d6 + 5
+output [attack] named "Greatsword 1 extra crit"
+
+HITDAMAGE: 2d[reroll d6] + 5
+CRITICALDAMAGE: 8d[reroll d6] + 5
+output [attack] named "Greatsword GWF 1 extra crit"

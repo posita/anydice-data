@@ -1,0 +1,31 @@
+DIFF: 4 \ DIFFICULTY \
+SPECIAL: 1 \ HOW MANY SPECIALTIES APPLIES TO THE ROLL \
+
+function: owod N:n tn TN:n {    
+ if N = 1 { result: -1 }       \ Defines what happens on a roll of 1, a potential botch.   \
+ if N < TN { result: 0 }       \ Defines what happens on a failure, a roll over 1 but less 
+                                   than the target/difficulty number.  \
+ if N >= TN & N < 10 { result: 1 }       \ Defines what happens on a success, a roll equal to the 
+                                   target/difficulty number or higher, and lesser than a 10. \ 
+ if N = 10 { result: 1 + SPECIAL }       \ Defines what happens on a 10 \ 
+ result: 1 + [owod d10 tn TN]
+}
+
+OWOD: [owod d10 tn DIFF]           \ Assigns the target/difficulty number, a 6 in this instance.
+                                 Change as needed. \
+
+loop N over {1..10} {          \  Defines the range of the dice pool, here it is 1d10 to 
+                                 10d10.  Change as needed. The range can be replaced with 
+                                 a single number. Examples of each:
+                                   1. loop N over {3..7}  a dice pool range of 3d10 to 7d10
+                                   2. loop N over {8}  a single dice pool of 8d10\
+
+ output [highest of [lowest of NdOWOD and 10] and -4] named "[N]d"
+}
+                                \ Defines the range of rolls, here it is a botch of 4 '1's 
+                                 with no successes (-4), all the way up to 10 successes. 
+                                 Change as needed. I recommend keeping the number of
+                                 successes the same as the max dice pool used in the line
+                                 above, as this will display the probability of the entire 
+                                 dice pool having succeeded. In 'Graph' view, this
+                                 represents the horizontal axis.\

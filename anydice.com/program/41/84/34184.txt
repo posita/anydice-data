@@ -1,0 +1,37 @@
+\ shorthand for advantage \
+function: adv X:d {
+  result: [highest of X and X]
+}
+
+\ fluent versions of booleans \
+WITH: 1
+WITHOUT: 0
+
+\ -------------------------------------------------------------- \
+
+ROLL_CRIT_MOD:1
+STR_MOD: 5
+DMG_MOD: STR_MOD + 2 + 2
+CRIT_DMG_MOD: 10
+
+\ this considers we have the (BG3) Savage Attacker feat \
+function: weapon damage SA:n savage attacker {
+  if SA {
+    result: [adv d6] + [adv d10] + [adv d4] + [adv d6] + [adv d4]
+  } else {
+      result: d6 + d10 + d4 + d6 + d4
+  }
+}
+
+function: ROLL:n damage roll SA:n savage attacker {
+  DMG: [weapon damage SA savage attacker] + DMG_MOD
+  if ROLL + ROLL_CRIT_MOD >= 20 {
+    DMG: DMG + [weapon damage SA savage attacker] + CRIT_DMG_MOD
+  }
+  result: DMG
+}
+
+\ -------------------------------------------------------------- \
+
+output [d20 damage roll WITH savage attacker] named "with SA"
+output [d20 damage roll WITHOUT savage attacker] named "without SA"

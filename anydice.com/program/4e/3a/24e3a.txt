@@ -1,0 +1,76 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+ATTACK: 8+4+4+1
+HITDAMAGE: 2d4+6
+CRITICALDAMAGE: (2*HITDAMAGE)+d6
+MISSDAMAGE: 0
+PRECISION: d8
+DEFENSE:25
+AC:25
+MAP:2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 {
+  result: MISS
+ }
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK- 10>= DEFENSE { result: CRITICALHIT}
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ if DEFENSE-AC<MAP*2 {
+  DEFENSE: DEFENSE + MAP
+ }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+output [4 attacks] named "4 attacks. Flurry hunter's edge"
+
+DEFENSE:AC
+MAP:4
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: PRECISION*2
+ }else if [ATTACKRESULTS contains HIT] {
+  result: PRECISION
+ }
+ result: 0
+}
+output [4 attacks] named "4 attacks. Precision hunter's edge"

@@ -1,0 +1,83 @@
+function : dice map PLUS:n vs AC:n
+{
+ CUTOFF : AC - PLUS - 1
+ MISS : [lowest of [highest of 1 and CUTOFF] and 19]
+ result : 1d{0:MISS,1:(19-MISS),2}
+}
+
+function : save map PLUS:n vs DC:n
+{
+ CUTOFF : DC - PLUS - 1
+ MISS : [lowest of [highest of 1 and CUTOFF] and 19]
+ result : 1d{2:MISS,1:(19-MISS),1}
+}
+
+function : attack MAP:s with DICE:d DPLUS:n
+{
+ O : 0
+ if MAP > 0
+ {
+  O : DPLUS + MAPdDICE
+ }
+ result : O
+}
+
+function : save MAP:s with DAMAGE:d
+{
+ result : (MAP * DAMAGE)/2
+}
+
+function : hp HP:n MHP:n vs DAMAGE:s
+{
+ if HP < 0
+ {
+  if (DAMAGE > 0)
+  {
+   result : [highest of -3 and HP - 1]
+  }
+  else
+  {
+   result : HP
+  }
+ }
+ else
+ {
+  if DAMAGE < HP + MHP
+  {
+   result : [highest of 0 and HP - DAMAGE]
+  }
+  else
+  {
+   result : -3
+  }
+ }
+}
+
+HP : {16,11,10,15}
+AC : {16,11,14,15}
+INT : {-1,4,2,-1}
+R : {1,2,2,1}
+
+OH : 3d[middle 1 of 3d8]+9
+OA : 8
+ON : 3
+
+LAVERNA : [attack [dice map 4 vs OA] with 1d12 3]
+PSOL : [attack [dice map 5 vs OA] with 1d8 5]
+EARA : [attack [dice map 5 vs OA] with 2d6 3]
+MONTANA : [attack [dice map 5 vs OA] with 1d10 0]
+
+OOZEL : [attack [dice map 3 vs 1@AC] with 3d6 1]
+OOZEP : [attack [dice map 3 vs 2@AC] with 3d6 1]
+OOZEM : [attack [dice map 3 vs 3@AC] with 3d6 1]
+OOZEE : [attack [dice map 3 vs 4@AC] with 3d6 1]
+
+CHOOSE : 1d{0:(ON-1),1}
+CHOOSEPLAYER : 1d{0:(#HP-1),1}
+
+output OH <= 1d(CHOOSEdLAVERNA + CHOOSEdPSOL + CHOOSEdEARA + CHOOSEdMONTANA)
+output 1@HP <= 2dONd(CHOOSEPLAYERdOOZEL) named "Laverna"
+output 2@HP <= 2dONd(CHOOSEPLAYERdOOZEP) named "Professor Sir Oliver Lindenbrook"
+output 4@HP <= 2dONd(CHOOSEPLAYERdOOZEE) named "Eara"
+output 3@HP <= 2dONd(CHOOSEPLAYERdOOZEM) named "Montana"
+

@@ -1,0 +1,167 @@
+
+
+function: top X:s Y:n {
+  if 2@X = 6 { result: 1 }
+  if Y = 6 { result: [rank [count {6} in X]] }
+  if Y = 5 { result: [rank [count {5,6} in X]] }
+  if Y = 4 { result: [rank [count {4,5,6} in X]] }
+  if Y = 3 { result: [rank [count {3,4,5,6} in X]] }
+  result: -1
+}
+
+function: under X:s Y:n {
+  if 1@X >= Y { result: -1 }
+  if 1@X < Y & 2@X < Y { result: 1 }
+  result: 0
+}
+
+function: X:s count under Y:n {
+  result: [count {1..Y} in X]
+}
+
+function: under A:s B:n diff Y:s Z:n {
+  AA: [highest of A under B]
+  YY: [highest of Y under Z]
+  result: AA-YY
+}
+
+function: under A:s B:n vs Y:s Z:n {
+  AA: [highest of A under B]
+  YY: [highest of Y under Z]
+  if AA = 0 & YY = 0 { result: 0}
+  if AA > 0 & YY > 0 { result: 0}
+  if AA > 0 & YY = 0 { result: 1}
+  if AA = 0 & YY > 0 { result: -1}
+  result: -10
+}
+
+function: under A:s B:n edge Y:s Z:n {
+  AA: [highest of A under B]
+  YY: [highest of Y under Z]
+  if AA = 0 & YY = 0 & A > Y { result: 1}
+  if AA = 0 & YY = 0 & A < Y { result: -1}
+  if AA = YY { result: 0}
+  if AA > Y { result: 1}
+  if A < Y { result: -1}
+  result: -10
+}
+
+function: A:s under B:n Y:s over Z:n {
+  if A < B & Y >= Z { result: 2}
+  if A < B & Y < Z { result: 1}
+  if A >= B & Y >= Z { result: -1}
+  if A >= B & Y < Z { result: -2}
+}
+
+function: under A:s B:n diffy Y:s Z:n {
+  AA: [highest of A under B]
+  YY: [highest of Y under Z]
+  if AA = 0 & YY = 0 { result: 0}
+  if AA > 0 & YY = 0 { result: AA}
+  if AA > 0 & YY > 0 & AA > YY { result: AA}
+  if AA = YY { result: AA}
+  if AA = 0 & YY > 0 { result: YY}
+  if AA > 0 & YY > 0 & AA < YY { result: YY}
+  result: -12
+}
+
+function: rank X:n {
+  if X < 2 { result: -1 }
+  if X = 2 { result: 0 }
+  if X = 3 { result: 0 }
+  if X > 3 { result: 1 }
+}
+
+function: X:s vs Y:s count Z:s {
+  SCORE: [count Z in X]
+  CHALLENGE: [count Z in Y]
+  if SCORE > CHALLENGE {result: 1}
+  if SCORE >= CHALLENGE { result: 0 }
+  result: -1
+}
+
+function: underdamage X:s Y:n {
+  if 2@X >= Y {result: 0}
+  if 1@X >= Y {result: 2@X}
+  result: 2@X
+}
+
+function: overdamage X:s Y:n {
+  if 2@X >= Y {result: 0}
+  if 1@X >= Y {result: 2@X}
+  result: 1@X
+}
+
+function: sumdamage X:s Y:n {
+  if 2@X >= Y {result: 0}
+  if 1@X >= Y {result: 2@X}
+  result: 1@X + 2@X
+}
+
+function: diffdamage X:s Y:n {
+  if 1@X >= Y { result: 0 }
+  if 1@X < Y & 2@X < Y { result: 2@X-1@X }
+  result: 2@X-1@X
+}
+
+function: X:s vss Y:s {
+  result: [count {4,5,6} in X] - [count {4,5,6} in Y]
+}
+
+function: skill A:s B:n challenge Y:s Z:n {
+  if A < B & Y < Z {
+    if A > Y { result: 1}
+    if A < Y { result: -1}
+    if A = Y { result: -1}
+  }
+  if A >= B & Y >= Z {
+    if A > Y { result: 1}
+    if A < Y { result: -1}
+    if A = Y { result: 1}
+  }
+
+  if A < B & Y >= Z {
+    result: 2
+  }
+  if A >= B & Y < Z {
+    result: -2
+  }
+}
+function: A:s B:n contest Y:s Z:n {
+  if A < B & Y < Z {
+    if A > Y { result: 1}
+    if A < Y { result: -1}
+    if A = Y { result: 0 }
+  }
+  if A >= B & Y >= Z {
+    if A > Y { result: 1}
+    if A < Y { result: -1}
+    if A = Y { result: 0 }
+  }
+
+  if A < B & Y >= Z {
+    result: 1
+  }
+  if A >= B & Y < Z {
+   result: -1
+  }
+result: 0
+}
+
+
+function: highest of A:s under B:n {
+  if 1@A <= B { result: 1@A }
+  if 2@A <= B { result: 2@A }
+}
+
+function: lowest of A:s under B:n {
+  if #(A) = 3 { if 3@A <= B { result: 3@A } }
+  if 2@A <= B { result: 2@A }
+}
+
+function: second of A:s under B:n {
+  if 2@A <= B { result: 2@A }
+}
+loop N over {1..20}{
+  output [count {1..N} in 3d12] named "[N]"
+}

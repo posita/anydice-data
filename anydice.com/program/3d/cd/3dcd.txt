@@ -1,0 +1,53 @@
+\ Put enemy's AC before calculating cover here, and if something says BOOL at the end you can put down either 1 for true or 0 for false \
+AC: 23
+\ True if the enemy has normal cover \
+ENEMYHASCOVERBOOL: 1
+
+\ Player Abilities Below (I put in what a level 10 ranger usually has at this point, feel free to mess around though) \
+\ Improved Precise Shot allows you to ignore less than total cover (total cover defined as a literal wall) Requires level 11, or being a ranger with Archery path \
+HASIMPROVEDPRECISESHOT: 1
+\ Rapid shot allows for multiple shots at a -2 penalty \
+RAPIDSHOTBOOL: 1
+\ Player's DEX Modifier \
+DEXMOD: 5
+\ Weapon modifier, a masterwork weapon gets 1 still \
+WEAPONMOD: 2
+\ Weapon focus feat increases \
+WEAPONFOCUSBOOL: 1
+\ Making the shot within 30 feet gives a +1 bonus IF you have point blank feat, true if applies \
+POINTBLANKBOOL: 1
+
+\ Calculations Below \
+\ Figure out if rapid shot applies \
+RAPIDSHOTMODIFIER: RAPIDSHOTBOOL * -2
+\ Add cover to AC if the enemy has cover and the player doesn't have precise shot, all other conditions the enemy doesn't get cover \
+ENEMYGETSCOVERBOOL: ENEMYHASCOVERBOOL & !HASIMPROVEDPRECISESHOT
+AC: ENEMYGETSCOVERBOOL * 4 + AC
+
+\ Let's Roll \
+FIRSTROLL: 1d20
+SECONDROLL: 1d20
+THIRDROLL: 1d20
+
+\ Check for crits \
+FIRSTCRIT: FIRSTROLL = 20
+SECONDCRIT: SECONDROLL = 20
+THIRDCRIT: THIRDROLL = 20
+
+\ This assumes a BaB of a level 10 ranger \
+FIRSTSHOT: 1d20 + 10 + DEXMOD + WEAPONMOD + WEAPONFOCUSBOOL + POINTBLANKBOOL + RAPIDSHOTMODIFIER
+SECONDSHOT: 1d20 + 5 + DEXMOD + WEAPONMOD + WEAPONFOCUSBOOL + POINTBLANKBOOL + RAPIDSHOTMODIFIER
+\ Only matters if RAPIDSHOTBOOL = true \
+RAPIDSHOT: (1d20 + 8 + DEXMOD + WEAPONMOD + WEAPONFOCUSBOOL + POINTBLANKBOOL) * RAPIDSHOTBOOL
+
+\ Compare to AC \
+FIRST: FIRSTSHOT >= AC
+SECOND: SECONDSHOT >= AC
+THIRD: RAPIDSHOT >= AC
+
+FIRSTDAMAGE: (FIRST + FIRSTCRIT + 1)d8 + (FIRST + FIRSTCRIT) * WEAPONMOD
+SECONDDAMAGE: (SECOND + SECONDCRIT)d8 +(SECOND + SECONDCRIT) * WEAPONMOD
+THIRDDAMAGE: (THIRD + THIRDCRIT)d8 +(THIRD + THIRDCRIT) * WEAPONMOD
+
+\ Report how many shots hit \
+output FIRSTDAMAGE + SECONDDAMAGE + THIRDDAMAGE

@@ -1,0 +1,132 @@
+function: sub A:n vs B:n{
+if A>B{
+if B>=XM+5{
+result: A-B
+}else{result: A}
+}else{
+result: 0
+}
+}
+
+
+function: dice A:n vs B:n mod M:n reduct R:n{
+if A>B{result: 2d6 + M - R}
+result:0
+}
+
+function:counter A:n vs B:n amod AM:n bmod BM:n reduct R:n admg AD:n bdmg BD:n{
+if(A+ACC+AA+AM)<(B+BCC+BDEX+BM){result:(B+BCC+BDEX+BM)-(A+ACC+AA+AM)+BD}
+if(A+ACC+AA+AM)>(B+BCC+BDEX+BM){result:(B+BCC+BDEX+BM)-(A+ACC+AA+AM)-AD}
+if(A+ACC+AA+AM)=(B+BCC+BDEX+BM){result:0}
+}
+
+
+
+function: groesser A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n{
+\if A+AM+AA-(B+BM+BCC+BREF)<0{result: 0}
+if A+D+ASTR-(B+BCC+BDEX+BSTR+R)>D/2{result: A+D+ASTR-(BDEX+BSTR+R)}result:D/2\
+
+
+\if A+AM+ACC-(B+BM+BA)<0{result: 0}
+U:(A+AM+ACC)
+result:(U+AA+D)-(BCC+BA+BDEX+BSTR+R)
+}
+\
+ 
+if A+AM+ACC-(B+BM+BDEX+BCC)<0{result: 0}
+U:(A+AM+ACC)/10
+result:(Ud6+AA+D)-R
+}
+
+
+function: verysimple A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n{
+if(A+AM+ACC)-(B+BM+BCC+BDEX)>0{
+result:(A+AM+ACC+AA+D)-(B+BM+BCC+BDEX)
+}result:0
+}
+
+
+\function: subtract A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n{ AM=AttackModifier
+
+if A+AM+ACC-(B+BM+BCC  +BDEX oder BREF)<0{result: 0}
+if A+AA-(B+BCC)>D/2{result: A+D+AA-(B+BCC)}result:D/2
+
+if (A+ACC+AM)-(B+BM+BCC+BA)<0{result: 0}
+if (A+AA+D)-(B+BM+BCC+BA)>BSTR+R {result:(A+AA+D)-(B+BM+BCC+BA+BSTR+R)}
+D-(BDEX+BSTR+R)\
+
+function: simple A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n
+{
+if (A+ACC+AA+AM)-(B+BCC+BDEX+BM)>0{
+if (A+ACC+AA+D) -(B+BCC+BDEX+BM+R)>0{
+result:(A+ACC+AA+D)-(B+BCC+BDEX+BM+R)
+}else{result: 0}
+}result: 0
+}
+
+function: hypersimple A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n
+{
+if (A+ACC+AA+AM)-(B+BCC+BDEX+BM)>0{
+result:(A+ACC+AA+AM+D)-(B+BCC+BDEX+BM)
+}result: 0
+}
+
+
+function: i A:n vs B:n {if[counter A vs B amod 2 bmod 2 reduct SD+ARMOR admg 3 bdmg 3]>0{
+result: [counter A vs B amod 2 bmod 2 reduct SD+ARMOR admg 3 bdmg 3]
+}
+result:0
+}
+
+function: direct A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n
+{
+if (A+ACC+AM)-(B+BCC+BDEX+BM)>0{
+if(A+AA+D)-(B+BCC+BDEX+BM+R)>0{
+result:(A+AA+D)-(B+BCC+BDEX+R)\+BM\
+}else{result:-D}
+}else{result:0}
+}
+
+
+function: nonsubarea A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n
+{
+if (A+AA+AM)-(B+BDEX+BM)>0{
+result:(A)
+}result: 0
+}
+
+function: nonsub A:n vs B:n amod AM:n bmod BM:n reduct R:n dmg D:n
+{
+if (A+ACC+AM)-(B+BCC+BDEX+BM)>0{
+result:(A+AA+D)-(10+BSTR+R)
+}result: 0
+}
+
+SD:0
+
+\Attacker\
+ACC:2
+AA:4 \Agility,Strength,Athletics\
+ASTR:2
+
+\Defender\
+BCC:5
+BDEX:5
+BSTR:1
+BA:4
+ARMOR:0
+
+X: 1d20
+Y: 1d20
+
+output [nonsubarea X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "nonsubArea"
+output   [hypersimple X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "hypersimple"
+output   [nonsub X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "nonsub"
+output   [direct X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "direct"
+\output [subtract X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "subtract"\
+output[verysimple X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "verysimple"
+output [groesser X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "größer"
+output   [simple X vs Y amod 2 bmod 2 reduct SD+ARMOR dmg 3] named "simple"
+\output [dice X vs Y mod 2 reduct 6] named "dice"\
+output [counter X vs Y amod 2 bmod 2 reduct SD+ARMOR admg 3 bdmg 3] named "counter"
+output [i X vs Y]

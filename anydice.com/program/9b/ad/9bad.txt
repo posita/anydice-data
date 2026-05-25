@@ -1,0 +1,69 @@
+function: crank harder { result: [crank harder roll d6] }
+function: crank harder roll DIE:n {
+  if DIE > 1 { result: 4d6 }
+  if DIE = 1 { result: [crank harder wound 1d3] }
+  result: 0
+}
+function: crank harder wound DIE:n {
+  if DIE = 3 { result: 0 } \ the model dies \
+  result: 2d6
+}
+
+function: hits on HITS:n { result: [succeeds on HITS] }
+function: wounds on WOUNDS:n { result: [succeeds on WOUNDS] }
+function: wounds on WOUNDS:n rerollable { result: [succeeds on WOUNDS plus 0 with reroll roll 1d6] }
+function: succeeds on VALUE:n { result: [succeeds on VALUE plus 0] }
+function: succeeds on VALUE:n plus BONUS:n { result: [succeeds on VALUE plus BONUS roll 1d6] }
+function: succeeds on VALUE:n plus BONUS:n roll DIE:n {
+  if DIE = 1 { result: 0 }
+  if DIE + BONUS >= VALUE { result: 1 }
+  result: 0
+}
+function: succeeds on VALUE:n plus BONUS:n with reroll roll DIE:n {
+  if DIE = 1 { result: [succeeds on VALUE plus BONUS roll 1d6] }
+  result: [succeeds on VALUE plus BONUS roll DIE]
+}
+function: shocks on SHOCKS:n hits on VALUE:n plus BONUS:n {
+  result: [shocks on SHOCKS hits on VALUE plus BONUS roll 1d6]
+}
+function: shocks on SHOCKS:n hits on VALUE:n plus BONUS:n roll DIE:n {
+  if DIE = 1 { result: 0 }
+  if DIE + BONUS >= SHOCKS { result: 1d6 }
+  if DIE + BONUS >= VALUE { result: 1 }
+  result: 0
+}
+function: rehits on REHIT:n hits on VALUE:n plus BONUS:n {
+  result: [rehits on REHIT hits on VALUE plus BONUS roll 1d6]
+}
+function: rehits on REHIT:n hits on VALUE:n plus BONUS:n roll DIE:n {
+  if DIE = 1 { result: 0 }
+  if DIE + BONUS >= REHIT { result: 1 + [succeeds on VALUE plus BONUS] }
+  if DIE + BONUS >= VALUE { result: 1 }
+  result: 0
+}
+function: saves on SAVE:n rend REND:n { result: [saves on SAVE rend REND roll 1d6] }
+function: saves on SAVE:n rend REND:n roll DIE:n {
+  if DIE = 1 { result: 1 }
+  if DIE - REND >= SAVE { result: 0 }
+  result: 1
+}
+
+loop WHIPS over {0,2,4} {
+output (5*4)d[rehits on 6 hits on 4 plus WHIPS]d[wounds on 3 rerollable] named "Giant Ogors plus [WHIPS]"
+\ output (5*4)d[rehits on 6 hits on 4 plus WHIPS]d[wounds on 3] named "Giant Ogors plus [WHIPS]" \
+\ move 6 ; 40 woundns ; bravery 4 ; 5+ save \
+output (3*4)d[shocks on 6 hits on 4 plus WHIPS]d[wounds on 3] named "SF w/ Shock Gauntlets  plus [WHIPS]"
+\ move 6 ; 42 wounds ; bravery 6 ; 4+ save \
+}
+
+\RANGE: {4,3}
+loop ARMOR over RANGE {
+  output (4*[crank harder])d[hits on 4]d[wounds on 4]d[saves on ARMOR rend 1] named "Ratling saving on [ARMOR]"
+  output (4*[crank harder])d[succeeds on 4 plus 1]d[wounds on 4]d[saves on ARMOR rend 1] named "Ratling +1 saving on [ARMOR]"
+  output ((3*3)d6)d[hits on 4]d[wounds on 4] named "SF w/ Ratling Cannons armor [ARMOR]"
+  output (3*4)d[shocks on 6 hits on 4 plus 0]d[wounds on 3]d[saves on ARMOR rend 1]*2 named "SF w/ Shock Gauntlets armor [ARMOR]"
+  output (3*4)d[shocks on 6 hits on 4 plus 3]d[wounds on 3]d[saves on ARMOR rend 1]*2 named "SF w/ Shock Gauntlets armor [ARMOR]"
+}
+\
+
+\output (3*2)d3 named "SF w/ Warpfire"\

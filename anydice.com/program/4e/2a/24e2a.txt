@@ -1,0 +1,60 @@
+function: test VIGOR:s MOD:n {
+    if (VIGOR + MOD) >= 4 {
+        result: 0
+    }
+    result: 1
+}
+
+function: stunattack ATTACK_DICE:s TN:n VIGOR:s MOD:n RAISE_MOD:n {
+    if ATTACK_DICE >= (TN + 4) {
+        result: [test VIGOR RAISE_MOD]
+    }
+    if ATTACK_DICE >= TN {
+        result: [test VIGOR MOD]
+    }
+
+    result: 0
+}
+
+WILD_DICE: [explode d6]
+FIGHTING_ATTACK: [highest of WILD_DICE and [explode d6]]
+FIGHTING_ATTACK_TOUCH: [highest of WILD_DICE and [explode d6]] +2
+SHOOTING_ATTACK: [highest of WILD_DICE and [explode d6]]
+
+PARRY_TN: 6
+DODGE_TN: 4
+VIGOR: [highest of WILD_DICE and [explode d8]]
+TOUGHNESS: 6
+
+MELEE_VIGOR_MOD: (-2)
+MELEE_VIGOR_MOD_RAISE: (-2)
+RANGED_VIGOR_MOD: (-2)
+RANGED_VIGOR_MOD_RAISE: (-2)
+
+output [stunattack FIGHTING_ATTACK_TOUCH PARRY_TN VIGOR MELEE_VIGOR_MOD  MELEE_VIGOR_MOD_RAISE] named "Melee Stun Gun"
+output [stunattack SHOOTING_ATTACK DODGE_TN VIGOR RANGED_VIGOR_MOD RANGED_VIGOR_MOD_RAISE] named "Ranged Stun Gun"
+
+
+function: damage DAMAGE_DICE:s TOUGHNESS:n {
+    if DAMAGE_DICE >= TOUGHNESS + 4 {
+        result: 2 
+    }
+    if DAMAGE_DICE >= TOUGHNESS {
+        result: 1
+    }
+    result: 0
+}
+
+function: normalattack ATTACK_DICE:s TN:n TOUGHNESS:s DAMAGE:s{
+    if ATTACK_DICE >= (TN + 4) {
+        result: [damage (DAMAGE + d6) TOUGHNESS]
+    }
+    if ATTACK_DICE >= TN {
+        result: [damage DAMAGE TOUGHNESS]
+    }
+
+    result: 0
+}
+
+output [normalattack (FIGHTING_ATTACK + 1) PARRY_TN TOUGHNESS [explode (d8 + d4)]] named "Martial Arts Punch"
+output [normalattack SHOOTING_ATTACK DODGE_TN TOUGHNESS [explode 2d6]] named "Police Revolver"

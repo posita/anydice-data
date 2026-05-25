@@ -1,0 +1,27 @@
+function: attack ROLLA:n vs ROLLD:n {
+ DEGREES: -1
+ if ROLLA = 18 { DEGREES: DEGREES + 1 }
+ if ROLLA + ATTACK + SKILL > ROLLD + AGI + INT { DEGREES: DEGREES + 2 }
+ if ROLLA + ATTACK + SKILL = ROLLD + AGI + INT { DEGREES: DEGREES + 1 }
+ if (ROLLA + ATTACK + SKILL) - (ROLLD + AGI + INT) >= 10 { DEGREES: DEGREES + 1 }
+ result: DEGREES
+}
+
+function: damage ROLL:n vs ARMOR:n for DEGREES:n {
+ if DEGREES < 1 { result: 0 }
+ TOTAL: ROLL + DAMAGE
+ if DEGREES = 3 { result: (TOTAL * 4) - ARMOR }
+ if DEGREES = 2 { result: (TOTAL * 2) - ARMOR }
+ if (TOTAL - ARMOR) <= 0 { result: 0 }
+ result: TOTAL - ARMOR
+}
+
+ATTACK: 3
+SKILL: 5
+AGI: 3
+INT: 3
+DAMAGE: 6
+
+loop ARMOR over {4..16} {
+  output [damage 1d6 vs ARMOR for [attack 3d6 vs 3d6]] named "[ARMOR]"
+}

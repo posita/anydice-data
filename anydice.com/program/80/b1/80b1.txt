@@ -1,0 +1,26 @@
+SKILL: 3
+MAX: 3
+TYPE: 6
+\
+SKILL from 1 to TYPE-1 (ex. 5 when using d6) ; MAX is max range of dice (at least 2) ; TYPE is the type of dice used
+Use Transposed for success probabilities per difficulty level at the given skill level
+Throw a number of dice determined by the difficulty of the task. 1 die is baseline: half a chance of success for a medium 3-skill - add dice for both easier and harder tasks
+With one die, success is if the value is less than or equal to the skill
+For easier tasks, at least one die must be less than or equal to the skill. For harder tasks, all dice must be less than or equal to the skill
+If a task difficulty requires more dice than allowed by the range, add or subtract 1 effective skill level per missing die for calculating success. If effective skill would go beyond the skill ceiling or below 1, success or failure are automatic
+\
+loop MOD over {1..(SKILL-1)} {
+ DICE: MAX
+ output DICE d (d TYPE < (MOD+1)) = DICE named "[DICE]d:[MOD]"
+}
+loop REVERSE over {2..MAX} {
+ DICE: MAX - REVERSE + 2
+ output DICE d (d TYPE < (SKILL+1)) = DICE named "[DICE]d:[SKILL]"
+}
+loop DICE over {1..MAX} {
+ output DICE d (d TYPE < (SKILL+1)) > 0 named "[DICE]d:[SKILL]"
+}
+loop MOD over {SKILL+1..TYPE-1} {
+ DICE: MAX
+ output DICE d (d TYPE < (MOD +1)) > 0 named "[DICE]d:[MOD]"
+}

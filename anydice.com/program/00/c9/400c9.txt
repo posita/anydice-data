@@ -1,0 +1,51 @@
+ENEMY_LEVEL: 6
+FRIGHTEN: 0
+OFF_GUARD: 0
+
+CHARACTER_LEVEL: 6
+STRENGTH: 4
+WEAPON_PROFICIENCY: 4 
+WEAPON_POTENCY: 1
+AID: 0
+
+DAMAGE_DICE_NUM: 2
+DAMAGE_DICE_SIZE: 10
+RAGE: 2
+WEAPON_SPECIALIZATION: 0
+
+ATTACK_BONUS: CHARACTER_LEVEL + STRENGTH + WEAPON_PROFICIENCY + WEAPON_POTENCY + AID
+DAMAGE_BONUS: STRENGTH + RAGE + WEAPON_SPECIALIZATION
+AC: 14 + (ENEMY_LEVEL*2) - FRIGHTEN - OFF_GUARD
+
+function: attack ROLL:n plus BONUS:n vs TARGET:n {
+  if ROLL = 1 {
+      if ROLL + BONUS >= TARGET + 10 {result: 1}
+      if ROLL + BONUS >= TARGET {result: 0}
+      if ROLL + BONUS <= TARGET - 10 {result: 0}
+      if ROLL + BONUS <= TARGET {result: 0}
+      result: 0}
+  if ROLL = 20 {
+      if ROLL + BONUS >= TARGET + 10 {result: 2}
+      if ROLL + BONUS >= TARGET {result: 2}
+      if ROLL + BONUS <= TARGET - 10 {result: 0}
+      if ROLL + BONUS <= TARGET {result: 1}
+      result: 2}
+  if ROLL + BONUS >= TARGET + 10 {result: 2}
+  if ROLL + BONUS >= TARGET {result: 1}
+  result: 0}
+
+function: damage for RESULT:n with NUM:n dice of SIZE:n plus BONUS:n {
+  if RESULT = 0 {result: 0}
+  if RESULT = 1 {result: NUM d SIZE + BONUS}
+  if RESULT = 2 {result: (NUM d SIZE + BONUS)*2}
+  result: 0}
+
+function: attack roll with penalty PENALTY:n {
+  ROLL: [attack d20 plus ATTACK_BONUS + PENALTY vs AC]
+  result: [damage for ROLL with DAMAGE_DICE_NUM dice of DAMAGE_DICE_SIZE plus DAMAGE_BONUS]}
+
+output [attack roll with penalty 0] named "1st Attack (MAP 0)"
+output [attack roll with penalty -5] named "2nd Attack (MAP -5)"
+output [attack roll with penalty -10] named "3rd Attack (MAP -10)"
+output [attack roll with penalty -4] named "2nd Attack with Agile (MAP -4)"
+output [attack roll with penalty -8] named "3rd Attack with Agile (MAP -8)"

@@ -1,0 +1,63 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: DICE:d reroll REROLL:s {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: twist DE:n DIE:d {
+  if DE <= 1 {
+    result: 1@{DIE}
+  } 
+  if DE = 2 {
+    result: [lowest of DIE and DIE]
+  }
+  if DE = 3 {
+    result: [highest of DIE and DIE]
+  }
+  if DE >= 4 {
+    result: 1@[reverse {DIE}]
+  }
+}
+
+function: ttf DIE:d {
+  result: (DIE-1)/5+1
+}
+
+
+function: replace ROLL:n with REPLACEMENT:n on TO_REPLACE:s {
+  if [TO_REPLACE contains ROLL] {
+        result: REPLACEMENT
+  }
+  result: ROLL
+}
+
+ROLL: [highest 1 of (1
+    + 1 \ Foresight \
+    + 1 \ Empress \
+    - 1 \ Fool \
+    + 1 \ Fortune's Favor \
+
+)d20]
+
+MODS: 
+    5      \ Focused Alar \
+    + 5    \ Fool Motif \
+    + 2    \ Stat Bonus \
+    + 3    \ Empress Motif (D) \
+    + 1    \ Warding Bond \
+    + 1    \ Cloak of Resistance \
+    + 1    \ Stone of Good Luck \
+    + 1d4  \ Bless \
+    + 1d4  \ Serendipity \
+    + 1d4  \ Foresight (divine) \
+
+output (ROLL + MODS) >= 27 named "Save vs DC 27"
+
+output [replace (ROLL + MODS) with [twist [ttf [highest 1 of 2d20]+5] 1d20+MODS] on {1..26}] >= 27 named "Save vs DC 27"
+
+

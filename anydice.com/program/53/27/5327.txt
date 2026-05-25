@@ -1,0 +1,18 @@
+MELEE: {0,0,1,1,1,2}
+RANGE: {0,0,0,1,1,2}
+
+function: POOL:n DIE:s with up to REROLLS:n rerolls {
+  result: [reroll up to REROLLS misses for (POOL d DIE) DIE]
+}
+
+function: reroll up to R:n misses for ROLL:s DIE:s{
+  MISSES: ROLL = 0
+  HITS: ROLL > 0
+  CRITS: ROLL > 1
+  if R <= 0 | MISSES = 0 {
+    result: HITS + [reroll up to [highest of (R - MISSES) and 0] misses for ((CRITS)d DIE) DIE]
+  }
+  result: HITS + [reroll up to (R - MISSES) misses for (([lowest of MISSES and R] + CRITS)d DIE) DIE]
+}
+
+output [1 MELEE with up to 0 rerolls] named "1dMELEE"

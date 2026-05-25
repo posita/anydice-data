@@ -1,0 +1,51 @@
+\Target’s AC specified here\
+STR: 16
+\Normal STR of our attacker\
+STRBONUS: (STR - 10) / 2
+\And now we calculate the STR ability bonus\
+BAB: 3
+\Attacker’s Base Attack Bonus\
+SLAMDAMAGE: 1d8 + STRBONUS
+\Eidolon’s Slam damage. For some reason, Medium Eidolons deal damage specified to Huge slam.\
+GREATSWORDDAMAGE: 2d6 + STRBONUS + (STRBONUS / 2)
+\Eidolon’s GS damage, following all of the rules\
+CLAWDAMAGE: 1d4 + STRBONUS
+ROLLINGTOHIT: 1d20 + BAB + STRBONUS
+\We roll to hit. We add our BAB and STR bonus to hit.\
+\Penalties are not supported yet, but can be added very easily.\
+TOHITBONUS: BAB + STRBONUS
+AC: 16
+
+function: hit with ROLL:n against ARMORCLASS:n {
+if ROLL < ARMORCLASS {
+\If we rolled less than target’s AC...\
+result: 0
+\...we miss. The resulting damage multiplier is 0.\
+}
+
+else {
+\Otherwise...\
+result: 1
+\We hit, and the damage multiplier is 1.\
+}
+}
+
+DTWENTYROLL: 1d20
+CRITRANGE: 20
+CRITMULTIPLIER: 2
+function: critthreat with ROLL:n {
+
+}
+
+
+loop AC over {10..35} {
+HITORNOT: [hit with ROLLINGTOHIT against AC]
+\output HITORNOT named "Chance to hit against AC of [AC]"\
+SLAMDAMAGEDEALT: HITORNOT * SLAMDAMAGE
+output SLAMDAMAGEDEALT named "Slam damage against AC of [AC] "
+GSDAMAGEDEALT: HITORNOT * GREATSWORDDAMAGE
+output GSDAMAGEDEALT named "Greatsword against AC of [AC] "
+CLAWDAMAGEDEALT: HITORNOT * CLAWDAMAGE * 2
+output CLAWDAMAGEDEALT named "Claw damage against AC of [AC] "
+output 0 named "______________________________"
+}

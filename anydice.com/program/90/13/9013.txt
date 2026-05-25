@@ -1,0 +1,60 @@
+function: getvalue STYLE TYPE {
+  \ sheep \
+  if STYLE = 1 { 
+    if TYPE = 1 { result: 2 } \ weapon \
+    if TYPE = 2 { result: 2 } \ armor\
+    if TYPE = 3 { result: 2 } \ engine \
+    if TYPE = 4 { result: 2 } \ battery \
+  }
+  \ shark \
+  if STYLE = 2 { 
+    if TYPE = 1 { result: 3 } \ weapon \
+    if TYPE = 2 { result: 1 } \ armor\
+    if TYPE = 3 { result: 2 } \ engine \
+    if TYPE = 4 { result: 2 } \ battery \
+  }
+
+  result: 0
+}
+
+function: evade A attacks B with X:n {
+  EVADE: BENGINE - AENGINE
+  CHANCE: 1d10
+  if X-1 < EVADE {
+    \ they evaded \
+    result: 1
+  }
+  result: 0
+}
+
+function: attack A to B {
+  AWEAPON: [getvalue A 1] \ 1 is "weapon" \
+  AARMOR: [getvalue A 2] \ 2 is "armor" \
+  AENGINE: [getvalue A 3] \ 3 is "engine" \
+  ABATTERY: [getvalue A 4] \ 4 is "battery" \
+
+  BWEAPON: [getvalue B 1] \ 1 is "weapon" \
+  BARMOR: [getvalue B 2] \ 2 is "armor" \
+  BENGINE: [getvalue B 3] \ 3 is "engine" \
+  BBATTERY: [getvalue B 4] \ 4 is "battery" \
+
+  ADEFENCE: AARMOR * 10
+  ADAMAGE: AWEAPON * 10
+  ASTAMINA: ABATTERY * 20
+
+  BDEFENCE: BARMOR * 10
+  BDAMAGE: BWEAPON * 10
+  BSTAMINA: BBATTERY * 20
+
+  \ An attack consists of three parts, whether or not the target evades, damage attempted, and final damage doled out \
+
+  \ chance of evasion is target engine skill minus self engine skill divided by 10 \
+  EVADE: [evade A attacks B with d10]
+
+  result: EVADE
+}
+
+A: 1 \ Sheep \
+B: 2 \ Shark \
+
+output [attack A to B] \ Sheep vs Shark \

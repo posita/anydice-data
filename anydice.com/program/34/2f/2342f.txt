@@ -1,0 +1,63 @@
+PV: 15
+TO_HIT: 2
+BASE_DMG: 2d2
+ON_HIT_BONUS: 0
+MASTERWORK: 0
+ATTACKER_IS_PLAYER:0
+
+AV: 11
+DV: 0
+
+HIT: 0 \2 is crit\
+PEN: 0
+TEST: 1
+
+set "explode depth" to 5
+set "maximum function depth" to 30
+
+
+function: hit roll X:n
+{
+    if X >= 20 - MASTERWORK { result: 2 }
+    if X + TO_HIT > DV { result: 1 }
+    result: 0
+}
+
+function: penetration test _PV tally N:n
+{
+    if N < 3 & N > 0 { result: 1 }
+    if N = 0 { result: 0 }
+    
+    TRI: 0
+    loop I over {1..3}
+    {
+        TRI: TRI + ([explode 1d10 - 2] + _PV > AV)
+    }
+    
+    result: (N = 3) + [penetration test (_PV - 2) tally TRI]
+}
+
+function: dmg calc _HIT:n _PEN:n
+{
+    if _HIT = 2 & _PEN = 0 & ATTACKER_IS_PLAYER { _PEN: 1}
+
+    DMG: 0
+    if _HIT > 0 & _PEN > 0
+    {
+	loop I over {1.._PEN}
+        {
+	    DMG: DMG + BASE_DMG
+	}
+
+	DMG: DMG + ON_HIT_BONUS
+    }
+    result: DMG
+}
+
+HIT: [hit roll d20]
+output HIT
+
+PEN: [penetration test PV tally -1]
+output PEN
+
+output [dmg calc HIT PEN]

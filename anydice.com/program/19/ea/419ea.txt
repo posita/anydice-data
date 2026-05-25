@@ -1,0 +1,84 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+ATTACK: 11
+HITDAMAGE: 2d10 + 1
+CRITICALDAMAGE: (2d10 + 1) * 2
+MISSDAMAGE: 0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL + ATTACK >= DEFENSE + 10 { result: CRITICALHIT }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attack with map ROLL:n vs DEFENSE:n {
+ if ROLL + ATTACK - 5 >= DEFENSE + 10 { result: CRITICALHIT }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK - 5 >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attack with volley ROLL:n vs DEFENSE:n {
+ if ROLL + ATTACK -2 >= DEFENSE + 10 { result: CRITICALHIT }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK -2 >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attack with volley map ROLL:n vs DEFENSE:n {
+ if ROLL + ATTACK - 7 >= DEFENSE + 10 { result: CRITICALHIT }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK - 7 >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+BARRICADE_M: [damage for [attack d20 vs 20]]
+BARRICADE_X: [damage for [attack d20 vs 24]]
+BARRICADE_M_MAP: [damage for [attack with map d20 vs 20]]
+BARRICADE_X_MAP: [damage for [attack with map d20 vs 24]]
+BARRICADE_M_VOLLEY: [damage for [attack with volley d20 vs 20]]
+BARRICADE_M_VOLLEY_MAP: [damage for [attack with volley map d20 vs 20]]
+BARRICADE_X_VOLLEY: [damage for [attack with volley d20 vs 24]]
+BARRICADE_X_VOLLEY_MAP: [damage for [attack with volley map d20 vs 24]]
+
+output BARRICADE_M named "Barricade Moderate"
+output BARRICADE_X named "Barricade Extreme"
+output BARRICADE_M_MAP named "Barricade Moderate MAP"
+output BARRICADE_X_MAP named "Barricade Extreme MAP"
+output BARRICADE_M + BARRICADE_M_MAP named "Barricade Moderate, 2 Attacks"
+output BARRICADE_X + BARRICADE_X_MAP named "Barricade EXTREME, 2 Attacks"
+output BARRICADE_M_VOLLEY named "Barricade Moderate Volley"
+output BARRICADE_X_VOLLEY named "Barricade Extreme Volley"
+output BARRICADE_M_VOLLEY_MAP named "Barricade Moderate Volley MAP"
+output BARRICADE_X_VOLLEY_MAP named "Barricade Extreme Volley MAP"
+output BARRICADE_M_VOLLEY + BARRICADE_M_VOLLEY_MAP named "Barricade Moderate Volley, 2 Attacks"
+output BARRICADE_X_VOLLEY + BARRICADE_X_VOLLEY_MAP named "Barricade EXTREME Volley, 2 Attacks"
+
+HITDAMAGE: 2d8
+CRITICALDAMAGE: (2d12) * 2 + 1d12
+
+AQREBUS_M: [damage for [attack d20 vs 20]]
+AQREBUS_X: [damage for [attack d20 vs 24]]
+
+output AQREBUS_M named "Aqrebus Moderate"
+output AQREBUS_X named "Aqrebus Extreme"
+output [damage for [attack with map d20 vs 20]] named "Aqrebus Moderate MAP"
+output [damage for [attack with map d20 vs 24]] named "Aqrebus Extreme MAP"
+output BARRICADE_M + BARRICADE_M_MAP - AQREBUS_M named "Difference between Barricade Moderate, 2 Attacks vs Aqrebus Moderate"
+output BARRICADE_X + BARRICADE_X_MAP - AQREBUS_X named "Difference between Barricade Extreme, 2 Attacks vs Aqrebus Extreme"
+output BARRICADE_M_VOLLEY + BARRICADE_M_VOLLEY_MAP - AQREBUS_M named "Difference between Barricade Moderate Volley, 2 Attacks vs Aqrebus Moderate"
+output BARRICADE_X_VOLLEY + BARRICADE_X_VOLLEY_MAP - AQREBUS_X named "Difference between Barricade Extreme Volley, 2 Attacks vs Aqrebus Extreme"
+

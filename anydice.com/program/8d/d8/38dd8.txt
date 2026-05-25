@@ -1,0 +1,489 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attackpf ROLL:n plus TOHIT:n vs ac AC:n for DAMAGE:d map MAP:n{
+if ROLL = 20 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC+10 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC {result: DAMAGE}
+if (TOHIT + ROLL - 5*MAP) < AC {result: 0}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n crit CRIT:n fail FAIL:n success SUCCESS:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: SUCCESS}
+if ROLL = 1 {result: CRIT}
+if ROLL + FLOAT < DC-10 {result: CRIT}
+if ROLL + FLOAT < DC {result: FAIL}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n for DAMAGE:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: DAMAGE/2}
+if ROLL = 1 {result: DAMAGE*2}
+if ROLL + FLOAT < DC-10 {result: DAMAGE*2}
+if ROLL + FLOAT < DC {result: DAMAGE}
+}
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] named "Level 1"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 5] + [attack 1d20 plus 1 vs ac 10 for 1d4 plus 5] named "Level 2 T1"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 5] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 5] named "Level 2 T2+"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5] named "Level 3 T1"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] named "Level 3 T2+"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 5]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4+2d6 plus 5]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 5]
+] named "Level 4 T1"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 3d6 plus 5]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5]
+] named "Level 4 T2+"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4+2d6 plus 6]
+	crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6]
+] named "Level 5 T1"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d4+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+2d6 plus 6]
+		crit 2d4+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	]
+	crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6]
+] named "Level 5 T2+"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4+2d6 plus 6]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6]
+] named "Level 6 T1"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d4+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+2d6 plus 6]
+			crit 2d4+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+		]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+] named "Level 6 T2+"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4+2d6 plus 6]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+] named "Level 8 T1"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+			hit 1d4+2d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+			miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+2d6 plus 6]
+			crit 2d4+4d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+] named "Level 8 T2+"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4+2d6+1d8 plus 6]
+		crit 6d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+	]
+	crit 2d10+4d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6]
+] named "Level 9 T1"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+			hit 1d4+2d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+			miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+2d6+1d8 plus 6]
+			crit 2d4+4d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		]
+		crit 6d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	]
+	crit 2d10+4d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+] named "Level 9 T2+"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+3d6+7+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 4d6+7+1d8 + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d4+3d6+1d8 plus 7]
+		crit 8d6+7+2d8 + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7]
+	]
+	crit 2d10+6d6+7+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7]
+] named "Level 10 Brutal Strike DSkip T1"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+3d6+7+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 4d6+7+1d8 + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+			hit 1d4+3d6+7+1d8 + [attack 1d20 plus 0 vs ac 10 for 1d10+1d10 plus 7]
+			miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+3d6+1d8 plus 7]
+			crit 2d4+6d6+7+2d8 + [attack 1d20 plus 0 vs ac 10 for 1d10+1d10 plus 7]
+		]
+		crit 8d6+7+2d8 + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+	]
+	crit 2d10+6d6+7+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d4+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+] named "Level 10 Brutal Strike WSkip T2+"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+3d6+8+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 4d6+8+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4+3d6+1d8 plus 8]
+		crit 8d6+8+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8]
+	]
+	crit 2d10+6d6+8+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8]
+] named "Level 13 Brutal Strike DSkip T1"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+3d6+8+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 4d6+8+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d4+3d6+8+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 8]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+3d6+1d8 plus 8]
+			crit 2d4+6d6+8+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 8]
+		]
+		crit 8d6+8+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+	]
+	crit 2d10+6d6+8+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+] named "Level 13 Brutal Strike WSkip T2+"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4+4d6+1d8 plus 9]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9]
+] named "Level 17 Brutal Strike DSkip T1"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d4+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 9]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+4d6+1d8 plus 9]
+			crit 2d4+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 9]
+		]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+] named "Level 17 Brutal Strike WSkip T2+"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4+4d6+1d8 plus 9]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9]
+] named "Level 18 Brutal Strike DSkip T1"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d4+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+2d10 plus 9]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+4d6+1d8 plus 9]
+			crit 2d4+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+2d10 plus 9]
+		]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d4+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+] named "Level 18 Brutal Strike WSkip T2+"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] named "Level 3 T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] named "Level 3 T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 3d6 plus 5]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5]
+] named "Level 4 T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 3d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 3d6 plus 5]
+	crit 6d6+5 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5]
+] named "Level 4 T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6+2d6 plus 6]
+	crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6]
+] named "Level 5 T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+2d6 plus 6]
+		crit 2d6+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	]
+	crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6]
+] named "Level 5 T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6+2d6 plus 6]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6]
+] named "Level 6 T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d6+2d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+2d6 plus 6]
+			crit 2d6+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+		]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 6]
+] named "Level 6 T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6+2d6 plus 6]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+] named "Level 8 T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+			hit 1d6+2d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+			miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+2d6 plus 6]
+			crit 2d6+4d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		]
+		crit 6d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	]
+	crit 2d10+4d6+6 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+] named "Level 8 T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6+2d6+1d8 plus 6]
+		crit 6d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+	]
+	crit 2d10+4d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6]
+] named "Level 9 T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+2d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 3d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+			hit 1d6+2d6+6+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+			miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+2d6+1d8 plus 6]
+			crit 2d6+4d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+		]
+		crit 6d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+	]
+	crit 2d10+4d6+6+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 6]
+] named "Level 9 T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+3d6+7+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 4d6+7+1d8 + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6+3d6+1d8 plus 7]
+		crit 8d6+7+2d8 + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7]
+	]
+	crit 2d10+6d6+7+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7]
+] named "Level 10 Brutal Strike DSkip T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10
+	hit 1d10+3d6+7+1d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+	miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+		hit 4d6+7+1d8 + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+		miss [attack [highest 1 of 2d20] plus 0 vs ac 10
+			hit 1d6+3d6+7+1d8 + [attack 1d20 plus 0 vs ac 10 for 1d10+1d10 plus 7]
+			miss [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10+3d6+1d8 plus 7]
+			crit 2d6+6d6+7+2d8 + [attack 1d20 plus 0 vs ac 10 for 1d10+1d10 plus 7]
+		]
+		crit 8d6+7+2d8 + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+	]
+	crit 2d10+6d6+7+2d8 + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 7] + [attack 1d20 plus 0 vs ac 10 for 1d6+1d10 plus 7] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d10 plus 7]
+] named "Level 10 Brutal Strike WSkip T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+3d6+8+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 4d6+8+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6+3d6+1d8 plus 8]
+		crit 8d6+8+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8]
+	]
+	crit 2d10+6d6+8+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8]
+] named "Level 13 Brutal Strike DSkip T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+3d6+8+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 4d6+8+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d6+3d6+8+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 8]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+3d6+1d8 plus 8]
+			crit 2d6+6d6+8+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 8]
+		]
+		crit 8d6+8+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+	]
+	crit 2d10+6d6+8+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 8] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+] named "Level 13 Brutal Strike WSkip T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6+4d6+1d8 plus 9]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9]
+] named "Level 17 Brutal Strike DSkip T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 9]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+4d6+1d8 plus 9]
+			crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+1d10 plus 9]
+		]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+1d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+] named "Level 17 Brutal Strike WSkip T2+ Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6+4d6+1d8 plus 9]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9]
+] named "Level 18 Brutal Strike DSkip T1 Scimitar"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10
+	hit 1d10+4d6+9+1d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+		hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+		miss [attack [highest 1 of 2d20] plus 1 vs ac 10
+			hit 1d6+4d6+9+1d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+2d10 plus 9]
+			miss [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10+4d6+1d8 plus 9]
+			crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d10+2d10 plus 9]
+		]
+		crit 2d6+8d6+9+2d8 + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+	]
+	crit 2d10+8d6+9+2d8 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] + [attack 1d20 plus 1 vs ac 10 for 1d6+2d10 plus 9] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+] named "Level 18 Brutal Strike WSkip T2+ Scimitar"

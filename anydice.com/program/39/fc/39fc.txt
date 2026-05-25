@@ -1,0 +1,38 @@
+function: income CONTROLDC:n ECONOMYBONUS:n STABILITYBONUS:n CONSUMPTION:n {
+ result: [income helper 1d20 1d20 CONTROLDC ECONOMYBONUS STABILITYBONUS CONSUMPTION]
+}
+
+function: income helper ECONOMYROLL:n STABILITYROLL:n CONTROLDC:n ECONOMYBONUS:n STABILITYBONUS:n CONSUMPTION:n {
+  ECONOMYROLLTOTAL: ECONOMYROLL + ECONOMYBONUS
+  STABILITYROLLTOTAL: STABILITYROLL + STABILITYBONUS
+  if STABILITYROLLTOTAL < CONTROLDC {
+   UNRESTINCOME: 0
+  } else {
+   UNRESTINCOME: 1
+  } 
+  if ECONOMYROLLTOTAL < CONTROLDC {
+   result: -CONSUMPTION+UNRESTINCOME
+  } else {
+   result: (ECONOMYROLL/5)-CONSUMPTION+UNRESTINCOME
+  }
+}
+
+\                       Festivals, Promotions, Size, Cities, Farmland Subtractions \
+\                       F P S C FmFm \
+output [income 23 18 16 1+2+3+1-2] named "Month 3 Income (No ruler change)"
+output [income 23 14 20 1+2+3+1-2] named "Month 3 Income (Hippogryph to Stability)"
+output [income 23 14 20 1+4+3+1-2] named "Month 3 Income (Hippogryph + Aggressive Promotions)"
+output [income 23 18 16 1+1+3+1-2-2] named "Month 4 Income"
+
+function: explode DIE:d {
+  MAX: [maximum of DIE]
+  result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+  if N = MAX {
+    result: 6 + [explode DIE helper] }
+  result: N
+}
+
+output [explode 1d6] named "Average Bandit Attack"

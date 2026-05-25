@@ -1,0 +1,38 @@
+function: crit ROLL:s TARGET:n {
+ SUCCESSES: ROLL = TARGET
+ result: SUCCESSES
+}
+
+function: unopposed ROLL:s TARGET:n {
+ SUCCESSES: ROLL <= TARGET
+ result: SUCCESSES
+}
+
+function: ftf ROLL:s TARGET:n DROLL:s DEF:n{
+ if DROLL = DEF { 
+  if [crit ROLL TARGET] > 0 { result: 0 }
+  else { result: -1 }
+ }
+ else {
+  if DROLL < DEF { 
+   SUCCESSES: ROLL <= (T-DROLL)
+   if SUCCESSES > 0 { result: SUCCESSES}
+   else { result: -1 }
+  }
+  else { result: [unopposed ROLL TARGET] }
+ }
+}
+
+function: burst ROLL:s {
+ D: 1d20
+ if D > T { SUCCESSES: ROLL <= T }
+ else { SUCCESSES: ROLL <= (T-D) }
+ result: SUCCESSES
+}
+
+T: 11
+D: 11
+B: 3
+
+output [unopposed Bd20 T] named "B[B] unopposed"
+output [ftf Bd20 T 1d20 D] named "B[B] face2face (-1 means they hit you back!)"

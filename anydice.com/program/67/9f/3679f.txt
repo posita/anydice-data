@@ -1,0 +1,61 @@
+output 0 named "Combat Sequence : W40K"
+
+function: towound STRENGH:n vs TOUGHNESS:n {
+ if STRENGH >= 2*TOUGHNESS {result: 2}
+ if STRENGH > TOUGHNESS {result: 3}
+ if STRENGH = TOUGHNESS {result: 4}
+ if STRENGH <= TOUGHNESS/2 {result: 6}
+ if STRENGH < TOUGHNESS {result: 5}
+ result: 0
+}
+
+\Passed Wounds : Wounds Roll after Hits Roll :\
+function: roll HITSROLL:s on TOHIT:n into wounds TW:n{
+ result: HITSROLLd(d6>=TW)
+}
+
+\Unsaved Wounds :\
+function: roll WOUNDSROLL:s vs save SAVES:n{
+ result: WOUNDSROLLd(d6<SAVES)
+}
+
+
+A: 10    TH: 1   S: 5  T: 12   SAVE: 4
+
+output [roll Ad(d6>=TH) on TH into wounds [towound S vs T]] named "Passed Wounds from [A]A"
+output [roll [count {TH..6} in Ad6] on TH into wounds [towound S vs T]] named "Passed Wounds from [A]A"
+output (Ad(d6>=TH))d(d6>=[towound S vs T])
+output [roll [roll Ad(d6>=TH) on TH into wounds [towound S vs T]] vs save SAVE] named "Unsaved Wounds from [A]A vs [S]Save"
+output ((Ad(d6>=TH))d(d6>=[towound S vs T]))d(d6<SAVE)
+
+
+
+
+
+\ Sets of Satas for test \
+\T:12   W:20   Sv: 4,   melee A: 6   S: 7  TH: 2  D:2   1 Great Unclean One with Doomsday bell \
+\T:4    W:4    Sv: 4,   melee A: 5   S: 5  TH: 2  D:2   1 Callidus Assassin with Phase sword \
+\T:4    W:10   Sv: 5,   melee A: 20  S: 5  TH: 3  D:2   10 Bloodletters with Hellblade \
+\T:3    W:20   Sv: 7,   melee A: 60  S: 3  TH: 4  D:1   20 Hormagaunts with Talons \
+\T:4    W:20   Sv: 4,   melee A: 30  S: 4  TH: 3  D:1   10 Intercessor Squad with Close combat weapon \
+\
+ATT_A: {6,5,20,60,30}
+ATT_S: {7,5,5,3,4}
+ATT_TH: {2,2,3,4,3}
+ATT_D: {2,2,2,1,1}
+
+N:3
+output (N@ATT_Ad(d6>=N@ATT_TH))d(d6>=[towound N@ATT_S vs 4])
+output (((N@ATT_Ad(d6>=N@ATT_TH))d(d6>=[towound N@ATT_S vs 4]))d(d6<4))*N@ATT_D
+\
+\
+loop N over {1..2}{
+output [roll [roll N@ATT_Ad(d6>=N@ATT_TH) on N@ATT_TH into wounds [towound N@ATT_S vs 12]] vs save 4]*N@ATT_D named "Unsaved Wounds vs Great Unclean One"
+output [roll [roll N@ATT_Ad(d6>=N@ATT_TH) on N@ATT_TH into wounds [towound N@ATT_S vs 4]] vs save 4]*N@ATT_D named "Unsaved Wounds vs Callidus Assassin"
+output [roll [roll N@ATT_Ad(d6>=N@ATT_TH) on N@ATT_TH into wounds [towound N@ATT_S vs 4]] vs save 5]*N@ATT_D named "Unsaved Wounds vs Bloodletters"
+output [roll [roll N@ATT_Ad(d6>=N@ATT_TH) on N@ATT_TH into wounds [towound N@ATT_S vs 3]] vs save 7]*N@ATT_D named "Unsaved Wounds vs Hormagaunts"
+output [roll [roll N@ATT_Ad(d6>=N@ATT_TH) on N@ATT_TH into wounds [towound N@ATT_S vs 4]] vs save 4]*N@ATT_D named "Unsaved Wounds vs Intercessor Squad"
+output (((N@ATT_Ad(d6>=N@ATT_TH))d(d6>=[towound N@ATT_S vs 12]))d(d6<4))*N@ATT_D
+}
+\
+

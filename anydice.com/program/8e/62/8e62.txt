@@ -1,0 +1,60 @@
+MISS: 0 
+HIT: 1 
+CRITICALHIT: 2 
+
+function: attack ROLL:n vs DEFENSE:n { 
+if ROLL = 1 { result: MISS } 
+if ROLL = 20 { 
+if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT } 
+result: HIT 
+} 
+if ROLL + ATTACK >= DEFENSE { result: HIT } 
+result: MISS 
+} 
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: uadamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITUADAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: UADAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack { 
+result: [damage for [attack d20 vs DEFENSE]] 
+} 
+
+function: unarmedattack {
+ result: [uadamage for [attack d20 vs DEFENSE]]
+}
+
+
+DEFENSE: d{10..20} 
+
+ATTACK: 8
+
+HITDAMAGE: d8 + 8
+CRITICALDAMAGE: 2d8 + 8
+UADAMAGE: 1d12 + 5
+CRITUADAMAGE: 2d12 + 5
+MISSDAMAGE: 0 
+
+
+output [attack] named "Warhammer"
+output [attack] + [attack] named "Warhammer & Action Surge"
+output [attack] + [attack] + [attack] + [attack] named "Warhammer & Action Surge & Extra Attack"
+output [unarmedattack] named "Great Axe"
+output [unarmedattack] + [unarmedattack] named "Great Axe & Action Surge"
+output [unarmedattack] + [unarmedattack] + [unarmedattack] + [unarmedattack] named "Great Axe & Action Surge & Extra Attack"

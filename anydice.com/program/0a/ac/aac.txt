@@ -1,0 +1,38 @@
+DIE: d{-2..2}
+EXPLODIE: DIE
+
+function: N:n trigger on A {
+ if N = A { result: N + [explode EXPLODIE] }
+ if N = -A { result: N - [explode EXPLODIE] }
+ result: N
+}
+
+function: explode N:n {
+ if N = 2 { result: 2 + [explode EXPLODIE] }
+ result: N
+}
+
+function: B:s matches A:s {
+ MATCHES: 0
+ C: 1@A
+ T: 0
+ BN: 1
+ loop N over {1..(#A + 1)} {
+  if C = N@A { T: T + 1 }
+  else {
+   loop NB over {BN..#B} {
+    
+   }
+   MATCHES: MATCHES + [lowest of T and [count C in B]]
+   C: N@A
+   T: 0
+  }
+ }
+ result: MATCHES
+}
+
+output [3d10 matches 3d10]
+
+loop N over {1..6}{
+\ output [highest of -20 and [lowest of 20 and [NdDIE trigger on N * 2]]] named "[N]d"\
+}

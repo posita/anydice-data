@@ -1,0 +1,16 @@
+DIE: 1d10-1                          \ You could also create the same die by writing d{0..9} \
+TARGETNUMBER: 10                     \ Change the target number to something appropriate. \
+MINIMUM: 1                           \ Minimum amount of dice to roll. \
+MAXIMUM: 5                           \ Maximum amount of dice to roll. \
+                                     \ OBS: don't have a too large difference between MINIMUM and MAXIMUM. \
+
+set "maximum function depth" to 3    \ You don't need to re-roll more than three times. Saves time calculating probabilities. \
+
+                                     \ Copied the function [count values in sequence] and changed P@VALUES = SEQUENCE to P@VALUE <= SEQUENCE \
+function: count VALUES:s in SEQUENCE:s { COUNT: 0 loop P over {1..#VALUES} { COUNT: COUNT + (P@VALUES <= SEQUENCE) } result: COUNT }
+
+loop X over {MINIMUM..MAXIMUM} {                \ Counts the number of X exploding dice against a target number \
+  output [count TARGETNUMBER in Xd[explode DIE]] named "Rolling [X]d9 against TN [TARGETNUMBER]"
+}
+
+output [explode DIE] named "Shows the probabilities of one exploding die"

@@ -1,0 +1,37 @@
+function: inloop RES:n F:n T:n D:d {
+ FIN: 0
+ if (RES>=T) {FIN: FIN+1}                                   \the -1 tells the func not to recurse, as nothing ever checks for it\
+ if (F=1) {if (RES<T){FIN: FIN + [explode -1 T 1 D]}}       \it could be any non-bool num theoretically (not 0 or 1). 2 would work\
+ if (F=0) {if (RES>=T) {FIN: FIN + [explode -1 T 1 D]}}     \its actually in a roundabout way telling this function not to recurse\
+ result: FIN                                                \fsr calling inloop throws an error; it thinks I'm calling it with 3 vars\
+}
+
+function: explode F:n T:n M:n D:d {
+ SUC: 0
+ loop N over {1..M} {
+  SUC: SUC + [inloop D F T D]  \necessary to convert dice into a single number while also remembering max dice size\
+ }
+ result: SUC
+}
+
+function: guided T:n M:n D:d {
+ SUC: 0
+ loop N over {1..M} {
+  SUC: SUC + [inloop D (-1) T D]  \necessary to convert dice into a single number while also remembering max dice size\
+ }
+ result: SUC
+}
+
+function: minmax MIN:n N:n MAX:n {
+ result: [lowest of [highest of MIN and N] and MAX]
+}
+
+
+MVA: 3   \attacker movement number\
+MVB: 3   \target movement number\
+POW: 4   \weapon power\
+
+output [explode 1 [minmax 2 (MVA+MVB) 6] POW 1d6] named "burst"
+output [explode 0 [minmax 2 (MVA+MVB) 6] POW 1d6] named "piercing"
+output [guided [minmax 2 (2*[lowest of MVA and MVB]) 6] POW 1d6] named "guided"
+output [guided [minmax 2 (MVA+MVB) 6] (2*POW) 1d6] named "multi"

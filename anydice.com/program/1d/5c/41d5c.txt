@@ -1,0 +1,52 @@
+ADV:    [highest 1 of 2d20]
+DISADV: [lowest 1 of 2d20]
+ATK: 8
+AC: 16
+CR: 20
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {result: MISS}if ROLL >= CRIT_RANGE {result: CRIT}if ROLL + BONUS >= AC {result: HIT}result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n succes SUCCES:d fail FAIL:d{if ROLL + MOD >= DC {result: SUCCES}result: FAIL}
+function: save ROLL:n plus MOD:n vs DC:n for DMG:d{result: [save ROLL plus MOD vs DC succes 0 fail DMG]}
+
+function: halfsave ROLL:n plus MOD:n vs DC:n succes SUCCES:d fail FAIL:d{if ROLL + MOD >= DC {result: SUCCES}result: FAIL}
+function: halfsave ROLL:n plus MOD:n vs DC:n for DMG:d{result: [halfsave ROLL plus MOD vs DC succes DMG/2 fail DMG]}
+
+function: topple ROLL:n plus MOD:n vs DC:n succes SUCCES:d fail FAIL:d{if ROLL + MOD >= DC {result: SUCCES}result: FAIL}
+function: topple ROLL:n plus MOD:n vs DC:n{result: [topple ROLL plus MOD vs DC succes d20 fail ADV]}
+
+output 1d1 named "Attacks Low to High Damage"
+
+output
+ [attack DISADV plus ATK vs AC for 1d4 crit 2d4 on CR]
++[attack DISADV plus ATK vs AC for 1d4 crit 2d4 on CR]
+named "1d4 Damage Rider (DISADV)"
+
+output
+ [attack d20 plus ATK vs AC for 1d4 crit 2d4 on CR]
++[attack d20 plus ATK vs AC for 1d4 crit 2d4 on CR]
+named "1d4 Damage Rider (NORMAL)"
+
+output
+[attack d20 plus ATK vs AC 
+    hit  1d4+[attack ADV plus ATK vs AC for 1d4 crit 2d4 on CR]
+    miss     [attack d20 plus ATK vs AC for 1d4 crit 2d4 on CR]
+    crit 2d4+[attack ADV plus ATK vs AC for 1d4 crit 2d4 on CR] on CR]
+named "1d4 Damage Rider (NORMAL Cold-Iron)"
+
+output
+[attack ADV plus ATK vs AC 
+    hit  1d4+[attack ADV plus ATK vs AC for 1d4 crit 2d4 on CR]
+    miss     [attack d20 plus ATK vs AC for 1d4 crit 2d4 on CR]
+    crit 2d4+[attack ADV plus ATK vs AC for 1d4 crit 2d4 on CR] on CR]
+named "1d4 Damage Rider (ADV Cold-Iron)"
+
+output
+ [attack ADV plus ATK vs AC for 1d4 crit 2d4 on CR]
++[attack ADV plus ATK vs AC for 1d4 crit 2d4 on CR]
+named "1d4 Damage Rider (ADV)"

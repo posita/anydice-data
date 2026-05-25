@@ -1,0 +1,35 @@
+function: evaluate ROLL:s at SKILL:n {
+ SUCCESSES: ROLL <= SKILL
+ if SUCCESSES > 0 & SKILL!=0 { result: SUCCESSES + (ROLL=0) }
+ if SUCCESSES > 0 { result: SUCCESSES}
+ result: 0
+}
+function: qualify ROLL:s at SKILL:n {
+ QUALITY:-1
+ loop DIE over {1..#ROLL} {
+  TEMP: DIE@ROLL
+  if TEMP > QUALITY & TEMP <= SKILL{ QUALITY: TEMP}
+ }
+ result: QUALITY
+}
+loop LEVEL over {0..9} {
+ loop DICE over {1..5} {
+\
+  output [evaluate DICE d{0..9} at LEVEL] named "[DICE]d@[LEVEL]"
+\
+  output [qualify DICE d{0..9} at LEVEL] named "Q[DICE]d@[LEVEL]"
+ }
+}
+\
+function: nwod R:n skill N:n {
+ if N = 0 { result: 1 + [nwod R skill d{0..9}] }
+ result: N <= R
+}
+
+NWOD: [nwod 0 skill d10]
+loop Y over {0..5} {
+loop N over {1..5} {
+ output [lowest of 10 and Nd[nwod Y skill d{0..9}]] named "[N]d@[Y]"
+}
+}
+\

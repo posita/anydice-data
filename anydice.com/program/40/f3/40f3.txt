@@ -1,0 +1,27 @@
+function: expick NTH:s of SEQ:s {
+ if NTH@SEQ = 10 { result: 10 + (SEQ = 10) - NTH }
+ if NTH@SEQ = 1 { result: 1 - {SEQ = 1} + (1+#SEQ-NTH) }
+ result: NTH@SEQ
+}
+
+function: pick NTH:n of SEQ:s and BON:s {
+ if 1@BON >= 1@SEQ {
+  if #BON@BON >= 1@SEQ { result: [expick (NTH-1) of {BON, SEQ}] }
+  result: [expick (NTH-1) of [sort {SEQ, BON}]
+] }
+ if 1@BON <= #SEQ@SEQ { result: [expick NTH of {SEQ, BON}] }
+ result: [expick NTH of [sort {SEQ, BON}]]
+}
+
+loop N over { 5,4,3,2 } {
+ NAME: 6-N
+ output [expick N of 5d10] named "[NAME]"
+ output [pick N of 3d10 and 2d10] named "[NAME] +2" \ +2 bonus dice is half-way to the next level because the chances are about 50% \
+}
+\N: 3
+ output [expick 10 of 10d10] <= [expick 1 of 5d10] named "[N] 1"
+ output [expick 10 of 10d10] <= [expick 5 of 5d10] named "[N] 1"
+ output [expick 5 of 5d10] <= [expick 4 of 5d10] named "[N] 1"
+ output [expick 4 of 5d10] <= [expick 3 of 5d10] named "[N] 1"
+ output [expick 3 of 5d10] <= [expick 2 of 5d10] named "[N] 1"
+ output [expick 2 of 5d10] <= [expick 1 of 5d10] named "[N] 1"\

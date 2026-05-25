@@ -1,0 +1,45 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+TARGET_AC: 17
+
+OBJECTS_WITHOUT_ADVANTAGE: 10
+
+OBJECTS_WITH_ADVANTAGE: 0
+
+ONE_OBJECT: [attack d20 plus 8 vs TARGET_AC for 1d4 + 4 crit 1d4 on 20]
+
+ONE_OBJECT_ADVANTAGE: [attack [highest 1 of 2d20] plus 8 vs TARGET_AC for 1d4 + 4 crit 1d4 on 20] 
+
+TOTAL_DAMAGE: 0
+
+
+loop ATTACKS over {1..OBJECTS_WITHOUT_ADVANTAGE} {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + ONE_OBJECT
+}
+
+loop ATTACKS over {1..OBJECTS_WITH_ADVANTAGE} {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + ONE_OBJECT_ADVANTAGE
+}
+
+CANTRIP_DAMAGE: [attack d20 plus 10 vs TARGET_AC for 3d10 crit 3d10 on 20]
+
+output CANTRIP_DAMAGE + TOTAL_DAMAGE named "5th level animate objects + cantrip"
+
+output [attack d20 plus 9 vs TARGET_AC for 1d6 + 17 crit 1d6 on 20] + [attack d20 plus 9 vs TARGET_AC for 1d6 + 17 crit 1d6 on 20] + [attack d20 plus 9 vs TARGET_AC for 1d6 + 17 crit 1d6 on 20] + [attack d20 plus 9 vs TARGET_AC for 1d6 + 17 crit 1d6 on 20] named "level 13 CBE/SS"

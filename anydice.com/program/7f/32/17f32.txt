@@ -1,0 +1,74 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL = 19 { result: CRITICALHIT }
+ if ROLL = 18 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: advantage {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+function: lucky {
+ result: [damage for [attack [highest 1 of 3d20] vs DEFENSE]]
+}
+
+DEFENSE: d{15..20}
+MISSDAMAGE: 0
+
+\No GWM No Adv\
+ATTACK: 5+3
+HITDAMAGE: d8+5
+CRITICALDAMAGE: 3d8+5
+output 3d[attack] named "base"
+
+\No GWM Adv\
+ATTACK: 8
+HITDAMAGE: d8+5
+CRITICALDAMAGE: 3d8+5
+output 3d[advantage] named "Adv only"
+
+\GWM No Adv\
+ATTACK: 5+3-5
+HITDAMAGE: d8+5+10
+CRITICALDAMAGE: 3d8+5+10
+output 3d[attack] named "GWM only"
+
+\GWM Adv\
+ATTACK: 5+3-5
+HITDAMAGE: d8+5+10
+CRITICALDAMAGE: 3d8+5+10
+output 3d[advantage] named "GWM & Adv"
+
+\GWM/Lucky No Adv\
+ATTACK: 5+3-5
+HITDAMAGE: d8+5+10
+CRITICALDAMAGE: 3d8+5+10
+output 3d[advantage] named "GWM/Lucky"
+
+\GWM/Lucky Adv\
+ATTACK: 5+3-5
+HITDAMAGE: d8+5+10
+CRITICALDAMAGE: 3d8+5+10
+output 3d[lucky] named "GWM/Lucky & Adv"
+
+
+

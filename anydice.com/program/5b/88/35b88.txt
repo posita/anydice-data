@@ -1,0 +1,112 @@
+function: NUM:n DICE:d with min MAX:n {
+  TOTAL: 0
+  loop N over {1..NUM} {
+    TOTAL: TOTAL + [lowest of DICE and MAX] 
+  }
+ result: TOTAL
+}
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A:[reroll 1dC B C] 
+ } 
+ else { 
+  result: A 
+ }
+}
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+function: ROLL:n reroll D:n if MIN:n or less M:n times {
+ if ROLL > MIN {
+  result: ROLL 
+ } else {
+  if M = 0 {
+   result: ROLL
+  } else {
+   result: [1dD reroll D if MIN or less M-1 times]
+  }
+ }
+ result: ROLL
+}
+
+function: roll NUM:n dice DICE:n keep HIGHEST:n highest reroll REROLL:n {
+ result: [highest HIGHEST of NUMd(DICE-REROLL)] + (HIGHEST * REROLL) 
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+ if ROLL = 1 {
+  result: 0
+ }
+ if ROLL >= CRIT_RANGE {
+  result: DMG + CRIT_DMG
+ }
+ if ROLL + BONUS >= AC {
+  result: DMG
+ }
+ result: 0
+}
+
+function: saving throw ROLL:n plus BONUS:n against DC:n taking FAILURE_DMG:d on failure or SUCCESS_DMG:d on success {
+  if ROLL = 1 {
+    result: SUCCESS_DMG
+  }
+  if ROLL = 20 {
+    result: 0 
+  }
+  if ROLL + BONUS >= DC {
+    result: SUCCESS_DMG
+  }
+  if ROLL + BONUS < DC {
+    result: FAILURE_DMG
+  }
+  result: 0 
+}
+
+output 
+[attack [highest 1 of 1d20] plus 8+8+4+2 vs 16 for 1d8+8+8+5+1d4+5+1d10 crit 1d8+1d4+1d10 on 20] + 
+[attack [highest 1 of 1d20] plus 8+8+4+2 vs 16 for 1d8+8+8+5+1d4+5+1d10 crit 1d8+1d4+1d10 on 20] + 
+[attack [highest 1 of 1d20] plus 8+8+4+2 vs 16 for 1d8+8+8+5+1d4+5+1d10 crit 1d8+1d4+1d10 on 20] + 
+[attack [highest 1 of 1d20] plus 8+8+4+2 vs 16 for 1d8+8+8+5+1d4+5+1d10 crit 1d8+1d4+1d10 on 20] 
+named "TB Monk"
+
+output 
+[attack [highest 1 of 2d20] plus 5+4+2+2+2-5+3 vs 16 for 1d6+1d4+5+2+2+10+3 crit 1d6+1d4 on 19] + 
+[attack [highest 1 of 2d20] plus 5+4+2+2+2-5+3 vs 16 for 1d6+1d4+5+2+2+10+3 crit 1d6+1d4 on 19] + 
+[attack [highest 1 of 2d20] plus 5+4+2+2+2-5+3 vs 16 for 1d6+1d4+5+2+2+10+3 crit 1d6+1d4 on 19] + 
+[attack [highest 1 of 2d20] plus 5+4+2+2+2-5+3 vs 16 for 1d6+1d4+5+2+2+10+3 crit 1d6+1d4 on 19] + 
+(2d6+2+3) 
+named "Hand Crossbow Bard"
+
+output 
+[attack [highest 1 of 1d20] plus 8+4+3 vs 16 for 1d8+1d4+8+3+2+1d6+1d4 crit 1d8+1d4+1d6+1d4 on 19] + 
+[attack [highest 1 of 1d20] plus 8+4+3 vs 16 for 1d8+1d4+8+3+2+1d6+1d4 crit 1d8+1d4+1d6+1d4 on 19] + 
+[attack [highest 1 of 1d20] plus 8+4+3 vs 16 for 1d8+1d4+8+3+2+1d6+1d4 crit 1d8+1d4+1d6+1d4 on 19] + 
+[attack [highest 1 of 1d20] plus 5+4 vs 16 for 1d8+5 crit 1d8 on 20] + 
+[saving throw [highest 1 of 1d20] plus 3 against 18 taking 4d8 on failure or 2d8 on success] + 
+4 + 4 
+named "Duellist Lawnmower"
+
+output
+[attack [highest 1 of 1d20] plus 8+4+2 vs 16 for [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d6 reroll 6 if 2 or less 1 times]+8+2 crit [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d6 reroll 6 if 2 or less 1 times] on 19] + 
+[attack [highest 1 of 1d20] plus 8+4+2 vs 16 for [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d6 reroll 6 if 2 or less 1 times]+8+2 crit [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d6 reroll 6 if 2 or less 1 times] on 19] +
+[attack [highest 1 of 1d20] plus 8+4+2 vs 16 for [1d4 reroll 4 if 2 or less 1 times]+8 crit [1d4 reroll 4 if 2 or less 1 times] on 19] + 
+[attack [highest 1 of 1d20] plus 5+4 vs 16 for 1d8+5 crit 1d8 on 20] + 
+[saving throw [highest 1 of 1d20] plus 3 against 18 taking 4d8 on failure or 2d8 on success] 
+named "Glaive Lawnmower"
+
+output
+[attack [highest 1 of 2d20] plus 8+4+2-5 vs 16 for [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+8+2+10 
+crit [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times] on 19] + 
+[attack [highest 1 of 2d20] plus 8+4+2-5 vs 16 for [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+8+2+10 
+crit [1d10 reroll 10 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times]+[1d4 reroll 4 if 2 or less 1 times] on 19] +
+[attack [highest 1 of 2d20] plus 8+4+2 vs 16 for [1d4 reroll 4 if 2 or less 1 times]+8 crit [1d4 reroll 4 if 2 or less 1 times] on 19] + 
+[attack [highest 1 of 1d20] plus 4+4 vs 16 for 1d8+4 crit 1d8 on 20] + 
+[saving throw [highest 1 of 1d20] plus 3 against 16 taking 4d8 on failure or 2d8 on success] 
+named "Glaive Lawnmower (GWM)"

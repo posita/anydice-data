@@ -1,0 +1,24 @@
+\ Hit/miss bonus/penalty function. Returns the half the difference from the AC to the attack roll\
+function: HIT hmbp AC {
+result: (HIT-AC)/2
+}
+\ To-hit roll with damage roll plus damage bonus vs AC function. Returns the damage result. 
+If the To-hit is further than 1/4 of the AC below the AC, the damage is 0.
+If the To-hit is less than 1/4 of the AC below the AC, the result is half the damage die.
+If the To-hit is equal to or greater than the AC, the result is the damage die plus the damage bonus.\
+function: HIT:n hit DAM dam plus DB vs AC {
+if HIT >= AC {result: DAM + DB}
+if HIT > (AC-(AC/4)) {result: DAM/2}
+else{result: 0}
+}
+\ To-hit roll with damage roll plus damage bonus vs AC function. Returns the damage result. 
+If the To-hit is further than 1/4 of the AC below the AC, the damage is 0.
+If the To-hit is less than 1/4 of the AC below the AC, the result the damage die plus the Hit/miss Bonus/penalty (always negative here).
+If the To-hit is equal to or greater than the AC, the result is the damage die plus the damage bonus plus the Hit/miss Bonus/penalty (always positive here).\
+function: HIT:n hita DAM dam plus DB vs AC {
+if HIT >= AC {result: DAM + DB + [HIT hmbp AC]}
+if HIT > (AC-(AC/4)) {result: DAM/2 + [HIT hmbp AC]}
+else{result: 0}
+}
+output [1d20+5 hit 1d8 dam plus 5 vs 13] named "Half Dmg Glancing"
+output [1d20+5 hita 1d8 dam plus 5 vs 13] named "Accuracy Damage"

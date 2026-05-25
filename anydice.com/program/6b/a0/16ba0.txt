@@ -1,0 +1,56 @@
+function: flip ROLL{
+result: 7 - ROLL
+}
+
+function: flip ROLL:n negative{
+if ROLL = {4..6}{result: [flip ROLL]}
+result: ROLL
+}
+
+function: flip ROLL:n positive{
+if ROLL = {1..3}{result: [flip ROLL]}
+result: ROLL
+}
+
+function: reroll A:n if less than N:n{
+ if A < N { result: 1d6 }
+ result: A
+}
+
+function: roll DICE dice rerolling under THRESHOLD up to REROLLS times posflip POSFLIP negflip NEGFLIP{
+SUCCESS: 0
+loop N over {1..DICE}{
+   ROLL: 1d6
+   loop F over {1..NEGFLIP}{
+      ROLL: [flip ROLL negative]
+   }
+   loop F over {1..POSFLIP}{
+      ROLL: [flip ROLL positive]
+   }
+   loop M over {1..REROLLS}{
+      ROLL: [reroll ROLL if less than THRESHOLD]
+   }
+   SUCCESS: SUCCESS + [count{5,6} in ROLL] - [count{1,2} in ROLL]
+}
+result: SUCCESS
+}
+
+\output [roll 4 dice rerolling under 3 up to 0 times posflip 0 negflip 0] named "pistol"\
+\output [roll 4 dice rerolling under 3 up to 1 times posflip 0 negflip 0] named "rifle"\
+\output [roll 4 dice rerolling under 3 up to 2 times posflip 0 negflip 0] named "shotgun"\
+\output [roll 4 dice rerolling under 3 up to 5 times posflip 0 negflip 0] named "sniper"\
+
+\output [roll 4 dice rerolling under 3 up to 1 times posflip 0 negflip 0] named "pistol marksman"\
+\output [roll 4 dice rerolling under 3 up to 2 times posflip 0 negflip 0] named "rifle marksman"\
+\output [roll 4 dice rerolling under 3 up to 3 times posflip 0 negflip 0] named "shotgun marksman"\
+\output [roll 4 dice rerolling under 3 up to 6 times posflip 0 negflip 0] named "sniper marksman"\
+
+output [roll 1 dice rerolling under 3 up to 0 times posflip 0 negflip 0] named "skill 1"
+output [roll 2 dice rerolling under 3 up to 0 times posflip 0 negflip 0] named "skill 2"
+output [roll 3 dice rerolling under 3 up to 0 times posflip 0 negflip 0] named "skill 3"
+output [roll 4 dice rerolling under 3 up to 0 times posflip 0 negflip 0] named "skill 4"
+
+output [roll 1 dice rerolling under 3 up to 1 times posflip 0 negflip 0] named "skill 1 accuracy 1"
+output [roll 2 dice rerolling under 3 up to 1 times posflip 0 negflip 0] named "skill 2 accuracy 1"
+output [roll 3 dice rerolling under 3 up to 1 times posflip 0 negflip 0] named "skill 3 accuracy 1"
+output [roll 4 dice rerolling under 3 up to 1 times posflip 0 negflip 0] named "skill 4 accuracy 1"

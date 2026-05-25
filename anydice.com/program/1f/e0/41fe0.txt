@@ -1,0 +1,27 @@
+TO_HIT: 3
+TO_WOUND: 3
+ARMOUR_SAVE: 5
+WARD_SAVE: 5
+ATTACKS: 5
+
+HITS: [count {TO_HIT..6} in ATACKSd6]
+output HITS named "Hits'
+
+WOUNDS: [count {TO_WOUND.6} in HITSd6]
+function: berechne SCHADEN anzahl:n {
+  \ 1. Schritt: Wie viele der 'anzahl' Treffer verwunden bei 3+? \
+  WOUNDS: [count {3..6} in anzahl d6]
+  
+  \ 2. Schritt: Wie viele Wunden kommen durch den 5+ Retter? \
+  \ (Ein 5+ Retter bedeutet: bei 1, 2, 3, 4 geht der Schaden durch) \
+  FINAL_HITS: [count {1..4} in WOUNDS d6]
+  
+  \ 3. Schritt: Würfele W3 Schaden für jeden durchgekommenen Treffer \
+  result: FINAL_HITS d3
+}
+
+output [berechne 2d6] named "Gesamtschaden an Ziel"
+
+  FINAL_HITS: [count {1..4} in WOUNDSd6]
+  output FINAL_HITS
+

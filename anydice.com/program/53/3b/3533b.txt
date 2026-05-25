@@ -1,0 +1,271 @@
+set "maximum function depth" to 5
+
+function: sdattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + SDATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: sddamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SDCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SDHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: wristattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 19 { result: CRITICALHIT }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + WRISTATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: wristdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: WRISTCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: WRISTHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+SDATTACK: 8
+SDHITDAMAGE: 1d8 + 3
+SDCRITICALDAMAGE: 2d8 + 3
+WRISTATTACK: 9
+WRISTHITDAMAGE: 2d6 + 5
+WRISTCRITICALDAMAGE: 4d6 + 5
+MISSDAMAGE: 0
+
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: explode N:n {
+ if N >= 3 { result:  N + [explode d4] }
+ result: N
+}
+
+function: return higher A:n or B:n {
+ if A > B { result: A }
+ result: B
+}
+
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: sdattack {
+ result: [damage for [sdattack d20 vs DEFENSE]]
+}
+
+ATTACK: 9
+HITDAMAGE: [return higher [explode 3d4] or [explode 3d4]] + 8
+CRITICALDAMAGE: [return higher [explode 4d4] or [explode 4d4]] *2 + 8
+MISSDAMAGE: 0
+
+
+
+DEFENSE: d{12..22}
+output [attack] + [attack] + [sdattack] named "Mauler + Steel Defender Bonus"
+
+
+function: attackstended ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS}
+ if ROLL = 19 { result: CRITICALHIT }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: shootdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SHOOTCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SHOOTHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 9
+HITDAMAGE: 2d4 + 6
+CRITICALDAMAGE: 4d4 + 6
+SHOOTHITDAMAGE: 2d8 + 11
+SHOOTCRITICALDAMAGE: 4d8 + 11
+function: shootattack {
+ result: [shootdamage for [attackstended d20 vs DEFENSE]]
+}
+function: attackstended {
+ result: [damage for [attackstended d20 vs DEFENSE]]
+}
+output [attackstended] + [attackstended] + [attackstended] + [attackstended] + [shootattack] named "2Gunblades"
+
+\
+-----------------------------------------------------------------------------------------------
+
+HITDAMAGE: 2d6 + 4
+CRITICALDAMAGE: 4d6 + 4
+HITDAMAGEGB: 2d4 + 4
+CRITICALDAMAGEGB: 2d4 + 4
+GVCRITICALDAMAGE: 2d4 + 9
+function: gauntletvantage ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS}
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackstended ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS}
+ if ROLL = 19 { result: CRITICALHIT }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damagegunblade for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGEGB
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEGB
+ }
+ result: MISSDAMAGE
+}
+function: damageone for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGEONE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEONE
+ }
+ result: MISSDAMAGEONE
+}
+
+MISSDAMAGEONEHIT: d6 + 4
+MISSDAMAGEONECRIT: 2d6 + 4
+function: missdamageone for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MISSDAMAGEONECRIT
+ }
+ if ATTACKRESULT = HIT {
+  result: MISSDAMAGEONEHIT
+ }
+ result: MISSDAMAGE
+}
+
+
+function: gauntletvantagedamage for ATTACKRESULT:n {
+ if ATTACKRESULT = HIT {
+  result: GVCRITICALDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+function: turnattack {
+ result: [damageone for [attackstended d20 vs DEFENSE]]
+}
+function: gunbladeattack {
+ result: [damagegunblade for [attackstended d20 vs DEFENSE]]
+}
+function: attackstended {
+ result: [damage for [attackstended d20 vs DEFENSE]]
+}
+
+function: gauntletvantage{
+ result: [gauntletvantagedamage for [gauntletvantage [return higher d20 or d20] vs DEFENSE]]
+}
+function: wristattack{
+ result: [wristdamage for [wristattack d20 vs DEFENSE]]
+}
+
+HITDAMAGEONE: d6 + 4 + [gauntletvantage]
+CRITICALDAMAGEONE: 2d6 + 4 + [gauntletvantage]
+MISSDAMAGEONE: [missdamageone for [attackstended d20 vs DEFENSE]]
+MISSDAMAGEONEHIT: d6 + 4
+MISSDAMAGEONECRIT: 2d6 + 4
+GVCRITICALDAMAGE: 2d4 + 9
+HITDAMAGE: 2d6
+CRITICALDAMAGE: 4d6
+MISSDAMAGE: 0
+
+
+
+
+
+
+
+DEFENSE: d{12..22}
+output [turnattack] + [attackstended] + [gunbladeattack] + [gunbladeattack] named "FIREKNUCKLE"
+ATTACK: 9
+HITDAMAGE: 4d10+10
+CRITICALDAMAGE: 8d10 + 10
+MISSDAMAGE: 0
+DEFENSE: d{12..22}
+output [attackstended] + [wristattack] named "cannnon"
+
+ATTACK: 9
+HITDAMAGE: d6+7
+CRITICALDAMAGE: 2d6 + 7
+MISSDAMAGE: 0
+DEFENSE: d{12..22}
+output [attack] + [attack] + [attack] + [attack] + [sdattack] named "handyman"
+
+
+function: ssattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + SSATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: ssdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SSCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SSHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: ssattack{
+ result: [ssdamage for [ssattack d20 vs DEFENSE]]
+}
+
+SSATTACK: 5
+SSHITDAMAGE: d6+17
+SSCRITICALDAMAGE: 2d6 + 17
+ATTACK: 9
+HITDAMAGE: d6+7
+CRITICALDAMAGE: 2d6 + 7
+MISSDAMAGE: 0
+DEFENSE: d{12..22}
+output [ssattack] + [ssattack] + [ssattack] + [ssattack] + [sdattack] named "handy SHARPSHOOT"
+\

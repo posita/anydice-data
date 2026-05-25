@@ -1,0 +1,57 @@
+\RED_DMG: {1, 2, 2, 2, 3, 3}\
+\RED_SRG: {0, 0, 0, 1, 0, 0}\
+\RED_ACC: {0, 0, 0, 0, 0, 0}\
+
+\RED_DIE: {1, 2, 2, 2, 3, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}\
+
+\BLUE_DMG: {0, 1, 2, 1, 2, 1}\
+\BLUE_SRG: {1, 0, 0, 1, 0, 0}\
+\BLUE_ACC: {2, 2, 3, 3, 4, 5}\
+
+\GREEN_DMG: {0, 1, 2, 1, 2, 2}\
+\GREEN_SRG: {1, 1, 0, 1, 0, 0}\
+\GREEN_ACC: {1, 1, 1, 2, 2, 3}\
+
+\YELLOW_DMG: {0, 1, 2, 1, 0, 1}\
+\YELLOW_SRG: {1, 2, 0, 1, 1, 0}\
+\YELLOW_ACC: {0, 0, 1, 1, 2, 2}\
+
+\function: roll RED:n red dice {\
+\ DMG: REDdRED_DMG\
+\ SRG: REDdRED_SRG\
+\ ACC: REDdRED_ACC\
+ 
+\ result: {DMG, SRG, ACC}\
+\}\
+
+RED_DIE: d{100, 200, 200, 10200, 300, 300}
+BLUE_DIE: d{10002, 102, 203, 10103, 204, 105}
+GREEN_DIE: d{10001, 10101, 201, 10102, 202, 203}
+YELLOW_DIE: d{10000, 20100, 201, 10101, 10002, 102}
+
+\Have to call this function with the original value already divided by 100\
+function: calculate damage from ROLLDMG:n {
+ if ROLLDMG < 100{result: ROLLDMG}
+ else {result: ROLLDMG-(ROLLDMG)/100*100}
+}
+
+function: calculate accuracy from ROLLACC:n {
+ if ROLLACC < 100 {result: ROLLACC}
+ if ROLLACC >= 10000 {ROLLACC: ROLLACC-(ROLLACC)/10000*10000}
+ if ROLLACC >= 100 {ROLLACC: ROLLACC - (ROLLACC)/100*100}
+ result: ROLLACC
+}
+
+DMG: 0
+SRG: 0
+ACC: 0
+
+ROLL: 2dBLUE_DIE
+
+SRG: ROLL/10000
+
+
+output ROLL named "full roll details"
+output SRG named "Surge probability"
+output [calculate damage from ROLL/100] named "damage probability"
+output [calculate accuracy from ROLL] named "accuracy probability"

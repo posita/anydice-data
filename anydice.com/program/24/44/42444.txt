@@ -1,0 +1,25 @@
+\ Paladin's Oath Challenge odds \
+
+function: check ROLLA:n and ROLLB:n and ROLLC:n with mulligans MULLA:n and MULLB:n and MULLC:n {
+  if ROLLA>=10 & ROLLB>=13 & ROLLC>=15 { result: 1 }
+  if ROLLA<10 & MULLA=1 & ROLLB>=13 & ROLLC>=15 { result: 1 }
+  if ROLLA>=10 & ROLLB<13 & MULLB=1 & ROLLC>=15 { result: 1 }
+  if ROLLA>=10 & ROLLB>=13 & ROLLC<15 & MULLC=1 { result: 1 }
+  result: 0
+}
+
+NOMULL: (d20>=10) * (d20>=13) * (d20>=15)
+MULLA: (d20<10) * (d20>=10) * (d20>=13) * (d20>=15)
+MULLB: (d20>=10) * (d20<13) * (d20>=13) * (d20>=15)
+MULLC: (d20>=10) * (d20>=13) * (d20<15) * (d20>=15)
+
+output NOMULL named "No mulligan"
+output MULLA named "Mulligan on DC10"
+output MULLB named "Mulligan on DC13"
+output MULLC named "Mulligan on DC15"
+
+RETRYA: d{0:9, 1:11}  \ DC10 \
+RETRYB: d{0:12, 1:8}  \ DC13 \
+RETRYC: d{0:14, 1:6}  \ DC15 \
+
+output [check d20 and d20 and d20 with mulligans RETRYA and RETRYB and RETRYC] named "Total success"

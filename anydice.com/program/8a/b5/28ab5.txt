@@ -1,0 +1,392 @@
+    \-------------------------------------------------------------------------------
+    Code block. Do not change.  Scroll down to adjust AC or enter more outputs
+    -------------------------------------------------------------------------------\
+
+
+    function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d {
+        if ROLL >= CRITRANGE {
+            result:  CRITABLEDAM + CRITABLEDAM + HITDAM
+        }
+        if ROLL = 1 {
+            result: 0
+        }
+        if ROLL >= AC - ATTACKBONUS {
+            result: CRITABLEDAM + HITDAM
+        }
+        else {
+            result: 0
+        }
+    }
+
+    \Notes on reference data below: typos happen, so if there are errors, please fix, and let us know\
+    TM_TARGET_AC: {14,14,14,15,16,16,16,17,18,18,18,18,19,19,19,19,20,20,20,20} \TM Baseline assumptions\
+    DMG_TARGET_AC: {13,13,13,14,15,15,15,16,16,17,17,17,18,18,18,18,19,19,19,19} \DMG pg 274\
+    BOH_TARGET_AC: {13,13,14,14,14,15,15,15,16,16,16,17,17,17,18,18,18,19,19,19} \Statistical analysis of MM by Blog of holding http://blogofholding.com/?p=7338\
+    PROF_BONUSES: {2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6} \PHB Standard\
+    WARLOCK_MOD_PROGRESSION: {3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ Assumed primary attack mod starts at 16 at level 1, and then adding ASI at each available level\
+    FIGHTER_MOD_PROGRESSION: {3,3,3,3,3,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ Assume Fighter starts with Crossbow expert at level 1, picks up sharpshooter at level 4, and then ASIs at 6 and 8\
+    CRITRANGE: 20
+    EB_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4}
+    EA_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4}
+
+    DP_MOD_PROGRESSION: {3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5} \DP takes EA at 4, ASI dex at 12. Level 8 ASI is ritual caster\
+    GS_MOD_PROGRESSION: {3,3,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5} \Similar to figher, Gloomstalker takes SS/CBE at level 1/4 and then ASI at 8/12\
+    GS_WIS_PROGRESSION: {2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3} \15 WIS to start, upgrade to 16 with level 8 ASI which is +DEX/WIS\
+
+    \Damage on sneak attack dice\
+    function: sneak LEVEL:n {
+        DICE: (LEVEL+1)/2
+        result: DICEd6    
+    }
+
+    \Damage on wails\
+    function: wail LEVEL:n {
+        DICE: (LEVEL+1)/2
+        WAIL_DICE: (DICE+1)/2
+        result: WAIL_DICEd6
+
+    }
+
+
+    \DP level 1-2. Shoot heavy crossbow for sneak attack\
+    function: dp onetwo LEVEL: n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@DP_MOD_PROGRESSION
+        SNEAK: [sneak LEVEL]
+        CRIT: 1d10+SNEAK
+        result: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    }
+
+    \DP level 3: steady aim means adv on all shots\
+    function: dp three LEVEL: n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@DP_MOD_PROGRESSION
+        SNEAK: [sneak LEVEL]
+        CRIT: 1d10+SNEAK
+        result: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    }
+
+    \DP level 4-8: Have Elven Accuracy, but no wails\
+    function: dp foureight LEVEL: n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@DP_MOD_PROGRESSION
+        SNEAK: [sneak LEVEL]
+        CRIT: 1d10+SNEAK
+        result: [roll 1@3d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    }
+
+
+    \DP level 9-16: Full build online, we get 1 wail as well\
+    function: dp ninesixteen LEVEL: n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@DP_MOD_PROGRESSION
+        SNEAK: [sneak LEVEL]
+        CRIT: 1d10+SNEAK
+        W: [wail LEVEL]
+        result: [roll 1@3d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD] + W
+    }
+
+
+    \DP level 17+: Full build onlline, we get 2 wails now\
+    function: dp seventeenplus LEVEL: n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@DP_MOD_PROGRESSION
+        SNEAK: [sneak LEVEL]
+        CRIT: 1d10+SNEAK
+        W: [wail LEVEL]
+        result: [roll 1@3d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]+W+W
+    }
+
+    \Gloomstalker 1. CBE 2 shots\
+    function: gs one LEVEL:n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@GS_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@GS_MOD_PROGRESSION
+        CRIT: 1d6
+        D: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+        result: D+D
+    }
+
+    \Gloomstalker 2. With archery+HM\
+    function: gs two LEVEL:n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@GS_MOD_PROGRESSION+LEVEL@PROF_BONUSES+2
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@GS_MOD_PROGRESSION
+        CRIT: 1d6+1d6
+        D: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+        result: D+D
+    }
+
+
+    \Gloomstalker 3. With advantage\
+    function: gs three LEVEL:n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@GS_MOD_PROGRESSION+LEVEL@PROF_BONUSES+2
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@GS_MOD_PROGRESSION
+        CRIT: 1d6+1d6
+        D: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+        result: D+D
+    }
+
+    \Gloomstalker 4. With Sharpshooter\
+    function: gs four LEVEL:n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@GS_MOD_PROGRESSION+LEVEL@PROF_BONUSES+2-5
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@GS_MOD_PROGRESSION+10
+        CRIT: 1d6+1d6
+        D: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+        result: D+D
+    }
+
+
+    \Gloomstalker 5-10. With Extra Attack\
+    function: gs fiveten LEVEL:n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@GS_MOD_PROGRESSION+LEVEL@PROF_BONUSES+2-5
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@GS_MOD_PROGRESSION+10
+        CRIT: 1d6
+        D: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+        result: D+D+D
+    }
+
+
+    \from anydice tutorial https://www.reddit.com/r/3d6/comments/gf111s/anydice_tutorial_part_3_state_the_great_weapon/\
+    function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+        if ROLL = 1 {
+            result: MISS    
+        }
+        if ROLL >= CRIT_RANGE {
+            result: CRIT
+        }
+        if ROLL + BONUS >= AC {
+            result: HIT
+        }
+        result: MISS
+    }
+
+    \Flurry function is recursive\
+    function: flurry TIMES:n times at level LEVEL:n using AC_SCALING:s {
+        \recursion base case\
+        if TIMES = 0 {
+            result: 0
+        }
+        ATT_BONUS: LEVEL@GS_MOD_PROGRESSION+LEVEL@PROF_BONUSES+2-5
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@GS_MOD_PROGRESSION+10
+        CRIT: 1d6
+        ON_HIT: [flurry TIMES-1 times at level LEVEL using AC_SCALING]+CRIT+MOD
+        ON_CRIT: [flurry TIMES-1 times at level LEVEL using AC_SCALING]+CRIT+MOD+CRIT
+        D: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD] \baseline damage of 1 shot\
+
+        \On a miss, we immediately use the flurry reroll, so damage on miss for this shot is D, and other shots have no flurry effect\
+        if TIMES = 3 {
+            ON_MISS: D+D+D 
+        }
+        if TIMES = 2 {
+            ON_MISS: D+D
+        }
+        if TIMES = 1 {
+            ON_MISS: D
+        }        
+        result: [attack 1@2d20 plus ATT_BONUS vs AC hit ON_HIT miss ON_MISS crit ON_CRIT on CRITRANGE]
+
+    }
+
+    \Gloomstalker 11+. With Flurry\
+    function: gs elevenplus LEVEL:n using AC_SCALING:s {
+        result: [flurry 3 times at level LEVEL using AC_SCALING]
+    }
+
+
+    \summon beast damage, for level 2 slot\
+    function: summon beast twoslot LEVEL: n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@GS_WIS_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: 2+4
+        CRIT: 1d8
+        result: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD] \land beast, pack tactics\
+    }
+
+    \summon beast damage, for level 4 slot\
+    function: summon beast fourslot LEVEL: n using AC_SCALING:s {
+        ATT_BONUS: LEVEL@GS_WIS_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: 4+4
+        CRIT: 1d8
+        D:[roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD] \land beast, pack tactics\
+        result: D+D
+    }
+
+    \conjure animals damage, level 3 slot, raptors\
+    function: conjure raptors threeslot LEVEL:n using AC_SCALING:s {
+        AC: LEVEL@AC_SCALING
+        ATT_BONUS: 4    
+        CLAW: [roll 1@2d20 at plus ATT_BONUS vs ac AC for 1d4 plus 2] 
+        BITE: [roll 1@2d20 at plus ATT_BONUS vs ac AC for 1d6 plus 2] 
+        D: CLAW+BITE
+        result: D+D+D+D+D+D+D+D
+    }
+
+
+    \conjure animals damage, level 5 slot, raptors\
+    function: conjure raptors fiveslot LEVEL:n using AC_SCALING:s {
+        result: [conjure raptors threeslot LEVEL using AC_SCALING] + [conjure raptors threeslot LEVEL using AC_SCALING]
+    }    
+
+
+    \conjure animals damage, level 3 slot, snakes\
+    function: conjure snakes threeslot LEVEL:n using AC_SCALING:s {
+        AC: LEVEL@AC_SCALING
+        ATT_BONUS: 6        
+        D: [roll 1d20 at plus ATT_BONUS vs ac AC for 1d4 plus 2+3d6]     
+        result: D+D+D+D+D+D+D+D
+    }
+
+    \conjure animals damage, level 5 slot, snakes\
+    function: conjure snakes fiveslot LEVEL:n using AC_SCALING:s {
+        result: [conjure snakes threeslot LEVEL using AC_SCALING] + [conjure snakes threeslot LEVEL using AC_SCALING]
+    }    
+
+    \summon elemental damage, level 4 slot\
+    function: summon elemental fourslot LEVEL:n using AC_SCALING:s {
+       ATT_BONUS: LEVEL@GS_WIS_PROGRESSION+LEVEL@PROF_BONUSES
+       AC: LEVEL@AC_SCALING
+       MOD: 4+4
+       CRIT: 1d10
+       D: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+       result: D+D
+    }
+
+    \summon fey level 4 slot\
+    function: summon fey fourslot LEVEL:n using AC_SCALING:s {
+       ATT_BONUS: LEVEL@GS_WIS_PROGRESSION+LEVEL@PROF_BONUSES
+       AC: LEVEL@AC_SCALING
+       MOD: 3+4
+       CRIT: 2d6
+
+       result: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]+[roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    }
+
+
+
+    \Conjure woodland beings, Satyrs\
+    function: conjure satyrs fourslot LEVEL:n using AC_SCALING:s {
+        AC: LEVEL@AC_SCALING
+        D: [roll 1d20 at plus 5 vs ac AC for 1d6 plus 3]
+        result: D+D+D+D
+    }
+
+
+    \Conjure woodland beings, Quicklings\
+    function: conjure quicklings fourslot LEVEL:n using AC_SCALING:s {
+        AC: LEVEL@AC_SCALING
+        D: [roll 1@2d20 at plus 8 vs ac AC for 1d4 plus 6]
+        result: D+D+D+D+D+D
+    }
+
+
+
+
+
+    \TM baseline warlock with Agonizing Blast and Hex\
+    function: warlock LEVEL:n using AC_SCALING:s {
+        NUM_BLAST: LEVEL@EB_SCALING
+        ATT_BONUS: LEVEL@WARLOCK_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        CRIT: 1d10+1d6 \hex\
+        if LEVEL >= 2 {
+            NO_CRIT: LEVEL@WARLOCK_MOD_PROGRESSION \Agonizing\
+        } else {
+            NO_CRIT: 0
+        }
+        AC: LEVEL@AC_SCALING
+        TOTAL: 0
+        W: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+        loop I over {1..NUM_BLAST}{
+            TOTAL: TOTAL + W
+        }
+        result: TOTAL    
+    }
+
+    \Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1)\
+    function: fighter LEVEL:n using AC_SCALING:s {
+        NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+        CRIT: 1d6
+        if LEVEL >= 4 {
+            ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+            NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+        } else {
+            ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+            NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION     
+        }
+        AC: LEVEL@AC_SCALING
+        TOTAL: 0
+        loop I over {1..NUM_SHOT}{
+            TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+        }
+        result: TOTAL 
+    }
+
+
+    \Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1); using action surge\
+    function: fighter action surge LEVEL:n using AC_SCALING:s {
+        if LEVEL >= 2 {
+            NUM_SHOT: LEVEL@EA_SCALING +LEVEL@EA_SCALING+ 1 \Crossbow expert\
+        } else {
+            NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+        }
+
+        CRIT: 1d6
+        if LEVEL >= 4 {
+            ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+            NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+        } else {
+            ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+            NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION     
+        }
+        AC: LEVEL@AC_SCALING
+        TOTAL: 0
+        loop I over {1..NUM_SHOT}{
+            TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+        }
+        result: TOTAL 
+    }
+
+    \---------------------------------------------------------------------------------------\
+    \---------------------------------------------------------------------------------------\
+    \---------------------------------------------------------------------------------------\
+    \---------------------------------------------------------------------------------------\
+    \HUMAN INPUT SECTION\
+    LEVEL: 20
+    AC_ASSUMPTION: TM_TARGET_AC \options are DMG_TARGET_AC, TM_TARGET_AC, or BOH_TARGET_AC\
+
+
+    output [warlock LEVEL using AC_ASSUMPTION] named "Level [LEVEL] Warlock Reference"
+    output [fighter LEVEL using AC_ASSUMPTION] named "Level [LEVEL] Fighter Reference"
+    output [fighter action surge LEVEL using AC_ASSUMPTION] named "Level [LEVEL] Fighter Reference, action surge"
+    output [dp onetwo LEVEL using AC_ASSUMPTION] named "Level [LEVEL] DP at 1-2"
+    output [dp three LEVEL using AC_ASSUMPTION] named "Level [LEVEL] DP at 3"
+    output [dp foureight LEVEL using AC_ASSUMPTION] named "Level [LEVEL] DP at 4-8"
+    output [dp ninesixteen LEVEL using AC_ASSUMPTION] named "Level [LEVEL] DP at 9-16"
+    output [dp seventeenplus LEVEL using AC_ASSUMPTION] named "Level [LEVEL] DP at 17+"
+    output [gs one LEVEL using AC_ASSUMPTION] named "Level [LEVEL] GS at 1"
+    output [gs two LEVEL using AC_ASSUMPTION] named "Level [LEVEL] GS at 2"
+    output [gs three LEVEL using AC_ASSUMPTION] named "Level [LEVEL] GS at 3"
+    output [gs four LEVEL using AC_ASSUMPTION] named "Level [LEVEL] GS at 4"
+    output [gs fiveten LEVEL using AC_ASSUMPTION] named "Level [LEVEL] GS at 5-10"
+    output [gs elevenplus LEVEL using AC_ASSUMPTION] named "Level [LEVEL] GS at 11+"
+    output [summon beast twoslot LEVEL using AC_ASSUMPTION] named "Summon Beast, level 2 slot"
+    output [summon beast fourslot LEVEL using AC_ASSUMPTION] named "Summon Beast, level 4 slot"
+    output [summon elemental fourslot LEVEL using AC_ASSUMPTION] named "Summon Elemental, level 4 slot"
+    output [summon elemental fourslot LEVEL using AC_ASSUMPTION] named "Summon Elemental, level 4 slot"
+    output [summon fey fourslot LEVEL using AC_ASSUMPTION] named "Summon Fey, level 4 slot"
+    output [conjure raptors threeslot LEVEL using AC_ASSUMPTION] named "Conjure raptors, level 3 slot"
+    output [conjure raptors fiveslot LEVEL using AC_ASSUMPTION] named "Conjure raptors, level 5 slot"
+    output [conjure snakes threeslot LEVEL using AC_ASSUMPTION] named "Conjure snakes, level 3 slot"
+    output [conjure snakes fiveslot LEVEL using AC_ASSUMPTION] named "Conjure snakes, level 5 slot"
+    output [conjure satyrs fourslot LEVEL using AC_ASSUMPTION] named "Conjure Satyrs, level 4 slot"
+    output [conjure quicklings fourslot LEVEL using AC_ASSUMPTION] named "Conjure Quicklings, level 4 slot"

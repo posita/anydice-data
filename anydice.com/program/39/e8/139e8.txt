@@ -1,0 +1,31 @@
+function: roll DIE:d WDIE:d {
+  result: [highest of [explode DIE] and [explode WDIE]]
+}
+
+function: success V:n vs TN:n {
+  if V < TN { 
+    result: 0
+  } else {
+    result: 1 + [success (V - TN) vs 4]
+  }  
+}
+
+loop TN over {4} {
+
+  DICE: {4,6,8}
+
+  loop W over {6} {
+    WDIE: dW
+
+    loop DIE over DICE {
+      output [success [roll dDIE 0] vs TN] named "d[DIE] vs. [TN]"
+    }
+if 1 < 0 {
+    output [success [roll d12+1 0] vs TN] named "d12+1 vs. [TN]"
+    output [success [roll d4 WDIE]-2 vs TN] named "(d4|[WDIE])-2 vs. [TN]"
+}
+    loop DIE over DICE {
+      output [success [roll dDIE WDIE] vs TN] named "d[DIE]|[WDIE] vs. [TN]"
+    }
+  }
+}

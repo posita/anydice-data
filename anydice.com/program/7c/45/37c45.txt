@@ -1,0 +1,40 @@
+function: is prone by AC and STR {
+  result: 1d20 + 11 >= AC & 1d20+STR >= 19
+}
+
+function: apply adv by IS_PRONE:n {
+  if IS_PRONE {
+    result: [highest 1 of 2d20] + 11
+  } else {
+    result: 1d20 + 11
+  }
+}
+
+
+function: apply crit to DMG based on ATK:n and AC {
+  if ATK = 20 {
+    result: DMG + DMG + 10
+  } else if ATK >= AC{
+    result: DMG + 10
+  } else {
+    result: 0
+  }
+}
+
+DAMAGE_ROLL: 5d8 + 5d8
+BOOMING_DAMAGE_ROLL: 5d8 + 5d8 + 7d8
+
+\Zariel\
+\ENEMY_AC: 21\
+\ENEMY_STR: 8\
+
+\Vecna\
+ENEMY_AC: 18
+ENEMY_STR: 2
+
+PRONE: [is prone by ENEMY_AC and ENEMY_STR]
+
+ATTACK_ROLL: [apply adv by PRONE]
+BOOMING_ATTACK_ROLL: [apply adv by PRONE]
+
+output [apply crit to DAMAGE_ROLL based on ATTACK_ROLL and ENEMY_AC] + [apply crit to BOOMING_DAMAGE_ROLL based on BOOMING_ATTACK_ROLL and ENEMY_AC]

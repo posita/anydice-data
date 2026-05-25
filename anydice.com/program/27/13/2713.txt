@@ -1,0 +1,51 @@
+ROLLA: 0
+ROLLB: 0
+ROLLC: 0
+KEEPA: 0
+KEEPB: 0
+
+function: get best two of ROLLA:n and ROLLB:n and ROLLC:n {
+  A: [roll ROLLA]
+  B: [roll ROLLB]
+  C: [roll ROLLC]
+  MIN: A
+  if MIN > B {
+     MIN: B
+  }
+  if MIN > C {
+     MIN: C
+  }
+  D: A + B + C - MIN
+  result: D
+}
+
+function: roll DIESIZE:n {
+   if DIESIZE = 1 { result: 1d6 }
+   if DIESIZE = 2 { result: 1d8 }
+   if DIESIZE = 3 { result: 1d10 }
+   if DIESIZE = 4 { result: 1d12 }
+}
+
+function: name DIESIZE:n {
+   if DIESIZE = 1 { result: 6 }
+   if DIESIZE = 2 { result: 8 }
+   if DIESIZE = 3 { result: 10 }
+   if DIESIZE = 4 { result: 12 }
+}
+NAMEA: d4
+NAMEB: d4
+NAMEC: d4
+NAMED: d4
+NAMEE: d4
+
+loop DIEA over {1..4} {
+  NAMEA: [name DIEA]
+  loop DIEB over {1..DIEA} {
+    NAMEB: [name DIEB]
+    output [roll DIEA] + [roll DIEB] named "d[NAMEA] + d[NAMEB]"
+    loop DIEC over {1..DIEB} {
+      NAMEC: [name DIEC]
+      output [get best two of DIEA and DIEB and DIEC] named "d[NAMEA] + d[NAMEB] + d[NAMEC]"
+    }
+  }
+}

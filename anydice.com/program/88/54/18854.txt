@@ -1,0 +1,52 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MIN_AC: 14
+MAX_AC: 16
+
+STR: 5
+PROF: 4
+MAGIC: 2
+GWM: 10
+GWM_TOHIT: -5
+DAMAGE_DICE: 1d10
+
+ATTACK: STR + PROF + GWM_TOHIT + MAGIC
+HITDAMAGE: DAMAGE_DICE + STR + GWM + MAGIC
+CRITICALDAMAGE: 2dDAMAGE_DICE + STR + GWM + MAGIC
+MISSDAMAGE: 0
+output 2d[damage for [attack d20 vs d{MIN_AC..MAX_AC}]] named "GWM"
+DAMAGE_DICE: 1d4
+HITDAMAGE: DAMAGE_DICE + STR + GWM + MAGIC
+CRITICALDAMAGE: 2dDAMAGE_DICE + STR + GWM + MAGIC
+output [damage for [attack d20 vs d{MIN_AC..MAX_AC}]] named "Polearm Master + GWM"
+
+DAMAGE_DICE: 1d10
+ATTACK: STR + PROF + MAGIC
+HITDAMAGE: DAMAGE_DICE + STR + MAGIC
+CRITICALDAMAGE: 2dDAMAGE_DICE + STR + MAGIC
+MISSDAMAGE: 0
+output 2d[damage for [attack d20 vs d{MIN_AC..MAX_AC}]] named "normal attacks"
+
+DAMAGE_DICE: 1d4
+HITDAMAGE: DAMAGE_DICE + STR + MAGIC
+CRITICALDAMAGE: 2dDAMAGE_DICE + STR + MAGIC
+output [damage for [attack d20 vs d{MIN_AC..MAX_AC}]] named "Polearm Master"

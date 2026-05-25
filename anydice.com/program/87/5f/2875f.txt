@@ -1,0 +1,35 @@
+TO_HIT: 6
+
+function: attack with ACC accuracy {
+ result: (2d6 + ACC) > TO_HIT - 1
+}
+
+LIGHT_DAMAGE: 3
+LIGHT_ACCURACY: 0
+function: light weapon against ARMOR armor {
+ result: [highest of d[attack with LIGHT_ACCURACY accuracy] * LIGHT_DAMAGE and 0]
+}
+
+MEDIUM_DAMAGE: 6
+MEDIUM_ACCURACY: -1
+function: medium weapon against ARMOR armor {
+ result: [highest of [attack with MEDIUM_ACCURACY accuracy] * (MEDIUM_DAMAGE - ARMOR) and 0]
+}
+
+HEAVY_DAMAGE: 9
+HEAVY_ACCURACY: -2
+function: heavy weapon against ARMOR armor {
+ result: [highest of [attack with HEAVY_ACCURACY accuracy] * (HEAVY_DAMAGE - ARMOR) and 0]
+}
+
+\
+loop ARMOR over {1..3}{
+ output [light weapon against ARMOR armor] named "light against [ARMOR] armor"
+ output [medium weapon against ARMOR armor] named "medium against [ARMOR] armor"
+ output [heavy weapon against ARMOR armor] named "heavy against [ARMOR] armor"
+}
+\
+
+loop ACC over {-6..6} {
+  output [attack with ACC accuracy] named "[ACC]"
+}

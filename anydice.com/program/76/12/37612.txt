@@ -1,0 +1,56 @@
+ACCURACY: 0
+TESTEVASION: 8
+TESTARMOR: 1
+
+function: armordiff INCOMINGDAMAGE:n vs ARMOR:n {
+ if INCOMINGDAMAGE >= ARMOR { result: INCOMINGDAMAGE-ARMOR }
+ result: 0
+}
+
+function: attackroll BASEROLL:n with BASEACCURACY:n base accuracy{
+ result: BASEROLL + [highest 1 of (BASEACCURACY+ACCURACY)d6]
+}
+
+function: weaponexpecteddamage ATTACKROLL:n dealing DICENUM:n die DICESIZE:n plus BASE:n damage ap AP:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 0
+ if ATTACKROLL >= 20 {
+  OUTGOINGDAMAGE: [highest DICENUM of (2*DICENUM)dDICESIZE]+ BASE
+ }
+ else if ATTACKROLL >= DEFENSE { OUTGOINGDAMAGE: DICENUMdDICESIZE + BASE}
+ if AP = 1 { result: OUTGOINGDAMAGE }
+ else { result: [armordiff OUTGOINGDAMAGE vs ARMOR] }
+}
+
+function: assaultrifle ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 2
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d{2,2,3,4,5,6}]
+ }
+ else if ROLL >= DEFENSE { OUTGOINGDAMAGE: 1d{2,2,3,4,5,6}}
+ result: [armordiff OUTGOINGDAMAGE vs ARMOR]
+}
+
+\ This one probably doesn't work \
+function: cyclonepulserifle ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 0
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d{5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,11,11,11,11,11,11,11,11,11,11,11,12,12,12,12,12,12}]+3
+ }
+ else if ROLL >= DEFENSE {OUTGOINGDAMAGE: 1d{5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,11,11,11,11,11,11,11,11,11,11,11,12,12,12,12,12,12}+3}
+ result: [armordiff OUTGOINGDAMAGE vs ARMOR]
+}
+
+output [weaponexpecteddamage [attackroll d20 with 1 base accuracy] dealing 2 die 6 plus 0 damage ap 1 vs TESTEVASION and TESTARMOR]
+ named "Anti-Materiel Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [assaultrifle d20+[highest 1 of ACCURACYd6] vs TESTEVASION and TESTARMOR]
+ named "Assault Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 3 damage ap 1 vs TESTEVASION and TESTARMOR]
+ named "Charged Blade vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+\ output [cyclonepulserifle d20+[highest 1 of ACCURACYd6] vs TESTEVASION and TESTARMOR]
+ named "Cyclone Pulse Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR" \
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 3 damage ap 1 vs TESTEVASION and TESTARMOR]
+ named "Charged Blade vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"

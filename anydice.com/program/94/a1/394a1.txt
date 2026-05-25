@@ -1,0 +1,64 @@
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  if ((#ROLL)@ROLL) >= MIN {
+     result: ROLL + 0
+  } else {
+    result: (({1..#ROLL-1}@ROLL) + REROLL)
+  }
+}
+
+NOREROLL_DUELCRIT: 5d10 + 2d4 + 2d6 + 4
+NOREROLL_CRIT: 3d10 + 2d4 + 2d6 + 4
+NOREROLL_DUELHIT: 2d10 + 1d4 + 1d6 + 4
+NOREROLL_HIT: 1d10 + 1d4 + 1d6 + 4
+NOREROLL_GRAZE: 1d8
+NOREROLL_MISS: 0
+
+DUELCRIT: [reroll lowest of 5d10 as 1d10 if less than 6] + 2d4 + 2d6 + 4
+CRIT: [reroll lowest of 3d10 as 1d10 if less than 6] + 2d4 + 2d6 + 4
+DUELHIT: [reroll lowest of 2d10 as 1d10 if less than 6] + 1d4 + 1d6 + 4
+HIT: [reroll lowest of 1d10 as 1d10 if less than 6] + 1d4 + 1d6 + 4
+GRAZE: [reroll lowest of 1d8 as 1d8 if less than 5]
+MISS: 0
+
+
+function: attack ROLLS:s plus BONUS:n against AC:n {
+    HIGHEST: (1 @ ROLLS)
+    ATK: HIGHEST + BONUS
+    if HIGHEST >= 19{ \ crit \
+        if ATK >= (AC + 5){ result: DUELCRIT }
+        else { result: CRIT }
+    }
+    else {
+        if ATK >= AC {
+            if ATK >= (AC+5) { result: DUELHIT }
+            else { result: HIT }
+        }
+        else {
+            if ATK > (AC - 10) { result: GRAZE }
+            else {
+                result: MISS
+            }
+        }
+    }
+}
+
+
+loop AC over {15..41} {
+    output [attack 3d20 plus 9 against AC] named "[AC]"
+}
+
+output 80
+
+output DUELCRIT - NOREROLL_DUELCRIT named "duelcrit reroll ref"
+output CRIT - NOREROLL_CRIT named "crit reroll ref"
+output DUELHIT - NOREROLL_DUELHIT named "duelhit reroll ref"
+output HIT - NOREROLL_HIT named "hit reroll ref"
+output GRAZE - NOREROLL_GRAZE named "graze reroll ref"
+output MISS - NOREROLL_MISS named "miss reroll ref"
+
+output DUELCRIT named "duelcrit ref"
+output CRIT named "crit ref"
+output DUELHIT named "duelhit ref"
+output HIT named "hit ref"
+output GRAZE named "graze ref"
+output MISS named "miss ref"

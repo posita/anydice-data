@@ -1,0 +1,54 @@
+HEARTS: {1,2,3,4,5,6,7,8,9,10,0,0,0}
+DIAMONDS: HEARTS
+SPADES: HEARTS
+CLUBS: HEARTS
+
+function: remove N:n from SEQUENCE:s {
+  NEW: {}
+  TEMP: 0
+  loop P over {1..#SEQUENCE} {
+    if N != P@SEQUENCE {
+      NEW: {NEW, P@SEQUENCE}
+    }
+    else if TEMP { NEW: {NEW, P@SEQUENCE} }
+    else if N = 0 { TEMP:1 }
+  }
+  result: N
+}
+
+function: random CARD:n {
+ if CARD <= #HEARTS {
+    A: [remove 1dHEARTS from HEARTS]
+  }
+  else if CARD <= (#HEARTS + #DIAMONDS) {
+    A: [remove 1dDIAMONDS from DIAMONDS]
+  }
+  else if CARD <= (#HEARTS + #DIAMONDS + #CLUBS) {
+    A: [remove 1dCLUBS from CLUBS]
+  }
+  else {
+    A: [remove 1dSPADES from SPADES]
+  }
+  result: A
+}
+
+function: draw a N:n of cards with PLAYERS:n players {
+  SUM: 0
+  TEMP: 0
+  loop P over {1..N} {
+    DRAW: 1d(#HEARTS + #DIAMONDS + #CLUBS + #SPADES)
+    SUM: SUM + [random DRAW]
+
+    if PLAYERS > 1 {
+      loop Q over {2..PLAYERS} {
+        TEMP: [random 1d(#HEARTS + #DIAMONDS + #CLUBS + #SPADES)]
+      }
+    }
+  }
+  result: SUM
+}
+
+NUMBER: 5              \ Number of cards \
+NUMBEROF: 5            \ Number of players \
+
+output [draw a NUMBER of cards with NUMBEROF players] named "Drew [NUMBER] cards with [NUMBEROF] players."

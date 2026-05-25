@@ -1,0 +1,76 @@
+J: {33,42,39,36,27,30,25,2,15,7}
+S: {33,42,39,36,27,30,24,2,16,6}
+P: {33,42,39,36,27,30,25,2,16,4}
+R: {33,43,39,36,27,30,24,2,17,5}
+
+F:  d2           \WWE Champion AJ Styles vs. Shinsuke Nakamura (Last Man Standing Match)\
+FF:  d10+3        \Men’s Money in the Bank Ladder Match (4:Samoa Joe, 5:The Miz, 6:Finn Balor, 7: Kevin Owens)\
+FFF:  d8+14        \Women’s Money in the Bank Ladder Match (15: Becky Lynch, 16: Ember Moon, 17: Natalya)\
+FFFF:  d2+23        \Raw Women’s Champion Nia Jax vs. Ronda Rousey\
+FFFFF:  d2+26        \SmackDown Women’s Champion Carmella vs. Asuka\
+FFFFFF:  d2+29        \Roman Reigns vs. Jinder Mahal\
+FFFFFFF:  d2+32        \SmackDown Tag Team Champions The Bludgeon Brothers vs. Luke Gallows & Karl Anderson (Kickoff Match)\
+FFFFFFFF:  d2+35        \Bobby Lashley vs. Sami Zayn\
+FFFFFFFFF:  d2+38        \Intercontinental Champion Seth Rollins vs. Elias\
+FFFFFFFFFF: d2+41         \Daniel Bryan vs. Big Cass\
+
+function: score X {result: [X contains F]+[X contains FF]+[X contains FFF]+[X contains FFFF]+[X contains FFFFF]+[X contains FFFFFF]+[X contains FFFFFFF]+[X contains FFFFFFFF]+[X contains FFFFFFFFF]+[X contains FFFFFFFFFF]}
+
+JSCORE: [score J]
+SSCORE: [score S]
+PSCORE: [score P]
+RSCORE: [score R]
+
+output JSCORE named "Jack's score"
+output SSCORE named "Sam's score"
+output PSCORE named "Pacitti's score"
+output RSCORE named "Ross's score"
+
+function: tie between A:n and B:n winning over C:n and D:n {
+  result: [tie between A and B and B winning over [highest of C and D]]
+}
+
+function: tie between A:n and B:n and C:n winning over D:n {
+  if A = B {
+    if A = C {
+      if A > D {
+        result: 1
+      }
+      else {result: 0}
+    }
+    else {result: 0}
+  }
+  else {result: 0}
+}
+
+function: tie between A:n and B:n and C:n and D:n {
+  if A = B {
+    if A = C {
+      if A = D {
+        result: 1
+      }
+      else {result: 0}
+    }
+    else {result: 0}
+  }
+  else {result: 0}
+}
+
+output (RSCORE>[highest of SSCORE and [highest of PSCORE and JSCORE]]) named "Ross wins"
+output (SSCORE>[highest of RSCORE and [highest of PSCORE and JSCORE]]) named "Sam wins"
+output (PSCORE>[highest of SSCORE and [highest of RSCORE and JSCORE]]) named "Pacitti wins"
+output (JSCORE>[highest of SSCORE and [highest of PSCORE and RSCORE]]) named "Jack wins"
+
+output [tie between RSCORE and SSCORE winning over PSCORE and JSCORE] named "Ross and Sam win"
+output [tie between RSCORE and PSCORE winning over SSCORE and JSCORE] named "Ross and Pacitti win"
+output [tie between RSCORE and JSCORE winning over PSCORE and SSCORE] named "Ross and Jack win"
+output [tie between SSCORE and JSCORE winning over RSCORE and PSCORE] named "Sam and Jack win"
+output [tie between PSCORE and SSCORE winning over RSCORE and JSCORE] named "Sam and Pacitti win"
+output [tie between PSCORE and JSCORE winning over RSCORE and SSCORE] named "Pacitti and Jack win"
+
+output [tie between RSCORE and SSCORE and PSCORE winning over JSCORE] named "Ross, Sam and Pacitti win"
+output [tie between RSCORE and SSCORE and JSCORE winning over PSCORE] named "Ross, Sam and Jack win"
+output [tie between RSCORE and PSCORE and JSCORE winning over SSCORE] named "Ross, Pacitti and Jack win"
+output [tie between SSCORE and PSCORE and JSCORE winning over RSCORE] named "Sam, Pacitti and Jack win"
+
+output [tie between RSCORE and SSCORE and PSCORE and JSCORE] named "4-way tie"

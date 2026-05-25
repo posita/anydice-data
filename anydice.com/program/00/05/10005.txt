@@ -1,0 +1,85 @@
+\---- How to use ----\
+\Adjust the variables below (MOD, DIE, NUMDIE, MIN, CRIT) to change calculation & click "Calculate" below the textbox\
+\--------------------------------------------------------------------------------------------------------------------\
+\EXAMPLE, DO NOT EDIT:                                                                                               \
+\For Great Weapon Fighter with a Greatsword you would use the following:                                             \
+\MOD: [Strength modifier]                                                                                            \
+\DIE: 6      (Greatsword damage: 2d[6])                                                                              \
+\NUMDIE: 2   (Greatsword damage: [2]d6)                                                                              \
+\MIN: 2      (Default for GWF is reroll 1s and 2s)                                                               \
+\CRIT: 20    (Default crit value of fighter)                                                                   \
+\--------------------------------------------------------------------------------------------------------------------\
+
+\VARIABLES - Edit these to change output!                           \
+\-------------------------------------------------------------------\
+MOD:20         \This is the damage modifier. I.E. Strength modifier, etc.  \
+DIE:12         \Die size. I.E. DIE:12 for d12                              \
+NUMDIE:4       \Number of damage dice. I.E. NUMDIE:2 for Ultra Greatsword  \
+MIN:2          \Lower limit for Great Weapon Fighter. Default of 2         \
+CRIT: 20       \Minimum roll for a crit. Default 20                        \                                
+\-------------------------------------------------------------------\
+
+\Don't touch the code below, this is where the magic happens!\
+\It's been documented for others to understand functionality \
+\------------------------------------------------------------\
+
+\Description -----------------------------------------------------------------------------------\
+\This function returns the re-rolled value of the die if it is lower or equal to the lower limit\
+\Variables -------------------------------------------------------------------------------------\
+\A = Initial input value. I.E. 1 to 12 for d12                                                    \
+\B = Lower reroll limit. I.E. 2 for Great Weapon Fighter                                        \
+\C = Dice value. I.E. 12 for d12                                                                  \
+\-----------------------------------------------------------------------------------------------\
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+\Description ---------------------------------------------\
+\This function simulates the Great Weapon Master feat     \
+\Variables -----------------------------------------------\
+\A = Dice value I.E. A=6 for 1d6                          \
+\B = Number of damage dice I.E. B = 2 for Greatsword (2d6)\
+\C = Lower limit for reroll. Default 2                    \
+\---------------------------------------------------------\
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+\Description ---------------------------------------------\
+\This function returns 2 if the user crits                \
+\Variables -----------------------------------------------\
+\A = Dice roll. Default 1 to 20 (1d20)                    \
+\B = Minimum critical roll. Default 20                    \
+\---------------------------------------------------------\
+
+function: getcrit A:n B:n { 
+ if A >= 20 { 
+  result:2 
+ }
+ else { 
+  result:1 
+ } 
+}
+
+MUL:[getcrit 1d20 CRIT]
+
+function: getvorpal A:n B:n { 
+ if A >= 20 { 
+  result:6d8 
+ }
+ else { 
+  result:0 
+ } 
+}
+VORPAL:[getvorpal 1d20 CRIT]
+
+output (MUL * [greatweaponmaster DIE NUMDIE MIN]) + (2 * VORPAL) + MOD

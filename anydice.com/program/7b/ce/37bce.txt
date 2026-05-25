@@ -1,0 +1,80 @@
+\
+100% Orange Juice! damage calculator
+version: 5.0
+author: Le~Kat
+\
+
+\ stats \
+HP: 4
+ATK: 0
+DEF: -1
+EVD: +2
+MOV: 0
+
+\ the dice you roll \
+SIX: d6
+SEVEN: d{0..7}
+DICE: SIX
+COUNT: 1 \ TODO: might be wrong for numbers above 1 \
+
+\ helper function (s) \
+function: min A B {
+	if (A < B) {
+		result: A
+	}
+	result: B
+}
+function: minimum of DIE:d {
+	result: 1@{DIE}
+}
+function: clamp NUM:n to MIN:n {
+	if (NUM < MIN) {
+		result: MIN
+	}
+	
+	result: NUM
+}
+
+\ main function (s) \
+function: evade COUNT:n DIE:d EVD:n ATK:n HP:n {
+	NEW: {}
+	loop N over {COUNTdDICE} {
+		A: [clamp (N + EVD) to [min N COUNT]]
+		if (A > ATK) {
+			NEW: {NEW, HP}
+		} else {
+			B: [clamp (HP - ATK) to 0]
+			NEW: {NEW, B}
+		}
+	}
+	result: NEW
+}
+function: defend COUNT:n DIE:d DEF:n ATK:n HP:n {
+	NEW: {}
+	loop N over {COUNTdDICE} {
+		A: [clamp (N + DEF) to [min N COUNT]]
+		B: [clamp (ATK - A) to COUNT]
+		C: [clamp (HP - B) to 0]
+		NEW: {NEW, C}
+	}
+	result: NEW
+}
+function: move COUNT:n DIE:d MOV:n {
+	NEW: {}
+	loop N over {COUNTdDICE} {
+		if (N = 0) {
+			A: [clamp (N + MOV) to 0]
+		} else {
+			A: [clamp (N + MOV) to (COUNT)]
+		}
+		NEW: {NEW, A}
+	}
+	result: NEW
+}
+
+\ prevents calculating bogus equations \
+if COUNT <= 0 | ATK < 0 | HP < 0 { A: 0/0 }
+
+output [evade COUNT DICE EVD ATK HP] named "evade"
+output [defend COUNT DICE DEF ATK HP] named "defence"
+output [move COUNT DICE MOV] named "movement"

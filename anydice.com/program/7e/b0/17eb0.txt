@@ -1,0 +1,65 @@
+\**** Damage calculator ****\
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+\**** Attack roll with archery and sneak attack damage ****\
+function: sneakattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SNEAKCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS + ARCHERY >= AC { result: SNEAKDAMAGE }
+ result: 0
+}
+\**** Attack roll with level 7 sneak attack damage ****\
+function: sneakattackrollpure ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SNEAKCRITDAMAGEPURE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SNEAKDAMAGEPURE }
+ result: 0
+}
+\**** Assassin 5 Fighter 2 Surprise damage ****\
+function: surpriseattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SNEAKCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS + ARCHERY >= AC { result: SNEAKCRITDAMAGE }
+ result: 0
+}
+\**** Assassin 7 Surprise damage ****\
+function: surpriseattackrollpure ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SNEAKCRITDAMAGEPURE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SNEAKCRITDAMAGEPURE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYACFIFTEENTWENTY: d{15..20}
+ENEMYACTENTWENTY: d{10..20}
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+ARCHERY: 2
+CRITROLL: 20
+ATTACKTIMES: 1
+ACTIONSURGE: 2
+DAMAGE: 1d12 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d12 + ATTACKMOD + DMGBONUS
+\* attack rolls for assassin 5, fighter 2 with sneak and archery *\
+SNEAKDAMAGE: 1d12 + 3d6 + ATTACKMOD + DMGBONUS
+SNEAKCRITDAMAGE: 2d12 + 6d6 + ATTACKMOD + DMGBONUS
+\* attack rolls for pure assassin 7 with sneak *\
+SNEAKDAMAGEPURE: 1d12 + 4d6 + ATTACKMOD + DMGBONUS
+SNEAKCRITDAMAGEPURE: 2d12 + 8d6 + ATTACKMOD + DMGBONUS
+output ACTIONSURGEd[surpriseattackroll highest of 2d20 vs ENEMYACFIFTEENTWENTY] named "Assassin 5, Fighter 2, Surprise attack with action surge and auto crit against AC 15 to 20"
+output ATTACKTIMESd[surpriseattackrollpure highest of 2d20 vs ENEMYACFIFTEENTWENTY] named "Assassin 7, Surprise attack with auto crit against AC 15 to 20"
+output ACTIONSURGEd[surpriseattackroll highest of 2d20 vs ENEMYACTENTWENTY] named "Assassin 5, Fighter 2, Surprise attack with action surge and auto crit against AC 10 to 20"
+output ATTACKTIMESd[surpriseattackrollpure highest of 2d20 vs ENEMYACTENTWENTY] named "Assassin 7, Surprise attack with auto crit against AC 10 to 20"
+
+output ATTACKTIMESd[sneakattackroll d20 vs ENEMYACFIFTEENTWENTY] named "no advantage Assassin 5, Fighter 2, normal sneak attack against AC 15 to 20"
+output ATTACKTIMESd[sneakattackrollpure d20 vs ENEMYACFIFTEENTWENTY] named " no advantage Assassin 7, normal sneak attack against AC 10 to 20"
+
+output ACTIONSURGEd[sneakattackroll d20 vs ENEMYACFIFTEENTWENTY] named "no advantage Assassin 5, Fighter 2, action surge sneak attack against AC 15 to 20, no auto crits"

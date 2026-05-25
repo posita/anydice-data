@@ -1,0 +1,89 @@
+\Helper Functions\
+
+function: hit H:n for DAM:d plus MOD:n crit C:s {
+    HIT: 20 - (AC - H) + 1
+    MISS: 20 - HIT
+    HIT: HIT - #C
+
+    \This math is wrong\
+    \If you had a 4/5 chance to hit and a 1/5 chance to do 1d6 damage...\
+    \This generates a sequence like {0, 0, 0, 0, 1, 2, 3, 4, 5, 6}\
+    \Selecting one from this sequence only gives a 40% chance to miss, not 80%\
+    \The more damage dice, the worse this issue becomes\
+    \It seems like if you write a function that expects a number and pass it a die or sequence\
+    \Then the function is iteratively called for each possible value\
+    \I should be able to use that to do crits and misses properly\
+    \I just need to spend some time to think about it\
+    \Until then, I've commented this out and eliminated crit calculation\
+
+    \result: 1d{0:MISS, (DAM+MOD):HIT, (DAM+DAM+MOD):#C}\
+
+    \This simpler formula will only account for misses, not crits\
+    \However it also assumes a nat-20 will miss when you have a +0 against a 21 AC\
+    \Even though by the rules crits should always hit\
+
+    result: (1d20 + H >= AC) * (DAM + MOD)
+}
+
+function: hit H:n for DAM:d plus MOD:n {
+    result: [hit H for DAM plus MOD crit {20}]
+}
+
+function: hit H:n for DAM:d {
+    result: [hit H for DAM plus 0 crit {20}]
+}
+
+function: save vs DC:n for DAM:d {
+    X: 20 - (DC - SAVE) + 1
+    result: 1d{0:X, 1:(20-X)} * DAM
+}
+
+function: savehalf DC:n for DAM:d {
+    X: 20 - (DC - SAVE) + 1
+    result: (1d{1:X, 2:(20-X)} * DAM) / 2
+}
+
+function: reroll S:s of D:d {
+    CNT: #D
+    MAX: [maximum of D] / CNT
+    RES: 0
+    loop N over {1..CNT} {
+        RES: RES + 1d{{(#S + 1)..MAX}:(MAX + #S), S:(#S)}
+    }
+    result: RES
+}
+
+function: X times Y {
+    Z: 0
+    loop N over {1..X} {
+        Z: Z + Y
+    }
+    result: Z
+}
+
+\Calculations\
+
+\Level 1\
+AC: 14
+SAVE: 2
+output [hit (2 \PROF\ + 3 \STR\ - 5 \GWM\) for [reroll {1..2} of 2d6] plus (3 \STR\ + 10 \GWM\)] named "LVL 1 - V.Human Fighter (Great Weapon Fighting Style) w/ GWM using Greatsword"
+output [hit (2 \PROF\ + 3 \STR\) for 1d10 plus (3 \STR\ + 2 \RAGE\)] + [hit (2 + 3) for 1d4 plus 2] named "LVL 1 - Raging V.Human Barbarian w/ PAM using Glaive"
+output [hit (2 \PROF\ + 3 \STR\) for 1d8 plus 3] + [hit (2 + 3) for 1d8 plus 3] named "LVL 1 - V.Human Fighter (Two-Weapon Fighting Style) w/ TWF using 2 Longswords"
+
+\Level 2\
+AC: 15
+SAVE: 2
+output [hit 6 for 1d8 plus 4] + [hit 6 for 2d6 plus 4] named "LVL 2 - Moon Druid Brown Bear Multiattack"
+
+\Level 12\
+AC: 17
+SAVE: 5
+output [hit (4 \PROF\ + 5 \INT\) for 4d{2:2, 3..10} plus 5] named "LVL 12 - Evocation Wizard w/ Elemental Adept (Firebolt)"
+output [hit (4 \PROF\ + 5 \INT\) for 3d10+1d8] + [hit (4 + 5) for 3d8] named "LVL 12 - Boomstiddle w/ Firebolt + Ballista"
+output [hit (4 \PROF\ + 5 \INT\) for 2d6+1d8] + [2 times [hit (4 \PROF\ + 5 \INT\) for 2d6]] + [hit (4 + 5) for 3d8] named "LVL 12 - Boomstiddle w/ Scorching Ray + Ballista"
+output [savehalf (4 \PROF\ + 5 \INT\ + 8) for 3d8+1d8] + [savehalf (4 + 5 + 8) for 3d8] named "LVL 12 - Boomstiddle w/ Shatter + Flamethrower"
+
+\Level 20\
+AC: 21
+SAVE: 8
+output [4 times [hit (6 \PROF\ + 5 \CHA\) for 1d10 plus 5]] named "LVL 20 - Warlock w/ Eldritch Blast + Agonizing Blast"

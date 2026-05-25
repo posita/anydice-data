@@ -1,0 +1,53 @@
+\ Find Sets of N-Tuples in a Sequence \
+\ set the view as 'Transposed' \
+\ TODO : mix of Sets size (ex: 1 pair & 2 triples) \
+
+Q: {0..3}
+
+\ Probas for a double/triple/n-ple \
+\loop N over {2..16} { output Nd{0,0,0,1}}
+loop N over {2..9} { output [count 3 in POOLdQ]}\
+
+\ Probas for several mixed double/triple/n-ple \
+\loop N over {2..8} { output Nd{1,10,100,1000}} \
+
+function: find X:n sets of Y:n on TARGET:n plus in ROLL:s {
+UN: 0
+DEUX: 0
+TROIS: 0
+ZERO: 0
+ IDX: 1
+ END: 0
+ loop M over {1..#ROLL} {
+    if (M@ROLL >= 2) & ((M+1)@ROLL < 2) & (END=0) {
+      IDX: M+1
+      END: 1
+    }
+ }
+ LOWPART: {IDX..#ROLL}@ROLL              \sequence with 1s & 0s\
+ UN: {1:LOWPART}
+ DEUX: {1:((IDX-1)*3 - {1..IDX-1}@ROLL)}
+ TROIS: {1:((IDX-1) - DEUX)}
+ ZERO: {1:#ROLL -UN-DEUX-TROIS}
+ SIZE: {#ZERO, #UN, #DEUX, #TROIS}
+
+ RES: 0
+ loop N over {1+TARGET..#SIZE}{
+   if(N@SIZE >= Y){RES: RES+1}
+   if(RES >= X) {result: RES}
+ }
+ result: 0
+}
+
+POOL: 6
+
+loop N over {0..3}{
+output [find 2 sets of 2 on N plus in POOLdQ] named "2x pairs on [N]+ in [POOL]d4"}
+loop N over {0..3}{
+output [find 3 sets of 2 on N plus in POOLdQ] named "3x pairs on [N]+ in [POOL]d4"}
+loop N over {0..3}{
+output [find 1 sets of 3 on N plus in POOLdQ] named "1x triple on [N]+ in [POOL]d4"}
+loop N over {0..3}{
+output [find 2 sets of 3 on N plus in POOLdQ] named "2x triple on [N]+ in [POOL]d4"}
+
+

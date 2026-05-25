@@ -1,0 +1,53 @@
+LEVEL: 20
+
+ABILITYMOD: 5
+DICEPA: 2
+TOHITMOD: -5
+ATTACKS: 1
+WEAPONDICE: 1d8
+MAGICBONUS: 3
+DAMAGEMOD: 9d6+2d6+1d6+10+2d8
+CRITRANGE: 0
+
+\Don't care\
+PB: 2
+if LEVEL >= 1 {PB: 2}
+if LEVEL >= 5 {PB: 3}
+if LEVEL >= 9 {PB: 4}
+if LEVEL >= 13 {PB: 5}
+if LEVEL >= 17 {PB: 6}
+DAMAGE: WEAPONDICE + DAMAGEMOD + ABILITYMOD + MAGICBONUS
+TOHIT: ABILITYMOD + PB + MAGICBONUS + TOHITMOD
+AC: 13
+if LEVEL >= 1 {AC: 14}
+if LEVEL >= 4 {AC: 15}
+if LEVEL >= 5 {AC: 16}
+if LEVEL >= 8 {AC: 17}
+if LEVEL >= 9 {AC: 18}
+if LEVEL >= 13 {AC: 19}
+if LEVEL >= 16 {AC: 20}
+if LEVEL >= 17 {AC: 21}
+if LEVEL >= 20 {AC: 22}
+
+\output AC named "AC"\
+\output DAMAGE named "DPA"\
+\output TOHIT named "TOHIT"\
+
+function: attack D:n plus BONUS:n vs AC:n  {
+    if D >= CRITRANGE { result: 2 } 
+    else if D = 1 { result: 0}
+    else if D + BONUS >= AC { result: 1 } 
+    else { result:0}
+}
+
+loop AC over {AC} {
+    TRUEHIT: [attack [highest 1 of DICEPAd20] plus TOHIT vs AC] * DAMAGE
+    if ATTACKS = 1 {output TRUEHIT named "Damage per round after to hit calculations"}
+    if ATTACKS = 2 {output TRUEHIT+TRUEHIT named "Damage per round after to hit calculations"}
+    if ATTACKS = 3 {output TRUEHIT+TRUEHIT+TRUEHIT named "Damage per round after to hit calculations"}
+    if ATTACKS = 4 {output TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT named "Damage per round after to hit calculations"}
+    if ATTACKS = 5 {output TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT named "Damage per round after to hit calculations"}
+    if ATTACKS = 6 {output TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT named "Damage per round after to hit calculations"}
+    if ATTACKS = 7 {output TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT named "Damage per round after to hit calculations"}
+    if ATTACKS = 8 {output TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT+TRUEHIT named "Damage per round after to hit calculations"}
+}

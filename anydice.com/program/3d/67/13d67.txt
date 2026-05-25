@@ -1,0 +1,37 @@
+function: roll DIE:d vs TN:n {
+ MAX: [maximum of DIE]
+ result: [roll DIE vs TN helper]
+}
+
+function: roll R:n vs TN:n helper {
+  if R < TN {
+    RES: 0
+  } else {
+    RES: 1 + (R-TN)/4
+  }
+
+  if R = MAX { 
+    TN: TN - MAX
+    if TN < 2 {
+      TN: 2
+    }
+    RES: RES + [roll DIE vs TN helper]
+  }
+
+  result: RES
+}
+
+function: success R:n vs TN:n {
+  if R < TN {
+    result: 0
+  } else {
+    result: 1 + (R-TN)/4
+  }
+}
+
+loop TN over {4} {
+  loop N over {4} {
+    output [success [explode dN] vs TN] named "d[N] vs [TN]"
+    output [roll dN vs TN] named "Alt d[N] vs [TN]"
+  }
+}

@@ -1,0 +1,88 @@
+function: A:n mod B:n {
+ result: A - ((A/B)*B)
+}
+\ output [1d6 mod 4] \
+
+function: round A:n down to multiple of B:n {
+ result: ((A/B)*B)
+}
+\ output [round 1d10 down to multiple of 2] \
+
+function: highest number with digit A:n and B:n {
+ if A = B {
+  result: A*11
+ }
+ if A > B {
+  result: A*10+B
+ }
+ if A < B {
+  result: A+B*10
+ }
+}
+\ output [highest number with digit 3 and 8] \
+
+function: lowest number with digit A:n and B:n {
+ if A = B {
+  result: A*11
+ }
+ if A < B {
+  result: A*10+B
+ }
+ if A > B {
+  result: A+B*10
+ }
+}
+\ output [highest number with digit 3 and 8] \
+
+D: 1d10-1
+\ output [round [highest number with digit D and D] down to multiple of 11] \
+\ output [round [lowest number with digit D and D] down to multiple of 11] \
+
+D: 1d10-1
+\ output [highest number with digit D and D] named "high" \
+\ output [lowest number with digit D and D] named "low" \
+
+function: get lower than B:n from A:s {
+ if A < B {
+  result: A
+ }
+}
+function: get higher than B:n from A:s {
+ if A>B {
+  result: A
+ }
+}
+
+D: 1d10-1
+\ output {[get lower than 3 from D],[get higher than 6 from D]} \
+
+
+CFT: 00 \critical_fail_threshold\
+FFT: 11 \force_fail_threshold\
+FST: 88 \force_success_threshold\
+CST: 99 \critical_success_threshold\
+
+function: calc roll R:n goal G:n {
+ if R >= CST {
+  result: +3
+ }
+ if R >= FST {
+  result: +2
+ }
+ if R <= CFT {
+  result: -3
+ }
+ if R <= FFT {
+  result: -2
+ }
+ if R >= G {
+  result: +1
+ }
+ if R < G {
+  result: -1
+ }
+}
+
+G: 55
+output [calc roll [highest number with digit 1d10-1 and 1d10-1] goal G] named "CR [G] Adv"
+output [calc roll [lowest number with digit 1d10-1 and 1d10-1] goal G] named "CR [G] Dis"

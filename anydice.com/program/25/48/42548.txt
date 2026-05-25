@@ -1,0 +1,41 @@
+\ Test Difficulty - 3..10 \
+TDF: 6
+TDFRANGE: {3..10}
+\ Generate Vampire Masquerade Sequence \
+function: genvmseqdf DIFF:n {
+  SEQ: {-1}
+  loop N over {2..10}{
+    if N < DIFF { SEQ: {SEQ, 0} }
+    else { SEQ: {SEQ, 1} }
+    \ output N@SEQ named "{N}" \
+  }
+  result: SEQ
+}
+
+\ Group -2, -3 etc into -1 \
+function: groupbotch SUMRES:n {
+  if SUMRES < 0 { result: -1 }
+  else { result: SUMRES }
+}
+function: groupsucc SUMRES:n {
+  if SUMRES > 0 { result: 1 }
+  else { result: SUMRES }
+}
+function: make negatives be minusone of POOL:s {
+  RSQ: {}
+  loop N over {1..#POOL} {
+    if N@POOL < 0 { RSQ: {RSQ, -1} }
+    else { RSQ: {RSQ, N@POOL} }
+  }
+  result: RSQ
+}
+loop D over {1..#TDFRANGE}{
+  TDFAUX: D@TDFRANGE
+  VMS: [genvmseqdf TDFAUX]
+  output 1 named "〰️ DIFFICULTY [TDFAUX] 〰️"
+  loop N over {1..20}{
+    \ output [groupbotch NdVMS] named "🎲[N] / [TDFAUX] 🆚" \
+     output [groupbotch NdVMS] named "🎲[N]🆚[TDFAUX]🚧" 
+    \ output [groupsucc [groupbotch NdVMS]] named "[N]🆚[TDFAUX]" \
+  }
+}

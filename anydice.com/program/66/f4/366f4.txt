@@ -1,0 +1,17 @@
+function: hit HIT:d crit CRIT:d atk DICE:n MOD:n ac AC:n res RES:n {
+ ATK: DICE+MOD
+ if (ATK>=AC+10)|(DICE=20 & DICE+MOD>=AC) {result: CRIT-RES}
+ if ATK>=AC|(DICE=20 & DICE+MOD>AC-10)|(DICE=1 & DICE+MOD>=AC+10) {result: HIT-RES}
+ result: 0
+}
+
+MOD: 9
+AC: 18
+RES: 0
+DMG_HIT: d8+4
+DMG_CRIT: DMG_HIT*2
+
+loop RES over {0..5} {
+output [hit 2d8+4 crit (2d8+4)*2 atk d20 MOD ac AC res RES] named "Vicious Swing vs AC [AC] and resistance [RES]"
+output [hit d8+4 crit (d8+4)*2 atk d20 MOD ac AC res RES]+[hit d8+4 crit (d8+4)*2 atk d20 MOD-5 ac AC res RES] named "2 Strikes vs AC [AC] and resistance [RES]"
+}

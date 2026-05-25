@@ -1,0 +1,24 @@
+\ result of a roll equals lowest rolled value below TN, +1 per additional die below TN \
+
+set "position order" to "lowest first"
+
+function: TN:n mos ROLL:s {
+ if 1@ROLL > TN {
+  \ no successes at all \
+  result: 0
+ }
+ R: 1@ROLL
+ loop P over {2..#ROLL} {
+  if P@ROLL > TN {
+   \ first failure encountered \
+   result: R + P - 2
+  }
+ }
+ \ total success \
+ result: R + #ROLL - 1
+}
+
+TN: 5
+loop N over {1..5} {
+ output [TN mos Nd10] named "[N]d vs [TN]"
+}

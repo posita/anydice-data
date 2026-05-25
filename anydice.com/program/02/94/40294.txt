@@ -1,0 +1,19 @@
+function: roll ROLL:s vs TARGET:n with optional REROLL:d reroll {
+  SUM: ROLL + 0  \ force the sequence to be summed into a single number! \
+  if SUM >= TARGET {
+    \ no need to reroll, since we've already met the target \
+    result: 1
+  } else {
+    \ discard and reroll the lowest die \
+    REST: {1..#ROLL-1}@ROLL
+    result: REST + REROLL >= TARGET
+  }
+}
+
+loop TARGET over {15 .. 25} { 
+  output 7d6 >= TARGET named "[TARGET]" 
+  output [roll 7d6 vs TARGET with optional d6 reroll] named "re"
+  output 6d6 + 1d{5,2,3,4,5,6} >= TARGET named "f15"
+  output 6d6 + 1d{1,2,3,5,5,6} >= TARGET named "f45"
+
+}

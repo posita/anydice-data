@@ -1,0 +1,42 @@
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  if ((#ROLL)@ROLL) >= MIN {
+     result: ROLL + 0
+  } else {
+    result: (({1..#ROLL-1}@ROLL) + REROLL)
+  }
+}
+
+
+DUELCRIT: 5
+CRIT: 4
+DUELHIT: 3
+HIT: 2
+GRAZE: 1
+MISS: 0
+
+
+function: attack ROLLS:s plus BONUS:n against AC:n {
+    HIGHEST: (1 @ ROLLS)
+    ATK: HIGHEST + BONUS
+    if HIGHEST >= 19{ \ crit \
+        if ATK >= (AC + 5){ result: DUELCRIT }
+        else { result: CRIT }
+    }
+    else {
+        if ATK >= AC {
+            if ATK >= (AC+5) { result: DUELHIT }
+            else { result: HIT }
+        }
+        else {
+            if ATK > (AC - 10) { result: GRAZE }
+            else {
+                result: MISS
+            }
+        }
+    }
+}
+
+
+loop AC over {15..35} {
+    output [attack 3d20 plus 9 against AC] named "[AC]"
+}

@@ -1,0 +1,85 @@
+\ Old Storyteller rules (Original World of Darkness) die rolling       \
+
+\ Created by Alan De Smet in 2014. Released into the public domain to  \
+\ the fullest extent possible.  This comes WITHOUT ANY WARRANTY.  You  \
+\ are asked, but not required, to credit Alan De Smet.                 \
+
+\ Optimized for speed (and also released into the public domain) by    \
+\ Ilmari Karonen in 2018. To convert existing code to use the faster   \
+\ version, replace [owod roll Nd10 ...] with [owod roll N dice ...].   \
+
+\ Input:                                                               \
+\ COUNT - Number of d10s to roll.                                      \
+\ TARGET - the target number. Only "2-10" are meaningful.              \
+\ SPECIALIZED - "1" if specialized, "0" if not                         \
+\ WILLPOWER - "1" if willpower is spent, "0" if not                    \
+
+\ Output:                                                              \
+\ -1    Botch. No successes, at least one 1                            \
+\  0    Failure                                                        \
+\  1+   Number of successes after subtracting a success for each       \
+\             1 rolled.  If at least one success was rolled, 1s cannot \
+\             take this below 0.                                       \
+
+
+\ Example:                                                             \
+\ [owod roll 5 dice target 8 specialized 0 willpower 1]                \
+
+function: owod roll COUNT:n dice target TARGET:n specialized SPECIALIZED:n willpower WILLPOWER:n {
+  \ I define a custom 10-sided die with the sides relabeled as below:  \
+  \  * The sides numbered 1 and 10 stay as they are.                   \
+  \  * All sides above 1 but below TARGET are relabeled as 2.          \
+  \  * Sides from TARGET to 9 are relabeled as 9.                      \
+  \ This relabeling does not affect the outcome of the roll, since the \
+  \ probability of each die meeting the target (and of rolling a nat 1 \
+  \ or 10) stays the same. Thus, we can pass these relabeled dice into \
+  \ Alan De Smet's original code below instead of normal d10s to make  \
+  \ it run faster without changing either the code or the results!     \
+  RELABELED: {1, 2:(TARGET-2), 9:(10-TARGET), 10}
+  result: [owod roll COUNT d RELABELED target TARGET specialized SPECIALIZED willpower WILLPOWER]
+}
+
+\ This is the original implementation by Alan De Smet, without the die \
+\ relabeling optimization described above:                             \
+function: owod roll ROLL:s target TARGET:n specialized SPECIALIZED:n willpower WILLPOWER:n {
+  \ I use "BOTCH" to mean a roll of 1, which isn't how  Storyteller    \
+  \ defines it. A super success is a roll of 10 when specialized.      \
+
+  \ Build up lists of which numbers are successes, botches, and  \
+  \ super successes.                                             \
+  MAXSUCCESS: 10
+  SUPERSUCCESSROLLS: {11}
+  if SPECIALIZED {
+    MAXSUCCESS: 9
+    SUPERSUCCESSROLLS: {10}
+  }
+  SUCCESSROLLS: {TARGET..MAXSUCCESS}
+  BOTCHROLLS: {1}
+
+  \ Count how many of each type (successes, botches, super successes) \
+  SUPERSUCCESSES: [count SUPERSUCCESSROLLS in ROLL]
+  SUCCESSES: [count SUCCESSROLLS in ROLL]
+  BOTCHES: [count BOTCHROLLS in ROLL]
+
+  \ How many successes does this count as? \
+  FINALSUCCESSES: SUCCESSES+(SUPERSUCCESSES*2)+WILLPOWER
+
+  \ If zero successes and at least one botch, the roll is a botch \
+  if (FINALSUCCESSES = 0) & (BOTCHES > 0) {
+	\ If you want to know how badly you botched, uncomment the \
+	\ next line: \
+	\ result: -BOTCHES \
+    result: -1
+  }
+  if BOTCHES > FINALSUCCESSES {
+    \ If there are more botches than successes, then we simply fail \
+    result: 0
+  }
+   result: FINALSUCCESSES-BOTCHES
+   \result: 0\
+}
+ 
+
+loop N over {1..10} {
+ output [owod roll N dice target 10 specialized 0 willpower 0]
+}

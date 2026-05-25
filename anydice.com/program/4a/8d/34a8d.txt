@@ -1,0 +1,38 @@
+\Diff is the skill level plus modifiers minus the DC of the check\
+function: skillcheck DIFF {
+ result: [roll 2d{0..9}] + DIFF
+}
+
+function: roll YY:s {
+ if 1@YY = 0 {result: -18}
+ if 2@YY = 9 {result: 18}
+ if 1@YY = 2@YY {result: 9}
+ result: 1@YY - 2@YY
+}
+
+loop X over {-29..28} {
+ C : [skillcheck X]
+ 
+ \choose one to uncomment and put the data to "transposed"\
+ 
+ \all types of success vs all types of failure\
+ output (C > 0) named "[X]"
+ 
+ \major failure\
+ \output (C <= -18) named "[X]"\
+
+ \moderate failure\
+ \output (C <= -3) & (C > -18) named "[X]"\ 
+
+ \minor failure\
+ \output (C <= 0) & (C > -3) named "[X]"\ 
+ 
+ \minor success\
+ \output (C > 0) & (C < 3) named "[X]"\ 
+ 
+ \moderate sucess\
+ \output (C >= 3) & (C < 18) named "[X]"\ 
+
+ \major sucess\
+ \output (C >= 18) named "[X]"\
+}

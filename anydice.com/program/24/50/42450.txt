@@ -1,0 +1,18 @@
+STR: [highest 3 of 4d6]
+DEX: [highest 3 of 4d6]
+CON: [highest 3 of 4d6]
+INT: [highest 3 of 4d6]
+WIS: [highest 3 of 4d6]
+CHA: [highest 3 of 4d6]
+TOTAL: STR+DEX+CON+INT+WIS+CHA
+
+function: reduce X:n {if X > 75 {result: (75-X)/6-1} result: 0}
+function: stabilize X:n {if X < 69 {result: (69-X)/6+1} result: [reduce X]}
+FIX: [stabilize TOTAL]
+
+function: bottom X {if X = 3 {result: 3} result: [highest of 4 and X+FIX]}
+function: top X {if X = 18 {result: 18} result: [lowest of 17 and X+FIX]}
+function: bound X:n {if X > 9 {result: [top X]} result: [bottom X]}
+
+output STR named "4d6 keep 3"
+output [bound STR] named "+1/-1 all stats until 69-75 total"

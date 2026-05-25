@@ -1,0 +1,48 @@
+\ Simulate TFC Downtime Pit Fighting \
+\ See https://docs.google.com/document/d/1eORYzEfHq5sufSivMqVS_0ZperALzkBLh9CM0kbmjmw/edit#heading=h.jzs0sq1779q3 \
+
+LEVEL: 8       \ character level \
+DC: 12+1d12         \ crime difficulty class \
+REWARD: 50    \ crime reward gold (per level) \
+CRIMINAL: 1d4  \ bonus for criminal background, or zero \
+COST: 0       \ research cost to carry out crime \
+ATHLETICS: 8
+ACROBATICS: 8 \ replaced with an attack roll \
+CONSTITUTION: 3+1d12
+DTVALUE: 1    \ value to character (in gold) of one day of DT \
+
+\ Calculate the value of attempting a pit fight \
+function: fight SUCCESS:n PARTIAL:n ESC:n {
+  if SUCCESS { result: 3*REWARD*LEVEL - COST }
+  if PARTIAL { result: 2*REWARD*LEVEL - COST }
+  if ESC     { result: 1*REWARD*LEVEL - COST }
+  result: -(REWARD + (REWARD/25)* 7 * DTVALUE) \ NEEDS FIXIN \
+}
+
+\ Downtime crime rolls \
+RATH: d20 + ATHLETICS
+RACRO: d20 + ACROBATICS
+RCON: d20 + CONSTITUTION
+
+\ Pass/fail for the rolls against fight difficulty \
+CS: RATH >= DC
+CP: RACRO >= DC
+CT: RCON >= DC
+
+\ Was the fight a success (three passes)? \
+SUCCESS: CS & CP & CT  
+
+\ Was it a partial success (two passes)? \
+PARTIAL: (CS & CP) | (CS & CT) | (CP & CT)
+
+\ Did you escape (one pass)? \
+ESC: CS | CP | CT
+
+\ Output the total expected value of the fight \
+\ This will also show the probability of each outcome \
+output [fight SUCCESS PARTIAL ESC] named "expectation"
+
+\ Details \
+output ESC named "one win (or none)"
+output PARTIAL named "two wins"
+output SUCCESS named "three wins"

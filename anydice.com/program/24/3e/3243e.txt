@@ -1,0 +1,64 @@
+\Expects all flags, creates TOHIT sequence\
+function: attack COUNT:n times  for NUM:n of SIZE:n plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n gwm GWM:n pam PAM:n bonus actions BONUS_ACTIONS:n {
+	result: [attack COUNT times for NUM of SIZE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC rolling COUNTd20 gwm GWM pam PAM bonus actions BONUS_ACTIONS]
+}
+
+\All flags off, creates TOHIT sequence\
+function: attack COUNT:n times for NUM:n of SIZE:n plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n {
+	result: [attack COUNT times for NUM of SIZE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC rolling COUNTd20 gwm 0 pam 0 bonus actions 0]
+}
+
+
+function: attack COUNT:n times for NUM:n of SIZE:n plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n rolling TOHIT:s gwm GWM:n pam PAM:n bonus actions BONUS_ACTIONS:n {
+	RET: 0
+	ANY_HIT: 0
+	EXTRA_ACTIONS: BONUS_ACTIONS
+	if GWM {BONUS_DAMAGE: BONUS_DAMAGE + 10}
+	
+	
+	loop I over {1..COUNT} {
+		ATTACK_ROLL: I@TOHIT
+		\check for a crit first then apply GWM vs AC of applicable\
+		CRIT: ATTACK_ROLL >= CRIT_RANGE
+		
+		if GWM {ATTACK_ROLL: [highest of 1 and ATTACK_ROLL-5]}
+		
+		HIT: CRIT | ATTACK_ROLL >= AC
+		ANY_HIT: ANY_HIT | HIT
+			
+		if HIT {
+			RET: RET + NUMdSIZE + BONUS_DAMAGE
+			
+			if CRIT {
+				if GWM & EXTRA_ACTIONS > 0 {
+					RET: RET + [attack 1 times for NUM of SIZE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC]
+					EXTRA_ACTIONS: EXTRA_ACTIONS - 1
+				}
+				
+				RET: RET + CRIT_DAMAGE + 1dSIZE
+			}
+		}
+	}
+	
+	if ANY_HIT & PAM & EXTRA_ACTIONS > 0 {
+				RET: RET + [attack 1 times for 1 of 4 plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC]
+				EXTRA_ACTIONS: EXTRA_ACTIONS - 1
+			}
+	
+	result: RET
+}
+
+BONUS_DAMAGE: 0
+CRIT_RANGE: 20
+AC: 0
+
+
+\You can only run one of these at a time for...reasons?\
+\output [attack 4 times for 1 of 6 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 0] named "Dual Wield x4"\
+\output [attack 3 times for 1 of 10 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "Longsword 2H"\
+\output [attack 3 times for 2 of 6 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "GreatSword"\
+\output [attack 3 times for 2 of 6 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 0 bonus actions 1] named "GreatSword+GWM"\
+\output [attack 3 times for 1 of 12 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "GreatAxe"\
+\output [attack 3 times for 1 of 12 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 0 bonus actions 1] named "GreatAxe+GWM"\
+\output [attack 3 times for 1 of 8 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 1 bonus actions 1] named "Spear+PAM"\
+output [attack 3 times for 1 of 10 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 1 bonus actions 1] named "Halberd+PAM+GWM"

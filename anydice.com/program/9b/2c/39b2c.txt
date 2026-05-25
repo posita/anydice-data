@@ -1,0 +1,42 @@
+set "explode depth" to 3
+
+
+function: miss DIE:n {
+  if DIE = 1 { result: 0 }
+  result: DIE
+}
+
+function: ROLL:n plus P:n {
+  if ROLL = 0 { result: 0 }
+  result: ROLL + P
+}
+
+
+function: maybe PRIMARY:n REST:d {
+  if PRIMARY = 0 { result: 0 }
+  result: PRIMARY + REST
+}
+
+function: nimble N:n of DIE:d {
+  PRIMARY: [miss [explode DIE]]
+  if N = 1 { result: PRIMARY }
+  result: [maybe PRIMARY (N-1) d DIE]
+}
+
+function: nimble N:n of DIE:d plus P:n {
+  RESULT: [nimble N of DIE]
+  result: [RESULT plus P]
+}
+
+function: nimble COUNT:n x N:n of DIE:d plus P:n {
+  SUM: [nimble N of DIE plus P]
+  loop I over {1..COUNT-1} {
+      SUM: SUM + [nimble N of DIE plus P]
+
+  }
+  result: SUM
+}
+
+output [nimble 1 of d4] named "1d4"
+output [nimble 2 of d4 plus 2] named "1d4+2"
+output [nimble 2 x 2 of d4 plus 2] named "(2x) 1d4+2"

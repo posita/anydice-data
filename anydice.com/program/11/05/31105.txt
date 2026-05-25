@@ -1,0 +1,54 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+function: cast ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:CRIT}
+ if ROLL = 20{
+  if ROLL+SAV>=DC{result:HIT}
+  result:HIT
+ }
+ if ROLL+SAV>=DC{result:HIT}
+ result: CRIT
+}
+function: evasion ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:HIT}
+ if ROLL = 20{
+  if ROLL+SAV>=DC{result:MISS}
+  result:MISS
+ }
+ if ROLL+SAV>=DC{result:MISS}
+ result:HIT
+}
+function: attack ROLL:n sum ACC:s vs AC:s{
+ if ROLL = 1{result: MISS}
+ if ROLL = 20{
+  if ROLL + ACC >= AC{result:CRIT}
+  result: HIT
+ }
+ if ROLL+ACC >= AC{result:HIT}
+ result: MISS
+}
+MISSDAMAGE: 0
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: magic for MR:n{
+ if MR = CRIT{
+  result: SPELL
+ }
+ if MR = HIT{
+  result: SPELL/2
+ }
+ result: MISSDAMAGE
+}
+HITDAMAGE: 2d6+3
+CRITICALDAMAGE: 4d6+3
+SPELL: 8d6
+output [magic for [cast d20 sum d{-1..5} vs 13]] named "no evasion"
+output [magic for [evasion d20 sum d{-1..5} vs 13]] named "evasion"

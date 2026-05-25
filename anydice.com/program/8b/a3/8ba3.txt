@@ -1,0 +1,33 @@
+\This is dice type for attribute 1\
+A: 1d20
+\This is dice type for attribute 2\
+B: 1d20
+\This is dice type for attribute 3\
+C: 1d20
+\This indicates Number of skilldice\
+SKILLNUMBER: 2
+\This is the dice type of the skilldice\
+SKILLDICE: d20
+\This is the Attribute TN you roll against\
+TNA: 9
+\This is the Skill TN you roll against\
+TNS: 5
+
+
+\This function explodes the skilldice\
+function: explode R:n on N:n {
+ if N = R { result: 1 + [explode R on SKILLDICE] }
+ result: N <= TNS
+}
+EXPLODED: [explode 1 on SKILLDICE]
+
+\This function compares Attrib 1 to 3 against the Attribute TN\
+function: compare ATONE:n and ATTWO:n and ATTHREE:n {
+if (ATONE <= TNA) & (ATTWO <= TNA) & (ATTHREE <= TNA) {result: 3}
+if (ATONE <= TNA) & (ATTWO <= TNA) {result: 2}
+if [lowest of ATONE and ATTWO] <= TNA {result: 1}
+result: 0
+}
+
+\Finally the output function which yields the result\
+output [lowest of [compare A and B and C] + SKILLNUMBERdEXPLODED and 10] named "Attrib [A], [B], [C]; and skill [SKILLNUMBER][SKILLDICE]"

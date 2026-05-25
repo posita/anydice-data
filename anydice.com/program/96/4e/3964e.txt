@@ -1,0 +1,75 @@
+\DAMAGE MODIFIERS AND COMBINATIONS\
+
+DMGMOD: 4
+PROFBONUS: 3
+ATKMOD: DMGMOD + PROFBONUS
+MISSDMG: 0 \This allows support for the "Graze" Weapon mastery property. Simply change 0 to the appropriate modifier\
+WEAPDMG_A: 1d6 
+WEAPDMG_B: 1d6 
+BASICDMG_A: WEAPDMG_A + DMGMOD
+BASICDMG_B: WEAPDMG_B + DMGMOD 
+  
+\Bonus Damage Modifiers [Hunter's Mark, Smites, etc.]. Will be added to EACH HIT!\
+BONUSDMG_A: 0
+BONUSDMG_B: 0
+
+MISS:0  NO:0
+HIT:1   YES:1 
+
+ADVANTAGE: NO \CASE SENSITIVE. "YES" OR "NO"\
+
+AC: d{10..20} \MAKE SURE YOU SET YOUR AC TARGETS CORRECTLY!\
+ 
+
+\ATTACK ROLL SECTION\
+function: attack ROLL:n vs AC:n {
+ if ROLL + ATKMOD >= AC { result: HIT}
+ if ROLL + ATKMOD < AC { result: MISS}
+}
+
+ if ADVANTAGE = YES {
+  output [highest of [attack d20 vs AC] and [attack d20 vs AC]] named "Hit chance with advantage vs AC"
+}
+ else if ADVANTAGE = NO {
+ output [attack d20 vs AC] named "Hit chance vs AC"
+}
+
+
+\DAMAGE SECTION\
+function: damage for ATTACKRESULT:s {
+D: 0
+  loop A over ATTACKRESULT {
+   if A = HIT 
+     { D: BASICDMG_A }
+   else if A = MISS 
+     { D: D + MISSDMG }
+   if !A = MISS {D: D + [bonusdmg for ATTACKRESULT]}
+}
+result: D
+}
+function: bonusdmg for ATTACKRESULT:d {
+  result: BONUSDMG_A
+}
+if ADVANTAGE = NO {
+ function: attack {
+  result: [damage for [attack d20 vs AC]]
+ }
+  function: N:n attack {
+ result: [damage for Nd[attack d20 vs AC]]
+ }
+}
+if ADVANTAGE = YES {
+ function: attack {
+  result: [damage for [highest of [attack d20 vs AC] and [attack d20 vs AC]]]
+ }
+  function: N:n attack {
+ result: [damage for Nd[highest of [attack d20 vs AC] and [attack d20 vs AC]]]
+ }
+}
+
+
+\OUTPUT SECTION: INPUT OUTPUT FUNCTION BELOW: "output Nd[attack] named "______""\
+output  d[attack] named "Weapon attack x1"
+output  2d[attack] named "Weapon attack x2"
+output  3d[attack] named "Weapon attack x3"
+output  4d[attack] named "Basically TWF + FoB"

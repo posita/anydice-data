@@ -1,0 +1,56 @@
+HANDDICE: 2d{2,2..4}
+TRANQDICE: 1d{2,2..4}
+HANDADD: 4d{5,5,5,5,5..12}+3d{4,4,4,4..10}
+TRANQADD: 4d{5,5,5,5,5..12}+2d{3+3+3..6}
+HANDFLAT: 5+1
+TRANQFLAT: 5+2+1
+HANDSAVE: 0
+HANDDC: 10
+HANDFAIL:0
+TRANQSAVE: 1d8
+TRANQDC: 18
+TRANQFAIL: 0
+TOHIT: 5+3+2
+HANDCRIT: 3
+TRANQCRIT: 1
+ENEMYAC: 20
+ENEMYSAVE: 5
+ATTACK: [highest 1 of 3d20]
+SAVE: 1d20
+
+function: advantage SET:d {
+ result: [highest 1 of 2d(SET)]
+}
+
+function: did ATTACK:d crit CHECK:n with MOD:n {
+ if CHECK>=(20-MOD) {
+  result: [advantage 2d(ATTACK)]
+ } else {
+  result: [advantage ATTACK]
+ }
+}
+
+function: save DC:n for EFFECT:d with SAVE:n and FAIL:n using CHECK:n {
+ if CHECK<=(1+FAIL) {
+  result: 1@[sort EFFECT]
+ } if (CHECK+SAVE)<DC {
+  result: EFFECT
+ } else {
+  result: EFFECT/2
+ }
+}
+
+function: deal DICE:d plus FLAT:n and EFFECT:d with DC:n against AC:n and BONUS:n using SAVE:n with CRITFAIL:n and ATTACK:n plus TOHIT:n and TOCRIT:n {
+ if (ATTACK+TOHIT)>=AC {
+  result: [did DICE crit ATTACK with TOCRIT]+FLAT+[save DC for EFFECT with BONUS and CRITFAIL using SAVE]
+ } else {
+  result: 0
+ }
+}
+
+output [advantage HANDDICE+HANDADD]+HANDFLAT named "Hand Hit"
+output [advantage TRANQDICE+TRANQADD]+TRANQFLAT+[save TRANQDC for TRANQSAVE with ENEMYSAVE and TRANQFAIL using SAVE] named "Tranq Hit"
+output [advantage 2d(HANDDICE+HANDADD)]+HANDFLAT named "Hand Crit"
+output [advantage 2d(TRANQDICE+TRANQADD)]+TRANQFLAT+[save TRANQDC for TRANQSAVE with ENEMYSAVE and TRANQFAIL using SAVE] named "Tranq Crit"
+output [deal HANDDICE+HANDADD plus HANDFLAT and HANDSAVE with HANDDC against ENEMYAC and ENEMYSAVE using SAVE with HANDFAIL and ATTACK plus TOHIT and HANDCRIT] named "Hand Attack"
+output [deal TRANQDICE+TRANQADD plus TRANQFLAT and TRANQSAVE with TRANQDC against ENEMYAC and ENEMYSAVE using SAVE with TRANQFAIL and ATTACK plus TOHIT and TRANQCRIT] named "Tranq Attack"

@@ -1,0 +1,72 @@
+set "maximum function depth" to 20
+CHARGE: 1
+AC: 30
+REF: 28
+ATK: +28
+
+function: offhand ROLL:n {
+  if ROLL = 20 {
+    result: 6 + 35 + 3d6
+  } else {
+    if ROLL = 1 {
+      result: 0
+    } else {
+      if ROLL + ATK >= AC {
+        result: 1d6+35
+      } else {
+        result: 0
+      }
+    }
+  }
+}
+
+function: mhatk {
+  if CHARGE {
+    result: ATK + 1
+  } else {
+    result: ATK
+  }
+}
+
+function: mhdam {
+  if CHARGE {
+    result: 2d8
+  } else {
+    result: 1d8
+  }
+}
+
+function: full ROLL:n with VULN:n {
+  if ROLL = 20 {
+    result: [maximum of [mhdam]] + 26 + VULN + 3d6 + [offhand d20]
+  } else {
+    if ROLL = 1 {
+      result: 0
+    } else {
+      if [mhatk] + ROLL >= REF {
+        result: [mhdam] + 26 + VULN + [offhand d20]
+      } else {
+        result: 0
+      }
+    }
+  }
+}
+
+function: maxhp HP:n {
+  if HP < 0 {
+    result: 0
+  } else {
+    result: HP
+  }
+}
+
+output [full d20 with 0] named "first hit"
+output [full d20 with 5] named "subsequent hit"
+HPA: [maxhp 152 - [full d20 with 0]]
+output HPA named "round 1"
+HPB: [maxhp HPA - [full d20 with 5]]
+output HPB named "round 2"
+HPC: [maxhp HPB - [full d20 with 5]]
+output HPC named "round 3"
+HPD: [maxhp HPC - [full d20 with 5]]
+output HPD named "round 4"

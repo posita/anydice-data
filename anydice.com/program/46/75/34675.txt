@@ -1,0 +1,133 @@
+function: disadv {result: [lowest of 1d20 and 1d20]}
+function: adv {result: [highest of 1d20 and 1d20]}
+function: eadv {result: [highest of 1d20 and [adv]]}
+function: gwf N:n {result: 1d{1dN,1dN,3..N:N}}
+output 3d8
+DICEDAMAGE: 1d6+1d6
+FLATDAMAGE: 18
+HITBONUS: 11
+AC: 22
+HIT: 1d20
+ATTACKS: 4
+OPROHB: 0
+OPROHF: 0
+CRIT: 18
+CRITB: 1d6
+
+function: attack B:n HIT:n DD:d FD:n {
+  if HIT >= CRIT {
+    \on crit\
+    result: DD + FD + DD + CRITB
+  }
+  if HIT + B >= 9 {
+    \on hit\
+    result: DD + FD
+  } else {
+    \on miss\
+    result: 0
+  }
+}
+
+function: attackac B:n AC:n HIT:n DD:d FD:n {
+  result: [attack B-AC+9 HIT DD FD]
+}
+
+function: oproh OHB:n OHF:n ATK:n {
+  if ATK = 0 {
+    result: 0
+  }
+  result: ATK + OHB * (1 + (1d20>=CRIT)) + OHF
+}
+
+function: oprohf OHB:n ATK:n {
+  if ATK = 0 {
+    result: 0
+  }
+  result: ATK + OHB
+}
+
+function: atk {
+   if AC = 0 {result: [attack HITBONUS HIT DICEDAMAGE FLATDAMAGE]}
+   else {result: [attackac HITBONUS AC HIT DICEDAMAGE FLATDAMAGE]}
+}
+
+function: atk AC:n HIT:d {
+   if AC = 0 {result: [attack HITBONUS HIT DICEDAMAGE FLATDAMAGE]}
+   else {result: [attackac HITBONUS AC HIT DICEDAMAGE FLATDAMAGE]}
+}
+
+function: atkh AC:n H:n HIT:d {
+   if AC = 0 {result: [attack H HIT DICEDAMAGE FLATDAMAGE]}
+   else {result: [attackac H AC HIT DICEDAMAGE FLATDAMAGE]}
+}
+
+function: atkd D:d HIT:d {
+   if AC = 0 {result: [attack HITBONUS HIT D FLATDAMAGE]}
+   else {result: [attackac HITBONUS AC HIT D FLATDAMAGE]}
+}
+
+function: atkfd D:d HIT:d {
+   if AC = 0 {result: [attack HITBONUS HIT DICEDAMAGE D]}
+   else {result: [attackac HITBONUS AC HIT DICEDAMAGE D]}
+}
+
+function: extr D:n N:n {result: N@D}
+
+function: hitshelper AC:n HIT:d {
+   CRITB: 1
+   if AC = 0 {result: ATTACKSd[attack HITBONUS HIT 0 10]}
+   else {result: ATTACKSd[attackac HITBONUS AC HIT 0 10]}
+}
+
+function: hits {
+   result: [extr [hitshelper AC HIT] 1]
+}
+
+function: crits {
+   result: [extr [hitshelper AC HIT] 2]
+}
+
+function: resolvedam HITFUNC:n {
+   result: [highest of 0 and [extr HITFUNC 1]-[extr HITFUNC 2]]d(DICEDAMAGE+FLATDAMAGE)+[lowest of [extr HITFUNC 1] and [extr HITFUNC 2]]d(2dDICEDAMAGE+FLATDAMAGE+CRITB)
+}
+
+\output [resolvedam [highest of 0 and [hitshelper 0 [adv]]-20]]\
+
+output [hits] named "Hits"
+output [crits] named "Crits"
+output [oproh OPROHB OPROHF ATTACKSd[atk]] named "DPR"
+
+\function: rr one D:n DD:d {
+  if D = 1  {
+    result: DD
+  } 
+  result: D
+}
+function: two one D:n {
+  if D = 1  {
+    result: 2
+  } 
+  result: D
+}\
+
+function: piercercorrection A:n B:n C:n AT:d BT:d CT:d {
+  if A <= B & A <= C {
+    result: AT-A
+  }
+  if B <= C {
+    result: BT-B
+  }
+  result: CT-C
+}
+
+function: piercercorrection A:n B:n AT:d BT:d {
+   result: [piercercorrection A B 10000 AT BT 10000]
+}
+
+\CRITB: 1d10
+output [attackac 16-5 22 [eadv] 1d10+8d6 5+3+10] + [piercercorrection 1d10 (8@8d6) 1d10 1d6]  * (1-(1d20>=CRIT)) + [piercercorrection (3@3d10) (16@16d6) 1d10 1d6]  * ((1d20>=CRIT)) named "+3 8d6"
+output [attackac 16-5 22 [eadv] 1d10+1d8+8d6 5+3+10] + [piercercorrection 1d10 1d8 (8@8d6) 1d10 1d8 1d6]  * (1 - (1d20>=CRIT)) + [piercercorrection (3@3d10) (2@2d8) (16@16d6) 1d10 1d8 1d6]  * ((1d20>=CRIT)) named "+3 8d6 + PS"
+
+CRITB: 1d8
+output [attackac 15-5 22 [eadv] 2d8+8d6 5+2+10] + [piercercorrection 2d8 (8@8d6) 1d8 1d6]  * (1-(1d20>=CRIT)) + [piercercorrection (5@5d8) (16@16d6) 1d8 1d6]  * ((1d20>=CRIT)) named "OS+2 8d6"
+output [attackac 15-5 22 [eadv] 2d8+1d8+8d6 5+2+10] + [piercercorrection 3d8 (8@8d6) 1d8 1d6]  * (1 - (1d20>=CRIT)) + [piercercorrection (7@7d8) (16@16d6) 1d8 1d6]  * ((1d20>=CRIT)) named "OS+2 8d6 + PS"\

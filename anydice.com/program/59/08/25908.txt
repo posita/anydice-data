@@ -1,0 +1,40 @@
+function: dicebucket PARAM_AD:s PARAM_DD:s {
+  AD: PARAM_AD
+  DD: PARAM_DD
+
+  \ In AnyDice, dice sequences are automatically sorted from highest to lowest die \
+  if 1@AD > 1@DD { result:  ( AD > 1@DD )}
+  if 1@DD > 1@AD { result: -( DD > 1@AD )}
+  
+  \ At this point we know the highest die of first pool and highest die of second pool are equal \
+  \ So we must get rid of them \
+
+  \ Cases when one or both of the dice pools is going to be depleted by that operation \
+  if ( #AD = 1 ) & ( #DD = 1 ) { result: 0 }
+  if #DD = 1 { result:  ( #AD - 1 )}
+  if #AD = 1 { result: -( #DD - 1 )}
+
+  \ At this point we know none of the two dice pools is going to be depleted \
+
+  \ First getting rid of the head of each sequence \
+  NEW_AD: {} 
+  NEW_DD: {}
+  loop I over { 2..#AD } { NEW_AD: { NEW_AD, I@AD }}
+  loop I over { 2..#DD } { NEW_DD: { NEW_DD, I@DD }}
+  
+  \ Then recurse \
+  result: [ dicebucket NEW_AD NEW_DD ] 
+}
+
+output [ dicebucket 3d10 3d10 ] named "dicebucket"
+\ output [ dicebucket 4d10 3d10 ] named "dicebucket [+]"\
+\ output [ dicebucket 5d10 3d10 ] named "dicebucket [+][+]"\
+\ output [ dicebucket 4d10 4d10 ] named "dicebucket [+][-]"\
+\ output [ dicebucket 5d10 4d10 ] named "dicebucket [+][+][-]"\
+
+
+
+
+
+
+

@@ -1,0 +1,122 @@
+\Inputs\
+ATK: 4 \My Strenght Modifier\
+LVL: 5 \My Fighter Level\
+AC: 17 \Target AC\
+BLESS: 0 \Am I blessed?\
+ADV: 0 \Do I have advantage?\
+DIS: 0 \Do I have disadvantage\
+GWM: 1 \Do I have Great Weapon Master Feat\
+
+\Set Proficiency\
+if LVL < 5 { PROF: 2 }
+if LVL >=5 & LVL <9 {PROF: 3}
+if LVL >=9 & LVL <13 {PROF: 4}
+if LVL >=13 & LVL <17 {PROF: 5}
+if LVL >=17 {PROF: 6}
+\Set Extra Attack\
+if LVL <5 {EXTRATK: 0}
+if LVL >=5 & LVL <11 {EXTRATK: 1}
+if LVL >=11 & LVL <20 {EXTRATK: 2}
+if LVL = 20 {EXTRATK: 3}
+
+\GWF Damage Dice\
+DSIXGWF: d{1d6, 1d6, 3, 4, 5, 6} 
+DEIGHTGWF: d{1d8, 1d8, 3, 4, 5, 6, 7, 8}
+
+\Hits\
+if BLESS = 1 {
+ BHIT: 1d4
+}
+else {
+ BHIT: 0
+}
+if ADV = DIS {
+ HIT: 1d20 + BHIT + ATK + PROF >= AC
+ NHIT: 1d20 + BHIT + ATK + PROF < AC
+ PHIT: 1d20 + 1d8+ BHIT + ATK + PROF >= AC
+ GHIT: 1d20 + BHIT + ATK + PROF - 5 >= AC
+ GPHIT: 1d20 + 1d8 + BHIT + ATK + PROF - 5 >= AC
+}
+if ADV = 1 & DIS = 0 {
+ HIT: [highest of 1d20 and 1d20] + BHIT + ATK + PROF >= AC
+ NHIT: [highest of 1d20 and 1d20] + BHIT + ATK + PROF < AC
+ PHIT: [highest of 1d20 and 1d20] + 1d8 + BHIT + ATK + PROF >= AC
+ GHIT: [highest of 1d20 and 1d20] + BHIT + ATK + PROF - 5 >= AC
+ GPHIT:[highest of 1d20 and 1d20] + 1d8 + BHIT + ATK + PROF - 5 >= AC
+}
+if ADV = 0 & DIS = 1 {
+ HIT: [lowest of 1d20 and 1d20] + BHIT + ATK + PROF >= AC
+ NHIT: [lowest of 1d20 and 1d20] + BHIT + ATK + PROF < AC
+ PHIT: [lowest of 1d20 and 1d20] + 1d8 + BHIT + ATK + PROF >= AC
+ GHIT: [lowest of 1d20 and 1d20] + BHIT + ATK + PROF - 5 >= AC
+ GPHIT:[lowest of 1d20 and 1d20] + 1d8 + BHIT + ATK + PROF - 5 >= AC
+}
+AHIT: [highest of 1d20 and 1d20] + BHIT + ATK + PROF >= AC
+DHIT: [lowest of 1d20 and 1d20] + BHIT + ATK + PROF >= AC
+AGHIT: [highest of 1d20 and 1d20] + BHIT + ATK + PROF - 5 >= AC
+DGHIT: [lowest of 1d20 and 1d20] + BHIT + ATK + PROF - 5 >= AC
+HITONE: HIT
+NHITONE: !HITONE
+HITTWO: HIT
+NHITTWO: !HITTWO
+ONEHIT: (HITONE | HITTWO)
+TWOHIT: HITONE & HITTWO
+ONEHITONLY: (HITONE & NHITTWO) | (NHITONE & HITTWO)
+
+\output HIT named "probHit"
+output ONEHIT named "probOneOrTwo"
+output ONEHITONLY named "ProbOneOfTwo"
+output TWOHIT named "probTwoOfTwo"
+output AHIT named "AdvHit"
+output DHIT named "DisHit"\
+
+
+\Damage\
+MAULGWF: DSIXGWF+DSIXGWF+ATK
+MAULGWFM: DSIXGWF+DSIXGWF+DEIGHTGWF+ATK
+MAULGWFGWM: DSIXGWF+DSIXGWF+ATK+10
+MAULGWFGWMM: DSIXGWF+DSIXGWF+DEIGHTGWF+ATK+10
+
+\output HIT named "Hit"
+output PHIT named "PHit"
+output AHIT named "AHit"
+output DHIT named "DHit"\
+
+if EXTRATK = 0 {
+ output HIT*MAULGWF named "MaulGWF"
+ output AHIT*MAULGWF named "AdvMaulGWF"
+ output AHIT*MAULGWFM named "Feinting"
+ \output PHIT*MAULGWF named "Precision"\
+ output HIT*MAULGWFM named "Trip"
+ output HIT*MAULGWFM + HIT*MAULGWF named "Riposte"
+ output HIT*MAULGWFM + AHIT*MAULGWFM named "Riposte+Feint"
+output HIT*MAULGWFM + HIT*MAULGWFM named "Riposte+Trip"
+}
+
+if EXTRATK = 1 {
+ output HIT*MAULGWF named "MaulGWF" 
+ output AHIT*MAULGWF named "AdvMaulGWF"
+ output HIT*MAULGWF + HIT*MAULGWF named "2xMaulGWF"
+ \output AHIT*MAULGWF + AHIT*MAULGWF named "2xAdvMaulGWF"\
+ output AHIT*MAULGWFM + AHIT*MAULGWFM named "2xAdvTrip"
+ output PHIT*MAULGWF + PHIT*MAULGWF named "2xPrecision"
+ output GHIT*MAULGWFGWM + GHIT*MAULGWFGWM named "2xGWM"
+ output GHIT*MAULGWFGWMM + GHIT*MAULGWFGWMM named "2xAdvTripGWM"
+ output AGHIT*MAULGWFGWMM + GHIT*MAULGWFGWMM named "Feint+TripGWM"
+ output GPHIT*MAULGWFGWM + GPHIT*MAULGWFGWM named "2xPrecisionGWM"
+ \output AHIT*MAULGWFM + HIT*MAULGWF named "Feint+Atk"
+ output HIT*MAULGWFM + HIT*MAULGWFM named "2xTrip"
+ output PHIT*MAULGWF + HIT*MAULGWF named "Precision+Atk"
+ output PHIT*MAULGWF + PHIT*MAULGWF named "2xPrecision"
+ output HIT*MAULGWFM + HIT*MAULGWF + HIT*MAULGWF named "Riposte+2ATK"
+ output HIT*MAULGWFM + AHIT*MAULGWFM  + HIT*MAULGWF named "Riposte+Feint+ATK"
+ output HIT*MAULGWFM + AHIT*MAULGWFM  + PHIT*MAULGWF named "Riposte+Feint+Precision"
+ output HIT*MAULGWFM + AHIT*MAULGWFM  + HIT*MAULGWFM named "Riposte+Feint+Trip"
+ output HIT*MAULGWFM + PHIT*MAULGWF  + PHIT*MAULGWF named "Riposte+Precisioni+Precision"\
+}
+
+
+
+
+
+

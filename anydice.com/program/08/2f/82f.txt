@@ -1,0 +1,70 @@
+\ Vallogan's Level 20 Final Ending at level 22 \
+
+W          : {1..10}
+
+BASEDMGBONUS: 12
+POWERDMG    : 5dW
+BASECRIT    : [maximum of POWERDMG]
+ATTACK      : {27,29}
+DEFENSE     : {36}
+
+ALONE      : 6
+VHAVHK     : 3d8+4
+SHROUD     : 4d{2..6}
+SNEAKATK   : 5d6
+
+MISS       : 0
+HIT        : 1
+CRITICALHIT: 2
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Make an attack roll using the supplied       \
+\ Attack (ATT), Defense (DEF), and Roll (ROLL) \
+function: attack ATT ROLL:n vs DEF:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATT >= DEF { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATT >= DEF { result: HIT }
+
+ result: MISS
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Test nesting functions                       \
+function: kill HITMODE:n {
+ if HITMODE=0 {result: [deal miss damage]}
+ if HITMODE=1 {result: [deal hit damage]}
+ if HITMODE=2 {result: [deal crit damage]}
+ result: 99999
+}
+
+function: deal miss damage {
+ result: [deal hit damage] / 2
+}
+
+function: deal hit damage {
+ BONUS: BASEDMGBONUS
+ BONUS: BONUS + ALONE
+ BONUS: BONUS + VHAVHK
+ BONUS: BONUS + SHROUD
+ BONUS: BONUS + SNEAKATK
+
+ result: POWERDMG + BONUS
+}
+
+function: deal crit damage {
+ BONUS: 5d6
+ result: [maximum of [deal hit damage]] + BONUS
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Generate the numbers                         \
+loop Y over ATTACK {
+ loop X over DEFENSE {
+  \output [attack Y 1d20 vs X] named "Attack +[Y] Vs AC [X]"\
+  DATA: [attack Y 1d20 vs X]
+  output [kill DATA] named "Attacking +[Y] vs AC [X] with 22nd Level Final Ending"
+ }
+}

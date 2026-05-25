@@ -1,0 +1,207 @@
+\ ================================================================ \
+\ ITEM ROLL SIMULATOR                                              \
+\ ================================================================ \
+\ Simulates weapon + passive rolls, calculates a final item score  \
+\ and converts it to dismantle value.                              \
+\                                                                  \
+\ To add a new unique passive, append its stat count to            \
+\ UNIQUE_PASSIVE_RANGES below. Everything else is automatic.       \
+\ ================================================================ \
+
+\ === INPUTS === \
+
+IS_SHOP_ITEM: 0              \ 0 = false, 1 = true \
+IS_BOSS_DROP: 0              \ 0 = false, 1 = true \
+ALLOW_DUPLICATE_UNIQUES: 1   \ 1 = current bugged behaviour, 0 = cap to one roll each \
+
+\ === WEAPON DEFINITIONS === \
+\ Each entry is the number of stat ranges for that weapon. \
+
+WEAPON_RANGE_COUNTS: {
+  2, \ Great Sword \
+  2, \ Healing Staff \
+  2, \ Bow \
+\ 1,   Rune of the Forgotten \
+  2, \ Defender's Aegis \
+  0, \ Orb of Potency \
+  2, \ Vampiric Staff \
+  3, \ Poison Dagger \
+  3, \ Wand of Absorption \
+  4, \ Flame Staff \
+  2, \ Energy Staff \
+  3, \ Spirit Staff \
+  2, \ Arcane Scepter \
+  2, \ Resurrection Staff \
+  2, \ Glacial Axe \
+  4, \ Vanguard's Banner \
+  3, \ Culling Scythe \
+\ 3,   Rune of Celebration \
+  3, \ Staff of Purity \
+  5, \ Leeching Scythe \
+  3, \ Foul Fish \
+\ 6,   Rune of Luck \
+  3, \ Staff of Corruption \
+  3, \ Soul Tithe \
+  4, \ Briar-Heart Staff \
+  3, \ Arbiter's Edge \
+  3, \ Wounding Crossbow \
+  4, \ Bleeding Gaze \
+  3  \ Conduit Claw \
+}
+
+\ === PASSIVE DEFINITIONS === \
+\ Each entry is the number of stat ranges for that passive. \
+
+PASSIVE_RANGE_COUNTS: {
+  1, \ Strength \
+  1, \ Magic \
+  1, \ Health Point \
+  1, \ Weapon Point \
+  1, \ Physical Resistance \
+  1, \ Magic Resistance \
+  1, \ Lifesteal \
+  1, \ Thorns \
+  1, \ Mana Tap \
+  1, \ Absolve \
+  1, \ Safeguard \
+  2, \ Critical \
+  1, \ Discharge \
+  1, \ Kamikaze \
+  1, \ Regeneration \
+  1, \ Energize \
+  1, \ Sprout \
+  1, \ Enrage \
+  2, \ Sacrifice \
+  1, \ Snail \
+  1, \ Knowledge \
+  1, \ Giant Slayer \
+  2, \ Adaptation \
+  2, \ Resonance \
+  2, \ Living Hive \
+  2, \ Lone Wolf \
+  1  \ Frost Armor \
+}
+
+\ === UNIQUE PASSIVE DEFINITIONS === \
+\ Passives that may only appear once across all slots. \
+
+UNIQUE_PASSIVE_RANGES: {
+  3  \ Double Strike \
+}
+
+\ === DERIVED CONSTANTS (do not edit) === \
+
+WEAPON_ROLL:          d(WEAPON_RANGE_COUNTS)
+PASSIVE_ROLL:         d(PASSIVE_RANGE_COUNTS)
+SENTINEL_BASE:        1000
+UNIQUE_PASSIVE_COUNT: #UNIQUE_PASSIVE_RANGES
+TOTAL_PASSIVE_COUNT:  #PASSIVE_RANGE_COUNTS + UNIQUE_PASSIVE_COUNT
+
+\ === PASSIVE SELECTION === \
+\ Rolls a passive slot. Low indices select a unique passive       \
+\ (returned as a sentinel value); everything else falls through   \
+\ to the normal passive die.                                      \
+
+function: select passive SLOT_INDEX:n {
+  if SLOT_INDEX <= UNIQUE_PASSIVE_COUNT {
+    result: SENTINEL_BASE + SLOT_INDEX
+  }
+  result: PASSIVE_ROLL
+}
+
+\ Converts a passive value back to its stat-range count.          \
+\ Sentinel values are looked up in the unique passive table;      \
+\ normal passives pass through unchanged.                         \
+
+function: decode passive PASSIVE_VALUE:n {
+  if PASSIVE_VALUE > SENTINEL_BASE {
+    result: (PASSIVE_VALUE - SENTINEL_BASE) @ UNIQUE_PASSIVE_RANGES
+  }
+  result: PASSIVE_VALUE
+}
+
+\ === UNIQUE PASSIVE CAP === \
+\ Counts how many times each unique passive appears across three  \
+\ slots. Extras beyond the first are replaced with normal passive \
+\ rerolls to enforce the one-copy-per-item rule.                  \
+
+function: count matches for SENTINEL:n in A:n B:n C:n {
+  result: (A = SENTINEL) + (B = SENTINEL) + (C = SENTINEL)
+}
+
+function: cap uniques SLOT_A:n SLOT_B:n SLOT_C:n {
+  DECODED_TOTAL: [decode passive SLOT_A]
+                + [decode passive SLOT_B]
+                + [decode passive SLOT_C]
+
+  if ALLOW_DUPLICATE_UNIQUES = 1 { result: DECODED_TOTAL }
+
+  REROLL_COUNT: 0
+  REFUND_TOTAL: 0
+
+  loop INDEX over {1..UNIQUE_PASSIVE_COUNT} {
+    SENTINEL: SENTINEL_BASE + INDEX
+    EXTRA_COPIES: [count matches for SENTINEL in SLOT_A SLOT_B SLOT_C] - 1
+    if EXTRA_COPIES > 0 {
+      REROLL_COUNT: REROLL_COUNT + EXTRA_COPIES
+      REFUND_TOTAL: REFUND_TOTAL + EXTRA_COPIES * (INDEX @ UNIQUE_PASSIVE_RANGES)
+    }
+  }
+ 
+  \ Subtract the over-counted ranges, then add replacement passive rolls. \
+  \ Rerolls draw from the full pool so uniques can still appear.          \
+  if REROLL_COUNT = 0 { result: DECODED_TOTAL }
+  REROLL: [decode passive [select passive d(TOTAL_PASSIVE_COUNT)]]
+  if REROLL_COUNT = 1 { result: DECODED_TOTAL - REFUND_TOTAL + REROLL }
+  result: DECODED_TOTAL - REFUND_TOTAL + REROLL + [decode passive [select passive d(TOTAL_PASSIVE_COUNT)]]
+}
+ 
+\ === ITEM ROLL PIPELINE === \
+
+\ Determines the worn bonus tier from a d100 roll. \
+function: worn bonus from ROLL:n {
+  if      ROLL  = 1  { result: 5 }
+  else if ROLL <= 6  { result: 3 }
+  else if ROLL <= 16 { result: 1 }
+  else               { result: 0 }
+}
+
+\ Rolls the average stat value across RANGE_COUNT ranges,         \
+\ then adds the worn bonus. Shop items have a raised floor.       \
+function: roll RANGE_COUNT:n stat ranges {
+  if IS_SHOP_ITEM = 1 { STAT_RESULT: 40 + (RANGE_COUNT d61  / RANGE_COUNT) }
+  else                 { STAT_RESULT:      (RANGE_COUNT d101 / RANGE_COUNT) }
+  result: STAT_RESULT + [worn bonus from d100]
+}
+
+\ Assembles a complete weapon: rolls weapon ranges, up to three   \
+\ passive slots (second slot if weapon has 0 ranges, third slot   \
+\ if boss drop), then feeds the total range count into stat roll. \
+function: WEAPON_RANGES:n weapon {
+  PASSIVE_A: [select passive d(TOTAL_PASSIVE_COUNT)]
+  PASSIVE_B: 0
+  PASSIVE_C: 0
+  if WEAPON_RANGES = 0 { PASSIVE_B: [select passive d(TOTAL_PASSIVE_COUNT)] }
+  if IS_BOSS_DROP  = 1 { PASSIVE_C: [select passive d(TOTAL_PASSIVE_COUNT)] }
+
+  TOTAL_RANGES: WEAPON_RANGES + [cap uniques PASSIVE_A PASSIVE_B PASSIVE_C]
+  result: [roll TOTAL_RANGES stat ranges] - 1
+}
+
+\ Converts a final item score into dismantle currency.            \
+\ Boss drops receive a 1.5x multiplier.                           \
+function: dismantle value from ITEM_SCORE:n {
+  if      ITEM_SCORE <= 20  { REWARD: 1 }
+  else if ITEM_SCORE <= 40  { REWARD: 3 }
+  else if ITEM_SCORE <= 60  { REWARD: 5 }
+  else if ITEM_SCORE <= 80  { REWARD: 25 }
+  else if ITEM_SCORE <  95  { REWARD: 300 }
+  else if ITEM_SCORE <  100 { REWARD: 1000 }
+  else                      { REWARD: 5000 }
+  if IS_BOSS_DROP = 1 { result: REWARD * 3 / 2 }
+  result: REWARD
+}
+
+\ === OUTPUT === \
+
+output [dismantle value from [WEAPON_ROLL weapon]]

@@ -1,0 +1,52 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+GWF: 1d{{1..2}, {3..6}:4}
+ATTACK: 5 + 6 + 1
+HITDAMAGE: 4dGWF + 5
+CRITICALDAMAGE: 8dGWF + 5
+MISSDAMAGE: 0
+AC: 20
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL >= 18 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [d20 vs AC ATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 2d20] vs AC ATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 3d20] vs AC ATTACK]]
+  }
+  result: TOTAL
+}
+
+output [multiattackdoubleadvantage 8] named "Level 20 crit fisher vs AC[AC]"

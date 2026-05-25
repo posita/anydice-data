@@ -1,0 +1,26 @@
+DISASTER: -1
+GRIM: 0
+MESSY: 1
+PERFECT: 2
+CRITICAL: 3
+
+function: fromhighest H:n {
+  if H <= 3 { result: GRIM }
+  if H < 6 { result: MESSY }
+  result: PERFECT
+}
+
+function: getoutcome highest H:n top HH:n cuts CUTS:n {
+  if HH = 12 { result: CRITICAL }
+  OUTCOME: [fromhighest H]
+  if CUTS > OUTCOME { result: DISASTER }
+  result: OUTCOME - CUTS
+}
+
+loop THORNS over {0..3} {
+  loop DICE over {1..12} {
+    ROLLS: DICEd6
+    CUTS: [count {7,8} in THORNSd8]
+    output [getoutcome highest {1}@ROLLS top {1,2}@ROLLS cuts CUTS] named "[DICE]d, thorns [THORNS]"
+  }
+}

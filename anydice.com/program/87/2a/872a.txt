@@ -1,0 +1,35 @@
+DC: 10
+OCV: 9
+DCV: 9
+EXTRADICE: 2
+DEF: 20
+
+function: attack roll OCV:n DCV:n {
+    result: OCV + 11 - 3d6 - DCV
+}
+
+function: damage option DC:n EXTRADICE:n  {
+    result: [damage option step DCd6 EXTRADICE ((DC*7)/2)]
+}
+
+function: damage option step DAMAGE:n EXTRADICE:n CAP:n{
+    if DAMAGE > CAP { result: DAMAGE }
+    result: [lowest of DAMAGE + EXTRADICEd6 and CAP]
+}
+
+function: damage roll DC:n DEF:n ROLL:n {
+   if ROLL < 0 {result: 0}
+   result: [highest of DCd6 - DEF and 0]
+}
+output [damage roll DC + EXTRADICE DEF 1]
+output [highest of [damage option DC EXTRADICE] - DEF and 0] named "damage option"
+output [damage roll DC DEF 1] named "no attack roll"
+output [damage roll DC DEF [attack roll OCV DCV]] named "no tradeoff"
+output [damage roll DC-1 DEF [attack roll OCV+1 DCV]] named "+1/-1 OCV/DC"
+output [damage roll DC-2 DEF [attack roll OCV+2 DCV]] named "+2/-2 OCV/DC"
+output [damage roll (DC-1)*4/5 (DEF+1)/2 [attack roll (OCV+1) DCV]] named "+1/-1 OCV/DC AP"
+output [damage roll (DC-2)*4/5 (DEF+1)/2 [attack roll (OCV+2) DCV]] named "+2/-2 OCV/DC AP"
+output [damage roll DC+1 DEF [attack roll OCV-1 DCV]] named "+1/-1 DC/OCV"
+output [damage roll DC+2 DEF [attack roll OCV-2 DCV]] named "+2/-2 DC/OCV"
+output [damage roll DC-1 DEF [attack roll OCV-1 DCV]] named "-1/-1/+1 DC/OCV/SPD"
+output [damage roll DC+1 DEF [attack roll OCV+1 DCV]] named "+1/+1/-1 DC/OCV/SPD"

@@ -1,0 +1,40 @@
+\ reroll the current die if result was 1 \
+\ equivalent to ROLL + reroll- 1
+function: reroll SIDES:n ones ROLL:n {
+ if 1 < ROLL { result: ROLL }
+ else { result: dSIDES }
+}
+
+\ Explode 1s; add { 0, 0, 0, 1, 1, 2}\
+function: reroll SIDES:n explode ones ROLL:n {
+ if 1 < ROLL { result: ROLL }
+ else { result: d{1,1,1,2,2,3} }
+}
+
+\ Explode 1s; d(SIDES/2)
+function: reroll SIDES:n explode half ones ROLL:n {
+ if 1 < ROLL { result: ROLL }
+ else { result: d(SIDES/2) }
+} 
+
+
+\ roll indicated die the specified number of times
+  3 roll 6 corresponds to the anydice command 3d6 \
+function: TIMES:n roll SIDES:n {
+ SUM: 0
+ loop N over {1..TIMES} {
+  SUM: SUM + 1dSIDES
+ }
+ result: SUM
+}
+
+
+output {1..3}@4d[reroll 6 ones d6] named "4d6 reroll 1's drop lowest"
+output {1..3}@4d[reroll 6 explode ones d6] named "4d6 explode 1's drop lowest"
+output {1..3}@4d6 named "4d6 drop lowest"
+
+output [ reroll 6 ones d6 ] named "1d6 reroll 1s"
+output [ reroll 6 explode ones d6 ] named "1d6 explode 1s"
+output 3d[reroll 6 ones d6] named "3d6 reroll 1's"
+output 3d[reroll 6 explode ones d6] named "3d6 explode 1's"
+output [3 roll 6] named "3d6"

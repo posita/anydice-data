@@ -1,0 +1,25 @@
+\***Probability for a range of attack rolls against a specified armor rating using wild die***\
+MINNUMDICE:1 \* Minimum number of dice to be rolled *\
+MAXNUMDICE:5 \* Maximum number of dice to be rolled *\
+WILDDIE:1 \* Enter 1 if using wild die or 0 if not using wild die *\
+ARMOR:2         \*enter # of dice in defense pool*\
+DEFWILDDIE:1 \* Enter 1 if using a wild die on the defense roll or 0 otherwise*\
+
+if WILDDIE > 0 { MINNUMDICE:0 MAXNUMDICE: MAXNUMDICE - WILDDIE}
+if DEFWILDDIE > 0 { ARMOR: ARMOR - DEFWILDDIE}
+
+function: evaluate attack ROLL:s WILD:s SOAK:s DEFWILD:s{
+ SUCCESSES: ROLL >= 5
+ WILDRESULT: WILD >= 4
+ DEFENSE: SOAK >= 5
+ DEFENSEWILD: DEFWILD >= 4
+ TOTALSUCCESSES: SUCCESSES + WILDRESULT
+ TOTALDEFENSE: DEFENSE + DEFENSEWILD
+ if TOTALSUCCESSES > TOTALDEFENSE { result: TOTALSUCCESSES - TOTALDEFENSE }
+ result: 0
+}
+
+loop DICE over {MINNUMDICE..MAXNUMDICE} {
+ if WILDDIE > 0 { DIE: DICE + 1 }else { DIE: DICE }
+ output [evaluate attack DICE d6 WILDDIE d6 ARMOR d6 DEFWILDDIE d6] named "[DIE]d"
+}

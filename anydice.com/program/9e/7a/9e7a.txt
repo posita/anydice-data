@@ -1,0 +1,44 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT dmg DAMAGE mod EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod 0]
+}
+function: ATTACKS:s vs AC:n dmg DAMAGE:d mod EXTRA:d {
+  result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod EXTRA]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod 0]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA }
+  if (ROLL = 1) { result: 0 }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+AC: 18
+EB: 1d10+1d6
+output [{8,8} vs AC crit 20 2 dmg 1d10+1d6 mod +5] named "Warlock Hex + EB"
+output [{8,8,8,8} vs AC crit 20 2 dmg 1d10+1d6 mod +5] named "Warlock Hex + EB + QEB"
+
+GW: 1d12+5
+output [{8,8} vs AC crit 20 2 dmg 1d12 mod +5] named "Barbarian"
+
+GWR: 1d12+5+2
+output [{8,8} vs AC crit 20 2 dmg 1d12 mod +7] named "Barbarian Rage"
+output [{8,8,8} vs AC crit 20 2 dmg 1d12 mod +7] named "Barbarian Rage + Frenzy"
+
+GWF: 1d12+5+2+10
+output [{3,3} vs AC crit 20 2 dmg 1d12 mod +17] named "Barbarian Rage + GWF"
+output [{3,3,3} vs AC crit 20 2 dmg 1d12 mod +17] named "Barbarian Rage + Frenzy + GWF"

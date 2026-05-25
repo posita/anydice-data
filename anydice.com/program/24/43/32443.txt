@@ -1,0 +1,88 @@
+function: reroll REROLL:s on COUNT:n of DICE:d {
+  RET: 0
+  loop I over {1..COUNT} {
+    RET: RET + [reroll REROLL on DICE to DICE]
+  }
+  result: RET
+}
+
+function: reroll REROLL:s on DICE:d {
+  result: [reroll REROLL on DICE to DICE]
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+  if [REROLL contains ROLL] {
+    result: REPLACEMENT
+  }
+  result: ROLL
+}
+
+\Expects all flags, creates TOHIT sequence\
+function: attack COUNT:n times  for NUM:n of SIZE:n plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n gwm GWM:n pam PAM:n bonus actions BONUS_ACTIONS:n {
+	result: [attack COUNT times for NUM of SIZE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC rolling COUNTd20 gwm GWM pam PAM bonus actions BONUS_ACTIONS]
+}
+
+\All flags off, creates TOHIT sequence\
+function: attack COUNT:n times for NUM:n of SIZE:n plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n {
+	result: [attack COUNT times for NUM of SIZE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC rolling COUNTd20 gwm 0 pam 0 bonus actions 0]
+}
+
+
+function: attack COUNT:n times for NUM:n of SIZE:n plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n rolling TOHIT:s gwm GWM:n pam PAM:n bonus actions BONUS_ACTIONS:n {
+	RET: 0
+	ANY_CRIT: 0
+	ANY_HIT: 0
+	EXTRA_ACTIONS: BONUS_ACTIONS
+	if GWM {BONUS_DAMAGE: BONUS_DAMAGE + 10}
+	
+	loop I over {1..COUNT} {
+		ATTACK_ROLL: I@TOHIT
+		\check for a crit first then apply GWM vs AC of applicable\
+		CRIT: ATTACK_ROLL >= CRIT_RANGE
+		ANY_CRIT: ANY_CRIT | CRIT
+		
+		if GWM {ATTACK_ROLL: [highest of 1 and ATTACK_ROLL-5]}
+		
+		HIT: CRIT | ATTACK_ROLL >= AC
+		ANY_HIT: ANY_HIT | HIT
+			
+		if HIT {
+			RET: RET + NUMdSIZE + BONUS_DAMAGE
+			
+			if CRIT {
+				RET: RET + CRIT_DAMAGE + 1dSIZE
+			}
+		}
+	}
+	
+	if ANY_CRIT & GWM & EXTRA_ACTIONS > 0 {
+				RET: RET + [attack 1 times for NUM of SIZE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC]
+				EXTRA_ACTIONS: EXTRA_ACTIONS - 1
+			}
+	
+	if ANY_HIT & PAM & EXTRA_ACTIONS > 0 {
+				RET: RET + [attack 1 times for 1 of 4 plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC]
+				EXTRA_ACTIONS: EXTRA_ACTIONS - 1
+			}
+	
+	result: RET
+}
+
+ATTACK_COUNT: 1
+BONUS_DAMAGE: 6
+CRIT_RANGE: 20
+AC: 0
+SPEAR_DAMAGE_SA: [highest 1 of 1d8]
+HALBERD_DAMAGE_GWF_SA: [reroll {1,2} on [highest 1 of 2d10]]
+GREATSWORD_GWF_SA: [reroll {1,2} on [highest 1 of 2d6]]
+GREATAXE_GWF_SA: [reroll {1,2} on [highest 1 of 2d12]]
+
+\You can only do 1 attack, or you have to disable some of these\
+output [attack ATTACK_COUNT+1 times for 1 of [highest 1 of 1d6] plus BONUS_DAMAGE+2 crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 0] named "Dual Wield+TWF + 1OH"
+output [attack ATTACK_COUNT times for 1 of [highest 1 of 1d10] plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "Longsword 2H"
+output [attack ATTACK_COUNT times for 2 of GREATSWORD_GWF_SA plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "GreatSword"
+output [attack ATTACK_COUNT times for 2 of GREATSWORD_GWF_SA plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 0 bonus actions 1] named "GreatSword+GWM"
+output [attack ATTACK_COUNT times for 1 of GREATAXE_GWF_SA plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "GreatAxe"
+output [attack ATTACK_COUNT times for 1 of GREATAXE_GWF_SA plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 0 bonus actions 1] named "GreatAxe+GWM"
+output [attack ATTACK_COUNT times for 1 of SPEAR_DAMAGE_SA plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 1 bonus actions 1] named "Spear+PAM"
+output [attack ATTACK_COUNT times for 1 of HALBERD_DAMAGE_GWF_SA plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 1 bonus actions 1] named "Halberd+PAM+GWM"

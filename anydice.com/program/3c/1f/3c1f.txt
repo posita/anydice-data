@@ -1,0 +1,52 @@
+ATTACKBONUS: 15
+ATTACKBASEDAMAGE: 1d8+2 \-- Includes flat bonuses. --\
+ATTACKBASEMULTIPLIER: 1 \-- If you have damage multipliers other than from critting, such as charging with a lance. --\
+ATTACKNONMULTIPLIEDDAMAGE: 1d6 \-- Any damage bonus that isn't multiplied on a crit, such as Sneak Attack. --\
+
+THREATRANGELEAST: 20 \-- Lowest die roll that threatens a crit. --\
+CRITMULTIPLIER: 2
+CRITCONFIRMBONUS: 4 \-- Bonuses to your critical confirm roll, such as Power Critical. --\
+CRITICALCONFIRMBONUSDAMAGE: 1d10 \-- Bonus damage on a critical hit (not multiplied by the crit multiplier), such as from a Flaming Burst weapon. --\
+
+MONSTERAC: 20
+MONSTERDR: 5 \-- Only include DR you can't bypass. --\
+
+\---------------\
+
+set "maximum function depth" to 3
+
+function: lightning maces attack with roll ATTACKROLLDIE:n {
+    DAMAGE: 0
+
+    if ((ATTACKROLLDIE + ATTACKBONUS) < MONSTERAC) {
+        \-- Miss --\
+        DAMAGE: 0
+    }
+    else {
+        \-- Hit --\
+        if (ATTACKROLLDIE < THREATRANGELEAST) {
+            \-- Hit, no crit threat --\
+            DAMAGE: [highest of 0 and (ATTACKBASEDAMAGE * ATTACKBASEMULTIPLIER + ATTACKNONMULTIPLIEDDAMAGE) - MONSTERDR]
+        }
+        else {
+            \-- Crit threat --\
+            if ((120 + ATTACKBONUS + CRITCONFIRMBONUS) < MONSTERAC)
+            {
+                \-- Not confirmed --\
+                DAMAGE: [highest of 0 and (ATTACKBASEDAMAGE * ATTACKBASEMULTIPLIER + ATTACKNONMULTIPLIEDDAMAGE) - MONSTERDR]
+            }
+            else {
+                \-- Confirmed crit --\
+                DAMAGE: [highest of 0 and (ATTACKBASEDAMAGE * (ATTACKBASEMULTIPLIER + CRITMULTIPLIER - 1) + ATTACKNONMULTIPLIEDDAMAGE + CRITICALCONFIRMBONUSDAMAGE) - MONSTERDR]
+            }
+            \-- Lightning Maces Extra Attack --\
+            DAMAGE: DAMAGE + [lightning maces attack with roll 1d20]
+        }
+    }
+    result: DAMAGE
+}
+
+TOTALDAMAGE: [lightning maces attack with roll 1d20]
+
+
+output TOTALDAMAGE named "total damage"

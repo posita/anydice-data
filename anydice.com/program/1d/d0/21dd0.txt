@@ -1,0 +1,33 @@
+function: attack D:n plus BONUS:n vs AC:n  {
+   if D = 20 & (D+BONUS)>= AC {result: 2}
+   else if D = 20 { result: 1 } 
+   else if D = 1 { result: 0}
+   else if D + BONUS >= AC { result: 1 }
+   else { result:0}
+}
+
+function: weapondmg SKILL:n plus WP:n{
+ result: [highest WP of (SKILL+WP)d6]
+}
+
+function: wpbonus WP:n{
+ if      WP = 1 {result: 5}
+ else if WP = 2 {result: 3}
+ else if WP = 3 {result: 1}
+ else if WP = 4 {result: -1}
+ else if WP = 5 {result: -3}
+}
+
+loop STR over {5}{
+loop SKILL over {5}{
+loop WP over {1..5}{
+loop AC over {10..40} {
+
+WPBONUS: [wpbonus WP]
+BONUS: STR + SKILL + WPBONUS
+DMG: [weapondmg SKILL plus WP]
+output [attack d20 plus BONUS vs AC]*DMG named "Skill [SKILL] STR [STR] WP [WP] AC[AC]"
+}
+}
+}
+}

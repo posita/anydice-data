@@ -1,0 +1,32 @@
+WEIGHTS: {10, 9, 8, 7, 6, 5}
+BRACKETS: {10, 20, 40, 60, 80, 100}
+
+function: get bracket of A:n in B:s {
+ if V < 1@B{
+  result: 1
+ }
+ loop N over {2..#B}{
+  if V >= (N-1)@B & V < N@B{
+   result: N
+  }
+ }
+ if V >= (#B)@B{
+  result: #B
+ }
+}
+
+function: add A:n to B:s C:n times {
+ loop N over {1..C}{
+  B: {B, A}
+ }
+ result: B
+}
+
+loop LEVEL over {1..#WEIGHTS}{
+ VALUES: {}
+ loop V over {0..(LEVEL@BRACKETS - 1)}{
+  BRACKET: [get bracket of V in BRACKETS]
+  VALUES: [add V to VALUES BRACKET@WEIGHTS times]
+ }
+ output 1dVALUES named "Max tier unlocked [LEVEL]"
+}

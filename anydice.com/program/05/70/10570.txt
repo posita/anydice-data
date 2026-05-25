@@ -1,0 +1,31 @@
+\ Hit/miss bonus/penalty function. Returns the half the difference from the AC to the attack roll\
+function: HIT hmbp AC {
+result: (HIT-AC)/2
+}
+\ To-hit roll plus the stat bonus with damage roll plus the stat bonus vs AC function factoring in sunder, mitigation, and crits. Returns the damage result. 
+If the To-hit is further than 1/4 of the AC below the AC, the damage is 0.
+If the To-hit is less than 1/4 of the AC below the AC, the result is half the damage die minus mitigation.
+If the To-hit is equal to or greater than the AC, the result is the damage die plus the damage bonus.\
+
+function: HIT:n hit DAM dam plus SB sund SD vs AC minu MD {
+if HIT = 20 {result: 2 * DAM + SB + [lowest of SD - MD and 0] }
+if HIT + SB >= AC + 10 {result: DAM + SB + [lowest of SD - MD and 0] }
+if HIT + SB >= AC {result: DAM + SB - MD}
+if HIT > (AC-(AC/4)) {result: DAM/2 - MD}
+else{result: 0}
+}
+\ To-hit roll plus the stat bonus with damage roll plus the stat bonus vs AC factoring in sunder, mitigation, but no crits. Returns the damage result. 
+
+If the To-hit is further than 1/4 of the AC below the AC, the damage is 0.
+If the To-hit is less than 1/4 of the AC below the AC, the result is the damage die plus the Hit/miss Bonus/penalty (always negative here) minus the mitigation.
+If the To-hit is equal to or greater than the AC, the result is the damage die plus the stat bonus plus the Hit/miss Bonus/penalty (always positive here) minus the mitiagtion
+If the To-hit is more than 10 higher than the AC, the result is the damage die plus the stat bonus plus the Hit/miss Bonus/penalty (always positive here) minus the (mitigation minus the sunder).\
+
+function: HIT:n hita DAM dam plus SB sund SD vs AC minu MD {
+if HIT + SB >= AC + 10 {result: [highest of DAM + SB + [HIT hmbp AC] + [lowest of SD - MD and 0] and 0]}
+if HIT + SB >= AC {result: [highest of DAM + SB + [HIT hmbp AC] - MD and 0]}
+if HIT + SB > (AC-(AC/4)) {result: [highest of DAM/2 + [HIT hmbp AC] - MD and 0]}
+else{result: 0}
+}
+output [1d20 hit 1d8 dam plus 5 sund 1 vs 13 minu 2] named "Half Dmg Glancing"
+output [1d20 hita 1d8 dam plus 5 sund 1 vs 13 minu 2] named "Accuracy Damage"

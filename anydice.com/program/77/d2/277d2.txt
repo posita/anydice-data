@@ -1,0 +1,52 @@
+function: normal ROLL:s target TARGET:n {
+  result: ROLL >= TARGET
+}
+
+function: challenged PLAYER:n with NPC:n {
+  if PLAYER > NPC { result: 1 }
+  if PLAYER < NPC { result: 2 }
+  result: 3
+}
+
+loop DICE over {3} {
+  loop TARGET over {5,3} {
+    output [normal DICEd6 target TARGET] named "[DICE]d6 w/ success >= [TARGET]"
+  }
+}
+
+loop DICE over {3} {
+  loop TARGET over {5} {
+    A: [normal DICEd6 target TARGET]
+    B: [normal DICEd6 target TARGET]
+    output A - B named "Challenged [DICE]d6 results"
+  }
+}
+
+function: success from POOL {
+  SUCCESS: 0
+  loop TARGET over POOL {
+    SUCCESS: SUCCESS + [normal 1d6 target TARGET]
+  }
+  result: SUCCESS
+}
+
+NPC: {5,5,5}
+PLAYER: {5,3,3}
+output [success from NPC] - [success from PLAYER] named "Success with NPC 0 upgrades vs Player 2 upgrades"
+
+NPC: {5,5,3}
+PLAYER: {5,3,3}
+output [success from NPC] - [success from PLAYER] named "Success with NPC 1 upgrade vs Player 2 upgrades"
+
+NPC: {5,3,3}
+PLAYER: {5,3,3}
+output [success from NPC] - [success from PLAYER] named "Success with NPC 2 upgrades vs Player 2 upgrades"
+
+NPC: {3,3,3}
+PLAYER: {5,3,3}
+output [success from NPC] - [success from PLAYER] named "Success with NPC 3 upgrade vs Player 2 upgrades"
+
+output [success from {5,5,5}] named "Success with 0 upgrade"
+output [success from {5,5,3}] named "Success with 1 upgrade"
+output [success from {5,3,3}] named "Success with 2 upgrades"
+output [success from {3,3,3}] named "Success with 3 upgrades"

@@ -1,0 +1,44 @@
+RAWFAILCHANCE: 23 \This is an internal Crawl fail threshold; tweak it till Displayed Failure Chance is the failure chance you're interested in. 15 is equivalent to a 1% fail rate. 100 is equivalent to a 100% fail rate.\
+
+LEVEL: 4 \Spell level\
+
+\FUNCTION DEFINITIONS\
+function: roll NUM:n of size SIZE:n {
+  result: NUMdSIZE
+}
+
+function: tetrahedral N:n {
+  result: (N*(N+1)*(N+2))/6
+}
+
+function: divrandround NUM:n by DEN:n {
+  REM: NUM - NUM/DEN*DEN
+  if(REM > 0) {
+    result: NUM/DEN + ((1dDEN - 1) < REM)
+  } else {
+    result: NUM/DEN
+  }
+}
+
+\Calculate real failure chance\
+DISPLAYCHANCE: -1
+OUTCOMES: 101*101*100
+TARGET: 3*RAWFAILCHANCE
+if(TARGET <= 100) {
+  DISPLAYCHANCE: [tetrahedral TARGET]*100/OUTCOMES
+} else if(TARGET <= 200) {
+  DISPLAYCHANCE: 100*([tetrahedral TARGET] - 2*[tetrahedral TARGET-101] - [tetrahedral TARGET-100])/OUTCOMES
+} else {
+  DISPLAYCHANCE: 100*(OUTCOMES - [tetrahedral 300-TARGET])/OUTCOMES
+}
+output DISPLAYCHANCE named "Displayed Failure Chance"
+
+FAIL: [highest of 0 and RAWFAILCHANCE - (3d100 - 3)/3] \Amount you missed casting it by\
+NASTINESS: FAIL*LEVEL*LEVEL+250
+
+DAMAGE: [divrandround [roll LEVEL of size LEVEL+RAWFAILCHANCE] by 9]
+
+HD: [lowest of (NASTINESS>400)*[highest of [divrandround 2*DAMAGE by 3] and 1] and 27]
+output (NASTINESS>400)*DAMAGE named "Damage from Cj miscast"
+output HD named "Nameless Horror HD from Su miscast"
+output 2*HD named "Nameless Horror Attack Damage from Su miscast"

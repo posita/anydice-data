@@ -1,0 +1,189 @@
+\ A result of 1 means the one with a higher skill won, 2 means they lost and 0 is a draw \
+
+MORESKILLED: 75
+LESSSKILLED: 50
+
+function: roll TENSA:n and ONESA:n under SKILLA:n vs TENSB:n and ONESB:n under SKILLB:n
+{
+ if ONESA+TENSA = 0
+    { 
+       A: 4
+    }
+ else if TENSA*10+ONESA > SKILLA
+ {
+    if ONESA = 0 | ONESA = 5
+    { 
+       A: 4
+    }
+    else 
+    { 
+       A: 3
+    }
+ }
+ else if TENSA*10+ONESA <= SKILLA
+ {
+     if ONESA = 0 | ONESA = 5
+     {
+         A: 1
+     }
+     else 
+     {
+         A: 2
+     }
+ }
+ if ONESB+TENSB = 0
+ { 
+       B: 4
+ }
+ else if TENSB*10+ONESB > SKILLB
+ {
+    if ONESB = 0 | ONESB = 5
+    { 
+       B: 4
+    }
+    else 
+    { 
+       B: 3
+    }
+ }
+ else if TENSB*10+ONESB <= SKILLB
+ {
+     if ONESB = 0 | ONESB = 5
+     {
+         B: 1
+     }
+     else 
+     {
+         B: 2
+     }
+ }
+ if A < B
+ {
+         result: 1
+ }
+ if A > B
+ {
+         result: 2
+ }
+ if A = B
+ {
+         if TENSA*10+ONESA = TENSB*10+ONESB
+         {
+             result: 0
+         }
+         if TENSA*10+ONESA < TENSB*10+ONESB
+         {
+             result: 1
+         }
+         else
+         {
+             result: 2
+         }
+ }
+
+}
+
+function: roll DIEONE:n under SKILLONE:n vs DIETWO:n under SKILLTWO:n 
+{
+   if DIEONE <= SKILLONE & DIETWO > SKILLTWO
+   {
+       result: 1
+   }
+   if DIEONE > SKILLONE & DIETWO <= SKILLTWO
+   {
+       result: 2
+   }
+   if DIEONE <= SKILLONE & DIETWO <= SKILLTWO
+   { 
+       if DIEONE <= DIETWO
+       {
+           result: 1
+       }
+       else
+       {
+           result: 2
+       }
+    }
+    if DIEONE > SKILLONE & DIETWO > SKILLTWO
+    { 
+           result: 1
+    }
+}
+
+function: alt DIEONE:n under SKILLONE:n vs DIETWO:n under SKILLTWO:n 
+{
+   if DIEONE > SKILLONE & DIETWO > SKILLTWO
+   { 
+           result: 0
+   }
+   if DIEONE <= SKILLONE & DIETWO > SKILLTWO
+   {
+       result: 1
+   }
+   if DIEONE > SKILLONE & DIETWO <= SKILLTWO
+   {
+       result: 2
+   }
+   if DIEONE <= SKILLONE & DIETWO <= SKILLTWO
+    { 
+       if DIEONE < DIETWO
+       {
+           result: 1
+       }
+       if DIETWO < DIEONE 
+       {
+           result: 2
+       }
+       else
+       {
+           result: 0
+       }
+    }
+    if DIEONE > SKILLONE & DIETWO > SKILLTWO
+    { 
+           result: 0
+    }
+}
+
+function: reroll DIEONE:n under SKILLONE:n vs DIETWO:n under SKILLTWO:n 
+{
+   if DIEONE > SKILLONE & DIETWO > SKILLTWO
+   { 
+           result: [reroll DIEONE under SKILLONE vs DIETWO under SKILLTWO]
+   }
+   if DIEONE <= SKILLONE & DIETWO > SKILLTWO
+   {
+       result: 1
+   }
+   if DIEONE > SKILLONE & DIETWO <= SKILLTWO
+   {
+       result: 2
+   }
+   if DIEONE <= SKILLONE & DIETWO <= SKILLTWO
+    { 
+       if DIEONE < DIETWO
+       {
+           result: 1
+       }
+       if DIETWO < DIEONE 
+       {
+           result: 2
+       }
+       else
+       {
+           result: [reroll DIEONE under SKILLONE vs DIETWO under SKILLTWO]
+       }
+    }
+    if DIEONE > SKILLONE & DIETWO > SKILLTWO
+    { 
+           result: 0
+    }
+}
+
+output [roll 1d10-1 and 1d10-1 under MORESKILLED vs 1d10-1 and 1d10-1 under LESSSKILLED] named "Harnmaster"
+
+output [alt 1d100 under MORESKILLED vs 1d100 under LESSSKILLED] named "Blackjack with draw if both fail"
+
+output [reroll 1d100 under MORESKILLED vs 1d100 under LESSSKILLED] named "Blackjack with reroll on draw"
+
+output [roll 1d100 under MORESKILLED vs 1d100 under LESSSKILLED] named "Blackjack with more skilled wins draws"

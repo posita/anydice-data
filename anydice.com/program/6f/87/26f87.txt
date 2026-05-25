@@ -1,0 +1,107 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MISSDAMAGE: 0
+MINCRIT: 20
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ else if ROLL >= MINCRIT { result: CRITICALHIT }
+ else if ROLL + ATTACK >= DEFENSE { result: HIT }
+ else { result: MISS }
+}
+
+function: single damage for RESULT:n {
+ if RESULT = CRITICALHIT { result: 2d ROLLDMG + FLATDMG }
+ else if RESULT = HIT { result: ROLLDMG + FLATDMG }
+ else { result: MISSDAMAGE }
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  D: D + [single damage for A]
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+MOD: 5
+PB: 4
+
+DEFENSE: d{15..22}
+
+
+\ -- Eldritch blast with agonizing -- \
+
+ATTACK: MOD + PB
+FLATDMG: MOD
+
+
+ROLLDMG: 1d10
+output [3 attacks] named "EB"
+
+ROLLDMG: 1d10 + 1d6 \hex\
+output [3 attacks] named "EB+hex"
+
+
+\ -- Spear with polearm expert -- \
+
+function: spear damage for ATTACKRESULTS:s and BONUSATTACK:n with EXTRADICE:n {
+ D: 0
+ ROLLDMG: 1d6 + EXTRADICE
+ loop A over ATTACKRESULTS {
+  D: D + [single damage for A]
+ }
+ ROLLDMG: 1d4 + EXTRADICE
+ D: D + [single damage for BONUSATTACK]
+ 
+ result: D + [spear bonus damage for ATTACKRESULTS and BONUSATTACK]
+}
+function: spear bonus damage for ATTACKRESULTS:s and BONUSATTACK:n {
+ result: 0
+}
+
+\ spear attacks with bonus \
+function: N:n spear attacks with EXTRADICE:n {
+ result: [spear damage for Nd[attack d20 vs DEFENSE] and 1d[attack d20 vs DEFENSE] with EXTRADICE]
+}
+function: N:n spear attacks {
+  result: [N spear attacks with 0]
+}
+
+ATTACK: MOD + PB + 1 \improved pact\
+FLATDMG: MOD + MOD \lifedrinker\ + 1 \improved pact\
+output [2 spear attacks] named "Spear"
+output [2 spear attacks with 1d6 \hex\] named "Spear+Hex"
+
+MINCRIT: 19 \curse\
+FLATDMG: MOD + MOD \lifedrinker\ + 1 \improved pact\ + PB \curse\
+output [2 spear attacks with 1d6 \hex\] named "Spear+Hex+Curse"
+
+
+\ smite on crit \
+function: spear bonus damage for ATTACKRESULTS:s and BONUSATTACK:n {
+ if [ATTACKRESULTS contains CRITICALHIT] | (BONUSATTACK = CRITICALHIT) { result: 12d8 }
+ else if [ATTACKRESULTS contains HIT] | (BONUSATTACK = HIT) { result: 0 }
+ else { result: 0 }
+}
+output [2 spear attacks with 1d6 \hex\] named "Spear+Hex+Curse+SmiteOnCrit"
+
+\ always smite \
+function: spear bonus damage for ATTACKRESULTS:s and BONUSATTACK:n {
+ if [ATTACKRESULTS contains CRITICALHIT] | (BONUSATTACK = CRITICALHIT) { result: 12d8 }
+ else if [ATTACKRESULTS contains HIT] | (BONUSATTACK = HIT) { result: 6d8 }
+ else { result: 0 }
+}
+output [2 spear attacks with 1d6 \hex\] named "Spear+Hex+Curse+WithSmite"
+

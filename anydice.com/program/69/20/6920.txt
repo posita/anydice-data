@@ -1,0 +1,61 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+THREAT: 19-20
+CRIT: 2
+
+ATTACK: 7
+AC: 18
+WPN: 1d6+6
+TWF: -2
+PREC: 1d6
+
+output [ATTACK vs AC crit THREAT CRIT dmg WPN PREC] named "lvl1 sneak"
+output [ATTACK+TWF vs AC crit THREAT CRIT dmg WPN PREC]+[ATTACK+TWF vs AC crit THREAT CRIT dmg WPN] named "lvl1 sneak + twf"
+output [{ATTACK+TWF,ATTACK+TWF} vs AC crit THREAT CRIT dmg WPN PREC] named "lvl1 flank twf"
+
+ATTACK: 12
+AC: 20
+WPN: 1d6+8
+TWF: -2
+PREC: 3d6
+
+output [ATTACK vs AC crit THREAT CRIT dmg WPN PREC] named "lvl5 sneak"
+output [ATTACK+TWF vs AC crit THREAT CRIT dmg WPN PREC]+[ATTACK+TWF vs AC crit THREAT CRIT dmg WPN] named "lvl5 sneak + twf"
+output [{ATTACK+TWF,ATTACK+TWF} vs AC crit THREAT CRIT dmg WPN PREC] named "lvl5 flank twf"
+
+ATTACK: 19
+AC: 25
+WPN: 1d6+11
+TWF: -2
+PREC: 5d6
+
+output [ATTACK vs AC crit THREAT CRIT dmg WPN PREC] named "lvl10 sneak"
+output [ATTACK+TWF vs AC crit THREAT CRIT dmg WPN PREC]+[{ATTACK+TWF,ATTACK-5+TWF} vs AC crit THREAT CRIT dmg WPN] named "lvl10 sneak + twf"
+output [{ATTACK+TWF,ATTACK+TWF,ATTACK-5+TWF} vs AC crit THREAT CRIT dmg WPN PREC] named "lvl10 flank twf"

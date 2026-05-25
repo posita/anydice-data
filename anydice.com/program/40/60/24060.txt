@@ -1,0 +1,48 @@
+PL_DEX: 5
+PL_PROF: 7
+SNEAK_ATT: 1
+SNEAK_DMG: 10d6
+PL_DMG: 1d10+2
+ADV: 1
+EN_AC: 18
+EN_SURPRISED: 0
+
+function: hit FIRST:n adv SECOND:n {
+if ADV = 1 {
+if FIRST + PL_DEX + PL_PROF < EN_AC & SECOND + PL_DEX + PL_PROF < EN_AC {
+result: 0
+}
+else if ((FIRST = 20 | SECOND = 20) | EN_SURPRISED = 1) & (FIRST + PL_DEX + PL_PROF >= EN_AC | SECOND + PL_DEX + PL_PROF >= EN_AC) {
+if SNEAK_ATT = 1 {
+result: (PL_DMG + PL_DEX + SNEAK_DMG)*2
+} else if SNEAK_ATT = 0 {
+result: (PL_DMG + PL_DEX)*2
+}
+} else if FIRST + PL_DEX + PL_PROF >= EN_AC | SECOND + PL_DEX + PL_PROF >= EN_AC {
+if SNEAK_ATT = 1 {
+result: PL_DMG + PL_DEX + SNEAK_DMG
+} else if SNEAK_ATT = 0 {
+result: PL_DMG + PL_DEX
+}
+}
+} else if ADV = 0 {
+if FIRST + PL_DEX + PL_PROF < EN_AC {
+result: 0
+}
+else if (FIRST = 20 | EN_SURPRISED = 1) & FIRST + PL_DEX + PL_PROF >= EN_AC {
+if SNEAK_ATT = 1 {
+result: (PL_DMG + PL_DEX + SNEAK_DMG)*2
+} else if SNEAK_ATT = 0 {
+result: (PL_DMG + PL_DEX)*2
+}
+} else if FIRST + PL_DEX + PL_PROF >= EN_AC {
+if SNEAK_ATT = 1 {
+result: PL_DMG + PL_DEX + SNEAK_DMG
+} else if SNEAK_ATT = 0 {
+result: PL_DMG + PL_DEX
+}
+}
+}
+}
+
+output[hit d20 adv d20] named "Aonaran Weapon Damage"

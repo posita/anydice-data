@@ -1,0 +1,87 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d { result: [reroll REROLL on DICE to DICE] }
+
+function: gwf DICE:d { result: [reroll {1,2} on DICE] }
+
+function: abilitymod SCORE:n { result: (SCORE - 10) / 2 }
+
+ADVANTAGE: [highest 1 of 2d20] DISADVANTAGE: [lowest 1 of 2d20]
+ELVENADV: [highest 1 of 3d20]
+
+\Malorin Feyn - Drow Elf Rogue Fighter\
+LEVEL: 11   \Class Level\ ROGUE: 8   FIGHTER: 3
+DEX: 20   DEXMOD: [abilitymod DEX]
+PROF: (LEVEL - 1) / 4 + 2
+SNEAK: ((ROGUE - 1) / 2 + 1)d6
+ARCHERY: +2
+MYCRIT: d{19,20}
+
+AC: d{16..19}
+
+\Rapier, Mundane\ DAMAGE: 1d8   MAGIC: 0
+ABONUS: DEXMOD + PROF + MAGIC
+DBONUS: DEXMOD + MAGIC
+HITDMG: DAMAGE + DBONUS
+CRITDMG: DAMAGE
+output [attack d20 plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Rapier"
+HITDMG: DAMAGE + DBONUS + SNEAK
+CRITDMG: DAMAGE + SNEAK
+output [attack ELVENADV plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Rapier Sneak w/ ElvenAdv"
+
+\Dagger, Mundane\ DAMAGE: 1d4   MAGIC: 0
+ABONUS: DEXMOD + PROF + MAGIC
+DBONUS: DEXMOD + MAGIC
+HITDMG: DAMAGE + DBONUS + SNEAK
+CRITDMG: DAMAGE + SNEAK
+output [attack ELVENADV plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Dagger Sneak w/ ElvenAdv"
+
+\Longbow, Magical +1\ DAMAGE: 1d8   MAGIC: 1
+\Malorin Feyn - Drow Elf Rogue Fighter\
+LEVEL: 11   \Class Level\ ROGUE: 8   FIGHTER: 3
+PROF: (LEVEL - 1) / 4 + 2
+SNEAK: ((ROGUE - 1) / 2 + 1)d6
+ABONUS: DEXMOD + PROF + MAGIC + ARCHERY
+DBONUS: DEXMOD + MAGIC
+HITDMG: DAMAGE + DBONUS
+CRITDMG: DAMAGE
+ output [attack ELVENADV plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Archery Longbow @ level [LEVEL]"
+HITDMG: DAMAGE + DBONUS + SNEAK
+CRITDMG: DAMAGE + SNEAK
+ output [attack 1d20 plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Archery Longbow Sneak Attack @ level [LEVEL]"
+ output [attack ELVENADV plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Elven Accuracy Archery Longbow @ level [LEVEL]"
+
+\
+loop AC over {16,18,20}{
+ output [attack ELVENADV plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Elven Accuracy Archery Longbow vs [AC]"
+}
+\

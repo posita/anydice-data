@@ -1,0 +1,18 @@
+\ point buy cost of a single ability score using extended D&D 5e cost table \
+\ from https://chicken-dinner.com/5e/5e-point-buy.html via https://rpg.stackexchange.com/a/185268 \
+function: cost of SCORE:n {
+  if SCORE < 3 { result: -1000 }    \ safety check 1: rolling below 3 should be impossible \
+  if SCORE > 18 { result: 1000000 } \ safety check 2: rolling above 18 should also be impossible \
+  result: (SCORE - 2) @ { -9, -6, -4, -2, -1, 0, 1, 2, 3, 4, 5, 7, 9, 12, 15, 19 }
+}
+
+function: total cost of ARRAY:s {
+  SUM: 0
+  loop SCORE over ARRAY { SUM: SUM + [cost of SCORE] }
+  result: SUM
+}
+
+STANDARD: 6d[cost of [highest 3 of 4d6]]  \ standard (4d6 drop lowest) \
+TARGET: [total cost of {15, 15, 15, 14, 13, 13}]
+
+output STANDARD >= TARGET

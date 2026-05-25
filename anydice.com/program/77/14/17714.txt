@@ -1,0 +1,75 @@
+AC: 15
+PROFICIENCY: 3
+DEX: 4
+SNEAK: 3d6
+BRENDA: 4+2
+
+function: rapier ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d8+2dSNEAK+4 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d8+SNEAK+4 }
+ result: 0
+}
+
+function: shortbow ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK+4+1 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX +1 >= AC { result: d6+SNEAK+4+1 }
+ result: 0
+}
+
+function: shortsword ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK+4 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d6+SNEAK+4 }
+ result: 0
+}
+
+function: daggertwf ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d4+2dSNEAK } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d4+SNEAK }
+ result: 0
+}
+
+function: shortswordtwf ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d6+SNEAK }
+ result: 0
+}
+
+
+function: daggertwfnosneak ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d4 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d4 }
+ result: 0
+}
+
+function: brenda ROLL:n vs AC:n {
+ if ROLL >= 19 { result: 2d12+BRENDA } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + BRENDA >= AC { result: d12+BRENDA }
+ result: 0
+}
+
+function: first A:n second B:n {
+  if A = 20 {result: 2d6+DEX+2dSNEAK + [brenda [highest 1 of 2d20] vs AC]-[brenda d20 vs AC]}
+  if A + DEX + PROFICIENCY >= AC & A != 1 {result: d6+DEX+SNEAK + [brenda [highest 1 of 2d20] vs AC]-[brenda d20 vs AC]}
+  result: [daggertwf d20 vs AC]
+}
+
+output [first d20 second d20] named "shortsword + TWF (dagger)/Help Brenda"
+
+function: first A:n second B:n {
+  if A = 20 {result: 2d6+DEX+2dSNEAK + [brenda [highest 1 of 2d20] vs AC]-[brenda d20 vs AC]}
+  if A + DEX + PROFICIENCY >= AC & A != 1 {result: d6+DEX+SNEAK + [brenda [highest 1 of 2d20] vs AC]-[brenda d20 vs AC]}
+  result: [shortswordtwf d20 vs AC]
+}
+
+output [first d20 second d20] named "shortsword + TWF (shortsword)/Help Brenda"
+
+output [shortbow d20 vs AC]+[brenda [highest 1 of 2d20] vs AC]-[brenda d20 vs AC] named "shortbow (+1) + Help Brenda"
+output [rapier d20 vs AC]+[brenda [highest 1 of 2d20] vs AC]-[brenda d20 vs AC] named "rapier + Help Brenda"
+output [shortsword d20 vs AC]+[daggertwfnosneak d20 vs AC] named "hit + TWF"

@@ -1,0 +1,41 @@
+\ This bit is magic \
+function: eh D:n TN:n R:n X:n {
+ if X { if D = 10 { result: 1 + [eh d10 TN R X] } }
+ if D >= TN { result: 1 }
+ if R { if D = 1 { result: -1 } }
+ result: 0
+}
+
+\ MAXIMUM RESULT FIDELITY \
+set "maximum function depth" to 10
+
+\ controls the range of the dice pool size \
+MINDICE: 1
+MAXDICE: 5
+
+\ controls the range of the TNs \
+MINTN: 2
+MAXTN: 10
+
+\ controls whether or not to calculate results with the rusting mechanic (1s cancel successes)
+set both to 0 for no rusting, both to 1 for only rusting, 0/1 for both \
+MINRUST: 0
+MAXRUST: 1
+
+\ controls whether 10s explode (as rusting, above) \
+MINSPLODE: 0
+MAXSPLODE: 1
+
+\ rearrange the loop conditions if you want the result tables/graphs to be ordered differently
+should be self-explanatory by inspection \
+loop DICE over {MINDICE..MAXDICE} {
+ loop TARGET over {MINTN..MAXTN} {
+  loop RUST over {MINRUST..MAXRUST} {
+   loop EXPLODE over {MINSPLODE..MAXSPLODE} {
+    output [highest of 0 and [lowest of 10 and DICEd[eh d10 TARGET RUST EXPLODE]]] named "[DICE]d10 at TN [TARGET] rusting [RUST] exploding [EXPLODE]"
+   }
+  }
+ }
+}
+
+\  one thing to note - reported number of successes is capped at 10 because getting more than that is already fantastically unlikely but including the values on the graphs/tables makes them ridiculously huge. Assume the chance of 10 successes actually means "10 or more" \

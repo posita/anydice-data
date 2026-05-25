@@ -1,0 +1,153 @@
+Q: d{0..3}
+Z: d{0,0..2}
+\
+Roll:     {3,3,3,3,2,2,1,1,1,1,1,0}
+Reversed: {0,1,1,1,1,1,2,2,3,3,3,3}
+Exact Part on 3+: {3,3,3,3}
+Pairing Part on 3+: {2,2,1,1,1,1,1,0}
+\
+
+
+function: count pairing TARGET:n in SEQUENCE:s {
+ REVERSED: [reverse SEQUENCE]
+ SIZEMAX: #SEQUENCE
+ SIZEMIN: 1
+ COUNT: 0
+ loop M over {1..#SEQUENCE} {
+  END: 0
+  COUNT: COUNT + (M@SEQUENCE>=TARGET)
+  \if (M@SEQUENCE >= TARGET) { COUNT: COUNT + 1 }\
+
+  if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) {
+    loop N over {(SIZEMIN)..(SIZEMAX-M)} {
+       if (END=0) {
+         if ((M@SEQUENCE + N@REVERSED) >= TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: N+1
+         }
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+
+function: bis count pairing TARGET:n in SEQUENCE:s {
+ SIZEMAX: #SEQUENCE
+ SIZEMIN: 1
+ COUNT: 0
+ loop M over {1..#SEQUENCE} {
+  END: 0
+
+  \COUNT: COUNT + (M@SEQUENCE>=TARGET)\
+  if (M@SEQUENCE >= TARGET) { COUNT: COUNT + 1 }
+
+  if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) {
+    loop N over {(SIZEMIN)..(SIZEMAX-M)} {
+       if (END=0) {
+         if ((M@SEQUENCE + (SIZEMAX-N+1)@SEQUENCE) >= TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: N+1
+         }
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+
+function: tris count pairing TARGET:n in SEQUENCE:s {
+ SIZEMAX: #SEQUENCE
+ SIZEMIN: 1
+ COUNTF: 0
+ COUNT: 0
+ loop M over {1..#SEQUENCE} {
+  END: 0
+
+  if (M@SEQUENCE < TARGET) {
+  COUNTF: COUNTF + 1                                    \count Failures\
+  if (M@SEQUENCE > 0) {
+    loop N over {SIZEMIN..(SIZEMAX-M)} {
+       if (END=0) {
+         if ((M@SEQUENCE + (SIZEMAX-N+1)@SEQUENCE) >= TARGET) {
+           COUNT: COUNT + 1                                              \count Successes by pairing\
+           END: 1
+           SIZEMIN: N+1
+         }
+       }
+    }}
+  }
+ }
+ result: SIZEMAX-COUNTF+COUNT
+}
+
+
+function: exact pairing SEQUENCE:s on TARGET:n {
+ COUNT: 0
+ TEMP: {}
+ loop M over {1..#SEQUENCE} {
+    if (M@SEQUENCE >= TARGET) { COUNT: COUNT + 1 }
+    if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) & (M@SEQUENCE >= ((TARGET-1)/2)) { TEMP: {TEMP, M@SEQUENCE} }   \Remove 0s & Non-Pairable from the roll.\
+ }
+ loop N over {1..#TEMP} {
+    
+ }
+ result: TEMP
+}
+
+T: 4
+POOL: 10
+\output POOLdZ
+output [exact pairing POOLdQ on T] named "exact pairing [POOL]d4 TEST"
+output [count pairing T in POOLdQ] named "count pairing [POOL]d4 TEST"
+output [tris count pairing T in POOLdQ] named "bis count pairing [POOL]d4 TEST"\
+
+\output [bis count pairing 1 in POOLdQ] named "bis count pairing [POOL]d4 TEST"
+output [bis count pairing 2 in POOLdQ] named "bis count pairing [POOL]d4 TEST"
+output [bis count pairing 3 in POOLdQ] named "bis count pairing [POOL]d4 TEST"
+output [bis count pairing 4 in POOLdQ] named "bis count pairing [POOL]d4 TEST"
+output [bis count pairing 5 in POOLdQ] named "bis count pairing [POOL]d4 TEST"
+output [bis count pairing 6 in POOLdQ] named "bis count pairing [POOL]d4 TEST"\
+
+
+
+
+function: limit to zero A:n and B:n {
+ if (A-B)<0 { result: 0 }
+ result: A-B
+}
+
+function: test target TN:n {  \ 2++ \
+ COUNT: 0
+ ROLL: {1,1,1,1,1,0}
+ HASH: {}
+ loop M over {1..#ROLL} {
+    TEMP: TN-M@ROLL
+    if ([HASH contains TEMP]) { COUNT: COUNT + 1 }
+    else{
+       HASH: {HASH, M@ROLL}
+    }
+ }
+ result: COUNT
+}
+output [test target 2]
+
+
+function: testbis target TN:n {  \ 2++ \
+ TEMP: {}
+ ROLL: {1,1,1,1,1,0}
+
+ loop M over {1..#ROLL} {
+    if (M@ROLL < TN) {
+      TEMP: {TEMP, M@ROLL }
+    }
+ }
+ result: TEMP
+}
+output [testbis target 2]
+
+

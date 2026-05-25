@@ -1,0 +1,42 @@
+AC: {10..20}
+ENEMY_CON:15
+
+function: 
+attack DMG:d 
+crit CRIT_DMG:d 
+penalty PENALTY:n 
+rider RIDER:n 
+stat STAT:n 
+prof PROFICIENCY:n 
+with superiority die SUP:n 
+roll ROLL:n 
+poison roll POISON_SAVE:n 
+against dc POISON_SAVE_DC:n {
+    MODIFIER: STAT-10/2
+    DMG_WITH_BONUS: DMG + MODIFIER + RIDER
+    POISON_DAMAGE: 0
+
+    if POISON_SAVE < POISON_SAVE_DC {
+        POISON_DAMAGE: 20
+    }
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        result: DMG_WITH_BONUS + CRIT_DMG + POISON_DAMAGE
+    }
+
+    if ROLL + MODIFIER + PROFICIENCY - PENALTY >= AC {
+        result: DMG_WITH_BONUS+SUP+ POISON_DAMAGE
+    }
+    if ROLL + MODIFIER + PROFICIENCY - PENALTY +SUP >= AC {
+        result: DMG_WITH_BONUS+POISON_DAMAGE
+    }
+    result: 0
+}
+
+
+output
+3d[attack 1d6 crit 1d6 penalty 5 rider 10 stat 20 prof 3 with superiority die 1d8 roll 1d20 poison roll 0 against dc 0] 
+named "Sharpshooter Crossbow Expert BM w/ 20 Dex"
+

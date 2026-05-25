@@ -1,0 +1,125 @@
+\
+  PART 1: No Resources
+  ASSUMPTIONS:
+  Using no resources, only features that are always available
+  Nat 20 is crit, nat 1 is miss
+  Enemies make saves at +3
+  Only one enemy is in range for AoEs
+  Enemy has no resistances
+\
+MISS: 0
+HIT: 1
+CRIT: 2
+
+DIANA: 1 
+SABRINA: 2
+THAMIR: 3
+ZILARRA: 4 
+
+function: attack ROLL:n BON:n vs AC:n {
+  if ROLL = 20 { result: CRIT }
+  if ROLL = 1 | ROLL + BON < AC { result: MISS }
+  result: HIT
+}
+
+function: damage DICE:d DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result: DICE+DICE+DAM }
+  if ATTACK = MISS { result: 0 }
+  result: DICE+DAM
+}
+
+function: ripple pulse X:n {
+  if X+3 >= 16 {result: 2d6/2}
+  result: 2d6
+}
+
+function: level L:n agony DIE:n {
+  if DIE = 1 { result: DIE+L }
+  result: DIE
+}
+
+\function: special nr ATTACKS:s CHAR:n {
+  TOTAL: 0
+  if CHAR = SABRINA {
+    loop A over ATTACKS {
+      TOTAL: TOTAL + [damage 2d6 4 for A]
+    }
+    if [count {HIT, CRIT} in {ATTACKS}] > 1 { TOTAL: TOTAL + 3 }
+  }
+  if CHAR = THAMIR {
+    loop A over {1..#ATTACKS} {
+      if A = 1 { D: 2d6 }
+      else { D: 1d6 }
+      TOTAL: TOTAL + [damage D 5 for A@ATTACKS]
+    }
+    if [count {HIT, CRIT} in {ATTACKS}] > 1 { TOTAL: TOTAL + [ripple pulse 1d20] }
+  }
+  if CHAR = ZILARRA {
+    loop A over ATTACKS {
+      if A = CRIT { TOTAL: TOTAL + 4d[level 2 agony 1d8] + 2 }
+      if A = HIT { TOTAL: TOTAL + 2d[level 2 agony 1d8] + 2 }
+    }
+  }
+  result: TOTAL
+}\
+
+\AC: d{10..25}\
+\loop AC over {10..25} {
+  output 0 named "AC [AC]"
+  output 2d[damage 1d10 4 for [attack 1d20 9 vs AC]] named "Diana NR" \\(Two Eldritch Blasts)\\
+  output [special nr 3d[attack 1d20 8 vs AC] SABRINA] named "Sabrina NR" \\(Three Cestus Attacks + Hourglass + Prof Damage)\\
+  output [special nr 2d[attack 1d20 8 vs AC] THAMIR] named "Thamir NR" \\(Green Flame Blade + Rapier Swing + Ripple Pulse)\\
+  output [special nr 1d[attack 1d20 10 vs AC] ZILARRA] named "Zilarra NR" \\(Chill Touch w/ Agony lvl 2)\\
+}\
+
+
+\
+  PART 2: Some Resources
+  ASSUMPTIONS
+  Using resources that are available multiple times per long rest
+  Enemy is hit by at least one weapon attack
+  Enemy hits at least one attack vs Diana's talisman wearer
+  Nat 20 is crit, nat 1 is miss
+  Enemies make saves at +3
+  Only one enemy is in range for AoEs
+  Enemy has no resistances
+\
+
+function: moonbeam X:n {
+  if X+3 >= 18 {result: 2d10/2}
+  result: 2d10
+}
+
+function: special sr ATTACKS:s CHAR:n {
+  TOTAL: 0
+  if CHAR = SABRINA {
+    loop A over ATTACKS {
+      TOTAL: TOTAL + [damage 2d6 4 for A]
+    }
+    if [count {HIT, CRIT} in {ATTACKS}] > 1 { TOTAL: TOTAL + 3 }
+  }
+  if CHAR = THAMIR {
+    loop A over {1..#ATTACKS} {
+      if A = 1 { D: 2d6 }
+      else { D: 1d6 }
+      TOTAL: TOTAL + [damage D 5 for A@ATTACKS]
+    }
+    if [count {HIT, CRIT} in {ATTACKS}] > 1 { TOTAL: TOTAL + [ripple pulse 1d20] }
+  }
+  if CHAR = ZILARRA {
+    loop A over ATTACKS {
+      if A = CRIT { TOTAL: TOTAL + 4d[level 3 agony 1d8] + 2 }
+      if A = HIT { TOTAL: TOTAL + 2d[level 3 agony 1d8] + 2 }
+    }
+    if [count {HIT, CRIT} in {ATTACKS}] > 1 { TOTAL: TOTAL + [1d[level 3 agony 1d10]] }
+  }
+  result: TOTAL
+}
+
+loop AC over {10..25} {
+  output 0 named "AC [AC]"
+  output 2d[damage 1d10 4 for [attack 1d20 9 vs AC]]+1d[damage 1d6 3 for [attack 1d20 6 vs AC]]+1d6+3 named "Diana SR" \(Two Eldritch Blasts + Drake Companion + Favored Foe + Rebuke of the Talisman)\
+  output [special sr 4d[attack 1d20 8 vs AC] SABRINA] named "Sabrina SR" \(Two Cestus Attacks + Flurry of Blows + Hourglass + Prof Damage)\
+  output [special sr 2d[attack 1d20 8 vs AC] THAMIR]+1d[damage 1d8 7 for [attack [highest 1 of 2d20] 8 vs AC]] named "Thamir SR" \(Green Flame Blade + Rapier Swing + Ripple Pulse + 3rd Level Bestial Spirit)\
+  output [special sr 1d[attack 1d20 10 vs AC] ZILARRA]+[moonbeam 1d20] named "Zilarra SR" \(Chill Touch w/ Agony lvl 3 + Moonbeam + Hunter's Coat)\
+}

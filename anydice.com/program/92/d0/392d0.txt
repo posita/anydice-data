@@ -1,0 +1,30 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d
+{
+    if [REROLL contains ROLL]
+    {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d
+{
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: count successes ROLL:s
+{
+    result: ROLL >= SUCCESS_VALUE
+}
+
+DICE_COUNT: 2
+FACES_PER_DICE: 6
+SUCCESS_VALUE: 4
+
+loop RR_COUNT over {0..DICE_COUNT}
+{
+  SUCCESSES: [count successes RR_COUNTd[reroll {1..SUCCESS_VALUE-1} on dFACES_PER_DICE]]
+  SUCCESSES: SUCCESSES+ [count successes (DICE_COUNT-RR_COUNT)dFACES_PER_DICE]
+  
+  output SUCCESSES named "[DICE_COUNT]d[FACES_PER_DICE]@[SUCCESS_VALUE]+, [RR_COUNT] rerolls"
+}

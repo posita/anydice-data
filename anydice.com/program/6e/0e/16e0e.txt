@@ -1,0 +1,61 @@
+HITS: 3
+ACCURACY: 5
+ACCMOD: 3
+EVASION: 5
+EVAMOD: 0
+
+PENETRATION: 6
+PENMOD: 0
+TOUGHNESS: 5
+TOUMOD: 2
+
+\ Calculations Below \
+
+ACCURACY: ACCURACY - 5
+ACCURACY: ACCURACY + ACCMOD
+EVASION: EVASION - ACCURACY
+EVASION: EVASION + EVAMOD
+
+PENETRATION: PENETRATION - 5
+PENETRATION: PENETRATION + PENMOD
+TOUGHNESS: TOUGHNESS - PENETRATION
+TOUGHNESS: TOUGHNESS + TOUMOD
+
+function: calc wounds from NUM:n {
+  WOUNDS: 0
+  DIE: 1d10
+  loop N over {1..NUM} {
+    WOUNDS: WOUNDS + [DIE check evasion]
+  }
+  result: WOUNDS
+}
+
+function: RESULT:n check evasion {
+  HITSUCCESSES: 0
+  if RESULT >= EVASION { 
+    HITSUCCESSES: [DIE check toughness]
+  }
+  else {
+    if RESULT = 10{
+      HITSUCCESSES: [DIE check toughness]
+    }
+  }
+  result: HITSUCCESSES
+}
+
+function: RESULT:n check toughness {
+  DMGSUCCESSES: 0
+  if RESULT >= TOUGHNESS { 
+    DMGSUCCESSES: 1
+  }
+  else {
+    if RESULT = 10{
+      DMGSUCCESSES: 1
+    }
+  }
+  result: DMGSUCCESSES
+}
+
+output [calc wounds from HITS] named "wounds"
+output EVASION named "Evasion Total"
+output TOUGHNESS named "Toughness Total"

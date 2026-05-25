@@ -1,0 +1,52 @@
+
+function: replace OLD in SEQ:s with NEW {
+  NEWSEQ: {}
+  loop I over {1 .. #SEQ} {
+    if I@SEQ = OLD { NEWSEQ: {NEWSEQ, NEW} }
+    else {NEWSEQ: {NEWSEQ, I@SEQ} }
+  }
+  result: NEWSEQ
+}
+
+function: push REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: dicetype N:n {
+  if N = 1 { result: {-1, 0:4, 1} }
+  if N = 2 { result: {-1, 0:4, 1:3} }
+  if N = 3 { result: {-1, 0:4, 1:4, 2} }
+  if N = 4 { result: {-1, 0:4, 1:4, 2:3} }
+}
+
+\ when specifying D: \
+\.  1 is a success \
+\.  0 a miss that can be rerolled \
+\  -1 a miss that can NOT be rerolled \
+
+D:{-1, 0:4, 1}
+D: {0:5, 1}
+B: [replace -1 in dD with 0]
+P: [replace -1 in [push {0} on dD to dD] with 0]
+
+loop NONE over {1..4}{
+  DOVAL: (NONE - 1)*2 + 6
+  DONE: [dicetype NONE]
+  BONE: [replace -1 in dDONE with 0]
+  PONE: [replace -1 in [push {0} on dDONE to dDONE] with 0]
+  loop NTWO over {NONE..4}{
+    DTVAL: (NTWO - 1)*2 + 6
+    DTWO: [dicetype NTWO]
+    BTWO: [replace -1 in dDTWO with 0]
+    PTWO: [replace -1 in [push {0} on dDTWO to dDTWO] with 0]
+   \ output dBONE + dBTWO named "Base d[DOVAL] + d[DTVAL]"\
+    output dBONE + dBTWO >= 1 named "Pass/Fail Base d[DOVAL] + d[DTVAL]"
+   \ output dPONE + dPTWO named "Push d[DOVAL] + d[DTVAL]"\
+    \output dPONE + dPTWO >= 1 named "Pass/Fail Push d[DOVAL] + d[DTVAL]"\
+  }
+}
+
+

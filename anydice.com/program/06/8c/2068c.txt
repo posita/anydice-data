@@ -1,0 +1,26 @@
+set "maximum function depth" to 4
+set "explode depth" to 4
+
+function: explodedp N:n with M:n {
+ if (N = 10) & (M = 10) {result: 0}
+ result: [exploded N with M]
+}
+
+function: exploded N:n with M:n {
+ if (N = 1) & !(M = 1) {result: M + [exploded d10 with d10]}
+ if (M = 1) & !(N = 1) {result: N + [exploded d10 with d10]}
+ if (N = 1) & (M = 1) {result: 2d[exploded d10 with d10]}
+ result: N + M
+}
+
+function: stress N:n {
+ if N = 1 {result: [stress d10] + [stress d10]}
+ result: N 
+}
+function: stressp N:n {
+ if N = 1 {result: [stressp d{0..9}] + [stressp d{0..9}]}
+ result: N 
+}
+
+output [explodedp d10 with d10] named "Stress Type 2"
+output [explodedp d10 with d10] - [explodedp d10 with d10] named "Opposed"

@@ -1,0 +1,37 @@
+\ DMIN = minimalna ilosc kosci \
+DMIN : 10
+\ DMAX = maksymalna ilosc kosci \
+DMAX : 1
+\jesli obie sa sobie rowne wypisze tylko dla minimalnego rzutu. Jeśli max < min to max = min\
+
+\ Poziom trudnosci \
+DN : 3
+
+
+function: ROLL:s count succes{
+ result: ((ROLL >= 4) - (ROLL = 6)) + ((ROLL = 6)*2)
+}
+
+function: ROLL:s count exalted {
+ result: (ROLL = 6) * 2
+}
+
+function: ROLL:s count succes for DN{
+result: ((ROLL >= 4) - (ROLL = 6)) + ((ROLL = 6)*2) >= DN
+}
+
+function: ROLL:s count succes with six{
+result: (((ROLL >= 4) - (ROLL = 6)) & ROLL = 6) + ((ROLL = 6)*2)
+}
+
+\Na wypadek trollowania\
+if DMIN > DMAX {DMAX : DMIN}
+
+loop N over {DMIN..DMAX }{
+ \ output Nd6 named "[N]d6" \ \Odkomentuj poprzednika jesli chcesz zobaczyc rozklad \
+ output [Nd6 count succes] named "sucess icons for [N]d6"
+ output [Nd6 count succes with six] named "sucess roll for [N]d6 with at least one six"
+ output [Nd6 count exalted] named "only sucess from exalted icons [N]d6"
+ output [Nd6 count succes for DN] named "sucess roll chance [N]d6 for DN=[DN]"
+}
+

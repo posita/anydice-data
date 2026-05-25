@@ -1,0 +1,60 @@
+FALL: 0
+SUCCESS: 1
+CRITICAL: 2
+
+HITDAMAGE: d8
+CRITICALDAMAGE: 2d8
+MISSDAMAGE: 0
+
+SUSERANGED: 139
+SDODGE: 81
+SRESISTDAMAGE: 68
+
+function: check ROLL:n vs THRESHOLD:n {
+ if ROLL = 100 { result: FALL }
+ if ROLL <= THRESHOLD/20 { result: CRITICAL }
+ if ROLL <= THRESHOLD { result: SUCCESS }
+ result: FALL
+}
+
+function: damage NDICE:n DICE:n for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICAL {
+  result: (NDICE*2)dDICE
+ }
+ if ATTACKRESULT = SUCCESS {
+  result: NDICEdDICE
+ }
+ result: 0
+}
+
+
+function: split by SPLITS:n {
+ result: (SPLITS - 1) * [damage 2 8 for [check d100 vs SUSERANGED/SPLITS]] + [damage 2 8 for [dodge [check d100 vs SUSERANGED/SPLITS] with [check d100 vs SDODGE]]]
+}
+
+
+function: take aim by SPLITS:n {
+ result: [damage SPLITS + 1 8 for [dodge [check d100 vs SUSERANGED/SPLITS] with [check d100 vs SDODGE]]]
+}
+
+function: dodge ATTACKRESULT:n with DODGERESULT:n {
+ if ATTACKRESULT >= SUCCESS & DODGERESULT >= SUCCESS { result: FALL }
+ result: ATTACKRESULT
+}
+
+function: resist DAMAGE:n damage with RESISTDAMAGE:n {
+ if RESISTDAMAGE = CRITICAL { result: DAMAGE - 2d6 }
+ if RESISTDAMAGE = SUCCESS { result: DAMAGE - d6 }
+ if RESISTDAMAGE = FALL { result: DAMAGE }
+}
+
+
+function: floor NUMBER:n by MIN:n{
+ if NUMBER < MIN { result: MIN }
+ result: NUMBER
+}
+
+loop SPLITS over {1, 2, 3, 4, 5, 6} {
+ output [floor [resist [split by SPLITS] damage with [check d100 vs SRESISTDAMAGE]] by 0] named "split by [SPLITS]"
+ output [floor [resist [take aim by SPLITS] damage with [check d100 vs SRESISTDAMAGE]] by 0] named "take aim by [SPLITS]"
+}

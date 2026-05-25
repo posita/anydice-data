@@ -1,0 +1,77 @@
+AC:15
+ATTACK_BONUS: 6
+DAMAGE_BONUS: 3
+
+function: attack {
+    result: d20
+}
+
+function: attack with advantage  {
+    result: [highest 1 of 2d20]
+}
+
+function: hits ROLL:n {
+    result: [highest of [lowest of ROLL + ATTACK_BONUS - AC + 1 and 1] and 0]
+}
+
+function: crits ROLL:n {
+    if ROLL = 20 { result: 1 }
+    result: 0
+}
+
+function: hit ROLL:n {
+    if ROLL = 20 {
+        result: 2d6 + DAMAGE_BONUS
+    }
+    result: d6 + DAMAGE_BONUS
+}
+
+function: trip ROLL:n {
+    result: [hits ROLL] * d8
+}
+
+\ action \
+function: fa {
+    A: [attack]
+    result: [hits A] * ([hit A] + [trip A]) + [fb A]
+}
+
+\ action surge \
+function: fb A:n {
+    if [hits A] = 1 {
+        B: [attack with advantage]
+        result: [hits B] * [hit B] + [fc A B]
+    }
+    B: [attack]
+    result: [hits B] * [hit B] + [fc A B]
+}
+
+\ bonus action \
+function: fc A:n B:n {
+    if [hits A] = 1 {
+        C: [attack with advantage]
+        result: [hits C] * [hit C] + [fd A]
+    }
+    C: [attack]
+    result: [hits C] * [hit C] + [fd A]
+}
+
+\ sneak attack \
+function: fd A:n {
+    if A = 20 {
+        result: 6d6 + [fe]
+    }
+    if [hits A] = 1 {
+        result: 3d6 + [fe]
+    }
+    result: [fe]
+}
+
+\ riposte \
+function: fe {
+    MISS: [highest of [lowest of d20 - 8 + 1 and 1] and 0]
+    E: [attack]
+    result: MISS * ([hits E] * d8 + [crits E] * d8)
+}
+
+output [fa]

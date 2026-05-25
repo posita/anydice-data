@@ -1,0 +1,47 @@
+function: hc AC:n THB:n N:n{
+  BASE: (1d20+THB)>=AC
+  RES: 0
+  loop I over {1..N}{
+    RES: RES + BASE
+  }
+  result: RES > 0
+}
+
+function: crit DIE:d BASE:n{
+  result: DIE * (1d20>=BASE)
+}
+
+function: optdmg DIST:s DMG:n {
+  NEW: {}
+  loop I over {1..#DIST} {
+    if I@DIST = 0 {NEW: {NEW: 0}}
+    if I@DIST > 0 {NEW: {NEW, I@DIST + DMG}}
+  }
+  result: NEW
+}
+
+EB: 1d10
+HX: 1d6
+CHR: 5
+PROF: 3
+AAS: 8
+
+HBC: 19
+NMC: 20
+
+TAC: 22
+THB: 2
+BH: [hc TAC THB 1]
+AD: [hc TAC THB 2]
+SA: [hc TAC THB 3]
+
+SSW: 1d6 + 8 + [crit 1d6 20]
+FIST: 1d6 + 5 + [crit 1d6 20]
+SAT: 1d6 + [crit 1d6 20]
+
+output [optdmg (SSW * [hc TAC 11 1] + SSW * [hc TAC 11 1] + FIST * [hc TAC 8 1] + FIST * [hc TAC 8 1]) SAT] named "Fury"
+output [optdmg (SSW * [hc TAC 11 2] + SSW * [hc TAC 11 2] + FIST * [hc TAC 8 2] + FIST * [hc TAC 8 2]) SAT] named "Fury"
+output [optdmg (SSW * [hc TAC 11 1] + SSW * [hc TAC 11 1] + FIST * [hc TAC 11 1]) SAT] named "1 bonus"
+output [optdmg (SSW * [hc TAC 11 2] + SSW * [hc TAC 11 2] + FIST * [hc TAC 11 2]) SAT] named "1 bonus"
+
+output [optdmg (SSW * [hc TAC 11 2] + SSW * [hc TAC 11 1]) SAT] named "teleport"

@@ -1,0 +1,49 @@
+TRAIT: 1d10+2
+WILD: 1d6
+MOD: -1
+ROUNDS: 4
+SUCCS: 6
+BENNIES: 2
+IE: 1
+
+CRITFAIL: -(3*SUCCS)
+SUCCESS: 1
+RAISE: 2
+FAIL: 0
+\ set "position order" to "lowest first" \
+\ set "maximum function depth" to BENNIES+2\ 
+
+
+function: ritroll BON:s and ROLL:s with MOD:n {
+ if ROLL = 1@{TRAIT} & BON = 1@{WILD} { result: CRITFAIL }
+ if ROLL+MOD >= 4 | BON+MOD >= 4 {
+  if ROLL+MOD >= 8 | BON+MOD >=8 {
+    result: RAISE
+  }
+  result: SUCCESS
+ }
+ result: FAIL
+}
+
+function: tryritual ROUND:n rounds SUC:n successes with mod MOD:n and die DIE:d {
+   if IE = 1 {
+      result: {ROUND-1}d [ritroll [explode WILD] and [explode DIE] with MOD] + [ritroll [explode WILD] and [explode DIE] with MOD+2]
+   } else {
+      result: ROUNDd [ritroll [explode WILD] and [explode DIE] with MOD]
+   }
+}
+
+if IE = 1 {
+   output [tryritual ROUNDS rounds SUCCS successes with mod MOD and die TRAIT] >= SUCCS named "0=failure, 1=success (IE is on)"
+   output [tryritual ROUNDS rounds SUCCS successes with mod MOD and die TRAIT] <= -SUCCS named "Crit fail chance (IE is on)"
+   output [ritroll [explode WILD] and [explode TRAIT] with MOD] named "One test (1=succ, 2=raise) (IE is off)"
+   output [ritroll [explode WILD] and [explode TRAIT] with MOD+2] named "One test (1=succ, 2=raise) (IE is on)"
+   output {ROUNDS-1}d [ritroll [explode WILD] and [explode TRAIT] with MOD] + [ritroll [explode WILD] and [explode TRAIT] with MOD+2] named "All tests (IE is on)"
+   output {ROUNDS-1}d [ritroll [explode WILD] and [explode TRAIT] with MOD] + [ritroll [explode WILD] and [explode TRAIT] with MOD+2] >= SUCCS named "Sanity Check (IE is on)"
+} else { 
+   output [tryritual ROUNDS rounds SUCCS successes with mod MOD and die TRAIT] >= SUCCS named "0=failure, 1=success (IE is on)"
+   output [tryritual ROUNDS rounds SUCCS successes with mod MOD and die TRAIT] <= -SUCCS named "Crit fail chance (IE is on)"
+   output [ritroll [explode WILD] and [explode TRAIT] with MOD] named "One test (1=succ, 2=raise) (IE is off)"
+   output {ROUNDS}d [ritroll [explode WILD] and [explode TRAIT] with MOD] named "All tests (IE is off)"
+   output {ROUNDS}d [ritroll [explode WILD] and [explode TRAIT] with MOD] >= SUCCS named "Sanity Check (IE is off)"
+}

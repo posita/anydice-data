@@ -1,0 +1,99 @@
+function: successes SUM:n {
+  if SUM > 31 { result: 5 }
+  if SUM > 15 { result: 4 }
+  if SUM > 7 { result: 3 }
+  if SUM > 3 { result: 2 }
+  if SUM > -1 { result: 1 }
+  result: 0
+}
+
+function: roll ATTR:d with SKILL:d vs D:n  {
+  SUM: [explode ATTR] + [explode SKILL] - D
+  result: [successes SUM]
+}
+
+function: with R:n add D:n {
+  if R > 0 & D > 0 {
+    result: [highest of R and D] + 1
+  }
+  if R > 0 { result: R }
+  result: 0
+}
+
+function: sum of A:n and B:n {
+  if A = B & A > 0 {
+    result: A + 1
+  }
+  if A > B {
+    result: A
+  }
+  result: B
+}
+
+
+function: best of A:n and B:n {
+  if A > 0 & B > 0 {
+    result: [highest of A and B] + 1 \[lowest of A and B]/2\
+  }
+  result: [highest of A and B]
+}
+
+function: best of A:n and B:n and C:n {
+  H: [highest of [highest of A and B] and C]
+  if A > 0 & B > 0 & C > 0 {
+    R: A + B + C - H
+    result: H + R/2
+  }
+  if A > 0 & B > 0 {
+    result: [highest of A and B] + 1
+  }
+  if A > 0 & C > 0 {
+    result: [highest of A and C] + 1
+  }
+  if C > 0 & B > 0 {
+    result: [highest of C and B] + 1
+  }
+  result: H
+}
+
+function: support A:n with B:n for D:n damage {
+  X: [higher of A and B]
+  if X > 0 {
+    result: [higher of X and D]
+  }
+  result: 0
+}
+
+function: is success A:n {
+  if A > 0 {result: 1}
+  result: 0
+}
+
+function: spread A:n {
+  if A < 2 {result: A}
+  X: 1
+  loop N over {1..A}{
+     X: X*2
+  }
+  if X > 64 {result: 64}
+  result: X
+}
+
+function: add half N:n to ATTR:d with SKILL:d vs D:n {
+  X: 0
+  if N = 1 {X: 1}
+  if N = 2 {X: 1}
+  if N = 3 {X: 2}
+  if N = 4 {X: 2}
+  if N = 5 {X: 3}
+  result: [roll ATTR with SKILL vs D] + X
+}
+
+
+
+X:10
+
+output [spread [best of [best of [roll d8 with d10 vs X] and [roll d8 with d10 vs X]] and [roll d8 with d10 vs X]]] named "take higher + 1"
+output [spread [sum of [with [roll d8 with d10 vs X] add [roll d8 with d10 vs X]] and [with [roll d8 with d10 vs X] add [roll d8 with d10 vs X]]]] named "two attacks"
+output [spread [with [roll d8 with d10 vs X] add [roll d8 with d10 vs X]]] named "single attack"
+

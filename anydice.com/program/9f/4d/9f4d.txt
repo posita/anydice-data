@@ -1,0 +1,41 @@
+function: test U:n V:n A:n X:n B:n Y:n {
+
+  O: A+X
+  P: B+Y
+
+  if(A = 1) { O: 0 }
+  if(B = 1) { P: 0 }
+
+  \ =if(and(D < A, A >= V), "Atk", if(and(D > A, D >= U), "Def", if(A < V, "-", "BOTH"))) \
+
+  if((P < O) & (O >= V)) {
+    result: 1 \ attacker wins \
+
+  } else {
+
+    if((P > O) & (P >= U)) {
+      result: 2 \ defender wins \
+
+    } else {
+
+      if(O = P) {
+        if(O < V) {
+          result: 0 \ draw \
+        } else {
+          result: 3 \ both are dead \
+        }
+      }
+    }
+
+  }
+
+  result: 0
+
+}
+
+loop N over {0..10}{
+ \output [test 6 6 [highest 1 of Nd6] 1 [highest 1 of 4d6] 1] named "Attacker rolls [N]d6"\
+ \output [test 6 6 [highest 1 of 4d6] 1 [highest 1 of Nd6] 1] named "Defender rolls [N]d6"\
+ M: (1+N)/2
+ output [test 5 5 [highest 1 of 1d6] N [highest 1 of 1d6] M] named "[N] vs [M]"
+}

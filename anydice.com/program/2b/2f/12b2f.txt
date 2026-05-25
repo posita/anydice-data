@@ -1,0 +1,57 @@
+PROF: 3
+BONUS: 4
+GWMDMG: 10
+GWMHIT: -5
+
+function: gwmpamattack ROLL:n and REROLL:n vs DEFENSE:n {
+if ROLL = {19,20} {
+ if REROLL = {19,20} { result: 4d10 + (PROF + BONUS + GWMDMG)*2 }
+ if REROLL >= {DEFENSE - PROF - BONUS - GWMHIT} { result: 3d10 + (PROF + BONUS + GWMDMG)*2 }
+ if REROLL = 1 { result: 2d10 + (PROF + BONUS + GWMDMG) }
+ result: 2d10 + (PROF + BONUS + GWMDMG)
+ }
+ if ROLL >= {DEFENSE - PROF - BONUS - GWMHIT} {
+ if REROLL = {19,20} { result: 2d4 + (PROF + BONUS + GWMDMG) + 1d10 + (PROF + BONUS + GWMDMG)}
+ if REROLL >= {DEFENSE - PROF - BONUS - GWMHIT} { result: 1d4 + (PROF + BONUS + GWMDMG) + 1d10 + (PROF + BONUS + GWMDMG)}
+ if REROLL = 1 { result: 1d10 + (PROF + BONUS + GWMDMG) }
+ result: 1d10 + (PROF + BONUS + GWMDMG)
+ }
+ if ROLL = 1 {
+ if REROLL = {19,20} { result: 2d4 + (PROF + BONUS + GWMDMG)}
+ if REROLL >= {DEFENSE - PROF - BONUS - GWMHIT} { result: 1d4 + (PROF + BONUS + GWMDMG)}
+ if REROLL = 1 { result: 0 }
+ result: 0
+ }
+ result: 0
+}
+
+function: gwmbonusattack ROLL:n and REROLL:n vs DEFENSE:n {
+if ROLL = {19,20} {
+ if REROLL = {19,20} { result: 4d4 + (PROF + BONUS + GWMDMG)*2 }
+ if REROLL >= {DEFENSE - PROF - BONUS - GWMHIT} { result: 3d4 + (PROF + BONUS + GWMDMG)*2 }
+ if REROLL = 1 { result: 2d4 + (PROF + BONUS + GWMDMG) }
+ result: 2d4 + (PROF + BONUS + GWMDMG)
+ }
+ if ROLL >= {DEFENSE - PROF - BONUS - GWMHIT} { result: 1d4 + (PROF + BONUS + GWMDMG) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+function: pamattack ROLL:n vs DEFENSE:n {
+if ROLL = {19,20} { result: 2d10 + (PROF + BONUS + 1) }
+ if ROLL >= {DEFENSE - PROF - BONUS - 1} { result: 1d10 + (PROF + BONUS + 1) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+function: bonusattack ROLL:n vs DEFENSE:n {
+if ROLL = {19,20} { result: 2d4 + (PROF + BONUS + 1) }
+ if ROLL >= {DEFENSE - PROF - BONUS - 1} { result: 1d4 + (PROF + BONUS + 1) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+loop ENEMYAC over {10..20} {
+ output [gwmpamattack 1@2d20 and 1@2d20 vs ENEMYAC] + [gwmbonusattack 1@2d20 and 1@2d20 vs ENEMYAC]/2 named "PAM+GWM vs [ENEMYAC]"
+ output [pamattack 1@3d20 vs ENEMYAC] + [bonusattack 1@3d20 vs ENEMYAC] named "PAM+EA vs [ENEMYAC]"
+}

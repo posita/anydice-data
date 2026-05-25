@@ -1,0 +1,19 @@
+function: explode SIDES:n DICE:d MAXDEPTH:n MIN_DAMAGE:n {
+  result: [explode DICE MAXDEPTH 0 helper]
+}
+
+function: explode TEMP_SEQ:s MAXDEPTH:n START_VAL:n helper {
+  SEQ: {}
+  loop N over {1..#TEMP_SEQ}{
+    SEQ: {SEQ, [ highest of N@TEMP_SEQ and MIN_DAMAGE]}
+  }
+  EXTRA_DICE: [ lowest of [count SIDES in SEQ] and MAXDEPTH]
+  if EXTRA_DICE = 0 {result:START_VAL + SEQ}
+  result: [explode EXTRA_DICEdSIDES MAXDEPTH-EXTRA_DICE START_VAL + SEQ helper]
+}
+
+function: chromatic SIDES:n DICE:d MAXDEPTH:n MIN_DAMAGE:n {
+  result: [explode DICE MAXDEPTH 0 helper]
+}
+
+output [chromatic 8 3d8 1 2]

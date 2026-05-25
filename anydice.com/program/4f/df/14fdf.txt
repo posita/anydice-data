@@ -1,0 +1,57 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: advantage {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{12..19}
+MISSDAMAGE: 0
+
+\No SS No Adv\
+ATTACK: 5+3+2
+HITDAMAGE: d8+5
+CRITICALDAMAGE: 2d8+5
+output 2d[attack] named "base"
+
+\No SS Adv\
+ATTACK: 5+3+2
+HITDAMAGE: d8+5
+CRITICALDAMAGE: 2d8+5
+output 2d[advantage] named "Adv only"
+
+\SS No Adv\
+ATTACK: 4+3+2-5
+HITDAMAGE: d8+4+10
+CRITICALDAMAGE: 2d8+4+10
+output 2d[attack] named "SS only"
+
+\SS Adv\
+ATTACK: 4+3+2-5
+HITDAMAGE: d8+4+10
+CRITICALDAMAGE: 2d8+4+10
+output 2d[advantage] named "SS & Adv"
+
+
+

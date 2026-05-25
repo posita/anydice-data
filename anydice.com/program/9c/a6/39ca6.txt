@@ -1,0 +1,30 @@
+function: L:s dans P:s avec D:n faces I:n et X:n{
+  SUCCES: [count P in L]
+  CRITIC: -1 * ([count {D} in L] = #(L))
+  
+  if I {TIN: [L contains D]} else {TIN: 0}
+  if X { TEX: [count {1} in L]} else {TEX: 0}
+
+  SUCCES: SUCCES + TIN + TEX + CRITIC
+  result: SUCCES
+}
+
+SEUILS: [reverse {2..6}]
+DES: [reverse {4, 6, 8, 10, 12}]
+NBS: {1..4}
+\IX 1 : inné, IX 2: élite, IX 3: inné & élite\
+IXS:{0..3}
+
+loop SEUIL over SEUILS {
+  loop DE over DES {
+   loop NB over NBS {
+     loop IX over IXS {
+       if !(((IX = 2) | (IX = 3)) & NB > 3) {
+         if IX = {2, 3} {X: DE} else {X: 0}
+         SUCCES: [NB dDE dans {1..SEUIL} avec DE faces IX et X]
+         output SUCCES named "[NB]d[DE] vs [SEUIL] - [IX]"
+       }
+      }
+    }
+  }
+}

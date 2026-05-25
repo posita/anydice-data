@@ -1,0 +1,35 @@
+function: outcome DICE:s {
+  EFFECTS: [count {8..10} in DICE]
+  CONTROLS: [count {6..7} in DICE]
+  LOSSES: [count {1..5} in DICE]
+  
+  if CONTROLS >= EFFECTS & EFFECTS > 0 { result: 4 } \ 4 = Total Success \
+  if CONTROLS > 0 & EFFECTS = 0 { result: 3 }        \ 3 = Partial Success \
+  if EFFECTS > CONTROLS { result: 2 }                \ 2 = Excessive Success \
+  if LOSSES = #DICE { result: 1 }                    \ 1 = Failure \
+  
+  result: 0
+}
+
+function: outcome DICE:s with trump CARDS:s {
+  EFFECTS: [count {8..10} in DICE]
+  CONTROLS: [count {6..7} in DICE]
+  LOSSES: [count {1..5} in DICE]
+
+  if EFFECTS >= #CARDS {
+    EFFECTS: EFFECTS - #CARDS + [count {8..14} in CARDS]
+    CONTROLS: CONTROLS + [count {6..7} in CARDS]
+    LOSSES: LOSSES + [count {1..5} in CARDS]
+  }
+  
+  if CONTROLS >= EFFECTS & EFFECTS > 0 { result: 4 } \ 4 = Total Success \
+  if CONTROLS > 0 & EFFECTS = 0 { result: 3 }        \ 3 = Partial Success \
+  if EFFECTS > CONTROLS { result: 2 }                \ 2 = Excessive Success \
+  if LOSSES = #DICE { result: 1 }                    \ 1 = Failure \
+  
+  result: 0
+}
+
+loop N over {1..4} {
+  output [highest of [outcome Nd10] and [outcome Nd10 with trump 1d14]] named "[N]d10"
+}

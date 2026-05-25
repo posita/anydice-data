@@ -1,0 +1,80 @@
+AC: 18
+FLURRY: {0, 2, 4, 4, 4, 4, 4}
+MAP: {0, 5, 10, 10, 10}
+AGILE: {0, 4, 8, 8, 8, 8, 8}
+HEROCAP: 3
+HEROPOINTS: HEROCAP
+HERODIE: d20
+
+function: DIE:n BONUS:n MAP:n against AC:n {
+ RESULT: 0
+ HIT: DIE+BONUS-MAP
+ if HIT >= AC+10 { RESULT:2 }
+ if HIT < AC+10 { RESULT:1 }
+ if HIT < AC { RESULT:0 }
+
+ if DIE = 20 { RESULT: RESULT+1 }
+ if DIE = 1 { RESULT: RESULT-1 }
+ 
+ if RESULT > 2 { result: 2}
+ if RESULT < 1 & HEROPOINTS > 0{ 
+  HEROPOINTS: HEROPOINTS - 1
+  result: [HERODIE BONUS MAP against AC] 
+ }
+ if RESULT < 0 { result: 0}
+ result: RESULT
+}
+
+function: hatchet RESULT:n {
+ result: (d6+4) * RESULT
+}
+
+function: aquebus RESULT:n {
+ if RESULT = 2 { result: (1d8 + 3) * 2 + 1d12 }
+ else { result: (1d8 + 3) * RESULT }
+}
+
+function: greatsword RESULT:n {
+ result: (d12+4)*RESULT
+}
+
+function: ranger MAP ATTACKS{
+ DAMAGE: 0
+ loop N over {1..1+ATTACKS} {
+  DAMAGE: DAMAGE + [hatchet [d20 9 N@MAP against AC ]]
+ }
+ result: DAMAGE
+}
+
+function: gunslinger MAP ATTACKS{
+ DAMAGE: 0
+ loop N over {1..ATTACKS} {
+  DAMAGE: DAMAGE + [aquebus [d20 11 N@MAP against AC ]]
+ }
+ result: DAMAGE
+}
+
+function: fighter MAP ATTACKS{
+  DAMAGE: 0
+ loop N over {1..ATTACKS} {
+  DAMAGE: DAMAGE + [greatsword[d20 11 N@MAP against AC ]]
+ }
+ result: DAMAGE
+}
+
+ATTACKS: 4
+output [ranger FLURRY ATTACKS] named "Ranger +Hunted [ATTACKS] attacks"
+HEROPOINTS: HEROCAP
+
+ATTACKS: 2
+output [gunslinger MAP ATTACKS] named "Gunslinger +Stance [ATTACKS] attacks"
+HEROPOINTS: HEROCAP
+
+ATTACKS: 3
+output [ranger AGILE ATTACKS] named "Ranger Agile [ATTACKS] attacks"
+HEROPOINTS: HEROCAP
+
+ATTACKS: 3
+output [fighter MAP ATTACKS] named "Tombo [ATTACKS] Attacks"
+HEROPOINTS: HEROCAP
+

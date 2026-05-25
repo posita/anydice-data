@@ -1,0 +1,73 @@
+\ Weird Wizard: Ability rolls and Luck rolls \
+
+BOONS: 2     \ negative number if banes \
+BONUS: 5     \ statbonus and other flat bonuses combined \
+DC: 16
+DMGDICE: 1
+DMGBONUS: 0   \ flat damage bonus (ww fighters) \
+BRUTAL: 1
+REROLLDMG: 0
+CRITDICE: 0
+
+CRIT: 5       \ what you need to exceed to get a crit. 5 unless something special \
+LUCKDC: 10    \ to get a success on a luck roll. 10 unless something special \
+
+\ helper functions for building the damage dice \
+
+\ reroll 1s once if BRUTAL is 1. Thanks to Vilarinof of stackexchange! \
+function: brutal DICE:n as REROLLED:d {
+    if DICE=1 { result: REROLLED }
+    result: DICE
+}
+
+\ DICE that rolls damage twice and picks the higher sum. Thanks to Vilarinof of stackexchange! \
+\ why is this even a function, isn't this builtin as highest 1 of 2 d DICE ? \
+function: highest of two DICE:d {
+    result: [highest of DICE and DICE]
+}
+
+
+\ attack roll function - uses global variables DMGBONUS, REROLLDMG, CRIT and CRITDICE \
+function: ability ROLL:n against DC:n with DMGD:d damage or CRITD:d if crit {
+    if ROLL < 1 { 
+        result: -1 \ critical failure; skews the mean result slightly when critfail is possible, but whatevs \
+    } 
+    if ROLL >= DC { 
+        if ROLL >= 20 {
+            if ROLL - DC >= CRIT {
+                result: CRITD
+            }
+        }       
+        result: DMGD
+    }
+    result: 0
+}
+
+
+\ BUILDING THE ABILITY ROLL DICE \
+ROLL: (d20 + [highest 1 of BOONSd6]) + BONUS
+LUCKDICE: (d20 + [highest 1 of BOONSd6])  \ assuming no flat bonus for luck. But see Order tradition \
+\ we can add the flat bonus over since it's only one of these dice that will be rolled to hit \
+
+\ BUILDING THE DAMAGE ROLL DICE \
+DMGDIE: d6
+if BRUTAL { DMGDIE: [brutal DMGDIE as DMGDIE] }
+\ we cannot add the flat damage bonus yet, as it would be added to each die \
+
+DMGD:  DMGDICE d DMGDIE  \ the set of (possibly brutal) dice (here it is one large die) \
+CRITD: CRITDICE d DMGDIE \ CRIT dice, assumes no flat bonus \
+
+CRITD: DMGD + CRITD
+\if REROLLDMG { 
+    DMGD:  [highest of two DMGD]
+    CRITD: [highest of two CRITD]
+}\
+
+RDMGD:  [highest of two DMGD]
+RCRITD: [highest of two CRITD] \ CRITD is total damage if crit \
+ 
+RDMGD: DMGD + DMGBONUS
+RCRITD: CRITD + DMGBONUS
+\ end of bability only section \
+
+output [ability ROLL against DC with RDMGD damage or RCRITD if crit] named "WW: bability roll brutal reroll"

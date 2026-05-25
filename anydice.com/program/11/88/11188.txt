@@ -1,0 +1,35 @@
+function: fighter ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: FCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: FDAMAGE  }
+ result: 0
+}
+
+function: raw ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: RAWCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + RACCBONUS >= AC { result: RAWDAMAGE  }
+ result: 0
+}
+
+ENEMYAC: d{18..22}
+
+ATTACKMOD: 5
+PROFICIENCY: 6
+CRITROLL: 20
+ATTACKTIMES: 10
+DAMAGEBONUS: 10 + 2 + 10 + 3 + 3 + 2
+ACCBONUS: 2 - 5 + 3 + 3
+RDAMAGEBONUS: 10 + 2 + 10
+RACCBONUS: 2 - 5
+
+FDAMAGE: 1d12 + ATTACKMOD + DAMAGEBONUS
+FCRITDAMAGE: 2d12 + ATTACKMOD + DAMAGEBONUS
+
+RAWDAMAGE: 1d12 + ATTACKMOD + RDAMAGEBONUS
+RAWCRITDAMAGE: 2d12 + ATTACKMOD + RDAMAGEBONUS
+
+output ATTACKTIMESdRAWDAMAGE named "Ave. DMG on hit"
+output ATTACKTIMESd[raw d20 vs ENEMYAC] named "Ave. DMG v 18-22 AC"
+output ATTACKTIMESdFDAMAGE named "With ITEMS on hit"
+output ATTACKTIMESd[fighter d20 vs ENEMYAC] named "With ITEMS v 18-22 AC"

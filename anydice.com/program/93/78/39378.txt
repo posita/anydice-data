@@ -1,0 +1,84 @@
+MISS: 0
+HIT: 1
+CRIT: 20
+
+ATKMOD: 4 + 3
+DMGMOD: 4
+MONKWEAP: d6
+NICKDMG: MONKWEAP + MONKWEAP + DMGMOD
+TWFDMG: NICKDMG + DMGMOD
+CRITDMG: 2dMONKWEAP + DMGMOD 
+CRITTWF: 2dMONKWEAP + 2dMONKWEAP + DMGMOD + DMGMOD 
+
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATKMOD >= AC { result: HIT }
+ if ROLL + ATKMOD <= AC { result: MISS }
+}
+output [attack d20 vs d{8..22}] named " Average Hit chance vs AC 8-22"
+
+
+function: damage for ATTACKRESULT:s {
+D: 0
+ loop A over ATTACKRESULT {
+  if A = HIT { D: MONKWEAP + DMGMOD }
+  else if A = MISS { D: 0 }
+ }
+ result: D + [bonusdmg for ATTACKRESULT]
+}
+function: bonusdmg for ATTACKRESULT:s {
+ result: 0
+}
+function: N:n attack {
+ result: [damage for Nd[attack d20 vs d{8..22}]]
+}
+output [1 attack] named "MartialArts x1"
+output [1 attack] + [1 attack] named "MartialArts z2"
+output [2 attack] named "MartialArts z2"
+
+function: bonusdmg for ATTACKRESULT:s {
+ if [A contains HIT] {
+  result: 1d6
+ }
+ else if [A contains MISS] {
+  result: 0
+ }
+}
+output [1 attack] named "MartialArts x1 + Hunter's Mark"
+output [1 attack] named "MartialArts x1 + Hunter's Mark"
+
+
+function: twf ROLL:n vs AC:n {
+ if ROLL + ATKMOD >= AC { result: HIT }
+ if ROLL + ATKMOD <= AC { result: MISS }
+}
+
+function: damage for TWFRESULT:s {
+D: 0
+ loop B over TWFRESULT {
+  if B = HIT { D: TWFDMG }
+  else if B = MISS { D: 0 }
+ }
+ result: D + [bonusdmg for TWFRESULT]
+}
+
+function: bonusdmg for TWFRESULT:s {
+ result: 0
+}
+
+function: N:n twf {
+ result: [damage for Nd[ twf d20 vs d{8..22}]]
+}
+
+output [1 twf] named "TWF"
+output [1 twf] + [1 attack] + [1 attack] named "TWF with Flurry of Blows"
+
+function: bonusdmg for TWFRESULT:s {
+ if [B contains HIT] {
+  result: 1d6
+ }
+ else if [TWFRESULT contains MISS] {
+  result: 0
+ }
+}

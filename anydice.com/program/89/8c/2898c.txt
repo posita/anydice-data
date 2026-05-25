@@ -1,0 +1,44 @@
+function: degree ROLL:n vs DC:n {
+  DEGREE: 0
+  if ROLL - 10 >= AC { DEGREE: 4 }
+  else if ROLL >= AC { DEGREE: 3 }
+  else if ROLL + 10 >= AC { DEGREE: 2 }
+  else { DEGREE: 1 }
+  if ROLL = 20 & DEGREE < 4 { DEGREE: DEGREE + 1 }
+  if ROLL = 1 & DEGREE > 1 { DEGREE: DEGREE - 1 }
+  result: DEGREE
+}
+
+function: attack ROLL:n for DAMAGE:n fatal FATAL:n deadly DEADLY:n {
+  DEGREE: [degree ROLL vs AC]
+  if DEGREE = 3 { result: DAMAGE }
+  else if DEGREE = 4 { result: 2*FATAL + DEADLY }
+  result: 0
+}
+
+function: basicsave ROLL:n for DAMAGE:n {
+  DEGREE: [degree ROLL vs DC]
+  if DEGREE = 3 { result: DAMAGE/2 }
+  else if DEGREE = 2 { result: DAMAGE }
+  else if DEGREE = 1 { result: DAMAGE*2 }
+  result: 0
+}
+
+\ AC TABLE \
+\
+ 1: 16,  2: 18,  3: 19,  4: 21,  5: 22,  6: 24,  7: 25,  8: 27,  9: 28, 10: 30,
+11: 31, 12: 33, 13: 34, 14: 36, 15: 37, 16: 39, 17: 40, 18: 42, 19: 43, 20: 45
+\
+\ END OF AC TABLE \
+
+AC: 18
+DC: 18
+
+PP: [attack d20+9 for d8+4 fatal d8+4 deadly 0]
+output FMAIN+FOFF named "Fighter Baseline (Double Slice Gnome Flickmace)"
+
+\
+SMAIN: [attack d20+11 for d6+4 fatal d6+4 deadly 0]
+SOFF: [attack d20+12 for d6+4 fatal d6+4 deadly 0]
+output SMAIN+SOFF named "Fighter Baseline (Double Slice Sawtooth Saber)"
+\

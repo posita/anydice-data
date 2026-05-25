@@ -1,0 +1,19 @@
+function: stunt points for DICE:s and DRAGON_DIE:n vs TARGET:n {
+  if DICE + DRAGON_DIE < TARGET { result: -1 }  \ miss \
+  if 1@DICE = 2@DICE | DRAGON_DIE = DICE { result: DRAGON_DIE }  \ pair \
+  result: 0  \ hit but no pair \
+}
+function: reroll ROLL:n as REROLL:d if negative {
+  if ROLL < 0 { result: REROLL }
+  result: ROLL
+}
+function: reroll DIE:d while negative {
+  loop I over {1..20} {
+    DIE: [reroll DIE as DIE if negative]
+  }
+  result: DIE
+}
+
+loop TARGET over {3..18} {
+  output [reroll [stunt points for 2d6 and d6 vs TARGET] while negative] named "hit on [TARGET]"
+}

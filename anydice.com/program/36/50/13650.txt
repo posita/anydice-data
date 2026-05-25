@@ -1,0 +1,49 @@
+\fixed value\
+DICE: 1d20
+ADV_DICE: 2d20
+
+\change if needed\
+MOD: +3
+PENALTY: 0 \penalty is always > 0\
+DMG: 1d6+2
+AC: 10
+
+\values 0 or 1\
+ADVANTAGE: 1 \-1 = disadvantage\
+DOUBLE_ATTACK: 1
+
+\hit function\
+function: dice ROLL:n mod MOD penalty PEN {
+ if(ROLL = 20) {
+  result: DMG + DMG
+ } else if((ROLL+MOD-PEN) >= AC){
+  if ((ROLL+MOD-PEN) >= AC+10) {
+   result: DMG + DMG
+  } else {
+   result: DMG
+  }
+ } else {
+  result: 0
+ }
+}
+
+\check status\
+if (DOUBLE_ATTACK) {
+ if (ADVANTAGE = 1) {
+  DMG_T: [dice [highest 1 of ADV_DICE] mod MOD penalty PENALTY] + [dice [highest 1 of ADV_DICE] mod MOD penalty PENALTY]
+ } else if (ADVANTAGE = -1) {
+   DMG_T: [dice [lowest 1 of ADV_DICE] mod MOD penalty PENALTY] + [dice [lowest 1 of ADV_DICE] mod MOD penalty PENALTY]
+ } else {
+   DMG_T: [dice DICE mod MOD penalty PENALTY] + [dice DICE mod MOD penalty PENALTY]
+ }
+} else {
+ if (ADVANTAGE = 1) {
+  DMG_T: [dice [highest 1 of ADV_DICE] mod MOD penalty PENALTY]
+ } else if (ADVANTAGE = -1) {
+   DMG_T: [dice [lowest 1 of ADV_DICE] mod MOD penalty PENALTY]
+ } else {
+   DMG_T: [dice DICE mod MOD penalty PENALTY]
+ }
+}
+
+output DMG_T named "Total Damage"

@@ -1,0 +1,27 @@
+ATTR: 8
+SKILL: 6
+MISC: 0
+ROF: 1
+DAMAGE: 4d6
+DV: 13
+\SP\
+BODY: 11
+HEAD: 11
+
+set "maximum function depth" to (ROF + 1)
+
+function: expected damage ROLL:s DAM:s {
+HIT: ROLL + ATTR + SKILL + MISC + PEN > DV
+HURT: DAM - SP > -1
+if HIT & HURT{result: (DAM - SP)*MUL}
+else {result: 0}
+}
+
+function: attack PEN:n MUL:n SP:n {
+DIE: d{1-1d10, 2, 3, 4, 5, 6, 7, 8, 9, 10+1d10}
+WOUNDS: [expected damage DIE DAMAGE]
+result: WOUNDS + [attack PEN MUL SP]
+}
+
+output [attack 0 1 BODY] named "Expected Damage (Body)"
+output [attack -8 2 HEAD] named "Expected Damage (Head)"

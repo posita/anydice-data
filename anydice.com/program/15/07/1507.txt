@@ -1,0 +1,22 @@
+\ power dice \
+PD: 2d6
+\ wizard level \
+WL: 3
+
+\ dispel dice \
+DD: 2d6
+\ dispelling wizards level \
+DWL: 2
+
+function: PD:s WL:n vs DD:s DWL:n {
+ \ critical failure \
+ if #{PD} = 1 & PD <= 2 {result: 0}
+ if #{PD} = 2 & {1,2}@PD = 2 {result: 0}
+ \ cast with irresistible force \
+ if {1,2}@PD = 12 {result: 1}
+ \ dispelled with irresistible force \
+ if {1,2}@DD = 12 {result: 0}
+ result: (PD+WL) > (DD+DWL)
+}
+
+output [PD WL vs DD DWL] named "[PD]+[WL] dispelled with [DD]+[DWL]"

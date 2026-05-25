@@ -1,0 +1,25 @@
+\ helper functions \
+function: count SUCCESS:s in ROLL:n if KEEP:s {
+  if ROLL = KEEP { result: ROLL = SUCCESS }
+  else { result: d{} }
+}
+function: count SUCCESS:s in ROLL:n unless REJECT:s {
+  if ROLL = REJECT { result: d{} }
+  else { result: ROLL = SUCCESS }
+}
+
+set "explode depth" to 8
+
+SUCCESS: {4..6}
+DIE: d6
+EXPLODE: {6}
+
+COUNT: [explode [count EXPLODE in DIE]]
+P_EXPL: [count SUCCESS in DIE if EXPLODE]
+P_BASE: [count SUCCESS in DIE unless EXPLODE]
+
+output COUNT named "COUNT"
+output P_EXPL named "P_EXPL"
+output P_BASE named "P_BASE"
+
+output (COUNT d P_EXPL) + P_BASE named "result"

@@ -1,0 +1,29 @@
+\ adapted from and kudos to Ilmari Karonen: \
+\https://rpg.stackexchange.com/questions/127394/rerolling-and-replacing-the-lowest-result-in-anydice \
+
+function: reroll highest of SEQUENCE:s as REROLL:d if greater than MAX:n {
+  HIGHEST: {1} @ [sort SEQUENCE]
+  if HIGHEST <= MAX {
+     result: SEQUENCE + 0
+  } else {
+     REMAINING: {2..#SEQUENCE} @ SEQUENCE \ everything but highest \
+     result: REMAINING + REROLL
+  }
+}
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+
+
+output [reroll highest of 2d10 as d10 if greater than 5] named "Reroll high, avg difficulty"
+output [lowest 2 of 3d10] named "Drop high, avg difficulty"
+output [reroll highest of 2d10 as d10 if greater than 5] + d6 named "Reroll high, difficult"
+output [lowest 2 of 3d10] + d6 named "Drop high, difficult"
+
+

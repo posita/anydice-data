@@ -1,0 +1,40 @@
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+function: hits {
+    X:[d6 reroll {RRS} as d6]
+    result: [count {BS..6} in SHOTSdX]
+}
+
+function: wounds{
+    if S > T {
+        W:3
+    }
+    if S > T * 2 {
+        W:2
+    }
+    if S = T {
+        W:4
+    }
+    if S < T {
+        W:5
+    }
+    if S <= T / 2 {
+        W:6
+    }
+
+ Y: [d6 reroll {RRW} as d6]
+ result: SHOTS @ [sort[highest SHOTS of [count {W..6} in SHOTSdY] - (SHOTS - [hits])]]
+}
+
+
+SHOTS: 20
+BS: 3
+RRS:{0}
+RRW:{0}
+S:7
+T:1
+output [hits]named "hit count"
+output [wounds]named "wound count"

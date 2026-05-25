@@ -1,0 +1,71 @@
+\\\*** Base Damage Calc Info ***\\\
+ENEMY_AC: 25 - 2
+LEVEL: 8
+PROF: 6               \Trained = 2, Expert = 4, Master = 6, Legendary = 8\
+HIT_MOD: 4            \Str for melee and throw, dex for ranged\
+STR_MOD: 3            \Stat damage modifier\
+WEAP_SPEC: 3          \Weapon specialization damage modifier\
+ADVANTAGE: 0          \0 = off, 1 = on\
+
+\\\*** Attack A ***\\\
+ATTACK_DICE_A: 1d8
+BONUS_DICE_A: 5d6 + 5d1
+STRIKING_A: 1
+BONUS_DAM_MOD_A: STR_MOD/2
+HIT_BONUS_A: 0
+SINGLE_HIT_A: 0
+N_ATTACKS_A: 1
+MAP: 5
+
+
+\\\*** General Info ***\\\
+CRIT_RANGE: ENEMY_AC + 10
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+
+
+\\\*** Functions ***\\\
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 20 { 
+    if 20 + ATTACK >= ENEMY_AC { result: CRITICALDAMAGE }
+    if 20 + ATTACK < ENEMY_AC { result: HITDAMAGE }
+}
+ if ROLL = 1 {
+    if 1 + ATTACK >= ENEMY_AC + 10  { result: HITDAMAGE }
+    if 1 + ATTACK >= ENEMY_AC { result: 0 }
+}
+ if ROLL + ATTACK >= ENEMY_AC + 10 { result: CRITICALDAMAGE }
+ if ROLL + ATTACK >= ENEMY_AC { result: HITDAMAGE }
+ result: 0
+}
+function: single ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACK >= ENEMY_AC { result: SINGLEDAMAGE }
+ result: 0
+}
+
+\\\*** Damage Calc ***\\\
+HITDAMAGE: (STRIKING_A + 1)dATTACK_DICE_A + STR_MOD + BONUS_DAM_MOD_A + BONUS_DICE_A
+CRITICALDAMAGE: 2d((STRIKING_A + 1)dATTACK_DICE_A) + STR_MOD + BONUS_DAM_MOD_A + 2dBONUS_DICE_A
+SINGLEDAMAGE: SINGLE_HIT_A
+
+\\\*** Multiple Attack Penalty ***\\\
+ATTACK: HIT_MOD + LEVEL + PROF + STRIKING_A + HIT_BONUS_A
+output [attack NORMAL_HIT vs ENEMY_AC] + [single NORMAL_HIT vs ENEMY_AC] named "Atk A1"
+if ADVANTAGE = 1 {
+output [attack HIT_ADV vs ENEMY_AC] + [single HIT_ADV vs ENEMY_AC] named "Adv Atk A1"
+}
+if N_ATTACKS_A >= 2 {
+ATTACK: HIT_MOD + LEVEL + PROF + STRIKING_A + HIT_BONUS_A - MAP
+output [attack NORMAL_HIT vs ENEMY_AC] + [single NORMAL_HIT vs ENEMY_AC] named "Atk A2"
+if ADVANTAGE = 1 {
+output [attack HIT_ADV vs ENEMY_AC] + [single HIT_ADV vs ENEMY_AC] named "Adv Atk A2"
+}
+if N_ATTACKS_A >= 3 {
+ATTACK: HIT_MOD + LEVEL + PROF + STRIKING_A + HIT_BONUS_A - 2*MAP
+output [attack NORMAL_HIT vs ENEMY_AC] + [single NORMAL_HIT vs ENEMY_AC] named "Atk A3"
+if ADVANTAGE = 1 {
+output [attack HIT_ADV vs ENEMY_AC] + [single HIT_ADV vs ENEMY_AC] named "Adv Atk A3"
+}
+}
+}

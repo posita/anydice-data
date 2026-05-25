@@ -1,0 +1,62 @@
+DROPLOWEST:1
+
+GRIT:1
+ROLLBONUS:0
+ACCURACY:2 \positive numbers for accuracy, negative for difficulty\
+ROLL:d20 + GRIT + ROLLBONUS + [highest 1 of ACCURACYd6]
+if ACCURACY < 0 {
+ ROLL:d20 + GRIT + ROLLBONUS + [lowest 1 of ACCURACYd6]
+}
+
+\Weapon Stats\
+\Just put it in as it appears on the sheet\
+\i.e. Heavy Machine Gun's 2d6+4 becomes DAMAGE:2d6 and BONUS:4\
+
+DAMAGE:4d6
+BONUS:4
+RELIABLE:0 \If a weapon isn't reliable just put a 0\
+
+\Enemy Stats\
+
+EVASION:10
+ARMOR:0
+INVISIBLE:0 \If an enemy is invisible, this should be 1. If not, it should be 0\
+
+\Damage calculation\
+\This was a doozy, I had to differentiate between dice and regular ol numbers\
+\and it's a slight hack job since iunno how to access data types in this or if it's even possible\
+
+function: R:n with D:d and B:d and RE:n vs E:n with A:n and I:n and J:n{
+ if ((I = 1) & (J = 2)) | (I = 0){
+
+ if R >= 20 & R >= E {
+  if 2@{D} = 0 {
+   if 2@{B} = 0 {result: [highest of [highest of (D + B) and RE] - A and 0]}
+   else {result: [highest of D + [highest of [highest #B of (2*#B)d((1@[sort {B}])/#B)] and RE] - A and 0]}
+  }
+  else {
+   if 2@{B} = 0 {result: [highest of [highest of [highest #D of (2*#D)d((1@[sort {D}])/#D)] + B and RE] - A and 0]}
+   else {
+    if (1@[sort {D}])/#D = (1@[sort {B}])/#B {result: [highest of [highest of [highest (#D+#B) of (2*(#D+#B))d((1@[sort {D}])/#D)] and RE] - A and 0]}
+    else {result: [highest of [highest of [highest (#D) of (2*#D)d((1@[sort {D}])/#D)] + [highest (#B) of (2*#B)d((1@[sort {B}])/#B)] and RE] - A and 0]}
+   }
+  }
+ }
+ if R >= E {result: [highest of [highest of (D + B) and RE] - A and 0]}
+
+ }
+ if !DROPLOWEST {result: [highest of (RE - A) and 0]}
+}
+
+\output [ROLL with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2]\
+output [(d20 + GRIT + ROLLBONUS + [lowest 1 of -4d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "difficulty 4"
+output [(d20 + GRIT + ROLLBONUS + [lowest 1 of -3d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "difficulty 3"
+output [(d20 + GRIT + ROLLBONUS + [lowest 1 of -2d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "difficulty 2"
+output [(d20 + GRIT + ROLLBONUS + [lowest 1 of -1d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "difficulty 1"
+output [(d20 + GRIT + ROLLBONUS + [highest 1 of 0d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "normal"
+output [(d20 + GRIT + ROLLBONUS + [highest 1 of 1d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "accuracy 1"
+output [(d20 + GRIT + ROLLBONUS + [highest 1 of 2d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "accuracy 2"
+output [(d20 + GRIT + ROLLBONUS + [highest 1 of 3d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "accuracy 3"
+output [(d20 + GRIT + ROLLBONUS + [highest 1 of 4d6]) with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2] named "accuracy 4"
+
+\Lemme know what else to add!\

@@ -1,0 +1,20 @@
+function: bbrange boons BOONS:n banes BANES:n {
+  BOONCHANCE: [highest of 0 and (3 + BOONS - BANES)]
+  BOONCHANCE: [lowest of BOONCHANCE and 6]
+  BANECHANCE: 6 - BOONCHANCE
+  result: d{0:BANECHANCE, 1:BOONCHANCE}
+}
+
+function: ffroll count COUNT:n bb BBRANGE:s  {
+  TOTAL: BOONS + BANES + COUNT
+  ROLL: TOTALd{-1..1}
+  if 1@BBRANGE = 0 { result: [lowest COUNT of ROLL] }
+  result: [highest COUNT of ROLL]
+}
+
+loop BANES over {0..4}{
+ loop BOONS over {0..4}{
+  BBRANGE: [bbrange boons BOONS banes BANES]
+  output [ffroll count 2 bb BBRANGE] named "[BOONS][+] [BANES][-]"
+ }
+}

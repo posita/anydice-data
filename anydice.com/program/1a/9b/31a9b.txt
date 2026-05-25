@@ -1,0 +1,46 @@
+function: wod roll ROLL:s diff DIFF:n double DOUBLE:n threshold THRESHOLD:n {
+ ONES: [count 1 in ROLL]
+ SUCCESSES: [count {DIFF..10} in ROLL]
+ DOUBLES: [count {DOUBLE..10} in ROLL]
+ if SUCCESSES = 0 {
+  if ONES > 0 {
+   result: -1
+  }
+  result: 0
+ }
+ result: [highest of SUCCESSES + DOUBLES - ONES - THRESHOLD and 0]
+}
+
+function: wod pool POOL:n diff DIFF:n double DOUBLE:n threshold THRESHOLD:n {
+ DIFF: [highest of DIFF and 3]
+ DIFF: [lowest of DIFF and 9]
+ DOUBLE: [lowest of DOUBLE and 11]
+ DOUBLE: [highest of DOUBLE and DIFF]
+ THRESHOLD: [highest of THRESHOLD and 0]
+ result: [wod roll POOLd10 diff DIFF double DOUBLE threshold THRESHOLD]
+}
+
+function: wod pool POOL:n diff DIFF:n double DOUBLE:n {
+ result: [wod pool POOL diff DIFF double DOUBLE threshold 0]
+}
+
+function: wod pool POOL:n diff DIFF:n with specialty {
+ result: [wod pool POOL diff DIFF double 10 threshold 0]
+}
+
+function: wod pool POOL:n diff DIFF:n {
+ result: [wod pool POOL diff DIFF double 11]
+}
+
+function: damage pool successes SUCCESSES:n strength STRENGTH:n bonus BONUS:n {
+ if SUCCESSES < 1 {
+  result: 0
+ }
+ result: SUCCESSES + STRENGTH + BONUS
+}
+
+DICE: 8
+STRENGTH: 2
+output [damage pool successes [wod pool DICE diff 6 with specialty] strength STRENGTH bonus 0] named "[DICE] dice, [STRENGTH] strength, punch"
+  output [damage pool successes [wod pool DICE diff 7 with specialty] strength STRENGTH bonus 1] named "[DICE] dice, [STRENGTH] strength, kick"
+

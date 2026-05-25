@@ -1,0 +1,28 @@
+function: evaluate ROLL:s plus ATRB:s plus SKILL:n vs TN:n {
+ SUCCESSES: 0
+ TOTAL: {1,2}@ROLL + {1}@ATRB + SKILL
+ if (TOTAL >= TN) { SUCCESSES: SUCCESSES + 1 }
+ else { SUCCESSES: SUCCESSES - 1 }
+ 
+  \if (TOTAL >= TN + 6) { SUCCESSES: SUCCESSES + 1 }\
+  \if (TOTAL >= TN + 9) { SUCCESSES: SUCCESSES + 1 }\
+  \if (TOTAL <= TN - 6) { SUCCESSES: SUCCESSES - 1 }\
+  \if (TOTAL <= TN - 9) { SUCCESSES: SUCCESSES - 1 }\
+
+ \if (({2}@ROLL >= 4) & (({1}@ROLL = {2}@ROLL) | ({3}@ROLL = {2}@ROLL))) { SUCCESSES: SUCCESSES + 1 }\
+ \if (({2}@ROLL <= 3) & (({1}@ROLL = {2}@ROLL) | ({3}@ROLL = {2}@ROLL))) { SUCCESSES: SUCCESSES - 1 }\
+
+ if ( ({2}@ROLL >= 4) & ({1}@ROLL = {2}@ROLL) ) { SUCCESSES: SUCCESSES + 1 }
+ if ( ({2}@ROLL <= 3) & ({1}@ROLL = {2}@ROLL) ) { SUCCESSES: SUCCESSES - 1 }
+
+
+ result: SUCCESSES
+}
+
+\TN: 8\
+
+DICE: 2d6
+
+loop TN over {3..25} {
+ output [evaluate 2d6 plus 1d12 plus 3 vs TN] named "TN[TN]"
+}

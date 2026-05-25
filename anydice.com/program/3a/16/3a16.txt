@@ -1,0 +1,45 @@
+function: income CONTROLDC:n ECONOMYBONUS:n STABILITYBONUS:n CONSUMPTION:n {
+ result: [income helper 1d20 1d20 CONTROLDC ECONOMYBONUS STABILITYBONUS CONSUMPTION]
+}
+
+function: income helper ECONOMYROLL:n STABILITYROLL:n CONTROLDC:n ECONOMYBONUS:n STABILITYBONUS:n CONSUMPTION:n {
+  ECONOMYROLLTOTAL: ECONOMYROLL + ECONOMYBONUS
+  STABILITYROLLTOTAL: STABILITYROLL + STABILITYBONUS
+  if STABILITYROLLTOTAL < CONTROLDC {
+   UNRESTINCOME: 0
+  } else {
+   UNRESTINCOME: 1
+  } 
+  if ECONOMYROLLTOTAL < CONTROLDC {
+   result: -CONSUMPTION+UNRESTINCOME
+  } else {
+   if ECONOMYROLL = 1 {
+    result: -CONSUMPTION+UNRESTINCOME
+   } else {
+     result: (ECONOMYROLLTOTAL/5)-CONSUMPTION+UNRESTINCOME
+   }
+  }
+}
+
+\                       Festivals, Promotions, Size, Cities, Farmland Subtractions \
+\                       F P S C FmFm \
+output [income 23 14 20 1+2+3+1-2-2] named "Month 4 Income (1 Festival  + Standard Promotions + 0 Leader Eco)"
+output [income 23 18 16 1+1+3+1-2-2] named "Month 4 Income (1 Festival  + Token Promotions    + 1 Leader Eco)"
+output [income 23 22 12 1+1+3+1-2-2] named "Month 4 Income (1 Festival  + Token Promotions    + 2 Leader Eco)"
+output [income 23 14 20 2+2+3+1-2-2] named "Month 4 Income (6 Festivals + Standard Promotions + 0 Leader Eco)"
+output [income 23 14 20 2+1+3+1-2-2] named "Month 4 Income (6 Festivals + Token Promotions    + 0 Leader Eco)"
+output [income 23 18 16 2+1+3+1-2-2] named "Month 4 Income (6 Festivals + Token Promotions    + 1 Leader Eco)"
+output [income 23 22 12 2+1+3+1-2-2] named "Month 4 Income (6 Festivals + Token Promotions    + 2 Leader Eco)"
+
+function: explode DIE:d {
+  MAX: [maximum of DIE]
+  result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+  if N = MAX {
+    result: 6 + [explode DIE helper] }
+  result: N
+}
+
+\ output [explode 1d6] named "Average Bandit Attack" \

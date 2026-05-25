@@ -1,0 +1,28 @@
+\ overall notes here \
+
+LAY: {1,0:11} \ layout of level-0 d12 \
+\ Lay die output separately because it does not fit well in the loop below.
+    *Ah, but I have found a fix for that - AnyDice's 'dN <> T'; refer to /program/29afa \
+output 1dLAY named "solo: lay(≤1 on)1d12"
+output 2dLAY named "help: lay(≤1 on)2d12"
+output 3dLAY named "help: lay(≤1 on)3d12"
+
+loop S over {1..10}
+{
+ FTEN: (10-S) \ no. of failures on the skill-use d10 \
+ FTWV: (12-S) \ no. of failures on the skill-use d12 \
+ DTEN: {1:S,0:FTEN} \ layout of skill-use d10 \
+ DTWV: {1:S,0:FTWV} \ layout of skill-use d12 \
+ HTEN: {1,0:9} \ layout of basic-use d10 \
+ T: S + 1
+ U: S + 2
+
+ output SdDTWV + 1dHTEN named "solo: skill(≤[S] on)[S]d12 + (≤1 on)1d10"
+ output TdDTWV + 1dHTEN named "help: skill(≤[S] on)[T]d12 + (≤1 on)1d10"  \ MAKE THIS A LOOP; ADD VARIABLES! \
+ output UdDTWV + 1dHTEN named "sk[S](+2)d12+help"
+\TEMPhide
+ output SdDTWV + 1dDTEN named "solo: skill[S]d12+super"
+ output TdDTWV + 1dDTEN named "sk[S](+1)d12+super"
+ output UdDTWV + 1dDTEN named "sk[S](+2)d12+super"
+TEMPhide\
+}

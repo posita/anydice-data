@@ -1,0 +1,109 @@
+MISS: 0
+HIT: 1
+
+\ATTACK COMBOS AND DAMAGE MODIFIERS\
+ATKMOD: 4 + 3
+DMGMOD: 4
+MISSDMG: 0 
+WEAPDMG_A: 1d6 \Damage of whatever you are using\
+WEAPDMG_B: 1d6 \Damage of the other thing you are using\
+BASICDMG: WEAPDMG_A + DMGMOD
+NICKDMG: WEAPDMG_A + WEAPDMG_B + DMGMOD 
+ \Can't Add DMGMOD here without Two-weapon Fighting Feat\
+TWFDMG: NICKDMG + DMGMOD
+CRITBASIC: 2dWEAPDMG_A + DMGMOD 
+CRITNICK: 2dWEAPDMG_A + 2dWEAPDMG_B + DMGMOD
+ \Again, can't add the second damage modifier here\
+CRITTWF: 2dWEAPDMG_A + 2dWEAPDMG_B + DMGMOD + DMGMOD 
+
+\Bonus Damage Modifiers [Hunter's Mark, Smites, etc.]\
+BONUSDMG_A: 1d6
+BONUSDMG_B: 0
+
+
+\This function rolls a given die and checks it against another value. In this case, we will roll a d20 and check it against one or more ACs\
+
+ function: attack ROLL:n vs AC:n {
+   if ROLL + ATKMOD >= AC { result: HIT }
+   if ROLL + ATKMOD < AC { result: MISS }
+ }
+
+
+\This function outputs the above results. Here are some basic output commands. N=number of your choice\
+  \"AC: d{N}" will output the Hit Chance for one specific AC\
+  \"AC: d{N1, N2, N3...}" will output the Hit Chance each of a defined set of ACs\
+  \"AC: d{N1..N2}" will output the AVERAGE Hit Chance over a range of ACs\
+  \"loop AC over {N1..N2}" will repeat the function over a series of numbers\
+
+  AC: d{8..15}
+  output [attack  d20 vs AC] named "Average Hit chance vs AC 8-22"
+
+
+\This Damage Function supports output for Bonus Damage Modifiers that are NOT limited to the number of uses per round [Hunter's Mark]. Can be Modified to output damage from two different weapons\
+
+function: damage for ATTACKRESULT:s {
+D: 0
+ loop A over ATTACKRESULT {
+  if A = HIT 
+    { D: WEAPDMG_A + DMGMOD + BONUSDMG_A + BONUSDMG_B }
+  else if A = MISS 
+    { D: 0 }
+ }
+result: D
+}
+function: attack {
+ result: [damage for [attack d20 vs AC]]
+}
+function: N:n attack {
+ result: [damage for Nd[attack d20 vs AC]]
+}
+
+\ADD DAMAGE OUTPUT FUNCTION BELOW: "output Nd[attack] named "______""\
+
+ output  d[attack] named "MMA x1 w/ Hunter's Mark vs AC 8-22"
+ output  2d[attack] named "MMA x2 w/ Hunter's Mark vs AC 8-22"
+
+
+function: bonusdmg for ATTACKRESULT:s {
+ if [ATTACKRESULT contains HIT] {
+  result: 1d6
+ }
+ else if [ATTACKRESULT contains MISS] {
+  result: 0
+ }
+}
+
+
+
+
+
+function: twf ROLL:n vs AC:n {
+ if ROLL + ATKMOD >= AC { result: HIT }
+ if ROLL + ATKMOD < AC { result: MISS }
+}
+
+function: damage for TWFRESULT:n {
+D: 0
+ loop B over TWFRESULT {
+  if B = HIT { D: TWFDMG }
+  else if B = MISS { D: 0 }
+ }
+ result: D + [bonusdmg for TWFRESULT]
+}
+
+function: bonusdmg for TWFRESULT:s {
+ result: 0
+}
+G
+function: N:n twf {
+ result: [damage for Nd[ twf d20 vs d{8..22}]]
+}
+
+function: bonusdmg for TWFRESULT:s {
+ if [B contains HIT] {
+  result: 1d6
+ }
+ else if [TWFRESULT contains MISS] {
+  result: 0
+ }
+}

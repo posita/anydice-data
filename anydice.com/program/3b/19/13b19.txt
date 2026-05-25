@@ -1,0 +1,82 @@
+function: damage ATTACK_F:n max MAX_F vs DEFENSE_F damage DAMAGE_F:n autosucceed AUTOSUCCEED_F:n {
+ if ATTACK_F >= DEFENSE_F {
+  if ATTACK_F = MAX_F {
+   result: DAMAGE_F * 2
+  } else {
+   result: DAMAGE_F
+  }
+ } else {
+   if AUTOSUCCEED_F > 0 {
+     result: DAMAGE_F
+   } else {
+     result: 0
+   }
+ }
+}
+
+function: hit ATTACK_F:n hits DEFENSE_F autosucceed AUTOSUCCEED_F:n {
+ if ATTACK_F > DEFENSE_F {
+  result: 1
+ } else {
+  if AUTOSUCCEED_F > 0 {
+   result: 1
+  } else {
+   result: 0
+  }
+ }
+}
+
+function: autosucceed ATTACK_F:n vs DEFENSE_F autosucceed AUTOSUCCEED_F:n {
+ if ATTACK_F < DEFENSE_F {
+  result: AUTOSUCCEED_F - 1
+ } else {
+  result: AUTOSUCCEED_F
+ }
+}
+
+function: crit ATTACK_F:n max MAX {
+ if ATTACK_F = MAX {
+  result: 1
+ } else {
+  result: 0
+ }
+}
+
+HITS: 0
+DAMAGE_TOTAL: 0
+
+
+\ ***ONE-OFF_VARIABLES*** \
+DEFENSE: 5
+AUTOSUCCEED: 1
+A: 0 \ Attack Count \
+
+\ ***TO_REPEAT*** \
+\ ***REPEATED_VARIABLES*** \
+ROLL_MIN: 1
+ROLL_MAX: 8
+DAMAGE_MIN: 2
+DAMAGE_MAX: 3
+REPETITIONS: 3
+
+\ ***DICE*** \
+ROLL: d{ROLL_MIN..ROLL_MAX}
+ATTACK_DAMAGE: d{DAMAGE_MIN..DAMAGE_MAX}
+
+\ ***ATTACK_CODE*** \
+loop I over {1..REPETITIONS} {
+ A: A + 1
+ DAMAGE: [damage ROLL max ROLL_MAX vs DEFENSE damage ATTACK_DAMAGE autosucceed AUTOSUCCEED]
+ DAMAGE_TOTAL: DAMAGE_TOTAL + DAMAGE
+ HITS: HITS + [hit ROLL hits DEFENSE autosucceed AUTOSUCCEED]
+ AUTOSUCCEED: [autosucceed ROLL vs DEFENSE autosucceed AUTOSUCCEED]
+ CRIT: [crit ROLL max ROLL_MAX]
+ output DAMAGE named "Attack [A] Damage"
+ output CRIT named "Attack [A] Critical Hit Chance"
+}
+\ ***END_ATTACK_CODE*** \
+\ ***END_REPEAT*** \
+
+
+output HITS named "Hits"
+output DAMAGE_TOTAL named "Damage Total"

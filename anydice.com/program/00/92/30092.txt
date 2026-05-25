@@ -1,0 +1,192 @@
+USE_MAGIC: 1
+USE_HASTE: 0
+LOOP_RANGE: {3} 
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+function: abilitymod SCORE:n { result: (SCORE - 10) / 2 }
+function: if X:n reached MINIMUM:n then Y:s else Z:s { if MINIMUM>0 & X >= MINIMUM { result: Y } result: Z }
+function: if X:n reached MINIMUM:n then Y:s { result: [if X reached MINIMUM then Y else 0] }
+function: attack ROLL:n plus ATTACK_BONUS:n vs ACS:s{
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + ATTACK_BONUS >= ACS
+}
+
+TIER_ONE: {1..4}
+TIER_TWO: {5..10}
+TIER_THREE: {11..16}
+TIER_FOUR: {17..20}
+
+
+loop ROGUE over [reverse LOOP_RANGE] { 
+LEVEL: ROGUE
+PHANTOM: 1  \ For Phantom Rogue sub-class\
+STR: 8  DEX: 17  CON: 14  INT: 12  WIS: 14  CHA: 10   CRIT: {20}
+if ROGUE > 0 {CAN_SNEAK: 1} else {CAN_SNEAK: 0}
+PROF: (LEVEL - 1) / 4 + 2    \range is {2..6}\
+HP: 8 + [abilitymod CON] + (LEVEL - 1)*((8+1+1)/2 + [abilitymod CON])
+DEXMOD: [abilitymod DEX]
+UNCANNY_DODGE: [if ROGUE reached 5 then 1]
+TOKENS_DEPARTED: [if ROGUE reached 9 then 1] * PHANTOM
+EVASION: [if ROGUE reached 7 then 1]
+HP_RISK: (HP * (1 + UNCANNY_DODGE)) - (EVASION * HP)/2 
+SNEAK_ATTACK_DICE: (ROGUE - 1) / 2 + 1
+SNEAK_DMG: (SNEAK_ATTACK_DICE)d6
+
+HAS_BOOMING_BLADE: 1  \via cantrip from High Elf race\
+BOOMING_BLADE_HIT_DICE : (LEVEL + 1) / 6
+BOOMING_BLADE_MOVE_DICE : BOOMING_BLADE_HIT_DICE + 1
+BOOMING_BLADE_HIT : (HAS_BOOMING_BLADE * BOOMING_BLADE_HIT_DICE)d8        \range is {0..3}\
+BOOMING_BLADE_MOVE: (HAS_BOOMING_BLADE * BOOMING_BLADE_MOVE_DICE)d8  \range is {1..4}\
+
+WAILS_FROM_THE_GRAVE: PHANTOM & [if ROGUE reached 3 then 1]  \ Phantom Rogue feature \
+WAILS_DICE: WAILS_FROM_THE_GRAVE * (SNEAK_ATTACK_DICE + 1)/ 2
+WAILS_DMG_SECONDARY: [if WAILS_FROM_THE_GRAVE reached 1 then ((WAILS_DICE)d6) else 0]
+WAILS_DMG_PRIMARY: [if ROGUE reached 17 then WAILS_DMG_SECONDARY] \ Death's Friend, 17th-level Phantom feature \
+WAILS_DMG: WAILS_DMG_PRIMARY + WAILS_DMG_SECONDARY
+
+\ ASI & Feats by level \
+ELVEN_ACCURACY_FEAT_LEVEL: 4  
+ELVEN_ACCURACY: [if ROGUE reached ELVEN_ACCURACY_FEAT_LEVEL then 1]  DEX: DEX + ELVEN_ACCURACY
+RITUAL_CASTER_FEAT_LEVEL: 8 
+CROSSBOW_EXPERT_FEAT_LEVEL: 30
+SHARPSHOOTER_FEAT_LEVEL: 30
+if ROGUE >= 10 { DEX: DEX + 2 }
+if ROGUE >= 12 { CON: CON + 2 }
+if ROGUE >= 16 { CON: CON + 2 }
+if ROGUE >= 19 { WIS: WIS + 2 }
+
+\ Magic Items (please) \
+MANUAL_OF_QUICKNESS: [if ROGUE reached 12 then 2]
+DEX: DEX + MANUAL_OF_QUICKNESS 
+CLOAK_OF_PROTECTION: [if ROGUE reached 11 then 1]
+
+\ ARMOR CLASS \
+LEATHER: 11
+STUDDED_LEATHER: 12 
+ARMOR_CLASS: [abilitymod DEX] + [if ROGUE reached 2 then STUDDED_LEATHER else LEATHER]  \get studded leather by level 03\
+ARMOR_CLASS: ARMOR_CLASS + CLOAK_OF_PROTECTION 
+
+ATTACK_MOD: [abilitymod DEX]
+ACL: 8 + PROF + ATTACK_MOD  \| 8+PROF+ATTACK_MOD  or  12+((LEVEL-1)*(22-12)/20) |\
+AC_DEVIATION: 2
+AC: d{(ACL-AC_DEVIATION)..(ACL+AC_DEVIATION)}
+
+HAS_ADVANTAGE: 1
+ADVANTAGE: [highest 1 of (2 + ELVEN_ACCURACY)d20] 
+DISADVANTAGE: [lowest 1 of 2d20]
+if (HAS_ADVANTAGE > 0) { ATTACK_ROLL: ADVANTAGE } else { ATTACK_ROLL: 1d20 }
+
+\Rapier, primary weapon\
+WPN_ONE_DICE:   1d8  \ damage rolled on successful hit \
+WPN_ONE_MAGIC: USE_MAGIC * [if LEVEL reached 9 then 2 else [if LEVEL reached 5 then 1]] 
+WPN_ONE_ABONUS: ATTACK_MOD + PROF + WPN_ONE_MAGIC
+WPN_ONE_DBONUS: ATTACK_MOD + WPN_ONE_MAGIC
+WPN_ONE_HIT: [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+SHORTBOW: 1d6
+LONGBOW: 1d8
+HAND_CROSSBOW: 1d6
+LIGHT_CROSSBOW: 1d8
+if LEVEL >= 11 { RANGED_WEAPON: HAND_CROSSBOW}
+else if LEVEL >= 3 { RANGED_WEAPON: LONGBOW}
+else { RANGED_WEAPON: SHORTBOW}
+\Hand Crossbow, secondary weapon\
+DAGGER: 1d4
+WPN_TWO_DICE:   DAGGER  \ damage rolled on successful hit \
+WPN_TWO_MAGIC: USE_MAGIC * [if LEVEL reached 7 then 0] 
+WPN_TWO_ABONUS: ATTACK_MOD + PROF + WPN_TWO_MAGIC
+WPN_TWO_DBONUS: ATTACK_MOD + WPN_TWO_MAGIC
+if SHARPSHOOTER_FEAT_LEVEL > 0 & LEVEL >= SHARPSHOOTER_FEAT_LEVEL {
+  WPN_TWO_ABONUS: WPN_TWO_ABONUS - 5
+  WPN_TWO_DBONUS: WPN_TWO_DBONUS + 10
+}
+WPN_TWO_HIT: [attack ATTACK_ROLL plus WPN_TWO_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+ATTACK_DAMAGE_DICE: WPN_ONE_DICE
+ATTACK_BOOMING_DAMAGE_DICE: ATTACK_DAMAGE_DICE + BOOMING_BLADE_HIT
+BONUS_ACTION_DAMAGE_DICE: WPN_TWO_DICE
+REACTION_ATTACK: 1d{5}
+
+function: multiattack N:n times {
+  result: [roll WPN_ONE_HIT to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (ATTACK_BOOMING_DAMAGE_DICE + SNEAK_DMG + d0)) + WPN_ONE_DBONUS + WAILS_DMG + BOOMING_BLADE_MOVE 
+    if N >= 2 {
+      loop I over {2..N} {
+        DAMAGE: DAMAGE + (WPN_ONE_HIT d (WPN_ONE_DICE + SNEAK_DMG + d0)) + WPN_ONE_DBONUS  
+      }
+    }
+    if LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+      DAMAGE: DAMAGE + WPN_TWO_HIT d (WPN_TWO_DICE + d0) + WPN_TWO_DBONUS 
+    }
+    result: DAMAGE
+  } else {
+    \ since I missed with the rapier, will try an offhand bonus action attack with a dagger \
+    \DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + SNEAK_DMG + d0)) + WPN_TWO_MAGIC + WAILS_DMG 
+    \result: DAMAGE
+  }
+  result: 0
+}
+function: offhand FIRSTHIT:n {
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (1d4 + ATTACK_MOD + PROF + SNEAK_DMG + d0)) + ATTACK_MOD + WAILS_DMG 
+    DAMAGE: DAMAGE + WPN_TWO_HIT d (WPN_TWO_DICE + d0) + WPN_TWO_DBONUS 
+    result: DAMAGE
+  } else {
+    \ since I missed with the rapier, will try an offhand bonus action attack with a dagger \
+    DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + SNEAK_DMG + d0)) + WPN_TWO_MAGIC + WAILS_DMG 
+    result: DAMAGE
+  }
+  result: 0
+}
+
+ if LEVEL >=17 { TIER: 4 } else {if LEVEL >= 11 {TIER: 3} else {if LEVEL >= 5 {TIER: 2} else {TIER: 1}}}
+ HPVAC: HP_RISK / ACL 
+
+ HASTE: USE_HASTE * [if LEVEL reached 5 then 1]  \ No Haste before level 5 \
+ ATKRES: [multiattack (1 + HASTE) times]
+ if SHARPSHOOTER_FEAT_LEVEL > 0 & LEVEL >= SHARPSHOOTER_FEAT_LEVEL {
+  output ATKRES named "L[LEVEL] [HP]:[HPVAC] Rapier+HandXbow SS +[ATTACK_MOD]Dex[DEX] [ARMOR_CLASS]vAC[ACL]" 
+ } else if LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+  output ATKRES named "L[LEVEL] [HP]:[HPVAC] Rapier+HandXbow +[ATTACK_MOD]Dex[DEX] [ARMOR_CLASS]vAC[ACL]" 
+ } else if ELVEN_ACCURACY > 0 {
+  output ATKRES named "L[LEVEL] [HP]:[HPVAC] Rapier+[WPN_ONE_MAGIC]* BB[BOOMING_BLADE_HIT_DICE]-[BOOMING_BLADE_MOVE_DICE] Dex[DEX] [ARMOR_CLASS]vAC[ACL]" 
+ } else {
+  output ATKRES named "L[LEVEL] [HP]:[HPVAC] Rapier+[WPN_ONE_MAGIC] BB[BOOMING_BLADE_HIT_DICE]-[BOOMING_BLADE_MOVE_DICE] Dex[DEX] [ARMOR_CLASS]vAC[ACL]" 
+ }
+
+ \ output [attack ATTACK_ROLL plus WPN_TWO_ABONUS vs AC for WPN_TWO_DICE + SNEAK_DMG + WPN_TWO_DBONUS + WAILS_DMG crit WPN_TWO_DICE + SNEAK_DMG on CRIT] named "L[LEVEL] RANGED Sneak[SNEAK_ATTACK_DICE]" \
+
+\ if #LOOP_RANGE <= 2 {
+  HIT_CRIT_DICE: WPN_ONE_DICE + SNEAK_DMG + BOOMING_BLADE_HIT
+  output [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC for HIT_CRIT_DICE + WPN_ONE_DBONUS + WAILS_DMG + BOOMING_BLADE_MOVE*2/3 crit HIT_CRIT_DICE on CRIT] named "L[LEVEL] Rapier Sneak[SNEAK_ATTACK_DICE]d6 BB[BOOMING_BLADE_HIT_DICE] WftG[WAILS_DICE]d6"
+ }
+\
+ if #LOOP_RANGE <= 4 {
+  if LEVEL >= 3 {
+   HIT_CRIT_DICE: LIGHT_CROSSBOW + SNEAK_DMG
+   output [attack ATTACK_ROLL plus PROF+ATTACK_MOD vs AC for HIT_CRIT_DICE + ATTACK_MOD + WAILS_DMG crit HIT_CRIT_DICE on CRIT] named "L[LEVEL] Crossbow Sneak[SNEAK_ATTACK_DICE]d6 WftG[WAILS_DICE]d6"
+  } else {
+   HIT_CRIT_DICE: SHORTBOW + SNEAK_DMG
+   output [attack ATTACK_ROLL plus PROF+ATTACK_MOD vs AC for HIT_CRIT_DICE + ATTACK_MOD + WAILS_DMG crit HIT_CRIT_DICE on CRIT] named "L[LEVEL] Shortbow Sneak[SNEAK_ATTACK_DICE]d6 WftG[WAILS_DICE]d6"
+  }
+ }
+
+}

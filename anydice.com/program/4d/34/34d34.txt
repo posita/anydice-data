@@ -1,0 +1,37 @@
+
+COST: 1500
+BONUS: 7
+SETTLEMENTBONUS: 0
+
+function: craft dc COST:n {
+  result: COST/50
+}
+function: profit COST:n {
+  result: COST/2
+}
+function: max days DC:n BONUS:n {
+  result: ((DC-1) / (1+BONUS))+1
+}
+function: cumulative check DIE:n TOTAL:n BONUS:n {
+  result: DIE + BONUS + TOTAL
+}
+
+function: min days DC:n BONUS:n {
+  result: ((DC-1) / (20+BONUS))+1
+}
+DC: [craft dc COST]
+
+MINDAYS: [min days DC BONUS]
+MAXDAYS: [max days DC BONUS]
+PROFIT: COST/2
+EXPECTEDEXTRADAYS: 0
+loop N over {MINDAYS..MAXDAYS} {
+  DAYN: (1 - (Nd20+(N*BONUS) >= DC))
+  EXPECTEDEXTRADAYS: EXPECTEDEXTRADAYS + DAYN
+}
+
+function: expected profit DAYS:n PROFIT:n {
+  result: PROFIT / (DAYS)
+}
+output [expected profit (EXPECTEDEXTRADAYS+MINDAYS) (COST/2) ]
+

@@ -1,0 +1,97 @@
+\**** Damage calculator full basic damage dealing list ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: sattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + SACCBONUS >= AC { result: SDAMAGE }
+ result: 0
+}
+
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{14}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 4
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 0
+EXTRADAMAGE: 3d6
+EXTRACRIT: EXTRADAMAGE + 18 
+
+
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS + EXTRADAMAGE
+CRITDAMAGE: 1d6 + 6 + ATTACKMOD + DMGBONUS + EXTRACRIT
+output ATTACKTIMESd[attackroll [highest 1 of 3d20] vs ENEMYAC] named "Rogue lvl 5"
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+\FIRST ATTACK FUNCTION
+\
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 4
+ACCBONUS: 2
+CRITROLL: 20
+ATTACKTIMES: 1
+EXTRADAMAGE: 1d6 + 1d8
+EXTRACRIT: EXTRADAMAGE + 6 + 8
+
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS + EXTRADAMAGE
+CRITDAMAGE: 1d6 + 6 + ATTACKMOD + DMGBONUS + EXTRACRIT
+
+\SECOND ATTACK FUNCTION
+\
+SDMGBONUS: 0
+SACCBONUS: 2
+SATTACKTIMES: 1
+SEXTRADAMAGE: 1d6
+SEXTRACRIT: SEXTRADAMAGE + 6
+
+SDAMAGE: 1d6 + ATTACKMOD + SDMGBONUS + SEXTRADAMAGE
+SCRITDAMAGE: 1d6 + 6 + ATTACKMOD + SDMGBONUS + SEXTRACRIT
+
+output ATTACKTIMESd[attackroll [highest 1 of 3d20] vs ENEMYAC] + SATTACKTIMESd[sattackroll [highest 1 of 1d20] vs ENEMYAC] named "Ranger lvl 5"
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+ATTACKMOD: 5
+SDMGBONUS: 0
+PROFICIENCY: 4
+SACCBONUS: 2  
+CRITROLL: 20
+SATTACKTIMES: 0
+SEXTRADAMAGE: 1d6 + 1d8
+SEXTRACRIT: SEXTRADAMAGE + 6 + 8
+
+SDAMAGE: 1d6 + ATTACKMOD + SDMGBONUS + SEXTRADAMAGE
+SCRITDAMAGE: 1d6 + 6 + ATTACKMOD + SDMGBONUS + SEXTRACRIT
+
+output SATTACKTIMESd[sattackroll [highest 1 of 3d20] vs ENEMYAC] named "Ranger lvl 5 Second Attack"
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 4
+ACCBONUS: 2
+CRITROLL: 20
+ATTACKTIMES: 0
+GWF: 1
+NUMBEROFDIE: 2
+DAMAGEOFDIE: 6
+DAMAGE: 2d6 + ATTACKMOD + DMGBONUS  + (GWF * (NUMBEROFDIE * ((DAMAGEOFDIE/2) - 1))/(DAMAGEOFDIE/2))
+CRITDAMAGE: 2d6 + 6 + ATTACKMOD + DMGBONUS + (GWF * (NUMBEROFDIE * ((DAMAGEOFDIE/2) - 1))/(DAMAGEOFDIE/2))
+output ATTACKTIMESd[attackroll [highest 1 of 1d20] vs ENEMYAC] named "Barbarian lvl 5"
+

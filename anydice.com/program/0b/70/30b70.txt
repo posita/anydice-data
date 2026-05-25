@@ -1,0 +1,101 @@
+function: product NS:s {
+  PROD:  1
+  loop N over NS {
+    PROD:  (PROD * N)
+  }
+  result:  PROD
+}
+
+MAX: 8
+S: {}
+X: [product {1..MAX}]
+
+loop N over {0..MAX} {
+  S:  {S, N:X}
+  X:  X / (N+1)
+}
+\ output S named "Poisson1" \
+
+function: dexplode N:n of FACES:s {
+  F:  [maximum of FACES]
+  J:  1
+  R:  {}
+  loop I over FACES {
+    if I = F & J <= 1 {
+      R: {R, ((I * 1000) + 1)}
+      J: (J + 1)
+    }
+    else {
+      R:  {R, (I * 1000)}
+    }
+  }
+  result:  [explode d R] / 1000
+}
+
+function:  concat XS:s YS:s {
+  if #XS = 0 {
+    result:  YS 
+  } else {
+    result:  {XS@1, [concat XS@{2..#XS} YS]}
+  }
+}
+
+function: dexploding N:n of FACES:s {
+  SORTED:  [sort FACES]
+  BOOM:  SORTED@{1..N}
+  NOBOOM:  SORTED@{N+1..#SORTED}
+  REJOIN:  [concat BOOM NOBOOM]
+  result:  d REJOIN
+}
+
+function: exploding DC:n with DT:d at MX:n if EX:n with ED:d {
+  if DC = MX & EX=1 {
+    result:  DC + [exploding DT at MX if ED]
+  } else {
+    result:  DC
+  }
+}
+
+function: exploding D:d at MX:n if ED:d {
+  result:  [exploding D with D at MX if ED with ED]
+}
+
+function: dexploding N:n of FACES:s {
+  SORTED:  [sort FACES]
+  F:  [maximum of FACES]
+  J:  1
+  R:  {}
+  loop I over FACES {
+    if I = F & J <= 1 {
+      R: {R, ((I * 1000) + J)}
+      J: (J + 1)
+    }
+    else {
+      R:  {R, (I * 1000)}
+    }
+  }
+  result:  [explode d R]
+}
+
+\ set "explode depth" to 3
+T: {0,0,1,2}
+output 1 d [explode d T] named "P4"
+output [dexplode 1 of {0,0,1,2}] named "P4d"
+set "explode depth" to 3
+Q: {0,0,1,1,1,2}
+output 1 d [explode d Q] named "P6a"
+output [dexplode 1 of {0,0,0,1,2,2}] named "P6b"
+output [dexploding 1 of {0,0,0,1,2,2}] named "P6c" \
+output [exploding d{0,0,0,1,2,2} at 2 if d2 ] named "P6d"
+\ output [explode d{0,0,0,1,2,2}] named "P6e"
+output d{0,0,0,1,2,3} named "P6n"
+R: {0,0,0,0,1,1,2,3}
+output 1 d [explode d R] named "P8"
+S: {0,0,0,0,1,1,1,1,2,3}
+output 1 d [explode d S] named "P10a"
+S: {0,0,0,0,0,1,1,2,2,3}
+output 1 d [explode d S] named "P10b"
+P: {0:5,1:4,2:2,3}
+output 1 d [explode d P] named "P12"
+S: {0:7,1:8,2:4,3}
+output 1 d [explode d S] named "P20" \

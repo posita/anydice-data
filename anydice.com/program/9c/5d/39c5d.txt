@@ -1,0 +1,98 @@
+function: X:n int unstable {
+ if X=6 {result:6+[1 unstable]}
+ result: 0
+}
+
+function: X:n unstable {
+ R: 0
+ loop N over {1..X} {
+  D: 1d6
+  R: R+[D int unstable]
+ }
+ result: R
+}
+
+function: X:n wacky {
+ R:0
+ loop N over {1..X} {
+  D: [1 normal]
+  R: R+[D normal]
+ }
+ result: R
+}
+
+function: X:n int normal {
+ if X=6 {result: X+[1 normal]}
+ result: X
+}
+
+function: X:n normal {
+ R: 0
+ loop N over {1..X} {
+  D: 1d6
+  R: R+[D int normal]
+ }
+ result: R
+}
+
+
+
+\adv dice\
+
+function: S:s Y:n RS:s adv int {
+ R: 0
+ loop N over {1..Y} {
+  G:0
+  loop N over {1..#S} {
+   if N@S>G {
+    G: N@S
+   }
+  }
+  PT:0
+  loop N over {1..#S} {
+    T:1
+    if G=N@S {
+     if PT=0 {
+      T: 0
+      PT:1
+     }
+    }
+    if T>0 {
+     RS: {RS, G}
+    }
+   PT:0
+   }
+  S: RS
+  RS: {}
+  if G=6 {R: R+G+[1 normal]}
+  if G<6 {R: R+G}
+ }
+ result: R
+}
+
+function: S:n D:n adv intern {
+ SEQ: {S, D}
+ result: SEQ
+}
+
+function: X:n adv Y:n {
+ R: 0
+ S: {}
+ RS: {}
+ T: 0
+ D: 1d6
+ loop N over {1..X} {
+  S: [S D adv intern]
+ }
+ R: [S Y RS adv int]
+ result: R
+}
+
+SEQ: {1..3}
+NUM: 2
+SEQ: SEQ
+
+output [1 unstable] named "unstable dice"
+output [1 wacky] named "wacky dice"
+output [1 normal] named "normal dice"
+\output [1 adv 1] named "6 advantage 3 dice"\

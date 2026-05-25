@@ -1,0 +1,29 @@
+set "explode depth" to 2
+
+function: reroll N:n on ROLL:n {
+ if ROLL != N { result: ROLL }
+}
+
+DEFDIE: [reroll 1 on [explode d{1, 10:4, 100}]]
+
+function: attack ATK:s defense SIXES:n and MIDS:s and ONES:n {
+ DEF: {6:SIXES, MIDS, 1:ONES}
+ loop I over {1..#ATK} {
+  if I@ATK > I@DEF {
+   result: I@ATK
+  }
+ }
+ result: 0
+}
+
+function: attack ATK:n defense counts DEFCOUNTS:n {
+ SIXES: {2:10,3}@DEFCOUNTS
+ if (SIXES >= ATK) {result: 0}
+ result: [attack ATKd6 defense SIXES and (4@DEFCOUNTS)d(d4+1) and 5@DEFCOUNTS]
+}
+
+function: attack ATK:n defense DEF:n {
+ result: [attack ATK defense counts 10000 + DEFdDEFDIE]
+}
+
+output [attack 4 defense 4]

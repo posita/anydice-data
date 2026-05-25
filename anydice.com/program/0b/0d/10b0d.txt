@@ -1,0 +1,55 @@
+function: openlegendhelper SEQ:s D:n START:n END:n {
+ RES: 0
+ loop I over {START..END} {
+  RES: RES + I@SEQ
+  if I@SEQ = D { RES: RES + [explode 1dD] }
+ }
+ result: RES
+}
+
+function: openlegend LEV:n ADV:n {
+ N: 1
+ if LEV = 0 {
+  D: 20
+  RES: 0
+ }
+ else {
+  RES: [explode 1d20]
+  if LEV > 4 {
+   if LEV > 7 { 
+    N: 3
+    D: (LEV*2)-8
+   }
+   else { 
+    N: 2
+    D: (LEV*2)-4
+   }
+  }
+  else { D: (LEV*2)+2 }
+ }
+ if ADV < 0 {
+  N: N-ADV
+  START: 1-ADV
+  END: N
+ }
+ else {
+  START: 1
+  END: N
+  N: N+ADV
+ }
+ result: RES + [openlegendhelper NdD D START END]
+}
+
+function: limit VALUE:n from LOW:n to HIGH:n {
+  if VALUE < LOW {result: LOW}
+  if VALUE > HIGH {result: HIGH}
+  result: VALUE
+}
+
+LOWERBOUND: 12
+UPPERBOUND: 32
+ATTRIBUTE: 7
+
+loop N over {-2..4} {
+  output [limit [openlegend ATTRIBUTE {N}] from LOWERBOUND to UPPERBOUND] named "Advantage [N]"
+}

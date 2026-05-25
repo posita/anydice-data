@@ -1,0 +1,70 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ 
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{22..29}
+
+function: attacka {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+DEFENSE: d{22..29}
+
+ATTACK: 14
+output [attack d20 vs DEFENSE]
+
+
+HITDAMAGE: 1d4 + 4 + 2
+CRITICALDAMAGE: (1d8*2)+ 1d8 + 8 + 4 + 2
+MISSDAMAGE: 0
+output [attacka] named "Light Pick"
+
+HITDAMAGE: 1d4 + 4 + 2
+CRITICALDAMAGE: (1d4*2) + 1d6 + 8 + 4
+MISSDAMAGE: 0
+output [attacka] named "Main Gauche"
+
+HITDAMAGE: 1d6 + 4 + 4 
+CRITICALDAMAGE: (1d6*2) + d8 + 8 + 8
+MISSDAMAGE: 0
+output [attack] named "Katana1"
+
+HITDAMAGE: 1d6 + 4 + 4
+CRITICALDAMAGE: (1d10*2) + 1d10 + 8 + 8 + 2
+MISSDAMAGE: 0
+output [attack] named "Normal Pick"
+
+HITDAMAGE: 1d6 + 4 + 4
+CRITICALDAMAGE: (1d6*2) + 1d6 + 8 + 8
+MISSDAMAGE: 0
+output [attack] named "Rapier"
+
+HITDAMAGE: 1d8 + 4 + 4
+CRITICALDAMAGE: (1d8*2) + 8 + 8
+MISSDAMAGE: 0
+output [attack] named "Common1"

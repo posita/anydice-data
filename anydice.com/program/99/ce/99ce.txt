@@ -1,0 +1,37 @@
+
+F: {-1..1} \ Definition of a Fudge/Fate Die \
+
+\ Converts a 2D6 to a Fate Roll. This is how you would convert target numbers. \
+function: convert ROLL:n to SKILL:n skill fate {
+  SHIFT: -7
+  if ROLL <= 5 { SHIFT: -6 }
+  if ROLL >= 9 { SHIFT: -8 }
+  result: ROLL + SHIFT + SKILL
+}
+
+\ ** Typical Battlestation rolls ** \
+
+output 2d6 named "2D6"
+
+\ Expert roll, with the reroll of a single die.
+  Simulated with "throw 3, pick highest two", but it does not account for the second roll being worse.
+  Therefore this curve is a bit better than the actual expert roll. Note of interest: the expert curve
+  turns out to be close to 2D6 + 2 \
+output {1,2}@3d6 named "2D6 expert reroll"
+output 2d6 + 2 named "2D6 + 2"
+
+\ Shift due to typical +3/-3 bonus \
+output 2d6+3 named "2D6 + 3" 
+
+\ ** Fate Dice ** \
+
+output 4dF+4 named "Skill 4 Fate Roll"
+output 4dF+3 named "Skill 3 Fate Roll"
+output 4dF   named "Skill 0 Fate Roll"
+
+\ ** Fitting the Battlestations curve to the Fate curve ** \
+
+output 2d6 - 3 named "2D6 - 3"
+output [convert 2d6 to 4 skill fate] named "2D6 => 4 skill Fate"
+output [convert 2d6 to 3 skill fate] named "2D6 => 3 skill Fate"
+output [convert 2d6 to 0 skill fate] named "2D6 => 0 skill Fate"

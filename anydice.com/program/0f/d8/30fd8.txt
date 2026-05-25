@@ -1,0 +1,46 @@
+\ units against terminator \
+\ T5 Sv2+ 4++ W3 Terminator Squad\ 
+\ T4 Sv3+ W2 Space Marine\ 
+
+T : 4 \ Toughness \
+ASV : 4 \ Armor Save \
+INV: 5 \ Invulnerable Save \
+W : 1 \ Wounds \
+
+function: wound ST TO {
+    if ST   =  TO {result: 4}
+    if ST   >= TO*2 {result: 2}
+    if ST   >= TO {result: 3}
+    if ST*2 <= TO {result: 6}
+    if ST   <  TO {result: 5}
+}
+function: hit BS S AP {
+   W: [wound S T]
+   if AP=100 {
+     SV: 100
+   } else {
+     SV: [lowest of ASV+AP and INV]
+   }
+   result: d6>=BS & d6>=W & d6<SV
+}
+
+
+N:5
+H:0
+
+\ flamer \
+X : [hit 1 5 0]
+output (Nd6)dX named "flamer"
+
+\ rifle \
+X : [hit 3-H 3 1]
+Y : [hit 3-H 1 100]
+output (2*N)d(X+Y) named "bolter"
+output (3*N)d(X+Y) named "bolter RF"
+
+\ plasma \ 
+X : [hit 3-H 7 2]
+Y : [hit 3-H 8 3]
+output (2*N)dX     named "plasma"
+output (2*N)dY*2     named "plasma hot"
+

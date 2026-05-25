@@ -1,0 +1,50 @@
+function: attack W:n damage X:n versus grace Y:d brawn Z:d armor U:n V:n {
+E: [maximum of Y] + U
+LDT: V*2
+MDT: [maximum of Z]/2 + V
+HDT: [maximum of Z]+V*2
+ if W >= E {
+  if X > LDT & X < MDT {
+   result: 1
+  }
+  else if X >= MDT & X < HDT {
+   result: 2
+  }
+  else if X >= HDT{
+   result: 3
+  }
+  else {result:0}
+ }
+ else {
+  result: 0
+ }
+}
+
+function: attack W:d damage X:d versus grace Y:d brawn Z:d armor U:n V:n until ko {
+ H: [maximum of Z]
+ result: [attack W damage X versus grace Y brawn Z armor U V until ko helper H]
+}
+
+function: attack W:d damage X:d versus grace Y:d brawn Z:d armor U:n V:n until ko helper G:n{
+ if G > 0 {
+  G: G - [attack W damage X versus grace Y brawn Z armor U V]
+  result: 1 + [attack W damage X versus grace Y brawn Z armor U V until ko helper G]
+ }
+ else {
+  result: 1
+ }
+}
+
+loop I over {3}{
+\output [attack 2d10+I damage 2d10 versus grace d10 brawn d8 armor 2 1] named "[I] Grace d10 Brawn d8 agile"
+output [attack 2d10+I damage 2d10 versus grace d10 brawn d8 armor 1 2] named "[I] Grace d10 Brawn d8 tough"
+output [attack 2d10+I damage 2d10 versus grace d8 brawn d10 armor 2 1] named "[I] Grace d8 Brawn d10 agile"
+output [attack 2d10+I damage 2d10 versus grace d8 brawn d10 armor 1 2] named "[I] Grace d8 Brawn d10 tough"\
+
+
+output [attack 2d10+I damage 1d8+1 versus grace d10 brawn d8 armor 2 1] named "[I] Grace d10 Brawn d8 agile twohand"
+output [attack 2d10+I-3 damage 1d6+1 versus grace d10 brawn d8 armor 2 1]*2 named "[I] Grace d10 Brawn d8 agile dual"
+output [attack 2d10+I damage 1d8+1 versus grace d8 brawn d10 armor 1 2] named "[I] Grace d8 Brawn d10 tough twohand"
+output [attack 2d10+I-3 damage 1d6+1 versus grace d8 brawn d10 armor 1 2]*2 named "[I] Grace d8 Brawn d10 tough dual"
+}
+

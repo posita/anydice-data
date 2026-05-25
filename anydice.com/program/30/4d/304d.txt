@@ -1,0 +1,44 @@
+function: bs SKILL to hit {
+  result: {0:[highest of 1 and 6-SKILL], 1:[lowest of 5 and SKILL]}
+}
+
+function: var bs VAR:n to hit {
+  COUNTS: {0, 0, 0, 0, 0, 0}
+  loop N over {1, #VAR} {
+    BS: N@VAR
+    COUNTS: {1@COUNTS + BS=0, 2@COUNTS + BS=1, 3@COUNTS + BS=2, 4@COUNTS + BS=3, 5@COUNTS + BS=4, 6@COUNTS + BS>=5}
+  }
+  RES: {
+   [bs 0 to hit]:1@COUNTS,
+   [bs 1 to hit]:2@COUNTS,
+   [bs 2 to hit]:3@COUNTS,
+   [bs 3 to hit]:4@COUNTS,
+   [bs 4 to hit]:5@COUNTS,
+   [bs 5 to hit]:6@COUNTS }
+  result: RES
+}
+
+function: s STR to wound t TOUGH {
+  D: STR - TOUGH
+  if D < -3 { result: 0 }
+  if D = -3 { result: {0:5, 1} }
+  if D > 2 { result: {0, 1:5} }
+  result: {0:(3-D), 1:(3+D)}
+}
+
+function: saves on SV {
+  if SV = 0 | SV = 7 { result: 0 }
+  result: {1:(SV-1), 0:(7-SV)}
+}
+
+SHOTS: 12
+BS: 3
+MRKSHOTS: 2
+MRKBS: 4
+BSMOD: (BS + MRKSHOTSd[bs MRKBS to hit])
+STRENGTH: 5
+TOUGHNESS: 4
+SAVE: 3
+output MRKSHOTSd[bs MRKBS to hit]
+output SHOTSd[bs BS to hit]
+output SHOTSd[var bs {1, 5} to hit]

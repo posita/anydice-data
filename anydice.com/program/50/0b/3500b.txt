@@ -1,0 +1,31 @@
+function: test TARGETS:s in SEQUENCE:s {
+ REVERSED: [reverse SEQUENCE]
+ TARGETS: [sort TARGETS]
+ SIZEMAX: #REVERSED
+ SIZEMIN: 1
+ COUNT: 0
+ loop N over {1..#SEQUENCE} {
+  OVERFLOW: 0
+  if N@SEQUENCE < #TARGETS@TARGETS  {               \ N=7, si 3 > {2, 1, 1, 0} \
+    loop Q over {(SIZEMIN)..(SIZEMAX-N)} {
+       if (OVERFLOW=0) & ((N@SEQUENCE + Q@REVERSED) >= #TARGETS@TARGETS) {
+         COUNT: COUNT + 1
+         OVERFLOW: 1
+         SIZEMIN: Q+1
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+TEST: {5,4,4,3,3,3,2,1,1,0}
+T: {8}
+
+output [test T in TEST] named "[T] 3+ on 10d6"
+
+output #T@T named ""
+\
+loop T over {1..12} {
+  output [combo of 1d6 and 1d6 and 1d6 target T] named "2/3d6 [T]"
+}\

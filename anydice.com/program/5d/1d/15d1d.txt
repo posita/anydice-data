@@ -1,0 +1,54 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MISSDAMAGE: 0
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [extra damage for ATTACKRESULTS]
+}
+
+function: extra damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: POISON
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: POISON
+ }
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs AC]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs AC]]
+}
+
+ATTACK: 5 + 1
+HITDAMAGE: 1d8 + 5 + 6
+CRITICALDAMAGE: HITDAMAGE + 1d8
+POISON: 4d6
+loop AC over {15, 18, 21} {
+   output [3 attacks] named "3 attack average with poison vs [AC]"
+}

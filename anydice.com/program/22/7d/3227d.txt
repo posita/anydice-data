@@ -1,0 +1,98 @@
+function: reroll R:n under N:n {
+   if R < N { result: 1d20 } else {result: R}
+}
+
+function: reliable R:n under N:n {
+   if R < N { result: N } else {result: R}
+}
+
+function: rerolladv ONE:n and TWO:n under N:n {
+   if ONE < N {
+      result: [highest of 1d20 and TWO]
+   } 
+   else if TWO < N {
+      result: [highest of ONE and 1d20]
+   }
+   else {
+       result: [highest of ONE and TWO]
+   }
+}
+
+function: reliableadv ONE:n and TWO:n under N:n {
+   if ONE < N {
+      result: [highest of N and TWO]
+   }
+   else if TWO < N {
+      result: [highest of ONE and N]
+   }
+   else {
+      result: [highest of ONE and TWO]
+   }
+}
+
+function: rerolldis ONE:n and TWO:n under N:n {
+   if ONE < N {
+      result: [lowest of 1d20 and TWO]
+   } 
+   else if TWO < N {
+      result: [lowest of ONE and 1d20]
+   }
+   else {
+       result: [lowest of ONE and TWO]
+   }
+}
+
+function: reliabledis ONE:n and TWO:n under N:n {
+   if ONE < N {
+      result: N
+   }
+   else if TWO < N {
+      result: N
+   }
+   else {
+      result: [lowest of ONE and TWO]
+   }
+}
+
+function: build INPUT:n {
+   if INPUT = 1 {
+      result: 1
+   }
+   else {
+      result: INPUT + 10 \PWT\ + 5 \20 DEX Aspect of Tiger\ + 1d4 \Guidance\ + 1d4 \Shapeshifter Ring\ + 8 \Expertise\ + 4 \18 DEX\
+   }
+}
+
+function: is_greater X:n than Y:n {
+   result: X > Y
+}
+
+LUCK: [reroll 1d20 under 2]
+LUCKY_ADV: [rerolladv 1d20 and 1d20 under 2]
+LUCKY_DIS: [rerolldis 1d20 and 1d20 under 2]
+LUCKY_STEALTH: [build LUCKY_ADV]
+
+RELIABLE_T: [reliable 1d20 under 10]
+RELIABLE_ADV: [reliableadv 1d20 and 1d20 under 10]
+RELIABLE_DIS: [reliabledis 1d20 and 1d20 under 10]
+RELIABLE_STEALTH: [build RELIABLE_ADV]
+
+\output 1d20 named "Normal 1d20"
+output LUCK named "Lucky 1d20"
+output [highest 1 of 2d20] named "Normal Advantage"
+output LUCKY_ADV named "Lucky w/ Advantage"
+output [lowest 1 of 2d20] named "Normal Disadvantage"
+output LUCKY_DIS named "Lucky w/ Disadvantage"
+output RELIABLE_T named "Reliable Talent"
+output RELIABLE_ADV named "Reliable Talent w/ Advantage"
+output RELIABLE_DIS named "Reliable Talent w/ Disadvantage"\
+
+\output LUCKY_STEALTH named "Final Build w/ Lucky"
+output RELIABLE_STEALTH named "Final Build w/ Reliable Talent"\
+
+loop N over {1..41} {
+   output LUCKY_STEALTH > (N+14) named "Lucky GINVIS @ [N]th Check"
+}
+loop N over {1..41} {
+   output RELIABLE_STEALTH > (N+14) named "Reliable GINVIS @ [N]th Check"
+}

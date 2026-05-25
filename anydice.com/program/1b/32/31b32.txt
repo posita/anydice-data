@@ -1,0 +1,34 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+P_HIT_ROLL: [lowest 1 of 2d20] \ Assume grapple + prone \
+P_HIT_MOD: 6+5+3
+P_AC: 24
+P_DMG: [lowest of 13 and 2d6+2d6+5]
+
+S_HIT_ROLL: [highest 1 of 2d20]  \ Assume grapple + prone \
+S_HIT_MOD: 4
+S_AC: 13
+S_DMG: [highest of 0 and (1d6+2)/2 - 3]   \ Heavy Armor Master and resistance \
+
+
+output d[roll S_HIT_ROLL plus S_HIT_MOD against P_AC damage S_DMG crit (S_DMG) on {20}] named "Skelly damage per round"
+
+output 4d([roll P_HIT_ROLL plus P_HIT_MOD against S_AC damage P_DMG crit 2d(P_DMG) on {20}] >= 13) named "Skeletons killed per round"

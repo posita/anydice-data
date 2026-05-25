@@ -1,0 +1,73 @@
+\
+  ASSUMPTIONS:
+  Using no resources, only features that are always available
+  Nat 20 is crit, nat 1 is miss
+  Enemies make saves at +3
+  Two enemies are in range for AoEs
+  Enemy has no resistances
+\
+set "explode depth" to 3
+
+\ Static Variables \
+MISS: 0
+HIT: 1
+MIGHTY: 2
+POWER: 3
+CRIT: 4
+
+\ Mutable Variables \
+STR: 3
+PROF: 2
+
+BONUS: STR+PROF
+
+
+\ Determine what kind of hit happens \
+function: attack ROLL:n BON:n vs AC:n {
+  if ROLL = 20 { result: CRIT }
+  if ROLL + BON > AC + 10 { result: POWER }
+  if ROLL + BON > AC + 5 { result: MIGHTY }
+  if ROLL = 1 | ROLL + BON < AC { result: MISS }
+  result: HIT
+}
+
+\ Standard attack, nothing special \
+function: damage DICE:d DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result: [maximum of DICE]+DICE+DAM }
+  if ATTACK = MISS { result: 0 }
+  result: DICE+DAM
+}
+
+\ Keen adds 1 damage die on powerful blow or crit \
+function: keen damage D_NUM:n D_SIZE:n DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result: D_SIZE+(D_NUM+1)dD_SIZE+DAM }
+  if ATTACK = POWER { result: (D_NUM+1)dD_SIZE+DAM }
+  if ATTACK = MISS { result: 0 }
+  result: D_NUMdD_SIZE+DAM
+}
+
+\ Puncture explodes damage dice \
+function: puncture damage DICE:d DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result [maximum of DICE]+[explode DICE]+DAM } \ Crit damage isn't a roll \
+  if ATTACK = MISS { result: 0 }
+  result: [explode DICE]+DAM
+}
+
+\ Keen but also explodes \
+function: keen puncture damage D_NUM:n D_SIZE:n DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result: D_SIZE+[explode (D_NUM+1)dD_SIZE]+DAM }
+  if ATTACK = POWER { result: [explode (D_NUM+1)dD_SIZE]+DAM }
+  if ATTACK = MISS { result: 0 }
+  result: [explode D_NUMdD_SIZE]+DAM
+}
+
+\ Flat attacks \
+\ Template: output [damage 1d8 STR for [attack d20 BONUS vs AC]] named "" \
+loop AC over {10..25} {
+  output [damage 1d8 STR for [attack d20 BONUS vs AC]] named "Whip Sword (Sword 1H)"
+  output [damage 1d10 STR for [attack d20 BONUS vs AC]] named "Whip Sword (Sword 2H)"
+  output [damage 1d6 STR for [attack d20 BONUS vs AC]] named "Whip Sword (Whip)"
+  output [keen puncture damage 2d4 STR for [attack d20 BONUS vs AC]] named "War Scythe"\
+  output [damage 1d6 STR for [attack d20 BONUS vs AC]] named "Scimitar"
+}
+

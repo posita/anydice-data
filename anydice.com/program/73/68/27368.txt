@@ -1,0 +1,103 @@
+AC: 18
+DEX: 2
+
+WEAPON: 1d6
+ATTACK: 5+1
+THROWN: 5+1+2+2
+MELEE: 5+1+2
+WIS: 2
+
+WEAPONB: 1d8
+ATTACKB: 5+1
+MELEEB: 5+1+2
+
+WEAPONC: 1d4
+ATTACKC: 5+1
+MELEEC: 5+1
+
+function: pb L {
+  if L < 5 {
+    result: 2
+  } else if L < 9 {
+    result: 3
+  } else if L < 13 {
+    result: 4
+  } else if L < 17 {
+    result: 5
+  } else {
+    result: 6
+  }
+}
+
+function: spelldc MOD level L {
+  result: 8 + [pb L] + MOD
+}
+
+function: attack bonus B at level L {
+  result: B + [pb L]
+}
+
+function: attack ATK_DICE:n plus ATK_FIXED level L for DMG_DICE plus DMG_FIXED on crit DMG_CRIT vs AC {
+  if ATK_DICE = 1 {
+    result: 0
+  } else if ATK_DICE = 20 {
+    result: (2d(DMG_DICE))+DMG_FIXED+DMG_CRIT
+  } else {
+    result: ((ATK_DICE+[attack bonus ATK_FIXED at level L])>=AC)*(DMG_DICE+DMG_FIXED)
+  }
+}
+
+function: attack ATK_FIXED level L for DMG_DICE plus DMG_FIXED on crit DMG_CRIT vs AC {
+  result: [attack d20 plus ATK_FIXED level L for DMG_DICE plus DMG_FIXED on crit DMG_CRIT vs AC]
+}
+
+function: attack ATK_FIXED level L for DMG_DICE plus DMG_FIXED vs AC {
+  result: [attack ATK_FIXED level L for DMG_DICE plus DMG_FIXED on crit 0 vs AC]
+}
+
+function: cantrip DC for DMG save SAVE plus SAVE_BONUS {
+  result: (SAVE <= DC) * DMG
+}
+
+function: cantrip DC for DMG save SAVE_BONUS {
+  result: [cantrip DC for DMG save d20 plus SAVE_BONUS]
+}
+
+function: once DIE to DAMAGE:n {
+  if DAMAGE > 0 {
+    result: DIE + DAMAGE
+  } else {
+    result: DAMAGE 
+  }
+}
+
+output 3d[attack ATTACKB level 11 for WEAPONB plus MELEEB vs AC] named "fighter mc"
+output [once 8d6 to [attack ATTACKC level 11 for WEAPONC plus MELEEC vs AC]] named "rogue mc"
+
+output [once 2d8 to 2d[attack ATTACK level 11 for WEAPON plus MELEE vs AC]] named "planar vs 1-2"
+output [once 2d8 to 3d[attack ATTACK level 11 for WEAPON plus MELEE vs AC]] named "planar vs 3+"
+
+output [once 2d8 to 2d[attack ATTACK level 11 for WEAPON plus THROWN vs AC]] named "planar thrown vs 1-2"
+output [once 2d8 to 3d[attack ATTACK level 11 for WEAPON plus THROWN vs AC]] named "planar thrown vs 3+"
+
+output [once 2d8 to [attack ATTACK level 11 for WEAPON plus THROWN vs AC]] named "booming (11)"
+output [once 2d8+3d8 to [attack ATTACK level 11 for WEAPON plus THROWN vs AC]] named "booming+ (11)"
+output [once 2d8+2d8+4 to [attack ATTACK level 11 for WEAPON plus THROWN vs AC]] named "green flame (11) vs 2+"
+output 2d[cantrip [spelldc WIS level 11] for 3d6 save DEX] named "sword burst (11) vs 2"
+output 3d[cantrip [spelldc WIS level 11] for 3d6 save DEX] named "sword burst (11) vs 3"
+output 4d[cantrip [spelldc WIS level 11] for 3d6 save DEX] named "sword burst (11) vs 4"
+
+output 3d[attack ATTACKB level 17 for WEAPONB plus MELEEB vs AC] named "fighter mc (17)"
+output [once 9d6 to [attack ATTACKC level 17 for WEAPONC plus MELEEC vs AC]] named "rogue mc (17)"
+
+output [once 2d8 to 2d[attack ATTACK level 17 for WEAPON plus MELEE vs AC]] named "planar (17) vs 1-2"
+output [once 2d8 to 3d[attack ATTACK level 17 for WEAPON plus MELEE vs AC]] named "planar (17) vs 3+"
+output [once 2d8 to 2d[attack ATTACK level 17 for WEAPON plus THROWN vs AC]] named "planar thrown (17) vs 1-2"
+output [once 2d8 to 3d[attack ATTACK level 17 for WEAPON plus THROWN vs AC]] named "planar thrown (17) vs 3+"
+
+output [once 3d8 to [attack ATTACK level 17 for WEAPON plus THROWN vs AC]] named "booming (17)"
+output [once 3d8+4d8 to [attack ATTACK level 17 for WEAPON plus THROWN vs AC]] named "booming+ (17)"
+output [once 3d8+3d8+4 to [attack ATTACK level 17 for WEAPON plus THROWN vs AC]] named "green flame (17) vs 2+"
+output 2d[cantrip [spelldc WIS level 17] for 4d6 save DEX] named "sword burst (17) vs 2"
+output 3d[cantrip [spelldc WIS level 17] for 4d6 save DEX] named "sword burst (17) vs 3"
+output 4d[cantrip [spelldc WIS level 17] for 4d6 save DEX] named "sword burst (17) vs 4"

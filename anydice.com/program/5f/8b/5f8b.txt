@@ -1,0 +1,57 @@
+
+
+function: reroll lower VALUES:s PRUDENT:n { \relance avec recherche de resultat maximal \
+ if 1@VALUES = 2 { \pas besoin de relancer\
+  result: 2 
+ }
+ if 1@VALUES = 0 { \pas besoin de relancer\
+  result: 1d{0, 0, 0, 1, 1, 2}
+ }
+ if 1@VALUES = 1 {
+  if((#VALUES = 1) | (2@VALUES = 0)) { \si un seul 1 obtenu, on relance seulement si une strategie imprudente est adoptée\
+   if(PRUDENT) {
+    result: 1
+   }
+   else {
+    result: 1d{0, 0, 0, 1, 1, 2}
+   }
+  }
+  else { \si plusieurs 1 on relance et on garde un 2 si un 2 n'est pas obtenu\
+   result: [highest of 1 and 1d{0, 0, 0, 1, 1, 2}]
+  }
+ }
+}
+
+function: reroll higher VALUES:s PRUDENT:n { \relance avec recherche de resultat minimal\
+ if 1@VALUES = 0 { \sur un 0 pas besoin de relancer\
+  result: 0
+ }
+ if 1@VALUES = 2 {
+  if(#VALUES = 1) {
+   result: 1d{0, 0, 0, 1, 1, 2}
+  }
+  else {
+   result: [highest of 2@VALUES and 1d{0, 0, 0, 1, 1, 2}]
+  }
+ }
+ if 1@VALUES = 1 {
+  if(PRUDENT) { \strategie prudente : on cherche à éviter le 2\
+   result: 1
+  }
+  else {
+   if(#VALUES = 1) {
+    result: 1d{0, 0, 0, 1, 1, 2}
+   }
+   else {
+    result: [highest of 2@VALUES and 1d{0, 0, 0, 1, 1, 2}]
+   }
+  }
+ }
+}
+loop N over {1..4}{
+output 1@Nd{0, 0, 0, 1, 1, 2} named "[N]D no reroll "
+output [reroll lower Nd{0, 0, 0, 1, 1, 2} 0] named "[N]D imprudent reroll lower"
+output [reroll lower Nd{0, 0, 0, 1, 1, 2} 1] named "[N]D prudent reroll lower"
+output [reroll higherNd{0, 0, 0, 1, 1, 2} 0] named "[N]D imprudent reroll higher"
+output [reroll higher Nd{0, 0, 0, 1, 1, 2} 1] named "[N]D prudent reroll higher"
+}

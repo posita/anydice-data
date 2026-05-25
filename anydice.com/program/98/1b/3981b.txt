@@ -1,0 +1,80 @@
+function: attack ROLLS:s plus MOD:n against AC:n duelcrit DUELCRIT:d crit CRIT:d duelhit DUELHIT:d hit HIT:d add ADD:n {
+    HIGHEST: (1 @ ROLLS)
+    ATK: HIGHEST + MOD
+    if HIGHEST >= 19{ \ crit \
+        if ATK >= (AC + 5){ result: DUELCRIT + ADD }
+        else { result: CRIT + ADD }
+    }
+    else {
+        if ATK >= AC {
+            if ATK >= (AC+5) { result: DUELHIT + ADD }
+            else { result: HIT + ADD }
+        }
+        else {
+            \ if ATK > (AC - 10) { result: 1d8 } \
+            \ else { \
+                result: 0
+            \ } \
+        }
+    }
+}
+
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  if ((#ROLL)@ROLL) >= MIN {
+     result: ROLL + 0
+  } else {
+    result: (({1..#ROLL-1}@ROLL) + REROLL)
+  }
+}
+
+
+\ handgun:       2d6         \
+\ duelist:       1d6         once/turn  \
+\ hunter's mark: 1d6         any attack \
+\ sneak attack:  1d6         once/turn  \
+\ favored foe:   1d4         first/turn \
+
+
+HIT:                2d6
+DUEL_HM_HIT:        4d6
+HM_SN_HIT:          4d6
+HM_HIT:             3d6
+DUEL_HM_SN_HIT:     5d6
+
+CRIT:               4d6
+DUEL_HM_CRIT:       8d6
+HM_SN_CRIT:         8d6
+HM_CRIT:            6d6
+DUEL_HM_SN_CRIT:    10d6
+                    
+R_HIT:                2d8
+R_DUEL_HM_HIT:        4d8
+R_HM_SN_HIT:          4d8
+R_HM_HIT:             3d8
+R_DUEL_HM_SN_HIT:     5d8
+
+R_CRIT:               4d8
+R_DUEL_HM_CRIT:       8d8
+R_HM_SN_CRIT:         8d8
+R_HM_CRIT:            6d8
+R_DUEL_HM_SN_CRIT:    10d8
+
+
+loop AC over {15..30} {
+    \ elven accuracy: hold 2, attack, put away first gun, bonus action attack \
+    output [attack 3d20 plus 9 against AC duelcrit HM_SN_CRIT crit HM_SN_CRIT duelhit HM_SN_HIT hit HM_SN_HIT add 0] + [attack 3d20 plus 9 against AC duelcrit DUEL_HM_CRIT crit HM_CRIT duelhit DUEL_HM_HIT hit DUEL_HM_HIT add -2] named "AC [AC]: elven accuracy"
+
+    \ piercer: hold 2, attack, put away first gun, bonus action attack \
+    output [attack 2d20 plus 9 against AC duelcrit [reroll lowest of HM_SN_CRIT as 1d6 if less than 4] + 1d6 crit [reroll lowest of HM_SN_CRIT as 1d6 if less than 4] + 1d6 duelhit [reroll lowest of HM_SN_HIT as 1d6 if less than 4] hit [reroll lowest of HM_SN_HIT as 1d6 if less than 4] add 0] + [attack 2d20 plus 9 against AC duelcrit [reroll lowest of DUEL_HM_CRIT as 1d6 if less than 4] + 1d6 crit [reroll lowest of HM_CRIT as 1d6 if less than 4] + 6 duelhit [reroll lowest of DUEL_HM_HIT as 1d6 if less than 4] hit [reroll lowest of DUEL_HM_HIT as 1d6 if less than 4] add -2] named "AC [AC]: piercer"
+    
+    \ hipshooter: hold 2, attack, put away first gun, bonus attack with hipshooter, second attack \
+    output [attack 2d20 plus 9 against AC duelcrit HM_SN_CRIT crit HM_SN_CRIT duelhit HM_SN_HIT hit HM_SN_HIT add 0] + [attack 2d20 plus 4 against AC duelcrit DUEL_HM_CRIT crit HM_CRIT duelhit DUEL_HM_HIT hit DUEL_HM_HIT add -2] + [attack 2d20 plus 4 against AC duelcrit HM_CRIT crit HM_CRIT duelhit HM_HIT hit HM_HIT add 0] named "AC [AC]: hipshooter"
+    
+    \ dual wielder: hold 2, attack, put away first gun, bonus action attack \
+    output [attack 2d20 plus 9 against AC duelcrit R_HM_SN_CRIT crit R_HM_SN_CRIT duelhit R_HM_SN_HIT hit R_HM_SN_HIT add 0] + [attack 2d20 plus 9 against AC duelcrit R_DUEL_HM_CRIT crit R_HM_CRIT duelhit R_DUEL_HM_HIT hit R_DUEL_HM_HIT add -2] named "AC [AC]: dual wielder"
+    
+    \ sharpshooter: hold 2, attack, put away first gun, bonus action attack \
+    output [attack 2d20 plus 4 against AC duelcrit HM_SN_CRIT crit HM_SN_CRIT duelhit HM_SN_HIT hit HM_SN_HIT add 10] + [attack 2d20 plus 4 against AC duelcrit DUEL_HM_CRIT crit HM_CRIT duelhit DUEL_HM_HIT hit DUEL_HM_HIT add 8] named "AC [AC]: sharpshooter"
+    
+    output 0 named ""
+}

@@ -1,0 +1,33 @@
+function: roll POOL:s keep D:n {
+  KEPT: {}
+  SPOOL: [sort POOL]
+  loop I over {1..D} {
+    KEPT: {KEPT, I@SPOOL}
+  }
+  result: KEPT
+}
+
+function: check PAIR:n {
+  if PAIR >= 10 {
+    result: 1
+  }
+  else if PAIR >= 6 {
+    result: 0
+  }
+  else {
+    result: -1
+  }
+}
+
+function: roll POOL:s keep D:n force F:n {
+  FORCE_KEEPS: [count F in POOL]
+  KEEP_N_FROM_POOL: [highest of D - FORCE_KEEPS and 0]
+  FAIL_SUM: F * FORCE_KEEPS
+  result: [roll POOL keep KEEP_N_FROM_POOL] + FAIL_SUM
+}
+
+loop STAT over {-1..3} {
+  POOL: 2 + STAT
+  
+  output [check [roll POOLd6 keep 2 force 1]] named "fail/partial/success at stat=[STAT], 1s forced"
+}

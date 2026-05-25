@@ -1,0 +1,50 @@
+function : tronque ROLL:s{
+ ROLLRESULT : ROLL
+ if ROLL<8 {ROLLRESULT : 8} 
+ if ROLL>15 {ROLLRESULT : 15}
+ result : ROLLRESULT
+}
+
+function : cost ROLL:s {
+ if ROLL=8 {result : 0}
+ if ROLL=9 {result : 1}
+ if ROLL=10 {result : 2}
+ if ROLL=11 {result : 3}
+ if ROLL=12 {result : 4}
+ if ROLL=13 {result : 5}
+ if ROLL=14 {result : 7}
+ if ROLL=15 {result : 9}
+}
+
+function : interpret HIGH:s LOW:s {
+ I: HIGH - 27
+ J: 27 - LOW
+ if I>J {K:J} else {K:I}
+ result:K
+}
+
+function: highest N:n of A:s B:s {
+    result: {1..N}@[sort {A, B}]
+}
+
+function: lowest N:n of A:s B:s {
+    result: {1..N}@[reverse[sort {A, B}]]
+}
+
+
+
+H:0
+L:0
+I:0
+loop X over {1..6}{
+T: 3d6
+K: 2d4
+N: 4
+H: H + [cost[tronque[highest N of T K]]]
+L: L + [cost[tronque[lowest N of T K]]]
+}
+output [interpret H L] named "Interpretation"
+
+
+output H named "Highest"
+output L named "Lowest"

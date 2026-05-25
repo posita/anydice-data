@@ -1,0 +1,28 @@
+FALL_ROLL: 1d{0, 1:19}
+
+function: travel {
+  result: [travel helper FALL_ROLL 0]
+}
+
+function: travel helper ROLL:n STRATA:n {
+  if STRATA >= 5 {result: 5}
+  if !ROLL {result: STRATA}
+  result: [travel helper FALL_ROLL STRATA + 1]
+}
+
+\ output [travel] named "Successfully travel to strata" \
+
+function: fell {
+  result: 5 - [travel]
+}
+
+\ output [fell] named "Strata fell" \
+
+function: fall damage STRATA:n {
+ if STRATA <= 0 {result: 0}
+ result: (STRATA)d20 + (100 + STRATA * 25)
+}
+
+output [fall damage [fell]] named "Fall damage"
+output [fall damage [fell]] / 2 named "Fall damage (rubbergum, mutant)"
+output [fall damage [fell]] / 4 named "Fall damage (rubbergum, TK)"

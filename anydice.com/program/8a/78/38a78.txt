@@ -1,0 +1,106 @@
+INT_MOD: 5
+PROF_BONUS: 6
+set "maximum function depth" to 15
+
+function: is prone by AC and STR {
+  result: 1d20 + INT_MOD + PROF_BONUS >= AC & 1d20+STR < 8 + INT_MOD + PROF_BONUS
+}
+
+function: apply adv by IS_PRONE:n {
+  if IS_PRONE {
+    result: [highest 1 of 2d20]
+  } else {
+    result: 1d20
+  }
+}
+
+function: crit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK = 20 {
+    result: DMG + DMG + ADD
+  } else if ATK + BONUS >= AC{
+    result: DMG + ADD
+  } else {
+    result: 0
+  }
+}
+
+function: champcrit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK >= 18 {
+    result: DMG + DMG + 1d6 + ADD
+  } else if ATK + BONUS >= AC{
+    result: DMG + ADD
+  } else {
+    result: 0
+  }
+}
+
+function: smite at SLEVEL {
+  result: 1d8 + SPELL_SLOTd8
+}
+
+function: repeat ROLL times TIMES {
+  if TIMES > 0 {
+    result: ROLL + [repeat ROLL times TIMES - 1]
+  }
+  result: 0
+}
+
+\Player Level\
+LEVEL: 20
+
+\Zariel\
+\ENEMY_AC: 21\
+\ENEMY_STR: 8\
+
+\Vecna\
+ENEMY_AC: 18
+ENEMY_STR: 2
+
+CANTRIP_LEVEL: (LEVEL + 1 - (LEVEL + 1)/5)/5
+CASTER_LEVEL: [highest of LEVEL and 6] - 6 + [lowest of LEVEL and 6]/2
+SPELL_SLOT: 1 + CASTER_LEVEL/2
+SMITE_DAMAGE: 1d8 + SPELL_SLOTd8
+SHADOW_DAMAGE_ROLL: (2 + ([lowest of SPELL_SLOT and 8]-1)/2)/d8
+BOOMING_DAMAGE_ROLL: SHADOW_DAMAGE_ROLL + 1d8 + (2*CANTRIP_LEVEL)d8
+SMALL_DAMAGE_ROLL: 1d8 + SMITE_DAMAGE
+
+PRONE: [is prone by ENEMY_AC and ENEMY_STR]
+
+BONUS: INT_MOD + PROF_BONUS
+
+output [repeat
+  [crit SHADOW_DAMAGE_ROLL + [smite at 4] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 4] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] times 4] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 4] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 3] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 3] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 3] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 2] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 2] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 2] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] named "Duel Scholar (10 turns)"
+
+output  [repeat
+  [repeat [crit 1d10 + 1d6 with 3*INT_MOD by 1d20 and BONUS and ENEMY_AC] times 4] +
+  [repeat [crit 1d10 + 1d6 with 2*INT_MOD by 1d20 and BONUS and ENEMY_AC] times 4]
+ times 9] +
+  10d4 + 10d6 + 100 + 9d4 + 9d6 + 54 named "Magnificent Blastard (EB) (10 turns)"
+
+output [repeat
+  [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] times 12]
+named "Champion Fighter Naive Build (2 turns + 8 without AS)"
+
+
+output 
+  [repeat
+    [crit (2d8 + 1d4 + 1d6 + 1d10) with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [repeat [crit 1d8 + 1d6 + 1d10 with INT_MOD by 1d20 and BONUS and ENEMY_AC] times 3] + [crit 2d4 with PROF_BONUS by 1d20 and BONUS and ENEMY_AC]
+    times 10] + LEVEL
+named "Astral Shifter with Hex and Ring Strike, 10 turns"
+
+\output 
+  [repeat [crit 1d8 with INT_MOD by 1d20 and BONUS and ENEMY_AC] times 4] + 1d8 + 1d4 + LEVEL + [crit 2d4 with PROF_BONUS by 1d20 and BONUS and ENEMY_AC]
+named "Astral Shifter, 1 turn"
+
+output [crit [smite at 4] with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [crit SHADOW_DAMAGE_ROLL + [smite at 4] with INT_MOD by [apply adv by PRONE] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 4] with INT_MOD by [apply adv by PRONE ] and BONUS and ENEMY_AC] named "Duel Scholar Burst"
+
+output [repeat
+  [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] + [champcrit 2d{1..6, 3..6} with INT_MOD by 1d20 and BONUS and ENEMY_AC] times 2]named "Champion Fighter Naive Build Burst"
+
+output 10d4 + 10d6 + 100 + 9d4 + 9d6 + 54 named "Magnificent Blastard burst"\

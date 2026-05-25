@@ -1,0 +1,63 @@
+function: ac at CR {
+ if CR =  1 { result: 14 }
+ if CR =  2 { result: 15 }
+ if CR =  3 { result: 15 }
+ if CR =  4 { result: 17 }
+ if CR =  5 { result: 18 }
+ if CR =  6 { result: 19 }
+ if CR =  7 { result: 20 }
+ if CR =  8 { result: 21 }
+ if CR =  9 { result: 23 }
+ if CR = 10 { result: 24 }
+ if CR = 11 { result: 25 }
+ if CR = 12 { result: 27 }
+ if CR = 13 { result: 28 }
+ if CR = 14 { result: 29 }
+ if CR = 15 { result: 30 }
+ if CR = 16 { result: 31 }
+ if CR = 17 { result: 32 }
+ if CR = 18 { result: 34 }
+ if CR = 19 { result: 35 }
+ if CR = 20 { result: 37 }
+}
+function: bab at L {
+ if L =  1 { result: {1} }
+ if L <  6 { result: {LVL-2,LVL-2} }
+ if L <  8 { result: {LVL-2,LVL-2,LVL-5} } 
+ if L < 11 { result: {LVL-2,LVL-2,LVL-5,LVL-5} }
+ if L < 15 { result: {LVL-2,LVL-2,LVL-5,LVL-5,LVL-10} }
+ if L < 16 { result: {LVL-2,LVL-2,LVL-5,LVL-5,LVL-10,LVL-10} }
+ if L > 15 { result: {LVL-2,LVL-2,LVL-5,LVL-5,LVL-10,LVL-10,LVL-15} }
+}
+function: str at L {
+ if L <  8 { result: 6 }
+ if L <  9 { result: 7 } \levelling +2\
+ if L < 10 { result: 11 } \perm. enlarge and belt of giant strength +6\
+ if L < 20 { result: 14 } \manual of gainful exercise +5, levelling +1\
+ if L = 20 { result: 15 } \levelling +2\
+}
+function: dice at L{ \assuming half-orc favored class bs\
+ if L < 4 { result: 1d6 }
+ if L < 7 { result: 1d8 }
+ if L < 8 { result: 1d10 }
+ if L < 10 { result: 2d8 }
+ if L < 11 { result: 3d6 } 
+ if L < 16 { result: 3d8 }
+ if L > 15 { result: 4d8 }
+}
+function: fullround at L with C ac D dam and A atk {
+ TOTAL: 0
+ STR: [str at L]
+ DAM: [dice at L] + STR + D
+ BAB: [bab at L]
+ loop SING over {1..#BAB}{
+  BONUS: SING@BAB
+  RESULT: (1d20 + BONUS + STR + A >= C) * DAM 
+  TOTAL: RESULT + TOTAL
+ }
+ result: TOTAL
+}
+
+loop LVL over {1..20}{
+ output [fullround at LVL with [ac at LVL] ac 0 dam and 0 atk] named "dist at lvl [LVL]"
+}

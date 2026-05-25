@@ -1,0 +1,67 @@
+function: remove SUBSEQ:s from SEQ:s {
+  SEQ: [sort SEQ]
+  SUBSEQ: [sort SUBSEQ]
+  REST: {}
+  J: 1
+  loop I over {1..#SEQ} {
+    if J <= #SUBSEQ & I@SEQ = J@SUBSEQ { 
+      if (I!=#SEQ & (I+1)@SEQ != J@SUBSEQ) { J: J + 1 } 
+    }
+    else { REST: {REST, I@SEQ} }
+  }
+  result: REST
+}
+
+function: kk with N:n and NN:n and HAB:n in NDIE:n {
+ if (N>HAB & NN>HAB) { result: [count {1..HAB} in NDIEd6] } else {
+  if (N<=HAB & NN<=HAB) { result: [count {1..HAB} in NDIEd[remove N from [remove NN from {d6}]]] } else {
+  if (N<=HAB & NN>HAB)  { result: [count {1..HAB} in NDIEd[remove N from {d6}]]  } else {
+  if (N>HAB & NN<=HAB)  { result: [count {1..HAB} in NDIEd[remove NN from {d6}]] }
+  }}
+ }
+}
+
+function: kk with N:n and hab HAB:n in NDIE:n {
+ if (N>HAB) { result: [count {1..HAB} in NDIEd6] } else {
+ if (N<=HAB) { result: [count {1..HAB} in NDIEd[remove N from {d6}]] }
+ }
+}
+
+function: kk with N:n and NN:n and hab HAB:n in NDIE:n {
+ if (N>HAB & NN>HAB) { result: [count {1..HAB} in NDIEd6] } else {
+ if (N<=HAB & NN<=HAB) { result: [count {1..HAB} in NDIEd[remove N from [remove NN from {d6}]]] } else {
+ if (N<=HAB & NN>HAB)  { result: [count {1..HAB} in NDIEd[remove N from {d6}]]  } else {
+ if (N>HAB & NN<=HAB)  { result: [count {1..HAB} in NDIEd[remove NN from {d6}]] }
+ }}}
+}
+
+function: kk with N:n and NN:n and NNN:n {
+ if (N>HAB & NN>HAB & NNN>HAB) { result: [count {1..HAB} in d6] } else {
+
+  if (N<=HAB & NN>HAB & NNN>HAB) { result: [count {1..HAB} in d[remove N from {d6}]]  } else {
+  if (N>HAB & NN<=HAB & NNN>HAB)  { result: [count {1..HAB} in d[remove NN from {d6}]] } else {
+  if (N>HAB & NN>HAB & NNN<=HAB)  { result: [count {1..HAB} in d[remove NNN from {d6}]] } else {
+
+  if (N<=HAB & NN>HAB & NNN<=HAB)  { result: [count {1..HAB} in d[remove N from [remove NNN from {d6}]]] } else { 
+  if (N<=HAB & NN<=HAB & NNN>HAB)  { result: [count {1..HAB} in d[remove N from [remove NN from {d6}]]] } else { 
+  if (N>HAB & NN<=HAB & NNN<=HAB)  { result: [count {1..HAB} in d[remove NN from [remove NNN from {d6}]]] } else { 
+
+  if (N<=HAB & NN<=HAB & NNN<=HAB)  { result: [count {1..HAB} in d[remove N from [remove NN from [remove NNN from {d6}]]]] } 
+  }}}
+  }}}
+ }
+}
+
+
+N: d6
+DICE: 3
+loop H over {d6} {
+\* 
+ output [count {1..H} in d6] named "Hab.[H], removing nothing"
+ output [kk with N and N and N] named "Hab.[H], 'removing' 3 dice"
+ output [kk with N and {999}] named "Hab.[H], 'removing' 1 dice" 
+*\
+output [count {1..H} in DICEd6] named "Hab.[H] N0" 
+ output [kk with N and hab H in DICE]  named "Hab.[H] N1"
+ output [kk with N and N and hab H in DICE] named "Hab.[H] N2"  
+}

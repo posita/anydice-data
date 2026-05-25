@@ -1,0 +1,55 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack 1d20 vs DEFENSE]]
+}
+
+MINAC: 20
+MAXAC: MINAC
+DEFENSE: d{MINAC..MAXAC}
+EXTRA_DMG: 2d8
+BLESSED: 1d6
+POWER_HIT: -5
+POWER_DMG: 10
+PROF: 5
+STAT: 5
+MAGIC: 2
+ATTACK: PROF + STAT + 1
+MISSDAMAGE: 0 
+
+HITDAMAGE: 1d12 + EXTRA_DMG + STAT + BLESSED
+CRITICALDAMAGE: 2d12 + 2dEXTRA_DMG + STAT + 2dBLESSED
+output 3d[attack] named "lorna claws"
+
+ATTACK: PROF + STAT + MAGIC
+HITDAMAGE: 2d8 + EXTRA_DMG + STAT  + MAGIC
+CRITICALDAMAGE: 4d8 + 2dEXTRA_DMG + STAT + MAGIC
+output 2d[attack] named "lorna sunsword"
+
+MAGIC: 1
+ATTACK: PROF + STAT + MAGIC + 1
+HITDAMAGE: 1d10+ STAT + MAGIC + BLESSED
+CRITICALDAMAGE: 2d10+ STAT + MAGIC + 2dBLESSED
+output 3d[attack] named "silver bullets"
+
+ATTACK: PROF + STAT + MAGIC + POWER_HIT + 1
+HITDAMAGE: 1d10+ STAT + MAGIC + BLESSED + POWER_DMG
+CRITICALDAMAGE: 2d10+ STAT + MAGIC + 2dBLESSED + POWER_DMG
+output 3d[attack] named "silver sharpshooter"

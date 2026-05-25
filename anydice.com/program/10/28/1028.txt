@@ -1,0 +1,48 @@
+\
+ 3 is removed from play
+ 2 is flee
+ 1 is initiative loss
+ 0 is nothing
+\
+
+\ conversion of result range 0-6 to results listed above \
+CONVERSION: {0, 0, 1, 1, 2, 3}
+
+\ attack pips defines how many bonus pips the attacker has, none by default \
+ATTACKPIPS: 0
+
+function: ATTACK:s vs DEFENSE:s {
+ A: 1@ATTACK
+ AP: 1
+ PIPS: ATTACKPIPS
+ loop P over {1..#DEFENSE} {
+  if P@DEFENSE < A {
+   \ defense exhausted \
+   result: A@CONVERSION
+  }
+  if PIPS & A < 6 {
+   \ boost with pips \
+   BOOST: [lowest of PIPS and 6 - A]
+   A: A + BOOST
+   PIPS: PIPS - BOOST
+   if P@DEFENSE >= A {
+    \ eliminate anyway \
+    AP: AP + 1
+    A: AP@ATTACK
+   }
+  }
+  else {
+   \ eliminate \
+   AP: AP + 1
+   A: AP@ATTACK
+  }
+ }
+ result: A@CONVERSION
+}
+
+\ loop output to show various attack pip bonus amounts \
+ATTACK: 3d6
+DEFENSE: 2d6
+loop ATTACKPIPS over {0..3} {
+ output [ATTACK vs DEFENSE] named "[ATTACKPIPS] pip attack bonus" 
+}

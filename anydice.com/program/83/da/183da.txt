@@ -1,0 +1,44 @@
+FUDGE: {-1, 0, +1}
+
+function: first N:n of SEQ:s {
+  FIRST: {}
+  loop I over {1..N} { FIRST: {FIRST, I@SEQ} }
+  result: FIRST
+}
+
+function: ROLL:s reroll up to SKILL:n target TARGET:n {
+  if ROLL + 0 >= TARGET { result: 1 }                          \- success -\
+  if #ROLL = 0 | SKILL = 0 | #ROLL@ROLL = 1 { result: 0 }      \- failure -\
+  FIRST: [first #ROLL-1 of ROLL]
+  result: [FIRST reroll up to SKILL-1 target TARGET - 1dFUDGE] \- reroll  -\
+}
+
+function: exclude RANGE:s from ROLL:n {
+  if ROLL = RANGE { result: d{} } else { result: ROLL }
+}
+function: sign of NUM:n {
+  result: (NUM > 0) - (NUM < 0)
+}
+function: P:d minus Q:d {
+  DIFF: P - Q
+  loop I over {1..20} {
+    TEMP: [exclude 0 from DIFF]
+    DIFF: (DIFF != 0) * [sign of TEMP + TEMP]
+  }
+  result: [exclude -1 from DIFF]
+}
+function: if COND:n then A:d else B:d {
+  if COND { result: A } else { result: B }
+}
+
+loop SKILL over {0..4} {
+  DIST: 0
+  PREV: 1
+  BOGUS: 99 \- arbitrary value outside the range of the loop below -\
+  loop TARGET over {-4..4} {
+    PROB: [4dFUDGE reroll up to SKILL target TARGET + 1]
+    DIST: [if d{-4..TARGET} < TARGET then DIST else BOGUS + (TARGET - BOGUS) * [PREV minus PROB]]
+    PREV: PROB
+  }
+  output [exclude BOGUS from DIST] named "skill [SKILL]"
+}

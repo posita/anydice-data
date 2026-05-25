@@ -1,0 +1,539 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n fail FAIL:n success SUCCESS{
+if SAVE >= DC {result: SUCCESS}
+if SAVE < DC {result: FAIL}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n onhit ONHIT onmiss ONMISS{
+if ROLL = 20 {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attackpf ROLL:n plus TOHIT:n vs ac AC:n for DAMAGE:d map MAP:n{
+if ROLL = 20 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC+10 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC {result: DAMAGE}
+if (TOHIT + ROLL - 5*MAP) < AC {result: 0}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n crit CRIT:n fail FAIL:n success SUCCESS:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: SUCCESS}
+if ROLL = 1 {result: CRIT}
+if ROLL + FLOAT < DC-10 {result: CRIT}
+if ROLL + FLOAT < DC {result: FAIL}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n for DAMAGE:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: DAMAGE/2}
+if ROLL = 1 {result: DAMAGE*2}
+if ROLL + FLOAT < DC-10 {result: DAMAGE*2}
+if ROLL + FLOAT < DC {result: DAMAGE}
+}
+
+US:[attack 1d20 plus 1 vs ac 10 for 1d6 plus 3]
+USA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3]
+USF:[attack 1d20 plus 1 vs ac 10 for 1d6 plus 8]
+USAF:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8]
+
+output [savethrow 1d20 vs dc 13
+    fail USF+USF
+    success US+US
+] named "Oil 3"
+
+output US+US+US named "Monk 3"
+
+US:[attack 1d20 plus 1 vs ac 10 for 1d6 plus 4]
+USA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 4]
+USF:[attack 1d20 plus 1 vs ac 10 for 1d6 plus 9]
+USAF:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9]
+
+output [savethrow 1d20 vs dc 13
+    fail USF+USF
+    success US+US
+] named "Oil 4"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 4
+    onhit [savethrow 1d20 vs dc 13
+        fail USA+USA
+        success US+US
+    ]
+    onmiss US+US
+] named "Monk 4"
+
+US:[attack 1d20 plus 1 vs ac 10 for 1d8 plus 4]
+USA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4]
+USF:[attack 1d20 plus 1 vs ac 10 for 1d8 plus 9]
+USAF:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 9]
+
+output [savethrow 1d20 vs dc 13
+    fail [attack 1d20 plus 1 vs ac 10 for 1d8 plus 9
+        onhit [savethrow 1d20 vs dc 13
+            fail USAF+USAF
+            success USF+USF
+        ]
+        onmiss USF+USF
+    ]
+    success [attack 1d20 plus 1 vs ac 10 for 1d8 plus 4
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA
+            success US+US
+        ]
+        onmiss US+US
+    ]
+] named "Oil 5"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d8 plus 4
+    onhit [savethrow 1d20 vs dc 13
+        fail USA+USA+USA
+        success US+US+US
+    ]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 1d8 plus 4
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA
+            success US+US
+        ]
+		onmiss US+US
+    ]
+] named "Monk 5"
+
+US:[attack 1d20 plus 1 vs ac 10 for 1d8 plus 5]
+USA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5]
+USF:[attack 1d20 plus 1 vs ac 10 for 1d8 plus 10]
+USAF:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 10]
+
+output [savethrow 1d20 vs dc 13
+    fail [attack 1d20 plus 1 vs ac 10 for 1d8 plus 10
+        onhit [savethrow 1d20 vs dc 13
+            fail USAF+USAF
+            success USF+USF
+        ]
+        onmiss USF+USF
+    ]
+    success [attack 1d20 plus 1 vs ac 10 for 1d8 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA
+            success US+US
+        ]
+        onmiss US+US
+    ]
+] named "Oil 8"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d8 plus 5
+    onhit [savethrow 1d20 vs dc 13
+        fail USA+USA+USA
+        success US+US+US
+    ]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 1d8 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA
+            success US+US
+        ]
+		onmiss US+US
+    ]
+] named "Monk 8"
+
+
+output [savethrow 1d20 vs dc 13
+    fail [attack 1d20 plus 1 vs ac 10 for 1d8 plus 10
+        onhit [savethrow 1d20 vs dc 13
+            fail USAF+USAF+USAF
+            success USF+USF+USF
+        ]
+        onmiss USF+USF+USF
+    ]
+    success [attack 1d20 plus 1 vs ac 10 for 1d8 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA+USA
+            success US+US+US
+        ]
+        onmiss US+US+US
+    ]
+] named "Oil 10"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d8 plus 5
+    onhit [savethrow 1d20 vs dc 13
+        fail USA+USA+USA+USA
+        success US+US+US+US
+    ]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 1d8 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA+USA
+            success US+US+US
+        ]
+		onmiss US+US+US
+    ]
+] named "Monk 10"
+
+US:[attack 1d20 plus 1 vs ac 10 for 1d10 plus 5]
+USA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5]
+USF:[attack 1d20 plus 1 vs ac 10 for 1d10 plus 10]
+USAF:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 10]
+
+output [savethrow 1d20 vs dc 13
+    fail [attack 1d20 plus 1 vs ac 10 for 1d10 plus 10
+        onhit [savethrow 1d20 vs dc 13
+            fail USAF+USAF+USAF
+            success USF+USF+USF
+        ]
+        onmiss USF+USF+USF
+    ]
+    success [attack 1d20 plus 1 vs ac 10 for 1d10 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA+USA
+            success US+US+US
+        ]
+        onmiss US+US+US
+    ]
+] named "Oil 11"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 plus 5
+    onhit [savethrow 1d20 vs dc 13
+        fail USA+USA+USA+USA
+        success US+US+US+US
+    ]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 1d10 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA+USA
+            success US+US+US
+        ]
+		onmiss US+US+US
+    ]
+] named "Monk 11"
+
+US:[attack 1d20 plus 1 vs ac 10 for 1d12 plus 5]
+USA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5]
+USF:[attack 1d20 plus 1 vs ac 10 for 1d12 plus 10]
+USAF:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 10]
+
+output [savethrow 1d20 vs dc 13
+    fail [attack 1d20 plus 1 vs ac 10 for 2d12 plus 10
+        onhit [savethrow 1d20 vs dc 13
+            fail USAF+USAF+USAF
+            success USF+USF+USF
+        ]
+        onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 10
+			onhit USF+USF
+			onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 10
+				onhit USF
+				onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 10]
+			]
+		]
+    ]
+    success [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA+USA
+            success US+US+US
+        ]
+        onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+			onhit US+US+US
+			onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+				onhit US+US
+				onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+					onhit US
+					onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5]
+				]
+			]
+		]
+    ]
+] named "Oil 17"
+
+output [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+    onhit [savethrow 1d20 vs dc 13
+        fail USA+USA+USA+USA
+        success US+US+US+US
+    ]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+        onhit [savethrow 1d20 vs dc 13
+            fail USA+USA+USA
+            success US+US+US
+        ]
+		onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+			onhit US+US
+			onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+				onhit US
+				onmiss [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5]
+			]
+		]
+    ]
+] named "Monk 17"
+
+output [savethrow 1d20 vs dc 13
+	fail [attack 1d20 plus 1 vs ac 10 for 2d12 plus 10
+		onhit [savethrow 1d20 vs dc 13
+            fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 10 
+				onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 10
+					onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 10
+						onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 10
+							onhit 0
+							onmiss 1d12+10
+						]
+						onmiss 1d12+10+USAF
+					]
+					onmiss 1d12+10+USAF+USAF
+				]
+				onmiss 1d12+10+USAF+USAF+USAF
+			]
+            success [attack 1d20 plus 1 vs ac 10 for 1d12 plus 10 
+				onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 10 
+					onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 10 
+						onhit 0
+						onmiss 1d12+10
+					]
+					onmiss 1d12+10+USF
+				]
+				onmiss 1d12+10+USF+USF
+			]
+        ]
+		onmiss 2d12+10 + [savethrow 1d20 vs dc 13
+            fail USAF+USAF+USAF
+            success USF+USF+USF
+        ]
+	]
+	success [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+		onhit [savethrow 1d20 vs dc 13
+            fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5 
+				onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+					onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+						onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+							onhit 0
+							onmiss 1d12+5
+						]
+						onmiss 1d12+5+USA
+					]
+					onmiss 1d12+5+USA+USA
+				]
+				onmiss 1d12+5+USA+USA+USA
+			]
+            success [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5
+				onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5 
+					onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5
+						onhit 0
+						onmiss 1d12+5
+					]
+					onmiss 1d12+5+US
+				]
+				onmiss 1d12+5+US+US
+			]
+        ]
+		onmiss 2d12+5 + [savethrow 1d20 vs dc 13
+            fail USA+USA+USA
+            success US+US+US
+        ]
+	]
+] named "Oil 19"
+
+output [attack 1d20 plus 1 vs ac 10 for 2d12 plus 5
+	onhit [savethrow 1d20 vs dc 13
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+			onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+				onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+					onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+						onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+							onhit 0
+							onmiss 1d12+5
+						]
+						onmiss 1d12+5+USA
+					]
+					onmiss 1d12+5+USA+USA
+				]
+				onmiss 1d12+5+USA+USA+USA
+			]
+			onmiss 2d12+5+USA+USA+USA
+		]
+		success [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5
+			onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5
+				onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5
+					onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5
+						onhit [attack 1d20 plus 1 vs ac 10 for 1d12 plus 5
+							onhit 0
+							onmiss 1d12+5
+						]
+						onmiss 1d12+5+US
+					]
+					onmiss 1d12+5+US+US
+				]
+				onmiss 1d12+5+US+US+US
+			]
+			onmiss 2d12+5+US+US+US
+		]
+	]
+	onmiss 2d12+5 + [savethrow 1d20 vs dc 13
+		fail USA+USA+USA+USA
+		success US+US+US+US
+	]
+] named "Monk 19"
+
+US:[attack 1d20 plus 3 vs ac 10 for 1d12 plus 7]
+USA:[attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 7]
+USF:[attack 1d20 plus 3 vs ac 10 for 1d12 plus 12]
+USAF:[attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 12]
+
+output [savethrow 1d20 vs dc 15
+	fail [attack 1d20 plus 3 vs ac 10 for 2d12 plus 12
+		onhit [savethrow 1d20 vs dc 15
+            fail [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 12 
+				onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 12
+					onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 12
+						onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 12
+							onhit 0
+							onmiss 1d12+10
+						]
+						onmiss 1d12+10+USAF
+					]
+					onmiss 1d12+10+USAF+USAF
+				]
+				onmiss 1d12+10+USAF+USAF+USAF
+			]
+            success [attack 1d20 plus 3 vs ac 10 for 1d12 plus 12 
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 12 
+					onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 12 
+						onhit 0
+						onmiss 1d12+10
+					]
+					onmiss 1d12+10+USF
+				]
+				onmiss 1d12+10+USF+USF
+			]
+        ]
+		onmiss 2d12+10 + [savethrow 1d20 vs dc 15
+            fail USAF+USAF+USAF
+            success USF+USF+USF
+        ]
+	]
+	success [attack 1d20 plus 3 vs ac 10 for 2d12 plus 7
+		onhit [savethrow 1d20 vs dc 15
+            fail [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 7 
+				onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 7
+					onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 7
+						onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d12 plus 7
+							onhit 0
+							onmiss 1d12+5
+						]
+						onmiss 1d12+5+USA
+					]
+					onmiss 1d12+5+USA+USA
+				]
+				onmiss 1d12+5+USA+USA+USA
+			]
+            success [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7 
+					onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7
+						onhit 0
+						onmiss 1d12+5
+					]
+					onmiss 1d12+5+US
+				]
+				onmiss 1d12+5+US+US
+			]
+        ]
+		onmiss 2d12+5 + [savethrow 1d20 vs dc 15
+            fail USA+USA+USA
+            success US+US+US
+        ]
+	]
+] named "Oil 20"
+
+output [attack 1d20 plus 3 vs ac 10 for 2d12 plus 7
+	onhit [savethrow 1d20 vs dc 15
+		fail [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+			onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+				onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+					onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+						onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d12 plus 5
+							onhit 0
+							onmiss 1d12+5
+						]
+						onmiss 1d12+5+USA
+					]
+					onmiss 1d12+5+USA+USA
+				]
+				onmiss 1d12+5+USA+USA+USA
+			]
+			onmiss 2d12+5+USA+USA+USA
+		]
+		success [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7
+					onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7
+						onhit [attack 1d20 plus 3 vs ac 10 for 1d12 plus 7
+							onhit 0
+							onmiss 1d12+5
+						]
+						onmiss 1d12+5+US
+					]
+					onmiss 1d12+5+US+US
+				]
+				onmiss 1d12+5+US+US+US
+			]
+			onmiss 2d12+5+US+US+US
+		]
+	]
+	onmiss 2d12+5 + [savethrow 1d20 vs dc 15
+		fail USA+USA+USA+USA
+		success US+US+US+US
+	]
+] named "Monk 20"

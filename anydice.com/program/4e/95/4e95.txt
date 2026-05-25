@@ -1,0 +1,68 @@
+\***Using the WM/H Probability Calculator***
+Hit [Calculate], select [Graph], and [At Least] to 
+   get a nice visualization of probability that a 
+   series of attacks will cause at least X damage 
+   to a given target.
+Scroll down through the code below to learn how to 
+   make your own attack strings for your models.\
+
+\Skip this function section, it's on top because it
+   has to be!\
+function: A:n vs B:n C:n vs D:n { if A >= B { if C > D { result: C - D  } result: 0 } result: 0 }
+function: initial A:n brutal charge { result: [XAT + 2 vs DEF A + 1d6 vs ARM] }
+function: initial A:n ap { result: [XAT vs DEF A vs ((ARM + 1) / 2)] }
+function: initial A:n ap boost hit { result: [XAT + 1d6 vs DEF A vs ((ARM + 1) / 2)] }
+function: initial A:n ap boost dmg { result: [XAT vs DEF A + 1d6 vs ((ARM + 1) / 2)] }
+function: initial A:n ap boost hit boost dmg { result: [XAT + 1d6 vs DEF A + 1d6 vs ((ARM + 1) / 2)] }
+function: initial A:n { result: [XAT vs DEF A vs ARM] }
+function: initial A:n boost dmg { result: [XAT vs DEF A + 1d6 vs ARM] }
+function: initial A:n boost hit { result: [XAT + 1d6 vs DEF A vs ARM] }
+function: initial A:n boost hit boost dmg { result: [XAT + 1d6 vs DEF A + 1d6 vs ARM] }
+function: buy A:n { result: [XAT vs DEF A vs ARM] }
+function: buy A:n boost dmg { result: [XAT vs DEF A + 1d6 vs ARM] }
+function: buy A:n boost hit { result: [XAT + 1d6 vs DEF A vs ARM] }
+function: buy A:n boost hit boost dmg { result: [XAT + 1d6 vs DEF A + 1d6 vs ARM] }
+
+\Begin making your changes here:
+XAT is for MAT or RAT of the attacker plus however
+   many d6 are involved in this attack. This 
+   handles extra d6 for things like Deadeye & 
+   feats. Boosting is covered later\
+
+XAT: 6 + 2d6
+
+\Weapons POW added here, again add the non-boosted 
+   amount of d6s needed to the weapon stat line. 
+You can technically rename these weapons as well, 
+   so long as they stay in all caps, contain no
+   numbers, and you call them by the right name in 
+   your attack string.\
+
+WEAPONA: 14 + 2d6
+
+\Two ways to modify DEF & ARM of the target
+The easy way is to simply specify an ARM & DEF like 
+   the weapon stats above. This works fine for
+   calculating attacks vs. a single target 
+The hard way (shown below) shows you how to set up
+   a sliding scale of DEF vs. ARM values to compare
+   your attacks against. The loop default length 
+   0..3 can be changed to a larger set like 0..6 for
+   instance. If the loop is used, the attack outputs 
+   must be placed within the loop brackets {}\
+
+\Finally, specify a string of attacks to compare vs. 
+   DEF and ARM. Use the example below to suit your 
+   attacker. The important bits are to start your 
+   line with output, put the attack inside of 
+   brackets, put a + between attacks, and then name 
+   your attack string with named\
+
+DEF: 8
+ARM: 19
+
+output [initial WEAPONA ap boost dmg] + [initial WEAPONA boost dmg] + [initial WEAPONA boost dmg]
+ named "Angel, free charge vs [DEF]/[ARM] boosting dmg"
+
+output [initial WEAPONA ap boost dmg] + [initial WEAPONA] + [initial WEAPONA] + [initial WEAPONA] + [initial WEAPONA]
+ named "Angel, free charge vs [DEF]/[ARM]"

@@ -1,0 +1,118 @@
+\ This code outputs the probability of a given difference between a design roll and a craft roll. \
+\ 0 or higher indicates the craft action beat the design's Build Threshold. Negative values indicate how short it falls. \
+\ Edit the parameters below to customize the rolls. Default is 2 actions on the Faxe using Chui Dao for extra successes. \
+\ Note that due to constraints of the program, successes ALWAYS round down when applying Drive. \
+
+\ -------------------------- Parameters start here ------------------------- \
+
+\ Values to use for design rolls \
+NUMBER_OF_DICE_DESIGN: 10 \ Number of dice per roll. Craft(Charm). \
+NUMBER_OF_ROLLS_DESIGN: 2 \ Typically 4 per action. A design action is 2 to design, 2 to crafting \
+SUCCESS_THRESHOLD_DESIGN: 7 \ 10 - talent \
+MULTIPLIER_DESIGN: 14 \ 10 times drive \
+AUTO_SUCCESS_DESIGN: 34 \ Automatic successes. For design, the sum of each material's value \
+OVERRIDE_DESIGN: 0 \ If non-zero, this will replace the dice probabilities for design. The above values will not do anything in this case \
+
+
+\ Values to use for craft calculations \
+NUMBER_OF_DICE_CRAFT: 3 \ Number of dice per roll. Craft(<Charm Type>). \
+NUMBER_OF_ROLLS_CRAFT: 6 \ Typically 4 per action. A design action is 2 to design, 2 to crafting \
+SUCCESS_THRESHOLD_CRAFT: 7 \ 10 - talent \
+MULTIPLIER_CRAFT: 14 \ 10 times drive \
+AUTO_SUCCESS_CRAFT: 5 * NUMBER_OF_ROLLS_CRAFT \ Automatic successes. For craft, usually 0, or with Chui Dao 5 times number of rolls \
+OVERRIDE_CRAFT: 0 \ If non-zero, this will replace the dice spread for craft. The above values will not do anything in this case \
+
+
+\ ---------------------------- Code starts here ---------------------------- \
+
+\ Roll exploding dice. 1 subtracts successes, T and greater adds, 10 you get an extra dice. Courtesy of Wise Wolf. \
+function: roll RAWROLL:n with s T:n explode to REPLACEMENT:d {
+  ROLL: 0
+  if RAWROLL = 1 {
+    ROLL: -1
+  }
+  if RAWROLL >= T {
+    ROLL: 1
+  }
+  if RAWROLL = 10 {
+    ROLL: ROLL + [roll REPLACEMENT with s T explode to REPLACEMENT]
+  }
+  result: ROLL 
+}
+function: roll DICE:d with s T:n {
+  result: [roll DICE with s T explode to DICE]
+}
+
+\ Shorthand of the later functions, for if you have no automatic successes. \
+function: roll separated dice NUMDICE:n thresh THRESHOLD:n rolls NUMROLLS:n multiplier MULT:n {
+  result: [roll separated dice NUMDICE thresh THRESHOLD rolls NUMROLLS multiplier MULT successes 0]
+}
+function: roll combined dice NUMDICE:n thresh THRESHOLD:n rolls NUMROLLS:n multiplier MULT:n {
+  result: [roll combined dice NUMDICE thresh THRESHOLD rolls NUMROLLS multiplier MULT successes 0]
+}
+
+\ Sum all dice separately by roll. Based on Wise Wolf's code. \
+function: roll separated dice NUMDICE:n thresh THRESHOLD:n rolls NUMROLLS:n multiplier MULT:n successes SUCCESS:n {
+  ROLLMAXIMUM:(NUMDICE*THRESHOLD/9*2)
+
+  SEPARATEDHITS: 0
+  loop II over {1..NUMROLLS} {
+    ROLLHITS: 0
+    loop N over {1..NUMDICE} {
+      ROLL: [roll 1d10 with s THRESHOLD]
+      ROLLHITS: ROLLHITS + ROLL
+    }
+    SEPARATEDHITS: SEPARATEDHITS + [lowest of ROLLMAXIMUM and [highest of 0 and (ROLLHITS*MULT/10)]]
+  }
+
+  result: SEPARATEDHITS + SUCCESS
+}
+
+\ Roll all dice together, as if there was only one roll. Based on Wise Wolf's code. \
+function: roll combined dice NUMDICE:n thresh THRESHOLD:n rolls NUMROLLS:n multiplier MULT:n successes SUCCESS:n {
+  ROLLMAXIMUM:(NUMDICE*THRESHOLD/9*2)
+
+  COMBINEDHITS: 0
+  loop II over {1..NUMROLLS} {
+    loop N over {1..NUMDICE} {
+      ROLL: [roll 1d10 with s THRESHOLD]
+      COMBINEDHITS: COMBINEDHITS + ROLL
+    }
+  }
+
+  COMBINEDHITS: [highest of 0 and (COMBINEDHITS*MULT/10)]
+  COMBINEDHITS: [lowest of ROLLMAXIMUM*NUMROLLS and COMBINEDHITS]
+
+  result: COMBINEDHITS + SUCCESS
+}
+
+\ Calculate design rolls. \
+DESIGN_COMB: 0
+DESIGN_SEP: 0
+if OVERRIDE_DESIGN = 0 {
+    DESIGN_SEP: [roll separated dice NUMBER_OF_DICE_DESIGN thresh SUCCESS_THRESHOLD_DESIGN rolls NUMBER_OF_ROLLS_DESIGN multiplier MULTIPLIER_DESIGN successes AUTO_SUCCESS_DESIGN]
+    DESIGN_COMB: [roll combined dice NUMBER_OF_DICE_DESIGN thresh SUCCESS_THRESHOLD_DESIGN rolls NUMBER_OF_ROLLS_DESIGN multiplier MULTIPLIER_DESIGN successes AUTO_SUCCESS_DESIGN]
+} else {
+    DESIGN_COMB: OVERRIDE_DESIGN
+    DESIGN_SEP: OVERRIDE_DESIGN
+}
+
+\ Calculate craft rolls. \
+CRAFT_COMB: 0
+CRAFT_SEP: 0
+if OVERRIDE_CRAFT = 0 {
+    CRAFT_COMB: [roll combined dice NUMBER_OF_DICE_CRAFT thresh SUCCESS_THRESHOLD_CRAFT rolls NUMBER_OF_ROLLS_CRAFT multiplier MULTIPLIER_CRAFT successes AUTO_SUCCESS_CRAFT]
+    CRAFT_SEP: [roll separated dice NUMBER_OF_DICE_CRAFT thresh SUCCESS_THRESHOLD_CRAFT rolls NUMBER_OF_ROLLS_CRAFT multiplier MULTIPLIER_CRAFT successes AUTO_SUCCESS_CRAFT]
+} else {
+    CRAFT_COMB: OVERRIDE_CRAFT
+    CRAFT_SEP: OVERRIDE_CRAFT
+}
+
+\ Output the results. \
+output CRAFT_SEP-DESIGN_SEP named "Craft-Design Separated Per Roll"
+output CRAFT_COMB-DESIGN_COMB named "Craft-Design All Rolls Combined"
+
+\ Output the separate results, for bug checks. \
+output CRAFT_SEP named "Craft Separated Rolls"
+output DESIGN_SEP named "Design Separated Rolls"
+

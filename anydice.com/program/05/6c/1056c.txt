@@ -1,0 +1,34 @@
+STR: 4
+PROF: 3
+WEAP: 1
+WEAP_DIE: d8
+ASI: 1
+SHOVE: d20 + STR + PROF
+RESIST: d20 + 5
+AC: 15
+
+function: shove SHOVE:n RESIST:n {
+  if SHOVE >= RESIST {
+    result: [highest 1 of 2d20]
+  } else {
+    result: d20
+  }
+}
+
+function: attack AC:n twice with ROLL:n WEAP_DIE:d STR:n PROF:n WEAP:n {
+  DMG: 0
+  loop N over {1..2} {
+    ATK: ROLL+STR+PROF+WEAP
+    if ATK=20 {
+      DMG: DMG + [maximum of WEAP_DIE]+2dWEAP_DIE+STR+WEAP
+    } else if ROLL+STR+PROF+WEAP>=AC {
+      DMG: DMG + WEAP_DIE+STR+WEAP
+    } else {
+      DMG: DMG + 0
+    }
+  }
+  result: DMG
+}
+
+output [attack AC twice with d20 WEAP_DIE STR+ASI PROF WEAP] named "ASI, no shoving"
+output [attack AC twice with [shove SHOVE RESIST] WEAP_DIE STR PROF WEAP] named "shoving, no ASI"

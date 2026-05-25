@@ -1,0 +1,40 @@
+SKILL: 4
+S: 4
+AP: -1
+
+T: 8
+SV: 14
+
+DICE: 2
+
+function: hitme NN:n {
+  result: [count {SKILL..6} in NN d6]
+}
+
+function: woundme HH:n {
+ if S >= T*2 { 
+  result: [count {2..6} in HH d6] 
+ }
+ if S > T { 
+  result: [count {3..6} in HH d6] 
+ }
+ if S = T { 
+  result: [count {4..6} in HH d6] 
+ }
+ if S*2 <= T { 
+  result: [count {6..6} in HH d6] 
+ }
+ if S < T {
+  result: [count {5..6} in HH d6] 
+ }
+}
+
+function: saveme MM:n {
+ SAVE: SV - AP - 1
+ result: [count {1..SAVE} in MM d6]
+}
+
+
+output [hitme DICE] named "Expected Hits"
+output [woundme [hitme DICE]] named "Expected Wounds"
+output [saveme [woundme [hitme DICE]]] named "Expected Unsaved Wounds"

@@ -1,0 +1,58 @@
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: 2dDMGDICE + ATTACKMOD + DMGBONUS } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DMGDICE + ATTACKMOD + DMGBONUS }
+ result: 0
+}
+
+\helper functions for Great Weapon Fighting and rogue offhand attack\
+function: reroll ROLL:n as DIE:d if less than MIN:n {
+  if ROLL < MIN { result: DIE }
+  else { result: ROLL }
+}
+function: gwf DIE:d {
+  result: [reroll DIE as DIE if less than 3]  \GWF allows reroll on 1 or 2\
+}
+function: retry ATTACK:d on miss {
+  result: [reroll ATTACK as ATTACK if less than 1]  \assume less than 1 damage => miss => retry\
+}
+
+\helper function for Great Weapon Master\
+function: multiattack ROLLS:s with bonus ATTACK:d on crit vs AC:n {
+  DMG: 0
+  loop ROLL over ROLLS {
+    DMG: DMG + [attackroll ROLL vs AC]  \sum damage from initial attacks\
+  }
+  if ROLLS >= CRITROLL {
+    DMG: DMG + [attackroll ATTACK vs AC]  \if any initial attack crits, do one more!\
+  }
+  result: DMG
+}
+function: attack N:n times ATTACK:d vs AC:d with gwm {
+  result: [multiattack NdATTACK with bonus ATTACK on crit vs AC]
+}
+
+\averaged against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+function: rogue attack vs AC:n {
+  ATTACKMOD: 5
+  DMGBONUS: 1
+  PROFICIENCY: 3
+  ACCBONUS: 0
+  CRITROLL: 20
+  DMGDICE: 1d4 + 1d8 + 1d6 + 4d6
+  result: [retry [attackroll [highest 1 of 2d20] vs AC] on miss]
+}
+output [rogue attack vs ENEMYAC] named "Rogue"
+
+function: fighter attack vs AC:n {
+  ATTACKMOD: 5
+  DMGBONUS: 11
+  PROFICIENCY: 3
+  ACCBONUS: -5
+  CRITROLL: 19
+  DMGDICE: 3d[gwf d6]
+  result: [attack 2 times [highest 1 of 2d20] vs AC with gwm]
+}
+output [fighter attack vs ENEMYAC] named "Fighter"

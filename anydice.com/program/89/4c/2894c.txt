@@ -1,0 +1,72 @@
+CRIT: 0
+GWM: 0
+
+function: attack ROLL:n with TOHIT:n to hit and crit on CRITRANGE:n for CRITABLEDAM:d plus HITDAM:d with CRITTIMES:n crit multiple {
+  if ROLL = 1 { result: 0 }
+  else if ROLL >= CRITRANGE {
+    CRIT: 1
+    CRITDMG: HITDAM
+    loop N over {1..CRITTIMES} {
+      CRITDMG: CRITDMG + CRITABLEDAM
+    }
+    result: CRITDMG
+  } else if ROLL + TOHIT >= AC { result: CRITABLEDAM + HITDAM }
+  else { result: 0 }
+}
+
+function: oneattack ROLLA:n ROLLB:n with TOHIT:n to hit and crit on CRITRANGE:n for CRITABLEDAM:d plus HITDAM:d with CRITTIMES:n crit multiple {
+  DMG: [attack ROLLA with TOHIT to hit and crit on CRITRANGE for CRITABLEDAM plus HITDAM with CRITTIMES crit multiple]
+  if (GWM) {
+    if (ROLLA >= CRITRANGE) {
+      DMG: DMG + [attack ROLLB with TOHIT to hit and crit on CRITRANGE for CRITABLEDAM plus HITDAM with CRITTIMES crit multiple]
+    }
+  }
+  result: DMG
+}
+
+function: twoattack ROLLA:n ROLLB:n ROLLC:n with TOHIT:n to hit and crit on CRITRANGE:n for CRITABLEDAM:d plus HITDAM:d with CRITTIMES:n crit multiple {
+  DMG: [attack ROLLA with TOHIT to hit and crit on CRITRANGE for CRITABLEDAM plus HITDAM with CRITTIMES crit multiple]
+  DMG: DMG + [attack ROLLB with TOHIT to hit and crit on CRITRANGE for CRITABLEDAM plus HITDAM with CRITTIMES crit multiple]
+  if (GWM) {
+    if (ROLLA >= CRITRANGE) {
+      DMG: DMG + [attack ROLLC with TOHIT to hit and crit on CRITRANGE for CRITABLEDAM plus HITDAM with CRITTIMES crit multiple]
+    } else if (ROLLB >= CRITRANGE) {
+      DMG: DMG + [attack ROLLC with TOHIT to hit and crit on CRITRANGE for CRITABLEDAM plus HITDAM with CRITTIMES crit multiple]
+    }
+  }
+  result: DMG
+}
+
+\
+output d{1,2,3,3,3,4,4,4} named "d4r2"
+output d{1,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6} named "d6r2"
+output d{1,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,8} named "d8r2"
+output d{1,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7,8,8,8,8,8,8,9,9,9,9,9,9,10,10,10,10,10,10} named "d10r2"
+output d{1,2,3,3,3,3,3,3,3,4,4,4,4,4,4,4,5,5,5,5,5,5,5,6,6,6,6,6,6,6,7,7,7,7,7,7,7,8,8,8,8,8,8,8,9,9,9,9,9,9,9,10,10,10,10,10,10,10,11,11,11,11,11,11,11,12,12,12,12,12,12,12} named "d12r2"
+
+
+output d{1,2,3,3,3,4,4,4} named "d4rh"
+output d{1,2,3,4,4,4,5,5,5,6,6,6} named "d6rh"
+output d{1,2,3,4,5,5,5,6,6,6,7,7,7,8,8,8} named "d8rh"
+output d{1,2,3,4,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,10} named "d10rh"
+output d{1,2,3,4,5,6,7,7,7,8,8,8,9,9,9,10,10,10,11,11,11,12,12,12} named "d12rh"
+\
+
+AC: 17
+
+W: [twoattack 1@2d20 1@2d20 1@2d20 with 9 to hit and crit on 20 for 1d10+1d6 plus 5 with 2 crit multiple]
+output W named "Warlock Reference [EB+AB+Hex]"
+
+GWM: 1
+\
+G: [twoattack 1@3d20 1@3d20 1@3d20 with 9 to hit and crit on 19 for 2d{1,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6} plus 5 with 2 crit multiple]
+output G named "Battle Smith Champion [Greatsword+GWF+GWM+EA]"
+\
+GP: [twoattack 1@3d20 1@3d20 1@3d20 with 5 to hit and crit on 19 for 2d{1,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6} plus 16 with 2 crit multiple]
+output GP named "Battle Smith Champion [Greatsword+GWF+GWM+EA+Power Attack]"
+\
+P: [twoattack 1@3d20 1@3d20 1@3d20 with 9 to hit and crit on 19 for d{1,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7,8,8,8,8,8,8,9,9,9,9,9,9,10,10,10,10,10,10} plus 5 with 2 crit multiple]
+output P named "Battle Smith Champion [Pike+GWF+GWM+EA]"
+\
+PP: [twoattack 1@3d20 1@3d20 1@3d20 with 4 to hit and crit on 19 for d{1,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7,8,8,8,8,8,8,9,9,9,9,9,9,10,10,10,10,10,10} plus 15 with 3 crit multiple]
+output PP named "Battle Smith Champion [Pike+GWF+GWM+EA+Piercer+Power Attack]"

@@ -1,0 +1,77 @@
+\ CONFIGURATION \
+AC: 19
+STATMOD: 5
+PROF: 4
+MARKDAMAGE: 2d8
+WEAPONDICE: 1d10
+ARCHERY: 2
+SHARPSHOOTERHIT: -5
+SHARPSHOOTERDMG: 10
+
+\ Constants \
+CRIT: 2
+HIT: 1
+MISS: 0
+
+function: does ATTACKROLL:n CURRENTMOD hit {
+  if ATTACKROLL = 1 {
+    result: MISS
+  } if ATTACKROLL = 20 {
+    result: CRIT
+  } if ATTACKROLL + CURRENTMOD >= AC {
+    result: HIT
+  } else {
+      result: MISS
+  }
+}
+
+function: damage RESULT DAMAGEDICE DAMAGEMOD {
+  if RESULT = MISS {
+    result: 0
+  } if RESULT = CRIT {
+    result: DAMAGEDICE * 2 + DAMAGEMOD
+  } else {
+    result: DAMAGEDICE + DAMAGEMOD
+  }
+}
+
+function: basic attack ATTACKROLL:n {
+  result: [damage [does ATTACKROLL STATMOD+PROF+ARCHERY hit] WEAPONDICE STATMOD]
+}
+
+
+function: always use sharpshooter ATTACKROLLONE:n and ATTACKROLLTWO:n {
+  RESULTONE: [does ATTACKROLLONE STATMOD+PROF+ARCHERY+SHARPSHOOTERHIT hit]
+  RESULTTWO: [does ATTACKROLLTWO STATMOD+PROF+ARCHERY+SHARPSHOOTERHIT hit]
+  
+  if RESULTONE >= HIT {
+    result: [damage RESULTONE WEAPONDICE+MARKDAMAGE STATMOD+SHARPSHOOTERDMG] + [damage RESULTTWO WEAPONDICE STATMOD+SHARPSHOOTERDMG]
+  } else {
+    result: [damage RESULTTWO WEAPONDICE+MARKDAMAGE STATMOD+SHARPSHOOTERDMG]
+  }
+}
+
+function: never use sharpshooter ATTACKROLLONE:n and ATTACKROLLTWO:n {
+  RESULTONE: [does ATTACKROLLONE STATMOD+PROF+ARCHERY hit]
+  RESULTTWO: [does ATTACKROLLTWO STATMOD+PROF+ARCHERY hit]
+  
+  if RESULTONE >= HIT {
+    result: [damage RESULTONE WEAPONDICE+MARKDAMAGE STATMOD] + [damage RESULTTWO WEAPONDICE STATMOD]
+  } else {
+    result: [damage RESULTTWO WEAPONDICE+MARKDAMAGE STATMOD]
+  }
+}
+
+function: use sharpshooter after hit ATTACKROLLONE:n and ATTACKROLLTWO:n {
+  RESULTONE: [does ATTACKROLLONE STATMOD+PROF+ARCHERY hit]
+  
+  if RESULTONE >= HIT {
+    result: [damage RESULTONE WEAPONDICE+MARKDAMAGE STATMOD] + [damage [does ATTACKROLLTWO STATMOD+PROF+ARCHERY+SHARPSHOOTERHIT hit] WEAPONDICE STATMOD+SHARPSHOOTERDMG]
+  } else {
+    result: [damage [does ATTACKROLLTWO STATMOD+PROF+ARCHERY hit] WEAPONDICE+MARKDAMAGE STATMOD]
+  }
+}
+
+output [always use sharpshooter d20 and d20] named "always use sharpshooter"
+output [never use sharpshooter d20 and d20] named "never use sharpshooter"
+output [use sharpshooter after hit d20 and d20] named "use sharpshooter after hit"

@@ -1,0 +1,92 @@
+function: switch S:n for G:d L:d {}
+function: explode X:n Y:n {}
+function: explode D:d help N:n on MAGICNUMBER:n {}
+function: explode X:n Y:n on MAGICNUMBER:n {}
+function: between M:n N:n for I:n {}
+function: between M:n N:n for I:n exploding {}
+function: between M:n N:n for I:n exploding on MAGICNUMBER:n {}
+
+function: switch S:n for G:d L:d {
+ if S > 0 { result: G }
+ result: L
+}
+
+function: explode X:n Y:n {
+ result: Xd[explode dY]
+}
+
+function: explode D:d help N:n on MAGICNUMBER:n {
+ if N = MAGICNUMBER {
+  result: N + [explode D help D on MAGICNUMBER]
+ }
+ result: N
+}
+
+function: explode X:n Y:n on MAGICNUMBER:n {
+ result: Xd[explode dY help dY on MAGICNUMBER]
+}
+
+M: 3
+N: 18
+loop X over {1..N - M} {
+ if ((N - M) / X) * X = N - M {
+  Y: (X + N - M) / X
+  Z: X - M
+  if Z > 0 {
+   output XdY - Z named "[X]d[Y] - [Z]"
+  }
+  else {
+   Z: -Z
+   output XdY + Z named "[X]d[Y] + [Z]"
+  }
+ }
+}
+
+function: between M:n N:n for I:n {
+ L: 0
+ loop X over {1..N - M} {
+  if ((N - M) / X) * X = N - M {
+    L: L + 1
+    if (L = I) {
+     Y: (X + N - M) / X
+     Z: X - M
+     result: XdY - Z
+    }
+  }
+ }
+}
+
+function: between M:n N:n for I:n exploding {
+ L: 0
+ loop X over {1..N - M} {
+  if ((N - M) / X) * X = N - M {
+    L: L + 1
+    if (L = I) {
+     Y: (X + N - M) / X
+     Z: X - M
+     result: [explode X Y] - Z
+    }
+  }
+ }
+}
+
+function: between M:n N:n for I:n exploding on MAGICNUMBER:n {
+ L: 0
+ loop X over {1..N - M} {
+  if ((N - M) / X) * X = N - M {
+    L: L + 1
+    if (L = I) {
+     Y: (X + N - M) / X
+     Z: X - M
+     result: [explode X Y on MAGICNUMBER] - Z
+    }
+  }
+ }
+}
+
+output [highest of [between 3 18 for 2] and [between 3 18 for 3]] named "highest of 3d6 5d4-2"
+output [switch d4 - 3 for [between 3 18 for 2] [between 3 18 for 3]] named "1:3 for 3d6 5d4-2"
+output [switch d4 - 3 for [between 3 18 for 2 exploding] [between 3 18 for 3 exploding]] named "1:3 for 3d6 5d4-2 exploding"
+output [switch d4 - 3 for [between 3 18 for 2 exploding on 1] [between 3 18 for 3 exploding on 1]] named "1:3 for 3d6 5d4-2 exploding on 1"
+output [switch d4 - 3 for [between 3 18 for 2 exploding on 4] [between 3 18 for 3 exploding on 4]] named "1:3 for 3d6 5d4-2 exploding on 4"
+output [switch d4 - 3 for [between 3 18 for 2 exploding on 6] [between 3 18 for 3 exploding on 6]] named "1:3 for 3d6 5d4-2 exploding on 6"

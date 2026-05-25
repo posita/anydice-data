@@ -1,0 +1,44 @@
+function: reroll FIRST:n below ACCURACY:n as SECOND:n {
+  if (FIRST >= ACCURACY) {
+    result: FIRST
+  }
+  else {
+    result: SECOND
+  }
+}
+
+function: shots continuous THRESHOLD:n with reroll misses ACCURACY:n {
+  result: [shots [reroll d10 below ACCURACY as d10] continuous THRESHOLD with reroll misses ACCURACY helper]
+}
+
+function: shots ROLL:n continuous THRESHOLD:n with reroll misses ACCURACY:n helper {
+  if ROLL >= ACCURACY & ROLL >= THRESHOLD {
+    result: 1 + [shots [reroll d10 below ACCURACY as d10] continuous THRESHOLD with reroll misses ACCURACY helper]
+  }
+  else {
+    result: 1
+  }
+}
+
+function: hits continuous THRESHOLD:n with reroll misses ACCURACY:n {
+  result: [hits [reroll d10 below ACCURACY as d10] continuous THRESHOLD with reroll misses ACCURACY helper]
+}
+
+function: hits ROLL:n continuous THRESHOLD:n with reroll misses ACCURACY:n helper {
+  if ROLL < ACCURACY {
+    result: 0
+  }
+  else if ROLL < THRESHOLD {
+    result: 1
+  }
+  else {
+    result: 1 + [hits [reroll d10 below ACCURACY as d10] continuous THRESHOLD with reroll misses ACCURACY helper]
+  }
+}
+
+set "maximum function depth" to 7
+output 8d[hits continuous 7 with reroll misses 6] named "hit count"
+output 8d[shots continuous 7 with reroll misses 6] named "shot count"
+
+output [highest of 0 and [lowest of 5 and [absolute d10 - d10]]-1] named "boxes killed per hit, top"
+output [highest of 0 and [lowest of 5 and [absolute d10 - d10]]-2] named "boxes killed per hit, nose"

@@ -1,0 +1,115 @@
+\**** Damage calculator ****\
+
+function: divine {
+}
+
+function: bonusroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: BCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: BDMG }
+ result: 0
+}
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: multi X:n  {
+ TOTAL: 0
+ BA: 0
+  loop N over {1..X} {
+    DAMAGE: [attackroll ATKROLL vs ENEMYAC]
+    TOTAL: TOTAL + DAMAGE
+  }
+
+ if BONUS = 1 {BA:[bonusroll ATKROLL vs ENEMYAC]}
+ TOTAL: TOTAL + BA
+ if L >= 3 {TOTAL: [divine]}
+ BONUS: 0
+ result: TOTAL
+}
+
+\looped against enemy AC from 15-20\
+\ENEMYAC: d{15..20}\
+ENEMYAC: 13
+
+L: 1
+ATTACKMOD: 3
+DMGBONUS: 2
+PROFICIENCY: 2
+ATKCOUNT: 1
+CRITROLL: 20
+ATKROLL: 1d20
+BONUS: 0
+DIVINE: 0
+DAMAGE: 1d10 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS
+output [multi ATKCOUNT] named "bar1 warhammer"
+
+L: 1
+ATTACKMOD: 3
+DMGBONUS: 2
+PROFICIENCY: 2
+ATKCOUNT: 1
+CRITROLL: 20
+ATKROLL: 1d20
+BONUS: 1
+DIVINE: 0
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+BDMG: 1d6 + DMGBONUS
+BCRIT: 2d6 + DMGBONUS
+output [multi ATKCOUNT] named "bar1 dualwield"
+
+L: 5
+ATTACKMOD: 4
+DMGBONUS: 2
+PROFICIENCY: 2
+ATKCOUNT: 2
+CRITROLL: 20
+ATKROLL: 1d20
+BONUS: 0
+DIVINE: 1d6 + L
+DAMAGE: 1d10 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS
+output [multi ATKCOUNT] named "bar5 warhammer"
+
+L: 5
+ATTACKMOD: 4
+DMGBONUS: 2
+PROFICIENCY: 2
+ATKCOUNT: 2
+CRITROLL: 20
+ATKROLL: 1d20
+BONUS: 1
+DIVINE: 1d6 + L
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+BDMG: 1d6 + DMGBONUS
+BCRIT: 2d6 + DMGBONUS
+output [multi ATKCOUNT] named "bar5 dualwield"
+
+
+
+\ATTACKMOD: 5\
+\DMGBONUS: 4\
+\PROFICIENCY: 6\
+\ATKCOUNT: 1\
+\CRITROLL: 19\
+\ATKROLL: [highest 1 of 2d20]\
+\DAMAGE: 1d12 + ATTACKMOD + DMGBONUS\
+\CRITDAMAGE: 6d12 + ATTACKMOD + DMGBONUS\
+\output [attackroll [highest 1 of 2d20] vs ENEMYAC] named "Barb17 Fgtr3 champ Greataxe Reckless"\
+
+\ATTACKMOD: 7\
+\DMGBONUS: 4\
+\PROFICIENCY: 6\
+\ATKCOUNT: 1\
+\CRITROLL: 20\
+\DAMAGE: 1d12 + ATTACKMOD + DMGBONUS\
+\CRITDAMAGE: 6d12 + ATTACKMOD + DMGBONUS\
+\output [attackroll [highest 1 of 2d20] vs ENEMYAC] named "Barb20 Greataxe Reckless"\
+

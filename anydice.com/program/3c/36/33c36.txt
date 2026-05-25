@@ -1,0 +1,28 @@
+S: {0:4,1:2}
+PUSH: 0
+
+function: roll FEAT:s and SKILL:s {
+
+   FTHITS: [count {4,5,6,6} in FEAT] \ 6s count as 2 HITs on the Feat die \
+   SKHITS: [count {5,6} in SKILL]
+   TOTALHITS: FTHITS + SKHITS
+   OUTCOME: TOTALHITS
+
+   LOCKDICE: [count {1,6} in SKILL] \  locked SKILL dice \
+   E: [highest of N-LOCKDICE and 0] \  eligible SKILL dice for rerolls \
+
+if PUSH = 1 {
+   if TOTALHITS <= 0 & E > 0 {  \ if rolled a failure and there is at least 1 Skill die to reroll \
+      OUTCOME: [lowest of EdS and 2] \ reroll all the available dice, cap result at 2 Hits \
+   }
+   else {
+      OUTCOME: TOTALHITS
+   }
+}
+
+   result: [lowest of OUTCOME and 2]
+}
+
+loop N over {0..3} {
+   output [roll 1d6 and Nd6] named "1 Feat and [N] Skill + reroll"
+}

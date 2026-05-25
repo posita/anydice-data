@@ -1,0 +1,59 @@
+function: dc DC:n skill check with mod MOD:n {
+  result: 1d20 + MOD >= DC
+}
+
+\ Shorthand for brevity. \
+function: skill DC:n MOD:n {
+  result: [dc DC skill check with mod MOD]
+}
+
+\ BOOL_TRIAL_RESULT should contain percentages for a single pass/fail "check" of some  \
+\ sort. For example, 1d20 >= 11 yields a result of {0: 50%, 1: 50%}, which is accepted \
+\ into this function. This function will effectively run that other test N times,      \
+\ outputting the total number of trials that the test passes it's evaluation.          \
+\                                                                                      \
+\ This function is useful if multiple players make the same check. E.g. "anyone who    \
+\ wants to, roll a perception check." In this example, this function will output the   \
+\ likelihood that 0, 1, ..., N players succeed on the check.                           \
+\                                                                                      \
+\ The x-axis output for this function is the number of trials that succeed. The y-axis \
+\ is the chance that exactly that many succeed. If you plot with "At Least", then you  \
+\ obtain the chance that at least (x-axis) number of players succeed on the roll. This \
+\ helps get a feel for difficulty if, e.g. "at least half of you have to succeed."     \
+\                                                                                      \
+\ There is no input validation for BOOL_TRIAL_RESULT.                                  \
+function: with N:n trials how many pass BOOL_TRIAL_RESULT {
+  SUCCESS_RESULTS: 0
+  loop II over {1..N} {
+    SUCCESS_RESULTS: SUCCESS_RESULTS + BOOL_TRIAL_RESULT
+  }
+  result: SUCCESS_RESULTS
+}
+
+\ This will parse the result of the function above for easier reading. \
+function: at least N:n succeed at TRIAL_RESULT {
+  result: TRIAL_RESULT >= N
+}
+
+\ Integer truncation hurts; this relieves the pain. \
+function: at least half of N:n {
+  MAYBE_TRUNC: N/2
+  MAYBE_TRUNC_UPPER: (N+1)/2
+  if MAYBE_TRUNC = MAYBE_TRUNC_UPPER {
+    result: MAYBE_TRUNC
+  }
+  else {
+    result: MAYBE_TRUNC + 1
+  }
+}
+
+\ Setup the variables I want. \
+DC: 11
+MOD: 0
+NUM_PLAYERS: 5
+HALF_OF_PLAYERS: [at least half of NUM_PLAYERS]
+
+\ Trials. \
+CHECK: [with NUM_PLAYERS trials how many pass [dc DC skill check with mod MOD]]
+output CHECK named "Raw data"
+output [at least HALF_OF_PLAYERS succeed at CHECK] named "Chance that at least [HALF_OF_PLAYERS] succeed on the check"

@@ -1,0 +1,22 @@
+
+function: get die SIZE:n {
+ FAIL: 3              \ numbers from 1 to this number result in a failure \
+ SUCC: {6,20}<=SIZE   \ these numbers result in a full success \
+ result: d{0:FAIL,    \ 0’s represent failure \
+ 1:SIZE-FAIL-SUCC,    \ 1’s represent mixed success \
+ 2:SUCC}              \ 2’s represent full success \
+}
+
+function: combine A:n and B:n {
+ if A=2 & B=2 {result:3}  \ 2 or more full successes gives a critical success \
+ result: [highest of A and B]
+}
+
+DICE: {6,6,8,10,12,20} \ dice sizes gained for each additional dot \
+POOL: [get die 4]      \ start the pool with a d4 \
+loop N over {0..6} {
+ POOL: [combine POOL and [get die N@DICE]]
+ output POOL named "[N] dots"
+}
+
+

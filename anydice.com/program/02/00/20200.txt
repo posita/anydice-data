@@ -1,0 +1,43 @@
+function : damage DAMAGE:d save DICE:s PLUS:n vs DC:n
+{
+	MULTIPLIER : 2
+	if (DICE = 20 | DICE >= DC - PLUS) {MULTIPLIER : 1}
+	
+	result : (DAMAGE * MULTIPLIER) / 2
+}
+
+function : subtract HP:n MHP:n with DAMAGE:s
+{
+	if (HP <= 0)
+	{
+		if (DAMAGE > 0)
+		{
+			result : [highest of HP - 1 and -3]
+		}
+		else
+		{
+			result : HP
+		}
+	}
+	else if (DAMAGE >= MHP + HP)
+	{
+		result : -3
+	}
+	else
+	{
+		result : [highest of HP - DAMAGE and 0]
+	}
+}
+
+H : {55,39,33,32}
+S : {2,3,8,0}
+
+loop N over {1..#H}
+{
+	Q : N@H
+        loop J over {1..2}
+        {
+	 Q : [subtract Q N@H with [damage 10d10 save 1d20 N@S vs 16]]
+         output Q named "Player [N] attack [J]"
+        }
+}

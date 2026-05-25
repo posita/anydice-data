@@ -1,0 +1,40 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..18}  \change the range here to be the rance of ACs to check against\
+
+ATTACK: 5
+HITDAMAGE: d8 + 3 +2d6
+CRITICALDAMAGE: 2d8+3+2d6
+MISSDAMAGE: 0
+output [attack] named "Rapier"
+
+ATTACK: 5 + 1
+HITDAMAGE: d4 + 4+2d6
+CRITICALDAMAGE: 2d4+4+2d6
+output [attack] named "Reszur"

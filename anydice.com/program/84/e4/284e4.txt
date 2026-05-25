@@ -1,0 +1,127 @@
+function: X:n conditional{
+  if TRANCE = 1{
+    if X < 10 {X:10}
+    if X >= CRITRANGE {result: [2 damage conditional]}
+    else if X + MOD >= AC {result: [1 damage conditional]}
+    else {result: 0}
+  }
+  else{
+    if X = 1 {result: 0}
+    if X >= CRITRANGE {result: [2 damage conditional]}
+    else if X + MOD>= AC {result: [1 damage conditional]}
+    else {result: 0}
+  }
+}
+
+function: X:n damage conditional{
+if X = 1 {result: [1 roll]+DAMBON}
+if X = 2 {result: [2 roll]+DAMBON}
+}
+
+function: TIMES:n roll{
+  loop N over {1..TIMES}{
+    RESET: RESET+DAMAGE
+  }
+  result: RESET
+}
+
+function: attack{
+
+  if ADV = 0{
+    loop N over {1..ATKNUM}{
+      TOTAL:TOTAL+[d20+ATKBON conditional]
+    }
+  }
+  if ADV = 1{
+      loop N over {1..ATKNUM}{
+        TOTAL:TOTAL+[[highest 1 of 3d20]+ATKBON conditional]
+      }
+  } 
+  if ADV = 2{
+      loop N over {1..ATKNUM}{
+        TOTAL:TOTAL+[[highest 1 of 2d20]+ATKBON conditional]
+      }
+  }
+  if ADV = 3{
+      loop N over {1..ATKNUM-1}{
+        TOTAL:TOTAL+[[highest 1 of 3d20]+ATKBON conditional]
+      }
+      TOTAL:TOTAL+[d20+ATKBON conditional]
+  }
+  result:TOTAL
+}
+
+AC:25
+
+TRANCE:0
+
+RESET: 0
+TOTAL:0
+MOD: 13
+ATKBON:0
+CRITRANGE:19
+ADV: 0
+DAMAGE: 1d10+1d6+1d8+3d10+2d8+3d8
+DAMBON: 7
+ATKNUM:3
+output[attack] named "Zariel PAL"
+
+RESET: 0
+TOTAL:0
+MOD: 13
+ATKBON:0
+CRITRANGE:19
+ADV: 2
+DAMAGE: 1d10+1d6+1d8+3d10+2d8+3d8
+DAMBON: 7
+ATKNUM:3
+output[attack] named "Zariel ADV PAL"
+
+RESET: 0
+TOTAL:0
+MOD: 13
+ATKBON:1d4
+CRITRANGE:20
+ADV: 0
+DAMAGE: 1d10+1d6+3d10
+DAMBON: 7
+ATKNUM:4
+output[attack] named "Zariel SAM"
+
+RESET: 0
+TOTAL:0
+MOD: 13
+ATKBON:1d4
+CRITRANGE:20
+ADV: 3
+DAMAGE: 1d10+1d6+3d10
+DAMBON: 7
+ATKNUM:5
+output[attack] named "Zariel ADV SAM"
+
+
+RESET: 0
+TOTAL:0
+TRANCE:1
+MOD: 14
+ATKBON:1d4
+CRITRANGE:19
+ADV: 0
+DAMAGE: 1d10
+DAMBON: 5+6
+ATKNUM:8
+output[attack] named "Sorc Blaster (Cursed Target)"
+TRANCE:0
+
+RESET: 0
+TOTAL:0
+TRANCE:1
+MOD: 14
+ATKBON:1d4
+CRITRANGE:19
+ADV: 1
+DAMAGE: 1d10
+DAMBON: 5+6
+ATKNUM:8
+output[attack] named "Sorc Blaster ADV(Cursed Target)"
+TRANCE:0

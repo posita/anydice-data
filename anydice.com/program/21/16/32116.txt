@@ -1,0 +1,130 @@
+ATTRIBUTE: 2
+LEVEL: 10
+MAGIC: 4
+\
+SIZE: 4
+POWER_TWENTY: ATTRIBUTE+LEVEL+2*MAGIC
+output POWER_TWENTY named "POWER_TWENTY"
+POWER_TWELVE: (ATTRIBUTE+LEVEL+3*MAGIC)/2
+output POWER_TWELVE named "POWER_TWELVE"
+\
+
+function: get largest die size with A:n or less sides {
+  if A >= 20 {result: 20}
+  if A >= 12 {result: 12}
+  if A >= 10 {result: 10}
+  if A >= 8 {result: 8}
+  if A >= 6 {result: 6}
+  if A >= 4 {result: 4}
+  result: 0
+}
+\
+POWER_DICE_SIZE: [get largest die size with POWER_TWELVE or less sides]
+output POWER_DICE_SIZE named "POWER_DICE_SIZE"
+\
+EXP_DIE_SIZE: [get largest die size with ATTRIBUTE+LEVEL or less sides]
+output EXP_DIE_SIZE named "EXP_DIE_SIZE"
+MAG_DIE_SIZE: [get largest die size with 4+2*MAGIC or less sides]
+output MAG_DIE_SIZE named "MAG_DIE_SIZE"
+
+function: highest of A:s if highest is not greater than B else zero {
+  SORTED: [sort A]
+  HIGHEST: 1 @ SORTED
+  if HIGHEST > B {result: 0} else {result: HIGHEST} 
+}
+
+function: lowest of A:s if highest is not greater than B else zero {
+  SORTED: [sort A]
+  HIGHEST: 1 @ SORTED
+  LOWEST: #SORTED @ SORTED
+  if HIGHEST > B {result: 0} else {result: LOWEST} 
+}
+
+function: lowest of A:s where anything below or equal to B is zero {
+  SORTED: [sort A]
+  LOWEST: #SORTED @ SORTED
+  if LOWEST <= B {result: 0} else {result: LOWEST} 
+}
+
+function: highest of A:s where anything below or equal to B is zero {
+  SORTED: [sort A]
+  loop N over SORTED {
+    if N <= B {result: 0} else {result: N}
+  }
+  result: 0
+}
+
+function: highest N:n of dice A:s and B:s {
+  \This doesn't work without a function, you need to tell AnyDice to interpret A and B as sequences rather than dice.\
+  result: {1..N}@ [sort {A, B}]
+}
+
+function: lowest N:n of dice A:s and B:s {
+  \This doesn't work without a function, you need to tell AnyDice to interpret A and B as sequences rather than dice.\
+  result: {1..N}@ [reverse [sort {A, B}]]
+}
+
+
+function: roll power pool with EXPERIENCE_DIE_SIZE:n and MAGIC_DIE_SIZE:n as full class {
+  if EXPERIENCE_DIE_SIZE = 0 & MAGIC_DIE_SIZE = 0 {
+    result: [lowest 1 of dice d4 and d4]
+  } else {
+    result: [highest 1 of dice dEXPERIENCE_DIE_SIZE and dMAGIC_DIE_SIZE]
+  }
+}
+
+function: roll power pool with EXPERIENCE_DIE_SIZE:n and MAGIC_DIE_SIZE:n as half class single die {
+  POWER_DIE_SIZE: [lowest of EXPERIENCE_DIE_SIZE and MAGIC_DIE_SIZE]
+  if POWER_DIE_SIZE = 0 {
+    result: [lowest 1 of dice d4 and d4]
+  } else {
+    result: dPOWER_DIE_SIZE
+  }
+}
+
+function: roll power pool with EXPERIENCE_DIE_SIZE:n and MAGIC_DIE_SIZE:n as half class disadvantage {
+  if EXPERIENCE_DIE_SIZE = 0 & MAGIC_DIE_SIZE = 0 {
+    result: [lowest 1 of dice [lowest 1 of dice [lowest 1 of dice d4 and d4] and d4] and d4]
+  }
+  if EXPERIENCE_DIE_SIZE = 0 | MAGIC_DIE_SIZE = 0 {
+    result: [lowest 1 of dice [lowest 1 of dice d4 and d4] and d4]
+  }
+  result: [lowest 1 of dice dEXPERIENCE_DIE_SIZE and dMAGIC_DIE_SIZE]
+}
+
+
+\
+output
+    [      lowest of 2dSIZE if highest is not greater than POWER_TWELVE else zero]
+    named "lowest of 2dSIZE if highest is not greater than POWER_TWELVE else zero"
+output
+    [      highest of 2dSIZE if highest is not greater than POWER_TWELVE else zero]
+    named "highest of 2dSIZE if highest is not greater than POWER_TWELVE else zero"
+\
+\
+output 2 @ 2dPOWER_DICE_SIZE named "Power die with disadvantage"
+output 1dPOWER_DICE_SIZE named "Power Die"
+output 1 @ 2dPOWER_DICE_SIZE named "Power die with advantage"
+\
+\
+output
+    [      lowest of 2dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero]
+    named "lowest of 2dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero"
+output
+    [      lowest of 3dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero]
+    named "lowest of 3dSIZE where anything below or equal to (SIZE-POWER_TWENTY) is zero"
+\
+\
+output
+    [      highest of 2dSIZE where anything below or equal to (SIZE-POWER) is zero]
+    named "highest of 2dSIZE where anything below or equal to (SIZE-POWER) is zero"
+\
+output
+    [      roll power pool with EXP_DIE_SIZE and MAG_DIE_SIZE as full class]
+    named "roll power pool with EXP_DIE_SIZE and MAG_DIE_SIZE as full class"
+output
+    [      roll power pool with EXP_DIE_SIZE and MAG_DIE_SIZE as half class single die]
+    named "roll power pool with EXP_DIE_SIZE and MAG_DIE_SIZE as half class single die"
+output
+    [      roll power pool with EXP_DIE_SIZE and MAG_DIE_SIZE as half class disadvantage]
+    named "roll power pool with EXP_DIE_SIZE and MAG_DIE_SIZE as half class disadvantage"

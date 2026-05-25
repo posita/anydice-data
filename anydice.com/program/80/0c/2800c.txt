@@ -1,0 +1,106 @@
+\-------------------------------------------------------------------------------
+Code block. Do not change.  Scroll down to adjust AC or enter more outputs
+-------------------------------------------------------------------------------\
+
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d {
+    if ROLL >= CRITRANGE {
+        result:  CRITABLEDAM + CRITABLEDAM + HITDAM
+    }
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= AC - ATTACKBONUS {
+        result: CRITABLEDAM + HITDAM
+    }
+    else {
+        result: 0
+    }
+}
+
+\Notes on reference data below: typos happen, so if there are errors, please fix, and let us know\
+TM_TARGET_AC: {14,14,14,15,16,16,16,17,18,18,18,18,19,19,19,19,20,20,20,20} \TM Baseline assumptions\
+DMG_TARGET_AC: {13,13,13,14,15,15,15,16,16,17,17,17,18,18,18,18,19,19,19,19} \DMG pg 274\
+BOH_TARGET_AC: {13,13,14,14,14,15,15,15,16,16,16,17,17,17,18,18,18,19,19,19} \Statistical analysis of MM by Blog of holding http://blogofholding.com/?p=7338\
+PROF_BONUSES: {2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6} \PHB Standard\
+WARLOCK_MOD_PROGRESSION: {3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ Assumed primary attack mod starts at 16 at level 1, and then adding ASI at each available level\
+FIGHTER_MOD_PROGRESSION: {3,3,3,3,3,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ Assume Fighter starts with Crossbow expert at level 1, picks up sharpshooter at level 4, and then ASIs at 6 and 8\
+CRITRANGE: 20
+EB_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4}
+EA_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4}
+
+\TM baseline warlock with Agonizing Blast and Hex\
+function: warlock LEVEL:n using AC_SCALING:s {
+    NUM_BLAST: LEVEL@EB_SCALING
+    ATT_BONUS: LEVEL@WARLOCK_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    CRIT: 1d10+1d6 \hex\
+    if LEVEL >= 2 {
+        NO_CRIT: LEVEL@WARLOCK_MOD_PROGRESSION \Agonizing\
+    } else {
+        NO_CRIT: 0
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    W: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    loop I over {1..NUM_BLAST}{
+        TOTAL: TOTAL + W
+    }
+    result: TOTAL    
+}
+
+\Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1)\
+function: fighter LEVEL:n using AC_SCALING:s {
+    NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+    CRIT: 1d6
+    if LEVEL >= 4 {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+    } else {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION     
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    loop I over {1..NUM_SHOT}{
+        TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    }
+    result: TOTAL 
+}
+
+
+\Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1); using action surge\
+function: fighter action surge LEVEL:n using AC_SCALING:s {
+    if LEVEL >= 2 {
+        NUM_SHOT: LEVEL@EA_SCALING +LEVEL@EA_SCALING+ 1 \Crossbow expert\
+    } else {
+        NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+    }
+    
+    CRIT: 1d6
+    if LEVEL >= 4 {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+    } else {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION     
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    loop I over {1..NUM_SHOT}{
+        TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    }
+    result: TOTAL 
+}
+
+\---------------------------------------------------------------------------------------\
+\---------------------------------------------------------------------------------------\
+\---------------------------------------------------------------------------------------\
+\---------------------------------------------------------------------------------------\
+\HUMAN INPUT SECTION\
+LEVEL: 4
+AC_ASSUMPTION: DMG_TARGET_AC \options are DMG_TARGET_AC, TM_TARGET_AC, or BOH_TARGET_AC\
+
+
+output [warlock LEVEL using AC_ASSUMPTION] named "Level [LEVEL] Warlock Reference"
+output [fighter LEVEL using AC_ASSUMPTION] named "Level [LEVEL] Fighter Reference"
+output [fighter action surge LEVEL using AC_ASSUMPTION] named "Level [LEVEL] Fighter Reference, action surge"

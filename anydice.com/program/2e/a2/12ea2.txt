@@ -1,0 +1,50 @@
+set "explode depth" to 5
+set "maximum function depth" to 5
+function: A:n base {
+if A = 1 {
+result: 1d2 - 1
+}
+if A = 6 {
+result: 6 + [explode 1d6 - 1]
+}
+else {
+result: A}
+}
+function: A:n sub {
+B: 1d{-2, -1, 0, 0, 1, 2}
+B: [B recursion]
+result: A + B
+
+}
+function: A:n recursion {
+if (A = -2){
+B: 1d{-2, -1, 0, 0, 1, 2}
+B: [B recursion]
+result: A + B
+}
+if (A = -1){
+result: A
+}
+if (A = 0){
+result: A
+}
+if (A = 1){
+result: A
+}
+if (A = 2){
+B: 1d{-2, -1, 0, 0, 1, 2}
+B: [B recursion]
+result: A + B
+}
+}
+function: avoidnegative A:n {
+if A < 0{
+result: 0
+}
+else {
+result: A
+}
+}
+BASE: [1d6 base] + [1d6 base] + [1d6 base]
+SUB: [BASE sub]
+output [avoidnegative SUB]

@@ -1,0 +1,75 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+
+function: roll ROLL:n plus MOD:n vs DC:n {
+    if ROLL+MOD >= DC {
+        result: 1
+    }
+    else {
+        result: 0
+    }
+}
+
+function: save MOD:n vs DC:n {
+    result: [roll 1d20 plus MOD vs DC]
+}
+
+function: save ROLL:n vs DC:n for DMG:d on fail S_DMG:d on save {
+    if ROLL>= DC {
+        result: S_DMG
+    }
+    else {
+        result: DMG
+    }
+}
+
+function: save ROLL:n vs DC:n for half DMG:d {
+    result: [save ROLL vs DC for DMG on fail DMG/2 on save ]
+}
+function: save ROLL:n vs DC:n for zero DMG:d {
+    result: [save ROLL vs DC for DMG on fail 0 on save ]
+}
+
+function: COST:n modded {
+  result: (d20 + ARCANA) >= 5 + 2*COST
+}
+
+
+HIT_ROLL: [highest 1 of 3d20]
+HIT_MOD: 0
+AC: 8
+
+PB: 3
+DC: 8 + 5 + PB
+SAVE_MOD: 2
+ARCANA: PB + 3
+
+output [save d20+SAVE_MOD vs DC for half 8d6] named "U - Fireball"
+
+output [save [lowest 1 of 2d20]+SAVE_MOD vs DC for half 8d6] * [3+2 modded] named "M - Fireball (Heightened)"
+
+output [save d20+SAVE_MOD vs DC for half 8*6] * [3+3 modded] named "M - Fireball (Maximized)"
+output [save d20+SAVE_MOD vs DC for half 8d6*3/2] * [3+2 modded] named "M - Fireball (Empowered)"
+output [save d20+SAVE_MOD vs DC for half 8*6*3/2] * [3+3+2 modded] named "M - Fireball (Maximized, Empowered)"
+
+output [save d20+SAVE_MOD vs DC for half 8d6] * [3+4 modded] named "M - Fireball (Quickened)"
+output [save d20+SAVE_MOD vs DC for half 8d6] + [save +2 vs DC for half 8d6] * [3+4 modded] named "U + M - Fireball (Quickened)"
+output 2d[save d20+SAVE_MOD vs DC for half 8d6] named "U + U - Fireball (Twice)"

@@ -1,0 +1,173 @@
+\ COMBAT PARAMETERS \
+
+DEFEND_DICE:     5
+DEFEND_WARBANDS: 2
+ATTACK_WARBANDS: 8
+ATTACK_LIMIT:   -1  \ The attacker may choose to limit the number of dice before applying battle plans. 
+                      Set to negative to have the attacker use all dice. \
+ATTACK_MOD:      0  \ modifier to the number of dice from battle plans \
+
+\ Some Battle Plan effects. Set to non-zero value to activate \
+
+IGNORE_SKULL:    0  \ Skulls do not cause attacker losses. (Outriders or Rangers) \
+IGNORE_ONE_SHLD: 0  \ Single shields are ignored. (Rain Boots) \
+IGNORE_TWO_SHLD: 0  \ Double shields are ignored. (War Tortoise) \
+IGNORE_HLF_SWRD: 0  \ Hollow swords are ignored. (Rusting Ray) \
+IGNORE_TWO_SWRD: 0  \ Double swords are ignored. (War Tortoise) \
+DOUBLE_ATTACK:   0  \ Double attack result after rolling, including skulls. (Lancers) \
+NO_SACRIFICE:    0  \ Attacker may not sacrifice. (Vow of Peace) \
+
+\ END PARAMETERS \
+
+function: defence dice helper ROLL_RESULT:s {
+  MULT: [count -1 in ROLL_RESULT]
+  BASE: 0
+  loop P over ROLL_RESULT {
+    if (P = 2) & (IGNORE_TWO_SHLD = 0) {
+      BASE: BASE + 2
+    } else if (P = 1) & (IGNORE_ONE_SHLD = 0) {
+      BASE: BASE + 1
+    }
+  }
+  result: (2^MULT)*BASE
+}
+
+function: roll N:n defence dice {
+  result: [defence dice helper Nd{0,0,1,1,2,-1}] \ -1 is (x2) \
+}
+
+ATTACK_DICE: ATTACK_WARBANDS
+if ATTACK_LIMIT >= 0 & ATTACK_LIMIT < ATTACK_DICE {
+  ATTACK_DICE: ATTACK_LIMIT
+}
+
+ATTACK_DICE: ATTACK_DICE + ATTACK_MOD
+if ATTACK_DICE < 0 {
+  DEFEND_DICE: DEFEND_DICE - ATTACK_DICE \ negative attack dice are converted into defence dice \
+  ATTACK_DICE: 0
+}
+
+DEFEND_ROLL: DEFEND_WARBANDS + [roll DEFEND_DICE defence dice]
+ATTACK_ROLL: ATTACK_DICE d {1,1,1,2,2,3} \ 1 => empty sword, 2 => full sword, 3 => double sword/skull \
+
+function: campaign outcome ATTACK_RESULT:s vs DEFEND_RESULT:n {
+  EMPTY_HITS: [count 1 in ATTACK_RESULT]
+  FULL_HITS: [count 2 in ATTACK_RESULT]
+  DOUBLE_HITS: [count 3 in ATTACK_RESULT]
+  SKULL_LOSSES: DOUBLE_HITS
+
+  \ The difference between the attacker and defender rolls determines the 
+    number of warbands the attacker must sacrifice to win \
+  if IGNORE_HLF_SWRD != 0 { EMPTY_HITS: 0 }
+  if IGNORE_TWO_SWRD != 0 { DOUBLE_HITS: 0 }
+  ATTACK_HITS: (DOUBLE_HITS*2) + FULL_HITS + (EMPTY_HITS/2)
+
+  if DOUBLE_ATTACK != 0 {
+    ATTACK_HITS: ATTACK_HITS*2
+    SKULL_LOSSES: SKULL_LOSSES*2
+  }
+
+  ATTACKER_SACRIFICE: 1 + DEFEND_RESULT - ATTACK_HITS
+  if ATTACKER_SACRIFICE < 0 { ATTACKER_SACRIFICE: 0 }
+
+  \ Find out how many warbands the attacker has available to sacrifice \
+  if IGNORE_SKULL != 0 { SKULL_LOSSES: 0 }
+
+  REMAINING_WARBANDS: ATTACK_WARBANDS - SKULL_LOSSES
+  if REMAINING_WARBANDS < 0 { REMAINING_WARBANDS: 0 }
+  
+  \ Return the attacker's losses assuming they choose to win, or -1 if the attacker cannot win \
+  if NO_SACRIFICE != 0 & ATTACKER_SACRIFICE > 0 {
+    result: -1 \ If any sacrifice is required then the attacker loses \
+  } else if ATTACKER_SACRIFICE > REMAINING_WARBANDS {
+    result: -1
+  } else {
+    result: ATTACKER_SACRIFICE + SKULL_LOSSES
+  }
+}
+
+\ A copy of the previous function but returns the amount of warbands 
+  the attacker has remaining after combat instead of what they lost \
+\ Yes this is a lot of copied code but trying to compose the functions
+  to avoid copypasta just didn't work and this does so go figure \
+function: attacker remaining force ATTACK_RESULT:s vs DEFEND_RESULT:n {
+  EMPTY_HITS: [count 1 in ATTACK_RESULT]
+  FULL_HITS: [count 2 in ATTACK_RESULT]
+  DOUBLE_HITS: [count 3 in ATTACK_RESULT]
+  SKULL_LOSSES: DOUBLE_HITS
+
+  \ The difference between the attacker and defender rolls determines the 
+    number of warbands the attacker must sacrifice to win \
+  if IGNORE_HLF_SWRD != 0 { EMPTY_HITS: 0 }
+  if IGNORE_TWO_SWRD != 0 { DOUBLE_HITS: 0 }
+  ATTACK_HITS: (DOUBLE_HITS*2) + FULL_HITS + (EMPTY_HITS/2)
+
+  if DOUBLE_ATTACK != 0 {
+    ATTACK_HITS: ATTACK_HITS*2
+    SKULL_LOSSES: SKULL_LOSSES*2
+  }
+
+  ATTACKER_SACRIFICE: 1 + DEFEND_RESULT - ATTACK_HITS
+  if ATTACKER_SACRIFICE < 0 { ATTACKER_SACRIFICE: 0 }
+
+  \ Find out how many warbands the attacker has available to sacrifice \
+  if IGNORE_SKULL != 0 { SKULL_LOSSES: 0 }
+
+  REMAINING_WARBANDS: ATTACK_WARBANDS - SKULL_LOSSES
+  if REMAINING_WARBANDS < 0 { REMAINING_WARBANDS: 0 }
+  
+  \ Assume the attacker always chooses to win unless they cannot \
+  if NO_SACRIFICE != 0 & ATTACKER_SACRIFICE > 0 {
+    result: REMAINING_WARBANDS - (REMAINING_WARBANDS/2) \ If any sacrifice is required then the attacker loses \
+  } else if ATTACKER_SACRIFICE > REMAINING_WARBANDS {
+    result: REMAINING_WARBANDS - (REMAINING_WARBANDS/2)
+  } else {
+    result: REMAINING_WARBANDS - ATTACKER_SACRIFICE
+  }
+}
+
+\ A copy of the previous function but returns the amount of warbands the defender has remaining \
+\ Yes this is a lot of copied code but trying to compose the functions
+  to avoid copypasta just didn't work and this does so go figure \
+function: defender remaining force ATTACK_RESULT:s vs DEFEND_RESULT:n {
+  EMPTY_HITS: [count 1 in ATTACK_RESULT]
+  FULL_HITS: [count 2 in ATTACK_RESULT]
+  DOUBLE_HITS: [count 3 in ATTACK_RESULT]
+  SKULL_LOSSES: DOUBLE_HITS
+
+  \ The difference between the attacker and defender rolls determines the 
+    number of warbands the attacker must sacrifice to win \
+  if IGNORE_HLF_SWRD != 0 { EMPTY_HITS: 0 }
+  if IGNORE_TWO_SWRD != 0 { DOUBLE_HITS: 0 }
+  ATTACK_HITS: (DOUBLE_HITS*2) + FULL_HITS + (EMPTY_HITS/2)
+
+  if DOUBLE_ATTACK != 0 {
+    ATTACK_HITS: ATTACK_HITS*2
+    SKULL_LOSSES: SKULL_LOSSES*2
+  }
+
+  ATTACKER_SACRIFICE: 1 + DEFEND_RESULT - ATTACK_HITS
+  if ATTACKER_SACRIFICE < 0 { ATTACKER_SACRIFICE: 0 }
+
+  \ Find out how many warbands the attacker has available to sacrifice \
+  if IGNORE_SKULL != 0 { SKULL_LOSSES: 0 }
+
+  REMAINING_WARBANDS: ATTACK_WARBANDS - SKULL_LOSSES
+  if REMAINING_WARBANDS < 0 { REMAINING_WARBANDS: 0 }
+  
+  \ Assume the attacker always chooses to win unless they cannot \
+  if NO_SACRIFICE != 0 & ATTACKER_SACRIFICE > 0 {
+    result: DEFEND_WARBANDS \ If any sacrifice is required then the attacker loses \
+  } else if ATTACKER_SACRIFICE > REMAINING_WARBANDS {
+    result: DEFEND_WARBANDS
+  } else {
+    result: DEFEND_WARBANDS - (DEFEND_WARBANDS/2)
+  }  
+}
+
+output [campaign outcome ATTACK_ROLL vs DEFEND_ROLL] >= 0 named "Attacker Wins at Any Cost (1 = Win, 0 = Lose)"
+output [campaign outcome ATTACK_ROLL vs DEFEND_ROLL] named "Attacker Casualties (-1 = Attacker Defeated)"
+
+output [attacker remaining force ATTACK_ROLL vs DEFEND_ROLL] named "Attacker Remaining Warbands (Win or Lose)"
+output [defender remaining force ATTACK_ROLL vs DEFEND_ROLL] named "Defender Remaining Warbands (Win or Lose)" 
+

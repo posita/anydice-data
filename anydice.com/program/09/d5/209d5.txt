@@ -1,0 +1,35 @@
+function: remove SUBSEQ:s from SEQ:s {
+  SEQ: [sort SEQ]
+  SUBSEQ: [sort SUBSEQ]
+  REST: {}
+  J: 1
+  loop I over {1..#SEQ} {
+    if J <= #SUBSEQ & I@SEQ = J@SUBSEQ { 
+      if (I!=#SEQ & (I+1)@SEQ != J@SUBSEQ) { J: J + 1 } 
+    }
+    else { REST: {REST, I@SEQ} }
+  }
+  result: REST
+}
+
+function: ret of N:n in S:s removing R:s and RR:s  and RRR:s{
+ SUBSEQ: [remove {R,RR, RR} from S]
+ result: [count SUBSEQ in dS]
+}
+
+ND: 2
+ output [count {1..1} in NDd6] named "Count 1's in [ND]d6" \ A reference to verify the rest of the series work properly \
+loop N over {1..4} {
+\ output [ret of N in NDd6 removing {} and {} and {}] named "(1 to [N]) in [ND]d6, removing no d6"\
+
+\ output [ret of N in NDd6 removing d6 and {} and {}] named "(1 to [N]) in [ND]d6, removing 1d6"\
+
+\ output [ret of N in NDd6 removing d6 and d6 and {}] named "(1 to [N]) in [ND]d6, removing 2d6" 
+ output [ret of N in NDd6 removing d6 and d6 and d6] named "(1 to [N]) in [ND]d6, removing 3d6" \
+}
+
+
+loop N over {d6} {
+ loop NN over {d6} {
+   output [remove NN from [remove N from {d6}]] named "<--- Remove [N] and [NN] in d6"
+}}

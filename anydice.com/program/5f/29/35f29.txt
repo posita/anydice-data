@@ -1,0 +1,245 @@
+\ A result of 1 means the one with a higher skill won, 2 means they lost and 0 is a draw \
+
+MORESKILLED: 95
+LESSSKILLED: 90
+
+function: roll TENSA:n and ONESA:n under SKILLA:n vs TENSB:n and ONESB:n under SKILLB:n
+{
+ if ONESA+TENSA = 0
+    { 
+       A: 4
+    }
+ else if TENSA*10+ONESA > SKILLA
+ {
+    if ONESA = 0 | ONESA = 5
+    { 
+       A: 4
+    }
+    else 
+    { 
+       A: 3
+    }
+ }
+ else if TENSA*10+ONESA <= SKILLA
+ {
+     if ONESA = 0 | ONESA = 5
+     {
+         A: 1
+     }
+     else 
+     {
+         A: 2
+     }
+ }
+ if ONESB+TENSB = 0
+ { 
+       B: 4
+ }
+ else if TENSB*10+ONESB > SKILLB
+ {
+    if ONESB = 0 | ONESB = 5
+    { 
+       B: 4
+    }
+    else 
+    { 
+       B: 3
+    }
+ }
+ else if TENSB*10+ONESB <= SKILLB
+ {
+     if ONESB = 0 | ONESB = 5
+     {
+         B: 1
+     }
+     else 
+     {
+         B: 2
+     }
+ }
+ if A < B
+ {
+         result: 1
+ }
+ else if A > B
+ {
+         result: 2
+ }
+ else
+ {
+         if TENSA*10+ONESA = TENSB*10+ONESB
+         {
+             result: 0
+         }
+         if TENSA*10+ONESA < TENSB*10+ONESB
+         {
+             result: 1
+         }
+         else
+         {
+             result: 2
+         }
+ }
+
+}
+
+function: roll DIEA:n under SKILLA:n vs DIEB:n under SKILLB:n 
+{
+   if DIEA <= SKILLA & DIEB > SKILLB
+   {
+       result: 1
+   }
+   if DIEA > SKILLA & DIEB <= SKILLB
+   {
+       result: 2
+   }
+   if DIEA <= SKILLA & DIEB <= SKILLB
+   { 
+       if DIEA >= DIEB
+       {
+           result: 1
+       }
+       else
+       {
+           result: 2
+       }
+    }
+    if DIEA > SKILLA & DIEB > SKILLB
+    { 
+           result: 1
+    }
+}
+
+function: alt DIEA:n under SKILLA:n vs DIEB:n under SKILLB:n 
+{
+   if DIEA > SKILLA & DIEB > SKILLB
+   { 
+           result: 0
+   }
+   else if DIEA <= SKILLA & DIEB > SKILLB
+   {
+       result: 1
+   }
+   else if DIEA > SKILLA & DIEB <= SKILLB
+   {
+       result: 2
+   }
+   else
+   { 
+       if DIEA > DIEB
+       {
+           result: 1
+       }
+       if DIEA < DIEB 
+       {
+           result: 2
+       }
+       else
+       {
+           result: 0
+       }
+    }
+}
+
+function: reroll DIEA:n under SKILLA:n vs DIEB:n under SKILLB:n 
+{
+   if DIEA > SKILLA & DIEB > SKILLB
+   { 
+           result: [reroll DIEA under SKILLA vs DIEB under SKILLB]
+   }
+   else if DIEA <= SKILLA & DIEB > SKILLB
+   {
+       result: 1
+   }
+   else if DIEA > SKILLA & DIEB <= SKILLB
+   {
+       result: 2
+   }
+   else
+    { 
+       if DIEA > DIEB
+       {
+           result: 1
+       }
+       if DIEA < DIEB 
+       {
+           result: 2
+       }
+       else
+       {
+           result: [reroll DIEA under SKILLA vs DIEB under SKILLB]
+       }
+    }
+}
+
+function: call DIEA:n under SKILLA:n vs DIEB:n under SKILLB:n 
+{
+   if DIEA = 100
+   { 
+           A: 1
+   }
+   else if DIEA > 95 & SKILLA <= 50
+   { 
+           A: 1
+   }
+   else if DIEA <= SKILLA/5
+   {
+       A: 5
+   }
+   else if DIEA <= SKILLA/2
+   {
+       A: 4
+   }
+   else if DIEA <= SKILLA
+   {
+       A: 3
+   }
+   else
+   {
+       A: 2
+   }
+   if DIEB = 100
+   { 
+           B: 1
+   }
+   else if DIEB > 95 & SKILLB <= 50
+   { 
+           B: 1
+   }
+   else if DIEB <= SKILLB/5
+   {
+       B: 5
+   }
+   else if DIEB <= SKILLB/2
+   {
+       B: 4
+   }
+   else if DIEB <= SKILLB
+   {
+       B: 3
+   }
+   else
+   {
+       B: 2
+   }
+   if A >= B
+   {
+       result: 1
+   }
+   else
+   {
+       result: 2
+   }
+}
+
+output [call 1d100 under MORESKILLED vs 1d100 under LESSSKILLED] named "Call of Cthulhu"
+
+output [roll 1d10-1 and 1d10-1 under MORESKILLED vs 1d10-1 and 1d10-1 under LESSSKILLED] named "Harnmaster"
+
+output [alt 1d100 under MORESKILLED vs 1d100 under LESSSKILLED] named "Blackjack with draw if both fail"
+
+output [reroll 1d100 under MORESKILLED vs 1d100 under LESSSKILLED] named "Blackjack with reroll on draw"
+
+output [roll 1d100 under MORESKILLED vs 1d100 under LESSSKILLED] named "Blackjack with higher skill wins draws"
+
+

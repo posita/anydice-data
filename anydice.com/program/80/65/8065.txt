@@ -1,0 +1,33 @@
+\ Proton Torpedo with Chips and additional Target Lock \
+
+function: ROLL:n count hits in S:n dice with R:n rerolls E:n eyecrit C:n chip F:n focus {
+  if ROLL = 100*S { result: S }
+  if R > 0 {
+    result: ROLL/100 + [[reroll S-ROLL/100 dice] count hits in S-ROLL/100 dice with 0 rerolls E eyecrit C chip F focus] \ count hits and reroll \
+  }
+  if E > 0 {
+    if [ROLL modulo 100] >= 10 { result: 1 + [ROLL-10 count hits in S-1 dice with R rerolls 0 eyecrit C chip F focus] }
+    result: [ROLL count hits in S-1 dice with R rerolls 0 eyecrit C chip F focus]
+  }
+  if F > 0 {
+    if [ROLL modulo 100] >= 10 { result: 1 + [ROLL-10 count hits in S-1 dice with R rerolls E eyecrit C chip F focus] }
+    result: [ROLL count hits in S-1 dice with R rerolls 0 eyecrit C chip 0 focus]
+  }
+  if C > 0 {
+    if [ROLL modulo 10] > 0 { result: 1 + [ROLL-1 count hits in S-1 dice with R rerolls E eyecrit 0 chip F focus] }
+    if [ROLL modulo 100] > 0 { result: 1 + [ROLL-10 count hits in S-1 dice with R rerolls E eyecrit 0 chip F focus] }
+    result: ROLL/100
+  }
+  result: ROLL/100
+}
+
+function: reroll S:n dice {
+  if S = 0 { result: 0 }
+  result: d{1,1,10,10,100,100,100,100} + [reroll S-1 dice]
+}
+
+function: A:n modulo B:n {
+  result: A-(A/B)*B
+}
+
+output [4d{1,1,10,10,100,100,100,100} count hits in 4 dice with 1 rerolls 1 eyecrit 1 chip 0 focus]

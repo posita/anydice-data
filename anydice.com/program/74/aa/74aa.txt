@@ -1,0 +1,32 @@
+function: weg N:n {
+ WILD: 1d6
+ result: [snip [helper WILD N-1]]
+}
+
+function: snip N:n {
+ \if N > 50 {result: 50}\
+ result: N
+}
+
+function: helper WILD_RESULT:n N:n {
+ if WILD_RESULT = 6 {result: 6 + Nd6 + [explode 1d6]}
+ if WILD_RESULT = 1 {
+  if N < 2 {result: 0}
+  result: [lowest N-1 of Nd6]}
+ result: WILD_RESULT + Nd6
+}
+
+\loop MY_SKILL over {1..3}{
+  output [weg MY_SKILL]
+}\
+
+MARGIN: -2
+
+loop MY_SKILL over {2..15}{
+  output ([weg MY_SKILL] - [weg MY_SKILL+MARGIN]) > 0
+}
+
+\MY_SKILL: 4
+loop OPP_SKILL over {1..15} {
+ output ([weg MY_SKILL] - [weg OPP_SKILL]) > 0
+}\

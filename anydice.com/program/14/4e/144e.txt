@@ -1,0 +1,81 @@
+\ try setting this anywhere from 0 to 10 \
+POWERATTACKTARGET: 10
+
+\ example usage: [1d20 plus 5 vs 20 x 3 for 1d8+5] \
+function: ROLL:n plus ATTACK:n vs AC:n x MUL:n for DAMAGE:d max BAB:n {
+  if ROLL = 1 {
+    result: 0
+  }
+  if ROLL + ATTACK > AC {
+    EXTRA: [lowest of ROLL + ATTACK - AC and BAB]
+    EXTRADAMAGE: EXTRA * MUL / 2
+    result: DAMAGE + EXTRADAMAGE
+  }
+  if ROLL + ATTACK = AC | ROLL = 20 {
+    result: DAMAGE
+  }
+  result: 0
+}
+
+\ iterating refers to number of iterative attacks, e.g. +20/+15/+10/+5 is 4 \
+function: ATTACK:n vs AC:n x MUL:n for DAMAGE:d max BAB:n iterating N:n {
+  if N = 0 { result: 0 }
+  result: [d20 plus ATTACK vs AC x MUL for DAMAGE max BAB] + [ATTACK vs AC x MUL for DAMAGE max BAB iterating N - 1]
+}
+
+\ fully expands possibilities, unlike N*2, N*3 \
+function: double N { result: N + N }
+
+ACLIST: {11,24,21,22,28,23,22,21,24,18,21,24,18,24,26}
+AC: ACLIST / #ACLIST
+
+TOUCHACLIST: {-1,9,12,9,13,8,8,9,6,11,12,9,10,9,9}
+TOUCHAC: TOUCHACLIST / #TOUCHACLIST
+
+\ includes scintillating scales \
+TOUCHACLISTB: {-1,24,21,9,13,8,8,9,6,18,21,24,10,24,26}
+TOUCHACB: TOUCHACLISTB / #TOUCHACLISTB
+
+HPLIST: {256,152,58,150,102,142,90,189,152,112,168,52,93,150,118}
+
+STRENGTH: 6
+BAB: 10
+POWERATTACK: [lowest of POWERATTACKTARGET and BAB]
+ATK: 1 + STRENGTH + BAB - POWERATTACK
+THD: (STRENGTH * 3 / 2) + (POWERATTACK * 2)
+OHD: STRENGTH + POWERATTACK
+HHD: OHD / 2
+output [ATK vs AC x 2 for 2d6+THD max BAB iterating 2] named "greatsword, power attack [POWERATTACK]"
+output [ATK vs AC x 2 for 1d8+OHD max BAB iterating 2] named "longsword, power attack [POWERATTACK]"
+output [ATK vs TOUCHAC x 2 for 2d6+THD max BAB iterating 2] named "greatsword, touch attack [POWERATTACK]"
+output [ATK-2 vs AC x 2 for 1d10+OHD max BAB iterating 2] + [d20 plus ATK-2 vs AC x 2 for 1d10+HHD max BAB] named "dwarven waraxe OTWF, power attack [POWERATTACK]"
+output [ATK vs AC x 1 for 2d4+THD max BAB iterating 2] named "spiked chain, power attack [POWERATTACK]"
+
+ATK: 1 + STRENGTH + BAB
+output [ATK vs AC x 2 for 2d6+THD max BAB iterating 2] named "greatsword, shock trooper [POWERATTACK]"
+output [ATK vs TOUCHAC x 2 for 2d6+THD max BAB iterating 2] named "greatsword, shock trooper touch attack [POWERATTACK]"
+
+THD: (STRENGTH * 3 / 2) + (POWERATTACK * 3)
+OHD: STRENGTH + (POWERATTACK * 2)
+HHD: OHD / 2
+output [ATK vs AC x 2 for 2d6+THD max BAB iterating 2] named "greatsword, shock trooper leap attack [POWERATTACK]"
+output [ATK vs TOUCHAC x 2 for 2d6+THD max BAB iterating 2] named "greatsword, shock trooper leap attack touch [POWERATTACK]"
+
+STRENGTH: 2
+DEXTERITY: 6
+ATK: 1 + DEXTERITY + BAB - POWERATTACK
+THD: (STRENGTH * 3 / 2) + (POWERATTACK * 2)
+OHD: STRENGTH + POWERATTACK
+output [ATK vs AC x 1 for 2d4+THD max BAB iterating 2] named "spiked chain, finessed at power attack [POWERATTACK]"
+
+STRENGTH: 0
+BAB: 8
+ATK: 1 + DEXTERITY + BAB
+output [ATK-2 vs AC x 3 for 1d6+5d6 max BAB iterating 2] + [d20 plus ATK-2 vs AC x 2 for 1d6+5d6 max BAB] named "rapier + shortsword, finessed with sneak attack"
+
+DEXTERITY: 6
+BAB: 10
+ATK: 1 + DEXTERITY + BAB
+output [ATK vs AC x 3 for 1d8 max BAB iterating 2] + [d20 plus ATK vs AC x 3 for 1d8 max BAB] named "longbow with rapid shot"
+output [ATK vs AC x 3 for 1d8+2d6+6 max BAB iterating 2] + [d20 plus ATK vs AC x 3 for 1d8+2d6+6 max BAB] named "+1 holy collision longbow with rapid shot"
+output [double [ATK vs AC x 3 for 1d8+1 max BAB iterating 2] + [d20 plus ATK vs AC x 3 for 1d8+1 max BAB]] named "+1 splitting longbow with rapid shot"

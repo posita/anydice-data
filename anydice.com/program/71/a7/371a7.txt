@@ -1,0 +1,53 @@
+function: attack ROLL:n vs DEF:n for DMG:n vs DR:n with LUCK:n and CRIT:n {
+ if LUCK > 0 {
+  if ROLL >= DEF {
+   if CRIT + DMG + (ROLL-DEF-DR)/2 > 0 {
+    result: CRIT + DMG + (ROLL-DEF-DR)/2
+   } else { result: 1 }
+  } else {
+   if CRIT + DMG - (DEF-ROLL-DR)/2 > 0 {
+    result: CRIT + DMG - (DEF-ROLL-DR)/2
+   } else { result: 1 }
+  }
+ } else {
+  if ROLL >= DEF { 
+   if DMG + (ROLL-DEF-DR)/2 >= 1 {
+    result: DMG + (ROLL-DEF-DR)/2
+   } else { result: 1 }
+  } else { result: 0 }
+ }
+}
+
+STAT:   d4+1
+SKILL:  d4
+DMG:    { 3, 4, 5}
+THREAT: {18,19,20}
+CRIT:   { 6, 4, 2}
+QLVL:   0
+
+AR:     { 1, 1, 2, 2, 3, 3}
+DIE:    { 6, 6, 6, 6, 6, 6}
+DR:     { 1, 2, 2, 3, 3, 4}
+TYPE:   { 0, 0, 0, 0, 0, 0}
+
+WEAPONS: {2}
+TARGETS: {1..4}
+
+loop N over TARGETS {
+ loop W over WEAPONS {
+  ATK: STAT+SKILL+QLVL/2
+  WDMG: W@DMG+(QLVL+1)/2
+  WTHREAT: W@THREAT
+  WCRIT: W@CRIT
+  DEF: N@DIE/2+N@AR
+  EVA: (d(N@DIE)+N@AR) * (1+(d20=20))
+  EVAMIN: 1+N@AR
+  EVAMAX: N@DIE+N@AR
+  NDR: N@DR
+  if N@TYPE = 0 {
+   output [attack ATK vs DEF for WDMG vs NDR with (d20>=WTHREAT) and WCRIT] named "[STAT]+[SKILL] [WDMG]DMG [WTHREAT]/+[WCRIT] vs [DEF]/[NDR]"
+  } else if N@TYPE = 1 {
+   output [attack ATK vs EVA for WDMG vs NDR with (d20>=WTHREAT) and WCRIT] named "[STAT]+[SKILL] [WDMG]DMG [WTHREAT]/+[WCRIT] vs [EVAMIN]~[EVAMAX]/[NDR]"
+  }
+ }
+}

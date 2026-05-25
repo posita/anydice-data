@@ -1,0 +1,38 @@
+function: effect of ROLL:s with RANK:n {
+  result: ROLL + RANK 
+}
+
+function: difficulty from OPPONENT_EFFECT:n {
+  if OPPONENT_EFFECT <= 0 {
+    result: 0
+  }
+  result: OPPONENT_EFFECT
+}
+
+function: opposed CHARACTER_EFFECT:n vs OPPONENT_EFFECT:n {
+  if CHARACTER_EFFECT <= 0 & OPPONENT_EFFECT <= 0 {
+    result: d{}
+  }
+  
+  if CHARACTER_EFFECT <= 0 {
+    DIFFICULTY: [difficulty from OPPONENT_EFFECT]
+    result: 0 - DIFFICULTY
+  }
+  
+  DIFFICULTY: [difficulty from OPPONENT_EFFECT]
+  RESULT: CHARACTER_EFFECT - DIFFICULTY
+  
+  if RESULT = 0 {
+    result: d{}
+  }
+  
+  result: RESULT
+}
+
+loop RANKC over {0..5} { 
+  CHARACTER: [effect of 1d{0..9} - 1d8 with RANKC]
+  loop RANKO over {0..5} {
+    OPPONENT: [effect of 1d{0..9} - 1d8 with RANKO]
+    output [opposed CHARACTER vs OPPONENT] named "Char [RANKC] vs Opp [RANKO]"
+  }
+}

@@ -1,0 +1,261 @@
+function: internalsum A:n {
+ result: A
+}
+
+function: sum A:s {
+ result: [internalsum A]
+}
+
+\function: attack with OFF:n against DEF:n {
+ result: [highest of [count {1,2,3} in OFFd6] - [count {4,5} in DEFd6] and 0]
+}
+
+function: defend with DEF:n against OFF:n {
+ result: [highest of [count {1,2,3} in OFFd6] - [count {6} in DEFd6] and 0]
+}
+
+output [attack with  9 against  8]
+output [defend with 28 against 14]
+output [attack with  9 against 12]
+output [defend with 28 against 17]\
+
+function: roll LOW:n to HIGH:n {
+ result: 1d(HIGH - LOW + 1) + LOW - 1
+}
+
+function: class C:s {
+ result: 1@C
+}
+
+function: level C:s {
+ result: 2@C
+}
+
+function: strength C:s {
+ result: 3@C
+}
+
+function: agility C:s {
+ result: 4@C
+}
+
+function: intelligence C:s {
+ result: 5@C
+}
+
+function: vitality C:s {
+ result: 6@C
+}
+
+function: luck C:s {
+ result: 7@C
+}
+
+function: evasion C:s {
+ result: 8@C
+}
+
+function: accuracy C:s {
+ result: [class C]@{15,15,10,20,20,20} + [level C] * [class C]@{3,2,3,2,1,1}
+}
+
+function: magic defense C:s {
+ result: [class C]@{10,5,5,7,5,5} + [level C] * [class C]@{3,2,4,2,2,2}
+}
+
+function: weapon attack W:s {
+ result: 1@W
+}
+
+function: weapon accuracy W:s {
+ result: 2@W
+}
+
+function: weapon crit W:s {
+ result: 3@W
+}
+
+function: weapon type W:s {
+ result: 4@W
+}
+
+function: weapon element W:s {
+ result: 5@W
+}
+
+function: armor defense A:s {
+ result: 1@A
+}
+
+function: armor weight A:s {
+ result: 2@A
+}
+
+function: armor element A:s {
+ result: 3@A
+}
+
+function: spell efficacy S:s {
+ result: 1@S
+}
+
+function: spell accuracy S:s {
+ result: 2@S
+}
+
+function: spell element S:s {
+ result: 3@S
+}
+
+function: standard attack CLS:n STR:n WATK:n {
+ result: WATK + STR / 2 + (CLS = 6 | CLS = 3 & WATK > 0)
+}
+
+function: master attack LV:n STR:n {
+ result: LV * 2 + STR
+}
+
+function: attack for LV:n CLS:n STR:n WATK:n {
+ if (CLS = 3 & WATK = 0)
+ {
+  result: [master attack LV STR]
+ } else {
+  result: [standard attack CLS STR WATK]
+ }
+}
+
+function: attack C:s W:s {
+ result: [attack for [level C] [class C] [strength C] [weapon attack W]]
+}
+
+function: defense C:s H:s G:s S:s A:s {
+ ADEF: [armor defense H] + [armor defense G] + [armor defense S] + [armor defense A]
+ if ([class C] = 3)
+ {
+  if (ADEF = 0)
+  {
+   result: [vitality C] / 2
+  } else {
+   result: [level C] * 2 + ADEF
+  }
+ } else {
+  result: ADEF
+ }
+}
+
+function: hit percent C:s W:s {
+ result: [weapon accuracy W] + [accuracy C]
+}
+
+function: evasion percent C:s H:s G:s S:s A:s {
+ WEIGHT: [armor weight H] + [armor weight G] + [armor weight S] + [armor weight A]
+ result: [evasion C] + 2 * [agility C] - WEIGHT
+}
+
+function: hit count C:s W:s {
+ HITS: (1 + [hit percent C W] / 32)
+ if ([class C] = 3 & [weapon attack W] = 0)
+ {
+  HITS: HITS * 2
+ }
+ result: HITS
+}
+
+function: critical rate C:s W:s {
+ if ([weapon attack W] = 0)
+ {
+  if ([class C] = 3)
+  {
+   result: [level C] * 2
+  } else {
+   result: 0
+  }
+ } else {
+  result: [weapon crit W]
+ }
+}
+
+function: damage C:s W:s CRIT:n DEF:n WEAK:n DISABLED:n {
+ A: [attack C W]
+ if (WEAK)
+ {
+  A: A + 4
+ }
+ if (DISABLED)
+ {
+  A: A * 5 / 4
+ }
+ result: [highest of ([roll A to (2 * A)] - (1 - CRIT) * DEF) and 1]
+}
+
+function: base hit chance C:s W:s BLIND:n TBLIND:n WEAK:n {
+ result: 168 - BLIND * 40 + TBLIND * 40 + WEAK * 40
+}
+
+function: hit chance C:s W:s BLIND:n EVA:n TBLIND:n WEAK:n DISABLED:n {
+ result: [base hit chance C W BLIND TBLIND WEAK] + [hit percent C W] - DISABLED * EVA
+}
+
+function: is hit ROLL:n C:s W:s BLIND:n EVA:n TBLIND:n WEAK:n DISABLED:n {
+ result: ROLL = 0 | ROLL <= [lowest of 200 and [hit chance C W BLIND EVA TBLIND WEAK DISABLED]]
+}
+
+function: is crit ROLL:n C:s W:s {
+ result: ROLL = 0 | ROLL <= [critical rate C W]
+}
+
+function: final damage ROLL:n C:s W:s BLIND:n EVA:n DEF:n TBLIND:n WEAK:n DISABLED:n {
+ result: [is hit ROLL C W BLIND EVA TBLIND WEAK DISABLED] * [damage C W [is crit ROLL C W] DEF WEAK DISABLED]
+}
+
+function: total damage HITS:n C:s W:s BLIND:n EVA:n DEF:n TBLIND:n WEAK:n DISABLED:n {
+ if (HITS = 0)
+ {
+  result: 0
+ } else {
+  if (HITS = 1)
+  {
+   result: [final damage [roll 0 to 200] C W BLIND EVA DEF TBLIND WEAK DISABLED]
+  } else {
+   result: [total damage (HITS / 2) C W BLIND EVA DEF TBLIND WEAK DISABLED] + [total damage (HITS - HITS / 2) C W BLIND EVA DEF TBLIND WEAK DISABLED]
+  }
+ }
+}
+
+function: expected damage C:s W:s BLIND:n EVA:n DEF:n TBLIND:n WEAK:n DISABLED:n {
+ result: [total damage [hit count C W] C W BLIND EVA DEF TBLIND WEAK DISABLED]
+}
+
+\Characters\
+\{CLS,LV,STR,AGL,INT,VIT,LCK,EVA}\
+DESH: {1,1,10,8,1,15,8,45}
+ZEZA: {1,1,10,8,1,15,8,45}
+DROGAN: {3,1,12,5,1,10,5,45}
+LOLA: {4,1,5,10,10,5,5,43}
+
+\Weapons\
+\{WATK,WACC,WCRIT,WTYPE,WELEM}\
+UNARMED: {0,0,0,0,0}
+NUNCHUCK: {12,0,10,0,0}
+KNIFE: {5,10,5,0,0}
+STAFF: {6,0,1,0,0}
+RAPIER: {9,5,10,0,0}
+HAMMER: {9,0,1,0,0}
+
+\Armors\
+\{ADEF,AWGT,AELEM}\
+NONE: {0,0,0}
+CLOTHES: {1,2,0}
+
+\Enemies\
+\{DEF,EVA}\
+NONE: {0,0}
+GOBLIN: {4,6}
+MDEF: 1@GOBLIN
+MEVA: 2@GOBLIN
+
+output [expected damage DESH UNARMED 0 MEVA MDEF 0 0 0] + [expected damage ZEZA UNARMED 0 MEVA MDEF 0 0 0] + [expected damage DROGAN STAFF 0 MEVA MDEF 0 0 0] + [expected damage LOLA UNARMED 0 MEVA MDEF 0 0 0]
+
+output [expected damage DESH STAFF 0 MEVA MDEF 0 0 0] + [expected damage ZEZA STAFF 0 MEVA MDEF 0 0 0] + [expected damage DROGAN UNARMED 0 MEVA MDEF 0 0 0] + [expected damage LOLA KNIFE 0 MEVA MDEF 0 0 0]
+
+output [expected damage DESH UNARMED 0 MEVA MDEF 0 0 0] + [expected damage ZEZA STAFF 0 MEVA MDEF 0 0 0] + [expected damage DROGAN UNARMED 0 MEVA MDEF 0 0 0] + [expected damage LOLA KNIFE 0 MEVA MDEF 0 0 0]

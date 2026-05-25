@@ -1,0 +1,41 @@
+MAXREROLLS: 2
+
+set "explode depth" to MAXREROLLS - 1
+set "maximum function depth" to MAXREROLLS
+
+function: implode N:n {
+ if N = 1 { result: 1 + [implode d10] }
+ result: N
+}
+
+EXPLOSION: [explode d10]
+IMPLOSION: -[implode d10]
+
+function: novus ROLL:s {
+ if 1@ROLL = 10 {
+  if 2@ROLL = 10 {
+   \ sweet, double explosion \
+   result: 20 + 2dEXPLOSION
+  }
+  if 2@ROLL = 1 {
+   \ bummer, explosion canceled \
+   result: ROLL
+  }
+  \ nice, one explosion \
+  result: 10 + 2@ROLL + EXPLOSION
+ }
+ if 1@ROLL = 1 {
+  \ argh, double implosion \
+  result: 2 + 2dIMPLOSION
+ }
+ if 2@ROLL = 1 {
+  \ bah, one implosion \
+  result: 1@ROLL + 1 + IMPLOSION
+ }
+ \ just add them \
+ result: ROLL
+}
+
+output [novus 2d10] named "Novus roll"
+output EXPLOSION named "Explosion part"
+output IMPLOSION named "Imposion part"

@@ -1,0 +1,19 @@
+function: rolled N:n on D:d for death saves with S:n successes and F:n failures {
+  if S >= 3 { result: 1 }  \ stable, unconscious \
+  if F >= 3 { result: -1 } \ dead \
+  if N = 20 { result: 20 } \ regain 1 HP \
+  if N = 1 { result: [rolled D on D for death saves with S successes and F+2 failures] }
+  if N < 10 { result: [rolled D on D for death saves with S successes and F+1 failures] }
+  result: [rolled D on D for death saves with S+1 successes and F failures]
+}
+
+function: roll death saves with DIE:d {
+  result: [rolled DIE on DIE for death saves with 0 successes and 0 failures]
+}
+
+\ treat death save die as 4 weighted outcomes instead of 20 to not exceed compute limits \
+DSDIE: {1:1,2:8,10:10,20:1}
+
+output [roll death saves with 1d(DSDIE)] named "Death saves outcome (normal)"
+output [roll death saves with 1d[highest 1 of 2d(DSDIE)]] named "Death saves outcome (advantage)"
+output [roll death saves with 1d[lowest 1 of 2d(DSDIE)]] named "Death saves outcome (disadvantage)"

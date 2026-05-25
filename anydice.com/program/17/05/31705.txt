@@ -1,0 +1,90 @@
+\How Badly Will This Creature Fuck Up Starting Characters?\
+
+\Add the attack modifier\
+ATTACKMOD: 4
+
+\Total Boons\
+BOONS: 0
+
+\Total Banes\
+BANES: 0
+
+\Standard Damage\
+BDAMAGE: 2d6
+
+\Attack Roll 20+ effect\
+PLUSDAMAGE: 0
+
+\Extra damage effects (such as fire)\
+XDAMAGE: 0
+
+\Opponent Defense\
+DEFENSE: d{9..13}
+
+\Opponent Strength\
+STRENGTH: d{8..11}
+
+\Opponent Will\
+WILL: d{9,10}
+
+\Opponent Health\
+HEALTH: d{8..11,14}
+
+\You’re done!\
+
+function: cancel out {
+ if BOONS=BANES {CANCEL: 0} else {if BOONS>BANES {CANCEL: BOONS-BANES} else {CANCEL: BANES-BOONS}}
+ if CANCEL=0 {result: 0} else {if CANCEL>0 {result: [highest 1 of CANCELd6]} else {result: -[highest 1 of CANCELd6]}}
+}
+
+ROLL: d20+ATTACKMOD+[cancel out]
+SCROLL: d20+(STRENGTH-10)-[highest 2 of 1d6]
+WCROLL: d20+(WILL-10)
+WCROLLF: d20+(WILL-10)-[highest 3 of 1d6]
+
+function: attack A:n B:n {
+ if A>=B {DAMAGE: BDAMAGE+XDAMAGE} else {DAMAGE: 0}
+ if A>=20 {if A>=(B+5) {CRIT: PLUSDAMAGE} else {CRIT: 0}} else {CRIT: 0}
+ result: DAMAGE+CRIT
+}
+
+function: instakill A:n B:n {
+ if A>=B {DA: BDAMAGE+XDAMAGE} else {DA: 0}
+ if A>=20 {if A>=(B+5) {DB: PLUSDAMAGE} else {DB: 0}} else {DB: 0}
+ IK: (DA+DB)/HEALTH
+ result: IK
+}
+
+function: hit A:n B:n {
+ if A>=B {result: 1} else {result: 0}
+}
+
+\function: maul A:n B:n C:n {\
+\ if A>=C {ATTACKX: [attack A C]} else {ATTACKX: 0}\
+\ if B>=C {ATTACKY: [attack B C]} else {ATTACKY: 0}\
+\ if C < A & B {MAUL: XDAMAGE} else {MAUL: 0} \
+\ result: ATTACKX+ATTACKY+MAUL\
+\}\
+
+\function: instamaul A:n B:n C:n {\
+\ MEASURE: [maul A B C]\
+\ result: MEASURE/HEALTH\
+\}\
+
+function: poison A:n D:n S:n {
+ ATTACK: [hit A D]
+ if ATTACK=1 {result: [hit S 10]} else {result: 0}
+}
+
+function: scare attack A:n D:n S:n W:n {
+ FRIGHTEN: [hit W 10]
+ ATTACK: [hit A D]
+ if FRIGHTEN=0 {poison [A D S]} else {}
+}
+
+output [hit ROLL DEFENSE] named "Chance to Hit a Starting Character"
+output [attack ROLL DEFENSE] named "Total Chance of Damage From 1 Attack"
+output [instakill ROLL DEFENSE] named "Total Chance of Instakill From 1 Attack"
+\output [maul ROLL ROLL DEFENSE] named "OH FUCK THE BEAR MAULED YOUR STARTING CHARACTER"\
+\output [instamaul ROLL ROLL DEFENSE] named "How dead are you?"\
+output [poison ROLL DEFENSE SCROLL] named "Are you poisoned?"

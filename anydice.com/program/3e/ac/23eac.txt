@@ -1,0 +1,30 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 4
+HITDAMAGE: 1d8+13
+CRITICALDAMAGE: 2d8+13
+MISSDAMAGE: 0
+loop AC over {10,11,12,13,14,15,16,17,18,19,20} {
+ output [damage for [attack [highest 1 of d20]+d4 vs AC]] named "[AC]"
+}

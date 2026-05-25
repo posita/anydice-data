@@ -1,0 +1,38 @@
+function: attackroll is D:n plus TOHIT:n a CRIT:n or miss against AC:n {
+ if D = 1 {
+  result: 0
+ }
+ if D >= (21-CRITRANGE) {
+  result: 2
+ }
+ if (D+TOHIT) >= AC{
+  result: 1
+ }
+ result: 0
+}
+
+function: damageroll ATTACK:n equals DICE:n and FLAT:n {
+
+ if ATTACK = 1 {
+  result: DICE+FLAT
+ } if ATTACK = 2 {
+  result: [maximum of DICE]+DICE+FLAT
+ }
+ result: 0
+
+}
+
+STAT: 5
+PROF: 6+1
+BONUS: 3
+AC: 10
+ATTACKNUM: 1
+CRITRANGE: 2
+
+X:[attackroll is 1d20 plus STAT+PROF+BONUS a 19 or miss against AC]*100
+Y:[attackroll is [highest of 1d20 and 1d20] plus STAT+PROF+BONUS a 19 or miss against AC]*100
+Z:[attackroll is [lowest of 1d20 and 1d20] plus STAT+PROF+BONUS a 19 or miss against AC]*100
+
+output ATTACKNUMd[damageroll [attackroll is 1d20 plus STAT+PROF+BONUS a 19 or miss against AC] equals 3d10 and STAT+BONUS] named "Normal Per Turn Damage"
+output ATTACKNUMd[damageroll [attackroll is [highest of 1d20 and 1d20] plus STAT+PROF+BONUS a 19 or miss against AC] equals 3d10 and STAT+BONUS] named "Advantage Per Turn Damage"
+output ATTACKNUMd[damageroll [attackroll is [lowest of 1d20 and 1d20] plus STAT+PROF+BONUS a 19 or miss against AC] equals 3d10 and STAT+BONUS] named "Disadvantage Per Turn Damage"

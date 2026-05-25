@@ -1,0 +1,26 @@
+ATCKMOD: 8
+DMGMOD: 17
+RAGEMOD: 4
+MAGICMOD: 3
+CRITDIEMULT: 2
+CRITDIEADD: 3
+ATCKCOUNT: 2
+function: if ATCK:n hits calculate damage with AC:n ac MODDMG:n dmgmods and BASEDMGCNT:n base dmg dies with BASEDMGDIE:n sides {
+ if ATCK + ATCKMOD >= AC {
+  if ATCK = 20 {
+   result: ((BASEDMGCNT * CRITDIEMULT + CRITDIEADD)d(BASEDMGDIE)) + MODDMG * DMGMOD + RAGEMOD + MAGICMOD
+  }
+  result: ((BASEDMGCNT)d(BASEDMGDIE)) + MODDMG * DMGMOD + RAGEMOD + MAGICMOD
+ }
+ result: 0
+}
+function: calculate sea aura damage with save SAVE:n {
+ if SAVE < 8 + 6 + 7 {
+  result: 4d6
+ }
+ result: 4d6 / 2
+}
+
+output ATCKCOUNT * [if [highest 1 of 3d20] hits calculate damage with 20 ac 1 dmgmods and 1 base dmg dies with 12 sides] + [calculate sea aura damage with save d20] named "Greataxe and Storm Aura"
+output ATCKCOUNT * [if [highest 1 of 3d20] hits calculate damage with 20 ac 1 dmgmods and 2 base dmg dies with 6 sides] + [calculate sea aura damage with save d20] named "Greatsword and Storm Aura"
+output ATCKCOUNT * [if [highest 1 of 3d20] hits calculate damage with 20 ac 1 dmgmods and 3 base dmg dies with 4 sides] + [calculate sea aura damage with save d20] named "Greattrident and Storm Aura"

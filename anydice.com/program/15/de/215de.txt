@@ -1,0 +1,61 @@
+STR_MOD: 5
+PROF_MOD: 3
+HIT_DIE: 1d10
+ATTACK_BONUS: STR_MOD + PROF_MOD
+DMG_BONUS: STR_MOD + PROF_MOD
+TARGET_AC: 15
+CRIT_THRESHOLD: 20
+
+function: attack roll HAS_ADVANTAGE {
+  if HAS_ADVANTAGE {
+    result: 1@2d20
+  } else {
+    result: 1d20
+  }
+}
+
+function: retry DIE:d if ROLL:n less than three {
+  if ROLL < 3 {
+    result: DIE
+  } else {
+    result: ROLL
+  }
+}
+
+function: great weapon damage roll DIE {
+  result: [retry DIE if DIE less than three]
+}
+
+function: glaive damage roll {
+  result: [great weapon damage roll d10]
+}
+
+function: hit damage HAS_CRIT:n {
+  if HAS_CRIT {
+    result: 2 d [glaive damage roll] + DMG_BONUS
+  } else {
+    result: [glaive damage roll] + DMG_BONUS
+  }
+}
+
+function: if HITS:n then RESULT {
+  if HITS {
+    result: RESULT
+  } else {
+    result: 0
+  } 
+}
+
+function: attack damage HAS_ADVANTAGE:n against TARGET_AC:n {
+  ROLL: [attack roll HAS_ADVANTAGE]
+  HAS_CRIT: ROLL >= CRIT_THRESHOLD
+  TOTAL_ATTACK: ROLL + ATTACK_BONUS
+  HITS: TOTAL_ATTACK > TARGET_AC
+  result: [if HITS then [hit damage HAS_CRIT]]
+}
+
+loop N over {2..3} {
+  output N d [attack damage 1 against TARGET_AC] named "[N] attacks with advantage"
+}
+
+

@@ -1,0 +1,55 @@
+\-------------\
+\- Constants -\
+\-------------\
+
+NO: 0
+YES: 1
+
+\-------------\
+\- Functions -\
+\-------------\
+
+function: limit X:n to LB:n and UB:n {
+  if X < LB { result: LB }
+  if X > UB { result: UB }
+  result: X
+}
+
+function: compute S:s {
+  VALUE: 1@[sort S]
+  loop INITIAL over {1..#S} {
+    loop COMPARED over {INITIAL+1..#S} {
+      if INITIAL@S = COMPARED@S { VALUE: VALUE+1 }
+    }
+  }
+  result: VALUE
+}
+
+function: sum S:s {
+  SUM: 0
+  loop N over {1..#S} {
+    SUM: SUM+N@S
+  }
+  result: SUM
+}
+
+\------------\
+\- Settings -\
+\------------\
+
+TNS: {0..8} \Net Target Numbers to test for\
+USEDDICECOUNT: {1..3} \Number of dice to use\
+PRINT_STANDARD: YES \Print the standard results of a check\
+PRINT_SUM: YES \Print the sum of the checks\
+PRINT_COUNT: NO \Print the number of values in a check\
+
+\----------\
+\- Output -\
+\----------\
+
+loop NETTN over TNS {
+  loop DICE over USEDDICECOUNT {
+    CHECK: [limit [compute DICEd6]-NETTN to -1 and 1]
+    if PRINT_STANDARD { output CHECK named "vs [NETTN] ([DICE] dice)" }
+  }
+}

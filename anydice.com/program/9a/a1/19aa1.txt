@@ -1,0 +1,53 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL: n vs EVASION:n {
+  if ROLL < EVASION {
+    result: MISS
+  }
+  if ROLL >= 20 {
+    result: CRITICALHIT
+  }
+  result: HIT
+}
+
+function: damage for ATTACKRESULT:n from HITDAMAGE:n and CRITDAMAGE:n{
+  if ATTACKRESULT = CRITICALHIT {
+    result: CRITDAMAGE
+  }
+  if ATTACKRESULT = HIT {
+    result: HITDAMAGE
+  }
+  result: 0
+}
+
+function: variableswordattack vs EVASION:n {
+  result: [damage for [attack VARIABLESWORD vs EVASION] from VARIABLESWORDHIT and VARIABLESWORDCRIT]
+}
+
+function: foldknifeattack vs EVASION:n {
+  result: [damage for [attack FOLDKNIFE vs EVASION] from FOLDKNIFEHIT and FOLDKNIFECRIT ]
+}
+
+function: skirmish vs EVASION:n {
+  result: [variableswordattack vs EVASION] + [foldknifeattack vs EVASION]
+}
+
+VARIABLESWORD: 3+1d20+[highest 1 of 2d6]
+VARIABLESWORDHIT: 3
+VARIABLESWORDCRIT: 3+[highest 1 of 2d6]+[highest 1 of 2d6]
+
+FOLDKNIFE: 3+1d20+1d6
+FOLDKNIFEHIT: 1d3
+FOLDKNIFECRIT: [highest 1 of 2d3]
+
+output [attack VARIABLESWORD vs 10] named "Variable Sword Hit rate"
+output [attack FOLDKNIFE vs 10] named "Fold Knife Hit rate"
+output [variableswordattack vs 10] named "Variable Sword attack"
+output [foldknifeattack vs 10] named "Fold Knife attack"
+output [skirmish vs 10] named "Skirmish attack"
+
+\loop EVASION over {10..20} {
+ output [skirmish vs EVASION] named "[EVASION]"
+}\

@@ -1,0 +1,21 @@
+\ helper function to calculate the distribution of success counts for each die size \
+function: roll ROLL:n target TARGET:n explode MAX:n limit LIMIT:n { 
+  if ROLL = MAX & LIMIT > 0 {
+    result: (ROLL >= TARGET) + [roll dMAX target TARGET explode MAX limit LIMIT-1]
+  } else {
+    result: (ROLL >= TARGET)
+  }
+}
+
+\ try different values of the explosion limit per die \
+loop PROTAGONISM over {1..5} {
+  set "maximum function depth" to PROTAGONISM + 1
+
+  \ make custom dice for rolling successes with different die sizes \
+  SIX: [roll d6 target 5 explode 6 limit PROTAGONISM]
+  EIGHT: [roll d8 target 5 explode 8 limit PROTAGONISM]
+  TEN: [roll d10 target 5 explode 10 limit PROTAGONISM]
+
+  \ now we can actually roll the custom dice and sum the successes \
+  output 2dSIX + 2dEIGHT + 1dTEN named "2d6 + 2d8 + 1d10, protagonism [PROTAGONISM]"
+}

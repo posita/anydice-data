@@ -1,0 +1,31 @@
+function: wild DIE:d {
+  result: [highest of [explode DIE] and [explode d6]]
+}
+function: extra DIE:d {
+  result: [explode DIE]
+}
+
+
+function: success ROLL:n vs TN:n {
+  if ROLL < TN { 
+    result: 0
+  } else {
+    result: 1 + [success (ROLL - TN) vs 4]
+  }  
+}
+
+loop TN over {4} {
+
+  DICE: {4,6,8,10,12}
+
+  loop DIE over DICE {
+    output [success [extra dDIE] vs TN] named "d[DIE] vs. [TN]"
+  }
+  output [success [extra d12+1] vs TN] named "d12+1 vs. [TN]"
+
+  output [success [wild d4]-2 vs TN] named "d4-2w vs. [TN]"
+  loop DIE over DICE {
+    output [success [wild dDIE] vs TN] named "d[DIE]w vs. [TN]"
+  }
+
+}

@@ -1,0 +1,59 @@
+\ Noma's Nova \
+
+\ Target's Attributes \
+
+TARGET_CON: 3
+TARGET_INT: 1
+TARGET_SAVE_ROLLS: 1
+TARGET_SAVE_BONUS: 5
+
+\ Noma's Attributes \
+
+NOMA_PROF: 3
+NOMA_CHA: 5
+NOMA_BONUS: 0
+
+\ Derived Attributes \
+
+NOMA_ATK: NOMA_PROF + NOMA_CHA + NOMA_BONUS
+NOMA_DC: 8 + NOMA_ATK
+TARGET_CON_SAVE: TARGET_CON + TARGET_SAVE_BONUS
+TARGET_INT_SAVE: TARGET_INT + TARGET_SAVE_BONUS
+
+\ Functions \
+
+function: reroll R:n out of S:n {
+  if R > S/2 { result: R }
+  result: 1dS
+}
+
+function: empower E:n on N:n die S:n {
+  DAMAGE: NdS
+  TOTAL_DAMAGE: 0
+  loop X over {1..N} {
+    if X <= N - E {
+      TOTAL_DAMAGE: TOTAL_DAMAGE + X @ DAMAGE
+    }
+    else {
+      TOTAL_DAMAGE: TOTAL_DAMAGE + [reroll X @ DAMAGE out of S]
+    }
+  }
+  result: TOTAL_DAMAGE
+}
+
+function: CONDITION:n for half A {
+  if CONDITION { result: A/2 } else { result: A }
+}
+
+\ Calculations \
+
+HELD_DAMAGE: [[highest 1 of TARGET_SAVE_ROLLSd20] + TARGET_CON_SAVE >= NOMA_DC for half [empower NOMA_CHA on 8 die 8]] + 6d6
+BA_DAMAGE: [[highest 1 of TARGET_SAVE_ROLLSd20] + TARGET_INT_SAVE >= NOMA_DC for half [empower NOMA_CHA on 7 die 6]] + 6d6
+ACTION_DAMAGE: [empower NOMA_CHA on 2 die 8] + 6d6
+
+\ Output \
+
+output HELD_DAMAGE + BA_DAMAGE + ACTION_DAMAGE named "Total Damage"
+output HELD_DAMAGE named "Blight Damage"
+output BA_DAMAGE named "Psychic Lance Damage"
+output ACTION_DAMAGE named "Chill Touch Damage"

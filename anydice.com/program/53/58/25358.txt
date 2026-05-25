@@ -1,0 +1,49 @@
+\Enemy AC\
+ENEMYAC: 14
+
+\Character Stats\
+STATBONUS: 4
+PROF: 3
+HITBONUS: 1
+DMGBONUS: 1
+
+\Character Damage\
+DAMAGE: 1d10+STATBONUS+DMGBONUS
+CRITDAMAGE: 2d10+STATBONUS+DMGBONUS
+\Bonus Action Attack Damage, if any\
+BADAMAGE: 1d4+STATBONUS+DMGBONUS
+BACRITDAMAGE: 2d4+STATBONUS+DMGBONUS
+
+\Additional Values\
+ATTACKMOD: STATBONUS+PROF+HITBONUS
+CRITROLL: 20
+NUMOFATTACKS: 2
+ADVANTAGE: 0 \No Advantage: 0, Advantage: 1, Disadvantage: -1\
+BAATTACK: 1 \Yes: 1, No: 0\
+
+\Functions to calculate stuff\
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACKMOD >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: baattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: BACRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACKMOD >= AC { result: BADAMAGE }
+ result: 0
+}
+
+function: dietohit {
+ if ADVANTAGE = 1 { result: [highest 1 of 2d20] }
+ if ADVANTAGE = -1 { result: [lowest 1 of 2d20] }
+ result: 1d20
+}
+
+function: attackaction vs ENEMYAC:n {
+ result: NUMOFATTACKSd[attackroll [dietohit] vs ENEMYAC]+BAATTACK*[baattackroll [dietohit] vs ENEMYAC]
+}
+
+output [attackaction vs ENEMYAC]

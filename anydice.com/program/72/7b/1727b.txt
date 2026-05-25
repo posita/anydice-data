@@ -1,0 +1,52 @@
+\ Pathfinder 2nd edition Weapon Damage Calculator
+created by /u/jtblin 2019 \
+
+function: ATTACKS:s vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d {
+  SUM: {0}
+  N: 0
+  F: 0
+  T: 0
+  FE: 0
+  LAST: 0
+  loop ATTACK over ATTACKS {
+    S: 0
+    N: N + 1
+    if LAST = 0 { LAST: ATTACK }
+    else if ATTACK < LAST { 
+      LAST: ATTACK
+      FE: FAILURE_EFFECT
+    }
+    if (N = 2) { 
+      F: FORCEFUL 
+      T: TWIN
+    } else if (N > 2) { 
+      F: 2*FORCEFUL 
+      T: TWIN
+    }
+    SUM: SUM + [1d20 plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY] 
+  }
+  result: SUM
+}
+
+function: ROLL:n plus ATTACK:n vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d {
+  if (ROLL + ATTACK >= (AC+10)) { result: 2*DAMAGE+DEADLY+FORCEFUL+TWIN }
+  if (ROLL + ATTACK >= AC) {
+    if (ROLL = 20){ result: 2*DAMAGE+DEADLY+FORCEFUL+TWIN }
+    result: DAMAGE+FORCEFUL+TWIN
+  }
+  if (ROLL = 20){ result: DAMAGE+FORCEFUL+TWIN }
+  result: FAILURE_EFFECT
+}
+
+output [{25,20} vs 29 with 14 for 2d10+14+1d6 2 0 1d8] named "Fighter 10, Power Attack, Furious Focus, Rage Giant Instinct, Certain Strike, Sneak Attacker, Glaive"
+output [{25,25,21,21} vs 29 with 0 for 2d8+8+1d6 0 2 0] named "Fighter 10, Double Slice, Twin Takedown, Sneak Attacker, Sawtooth Sabre"
+output [{25,25,22,22} vs 29 with 0 for 2d8+8 0 2 0] named "Fighter 10, Double Slice, Twin Takedown, Agile Grace, Sawtooth Sabre"
+output [{33,33,27,27} vs 35 with 15 for 3d8+15+1d6 0 2 0] named "Fighter 15, Double Slice, Two-Weapon Flurry, Agile Grace, Sneak Attacker, Dragon rage instinct, Certain Strike, Sawtooth Sabre"
+output [{23,23,20,20} vs 29 with 0 for 2d8+7+1d6 0 2 0] named "Ranger 10, Double Slice, Twin Takedown, Sneak Attacker, Sawtooth Sabre"
+output [{23,19,15,15} vs 29 with 0 for 2d6+8+4d6 0 2 0] named "Rogue 10, Twin Takedown, Sneak Attack, Precise Debilitation, Dogslicer"
+output [{23,23,15,15} vs 29 with 0 for 2d6+8+2d6 0 2 0] named "Rogue 10, Twin Takedown, Sneak Attack, Double Slice, Dogslicer"
+output [{31,31,23,23} vs 35 with 0 for 3d6+11+5d6 0 3 0]+[{21} vs 35 with 0 for 2d8+4 0 0 0] named "Rogue 15, Twin Takedown, Sneak Attack, Precise Debilitation, Double Slice, Mature Animal Companion, Dogslicer"
+output [{31,31,23,23} vs 35 with 0 for 3d6+11+5d6+1d4 0 3 0] named "Rogue 15, Twin Takedown, Sneak Attack, Precise Debilitation, Double Slice, Energy Mutagen, Dogslicer"
+output [{22} vs 29 with 0 for 2d8+10+1d6 0 0 0] + [{18,14} vs 29 with 0 for 2d6+10+1d6 0 0 0] named "Alchemist 10, Sneak Attacker, Rage Giant Instinct, Bestial Mutagen"
+output [{22,17} vs 29 with 0 for 2d8+10 0 0 0] + [{14,14} vs 29 with 0 for 2d6+10+1d6 0 0 0] named "Alchemist 10, Flurry of Blows, Rage Giant Instinct, Bestial Mutagen"
+output [{27} vs 35 with 0 for 3d10+13+2d6 0 0 0] + [{23,19} vs 29 with 0 for 3d8+13+2d6 0 0 0] named "Alchemist 15, Sneak Attacker, Rage Giant Instinct, Bestial and Elemental Mutagen"

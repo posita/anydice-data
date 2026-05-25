@@ -1,0 +1,60 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+ATTACK: 5 
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: hiltdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICHILTDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HILTDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ATTACK: 5
+HITDAMAGE: d8 + 3
+CRITICALDAMAGE: 2d8+3
+MISSDAMAGE: 0
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: hiltattack {
+ result: [hiltdamage for [attack d20 vs DEFENSE]]
+}
+function: advattack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+function: hiltadvattack {
+ result: [hiltdamage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: 15
+
+ATTACK: 6
+HITDAMAGE: 1d8 + 3
+CRITICALDAMAGE: 2d8+4
+MISSDAMAGE: 0
+HILTDAMAGE: 2d6
+CRITICHILTDAMAGE:4d6
+MISSDAMAGE: 0
+output [attack] named "shillelagh"
+output [hiltattack] named "thorn whip"

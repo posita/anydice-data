@@ -1,0 +1,57 @@
+D: { 0, 1 }
+loop N over { 1..15 } {
+  output NdD named "[N]d"
+}
+\
+function: cut R:n at T:n {
+  if R <= T { result: R }
+  result: 0
+}
+
+function: decide R:s {
+  if 1@R = 0 { result: 0 }
+  result: 1@R + (R > 0) - 1
+}
+
+function: success R:s at T:n {
+  if R <= T { result: 1 }
+  result: 0
+}
+
+D: [ cut 1d6 at 2 ]
+E: [ cut 1d10 at 3 ]
+S: [ success 1d6 at 2 ]
+T: [ success 1d10 at 3 ]
+
+loop N over { 1..10 } {
+  output [ decide NdD ] named "[N]d6x3"
+}
+
+loop N over { 1..10 } {
+  output [ decide NdE ] named "[N]d0x4"
+}
+
+function: A:n vs B:n {
+  if A > B { result: 1 }
+  if A < B { result: -1 }
+  result: 0
+}
+
+output [ decide 5dD ] named "5d6"
+output [ decide 5dD ] + [ decide 3dD ] named "5d6+3d6"
+output [ decide 8dD ] named "8d6"
+output [ decide 5dD ] + 3dS named "5d6 + 3dS"
+output [ decide 5dD ] + [ decide 5dD ] named "5d6+5d6"
+output [ decide 5dD ] + [ decide 5dD ] - 3 named "5d6+5d6-3"
+output [ decide 10dD ] named "10d6"
+output [ decide 5dD ] + 5dS named "5d6 + 5dS"
+
+output [ decide 5dE ] named "5d10"
+output [ decide 5dE ] + [ decide 3dE ] named "5d10+3D10"
+output [ decide 8dE ] named "8d10"
+output [ decide 5dE ] + 3dT named "5d10 + 3dT"
+output [ decide 5dE ] + [ decide 5dE ] named "5d10+5d10"
+output [ decide 5dE ] + [ decide 5dE ] - 3 named "5d10+5d10-3"
+output [ decide 10dE ] named "10d10"
+output [ decide 5dE ] + 5dT named "5d6 + 5dT"
+\

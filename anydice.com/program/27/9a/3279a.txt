@@ -1,0 +1,49 @@
+function: explode N:n TARGET :n DEPTH:n{
+ RES: 0
+ if DEPTH < 1{
+   if N <= TARGET { RES: 1 + [explode d6 TARGET (DEPTH+1)] }
+ }
+ result: RES
+}
+
+function: exito D:n TARGET:n{
+  if D <= TARGET{ result: 1}
+  result: 0
+}
+
+function: roll D:n TECNICA:n ESFUERZO:n{
+   if TECNICA = 0 {
+      RES: [exito D 1]
+   }else{
+      RES: [exito D TECNICA]
+   }
+   if RES = 1{
+      loop N over {0..ESFUERZO}{
+         RES: RES + [exito 1d6 TECNICA]
+      }
+   }
+   result: RES
+}
+
+function: accion TECNICA:n ESFUERZO:n EQUIPO:n AFINIDAD:n{
+  X: 0
+  loop N over {1..1+TECNICA+EQUIPO+AFINIDAD}{
+     X: X + [roll 1d6 TECNICA ESFUERZO]
+  }
+  result: X
+}
+
+
+
+EQUIPO: 0
+VENTAJA: 0
+loop EQUIPO over {0..3}{
+   loop TECNICA over {0..3}{
+      loop ESFUERZO over {0..3}{
+         output [accion TECNICA ESFUERZO EQUIPO VENTAJA] named "Técnica [TECNICA] y Esfuerzo [ESFUERZO] y Equipo [EQUIPO]" 
+      }
+   }
+}
+
+
+

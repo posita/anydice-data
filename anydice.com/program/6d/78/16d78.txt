@@ -1,0 +1,91 @@
+\ Must:
+
+Use polyhedrals for different weapons / tools
+Generate 0-3 Successes in the 1v1 case
+More dice to more numbers
+Include an infinitely scaling skill?
+Include an infinitely scaling power
+Include an infinitely scaling size
+Have Armor and Armor pen
+Handle multiple defenses and show which succeeded
+Handle up to 5 general polyhedrals
+Handle up to 5 more d6s
+Handle simultaneous damage
+
+Can't rely on summing the dice since that would fail for large scale?
+
+Number of dice = Size, >>>Power<<<, Number
+
+
+Solution:
+Sum of (Each Die / 4) = Successes
+You can split dice between multiple targets but only the ones involved in Clash, as declared in action declaration
+
+
+Questions:
+Do you split dice before or after generating successes?
+Where do shields and armor come in?
+Where does size come in?
+Where does pen come in?
+What gives rerolls on 1s/2s/etc?
+What gives 
+
+\
+
+DICE: {4,6,8,10,12}
+
+
+function: round DIE:n {
+ if DIE = 1{
+  result: d{0,0,0,4}
+ }
+ if DIE = 3{
+  result: d{0,0,0,4,4,6,6,8}
+ }
+ if DIE = 2{
+  result: d{0,0,0,4,4,6}
+ }
+ if DIE = 4{
+  result: d{0,0,0,4,4,6,6,8,8,10}
+ }
+ result: d{0,0,0,4,4,6,6,8,8,10,10,12}
+}
+
+function: roll ROLL:s {
+ if ROLL > 7{
+  result: 2
+ }
+ if ROLL > 3{
+  result: 1
+ }
+ result: 0
+}
+
+function: highest N:n of A:s B:s {
+    result: {1..N}@[sort {A, B}]
+}
+
+\ Perform checks \
+function: check NUM:n times DIE:s {
+ SUCCESS: 0
+ loop D over {1..NUM} {
+  SUCCESS: SUCCESS + [roll DIE] 
+ }
+ result: SUCCESS
+}
+
+\ Single Die Checks \
+loop V over {1..5}{
+ DIE: d(V@DICE)
+ RDIE: [round V]
+ output [roll DIE] named "[DIE]"
+ output [highest 1 of RDIE]named "highest [DIE]"
+}
+
+\ Two Dice Checks \
+loop V over {1..5}{
+ DIE: d(V@DICE)
+ RDIE: [round V]
+ output [roll d10] + [roll dDIE] named "d10 + [DIE]"
+ output [highest 1 of [round V] [round 4]] named "highest d10 + [DIE]"
+}

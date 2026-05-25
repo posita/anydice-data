@@ -1,0 +1,42 @@
+function: maximum of each die in ROLL:d{
+  result: [maximum of ROLL] / #(ROLL)
+}
+
+function: ROLL:n rerolling RR:n as REROLL:d {
+  if ROLL = RR { result: REROLL } else {result: ROLL}
+}
+
+function: sum ROLL:d rerolling RR:n {
+  SUM: 0
+  ONEDIE: 1d[maximum of each die in ROLL]
+  loop NEXTROLL over {1..#(ROLL)}{
+    SUM: SUM + [ONEDIE rerolling RR as ONEDIE]
+  }
+  result: SUM
+}
+
+function: SEQ:s not contains NUMBER:n{
+  result: (SEQ = NUMBER) = 0
+}
+
+function: forceroll ROLL:s{
+  result: ROLL + 0
+}
+
+function: count ROLL:d rerolling RR:n against TARGET:n {
+  COUNT: 0
+  ONEDIE: 1d[maximum of each die in ROLL]
+  loop NEXTROLL over {1..#(ROLL)}{
+    \RES: [ONEDIE rerolling RR as ONEDIE]
+    COUNT: COUNT + RES >= TARGET\
+    RES: {[ONEDIE rerolling RR as ONEDIE]} + 0
+    if RES >= TARGET { COUNT: COUNT + 1 }
+  }
+  result: COUNT
+}
+
+
+output [1d6 rerolling 1 as 1d6]
+output [sum 1d6 rerolling 1]
+
+output [count 7d6 rerolling 1 against 4]

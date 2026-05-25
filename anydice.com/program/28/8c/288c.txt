@@ -1,0 +1,114 @@
+function: dam DAM:d att ATT:n skill SKILL:n lostrate LR:n aim AIM:n AIMEX:n vital VITAL:n VITEX:n precise PRECISE:n plasma PLASMA:n master MASTER:n con CON:n prof PROF:n shield SHIELD:n av AV:n rolled D:s {
+ ROLL: 1@D + 2@D
+ if ((!PROF | CON < 10) & (1@D = 2@D & 1@D >= CON)) | (PLASMA & 1@D = 2@D & 1@D >= PLASMA) {
+  result: -1
+ }
+ AT: ATT + SKILL + ( LR * 2 ) + AIM - VITAL
+ if ROLL > ( AT ) {
+  result: 0
+ }
+ XS: AT - ROLL
+ DAMAGE: DAM
+ if SHIELD {
+  DAMAGE: [maximum of DAM]
+ }
+ EXTRADAM: 0
+ SINGLE: ( RATE - LR = 1 )
+ if MASTER = 1 {
+  EXTRADAM: XS
+ }
+ if MASTER = 2 {
+  EXTRADAM:  XS / ( RATE - LR )
+ }
+ if MASTER = 3 {
+  EXTRADAM: [lowest of XS and SKILL]
+  if PRECISE = 1 & SINGLE {
+   EXTRADAM: [lowest of XS and ( SKILL * 2 )]
+  }
+  if PRECISE = 2 & SINGLE {
+   EXTRADAM: XS
+  }
+ }
+ if AIMEX {
+  EXTRADAM: EXTRADAM + AIM
+ }
+ if VITEX {
+  EXTRADAM: EXTRADAM + VITAL
+ }
+ if PRECISE = 3 & SINGLE {
+  EXTRADAM: EXTRADAM * 2
+ }
+ if !AIMEX {
+  EXTRADAM: EXTRADAM + AIM
+ }
+ if !VITEX {
+  EXTRADAM: EXTRADAM + VITAL
+ }
+ DAMAGE: DAMAGE + EXTRADAM
+ if 1@D = 2@D & (PROF | 1@D = 1 | 1@D <= (CON - 10)) {
+  DAMAGE: DAMAGE * 2
+ }
+ if !PLASMA {
+  DAMAGE: DAMAGE - AV
+ }
+ if PLASMA {
+  DAMAGE: DAMAGE - [floor (AV - [maximum of DAM])]
+ }
+ DAMAGE: [floor DAMAGE]
+ result: DAMAGE
+}
+
+function: floor DAM:n {
+ if DAM < 0 {
+  result: 0
+ }
+ result: DAM
+}
+
+function: dam DAM:d att ATT:n skill SKILL:n lostrate LR:n aim AIM:n AIMEX:n vital VITAL:n VITEX:n precise PRECISE:n plasma PLASMA:n master MASTER:n con CON:n prof PROF:n shield SHIELD:n av AV:n rate RATE:n {
+ DAMAGE: (RATE - LR)d[dam DAM att ATT skill SKILL lostrate LR aim AIM AIMEX vital VITAL VITEX precise PRECISE plasma PLASMA master MASTER con CON prof PROF shield SHIELD av AV rolled 2d10]
+ result: [floor DAMAGE]
+}
+
+\ edit the lines below with the relevant information for your attack - add the bonuses for aiming directly to the weapon base damage and action total if aiming is being used; reduce the rate and add to the AT if sacrificing rate for accuracy. In order: base weapon damage, bonus damage from aiming, attribute (perception), skill level (for the relevant weapon), the amount of rate sacrificed for bonus AT (NOT the full bonus itself, but the number of rate lost), plasma property (0 if not plasma, else the LOWEST double it backfires at, normally 8), mastery property (0 for non-mastered, 1 for mastered by core, 2 for revised mastery with XS/rate, 3 for revised mastery with XS capped by skill), precision property (0 for nonprecise, 1 for precision where XS cap is doubled, 2 for precision where bonus damage is doubled, 3 for precision where XS is uncapped), condition, 1/0 profession/notprof, 1/0 hitting shield/notshield, AV of target, rate (normal max rate of weapon) \
+
+\ VVV IMPORTANT LINE VVV \
+\output [dam 2d6+1 att 13 skill 9 lostrate 0 aim 0 0 vital 0 0 precise 0 plasma 0 master 1 con 10 prof 1 shield 0 av 0 rate 2] named "Cobra Aim 0 Rate 2 Core"\
+loop M over {3} {
+ loop P over {3} {
+  loop V over {9} {
+   loop VX over {1} {
+    loop A over {12} {
+     loop AX over {1} {
+      loop AV over {0} {
+       loop LORA over {0} {
+        output [dam 2d6+1 att 13 skill 9 lostrate LORA aim A AX vital V VX precise P plasma 0 master M con 10 prof 1 shield 0 av AV rate 2] named "Cobra M[M] P[P] Aim+[A] AimEx[AX] Vital+[V] VitEx[VX] LostRate [LORA] against AV[AV]"
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
+loop M over {3} {
+ loop P over {3} {
+  loop V over {2} {
+   loop VX over {1} {
+    loop A over {0} {
+     loop AX over {1} {
+      loop AV over {0} {
+       loop LORA over {0} {
+        output [dam 1d8 att 13 skill 9 lostrate LORA aim A AX vital V VX precise P plasma 0 master M con 10 prof 1 shield 0 av AV rate 3] named "Cougar M[M] P[P] Aim+[A] AimEx[AX] Vital+[V] VitEx[VX] LostRate [LORA] against AV[AV]"
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
+
+\ ^^^ IMPORTANT LINE ^^^ \
+
+\ some assumptions made, the rules are actually slightly unclear: professionals can still critically miss with substandard weapons (con < 10), as per page 30. If a weapon cannot critically miss (because profession or because con > 10), 10/10 is still a hit (else improving to condition 20 causing criticals on 1/1 through 10/10 makes no sense, per table in Downtime on page 82), and as such a professional will critically hit on a successful roll of 10/10. This is in keeping with the text on page 30 that states a condition 1 weapon cannot critically pass - even a 1/1 roll is still a critical fail. Basically, if you're amazing you can make it so that it's literally impossible for you to fuck up, which is ridiculous but hey, we're playing Corp. The analysis has critical fails miss but does not account for the jamming of the weapon preventing further attacks, so results will be slightly skewed to higher damage when using non-profession or low condition at rates > 1 \

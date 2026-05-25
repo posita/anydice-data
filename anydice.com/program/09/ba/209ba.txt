@@ -1,0 +1,48 @@
+
+
+\function: MP mp AF af TROOPS troops MODS mods TARGETMIL tarmil DTROOPS dtroops DMODS dmods AIR air 
+{
+ ATROOPS: TROOPS
+ MP: MP - 1
+ MODS: MODS + 2
+ REROLL: 0
+ if(AIR > 0) { 
+  MP: MP - TARGETMIL 
+  REROLL: 1
+ }
+ if(AIR = 1) { 
+  DMODS: DMODS - 1 
+ }
+ if(TROOPS > MP*10) { 
+  ATROOPS: MP*10 
+ }
+ ATTACK: ATROOPS*MODS
+ DEFENSE: DTROOPS*DMODS
+ VICTORY: 1d[ATTACK+DEFENSE]
+ if(VICTORY > ATTACK & REROLL > 0) {
+  VICTORY: 1d[ATTACK+DEFENSE]
+ }
+ result: VICTORY <= ATTACK
+}\
+function: calc ATTACKER DEFENDER ALVL DLVL VICTORY:n {
+ if VICTORY <= ATTACKER {
+  result: VICTORY/(2*DLVL)
+ }
+ else {
+  result: -(VICTORY-ATTACKER)/(2*ALVL)
+ }
+}
+
+function: do ATTACKER DEFENDER ALVL DLVL REROLL {
+ REROLL: 1
+ VICTORY: 1d(ATTACKER + DEFENDER)
+ if REROLL > 0 { 
+  ROLL: 2d(ATTACKER + DEFENDER)
+  VICTORY: 1@VICTORY
+ }
+ result: [calc ATTACKER DEFENDER ALVL DLVL VICTORY]
+}
+
+
+
+output [do 850 250 6 4 1]

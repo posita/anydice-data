@@ -1,0 +1,50 @@
+function: score R:s {
+ S: R >= T
+
+ if S = 2 {
+  \ Can we get one more success by using +3 for lowest? \
+  result: 2 + (2@R + 3 >= T)
+ }
+ if S = 1 {
+  \ Can we get two more successes? \
+  if 3@R + 1 >= T {
+   \ By using +1 for the lowest, thus also the second lowest. \
+   result: 3
+  }
+  if 3@R + 2 >= T {
+   \ Need +2 for the lowest, maybe +1 is enough for second lowest. \
+   result: 2 + (2@R + 1 >= T)
+  }
+  \ Can we get one more success by using +3 for the second lowest? \
+  result: 1 + (2@R + 3 >= T)
+ }
+ if S = 0 {
+  \ Can we get three successes by using +1 for all? \
+  if 3@R + 1 >= T {
+   result: 3
+  }
+  \ Can we get two more successes? \
+  if 2@R + 1 >= T {
+   \ By using +1 for second lowest, thus also the highest. \
+   result: 2
+  }
+  if 2@R + 2 >= T {
+   \ Need +2 for second lowest, maybe +1 is enough for highest. \
+   result: 1 + (1@R + 1 >= T)
+  }
+  \ Can we get one success by using +3 for the highest? \
+  result: 1@R + 3 >= T
+ }
+ result: S
+}
+
+T: 4
+output [score 3d10] named "with +3"
+
+function: score R:s reroll {
+ S: R >= T
+ result: S + [highest of REROLLS - S and 0]d(d10 >= T)
+}
+
+REROLLS: 2
+output [score 3d10 reroll] named "with 2 rerolls"

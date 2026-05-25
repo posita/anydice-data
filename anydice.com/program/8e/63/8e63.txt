@@ -1,0 +1,76 @@
+MISS: 0 
+HIT: 1 
+CRITICALHIT: 2 
+
+function: attack ROLL:n vs DEFENSE:n { 
+if ROLL = 1 { result: MISS } 
+if ROLL = 20 { 
+if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT } 
+result: HIT 
+} 
+if ROLL + ATTACK >= DEFENSE { result: HIT } 
+result: MISS 
+} 
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: uadamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITUADAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: UADAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: daggerdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAGGERDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: DAGGERDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack { 
+result: [damage for [attack d20 vs DEFENSE]] 
+} 
+
+function: unarmedattack {
+ result: [uadamage for [attack d20 vs DEFENSE]]
+}
+
+function: daggerattack {
+ result: [daggerdamage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{10..20} 
+
+ATTACK: 8 
+
+HITDAMAGE: d8 + 5 
+CRITICALDAMAGE: 2d8 + 5
+UADAMAGE: 1d4 + 5
+CRITUADAMAGE: 2d4 + 5
+DAGGERDAMAGE: 1d8 +1d6 + 5
+CRITDAGGERDAMAGE: 2d8 + 2d6 + 5
+MISSDAMAGE: 0 
+
+
+output [attack] named "Pip - Monk Staff"
+output [attack] + [unarmedattack] named "One Strike & Martial Arts"
+output [attack] + [unarmedattack] + [unarmedattack] named "One Strike & FoB"
+output [attack] + [attack] + [unarmedattack] named "Two Strikes & Martial Arts"
+output [attack] + [attack] + [unarmedattack] + [unarmedattack] named "Two Strikes & FoB"
+output [daggerattack] + [daggerattack] + [unarmedattack] named "Gnarled Post - Two Strikes & Martial Arts"
+output [daggerattack] + [daggerattack] + [unarmedattack] + [unarmedattack] named "Gnarled Post - Two Strikes & FoB"

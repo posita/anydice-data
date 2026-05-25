@@ -1,0 +1,39 @@
+\ calculate chance of fumbling each round at various levels \
+FUMBLE: 1
+MISS: 0
+NORMALHIT: 0
+
+function: ROLL:n plus ATTACK:n vs AC:n confirmed by CONFROLL:n plus CONFBONUS:n {
+  if ROLL = 1 {
+    if CONFROLL = 1 | CONFROLL + ATTACK + CONFBONUS < AC {
+      result: FUMBLE
+    }
+    result: MISS
+  }
+  if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+  result: MISS
+}
+
+LOWSTR: (16-10) / 2
+LOWBAB: 2
+LOWATK: LOWSTR + LOWBAB + 1
+LOWPA: 2
+LOWATKPA: LOWATK - LOWPA
+
+HISTR: (16 + 4 \ levels \ + 6 \ enh \ + 2 \ size \ -10) / 2
+HIBAB: 16
+HIATK: HISTR + HIBAB + 2 + 5 + 1 - 1
+HIPA: 2
+HIATKPA: HIATK - HIPA
+
+LOWACAVG: 16
+LOWACMAX: 23
+HIACAVG: 32
+HIACMAX: 42
+
+output [d20 plus LOWATK vs LOWACAVG confirmed by d20 plus 0] named "fumbles per round, no PA, low level"
+output [d20 plus LOWATKPA vs LOWACAVG confirmed by d20 plus 0] named "fumbles per round, optimum PA, low level"
+output [d20 plus LOWATK vs LOWACMAX confirmed by d20 plus 0] named "fumbles per round, no PA, low level, max AC"
+output [d20 plus HIATK vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATK vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATK - 5 vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATK - 10 vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATK - 15 vs HIACAVG confirmed by d20 plus 0] named "fumbles per round, no PA, high level"
+output [d20 plus HIATKPA vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATKPA vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATKPA - 5 vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATKPA - 10 vs HIACAVG confirmed by d20 plus 0] + [d20 plus HIATKPA - 15 vs HIACAVG confirmed by d20 plus 0] named "fumbles per round, optimum PA, high level"
+output [d20 plus HIATK vs HIACMAX confirmed by d20 plus 0] + [d20 plus HIATK vs HIACMAX confirmed by d20 plus 0] + [d20 plus HIATK - 5 vs HIACMAX confirmed by d20 plus 0] + [d20 plus HIATK - 10 vs HIACMAX confirmed by d20 plus 0] + [d20 plus HIATK - 15 vs HIACMAX confirmed by d20 plus 0] named "fumbles per round, no PA, high level, max AC"

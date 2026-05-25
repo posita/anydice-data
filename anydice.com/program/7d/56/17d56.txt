@@ -1,0 +1,91 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+ATTACK: 5 
+CRITLEVEL: 19
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > CRITLEVEL {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: save ROLL:n vs DC:n {
+ 
+
+ if ROLL + DEX >= DC { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: spelldamage for ATTACKRESULT:n {
+
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: HITDAMAGE/2
+}
+function: hiltdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICHILTDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HILTDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ATTACK: 5
+HITDAMAGE: d8 + 3
+CRITICALDAMAGE: 2d8+3
+MISSDAMAGE: 0
+function: saveattack {
+ result: [spelldamage for [save d20 vs DC]]
+}
+DEX: 5
+DC: 15
+HITDAMAGE: 8d6
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: hiltattack {
+ result: [hiltdamage for [attack d20 vs DEFENSE]]
+}
+function: advattack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+function: hiltadvattack {
+ result: [hiltdamage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+CRITLEVEL: 19
+DEFENSE: 15
+ATTACK: 5+3
+HITDAMAGE: 1d8 +6
+CRITICALDAMAGE: 2d8+6
+
+MISSDAMAGE: 0
+output [attack]+[attack]+[attack] named "Tom Ben"
+ATTACK: 7
+HITDAMAGE: 4d6 +4
+CRITICALDAMAGE: 8d6+4
+
+MISSDAMAGE: 0
+output [advattack] named "james ben"
+ATTACK: 8
+HITDAMAGE: 1d10 +5
+CRITICALDAMAGE: 2d10+5
+HILTDAMAGE:2d4+5
+CRITICHILTDAMAGE: 4d4+5
+CRITLEVEL: 19
+MISSDAMAGE: 0
+output [attack]+[attack]+[hiltattack] named "crash"
+

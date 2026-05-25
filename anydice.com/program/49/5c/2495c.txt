@@ -1,0 +1,28 @@
+function: VALUE:s replace MIN:n {
+if VALUE <= MIN {result: 0}
+else {result: VALUE}
+}
+
+DISADVANTAGE: -2
+NOADVANTAGE: 1
+ADVANTAGE: 2
+ELVENACCURACY: 3
+
+function: attack TOHIT:n vs DC:n with ADV:n for DDICE:d plus DMODS:n critical on CRIT:n {
+if ADV > 0 {
+  SIDES: 20^ADV
+  CRITS: SIDES-19^ADV
+  HITS: SIDES-(DC-TOHIT)^ADV-CRITS
+  MISSES: SIDES-CRITS-HITS
+  } else {
+  SIDES: 20^(0-ADV)
+  MISSES: SIDES-(DC-TOHIT)^(0-ADV)
+  CRITS: 0-ADV
+  HITS: SIDES-MISSES-CRITS
+  }
+CHECKSUM: SIDES-CRITS-HITS-MISSES
+DAMAGE: (1d{0:MISSES,1:HITS,2:CRITS})dDDICE
+result:  [DAMAGE+DMODS replace DMODS]
+}
+
+output [attack +7 vs 18 with ADVANTAGE for 1d8 plus 5 critical on 20] named "example roll"

@@ -1,0 +1,21 @@
+function: profit ROLL:n M:n {
+  if ROLL <= 20 { result: -(M * 15) / 10 }
+  if ROLL <= 30 { result: -M }
+  if ROLL <= 40 { result: -M / 2 }
+  if ROLL <= 60 { result: 0 }
+  if ROLL <= 80 { result: 1d6 * 5 }
+  if ROLL <= 90 { result: 2d8 * 5 }
+  if ROLL >= 91 { result: 3d10 * 5 }
+}
+
+D: 10
+output [profit 1d100+1 D/2]*D named "Base [.5]; paid [0] gp; 1 day [D] times"
+output [profit 1d100+D D/2] named "Base [.5]: paid [0] gp; [D] days"
+
+loop B over {2,5,6}{
+  loop Y over {0..3} {
+    X: Y*10
+    output [profit 1d100+D+X B*D] - X named "Base [B]; paid [X] gp; [D] days"
+    output ([profit 1d100+1+X B*D] - X)*D named "Base [B]; paid [X] gp; 1x[D] days"
+  }
+}

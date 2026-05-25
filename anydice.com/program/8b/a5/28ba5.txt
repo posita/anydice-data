@@ -1,0 +1,550 @@
+\ '''This script covers rogue variants
+    Here is a key:
+    DP - Double Phantom, as built by ramen_goblin, is a straight Shadar Kai rogue, with Elven accuracy at 4, ritual caster at 8, ASI (DEX) at 10, then defensive feats after
+    AT - Arcane Trickster with Wizard 1 dip at level 2. Starts Custom Lineage (Moderately armored), with mobile at 5, sentinel at 9 and then an ASI (DEX) at 11. Gimmick is using Mirror Image + Sentinel to provoke off turn sneak attacks; superceded by other builds, and sentinel could probably be better taken earlier.
+    MR - "martial rogue" is an Arcane Trickster with a 4 level dip in Battlemaster Fighter at levels 2-5. Starts Custom Lineage (Sentinel), with Squat Nimbleness at 5 for the extra move and DEX improvement. ASI (DEX) at 8 rounds off the main build. Here, off turn sneak attacks are provoked via battlemaster maneuvers or sentinel or action surge, every round, and familiar is used for advantage on regular turns.
+    BA - "Battlemaster Assassin" is an Assassin / Battlemaster hybrid, starting CL(sentinel) again, magic initiate (wizard) at 5 for famiiar and bladetrips, and squat nimbleness at 8, ASI (DEX) at 12. Assume that 50% of combats start with surprise, and use action surge to double crit sneak attack on these rounds. For other 7 rounds to next short rest, 4 get off turn sneak attacks via battlemaster maneuvers, while the last 3 get sneak attacks from sentinel.
+    '''\
+
+
+\-------------------------------------------------------------------------------
+#Code block. Do not change.  Scroll down to adjust AC or enter more outputs
+-------------------------------------------------------------------------------\
+
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d {
+    if ROLL >= CRITRANGE {
+        result:  CRITABLEDAM + CRITABLEDAM + HITDAM
+    }
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= AC - ATTACKBONUS {
+        result: CRITABLEDAM + HITDAM
+    }
+    else {
+        result: 0
+    }
+}
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d with booming secondary at LEVEL: n{
+    SECONDARY: [booming secondary LEVEL dice 1d20]
+
+    if ROLL >= CRITRANGE {
+        result:  CRITABLEDAM + CRITABLEDAM + HITDAM + SECONDARY
+    }
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= AC - ATTACKBONUS {
+        result: CRITABLEDAM + HITDAM + SECONDARY
+    }
+    else {
+        result: 0
+    }
+}
+
+
+
+\#Notes on reference data below: typos happen, so if there are errors, please fix, and let us know\
+TM_TARGET_AC: {14,14,14,15,16,16,16,17,18,18,18,18,19,19,19,19,20,20,20,20} \#TM Baseline assumptions\
+DMG_TARGET_AC: {13,13,13,14,15,15,15,16,16,17,17,17,18,18,18,18,19,19,19,19} \#DMG pg 274\
+BOH_TARGET_AC: {13,13,14,14,14,15,15,15,16,16,16,17,17,17,18,18,18,19,19,19} \#Statistical analysis of MM by Blog of holding http://blogofholding.com/?p=7338\
+PROF_BONUSES: {2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6} \#PHB Standard\
+WARLOCK_MOD_PROGRESSION: {3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ #Assumed primary attack mod starts at 16 at level 1, and then adding ASI at each available level\
+FIGHTER_MOD_PROGRESSION: {3,3,3,3,3,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ #Assume Fighter starts with Crossbow expert at level 1, picks up sharpshooter at level 4, and then ASIs at 6 and 8\
+CRITRANGE: 20
+EB_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4}
+EA_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4}
+BB_SCALING: {0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3} \#just primary damage dice here\
+AT_ROG_LEVELS: {1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}
+MR_ROG_LEVELS: {1,1,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}
+BA_ROG_LEVELS: {1,1,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}
+
+MR_MOD_PROGRESSION: {3,3,3,3,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \#MR takes Squat Nimbleness at 5, sentinel at 1, then ASI at 8\
+DP_MOD_PROGRESSION: {3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5} \#DP takes EA at 4, ASI dex at 12. Level 8 ASI is ritual caster\
+AT_MOD_PROGRESSION: {4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5} \#AT takes Moderately armored at 1, mobile at 5, sentinel at 9, then ASI at 11\
+BA_MOD_PROGRESSION: {3,3,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5} \#BA takes squat nimbleness at 8 and the DEX ASI at 12.\
+
+
+
+
+\Damage on sneak attack dice\
+function: sneak LEVEL:n {
+    DICE: (LEVEL+1)/2
+    result: DICEd6
+}
+
+\Damage on wails\
+function: wail LEVEL:n {
+    DICE: (LEVEL+1)/2
+    WAIL_DICE: (DICE+1)/2
+    result: WAIL_DICEd6
+
+}
+
+\BB primary\
+function: booming primary LEVEL: n {
+    DICE:LEVEL@BB_SCALING
+    result: DICEd8
+}
+
+\BB secondary\
+function: booming secondary LEVEL:n dice PROB:n {
+    DICE:LEVEL@BB_SCALING+1
+    if PROB <= BOOMING_CHANCE {
+        result: DICEd8
+    }
+    else {
+        result: 0
+    }
+}
+
+\#BA Rog 1 - Sentinel\
+function: ba one LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@BA_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@BA_MOD_PROGRESSION
+    ROG_LVL: LEVEL@BA_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d8+SNEAK
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc ATT_DAM fail 0]
+    result: ATT_DAM + SENTINEL
+}
+
+\#BA Rog 2-3 - with dueling\
+function: ba twothree LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@BA_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@BA_MOD_PROGRESSION
+    ROG_LVL: LEVEL@BA_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d8+SNEAK
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc ATT_DAM fail 0]
+    result: ATT_DAM + SENTINEL
+}
+
+\#BA Rog 4 - with BM maneuvers mean off turn sneak attack all turns, say 4 from sentinel+action surge, 4 from maneuvers\
+function: ba four LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@BA_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@BA_MOD_PROGRESSION
+    ROG_LVL: LEVEL@BA_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d8+SNEAK
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    ATT_DAM_SUPDIE: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT+1d8 plus MOD+2]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc ATT_DAM fail ATT_DAM_SUPDIE]
+    result: ATT_DAM + SENTINEL
+}
+
+\#BA Rog 5-6 - familiar help + Booming blade\
+function: ba fivesix LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@BA_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@BA_MOD_PROGRESSION
+    ROG_LVL: LEVEL@BA_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    BOOM_PRIMARY: [booming primary LEVEL]
+    CRIT: 1d8+SNEAK
+    MAIN_ATT: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2 with booming secondary at LEVEL]
+    SENTINEL_ATT: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    ATT_DAM_SUPDIE: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT+1d8 plus MOD+2]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc SENTINEL_ATT fail ATT_DAM_SUPDIE]
+    result: MAIN_ATT + SENTINEL
+}
+
+
+\#BA Rog 7+ - add Assassin nova round, which is melee booming sneak attack twice\
+function: ba sevenplus LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@BA_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@BA_MOD_PROGRESSION
+    ROG_LVL: LEVEL@BA_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    BOOM_PRIMARY: [booming primary LEVEL]
+    CRIT: 1d8+SNEAK
+    MAIN_ATT: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2 with booming secondary at LEVEL]
+    SENTINEL_ATT: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    ATT_DAM_SUPDIE: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT+1d8 plus MOD+2]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc SENTINEL_ATT fail ATT_DAM_SUPDIE]
+    NON_NOVA: MAIN_ATT + SENTINEL
+    
+    \#Nova calculation - assumes surprise, so advantage, and autocrit, making 2 booming blade swings. \
+    \# attack damage and dice are moved to "mod" section because it auto crits and we don't want to crit the already crit damage\
+    NOVA_ATT: [roll 1@2d20 at plus ATT_BONUS vs ac AC for 0 plus CRIT+BOOM_PRIMARY+CRIT+BOOM_PRIMARY+MOD+2 with booming secondary at LEVEL]
+    NOVA: NOVA_ATT+NOVA_ATT
+    
+    TOTAL: NOVA+NON_NOVA+NON_NOVA+NON_NOVA+NON_NOVA+NON_NOVA+NON_NOVA+NON_NOVA
+    
+    result: TOTAL/8 \#averaged over 8 rounds\
+    
+    
+}
+
+
+
+
+
+
+
+
+ \#MR's sentinel proc damage\
+function: proc sentinel die ROLL:n chance CHANCE:n proc HIT:d fail MISS:d {
+    if ROLL <= CHANCE {
+        result: HIT
+    }
+    else {
+        result: MISS
+    }
+}
+
+
+\#MR Rog 1 - Sentinel\
+function: mr one LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@MR_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@MR_MOD_PROGRESSION
+    ROG_LVL: LEVEL@MR_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d8+SNEAK
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc ATT_DAM fail 0]
+    result: ATT_DAM + SENTINEL
+}
+
+\#MR Rog 2-3 - with dueling\
+function: mr twothree LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@MR_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@MR_MOD_PROGRESSION
+    ROG_LVL: LEVEL@MR_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d8+SNEAK
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc ATT_DAM fail 0]
+    result: ATT_DAM + SENTINEL
+}
+
+\#MR Rog 4-6 - with BM\
+function: mr foursix LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@MR_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@MR_MOD_PROGRESSION
+    ROG_LVL: LEVEL@MR_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d8+SNEAK
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    ATT_DAM_SUPDIE: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT+1d8 plus MOD+2]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc ATT_DAM fail ATT_DAM_SUPDIE]
+    result: ATT_DAM + SENTINEL
+}
+
+\#MR Rog 7+ - familiar help + Booming blade\
+function: mr sevenplus LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@MR_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@MR_MOD_PROGRESSION
+    ROG_LVL: LEVEL@MR_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    BOOM_PRIMARY: [booming primary LEVEL]
+    CRIT: 1d8+SNEAK
+    MAIN_ATT: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2 with booming secondary at LEVEL]
+    SENTINEL_ATT: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    ATT_DAM_SUPDIE: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT+1d8 plus MOD+2]
+    SENTINEL: [proc sentinel die 1d20 chance RAW_SENTINEL proc SENTINEL_ATT fail ATT_DAM_SUPDIE]
+    result: MAIN_ATT + SENTINEL
+}
+
+
+
+
+
+\#AT Rog 1 - shoot crossbow sneak attack\
+function: at one LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@AT_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@AT_MOD_PROGRESSION
+    ROG_LVL: LEVEL@AT_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d10+SNEAK
+    result: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+}
+
+\#AT Rog 2-4 - With adv\
+function: at twofour LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@AT_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@AT_MOD_PROGRESSION
+    ROG_LVL: LEVEL@AT_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    CRIT: 1d10+SNEAK
+    result: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+}
+
+\#AT Rog 5-8 - mobile opens up using booming in melee\
+function: at fiveeight LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@AT_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@AT_MOD_PROGRESSION
+    ROG_LVL: LEVEL@AT_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    BOOM_PRIMARY: [booming primary LEVEL]
+    CRIT: 1d8+SNEAK+BOOM_PRIMARY
+    BASE: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD with booming secondary at LEVEL]
+    result: BASE
+}
+
+\#AT Rog 9+ - Sentinel, so mirror image and all that\
+function: at nineplus LEVEL:n using AC_SCALING:s{
+    ATT_BONUS: LEVEL@AT_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@AT_MOD_PROGRESSION
+    ROG_LVL: LEVEL@AT_ROG_LEVELS
+    SNEAK: [sneak ROG_LVL]
+    BOOM_PRIMARY: [booming primary LEVEL]
+    CRIT: 1d8+SNEAK+BOOM_PRIMARY
+    MAIN: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD with booming secondary at LEVEL]
+    result: MAIN+[at sentinel LEVEL using AC_SCALING dice 1d20]
+}
+
+\#sentinel proc damage\
+function: at sentinel LEVEL:n using AC_SCALING:s dice PROB:n {
+    if PROB <= AT_SENTINEL_CHANCE {
+        ATT_BONUS: LEVEL@AT_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+        AC: LEVEL@AC_SCALING
+        MOD: LEVEL@AT_MOD_PROGRESSION
+        ROG_LVL: LEVEL@AT_ROG_LEVELS
+        SNEAK: [sneak ROG_LVL]
+        CRIT: 1d8+SNEAK
+        result: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    }
+    else {
+        result: 0
+    }
+
+}
+
+
+
+
+\#DP level 1-2. Shoot heavy crossbow for sneak attack\
+function: dp onetwo LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@DP_MOD_PROGRESSION
+    SNEAK: [sneak LEVEL]
+    CRIT: 1d10+SNEAK
+    result: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+}
+
+\#DP level 3: steady aim means adv on all shots\
+function: dp three LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@DP_MOD_PROGRESSION
+    SNEAK: [sneak LEVEL]
+    CRIT: 1d10+SNEAK
+    result: [roll 1@2d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+}
+
+\#DP level 4-8: Have Elven Accuracy, but no wails\
+function: dp foureight LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@DP_MOD_PROGRESSION
+    SNEAK: [sneak LEVEL]
+    CRIT: 1d10+SNEAK
+    result: [roll 1@3d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+}
+
+
+\#DP level 9-16: Full build online, we get 1 wail as well\
+function: dp ninesixteen LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@DP_MOD_PROGRESSION
+    SNEAK: [sneak LEVEL]
+    CRIT: 1d10+SNEAK
+    W: [wail LEVEL]
+    result: [roll 1@3d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD] + W
+}
+
+
+\#DP level 17+: Full build onlline, we get 2 wails now\
+function: dp seventeenplus LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@DP_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@DP_MOD_PROGRESSION
+    SNEAK: [sneak LEVEL]
+    CRIT: 1d10+SNEAK
+    W: [wail LEVEL]
+    result: [roll 1@3d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]+W+W
+}
+
+
+
+
+
+\#TM baseline warlock with Agonizing Blast and Hex\
+function: warlock LEVEL:n using AC_SCALING:s {
+    NUM_BLAST: LEVEL@EB_SCALING
+    ATT_BONUS: LEVEL@WARLOCK_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    CRIT: 1d10+1d6 \hex\
+    if LEVEL >= 2 {
+        NO_CRIT: LEVEL@WARLOCK_MOD_PROGRESSION \Agonizing\
+    } else {
+        NO_CRIT: 0
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    W: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    loop I over {1..NUM_BLAST}{
+        TOTAL: TOTAL + W
+    }
+    result: TOTAL
+}
+
+\#Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1)\
+function: fighter LEVEL:n using AC_SCALING:s {
+    NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+    CRIT: 1d6
+    if LEVEL >= 4 {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+    } else {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    loop I over {1..NUM_SHOT}{
+        TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    }
+    result: TOTAL
+}
+
+
+\#Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1); using action surge\
+function: fighter action surge LEVEL:n using AC_SCALING:s {
+    if LEVEL >= 2 {
+        NUM_SHOT: LEVEL@EA_SCALING +LEVEL@EA_SCALING+ 1 \Crossbow expert\
+    } else {
+        NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+    }
+
+    CRIT: 1d6
+    if LEVEL >= 4 {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+    } else {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    loop I over {1..NUM_SHOT}{
+        TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    }
+    result: TOTAL
+}
+
+\#selects AT function and returns result for this level\
+function: at chooser LEVEL:n using AC_SCALING:s {
+    if LEVEL <= 1 {
+        result: [at one LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 4 {
+        result: [at twofour LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 8 {
+        result: [at fiveeight LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 20 {
+        result: [at nineplus LEVEL using AC_SCALING]
+    }
+}
+
+\#selects DP function and returns result for this level\
+function: dp chooser LEVEL:n using AC_SCALING:s {
+    if LEVEL <= 2 {
+        result: [dp onetwo LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 3 {
+        result: [dp three LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 8 {
+        result: [dp foureight LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 16 {
+        result: [dp ninesixteen LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 20 {
+        result: [dp seventeenplus LEVEL using AC_SCALING]
+    }
+}
+
+\#selects MR function and returns result for this level\
+function: mr chooser LEVEL:n using AC_SCALING:s {
+    if LEVEL <= 1 {
+        result: [mr one LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 3 {
+        result: [mr twothree LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 6 {
+        result: [mr foursix LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 20 {
+        result: [mr sevenplus LEVEL using AC_SCALING]
+    }
+}
+
+\#selects BA function and returns result for this level\
+function: ba chooser LEVEL:n using AC_SCALING:s {
+    if LEVEL <= 1 {
+        result: [ba one LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 3 {
+        result: [ba twothree LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 4 {
+        result: [ba four LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 6 {
+        result: [ba fivesix LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 20 {
+        result: [ba sevenplus LEVEL using AC_SCALING]
+    }
+}
+
+
+
+\#---------------------------------------------------------------------------------------\
+\#---------------------------------------------------------------------------------------\
+\#---------------------------------------------------------------------------------------\
+\#---------------------------------------------------------------------------------------\
+\#HUMAN INPUT SECTION\
+LEVEL: 20
+AC_ASSUMPTION: TM_TARGET_AC \#options are DMG_TARGET_AC, TM_TARGET_AC, or BOH_TARGET_AC\
+BOOMING_CHANCE: 10 \#d20 roll <= to this means booming secondary damage procs\
+AT_SENTINEL_CHANCE: 20 \#d20 roll <= to this means sentinel procs, for AT use via Mirror Image\
+RAW_SENTINEL: 10 \#Sentinel chance, no MI or any other benefits\
+
+
+
+loop N over {1..10}{
+    \
+    output [warlock N using AC_ASSUMPTION] named "Reference: Warlock, [N]"
+    output [fighter N using AC_ASSUMPTION] named "Reference: Subless Fighter, [N]"
+    output [fighter action surge N using AC_ASSUMPTION] named "Level [N] Fighter Reference, action surge"
+    output [dp chooser N using AC_ASSUMPTION] named "Double Phantom, [N]"
+    output [at chooser N using AC_ASSUMPTION] named "Wizard/Arcane Trickster, [N]"
+    output [mr chooser N using AC_ASSUMPTION] named "Battlemaster/Arcane Trickster, [N]"
+    \
+    output [ba chooser N using AC_ASSUMPTION] named "Battlemaster/Assassin, [N]"
+}
+

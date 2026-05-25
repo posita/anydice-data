@@ -1,0 +1,43 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ABL_MODIFIER >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ABL_MODIFIER >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage DMG_DICE:n for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: DMG_DICE * 2
+ }
+ if ATTACKRESULT = HIT {
+  result: DMG_DICE
+ }
+ result: 0
+}
+
+ABL_MODIFIER: 0
+WEAPON_DMG: 1d6
+
+DMG_PER_ROUND: [damage WEAPON_DMG for [attack d20 vs 12]]
+
+BASE_HULL: 2d4 * 10
+HULL_FROM_MODULES: 20
+
+set "maximum function depth" to 50
+
+function: rounds with HULL:n vs ROUND_DMG:n COUNTER:n {
+  HULL_LEFT: HULL-ROUND_DMG
+  if HULL_LEFT <= 0 {
+    result: COUNTER + 1
+  }
+  result: [rounds with HULL-ROUND_DMG vs ROUND_DMG COUNTER+1]
+}
+
+output [rounds with BASE_HULL+HULL_FROM_MODULES vs DMG_PER_ROUND 0]

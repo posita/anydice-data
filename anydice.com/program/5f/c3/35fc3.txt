@@ -1,0 +1,28 @@
+output 0 named "Combat Sequence : W40K"
+
+function: towound STRENGH:n vs TOUGHNESS:n {
+ if STRENGH >= 2*TOUGHNESS {result: 2}
+ if STRENGH > TOUGHNESS {result: 3}
+ if STRENGH = TOUGHNESS {result: 4}
+ if STRENGH <= TOUGHNESS/2 {result: 6}
+ if STRENGH < TOUGHNESS {result: 5}
+ result: 0
+}
+
+\Passed Wounds : Wounds Roll after Hits Roll :\
+function: roll HITSROLL:s on TOHIT:n into wounds TW:n{
+ result: HITSROLLd(d6>=TW)
+}
+
+\Unsaved Wounds :\
+function: roll WOUNDSROLL:s vs save SAVES:n{
+ result: WOUNDSROLLd(d6<SAVES)
+}
+
+A: 10    TH: 3   S: 7  T: 4   SAVE: 4
+output [roll Ad(d6>=TH) on TH into wounds [towound S vs T]] named "Passed Wounds from [A]A"
+output [roll [count {TH..6} in Ad6] on TH into wounds [towound S vs T]] named "Passed Wounds from [A]A"
+output (Ad(d6>=TH))d(d6>=[towound S vs T])
+
+output [roll [roll Ad(d6>=TH) on TH into wounds [towound S vs T]] vs save SAVE] named "Unsaved Wounds from [A]A vs [S]Save"
+output ((Ad(d6>=TH))d(d6>=[towound S vs T]))d(d6<SAVE)

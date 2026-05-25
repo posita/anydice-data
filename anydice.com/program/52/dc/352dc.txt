@@ -1,0 +1,46 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+
+ACCOUNT_FOR_ATTACK: 0
+
+HIT_ROLL: [highest 1 of d20]
+HIT_MOD: 0
+AC: 8
+
+LEVELS: {1,5,11,17}
+loop L over {1..#LEVELS} {
+  LEVEL: L@LEVELS
+
+  loop SLOT over {1,3,5,9} {
+    if SLOT <= (LEVEL+1)/2 {
+
+      if ACCOUNT_FOR_ATTACK = 1 {
+        F_DMG: 0
+        DMG: 2d10+((SLOT-1)/2)d10
+        output Ld[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] named "CL: [LEVEL], SL: [SLOT]"
+      }
+
+      if ACCOUNT_FOR_ATTACK = 0 {
+        output Ld(2d10+((SLOT-1)/2)d10) named "CL: [LEVEL], SL: [SLOT]"
+      }
+    }
+  }
+}

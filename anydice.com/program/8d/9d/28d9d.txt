@@ -1,0 +1,43 @@
+\Average Damage Calculator\
+\The average damage various attacks perform per turn, considering AC, resistances, and vulnerabilities\
+
+AC: 10
+RESIST: 1 \"1" if no resistance, "2" if resistance\
+VULN: 1 \"1" if no vulnerabilities, "2" if vulnerable\
+
+BLESS: 0d4
+INSP: 0d10
+BASIC: 1d20 + BLESS + INSP
+ADV: [highest 1 of 2d20] + BLESS + INSP
+DIS: [lowest 1 of 2d20] + BLESS + INSP
+
+PROF: 2
+MOD: 3
+TOHIT: PROF + MOD
+
+RAGE: 0
+BRUTAL: 1 \No brutal critical die = "1", 1 brutal critical die = "2", 2 brutal critical dice = "3", etc.\
+DMG: 1d0
+RANGED_DMG: 1d0
+CRIT_DMG: 2 * (BRUTAL * DMG)
+CRIT_RNGD_DMG: 2 * (BRUTAL * RANGED_DMG)
+CRIT_RANGE: 20
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+ATK: [attack BASIC plus TOHIT vs AC for ((DMG + MOD + RAGE) * VULN)/RESIST crit ((CRIT_DMG + MOD + RAGE) * VULN)/RESIST on CRIT_RANGE]
+MULTIATK: ATK + [attack BASIC plus TOHIT vs AC for ((DMG + RAGE) * VULN)/RESIST crit ((CRIT_DMG + RAGE) * VULN)/RESIST on CRIT_RANGE]
+RNGD_ATK: [attack BASIC plus TOHIT vs AC for ((RANGED_DMG + MOD) * VULN)/RESIST crit ((CRIT_RNGD_DMG + MOD) * VULN)/RESIST on CRIT_RANGE]  
+
+ 

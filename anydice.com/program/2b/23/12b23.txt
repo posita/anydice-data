@@ -1,0 +1,35 @@
+PROF: 2
+BONUS: 4
+GWMDMG: 10
+GWMHIT: -5
+
+function: gwmattack ROLL:n and REROLL:n vs DEFENSE:n {
+if ROLL = {19,20} {
+ if REROLL = {19,20} { result: 4d10 + (PROF + BONUS + GWMDMG)*2 }
+ if REROLL >= {DEFENSE - PROF - BONUS - GWMHIT} { result: 3d10 + (PROF + BONUS + GWMDMG)*2 }
+ if REROLL = 1 { result: 2d10 + (PROF + BONUS + GWMDMG) }
+ result: 2d10 + (PROF + BONUS + GWMDMG)
+ }
+ if ROLL >= {DEFENSE - PROF - BONUS - GWMHIT} { result: 1d10 + (PROF + BONUS + GWMDMG) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+function: pamattack ROLL:n vs DEFENSE:n {
+if ROLL = {19,20} { result: 2d10 + (PROF + BONUS) }
+ if ROLL >= {DEFENSE - PROF - BONUS} { result: 1d10 + (PROF + BONUS) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+function: bonusattack ROLL:n vs DEFENSE:n {
+if ROLL = {19,20} { result: 2d4 + (PROF + BONUS) }
+ if ROLL >= {DEFENSE - PROF - BONUS} { result: 1d4 + (PROF + BONUS) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+loop ENEMYAC over {10..20} {
+ output [gwmattack 1@2d20 and 1@2d20 vs ENEMYAC] named "GWM vs [ENEMYAC]"
+ output [pamattack 1@2d20 vs ENEMYAC] + [bonusattack 1@2d20 vs ENEMYAC] named "PAM vs [ENEMYAC]"
+}

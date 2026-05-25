@@ -1,0 +1,20 @@
+\*** Normal Dice Mechanic using Wild Die ***\
+MINNUMDICE:2 \* Minimum number of dice to be rolled *\
+MAXNUMDICE:5 \* Maximum number of dice to be rolled *\
+WILDDIE:0 \* Enter 1 if using wild die or 0 if not using wild die *\
+
+if WILDDIE > 0 { MINNUMDICE:1 MAXNUMDICE:4}
+
+function: evaluate ROLL:s WILD:s{
+ SUCCESS: ROLL >= 15
+ WILDRESULT: WILD >= 5
+ SUCCESSES: SUCCESS + WILDRESULT
+ if SUCCESSES = 1 { result: 1}
+ if SUCCESSES > 1 { result: 2}
+ else { result: 0}
+}
+
+loop DICE over {MINNUMDICE..MAXNUMDICE} {
+ if WILDDIE > 0 { DIE: DICE + 1 }else { DIE: DICE }
+ output [evaluate DICE d20 WILDDIE d8] named "[DIE]d"
+}

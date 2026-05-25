@@ -1,0 +1,23 @@
+POWER: 9
+AC: 1
+EV: 14
+FAILRATE: 6
+
+SANDBLASTTOHIT: 11+POWER/10
+
+function: roll NUM:n dice of size SIZE:n {
+  result: (NUM)d(SIZE)
+}
+
+EVROLL: [roll 2 dice of size ([roll 1 dice of size EV] - 1)]/2-1
+TOHITROLL: 1dSANDBLASTTOHIT-1
+
+SANDBLAST: [highest of 0 and 2d(4+POWER/3)-3d(AC+1)+3] 
+
+output SANDBLAST named "sandblast, preEV"
+output (1d100 > FAILRATE)*(TOHITROLL >= EVROLL)*SANDBLAST named "sandblast"
+output (1d100 > FAILRATE)*(1d(3+POWER/3)) named "freeze"
+
+output (3+1d4 - (1d100 > FAILRATE)*(TOHITROLL >= EVROLL)*SANDBLAST - (1d100 > FAILRATE)*(TOHITROLL >= EVROLL)*SANDBLAST - (1d100 > FAILRATE)*(TOHITROLL >= EVROLL)*SANDBLAST) > 0 named "Sandblast Odds Alive After Three Casts"  
+
+output (3+1d4 - (1d100 > FAILRATE)*(1d(3+POWER/3)) - (1d100 > FAILRATE)*(1d(3+POWER/3)) - (1d100 > FAILRATE)*(1d(3+POWER/3))) > 0 named "Freeze Odds Alive After Three Casts"  

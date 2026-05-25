@@ -1,0 +1,62 @@
+function: damage ROLL:n vs AC:n {
+ if ROLL = 20 {result: CRIT}
+ if ROLL + P + DMOD >= AC {result: DAMAGE}
+ result: 0
+}
+
+function: condc DAMAGE:n{
+ if DAMAGE < 10 {result:10}
+ if DAMAGE >= 20 {result: DAMAGE/2}
+}
+
+function: save ROLL:n vs DC:n{
+ if ROLL + CMOD + CSP >= DC {result:0}
+ result: 1
+}
+
+ADV: [highest 1 of 2d20]
+DAV: [lowest 1 of 2d20]
+P:3
+DMOD: 5
+AC: 8+P+DMOD
+DAMAGE: 1d8+DMOD
+CRIT: 2d8+DMOD
+
+A: [damage d20 vs AC]
+B: [condc A]
+
+CMOD:3
+CSP: 0
+output [save d20 vs B] named "Baseline"
+output [save ADV vs B] named "WC"
+CSP:P
+output [save d20 vs B] named "RC"
+output [save ADV vs B] named "WC+RC"
+
+CSP: 0
+output [save DAV vs B] named "MS"
+output [save d20 vs B] named "MS vs WC"
+CSP:P
+output [save DAV vs B] named "MS vs RC"
+output [save d20 vs B] named "MS vs WC+RC"
+
+function: condc DAMAGE:n{
+ if DAMAGE < 10 {result:10}
+ if DAMAGE >= 10 {result: DAMAGE+9}
+}
+
+
+DAMAGE: 1d12+DMOD
+CRIT: 2d12+DMOD
+
+A: [damage d20 vs AC]
+B: [condc A]
+
+
+CSP: 0
+output [save DAV vs B] named "MS2"
+output [save d20 vs B] named "MS2 vs WC"
+CSP:P
+output [save DAV vs B] named "MS2 vs RC"
+output [save d20 vs B] named "MS2 vs WC+RC"
+

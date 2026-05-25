@@ -1,0 +1,43 @@
+WOUNDSMIN: 4
+WOUNDSMAX: 8
+
+ACCURACY: 4
+EVASION: 2
+MOD: 1
+
+
+
+
+\ Calculations Below \
+
+DEFENSE: 8
+DEFENSE: DEFENSE - ACCURACY
+DEFENSE: DEFENSE + EVASION
+DEFENSE: DEFENSE - MOD
+
+function: calc wounds from NUM:n {
+  WOUNDS: 0
+  DIE: 1d12
+  loop N over {1..NUM} {
+    WOUNDS: WOUNDS + [DIE check]
+  }
+  result: WOUNDS
+}
+
+function: RESULT:n check {
+  SUCCESSES: 0
+  if RESULT >= DEFENSE {
+    SUCCESSES: 1
+  }
+  else {
+    if RESULT = 12 {
+      SUCCESSES: 1
+    }
+  }
+  result: SUCCESSES
+}
+
+SPREAD: WOUNDSMAX - WOUNDSMIN
+
+output [calc wounds from SPREAD] + WOUNDSMIN named "Wounds"
+output DEFENSE-1 named "Defense"

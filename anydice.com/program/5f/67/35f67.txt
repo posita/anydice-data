@@ -1,0 +1,23 @@
+
+function : set dice DC:n
+{
+ D : {-9,2..19,30}
+ CRIT : D >= DC + 10
+ HIT : (D >= DC) - CRIT
+ OOF : (DC-10) >= D
+ MISS : 20 - CRIT - HIT - OOF
+ result : 1d{2:CRIT,1:HIT,0:MISS,(-1):OOF}
+}
+SAMPLE: {13,14,10}/3
+SCALE : [set dice 23 - 1dSAMPLE]
+SHAKE : [set dice 23 - 1dSAMPLE] - 1
+
+loop INITVAL over {-1..2}
+{
+ loop N over {1..20}
+ {
+  DC : N
+  
+  output [lowest of 2 and [highest of -1 and ([set dice N] - 1 + INITVAL)]] named "STATE FUNC,[INITVAL],[DC]"
+ }
+}

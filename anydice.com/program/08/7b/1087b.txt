@@ -1,0 +1,158 @@
+\ WARHAMMER UNDERWORLDS: SHADESPIRE - ATTACK/DEFENSE DIE CALCULATOR\
+
+
+\STEP ONE - ENTER ATTACKER DICE DETAILS \
+ATTACK:2 \ Number of Attack dice rolled \
+ASIDES:2 \ Number of sides on each die that count as "success" - NOT including CRITS \
+         \ (e.g Swords=1, Hammers=2, Hammers+Support=3 ,etc \
+ACRITS:1 \ Do Crits count 1 = TRUE, 0 = FALSE\
+
+
+\STEP TWO - ENTER DEFENDER DICE DETAILS \
+DEFENSE:1 \ Number of Defense dice rolled \
+DSIDES:1  \ Number of sides on each die that count as "success" - NOT including CRITS \
+          \ (e.g Dodge=1, Shield=2, Dodge+DoubleSupport=3 ,etc \
+DCRITS:1  \ Do Crits count 1 = TRUE, 0 = FALSE\
+
+
+\ STEP THREE - CALCULATE % TO DEAL DAMAGE \
+\ - Press "Calculate" button below \ 
+\ - Set "Data" to "At Least" \
+\ - Where "Attack vs. Defense = 1" is the Attacker's chance to deal damage \
+\ - Play with the other settings as needed (edit script if need be!) \
+\ - NOTE: Crits = 10 Successes (as it is unlikely a player will roll more than 9 Attack or Defense die in one go) \
+\ - NOTE: following on from above don't input ATTACK or DEFENSE values equal to 10 or greater \
+
+
+\ ------ DO NOT EDIT BELOW THIS LINE ---- \
+\ ATTACK DIE FUNCTION: returns a d6 result, 1 = Success, 0 = Miss, 10 = Crit \
+function: getattackdie{
+  if(ASIDES = 0){
+  \ Attacker is relying only on crits \
+   if(ACRITS){
+    result: d{0,0,0,0,0,10}
+   }
+   else{
+    result: d{0,0,0,0,0,0}
+   }
+  }
+  else if(ASIDES = 1){
+  \ Attacker is probably rolling for swords with no support \
+   if(ACRITS){
+    result: d{1,0,0,0,0,10}
+   }
+   else{
+    result: d{1,0,0,0,0,0}
+   }
+  }
+  else if(ASIDES = 2){
+  \ Attacker is probably rolling for hammers with no support \
+   if(ACRITS){
+    result: d{1,1,0,0,0,10}
+   }
+   else{
+    result: d{1,1,0,0,0,0}
+   }
+  }
+  else if(ASIDES = 3){
+  \ Attacker is has at least one support \
+   if(ACRITS){
+    result: d{1,1,1,0,0,10}
+   }
+   else{
+    result: d{1,1,1,0,0,0}
+   }
+  }
+  else if(ASIDES = 4){
+  \ Attacker is probably rolling for hammers with two support \
+   if(ACRITS){
+    result: d{1,1,1,1,0,10}
+   }
+   else{
+    result: d{1,1,1,1,0,0}
+   }
+  }
+  else if(ASIDES = 5){
+  \ Attacker has somehow managed to activate every dice side \
+   if(ACRITS){
+    result: d{1,1,1,1,1,10}
+   }
+   else{
+    result: d{1,1,1,1,1,0}
+   }
+  }
+  else{
+   result: d{-99} \ ERROR! Can't have more than 5 sides + a Crit on a d6 \
+  }
+}
+
+\ DEFENSE DIE FUNCTION: returns a d6 result, 1 = Success, 0 = Miss, 10 = Crit \
+function: getdefensedie{
+  if(DSIDES = 0){
+  \ Defender is relying only on crits \
+   if(DCRITS){
+    result: d{0,0,0,0,0,10}
+   }
+   else{
+    result: d{0,0,0,0,0,0}
+   }
+  }
+  else if(DSIDES = 1){
+  \ Defender is probably rolling for dodge with no support \
+   if(DCRITS){
+    result: d{1,0,0,0,0,10}
+   }
+   else{
+    result: d{1,0,0,0,0,0}
+   }
+  }
+  else if(DSIDES = 2){
+  \ Defender is probably rolling for shields with no support \
+   if(DCRITS){
+    result: d{1,1,0,0,0,10}
+   }
+   else{
+    result: d{1,1,0,0,0,0}
+   }
+  }
+  else if(DSIDES = 3){
+  \ Defender has at least one support \
+   if(DCRITS){
+    result: d{1,1,1,0,0,10}
+   }
+   else{
+    result: d{1,1,1,0,0,0}
+   }
+  }
+  else if(DSIDES = 4){
+  \ Defender is probably rolling for shields with two support \
+   if(DCRITS){
+    result: d{1,1,1,1,0,10}
+   }
+   else{
+    result: d{1,1,1,1,0,0}
+   }
+  }
+  else if(DSIDES = 5){
+  \ Defender has somehow managed to activate every dice side \
+   if(DCRITS){
+    result: d{1,1,1,1,1,10}
+   }
+   else{
+    result: d{1,1,1,1,1,0}
+   }
+  }
+  else{
+   result: d{-99} \ ERROR! Can't have more than 5 sides + a Crit on a d6 \
+  }
+}
+
+\OUTPUT LINES\
+output ATTACKd[getattackdie] named "Attack" 
+output DEFENSEd[getdefensedie] named "Defense"
+output ATTACKd[getattackdie] - DEFENSEd[getdefensedie] named "Attack vs. Defense"
+
+
+
+
+

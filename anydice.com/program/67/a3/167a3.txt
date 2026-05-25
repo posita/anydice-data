@@ -1,0 +1,59 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: attackrolltwo ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGETWO } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGETWO }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 5
+DMGBONUS: 2
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 3d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 6d6 + ATTACKMOD + DMGBONUS
+DAMAGETWO: 3d6 + DMGBONUS
+CRITDAMAGETWO: 6d6 + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Poison Pistol 3d6, no SS Multiattack"
+
+
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] + 1d[attackrolltwo d20 vs ENEMYAC] named "TWF Pistols"
+
+DMGBONUS: 2 + 1d6
+DAMAGE: 3d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 6d6 + ATTACKMOD + DMGBONUS
+DAMAGETWO: 3d6 + DMGBONUS
+CRITDAMAGETWO: 6d6 + DMGBONUS
+
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] + 1d[attackrolltwo d20 vs ENEMYAC] named "TWF Pistols, with Hunters Mark already up"
+
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "TWF Pistols, use bonus action to set up Hunters Mark before multiattack"
+
+DMGBONUS: 0
+ACCBONUS: 2
+DAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d8 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "2d8 Rifle. No SS Multiattack"
+
+DMGBONUS: 2 + 1d8
+ACCBONUS: 0
+DAMAGE: 3d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 6d6 + ATTACKMOD + DMGBONUS
+DAMAGETWO: 3d6 + DMGBONUS
+CRITDAMAGETWO: 6d6 + DMGBONUS
+
+
+output 1d[attackroll [highest 1 of 3d20] vs ENEMYAC] + 1d[attackroll d20 vs ENEMYAC] named "Zephyr Strike Revolver Multi Attack"

@@ -1,0 +1,70 @@
+function: roll POOL:s keep D:n {
+  KEPT: {}
+  SPOOL: [sort POOL]
+  loop I over {1..D} {
+    KEPT: {KEPT, I@SPOOL}
+  }
+  result: KEPT
+}
+
+function: check PAIR:n {
+  if PAIR = 12 {
+    result: 2
+  }
+  if PAIR >= 10 {
+    result: 1
+  }
+  else if PAIR >= 6 {
+    result: 0
+  }
+  else {
+    result: -1
+  }
+}
+
+function: roll POOL:s keep D:n force F:n {
+  FORCE_KEEPS: [count F in POOL]
+  if F = 0 {
+    FORCE_KEEPS: 0
+  }
+  KEEP_N_FROM_POOL: [highest of D - FORCE_KEEPS and 0]
+  FAIL_SUM: F * FORCE_KEEPS
+  result: [roll POOL keep KEEP_N_FROM_POOL] + FAIL_SUM
+}
+
+
+function: keep N:n {
+  if N = 5 {
+    result: 3
+  }
+  else {
+    result: 2
+  }
+}
+
+function: add heroic STAT:n to ROLL:n {
+  if STAT = 5 {
+    result: 1d6 + ROLL
+  } else {
+    result: ROLL
+  }
+}
+
+function: roll STAT:n {
+  result: [roll STATd6 keep 2 force 1]
+}
+
+function: roll STAT:n mythically {
+  result: [roll [lowest of STAT and 4]d6 keep 2 force 1] + 1d6
+}
+
+loop STAT over {1..4} {
+  
+  output [check [roll STAT]] named "fail/partial/success/advanced at stat=[STAT]"
+
+  WITH_BONUS: [roll STAT] + 1
+  output [check WITH_BONUS] named "fail/partial/success/advanced at STAT=[STAT], +1"
+
+  WITH_MYTHIC: [roll STAT mythically]
+  output [check WITH_MYTHIC] named "fail/partial/success/advanced at STAT=[STAT], with mythic die"
+}

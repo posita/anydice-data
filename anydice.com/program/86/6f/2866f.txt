@@ -1,0 +1,70 @@
+\\\*** Basic Save Info ***\\\
+SPELL_DC: 16
+STR_MOD: 14/5 \\\ Monster ave: 2.81\\\
+DEX_MOD: 12/5 \\\ Monster ave: 2.39\\\
+CON_MOD: 19/5 \\\ Monster ave: 3.77\\\
+INT_MOD: 2/5  \\\ Monster ave: 0.36\\\
+WIS_MOD: 13/5 \\\ Monster ave: 2.57\\\
+CHA_MOD: 7/5  \\\ Monster ave: 1.41\\\
+M_RESIST: 2   \\\ 0 = No magic resist, 1 = show only magic resist, 2 = show both\\\
+
+\\\*** Spell A ***\\\
+FAIL_SAVE_A: 15d10
+SUCC_SAVE_A: 5d10
+MOD_A: INT_MOD
+N_TURNS_A: 1
+
+
+\\\*** Attack B ***\\\
+FAIL_SAVE_B: 10d6+40
+SUCC_SAVE_B: 0
+MOD_B: DEX_MOD
+N_TURNS_B: 1
+
+\\\*** General Info ***\\\
+NORMAL: d20
+RESIST: [highest 1 of 2d20]
+
+\\\*** Functions ***\\\
+function: spell ROLL:n vs SPELL_DC:n {
+ if ROLL + MOD >= SPELL_DC{ result: SUCC_SAVE}
+ if ROLL + MOD < SPELL_DC{ result: FAIL_SAVE}
+ result: 0
+}
+
+\\\ SPELL_A \\\
+MOD: MOD_A
+SUCC_SAVE: SUCC_SAVE_A
+FAIL_SAVE: FAIL_SAVE_A
+if M_RESIST = 0 {
+ output N_TURNS_Ad[spell NORMAL vs SPELL_DC] named "Spell A"
+}
+else {
+ if M_RESIST = 1 {
+  output N_TURNS_Ad[spell RESIST vs SPELL_DC] named "M.Resist Spell A"
+}
+else {
+   if M_RESIST = 2 {
+   output N_TURNS_Ad[spell NORMAL vs SPELL_DC] named "Spell A"
+   output N_TURNS_Ad[spell RESIST vs SPELL_DC] named "M.Resist Spell A"
+}
+}
+}
+\\\ SPELL_B \\\
+MOD: MOD_B
+SUCC_SAVE: SUCC_SAVE_B
+FAIL_SAVE: FAIL_SAVE_B
+if M_RESIST = 0 {
+ output N_TURNS_Bd[spell NORMAL vs SPELL_DC] named "Spell B"
+}
+else {
+ if M_RESIST = 1 {
+  output N_TURNS_Bd[spell RESIST vs SPELL_DC] named "M.Resist Spell B"
+}
+else {
+   if M_RESIST = 2 {
+   output N_TURNS_Bd[spell NORMAL vs SPELL_DC] named "Spell B"
+   output N_TURNS_Bd[spell RESIST vs SPELL_DC] named "M.Resist Spell B"
+}
+}
+}

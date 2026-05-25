@@ -1,0 +1,33 @@
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: axereroller R:n {
+   if R <= 2 { result: 1d10 } else {result: R}
+}
+
+function: maulreroller R:n {
+   if R <= 2 { result: 1d6 } else {result: R}
+}
+
+ATTACKMOD: 4
+PROFICIENCY: 3
+CRITROLL: 20
+ATTACKTIMES: 1
+
+loop ENEMYAC over {14..18}{
+ACCBONUS: 1
+DMGBONUS: 1
+DAMAGE: 1d10 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "+1 Axe vs AC [ENEMYAC]"
+
+ACCBONUS: 0
+DMGBONUS: 0
+DAMAGE: 2d6 + ATTACKMOD
+CRITDAMAGE: 4d6 + ATTACKMOD
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Maul vs AC [ENEMYAC]"
+}

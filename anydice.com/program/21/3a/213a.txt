@@ -1,0 +1,83 @@
+function: ntwf A:n vs B:n {
+  TEMP: 0
+  if (A+2)>B {
+    TEMP: MAIN
+    if (A-3)>B {
+      TEMP: TEMP + OFF
+    }
+  }
+  result: TEMP
+}
+function: nofeat A:n vs B:n {
+  TEMP: 0
+  if (A-1)>B {
+    TEMP: MAIN
+    if (A-6)>B {
+      TEMP: TEMP + OFF
+    }
+  }
+  result: TEMP
+}
+
+OTWF: 0
+MTWF: 0
+NTWF: 0
+NOFEAT: 0
+THF: 0
+SOBO: 0
+\Round up dice\
+\ Level 1, 10 STR, L&S.Sword or G. Sword, no feat 
+MAIN: 5
+OFF: 4 
+DOUBLE: 6
+ 2hf > sobo~=nofeat \
+\ Level 1, 14/16 STR, L&S. sword/G. sword 
+MAIN: 7
+OFF: 5 
+DOUBLE: 10 
+ Identical with 2x short sword, TWF better with L&S swords. sobo~=nofeat \
+\ Level 4 Fighter, 14/18 STR, Specialization, +1 twf / +1 flaming thf 
+MAIN: 9
+OFF: 8
+DOUBLE: 16
+ Virtually identical; slight edge changes depending on STR used. nofeat ~= sobo \
+\ Level 5 ranger (16 STR, 14 WIS), +1 twf or +1 flaming thf 
+MAIN: 10
+OFF: 8
+DOUBLE: 12
+ TWF is superior, even "without the feat". The damage bonus is powerful! thf > sobo~=nofeat \ 
+\ Level 6 Barbarian, 20/22 STR, L&S vs G., +1 twf or +1 flaming thf 
+MAIN: 11
+OFF: 7
+DOUBLE: 17
+ Virtually identical. Specialization still stays balanced. Nofeat ~=sobo \
+\ Level 6 rogue, 14/16 STR, +1 twf or +1 flaming thf, assume sneak 
+MAIN: 17
+OFF: 6
+DOUBLE: 22
+ TWF is very slightly better. Sobo>nofeat \
+\ Level 12 rogue, 14/18 STR, +3 flaming S. swords or +4 flaming G. sword 
+MAIN: 33
+OFF: 11
+DOUBLE: 41
+ Equivalent (remember +1 for better G. sword). Sobo>nofeat \
+\ Level 12 barbarian, 26/28 STR (+2 enh), +3 flaming L & +3 flaming S. or +4 flaming G. \
+MAIN: 19
+OFF: 14
+DOUBLE: 27
+\TWF is slightly better, but spent 3k extra on weapons. +1 from focus makes thf better. Specialization doesn't change things significantly. Changing offhand to +2 flaming S. fixes price and makes them almost perfectly even. Sobo~=nofeat\
+
+loop AC over {4..14}{
+OTWF: OTWF + ((d20-2 > AC) * MAIN + (d20-2 > AC) * OFF)
+MTWF: MTWF + (d20-2 > AC)* (MAIN + OFF)
+NTWF: NTWF + [ntwf d20 vs AC]
+NOFEAT: NOFEAT + [nofeat d20 vs AC]
+THF: THF + (d20 > AC) * DOUBLE
+SOBO: SOBO + (d20 > AC-2) * MAIN
+}
+\output NTWF
+output THF\
+\output OTWF
+output MTWF\
+output NOFEAT
+output SOBO

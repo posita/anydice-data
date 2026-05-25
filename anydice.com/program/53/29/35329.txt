@@ -1,0 +1,35 @@
+\ theorycrafting \
+ROLLS: 6d[highest 1 of 2d20]
+
+function: X:n with B:n calcdamage {
+ RD: 4d{1d4, 1d4, 3, 4} + 2d{1d6, 1d6, 3, 4, 5, 6} + 1d{1d8, 1d8, 3, 4, 5, 6, 7, 8}
+
+ if X >= 20 {
+  result: 8 + 3 + 5d{1d6, 1d6, 3, 4, 5, 6} + 4 * 30 + 8 * RD + 4d{1d4, 1d4, 3, 4} + 8
+  \ multiplying RD is an approximation \
+ }
+ else {
+  if X + B + 8 + 3 + 3 + 2 + 1 + 1 - 5 > 17 {
+   result: 8 + 3 + 2d{1d6, 1d6, 3, 4, 5, 6} + 4 * 30 + 4 * RD + 2d{1d4, 1d4, 3, 4} + 8
+  }
+ }
+ result: 0
+}
+
+function: given CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+SUM: 0
+
+loop N over {1..6}{
+
+ SUM: SUM + [N@ROLLS with 1d4 calcdamage]
+
+}
+
+SUM: SUM + [given ([count {20} in ROLLS] > 0) then [[highest 1 of 2d20] with 1d4 calcdamage] else 0]
+
+
+
+output SUM named "SUM"

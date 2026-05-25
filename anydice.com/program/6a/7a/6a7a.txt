@@ -1,0 +1,40 @@
+\
+Mage the Awakening
+Resisted and Contested Spell success chance Version 1.2
+By Will, modified from code by Insaniac99 and Slippery_Chicken
+\
+
+\ Attacker Diepool \       A: 8
+\ Attacker Explodes on \   E: 10
+\ Defender Resist Stat \   D: 3
+\ Defender Power Stat \    P: 3
+\ Defender Shield Stat \   S: 0
+
+function: aexplode N:n to C:n {
+ if N >= E { 
+   if C < 1 {
+     result: N = {E..10}
+   } else {
+     result: 1 + [aexplode d10 to (C - 1)]
+   }
+ }
+ result: N = {8..9}
+}
+
+function: dexplode N:n {
+ if N = 10 { result: 1 + [dexplode d10] }
+ result: N = {8..9}
+}
+
+\Attacker's Resisted Roll Result\ ARR: (A-D-S)d[aexplode d10 to 5]
+\Attacker's Contested Roll Result\ AR: (A-S)d[dexplode d10]
+\Defender's Contested Roll Result\ DR: (D+P)d(d10 > 7)
+\Attacker Contested Net Hits\       Y: ARR
+\Attacker Contested Net Hits\       X: AR - DR
+
+output Y>0 named "Attacker's Resisted Chance to Hit"
+output ARR named "Attacker's Resisted Hits Rolled"
+output X>0 named "Attacker's Contested Chance to Hit"
+output X   named "Attacker's Contested Net hits"
+output AR  named "Added Detail: Attacker's Contested Hits Rolled"
+output DR  named "Added Detail: Defender's Contested Hits Rolled"

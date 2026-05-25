@@ -1,0 +1,48 @@
+\Distribución de número de casos en los que el dado es 4+\
+\link dedicado: https://anydice.com/17a1c\
+\Calcular las probabilidades de: casos en los que lanzando 15d6, haya "n" resultados en los que el d6 sea >=4\
+output 15d(d6>=4) named "15d6, 4+"
+output 15d(d6>=5) named "15d6, 5+"
+output 14d(d6>=5) named "14d6, 5+"
+
+\Distribución de los resultados posibles sumando ambos dados\
+\Calcular las probabilidades de cada uno de los posibles valores resultantes de lanzar dos D6 y sumar sus resultados\
+output 2d6 named "2d6"
+
+\Calcular las probabilidades de que al lanzar dos D6 y sumar sus valores obtengamos un valor mayor o igual a un valor objetivo (7)\
+\X: 2d6>=7\
+\output X named "to Hit"\
+
+\Probabilidad COMPUESTA (Opción 1)\
+\Probabilidad de cada uno de los posibles resultados suponiendo que en cada caso:\
+\   1. Lanzamos 2D6, sumamos sus resultados y éste es mayor a 7. Si es menor a 7 consideramos el resultado final con valor "0".\
+\   2. Lanzamos un número de D6 y sumamos todos los casos en los que el valor de la tirada del dado sea >= 4\
+X: 2d6>=7
+output X named "Primera tirada: Suma de 2d6, >=7 (to Hit)"
+output 8d(d6>4) named "Segunda tirada: 8d6, >= 4 (to damage)"
+output X * 8d(d6>4) named "Probabilidad combinada de cada caso (0 indica fallo en la Primera Tirada)"
+
+\Probabilidad COMPUESTA (Opción2)\
+\Probabilidad de cada uno de los posibles resultados suponiendo que en cada caso:\
+\   1. Lanzamos 2D6, sumamos sus resultados y éste es mayor a 7. Si es menor a 7 consideramos el resultado final con valor "0".\
+\   2. Lanzamos un número de D6 y sumamos todos los casos en los que el valor de la tirada del dado sea >= 4\
+X: 2d6>=7
+output X named "Primera tirada: Suma de 2d6, >=7 (to Hit)"
+output 2d6 named "Segunda tirada: Suma de 2d6 (to damage)"
+output X * 2d6 named "Probabilidad combinada de cada caso (0 indica fallo en la Primera Tirada)"
+
+function: hit A and destroy B{
+    if A = 0 {
+        result: 0
+    }
+    result: 1 + B
+}
+\Probabilidad COMPUESTA (Opción2)\
+\Probabilidad de cada uno de los posibles resultados suponiendo que en cada caso:\
+\   1. Lanzamos 2D6, sumamos sus resultados y éste es mayor a 7. Si es menor a 7 consideramos el resultado final con valor "0".\
+\   2. Lanzamos un número de D6 y sumamos todos los casos en los que el valor de la tirada del dado sea >= 4\
+\X: 2d6>=7\
+\output X named "Primera tirada: Suma de 2d6, >=7 (to Hit)"\
+\output 2d6 named "Segunda Suma de 3d6 (to damage)"\
+\output [hit 0 and destroy 2d6] named "Probabilidad combinada de cada caso (0 indica fallo en la Primera Tirada)"\
+

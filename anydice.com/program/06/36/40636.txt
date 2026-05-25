@@ -1,0 +1,58 @@
+function: count successes in POOL:s {
+  result: POOL >= 6
+}
+output [count successes in 2d8] + [count successes in 1d10] named "Successes of 6+"
+
+
+function: explode sixes N:n depth D:n {
+  if N = 0 { result: 0 }
+  ROLL: Nd6
+  SUCCESSES: [count {6} in ROLL]
+  
+  if D = 0 { result: SUCCESSES }
+  
+  result: SUCCESSES + [explode sixes SUCCESSES depth D-1]
+}
+function: explode eights N:n depth D:n {
+  if N = 0 { result: 0 }
+  ROLL: Nd8
+  SUCCESSES: [count {6,7,8} in ROLL]
+  
+  if D = 0 { result: SUCCESSES }
+  
+  result: SUCCESSES + [explode eights SUCCESSES depth D-1]
+}
+function: explode tens N:n depth D:n {
+  if N = 0 { result: 0 }
+  ROLL: Nd10
+  SUCCESSES: [count {6,7,8,9,10} in ROLL]
+  
+  if D = 0 { result: SUCCESSES }
+  
+  result: SUCCESSES + [explode tens SUCCESSES depth D-1]
+}
+function: explode twelves N:n depth D:n {
+  if N = 0 { result: 0 }
+  ROLL: Nd12
+  SUCCESSES: [count {6,7,8,9,10,11,12} in ROLL]
+  
+  if D = 0 { result: SUCCESSES }
+  
+  result: SUCCESSES + [explode twelves SUCCESSES depth D-1]
+}
+set "maximum function depth" to 10
+output [explode eights 2 depth 5] + [explode tens 1 depth 5] named "Success of 6+ with Exploding Dice"
+
+
+function: count ones in POOL:s {
+  result: POOL = 1
+}
+output [count ones in 3d6] + [count ones in 2d6] named "Any 1s at all"
+
+
+function: botch SIXES:s EIGHTS:s TENS:s TWELVES:s {
+  HAS_ONES: ([count {1} in SIXES] + [count {1} in EIGHTS] + [count {1} in TENS] + [count {1} in TWELVES]) > 0
+  NO_SUCCESSES: ([count {6} in SIXES] + [count {6,7,8} in EIGHTS] + [count {6,7,8,9,10} in TENS] + [count {6,7,8,9,10,11,12} in TWELVES]) = 0
+  result: HAS_ONES * NO_SUCCESSES
+}
+output [botch 0d6 0d8 2d10 1d12] named "Botch (when 1s appear but no 6+)"

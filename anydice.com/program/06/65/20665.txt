@@ -1,0 +1,192 @@
+\ Variables and assignments \
+MISS:    0
+HIT:     1
+CRITHIT: 2
+
+MISSDAMAGE:       0
+
+DOUBLESCIMITARB: -1
+DOUBLESCIMITAR:   0
+GLAIVE:           1
+GREATAXE:         2
+GREATSWORD:       3
+LONGSWORD:        4
+RAPIER:           5
+SCIMITAR:         6
+SICKLE:           7
+
+
+\ Weapon damage "arrays" \
+function: weapondamage for WEAPON:n {
+  if WEAPON = -1 {result: 1d4+BONUS+MAGIC}
+  if WEAPON =  0 {result: 2d4+BONUS+MAGIC}
+  if WEAPON =  1 {result: 1d10+BONUS+MAGIC}
+  if WEAPON =  2 {result: 1d12+BONUS+MAGIC}
+  if WEAPON =  3 {result: 2d6+BONUS+MAGIC}
+  if WEAPON =  4 {result: 1d10+BONUS+MAGIC}
+  if WEAPON =  5 {result: 1d8+BONUS+MAGIC}
+  if WEAPON =  6 {result: 1d6+BONUS+MAGIC}
+  if WEAPON =  7 {result: 1d4+BONUS+MAGIC}
+  result: -1
+}
+function: weaponcritdamage for WEAPON:n {
+  if WEAPON = -1 {result: 2*(1d4)+BONUS+MAGIC}
+  if WEAPON =  0 {result: 2*(2d4)+BONUS+MAGIC}
+  if WEAPON =  1 {result: 2*(1d10)+BONUS+MAGIC}
+  if WEAPON =  2 {result: 2*(1d12)+BONUS+MAGIC}
+  if WEAPON =  3 {result: 2*(2d6)+BONUS+MAGIC}
+  if WEAPON =  4 {result: 2*(1d10)+BONUS+MAGIC}
+  if WEAPON =  5 {result: 2*(1d8)+BONUS+MAGIC}
+  if WEAPON =  6 {result: 2*(1d6)+BONUS+MAGIC}
+  if WEAPON =  7 {result: 2*(1d4)+BONUS+MAGIC}
+  result: -1
+}
+function: greatweapondamage for WEAPON:n {
+  if WEAPON =  1 {result: 10 + 1d10+BONUS+MAGIC}
+  if WEAPON =  2 {result: 10 + 1d12+BONUS+MAGIC}
+  if WEAPON =  3 {result: 10 + 2d6+BONUS+MAGIC}
+  result: -1
+}
+function: greatweaponcritdamage for WEAPON:n {
+  if WEAPON =  1 {result: 10 + 2*(1d10)+BONUS+MAGIC}
+  if WEAPON =  2 {result: 10 + 2*(1d12)+BONUS+MAGIC}
+  if WEAPON =  3 {result: 10 + 2*(2d6)+BONUS+MAGIC}
+  result: -1
+}
+function: dwweapondamage for WEAPON:n {
+  if WEAPON =  5 {result: 1d8+MAGIC}
+  if WEAPON =  6 {result: 1d6+MAGIC}
+  if WEAPON =  7 {result: 1d4+MAGIC}
+  result: -1
+}
+function: dwweaponcritdamage for WEAPON:n {
+  if WEAPON =  5 {result: 2*(1d8)+MAGIC}
+  if WEAPON =  6 {result: 2*(1d6)+MAGIC}
+  if WEAPON =  7 {result: 2*(1d4)+MAGIC}
+  result: -1
+}
+
+
+\ Attack data \
+function: attack ROLL:n vs DEFENSE:n{
+  if ROLL = 1                 {result: MISS}
+  if ROLL = 20                {result: CRITHIT}
+  if ROLL + ATTACK >= DEFENSE {result: HIT}
+  result: MISS
+}
+
+function: damage for ATTACKRESULT:n vs WEAPON:n{
+  if ATTACKRESULT = CRITHIT {result: [weaponcritdamage for WEAPON]}
+  if ATTACKRESULT = HIT     {result: [weapondamage for WEAPON]}
+  result: MISSDAMAGE
+}
+function: greatdamage for ATTACKRESULT:n vs WEAPON:n{
+  if ATTACKRESULT = CRITHIT {result: [greatweaponcritdamage for WEAPON]}
+  if ATTACKRESULT = HIT     {result: [greatweapondamage for WEAPON]}
+  result: MISSDAMAGE
+}
+function: dwdamage for ATTACKRESULT:n vs WEAPON:n{
+  if ATTACKRESULT = CRITHIT {result: [dwweaponcritdamage for WEAPON]}
+  if ATTACKRESULT = HIT     {result: [dwweapondamage for WEAPON]}
+  result: MISSDAMAGE
+}
+
+
+\ Calculation loops and bonuses \
+ROLL:             {0} \ -1: Disadvantage, 0: Standard, 1: Advantage \
+PROF:             2
+BONUS:            2
+MAGIC:            0
+ATTACK:           PROF+BONUS+MAGIC
+AC:               {15}
+WEAPONSLIST:      {3}
+ATTACKSPERACTION: {1}
+
+if ROLL = 0 {
+  loop ARMORCLASS over {AC} {
+    loop WEAPONS over {WEAPONSLIST} {
+      loop ATTACKS over {ATTACKSPERACTION} {
+        if WEAPONS = 0 { \ Double-Bladed Scimitar \
+          output ATTACKSd[damage for [attack d20 vs ARMORCLASS] vs WEAPONS] + 
+                         [damage for [attack d20 vs ARMORCLASS] vs DOUBLESCIMITARB] named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS]"
+        }
+        if WEAPONS = {1..7} { \ No Feats | No Style \
+          output ATTACKSd[damage for [attack d20 vs ARMORCLASS] vs WEAPONS] named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS]"
+        }
+        if WEAPONS = {1..3} { \ GWM \
+          output ATTACKSd[greatdamage for [attack d20 vs ARMORCLASS+5] vs WEAPONS] named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with GWM"
+        }
+        if WEAPONS = {5..7} { \ DW \
+          output ATTACKSd[damage for [attack d20 vs ARMORCLASS] vs WEAPONS] + 
+                       [dwdamage for [attack d20 vs ARMORCLASS] vs WEAPONS] named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with DW"
+        }
+        if WEAPONS = {5..7} { \ TWF+DW \
+          output ATTACKSd[damage for [attack d20 vs ARMORCLASS] vs WEAPONS] + 
+                         [damage for [attack d20 vs ARMORCLASS] vs WEAPONS] named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with TWF"
+        }
+      }
+    }
+  }
+}
+if ROLL = 1 {
+  loop ARMORCLASS over {AC} {
+    loop WEAPONS over {WEAPONSLIST} {
+      loop ATTACKS over {ATTACKSPERACTION} {
+        if WEAPONS = 0 { \ Double-Bladed Scimitar \
+          output ATTACKSd[damage for [attack [highest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] + 
+                         [damage for [attack [highest 1 of 2d20] vs ARMORCLASS] vs DOUBLESCIMITARB] 
+                                                        named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] at Advantage"
+        }
+        if WEAPONS = {1..7} { \ No Feats | No Style \
+          output ATTACKSd[damage for [attack [highest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] 
+                                                        named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] at Advantage"
+        }
+        if WEAPONS = {1..3} { \ GWM \
+          output ATTACKSd[greatdamage for [attack [highest 1 of 2d20] vs ARMORCLASS+5] vs WEAPONS] 
+                                                               named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with GWM at Advantage"
+        }
+        if WEAPONS = {5..7} { \ DW \
+          output ATTACKSd[damage for [attack [highest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] + 
+                       [dwdamage for [attack [highest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] 
+                                                        named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with DW at Advantage"
+        }
+        if WEAPONS = {5..7} { \ TWF+DW \
+          output ATTACKSd[damage for [attack [highest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] + 
+                         [damage for [attack [highest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] 
+                                                        named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with TWF at Advantage"
+        }
+      }
+    }
+  }
+}
+if ROLL = -1 {
+  loop ARMORCLASS over {AC} {
+    loop WEAPONS over {WEAPONSLIST} {
+      loop ATTACKS over {ATTACKSPERACTION} {
+        if WEAPONS = 0 { \ Double-Bladed Scimitar \
+          output ATTACKSd[damage for [attack [lowest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] + 
+                         [damage for [attack [lowest 1 of 2d20] vs ARMORCLASS] vs DOUBLESCIMITARB] 
+                                                       named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] at Disadvantage"
+        }
+        if WEAPONS = {1..7} { \ No Feats | No Style \
+          output ATTACKSd[damage for [attack [lowest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] 
+                                                       named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] at Disadvantage"
+        }
+        if WEAPONS = {1..3} { \ GWM \
+          output ATTACKSd[greatdamage for [attack [lowest 1 of 2d20] vs ARMORCLASS+5] vs WEAPONS] 
+                                                              named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with GWM at Disadvantage"
+        }
+        if WEAPONS = {5..7} { \ DW \
+          output ATTACKSd[damage for [attack [lowest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] + 
+                       [dwdamage for [attack [lowest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] 
+                                                       named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with DW at Disadvantage"
+        }
+        if WEAPONS = {5..7} { \ TWF+DW \
+          output ATTACKSd[damage for [attack [lowest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] + 
+                         [damage for [attack [lowest 1 of 2d20] vs ARMORCLASS] vs WEAPONS] 
+                                                       named "[ATTACKS] Attacks: [WEAPONS] vs [ARMORCLASS] with TWF at Disadvantage"
+        }
+      }
+    }
+  }
+}

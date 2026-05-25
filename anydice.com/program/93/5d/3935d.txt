@@ -1,0 +1,102 @@
+MISS: 0
+HIT: 1
+CRIT: 20
+
+ATKMOD: 4 + 3
+DMGMOD: 4
+WEAPDMGA: d6
+WEAPDMGB: d6
+TWFDMG: WEAPDMGA + WEAPDMGB
+CRITDMG: 2dWEAPDMGA + DMGMOD 
+CRITTWF: 2dTWFDMG + DMGMOD 
+DREADSTRK: 2d6
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATKMOD >= AC { result: HIT }
+ if ROLL + ATKMOD <= AC { result: MISS }
+}
+
+AC: d{10..20}
+output [attack d20 vs d{10..20}] named " Average Hit chance vs AC 10-20"
+
+
+function: damage for ATTACKRESULTS:s {
+D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRIT { D: CRITDMG }
+  if A = HIT { D: WEAPDMGA + DMGMOD }
+  else if A = MISS { D: 0 }
+ }
+ result: D + [huntmark for ATTACKRESULTS]
+}
+
+function: huntmark for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: N:n attack {
+ result: [damage for Nd[attack d20 vs d{10..20}]]
+}
+
+output [1 attack] named "Basic Attack w/o Hunter's Mark"
+
+function: huntmark for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRIT] {
+  result: 2d6
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: 1d6
+ }
+ else if [ATTACKRESULTS contains MISS] {
+  result: 0
+ }
+}
+
+output [1 attack] named "Basic Attack w/ Hunter's Mark"
+
+
+function: twf ROLL:n vs AC:n {
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATKMOD >= AC { result: HIT }
+ if ROLL + ATKMOD <= AC { result: MISS }
+}
+
+output [twf d20 vs d{10..20}] named " Average Hit chance vs AC 10-20"
+
+
+function: damage for TWFRESULTS:s {
+D: 0
+ loop A over TWFRESULTS {
+  if A = CRIT { D: CRITTWF }
+  if A = HIT { D: TWFDMG + DMGMOD }
+  else if A = MISS { D: 0 }
+ }
+ result: D + [huntmark for TWFRESULTS]
+}
+
+function: huntmark for TWFRESULTS:s {
+ result: 0
+}
+
+function: N:n twf {
+ result: [damage for Nd[ twf d20 vs d{10..20}]]
+}
+
+output [1 twf] named "TWF w/o Hunter's Mark"
+output [1 twf] + [2 attack] named "TWF with FoB w/o Hunter's Mark"
+
+function: huntmark for TWFRESULTS:s {
+ if [TWFRESULTS contains HIT] {
+  result: 1d6
+ }
+ if [TWFRESULTS contains CRIT] {
+  result: 2d6
+ }
+ else if [TWFRESULTS contains MISS] {
+  result: 0
+ }
+}
+
+output [1 twf] named "TWF w/ Hunter's Mark"
+output [1 twf] + [2 attack] named "TWF with FoB with Hunter's Mark"

@@ -1,0 +1,26 @@
+function: negativesarezero X:n
+{
+if X < 0 { result: 0 } else { result: X }
+}
+
+function: zeroisone X:n
+{
+if X = 0 { result: 1 } else { result: X }
+}
+
+function: checkresist X:n MULT:n
+{
+result: (X * MULT) / 100
+}
+
+HEALTH: 40 \ The health of the soldier. \
+ARMOR: 50 \ The armor strength. \
+POWER: 80 \ The base damage of the enemy shot. \
+DAMAGE: POWER * (1d201 - 1) / 100 - ARMOR \ Damage with the XCOM 1 damage roll applied. \
+MULTIPLIER: 100 \ The damage multiplier for the damage type in question. \
+ACTUALDAMAGE: [negativesarezero DAMAGE] \ Negative damage values are treated as 0. \
+FINALDAMAGE: [checkresist ACTUALDAMAGE MULTIPLIER] \ The damage multiplier is applied to ACTUALDAMAGE. \
+
+output [negativesarezero HEALTH-FINALDAMAGE] named "Health after one shot"
+output ACTUALDAMAGE named "Damage after armor"
+output FINALDAMAGE named "Damage after resistances"

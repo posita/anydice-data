@@ -1,0 +1,49 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{4..20}
+LEVEL: 1
+CURSE: 1d6
+
+ATTACK: 13
+HITDAMAGE: [explode 1d6] + 2 + LEVEL + CURSE
+CRITICALDAMAGE: [explode 1d6] + 2 + LEVEL + CURSE
+MISSDAMAGE: 0
+output [attack] named "Explosion sobrenatural"
+
+ATTACK: 13
+HITDAMAGE: [explode 1d6] + LEVEL + CURSE
+CRITICALDAMAGE: [explode 1d6] + LEVEL + CURSE
+output [attack] named "Mordedura visual"
+
+
+ATTACK: 13
+HITDAMAGE: [explode 2d6] + LEVEL + CURSE
+CRITICALDAMAGE: [explode 2d6] + LEVEL + CURSE
+output [attack] named "Fuego de bruja"
+

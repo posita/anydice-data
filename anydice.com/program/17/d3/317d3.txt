@@ -1,0 +1,50 @@
+\ Attack characteristics \
+A: 2
+BS: 4
+TO_HIT_MOD: 0
+WOUND_MOD: 0
+AP: -4
+S: 9
+
+\ Foe characteristics \
+T_FOE: 10
+SV_FOE: 3
+I_SAVE_FOE: 0 \ Use 0 if not using inv save \
+SAVE_MOD: 0
+
+function: hit ATTACKS:n {
+  DICE: ATTACKS d6
+  result: [hit roll DICE]
+}
+
+function: hit roll DICE:s {
+  HITS: [count {BS-TO_HIT_MOD..6} in DICE]
+  SIXES: [count 6 in DICE]
+
+  result: [wound [highest of HITS and SIXES]]
+}
+
+function: wound HITS:n {
+  DICE: HITS d6
+
+  if(S * 2 <= T_FOE) { WOUNDS: [count {6-WOUND_MOD..6} in DICE]}
+  if(S < T_FOE & S * 2 > T_FOE) { WOUNDS: [count {5-WOUND_MOD..6} in DICE]}
+  if(S = T_FOE) { WOUNDS: [count {4-WOUND_MOD..6} in DICE]}
+  if(S > T_FOE & S < T_FOE * 2) { WOUNDS: [count {3-WOUND_MOD..6} in DICE]}
+  if(S >= T_FOE * 2) { WOUNDS: [count {2-WOUND_MOD..6} in DICE]}
+
+  SIXES: [count 6 in DICE]
+
+  result: [saves [highest of WOUNDS and SIXES]]
+}
+
+function: saves WOUNDS:n {
+  DICE: WOUNDS d6
+  if(I_SAVE_FOE > 0) {SAVES: [count {I_SAVE_FOE..6} in DICE]}
+  if(I_SAVE_FOE = 0) {SAVES: [count {(SV_FOE-AP)..6} in DICE]}
+  ONES: [count 1 in DICE]
+
+  result: (WOUNDS - [highest of 0 and (SAVES - ONES)])
+}
+
+output A d [hit 1] named "Wounds from [A] attack(s)"

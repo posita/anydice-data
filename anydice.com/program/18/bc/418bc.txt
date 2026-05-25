@@ -1,0 +1,73 @@
+function: min A:n and B:n {
+result: [count {1..B} in {1..A}]
+}
+
+function: explode die D:d rounds R:n {
+COUNT: [count {6..20} in D]
+
+TOTAL: COUNT
+NEW: COUNT
+
+loop I over {1..R} {
+  EXTRA: [count {6..20} in NEWdD]
+  TOTAL: TOTAL + EXTRA
+  NEW: EXTRA
+}
+
+result: TOTAL
+}
+
+function: float successes POOL:s floats FLOATS:s {
+NEEDONE: [count {5} in POOL]
+NEEDTWO: [count {4} in POOL]
+NEEDTHREE: [count {3} in POOL]
+NEEDFOUR: [count {2} in POOL]
+
+BONUSONE: [count {1} in FLOATS]
+BONUSTWO: [count {2} in FLOATS]
+BONUSTHREE: [count {3} in FLOATS]
+BONUSFOUR: [count {4} in FLOATS]
+
+USEFOUR: [min BONUSFOUR and NEEDFOUR]
+BONUSFOUR: BONUSFOUR - USEFOUR
+NEEDFOUR: NEEDFOUR - USEFOUR
+
+BONUSTHREE: BONUSTHREE + BONUSFOUR
+USETHREE: [min BONUSTHREE and NEEDTHREE]
+BONUSTHREE: BONUSTHREE - USETHREE
+NEEDTHREE: NEEDTHREE - USETHREE
+
+BONUSTWO: BONUSTWO + BONUSTHREE
+USETWO: [min BONUSTWO and NEEDTWO]
+BONUSTWO: BONUSTWO - USETWO
+NEEDTWO: NEEDTWO - USETWO
+
+BONUSONE: BONUSONE + BONUSTWO
+USEONE: [min BONUSONE and NEEDONE]
+
+result: USEFOUR + USETHREE + USETWO + USEONE
+}
+
+function: roll pool N:s floats F:s rounds R:n {
+TOTAL: 0
+
+loop P over {1..#N} {
+  TOTAL: TOTAL + [explode die P@N rounds R]
+}
+
+BOOST: [float successes N floats F]
+
+result: TOTAL + BOOST
+}
+
+function: mix A:s and B:s and C:s and D:s and E:s floats F:s rounds R:n {
+POOL: A + B
+POOL: POOL + C
+POOL: POOL + D
+POOL: POOL + E
+
+result: [roll pool POOL floats F rounds R]
+}
+output (4d([explode die d6 rounds 1]) + 2d([explode die d8 rounds 1])) named "4d6+2d8 explode 1"
+output (7d([explode die d6 rounds 1])) named "7d6 explode 1"
+output (3d([explode die d8 rounds 1]) + 2d([explode die d10 rounds 1])) named "3d8+2d10 explode 1"

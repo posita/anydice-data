@@ -1,0 +1,58 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 20 {
+  if ROLL + DC >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + DC >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: [savage attacker] * 2 + HIT_MODIFIER
+ }
+ if ATTACKRESULT = HIT {
+  result: [savage attacker] + HIT_MODIFIER
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ RES: 0
+ loop N over NUM_OF_ATTACKS {
+  RES: RES + [damage for [attack ATTACK_HIT_DICE + DC vs DEFENSE]]
+ }
+ result: RES
+}
+
+function: savage attacker {
+ result: 1@HIT_DICE
+}
+
+DEFENSE: d{10..30}
+
+DC: 10
+MISSDAMAGE: 0
+NUM_OF_ATTACKS: {1..3}
+\ ATTACK_HIT_DICE: d20 \
+ATTACK_HIT_DICE: 1@2d20
+
+HIT_DICE: d10
+HIT_MODIFIER: 7
+output [attack] named "Glaive"
+
+HIT_DICE: d{2..12}
+HIT_MODIFIER: 6
+output [attack] named "Greatsword"
+
+HIT_DICE: d6
+HIT_MODIFIER: 6
+output [attack] named "Javelin"
+
+HIT_DICE: d8
+HIT_MODIFIER: 7
+output [attack] named "Kossal's Arm"

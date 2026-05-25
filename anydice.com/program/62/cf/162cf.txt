@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK_MOD: 7
+ABILITY_MOD: 4
+HITDAMAGE: (1d12 + ABILITY_MOD) + 2
+CRITICALDAMAGE: (2d12 + ABILITY_MOD) + 2 + 1d12
+MISSDAMAGE: 0
+output [attack] named "Greataxe"
+
+ATTACK_MOD: 7
+HITDAMAGE: (2d6 + ABILITY_MOD) + 2
+CRITICALDAMAGE: (4d6 + ABILITY_MOD) + 2 + 1d6
+output [attack] named "Maul"

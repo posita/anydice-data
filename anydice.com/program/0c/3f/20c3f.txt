@@ -1,0 +1,39 @@
+ATTACK: 14
+ATTACKDICE: 1d4
+HITDAMAGE: 1d8+3+3d4+2d8+2d6+5
+CRITICALDAMAGE: 2d8+3+6d4+4d8+2d6+5
+NOA: 12
+AC: 25
+HP: 676
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+MISSDAMAGE: 0
+loop AC over {AC} {
+DPR: [damage for [attack [highest 1 of 4d20] + ATTACKDICE vs AC]]
+}
+
+output HP / (DPR * NOA)+1
+output DPR * NOA

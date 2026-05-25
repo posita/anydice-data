@@ -1,0 +1,48 @@
+TN: 17
+PROF: 3
+STR: 4
+MAGICWEAP: 1
+HITBONUS: STR + PROF + MAGICWEAP
+DAMAGEBONUS: STR + MAGICWEAP
+BLESSED: 0
+ADV: 0
+
+function: A:n hit odds {
+  if A >= TN { result: 1 }
+  result: 0
+}
+
+function: bless {
+  result: BLESSED * 1d4
+}
+
+function: stddmg ROLL:n {
+  if ROLL = 20 {
+    result: [highest 4 of 4d{{3..6}:4, {1..2}}]+DAMAGEBONUS
+  }
+  result: [highest 2 of 2d{{3..6}:4, {1..2}}]+DAMAGEBONUS
+}
+
+function: superdmg ROLL:n {
+  result: [stddmg ROLL]+10
+}
+
+function: attackroll {
+  if ADV = 1 {
+    result: [highest 1 of 2d20]
+  }
+  result: 1d20
+}
+
+function: stdattack {
+  STDROLL: [attackroll]
+  result: [STDROLL + HITBONUS + [bless] hit odds] * [stddmg STDROLL]
+}
+
+function: superattack {
+  SUPERROLL: [attackroll]
+  result: [SUPERROLL + HITBONUS - 5 + [bless] hit odds] * [superdmg SUPERROLL]
+}
+
+output [stdattack] named "Standard Attack EV"
+output [superattack] named "Super Attack EV"

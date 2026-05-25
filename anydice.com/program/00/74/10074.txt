@@ -1,0 +1,43 @@
+AC: 14
+DEX: 3
+PROF: 2
+SNEAK: 2d6
+RAPIER: 1d8
+SHORTBOW: 1d6
+DAGGER: 1d4
+ADV: [highest 1 of 2d20]
+
+\looped against enemy AC\
+ENEMYAC: d{10..16}
+
+function: first A:n second B:n vs AC:n {
+  if A = 20 & B = 20 {result: 2*(RAPIER + SNEAK) + DEX + 2*(DAGGER + SNEAK)}
+  if A = 20 & B = 01 {result: 2*(RAPIER + SNEAK) + DEX}
+  if A = 01 & B = 20 {result: 2*(DAGGER + SNEAK)}
+  if A = 01 & B = 01 {result: 0}
+  if A = 20 & B + DEX + PROF >= AC {result: 2*(RAPIER + SNEAK) + DEX + (DAGGER + SNEAK)}
+  if A = 01 & B + DEX + PROF >= AC {result: (DAGGER + SNEAK)}
+  if A + DEX + PROF >= AC & B = 20 {result: (RAPIER + SNEAK) + DEX + 2*(DAGGER + SNEAK)}
+  if A + DEX + PROF >= AC & B = 01 {result: (RAPIER + SNEAK) + DEX}
+  if A + DEX + PROF >= AC & B + DEX + PROF >= AC {result: (RAPIER + SNEAK) + DEX + (DAGGER + SNEAK)}
+  result: 0
+}
+function: bow A:n vs AC:n {
+  if A + DEX + PROF >= AC {result: SHORTBOW + SNEAK + DEX}
+  if A = 20 {result: 2*(SHORTBOW + SNEAK) + DEX}
+  if A = 1 {result: 0}
+  result: 0
+}
+
+SNEAK: 0
+output [first d20 second d20 vs ENEMYAC] named "dual"
+output [first ADV second ADV vs ENEMYAC] named "dual Adv"
+SNEAK: 2d6
+output [first d20 second d20 vs ENEMYAC] named "sneak dual" 
+output [first ADV second ADV vs ENEMYAC] named "sneak dual Adv"
+SNEAK: 0
+output [bow d20 vs ENEMYAC] named "bow"
+output [bow ADV vs ENEMYAC] named "bow Adv"
+SNEAK: 2d6
+output [bow d20 vs ENEMYAC] named "bow sneak" 
+output [bow ADV vs ENEMYAC] named "bow sneak Adv"

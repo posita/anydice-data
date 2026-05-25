@@ -1,0 +1,77 @@
+\Generic reroll if X function.\
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d
+{
+ if [REROLL contains ROLL]
+ {
+  result: REPLACEMENT
+ }
+ result: ROLL
+}
+
+\Specific reroll function to format GWM\					 
+function: C:n gwm D:n
+{
+ T: 0
+ loop N over {1..C}
+ {
+  T: T + [reroll 1 on 1dD to 1dD]
+ }
+ result: T
+}
+
+\Calculate the outcome of an attack roll.\
+function: R:n attack A:n with B:n bonus and P:n and D:d dicepool crit on C:n
+{
+ if      R     >= C {result: 2dD + B} \Crit\
+ else if R+B+P >= A {result: 1dD + B} \Hit\
+ else                {result: 0  } \Miss\
+}
+
+\Calculate the outcome of a spell attack roll.\
+function: R:n spell A:n with B:n bonus and P:n and D:d dicepool
+{
+ if      R     >= 20 {result: 2dD} \Crit\
+ else if R+B+P >=  A {result: 1dD} \Hit\
+ else                {result: 0  } \Miss\
+}
+
+\Calculate the outcome of a spell save roll.\
+function: R:n save vs D:n dc against D:d dicepool for S:n damage modifier
+{
+ if      R     >= D {result: 1dD / S} \Save for half or no damage\
+ else               {result: 1dD} \No Save, full damage\
+}
+
+\Attack A times, using a bonus feature dealing X damage, Y times. (Such as a maneuver, sneak attack, or smite.)\
+function: attack A:n times with B:n bonus and P:n proficiency dealing D:d damage crit on C:n and X:d extra damage Y:n times against Z:n
+{
+ TOTAL: 0
+ ROLL: Ad20
+ loop N over {1..A}
+ {
+  if N <= Y
+   {
+    SUB:[N@ROLL attack Z with B bonus and P and D+X dicepool crit on C]
+   } else {
+    SUB:[N@ROLL attack Z with B bonus and P and D dicepool crit on C]
+   }
+   TOTAL: TOTAL + SUB
+ }
+ result: TOTAL
+}
+
+AC: 14
+PROF:      3
+F_STR_MOD: 4
+W_STR_MOD: 3
+W_CON_MOD: 4
+W_SAVE_DC: 8+W_CON_MOD+PROF
+SUP_DICE:  1d8
+DISC_DICE: 1d8
+
+output 2d[1d20 attack AC with F_STR_MOD bonus and PROF and [2 gwm 6] dicepool crit on 20] named "Fighter: 2 Great Sword w/ GWM"
+output [attack 2 times with F_STR_MOD bonus and PROF proficiency dealing [2 gwm 6] damage crit on 20 and SUP_DICE extra damage 1 times against AC] named "Fighter: 2 Great Sword w/ GWM + Maneuver"
+output 2d[1d20 attack AC with W_STR_MOD bonus and PROF and [2 gwm 6] dicepool crit on 20] named "Warden:  2 Great Sword w/ GWM"
+output 2d[1d20 attack AC with W_STR_MOD bonus and PROF and [2 gwm 6] dicepool crit on 20] + [1d20 spell AC with W_CON_MOD bonus and PROF and DISC_DICE dicepool] named "Warden:  2 Great Sword w/ GWM + Bolt"
+output [1d20 attack AC with W_STR_MOD bonus and PROF and [2 gwm 6] dicepool crit on 20] + 3d[1d20+4 save vs W_SAVE_DC dc against DISC_DICE dicepool for 2 damage modifier] named "Warden:  1 Great Sword w/ GWM + Blast (3 targets)"
+output 2d[1d20 attack AC with W_STR_MOD bonus and PROF and [2 gwm 6] dicepool crit on 18] named "Warden:  2 Great Sword w/ GWM + Keen"

@@ -1,0 +1,32 @@
+function: successes DICE:n threshold DC:n{
+ SUCCEEDS: 0
+ loop N over {1..DICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS+ [helper ROLL DC]
+ }
+ result: SUCCEEDS
+}
+
+function: helper ROLL:n DC:n {
+ if ROLL >= DC {
+  result: 1 + [exceed (ROLL-DC)]
+ } 
+ result: 0
+}
+
+function: exceed ROLL:n {
+ if ROLL >= 4 {
+  result: 1 + [exceed (ROLL-4)]
+ }
+ result: 0
+} 
+
+\output [successes 3 threshold 7] named "Charitina"
+output [successes 2 threshold 9] named "Welch"
+output [successes 3 threshold 7] named "Praxis"\
+
+output [count {2..20} in [successes 3 threshold 7] + [successes 2 threshold 9] + [successes 1 threshold 7] ]
+output [successes 3 threshold 7] + [successes 2 threshold 9] + [successes 1 threshold 7] 
+output [count {2..20} in [successes 3 threshold 7] + [successes 2 threshold 9] + [successes 2 threshold 7] ]
+output [count {2..20} in [successes 3 threshold 7] + [successes 2 threshold 9] + [successes 3 threshold 7] ]
+output [count {2..20} in [successes 3 threshold 7] + [successes 2 threshold 9] + [successes 4 threshold 7] ]

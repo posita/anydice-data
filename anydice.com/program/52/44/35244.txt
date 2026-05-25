@@ -1,0 +1,46 @@
+set "explode depth" to 10
+
+RANGE: 16
+DTIE: d{0,1}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: extend {
+  result: [extend d6]
+}
+function: extend N:n {
+  if N = 1 { result: N - [luck] }
+  if N = 6{ result: N + [luck] }
+  result: N
+}
+
+function: luck {
+  result: [luck d6]
+}
+function: luck N:n {
+  if N = 6 { result: 2 + [luck d6] }
+  if N = 5 { result: 2 }
+  if N = 4 { result: 1 }
+  if N = 3 { result: 1 }
+  result: 0
+}
+
+function: ez {
+  result: [ez d6]
+}
+function: ez N:n {
+  if N = 6 { result: N + [luck] }
+  result: N
+}
+
+output [clamp [ez] between -RANGE and RANGE] named "ezd6"
+output [clamp [luck] between -RANGE and RANGE] named "luck"
+output [clamp [extend] between -RANGE and RANGE] named "extend"
+output [clamp [ez]-[ez]-DTIE between -RANGE and RANGE] named "ezd6 vs"
+
+F: {-1..1}
+output d6-d6+4dF-DTIE named "d6+2dF vs"

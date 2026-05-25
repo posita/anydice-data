@@ -1,0 +1,35 @@
+AC: 15
+
+\ --- COSTO DEL RITO (danni auto-inflitti) --- \
+DANNO_RITO: 1d4
+output DANNO_RITO named "Danni Necrotici subiti per attivare il Rito"
+
+\ --- BONUS E DADI (come prima) --- \
+BONUS_FORZA: +3
+BONUS_MAGICO: +1
+BONUS_COMPETENZA: +4
+BONUS_ATTACCO_TOTALE: BONUS_FORZA + BONUS_MAGICO + BONUS_COMPETENZA
+
+BONUS_DUELO: +2
+DADO_ARMA: 1d8
+DADO_RITO: 1d4
+
+DANNO_CONTUNDENTE: DADO_ARMA + BONUS_FORZA + BONUS_MAGICO + BONUS_DUELO
+DANNO_FREDDO: DADO_RITO
+
+DANNO_CONTUNDENTE_CRITICO: 2*DADO_ARMA + BONUS_FORZA + BONUS_MAGICO + BONUS_DUELO
+DANNO_FREDDO_CRITICO: 2*DADO_RITO
+
+function: attacca TARGET_AC:n {
+  RISULTATO_DADO: d20
+  if RISULTATO_DADO = 20 {
+    result: DANNO_CONTUNDENTE_CRITICO + DANNO_FREDDO_CRITICO
+  }
+  if RISULTATO_DADO + BONUS_ATTACCO_TOTALE >= TARGET_AC {
+    result: DANNO_CONTUNDENTE + DANNO_FREDDO
+  }
+  result: 0
+}
+
+\ --- Due attacchi indipendenti --- \
+output [attacca AC] + [attacca AC] named "Danno Totale Due Attacchi vs AC [AC] (Rito attivo)"

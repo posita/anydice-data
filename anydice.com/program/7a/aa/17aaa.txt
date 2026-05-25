@@ -1,0 +1,34 @@
+DEATH: 10
+
+function: wrack ROLL:n plus SICKNESS:n {
+ if ROLL <= 6 { result: SICKNESS + 2 }
+ if ROLL > 6 & ROLL < 10{ result: SICKNESS + 1 }
+ if ROLL >= 10 & SICKNESS > 0 { result: SICKNESS - 1 }
+}
+
+function: heal ROLL:n SICKNESS:n {
+ if ROLL > 6 & SICKNESS > 0 { result: SICKNESS - 1 }
+ result: SICKNESS
+}
+
+function: deathcheck SICKNESS:n {
+ if SICKNESS > 2 { result: 1}
+ result: 0
+}
+
+function: cycle SICKNESS:n {
+  if [deathcheck SICKNESS] = 0 {
+   TEMP: [wrack 2d6+2 plus SICKNESS]
+   result: [heal 2d6 TEMP]
+  }
+  if [deathcheck SICKNESS] > 0 {
+   result: DEATH
+  }
+}
+
+function: loopit NUM:n ACC:n {
+  if NUM > 0 { result: [loopit NUM-1 [cycle ACC]] }
+  if NUM < 1 { result: ACC }
+}
+
+output [loopit 5 0]

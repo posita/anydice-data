@@ -1,0 +1,34 @@
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T{
+  if ROLL =6 {result: 1+[rollexploding 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailures ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplode ROLL: n threshold T {
+  if ROLL < T {result: [rollexploding 1d6 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: diceroll DICE:n threshold T {
+  RES:0
+  REROLLED: 1
+  loop N over {1..DICE} {
+    if REROLLED {
+      RES: RES+[rerollthenexplode 1d6 threshold T]
+      REROLLED: 0
+    }
+    else {RES: RES+[rollexploding 1d6 threshold T]}
+  }
+  result: RES
+}
+
+output [diceroll 9 threshold 4]

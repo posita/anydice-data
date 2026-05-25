@@ -1,0 +1,24 @@
+TARGET: 5
+
+function: custom die N:n {
+  result: d{0:(TARGET-1), TARGET:(N-TARGET), N}
+}
+
+SIX: [custom die 6]
+EIGHT: [custom die 8]
+TEN: [custom die 10]
+
+function: roll SIXES:s EIGHTS:s TENS:s protagonism P:n {
+  SUCCESSES: {SIXES, EIGHTS, TENS} >= TARGET
+  C: [lowest of (TENS = 10) and P]
+  B: [lowest of (EIGHTS = 8) and P - C]
+  A: [lowest of (SIXES = 6) and P - B - C]
+  if A + B + C > 0 { 
+    SUCCESSES: SUCCESSES + [roll AdSIX BdEIGHT CdTEN protagonism P - A - B - C]
+  }
+  result: SUCCESSES
+}
+
+loop P over {1..7} {
+  output [roll 2dSIX 2dEIGHT 1dTEN protagonism P] named "2d6, 2d8, 1d10, protagonism [P]"
+}

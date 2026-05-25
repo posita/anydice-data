@@ -1,0 +1,18 @@
+function: minmax LOW HIGH VAL {
+  result: [lowest of HIGH and [highest of LOW and VAL]]
+}
+function: normal VAL {
+  result: [minmax (1) (-1) VAL]       \ normalized/sign value 1 or -1 ... only works for non-zero integers \
+}
+function: mute VAL:n FLIP_ROLL { 
+ DELTA: 10-VAL                        \ how much to add to flip the value to the other side \
+ FLIP_VAL: DELTA*2 - [normal DELTA]   \ correct for int division to use 10.5 as mid \
+ DO_FLIP: FLIP_ROLL = 1               \ this is boolean as int, one or zero \
+ MAYBE_FLIP: DO_FLIP * FLIP_VAL       \ mult flip by zero when unwanted \
+ result: MAYBE_FLIP + VAL 
+}
+
+output [mute 1@2d20 1d4] named "Half Advantage"
+
+output 1d20 named "Regular d20 Roll"
+output 1@2d20 named "Advantage"

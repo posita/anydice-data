@@ -1,0 +1,52 @@
+
+function: reroll R:n under N:n {
+   if R < N { result: 1d6 } else {result: R}
+}
+
+function: treat R:n as N:n {
+   if R < N { result: N } else {result: R}
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+A:0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 19 {result: CRITICALHIT 
+}
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{8..19}
+ATTACK: 7
+
+HITDAMAGE: [treat[reroll 1d6 under 3] as 2]+[treat[reroll 1d6 under 3] as 2]+4
+CRITICALDAMAGE: [treat[reroll 1d6 under 3] as 2]+[treat[reroll 1d6 under 3] as 2]+[treat[reroll 1d6 under 3] as 2]+[treat[reroll 1d6 under 3] as 2]+4
+MISSDAMAGE: 0
+A: [attack]
+
+
+HITDAMAGE: 2d6+4
+CRITICALDAMAGE: 4d6+4
+MISSDAMAGE: 0
+B: [attack]
+
+output B+B+B
+output A+A+A

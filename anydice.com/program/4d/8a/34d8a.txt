@@ -1,0 +1,73 @@
+RARITY: 4
+
+ACTUALCOST: 10000
+
+BONUS: 10
+SETTLEMENTBONUS: 0
+
+ROLL: 1d20
+
+function: minimum of DIE:d {
+ result: 1@{DIE}
+}
+
+function: cost RARITY:n {
+  WONDROUS: 1
+  if RARITY>=4 { result: (2d10+2)*1250*WONDROUS }
+  if RARITY=3 { result: (2d10+2)*125*WONDROUS }
+  if RARITY=2 { result: (1d10+2)*25*WONDROUS }
+  result: (1d8+2)*5*WONDROUS
+}
+function: dusting RARITY:n {
+  if RARITY>=4 { result: (2d10+2)*625 }
+  if RARITY=3 { result: ((2d10+2)*125)/2 }
+  result: 0
+}
+function: dusting days RARITY:n {
+  if RARITY>=4 { result: 6 }
+  if RARITY=3 { result: 3 }
+  result: 0
+}
+
+function: craft dc RARITY:n COST:n {
+  if RARITY>=4 { result: COST/100 }
+  if RARITY=3 { result: COST/25 }
+  if RARITY=2 { result: (COST*2)/25 }
+  result: 0
+}
+function: max days DC:n BONUS:n {
+  result: ((DC-1) / (1+BONUS))+1
+}
+function: min days DC:n BONUS:n {
+  result: ((DC-1) / (20+BONUS))+1
+}
+
+function: craft days BONUS:n COST:n DC:n RARITY:n {
+  MINDAYS: [min days DC BONUS]
+  MAXDAYS: [max days DC BONUS]
+  EXPECTEDEXTRADAYS: 0
+  loop N over {MINDAYS..MAXDAYS} {
+    DAYN: (1 - (Nd20+(N*BONUS) >= DC))
+    EXPECTEDEXTRADAYS: EXPECTEDEXTRADAYS + DAYN
+  }
+  result: EXPECTEDEXTRADAYS + MINDAYS + [dusting days RARITY]
+}
+
+function: days til success ROLL:d TEST:n {
+  EXPECTEDDAYS: 1
+  CUMULATIVE: 1
+    loop N over {1..20} {
+      CUMULATIVE: CUMULATIVE * (1 - (ROLL <= TEST))
+      EXPECTEDDAYS: EXPECTEDDAYS + CUMULATIVE
+    }
+  result: EXPECTEDDAYS
+}
+
+COST: [cost RARITY]
+DC: [craft dc RARITY ACTUALCOST]
+DAYSTOCRAFT: [craft days BONUS ACTUALCOST DC RARITY]
+DAYSTOWAIT: [days til success COST ACTUALCOST]
+output DAYSTOCRAFT + DAYSTOWAIT named "Expected days to craft DC[DC] for [ACTUALCOST]gp"
+output ACTUALCOST + [dusting RARITY] named "Total cost of magic item if waiting for a crafting cost of at most [ACTUALCOST]gp"
+output COST named "Base cost of magic item"
+output COST + [dusting RARITY] named "Total cost of magic item and dusting"

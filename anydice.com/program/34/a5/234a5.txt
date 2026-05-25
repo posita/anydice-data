@@ -1,0 +1,32 @@
+ATK:  1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:    +8+1d4   \ +1 from weapon, +1d4 from bless, +3 from PB, +4 from Strength \
+AC: d{10..20}  \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:   20  \ minimum attack roll to crit \
+DMG:   1d8+4+1  \ damage rolled on successful hit, +STR, +Wep \
+BONUS: 1d4  \ bonus damage on first hit \
+
+function: attack ROLL:n {
+  if ROLL <= 1 { result: 0 }
+  if ROLL >= CRIT { result: 2 }
+  result: ROLL + HIT >= AC
+}
+
+function: multiattack N:n times {
+  result: [roll [attack ATK] to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    DAMAGE: FIRSTHIT d (DMG + BONUS)
+    loop I over {2..N} {
+      DAMAGE: DAMAGE + [attack ATK] d DMG
+    }
+    result: DAMAGE
+  } else {
+    result: [roll [attack ATK] to multiattack N-1 times]
+  }
+}
+
+output [multiattack 3 times] named "Uri, +Bless, +Healing Word for 1 extra attack" \ MA, with +1 from Cleric feature \

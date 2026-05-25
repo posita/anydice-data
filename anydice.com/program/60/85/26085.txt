@@ -1,0 +1,28 @@
+\ Trial Params \
+AC: 18
+TO_HIT: 5
+ATTACKS: 24
+ADVANTAGE: 0
+DISADVANTAGE: 0
+
+\ Derived Values \
+NEED_TO_ROLL: AC - TO_HIT
+\ Count Crits in 1000s column and hits in 1 \
+X: 0
+loop N over {1..ATTACKS}{
+    if ADVANTAGE & !DISADVANTAGE { \ Advantage \
+        ROLL: [highest 1 of 2d20]
+    } else {
+        if DISADVANTAGE & !ADVANTAGE { \ Disadvantage \
+            ROLL: [lowest 1 of 2d20]
+        } else { \ Normal \
+            ROLL: 1d20
+        }
+    }
+    \ Hit \
+    X: X + [count {NEED_TO_ROLL..19} in ROLL]
+    \ Crit \
+    X: X + [count {20} in ROLL] * 1000
+}
+\ Print result \
+output X named "number of hits"

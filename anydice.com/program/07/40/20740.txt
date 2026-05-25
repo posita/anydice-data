@@ -1,0 +1,72 @@
+function : damage DAMAGE:d DPLUS:n attack DICE:s APLUS:n vs AC:n
+{
+	MULTIPLIER : 0
+	OUT : 0
+	if (DICE = 20) {MULTIPLIER : 2}
+	else if (DICE + APLUS >= AC) {MULTIPLIER : 1}
+	else if (DICE = 1) {MULTIPLIER : 0}
+	
+	if (MULTIPLIER > 0)
+	{
+		OUT : DPLUS + MULTIPLIERdDAMAGE
+	}
+	
+	result : OUT
+}
+
+function : subtract HP:n MHP:n with DAMAGE:s
+{
+	if (HP <= 0)
+	{
+		if (DAMAGE > 0)
+		{
+                        CHEESE : [highest of HP - 1 and -3]
+			result : [highest of HP and -3]
+		}
+		else
+		{
+			result : HP
+		}
+	}
+	else if (DAMAGE >= MHP + HP)
+	{
+		result : -3
+	}
+	else
+	{
+		result : [highest of HP - DAMAGE and 0]
+	}
+}
+
+function : disadvantage when dying O:s
+{
+ if O < 1
+ {
+  result : [lowest 1 of 2d20]
+ }
+ else
+ {
+  result : 1d20
+ }
+}
+
+H : {8,12,10,6}
+A : {14,15,18,12}
+
+K : {0,2,5}
+
+Q : {2..6}
+loop L over Q
+{
+ loop J over {1..#H}
+ {
+  O : J@H
+  loop N over {1..4}
+  {
+   O : [subtract O J@H with [damage 1d8 0 attack [disadvantage when dying O] L vs J@A]]
+  }
+  output (3 < O & O < 1) named "Player [J] attack [N] +[L]"
+  output (O < 2) named "Player [J] WHOOPS DIE +[L]"
+  
+ }
+}

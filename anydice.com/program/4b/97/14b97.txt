@@ -1,0 +1,74 @@
+GLOBAL_CAP:10
+LEVEL:1
+function: explode DIE:d {
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = 2{ result: N + [explode DIE helper] -1 }
+ result: N
+}
+
+function: bound Q:n between LOWER:n and UPPER:n {
+ if Q > UPPER{result: UPPER}
+ if Q < LOWER{result: LOWER}
+ result:Q
+}
+DEFD:d{-1,0,0,1,1,2}
+EXPD: [bound d[explode DEFD] between -1 and 5]
+function: is A:n gte B:n{
+ result: A>=B
+}
+\output [is d5 gte d5]\
+
+
+
+function: battle ATK_SUC:n DEF_SUC:n attack{
+ if(ATK_SUC <= 0) {result:0}
+ if(ATK_SUC >= DEF_SUC){
+  BONUS:[bound ATK_SUC - DEF_SUC between 0 and GLOBAL_CAP]
+  result:(BONUS)d6 + [highest of DEF_SUC and 0]
+ }
+ else
+ {
+  result:ATK_SUC - [lowest of(DEF_SUC - ATK_SUC) and ATK_SUC]
+ }
+}
+function: battle HIT_SUC:n EVA_SUC:n ATK:n DEF:n hit{
+ if(HIT_SUC >= EVA_SUC){
+  BONUS:[bound HIT_SUC - EVA_SUC between 0 and GLOBAL_CAP]
+  result:[battle (BONUS + ATK)dEXPD DEFdEXPD attack] 
+ }
+ else{
+  result:0
+ }
+}
+function: battle ATK:n HIT:n DEF:n EVA:n {
+  result: [battle (HITdEXPD) (EVAdEXPD) ATK DEF hit]
+}
+function: evenbattle NUM:n {
+  result: [battle NUM NUM NUM NUM]
+}
+\DEBUGING DICE MODELS\
+\output [explode DEFD]\
+\output EXPD\
+
+\output [battle 1 1 1 1]  named "Battle 1,1 v 1,1"\
+
+\output [evenbattle 3]  named "Even Battle"\
+
+\output [bound 10d[explode DEFD]- 10d[explode DEFD] between (-13) and 13] named "10 v 10"\
+\output [bound 5d[explode DEFD]- 5d[explode DEFD] between (-13) and 13] named "5 v 5"\
+
+\output 5d[explode DEFD] - 1d[explode DEFD]\
+
+output [battle 5d[explode DEFD] 5d[explode DEFD] attack]
+
+
+\output [bound 15dEXPD- 1dEXPD between (-13) and 13] named "10 v 1"\
+
+\output [bound 15dEXPD between (-5) and 17] named "2 "\
+\output [bound 1dEXPD between (-13) and 13] named " 1"\
+
+output [bound 10dEXPD between (-5) and 17] named "3 "
+output [bound 5dEXPD between (-5) and 17] named "5 "

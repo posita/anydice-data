@@ -1,0 +1,35 @@
+function: chance D:n S:n {
+  result: {1..[lowest of D and S],0:([highest of (D-S) and 0])}
+}
+
+function: pop L:s {
+ LN: {}
+ loop N over {2..#L} {
+  LN: {LN, N}
+ }
+ result: LN
+}
+
+function: round D:s S:s {
+ C: [chance 1@D 1@S]
+ if #D = 1 {
+  result: C
+ }
+
+ DN: [pop D]
+ SN: [pop S]
+
+ R: {}
+ loop N over C {
+  if N = 0 {
+   R: {R, [round DN S]}
+  }
+  else {
+   R: {R, N+[round DN SN]}
+  }
+ }
+
+ result: R
+}
+
+output [round {12,8} {1,1}]

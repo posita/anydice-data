@@ -1,0 +1,44 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+function: roll ROLL:n plus MOD:n against AC:n{
+    if ROLL = 1 | ROLL < (AC-MOD) {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= (AC-MOD) {
+        result: 1
+    }
+}
+
+HIT_ROLL: [highest 1 of 1d20]
+HIT_MOD: 5 + 5 + 1
+AC: 20 + 5
+
+output [roll d20 plus HIT_MOD against AC] named "Baseline"
+output [roll [lowest 1 of 2d20] plus HIT_MOD against AC] named "Disadvantage"
+output [roll d20 plus HIT_MOD against AC] & 1d20 >= 11 named "Sanctuary"
+output [roll d20 plus HIT_MOD against AC] & 1d20 < 6 named "Mirror Image"
+
+output [roll d20 plus HIT_MOD against AC] & 1d20 < 6 & 1d2 = 2 named "Mirror+After"
+output [roll [lowest 1 of 2d20] plus HIT_MOD against AC] & 1d20 < 6 & 1d2 = 2 named "Mirror+After+Dis"
+output [roll d20 plus HIT_MOD against AC] & 1d20 < 6 & 1d2 = 2 & 1d20 >= 11 named "Mirror+After+Sanctuary"
+output [roll [lowest 1 of 2d20] plus HIT_MOD against AC] & 1d20 < 6 & 1d2 = 2 & 1d20 >= 11 named "Mirror+After+Sanctuary+Dis"
+
+

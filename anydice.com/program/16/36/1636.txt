@@ -1,0 +1,32 @@
+\ Magical Burst attack and damage calculator
+  This will calculate the chances to hit and deal damage for
+  Magical Burst characters. \
+
+\ ATK is the attack stat of the attacker. \
+ATK: 8
+\ DEF is the defense stat of the defender. \
+DEF: 6
+\ ABONUS is the attack bonus or penalty (for finishing attacks, for instance). \
+ABONUS: 0
+\ DBONUS is the damage bonus or penalty (for finishing attacks, for instance). \
+DBONUS: 0
+
+\ Do not edit anything below this line. \
+set "explode depth" to 3
+D: [explode 1d6]
+
+function: explosions AR:s {
+  result: (1@AR - 1) / 6 + (2@AR - 1) / 6
+}
+
+function: roll AR:s vs DR:s {
+  if AR + ATK + ABONUS >= DR + DEF {
+    X: (1@AR - 1) / 6 + (2@AR - 1) / 6
+    result: 1d6 + ATK / 2 + 2 * X + DBONUS
+  } else {
+    result: 0
+  }
+}
+
+output [roll 2dD vs 2dD] named "Damage"
+output 2d((D - 1) / 6) named "Overcharge"

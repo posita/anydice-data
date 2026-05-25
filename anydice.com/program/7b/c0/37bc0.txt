@@ -1,0 +1,54 @@
+\ the dice you roll \
+SIX: d6
+SEVEN: d{0..7}
+DICE: SIX
+COUNT: 1
+
+\ stats \
+DEF: -1
+EVD: +2
+HP: 4
+ATK: 4
+
+\ helper functions \
+function: defend COUNT DICE DEF ATK HP {
+	NEW: {}
+	loop N over {COUNTdDICE} {
+		if (N + DEF) < 1 {
+			A: 1
+		} else {
+			A: (N + DEF)
+		}
+		if (ATK - A) < 1 {
+			B: 1
+		} else {
+			B: ATK - A
+		}
+		if (HP - B < 0) {
+			NEW: {NEW, 0}
+		} else {
+			NEW: {NEW, HP - B}
+		}
+	}
+	result: NEW
+}
+function: evade COUNT DICE EVD ATK HP {
+	NEW: {}
+	loop N over {COUNTdDICE} {
+		A: N + EVD
+		if (A > ATK) {
+			NEW: {NEW, HP}
+		} else {
+			B: HP - ATK
+			if (B < 0) {
+				NEW: {NEW, 0}
+			} else {
+				NEW: {NEW, B}
+			}
+		}
+	}
+	result: NEW
+}
+
+output [evade COUNT DICE EVD ATK HP] named "evade"
+output [defend COUNT DICE DEF ATK HP] named "defence"

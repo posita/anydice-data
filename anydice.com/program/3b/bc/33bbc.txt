@@ -1,0 +1,71 @@
+S: {0:4,50:2} \ Skill dice for rerolls \
+
+function: reroll ELIG:n {  \ Function for rerolls \
+  SKILLROLL: ELIGdS
+  if SKILLROLL >= 50 {
+    result: ELIG + SKILLROLL
+  } else { result: 0 }
+
+}
+
+function: interpret FEAT:s and SKILL:s {
+  DHITS: 0 
+  SHITS: 0
+  SFEAT: 0 
+  SMISS: 0
+  LOCK: 0
+
+  OUTCOME: 0   
+
+  RFEAT: [sort FEAT]
+  loop I over {1 .. #RFEAT} {
+    if I@RFEAT = 1 {LOCK: LOCK + 1}
+    if I@RFEAT = 2 {SMISS: SMISS + 0}
+    if I@RFEAT = 3 {SHITS: SMISS + 0}
+    if I@RFEAT = 4 {SHITS: SMISS + 0}
+    if I@RFEAT = 5 {SHITS: SHITS + 50}
+    if I@RFEAT = 6 {SFEAT: SFEAT + 100}
+  }
+  RSKILL: [sort SKILL]
+  loop J over {1 .. #RSKILL} {
+    if J@RSKILL = 1 {LOCK: LOCK + 1}
+    if J@RSKILL = 2 {SMISS: SMISS + 0}
+    if J@RSKILL = 3 {SMISS: SMISS + 0}
+    if J@RSKILL = 4 {SMISS: SHITS + 0}
+    if J@RSKILL = 5 {SHITS: SHITS + 50}
+    if J@RSKILL = 6 {SHITS: SHITS + 0}
+  }
+
+  SPECIAL: SFEAT + SHITS
+
+  if SPECIAL >= 100 {
+                    if SPECIAL = 150 { OUTCOME: 1 }
+                    if SPECIAL = 250 { OUTCOME: 200 }
+                    else { OUTCOME: 1 }
+                  }
+  else {  \ go for rerolls \
+
+                    ELIG: N-LOCK \ eligible for rerolls \
+                    REROLLED: [reroll ELIG]  \ reroll eligible dice \
+                    SHITS: SHITS + REROLLED
+
+        if SHITS = 50 { OUTCOME: 0 }
+        if SHITS >= 100 { OUTCOME: 1 }
+        if SHITS = 0  { OUTCOME: -1 }
+  }
+
+  result: OUTCOME
+}
+
+loop N over {1..3} {
+output [interpret 1d6 and Nd6] named "1 Feat and [N] Skill"
+}
+
+
+\
+RESULTS
+-1: fail
+0: mixed
+1 or 100: success
+200+: crit
+\

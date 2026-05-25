@@ -1,0 +1,108 @@
+SHOWMOKTAR: 1
+
+
+
+\ ******* Define some constants ******* \
+MISS: 0
+OFFHANDMISS: 1
+HIT: 2
+OFFHANDHIT: 3
+CRITICALHIT: 4
+OFFHANDCRIT: 5
+
+\ ******* Calculates if an attack is a miss, hit, or crit ******* \
+function: attack vs DEFENSE:n { result: [attack d20 vs DEFENSE] }
+function: attack ROLL:n vs DEFENSE:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRITRANGE {
+    if ROLL + ATTACKBONUS >= DEFENSE { result: CRITICALHIT }
+    result: HIT
+  }
+  if ROLL + ATTACKBONUS >= DEFENSE { result: HIT }
+  result: MISS
+}
+
+\ ******* Calculates if an offhand attack is a miss, hit, or crit ******* \
+function: offhand attack vs DEFENSE:n { result: [offhand attack d20 vs DEFENSE] }
+function: offhand attack ROLL:n vs DEFENSE:n {
+  if ROLL = 1 { result: OFFHANDMISS }
+  if ROLL >= CRITRANGEOFFHAND {
+    if ROLL + ATTACKBONUSOFFHAND >= DEFENSE { result: OFFHANDCRIT }
+    result: OFFHANDHIT
+  }
+  if ROLL + ATTACKBONUSOFFHAND >= DEFENSE { result: OFFHANDHIT }
+  result: OFFHANDMISS
+}
+
+\ ******* Calculates the damage for a sequence of attacks ******* \
+function: damage for ATTACKS:s {
+  D: 0
+  loop A over {1..#ATTACKS} {
+    if A@ATTACKS = CRITICALHIT { D: D + [maximum of ATTACKDAMAGE] + CRITDAMAGE }
+    else if A@ATTACKS = HIT { D: D + ATTACKDAMAGE }
+    else if A@ATTACKS = MISS { D: D + MISSDAMAGE }
+    else if A@ATTACKS = OFFHANDCRIT { D: D + [maximum of ATTACKDAMAGEOFFHAND] + CRITDAMAGEOFFHAND }
+    else if A@ATTACKS = OFFHANDHIT { D: D + ATTACKDAMAGEOFFHAND }
+    else if A@ATTACKS = OFFHANDMISS { D: D + MISSDAMAGEOFFHAND }
+    
+    \ This handles a "Learning" weapon which does more damage if the previous attack hit \
+    if USELEARNING = 1 {
+      if A > 1 {
+        if (A-1)@ATTACKS >= HIT {
+          D: D + LEARNINGDAMAGE
+        }
+      }
+    }
+  }
+  result: D + [extra damage for ATTACKS]
+}
+
+function: damage for two attacks vs DEFENSE { result: [two of two attack vs DEFENSE after [attack vs DEFENSE]] }
+function: damage for three attacks vs DEFENSE { result: [two of three attack vs DEFENSE after [attack vs DEFENSE]] }
+
+function: two of two attack vs DEFENSE after FIRSTATTACK:n {
+  ORIGINALATTACKBONUS: ATTACKBONUS
+  if FIRSTATTACK = MISS { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS) }
+  SECONDATTACK: [attack vs DEFENSE]
+  result: [damage for FIRSTATTACK and SECONDATTACK]
+}
+
+function: two of three attack vs DEFENSE after FIRSTATTACK:n {
+  ORIGINALATTACKBONUS: ATTACKBONUS
+  if FIRSTATTACK = MISS { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS) }
+  SECONDATTACK: [attack vs DEFENSE]
+  result: [three of three attack vs DEFENSE after FIRSTATTACK and SECONDATTACK]
+}
+
+function: three of three attack vs DEFENSE after FIRSTATTACK:n and SECONDATTACK:n {
+  if (SECONDATTACK >= HIT) { ATTACKBONUS: ORIGINALATTACKBONUS }
+  if (FIRSTATTACK = MISS) & (SECONDATTACK = MISS) { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS * [lowest of 2 and LEARNINGATTACKBONUSLIMIT]) }
+  else if (SECONDATTACK = MISS) { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS) }
+  THIRDATTACK: [attack vs DEFENSE]
+  result: [damage for FIRSTATTACK and SECONDATTACK and THIRDATTACK]
+}
+
+
+
+\ ******* Convenience function so that we can use [w] notation ******* \
+function: w {result: WEAPONDAMAGE}
+function: wo {result: WEAPONDAMAGEOFFHAND}
+
+
+
+\ ******** DEFINE DEFAULTS ******** \
+ATTACKBONUS: 0
+ATTACKBONUSOFFHAND: 0
+ATTACKDAMAGE: 0
+ATTACKDAMAGEOFFHAND: 0
+CRITDAMAGE: 0
+CRITDAMAGEOFFHAND: 0
+CRITRANGE: 20
+CRITRANGEOFFHAND: 20
+
+
+
+\ ******** Player-Specific Stuff ******* \
+MONSTERLEVEL: 10
+AC: MONSTERLEVEL + 11
+DR: 6

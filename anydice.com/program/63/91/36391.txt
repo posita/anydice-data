@@ -1,0 +1,65 @@
+set "maximum function depth" to 80
+
+function: rare N:n {
+  if N < 120 {result: 0}
+  if N = 120 {result: 1}
+}
+
+function: tail N:n {
+  if N < 8 {result: 0}
+  if N >= 8 {result: 1 + [tail d8]}
+}
+
+function: poisson N:n {
+  if N < 4 {result: 0}
+  if N < 7 {result: 1}
+  if N < 8 {result: 2}
+  if N = 8 {result: 3 + [tail d8]}
+}
+
+function: poissonnotail N:n {
+  if N < 4 {result: 0}
+  if N < 7 {result: 1}
+  if N < 8 {result: 2}
+  if N = 8 {result: 3}
+}
+
+function: halfpoisson N:n {
+  if N < 6 {result: 0}
+  if N < 8 {result: 1}
+  if N = 8 {result: 2 + [tail d8]}
+}
+
+function: quarterpoisson N:n {
+  if N < 7 {result: 0}
+  if N < 8 {result: 1}
+  if N = 8 {result: 1 + [tail d8]}
+}
+
+
+NUMP: 8
+
+output [lowest of 1d[tail d8] and 4] named "(chain)P"
+output [lowest of 1d[quarterpoisson d8] and 4] named "(1/4)P"
+output [lowest of 1d[halfpoisson d8] and 5] named "(1/2)P"
+
+loop N over {1..NUMP} {
+  LOF: (N + 3) * 2
+  output [lowest of Nd[poisson d8] and LOF] named "[N]dP"
+  \MOD: -2
+  D: N - MOD
+  output [highest of [lowest of Dd[poisson d8] + MOD and LOF] and 0] named "[D]dP mod [MOD]"\
+}
+
+loop N over {1..NUMP} {
+  LOF: (N + 3) * 2
+  output [highest of [lowest of Nd[tail d8] and LOF] and 0] named "[N]dP (num explosions)"
+}
+
+\output [lowest of NUMPd[poissonnotail d8] and LOF] named "[NUMP]dP (no tail)"\
+
+\output [lowest of 240d[rare d120] and LOF] named "rare"\
+
+output 2d6 named "2d6"
+\output 3d6 named "3d6"\
+\output 2d8 named "2d8"\

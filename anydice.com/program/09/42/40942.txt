@@ -1,0 +1,33 @@
+function: make sequence of lowest NUM:n from POOL:s {
+ SEQ: {}
+ loop L over {1 + NUM..#POOL} {
+  SEQ: {SEQ, L@POOL}
+ }
+ result: 1@SEQ
+}
+
+function: roll POOL:s cut CUT:n {
+ REMAINDER: [make sequence of lowest CUT from POOL]
+ result: (REMAINDER >= 4) + (REMAINDER >= 6)
+}
+
+function: roll POOL:s cut CUT:n add MOD:n{
+ if #POOL = CUT {
+  REMAINDER: 1d6
+  result: (REMAINDER >= 4)
+ } else {
+  REMAINDER: [make sequence of lowest CUT from POOL] + MOD
+ }
+ result: (REMAINDER >= 4) + (REMAINDER >= 6)
+}
+
+output [roll 2d6 cut 1 add 0] named "2d6 cut 1 add 0"
+output [roll 2d6 cut 0 add -1] named "2d6 cut 0 add -1"
+output [roll 3d6 cut 1 add 0] named "3d6 cut 1 add 0"
+output [roll 2d6 cut 0 add 1] named "2d6 cut 0 add 1"
+
+loop N over {2..2} {
+ loop C over {0..[lowest of 2 and N]} {
+  output [roll Nd6 cut C add 0] named "[N]d6 cut [C]"
+ }
+}

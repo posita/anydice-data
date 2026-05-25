@@ -1,0 +1,164 @@
+            \\\ Configuration \\\
+       \def'ns\ TRUE:1 FALSE:0
+                NO_BRAND:1000 UNBRANDED:1000 FLAMING:1001 FREEZING:1002 DRAINING:1003 HEAVY:1004 ELEC:1005
+                SPECTRAL:1006 SPEED:1007 DISTORTION:1008 HOLY:1009 VORPAL:1010 THERMIC:1011
+     \defaults\ WEAPON_SKILL:0 FIGHTING_SKILL:0 STAT:10 BASE_DMG:1 SLAYING:0 ENCHANT:0 BRAND:NO_BRAND UNARMED:FALSE DELAY:10
+                AC:0 RESIST_FIRE:0 RESIST_COLD:0 RESIST_ELEC:0 RESIST_NEG:0 UNHOLY:0
+     \settings\ SKILL_MOD_MULT:100
+                set "maximum function depth" to 20
+
+     \utility\  function: X:n div Y:n { result: (X + d{1..Y} - 1)/Y }           
+                function: LOW:n to HIGH:n { result: d{LOW..HIGH} }
+                function: check X:n vs Y:n { result: X >= Y }
+                function: C:n in T:n chance { if C < 1 { result: 0} result: [check 1dT - 1 vs T - C] }
+                function: C:n in T:n chance of VALUE:d { result: [check 1dT - 1 vs T - C]dVALUE }
+                function: random MAX:n max ROLLS:n rolls {
+                  SUM: d{1..MAX} - 1 + (ROLLS - 1)d{0..MAX}
+                  result: SUM / ROLLS }
+
+ \\\ Main Functions \\\
+
+     function: weapon damage {
+       BONUS_DMG: SLAYING + ENCHANT
+       result: d{0..BONUS_DMG} + [modified weapon damage] }
+     function: base BASE_DMG:n weapon damage { result: [weapon damage] }
+
+     function: modified weapon damage {
+       POTENTIAL_DMG: ((STAT + 30) * BASE_DMG) / 40
+       result: [apply skill to d{0..POTENTIAL_DMG}] } 
+
+     function: apply skill to DMG_ROLL:n {
+       if UNARMED = TRUE { result: [apply fighting skill to DMG_ROLL] }
+       SKILL_ROLL_MAX: WEAPON_SKILL * SKILL_MOD_MULT
+       SKILL_ROLL_DIV: 25 * SKILL_MOD_MULT
+       SKILL_ROLL: SKILL_ROLL_DIV + d{0..SKILL_ROLL_MAX}
+       result: [apply fighting skill to (SKILL_ROLL * DMG_ROLL) / SKILL_ROLL_DIV] }
+
+     function: apply fighting skill to DMG_ROLL:n {
+       SKILL_ROLL_MAX: FIGHTING_SKILL * SKILL_MOD_MULT
+       SKILL_ROLL_DIV: 30 * SKILL_MOD_MULT
+       SKILL_ROLL: SKILL_ROLL_DIV + d{0..SKILL_ROLL_MAX}
+       result: (SKILL_ROLL * DMG_ROLL) / SKILL_ROLL_DIV }
+
+     function: reduce DMG:n by ac { result: [highest of DMG - d{0..AC} and 0] }
+
+     function: weapon dpt {
+       if BRAND = HEAVY { result: [20 div 3 * DELAY]d[weapon hit] }
+       if BRAND = SPEED { result: [15 div DELAY]d[weapon hit] } 
+       result: [10 div DELAY]d[weapon hit] } 
+
+     function: weapon hit {
+       if BRAND = HEAVY      { result: [reduce [base [9 * BASE_DMG div 5] weapon damage] by ac] }
+       if BRAND = SPECTRAL   { result: [reduce [weapon damage] by ac] + [reduce [7 * [weapon damage] div 10] by ac] }
+       if BRAND = DISTORTION { result: [reduce [weapon damage] by ac] + [d20 distortion check] }
+       if BRAND = HOLY       { if UNHOLY { result: [multiply HIT_DMG by up to 15 over 10 ] } }
+       if BRAND = VORPAL     { result: [multiply HIT_DMG by up to 1 over 3 ] }
+       if BRAND = ELEC       { BRAND_APPLIES: [(1 - RESIST_ELEC) in 4 chance]
+                               result: [reduce [weapon damage] by ac] + [elec damage if BRAND_APPLIES] }
+       if BRAND = DRAINING   { BRAND_APPLIES: [(1 - RESIST_NEG) in 2 chance]
+                               result: [apply draining to [reduce [weapon damage] by ac] if BRAND_APPLIES] }
+       if (BRAND = THERMIC) | ( (BRAND = FLAMING) | (BRAND = FREEZING) ) {
+                               result: [apply elemental damage to [reduce [weapon damage] by ac]] }
+       result: [reduce [weapon damage] by ac] }
+
+        \ extra brand damage functions \
+        \ electrocution \  function: elec damage if APPLIES:n { if APPLIES < 1 { result: 0} result: (7 + d13) }
+           \ distortion \  function: ROLL:n distortion check {
+                             if ROLL < 8 { result: ROLL }  
+                             if ROLL > 15 { result: d{3..26} }
+                             result: 0 }
+             \ draining \  function: apply draining to POST_AC_DMG:n if APPLIES:n {
+                             if APPLIES < 1 { result: POST_AC_DMG }
+                             MAX: POST_AC_DMG - 1
+                             result: d{3..5} + (d{0..MAX} / 2) + POST_AC_DMG }
+         \ holy, vorpal \  function: multiply POST_AC_DMG:n by up to N:n over D:n {
+                             MAX: (POST_AC_DMG * N) - 1
+                             BRAND_DMG: 1 + (d{0..MAX} / D)
+                             result: BRAND_DMG + POST_AC_DMG }
+            \ elemental \  function: apply elemental damage to POST_AC_DMG:n {
+                             FIRE_DMG: 0  COLD_DMG: 0
+                             MAX: POST_AC_DMG - 1
+                             BRAND_DMG: 1 + (d{0..MAX} / 2)
+                             if (BRAND = THERMIC) | (BRAND = FLAMING) {
+                               if RESIST_FIRE = 0 { FIRE_DMG: BRAND_DMG }
+                               if RESIST_FIRE = 1 { FIRE_DMG: [BRAND_DMG div 2] }
+                               if RESIST_FIRE = 2 { FIRE_DMG: [BRAND_DMG div 5] }
+                             }
+                             if (BRAND = THERMIC) | (BRAND = FREEZING) {
+                               if RESIST_COLD = 0 { COLD_DMG: BRAND_DMG }
+                               if RESIST_COLD = 1 { COLD_DMG: [BRAND_DMG div 2] }
+                               if RESIST_COLD = 2 { COLD_DMG: [BRAND_DMG div 5] }
+                             }
+                             result: FIRE_DMG + COLD_DMG + POST_AC_DMG }
+
+ \\\ Input Functions \\\
+     function: damage BASE_DMG:n weapon { result: [weapon hit] }
+     function: ENCHANT:n damage BASE_DMG:n weapon { result: [weapon hit] }
+     function: ENCHANT:n damage BASE_DMG:n BRAND:n weapon { result: [weapon hit] }
+
+     function: damage BASE_DMG:n delay DELAY:n weapon dpt { result: [weapon dpt] }
+     function: ENCHANT:n damage BASE_DMG:n delay DELAY:n weapon dpt { result: [weapon dpt] }
+     function: ENCHANT:n damage BASE_DMG:n delay DELAY:n BRAND:n weapon dpt { result: [weapon dpt] }
+     function: damage BASE_DMG:n weapon dpt { result: [weapon dpt] }
+     function: ENCHANT:n damage BASE_DMG:n weapon dpt { result: [weapon dpt] }
+     function: ENCHANT:n damage BASE_DMG:n BRAND:n weapon dpt { result: [weapon dpt] }
+
+ \\\ Predefined Inputs: Unarmed \\\
+     function: damage UNARMED_BASE_DMG:n unarmed {
+       UNARMED: TRUE
+       BASE_DMG: UNARMED_BASE_DMG + WEAPON_SKILL
+       result: [weapon hit] }
+     function: damage UNARMED_BASE_DMG:n unarmed dpt {
+       UNARMED: TRUE
+       BASE_DMG: UNARMED_BASE_DMG + WEAPON_SKILL
+       DELAY: 10 - [5 * WEAPON_SKILL div 27]
+       result: [weapon dpt] }
+
+
+ \\\ Predefined Inputs: Weapons \\\
+          \ demon blade \   function: ENCHANT:n demon blade { BASE_DMG: 13
+                              result: [weapon hit] }
+                            function: ENCHANT:n BRAND:n demon blade { BASE_DMG: 13
+                              result: [weapon hit] }
+                            function: ENCHANT:n BRAND:n demon blade dpt { BASE_DMG: 13  BASE_DELAY: 13  MIN_DELAY: 6
+                              DELAY: [highest of BASE_DELAY - [WEAPON_SKILL div 2] and MIN_DELAY]
+                              result: [weapon dpt] }
+
+         \ double sword \   function: ENCHANT:n double sword { BASE_DMG: 15
+                              result: [weapon hit] }
+                            function: ENCHANT:n BRAND:n double sword { BASE_DMG: 15
+                              result: [weapon hit] }
+                            function: ENCHANT:n BRAND:n double sword dpt { BASE_DMG: 15  BASE_DELAY: 15  MIN_DELAY: 7
+                              DELAY: [highest of BASE_DELAY - [WEAPON_SKILL div 2] and MIN_DELAY]
+                              result: [weapon dpt] }
+
+         \ quick blade \    function: ENCHANT:n quick blade { BASE_DMG: 4
+                              result: 2d[weapon hit] }
+                            function: ENCHANT:n BRAND:n quick blade { BASE_DMG: 4
+                              result: 2d[weapon hit] }
+                            function: ENCHANT:n BRAND:n quick blade dpt { BASE_DMG: 4  BASE_DELAY: 12  MIN_DELAY: 5
+                              DELAY: [highest of BASE_DELAY - [WEAPON_SKILL div 2] and MIN_DELAY]
+                              result: 2d[weapon dpt] }
+
+       \ claws unarmed \    function: claws LEVEL:n { result: [damage 3 + (2 * LEVEL) unarmed] }
+                            function: claws LEVEL:n dpt { result: [damage 3 + (2 * LEVEL) unarmed dpt] }
+
+\\\ Parameters \\\
+
+    WEAPON_SKILL: 16
+    FIGHTING_SKILL: 15
+    SLAYING: 0
+    ENCHANT: 0
+    STAT: 32
+    AC: 8
+    DELAY: 7
+    BRAND: NO_BRAND
+\ brand types: NO_BRAND, FLAMING, FREEZING, DRAINING, HOLY, HEAVY, ELEC, SPECTRAL, SPEED, DISTORTION, THERMIC, VORPAL \
+\ sample: [+9 damage 13 weapon] \
+\         [+9 damage 13 delay 6 SPECTRAL weapon dpt] \
+\         [+9 SPECTRAL demon blade dpt] \
+
+
+output 42
+
+

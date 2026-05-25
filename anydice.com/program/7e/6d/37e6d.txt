@@ -1,0 +1,50 @@
+function: counthits DICE:s {
+  COUNT: 0
+  loop N over {1..#DICE} {
+    if N@DICE >= 9 {
+      COUNT: COUNT + 2
+    }
+    if N@DICE >= 5 {
+      COUNT: COUNT + 1
+    }
+  }
+  if COUNT >= 4 {
+    result: 2
+  }
+  if COUNT >= 2 {
+    result: 1
+  }
+  if COUNT >= 0 {
+    result: 0
+  }
+  result: -1
+}
+function: did DICE:s hit TARGET:n {
+  TARGETS: {}
+  loop N over {TARGET..6} {
+    TARGETS: {TARGETS, N}
+  }
+  if [count TARGETS in DICE] > 0 {
+    result: 1
+  }
+  result: 0
+}
+function: roll DICE:d and BONUS:s target TARGET:n {
+  MULT: 0
+  TARGETS: {}
+  loop N over {TARGET..6} {
+    TARGETS: {TARGETS, N}
+  }
+  if [count TARGETS in BONUS] > 0 {
+    MULT: 1
+  }
+  result: [counthits DICE] * MULT
+}
+
+\ output [counthits 6d6] \
+output [roll 5d6 and 2d6 target 1]
+output [roll 5d6 and 2d6 target 2]
+output [roll 5d6 and 2d6 target 3]
+output [roll 5d6 and 2d6 target 4]
+output [roll 5d6 and 2d6 target 5]
+output [roll 5d6 and 2d6 target 6]

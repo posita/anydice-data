@@ -1,0 +1,74 @@
+function: statistic ATTRIBUTE:n vs ROLL:n {
+result: ATTRIBUTE - ROLL
+}
+
+function: statisticcutoff ATTRIBUTE:n vs ROLL:n {
+RESULT: [statistic ATTRIBUTE vs ROLL]
+if RESULT < 0 {result: -1}
+result: RESULT
+}
+
+function: contested MAIN:n vs OPPOSED:n rolling ROLL:n {
+RESULT: 10 + MAIN - OPPOSED - ROLL
+result: RESULT
+}
+
+function: contestedcutoff MAIN:n vs OPPOSED:n rolling ROLL:n {
+RESULT: [contested MAIN vs OPPOSED rolling ROLL]
+if RESULT < 0 {result: -1}
+result: RESULT
+}
+
+function: opposed MAIN:n rolling MAINROLL:n vs OPPOSED:n rolling OPPOSEDROLL:n {
+RESULT: MAIN - MAINROLL - OPPOSED + OPPOSEDROLL
+result: RESULT
+}
+
+function: opposedcutoff MAIN:n rolling MAINROLL:n vs OPPOSED:n rolling OPPOSEDROLL:n {
+RESULT: [opposed MAIN rolling MAINROLL vs OPPOSED rolling OPPOSEDROLL]
+if RESULT < 0 {result: -1}
+result: RESULT
+}
+
+function: hits RAT:n rolling RATROLL:n vs DEF:n rolling DEFROLL:n firing BST:n with ROF:n {
+TOHIT: [opposed RAT rolling RATROLL vs DEF rolling DEFROLL]
+if TOHIT < 0 {result: 0}
+HITS: (TOHIT / ROF) + 1
+if HITS > BST {HITS: BST}
+result: HITS
+}
+
+function: damage STR:n vs ARM:n rolling DMGROLL:n {
+DAMAGE: [contested STR vs ARM rolling DMGROLL]
+if DAMAGE < 0 {result: 0}
+if DAMAGE = 0 {DAMAGE: 1}
+result: DAMAGE
+}
+
+function: attack RAT:n rolling RATROLL:n vs DEF:n rolling DEFROLL:n with STR:n firing BST:n with ROF:n vs ARM:n rolling DMGROLL:n {
+TOHIT: [opposed RAT rolling RATROLL vs DEF rolling DEFROLL]
+if TOHIT < 0 {result: 0}
+HITS: (TOHIT / ROF) + 1
+if HITS > BST {HITS: BST}
+
+DAMAGE: [contested STR vs ARM rolling DMGROLL]
+if DAMAGE < 0 {result: 0}
+if DAMAGE = 0 {DAMAGE: 1}
+
+result: HITS * DAMAGE
+}
+
+RAT: 10
+DEF: 10
+STR: 10
+BST: 3
+ROF: 2
+ARM: 10
+
+output [opposedcutoff RAT rolling 3d6 vs DEF rolling 3d6] named "GUTTS! Degree of Success of RAT:[RAT] vs DEF:[DEF]"
+
+output [hits RAT rolling 3d6 vs DEF rolling 3d6 firing BST with ROF] named "GUTTS! Hits of RAT:[RAT] vs DEF:[DEF] firing [BST] Shots/RoF:[ROF]"
+
+output [damage STR vs ARM rolling 3d6] named "GUTTS! Damage of STR:[STR] vs ARM:[ARM]"
+
+output [attack RAT rolling 3d6 vs DEF rolling 3d6 with STR firing BST with ROF vs ARM rolling 3d6] named "GUTTS! Attack Damage of RAT:[RAT] vs DEF:[DEF] with STR:[STR] firing [BST] Shots/RoF:[ROF] vs ARM:[ARM]"

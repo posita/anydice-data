@@ -1,0 +1,116 @@
+function: hitroll N:n plus H:n vs AC:n {
+if N = 20 {
+result: 2
+}
+if N = 1 {
+result: 0
+}
+if N + H < AC {
+result: 0
+}
+if N + H >= AC {
+result: 1
+}
+}
+
+function: dmgroll RES:n base HIT_D:d crit CRIT_D:d plus FLAT_D:n{
+if RES = 2 {
+result:CRIT_D + FLAT_D
+}
+if RES = 1 {
+result:HIT_D + FLAT_D
+}
+else{
+result:0
+}
+}
+
+function: reroll R:n leq T:n size N:n {
+if R<=T{
+result: 1dN
+}else {
+result: R
+}
+}
+
+\ Basic stuff \
+ABL_MOD:5
+WEP_MOD:3
+PROF_MOD:6
+
+
+WEP_DICE: 1d8
+
+
+\ Random Special Stuff \
+
+
+\ Bonus Flat Damage (not doubled by critical \
+BNS_FLAT: 0
+
+\ Bonus Dice Damage (doubled by critical) \
+CRIMSON_RITE: 1d6
+HEX:1d6
+HOLY_WEAPON: 2d8
+BNS_DICE: CRIMSON_RITE
+
+
+\ Critical Dice (dice only triggered by a critical \
+BRUTAL_CRITICAL:3d8
+CRIT_DICE: 0
+
+\ Summing all core stuff \
+FLAT_DMG: WEP_MOD + ABL_MOD + BNS_FLAT
+DICE_DMG: WEP_DICE + BNS_DICE
+
+HIT_MOD: ABL_MOD + WEP_MOD + PROF_MOD
+
+\output HIT_ROLL\
+
+TARGET_AC: 19
+
+HIT_ROLL:[hitroll 1d20 plus (HIT_MOD) vs TARGET_AC]
+\HIT_ROLL_ADV: [hitroll 1@2d20 plus HIT_MOD vs TARGET_AC]\
+
+GFB_BNS: 3d8 + 5
+
+
+\ Normal Attack \
+\output 2d[dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG] named "1d8 Base Attack"\
+
+\ Dueling Attack \
+DUELING: 2
+BNS_FLAT: DUELING
+FLAT_DMG: WEP_MOD + ABL_MOD + BNS_FLAT
+output 2d[dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG] named "2 Dueling Attacks"
+
+\ Hex \
+BNS_DICE: CRIMSON_RITE + HEX
+DICE_DMG: WEP_DICE + BNS_DICE
+output 2d[dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG] named "2 Hex Attacks"
+
+\ Holy Weapon \
+BNS_DICE: CRIMSON_RITE + HOLY_WEAPON
+DICE_DMG: WEP_DICE + BNS_DICE
+output 2d[dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG] named "2 Holy Weapon Attacks"
+
+\ Dueling Attack w/ Green-Flame Blade\
+BNS_DICE: CRIMSON_RITE + 3d8
+DICE_DMG: WEP_DICE + BNS_DICE
+output [dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG] named "GFB Dueling Attack"
+
+\ War Magic \
+BNS_DICE: CRIMSON_RITE
+DICE_DMG: WEP_DICE + BNS_DICE
+output ([dmgroll HIT_ROLL base (DICE_DMG + 3d8) crit (2d(DICE_DMG + 3d8) + CRIT_DICE) plus FLAT_DMG] + [dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG]) named "Dueling War Magic"
+
+\ War Magic \
+BNS_DICE: CRIMSON_RITE + HEX
+DICE_DMG: WEP_DICE + BNS_DICE
+output ([dmgroll HIT_ROLL base (DICE_DMG + 3d8) crit (2d(DICE_DMG + 3d8) + CRIT_DICE) plus FLAT_DMG] + [dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG]) named "Dueling War Magic w/ Hex"
+
+\ War Magic \
+BNS_DICE: CRIMSON_RITE + HOLY_WEAPON
+DICE_DMG: WEP_DICE + BNS_DICE
+output ([dmgroll HIT_ROLL base (DICE_DMG + 3d8) crit (2d(DICE_DMG + 3d8) + CRIT_DICE) plus FLAT_DMG] + [dmgroll HIT_ROLL base DICE_DMG crit (2dDICE_DMG + CRIT_DICE) plus FLAT_DMG]) named "Dueling War Magic w/ Holy Weapon"
+

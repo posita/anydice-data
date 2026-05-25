@@ -1,0 +1,32 @@
+\
+ Blades in the Dark                              | Ironsworn        | BladeSworn
+ --                                              | --               | -1: Disaster strikes
+ 0: Things go bad.                               | 0: Miss          |  0: Miss and things go bad.
+ 1: Success, but with undesired consequences.    | 1: Weak Hit      |  1: Weak success, with undesired consequences.
+ 2: Clean success.                               | 2: Strong Hit    |  2: A strong, clean success.
+ 3: Critical success!                            | --               |  3: A critical success, things go better than expected.
+\
+
+function: bladesworn ROLL:s to X:n and Y:n {
+  HITS: 0 \everything starts at 0\
+  if 1@ROLL > X {
+   HITS: 1 \if the highest result of the Action Roll (ROLL) is larger than the Threat Die (OPP), it's one hit\
+  }
+  if 1@ROLL > Y {
+   HITS: HITS+1 \if the highest result of the Action Roll (ROLL) is larger than the Challenge Die (d20), it's at least one hit, possibly two\
+  }
+  if 1@ROLL = MAX & 1@ROLL > X & 1@ROLL > Y {
+   HITS: 2 + (2@ROLL = MAX) \if the highest result of the Action Roll (ROLL) is the maximum die value (MAX) AND the roll is larger than the Threat Die (OPP) and the Challenge Die (d20), it's a strong hit for sure. If the second highest result of the Action Roll is ALSO the maximum die value, then it is a third hit for a critical success\ 
+  }
+  if 1@ROLL = 1 & 1@ROLL < X & 1@ROLL < Y {
+   HITS: -1 \if the result of the Action Roll (ROLL) is a 1 AND the result is less than both the Threat Die (OPP) and the Challenge Die (d20), then result is worse than a miss\
+  }
+  result: HITS
+}
+
+MAX: 6
+OPP: 10
+output [bladesworn 2@2dMAX to 1dOPP and 1d20] named "0d[MAX] v. d[OPP]"
+loop P over {1..3} {
+ output [bladesworn PdMAX to 1dOPP and 1d20] named "[P]d[MAX] v. d[OPP]"
+}

@@ -1,0 +1,29 @@
+function: chance of critical failure with power dice PD:s {
+ if #{PD} = 1 & PD <= 2 {result: 1}
+ if #{PD} = 2 & {1,2}@PD = 2 {result: 1}
+ result: 0
+}
+
+function: cast spell with wizard level WL:n using power dice PD:s {
+ \ critical failure if a natural roll of 1 or 2, ie. 1 or 2 on 1d6 or double 1's on 2d6 \
+ if #{PD} = 1 & PD <= 2 {
+  result: 0
+ }
+ if #{PD} = 2 & {1,2}@PD = 2 {
+  result: 0
+ }
+ result: PD + WL
+}
+
+function: chance of irresistible force with power dice PD:s {
+ result: {1,2}@PD = 12
+}
+
+PD: 3d6
+WL: 2
+
+output [cast spell with wizard level WL using power dice PD] named "Casting value"
+set "position order" to "lowest first" \ used by critical failure function \
+output [chance of critical failure with power dice PD] named "Critical Failure"
+set "position order" to "highest first" \ the default behavior \
+output [chance of irresistible force with power dice PD] named "Irresistible Force"

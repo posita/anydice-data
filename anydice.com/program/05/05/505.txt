@@ -1,0 +1,42 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKS:s {
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = CRITICALHIT { D: D + CRITICAL }
+  else if A@ATTACKS = HIT { D: D + DAMAGE }
+ }
+ result: D + [extra damage for ATTACKS]
+}
+
+function: extra damage for ATTACKS:s {
+ if [ATTACKS contains CRITICALHIT] {
+  result: [maximum of QUARRY]
+ }
+ if [ATTACKS contains HIT] { result: QUARRY }
+ result: 0
+}
+
+function: twin strike {
+ result: [damage for 2d[attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+QUARRY: d6
+
+ATTACK  : 4 + 2
+DAMAGE  : d8
+CRITICAL: 8 + d8
+output [twin strike] named "two Scimitars"

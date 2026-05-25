@@ -1,0 +1,94 @@
+\ Variables - Modify these \
+
+ARMOR: 18        \ Armor Class of the target \
+LEVEL: 10        \ Level of the Attacker \
+MODIFIER: 4      \ Relevant Hit/Damage Modifier \
+WEAPON: 8        \ Damage dice for Attacker's Weapon \
+BONUS: 2         \ Magic Weapon bonus \
+MOVECHANCE: 2    \ Odds the enemy moves for Booming Blade. Represented as number/20. \
+
+\ Helper Functions - DO NOT TOUCH \
+
+function: prof L:n {
+ if (L < 5) {
+  result: 2
+  }
+ else if (L < 9) {
+  result: 3
+ }
+ else if (L < 13) {
+  result: 4
+ }
+ else if (L < 17) {
+  result: 5
+ }
+ else if (L < 21) {
+  result: 6
+ }
+}
+
+function: attack A:n with R:n and M:n and B:n at L:n for D:d {
+ if ((R+M+[prof L]+B) >= A) {
+  result: (D+M+B)
+  }
+ else {
+  result: 0
+ }
+}
+
+function: booming A:n with R:n and M:n and B:n at L:n for D:d with move C:n against O:n {
+ if ((R+M+[prof L]+B) >= A) {
+  if (L < 5) {
+   if (C <= O) {
+    result: (D+M+B+1d8)
+   }
+   else {
+    result: (D+M+B)
+   }
+  }
+  else if (L < 11) {
+   if (C <= O) {
+    result: (D+M+B+3d8)
+   }
+   else {
+    result: (D+M+B+1d8)
+   }
+  }
+  else if (L < 17) {
+   if (C <= O) {
+    result: (D+M+B+5d8)
+   }
+   else {
+    result: (D+M+B+2d8)
+   }
+  }
+  else if (L < 21) {
+   if (C <= O) {
+    result: (D+M+B+7d8)
+   }
+   else {
+    result: (D+M+B+3d8)
+   }
+  }
+ }
+ else {
+  result: 0
+ }
+}
+
+function: single {
+ result: [attack ARMOR with 1d20 and MODIFIER and BONUS at LEVEL for WEAPON]
+}
+
+function: double {
+ result: [attack ARMOR with 1d20 and MODIFIER and BONUS at LEVEL for WEAPON] + [attack ARMOR with 1d20 and MODIFIER and BONUS at LEVEL for WEAPON]
+}
+
+function: booming {
+ result: [booming ARMOR with 1d20 and MODIFIER and BONUS at LEVEL for WEAPON with move 1d20 against MOVECHANCE]
+}
+
+\ Output Section - DO NOT TOUCH \
+
+output [double] named "Double Attack"
+output [booming] named "Booming Blade"

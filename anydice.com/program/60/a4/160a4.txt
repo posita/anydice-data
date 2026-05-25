@@ -1,0 +1,155 @@
+\http://anydice.com/\
+\SosenNoChi level 15\
+
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: save ROLL:n vs SPELLSAVEDC:n {
+ if ROLL + SAVEBONUS >= SPELLSAVEDC{ result: MISS}
+ result: HIT
+}
+
+
+
+function: savedamage for SAVERESULT:n {
+ if SAVERESULT= HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+
+function: saveattack {
+ result: [savedamage for [save 1d20 vs SPELLSAVEDC]]
+}
+
+
+
+function: saveattackhighten {
+ result: [savedamage for [save [lowest 1 of 2d20]vs SPELLSAVEDC]]
+}
+
+
+
+function: attack ROLL:n vs DEFENCEAC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENCEAC { result: HIT }
+ result: MISS
+}
+
+
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENCEAC]]
+}
+
+function: attackadvantage {
+ result: [damage for [attack [highest 1 of 2d20]vs DEFENCEAC]]
+}
+
+
+SAVEBONUS: [highest 3 of 4d4]-3 \Save Bonus 0-9 Centered around 6\
+DEFENCEAC: [highest 3 of 4d4]+7 \AC 9-18 Centered around 16\
+AC_MIN: 10
+AC_MAX: 19
+SAVEBONUSMAX: 8
+SAVEBONUSMIN: 0
+
+
+
+
+
+
+
+
+\****   Start Stat Block   *****\
+
+
+
+
+
+ATTACKMOD: 5
+WEAPONBONUS: 0
+PROFICIENCY: 2
+
+SPELLSAVEDC: 8 + PROFICIENCY + ATTACKMOD
+ATTACK: ATTACKMOD + PROFICIENCY + WEAPONBONUS
+
+
+
+
+
+\******  Start Attack blocks *****\
+
+HITDAMAGE: (1d4+1)*4 
+CRITICALDAMAGE: (1d4+1)*4 
+MISSDAMAGE: (1d4+1)*4 
+output [attack] named "Magic Missile level 2 VS AC 9-19"
+
+HITDAMAGE: 4d8 
+CRITICALDAMAGE: 8d8
+MISSDAMAGE: 0
+output [attack] named "Chromatic Orb level 2 VS AC 9-19"
+
+HITDAMAGE: 2d6 
+CRITICALDAMAGE: 4d6
+MISSDAMAGE: 0
+output [attack]+[attack]+[attack] named "Scorching Ray level 2 VS AC 9-19"
+
+
+
+HITDAMAGE: 4d8 
+CRITICALDAMAGE: 8d8
+MISSDAMAGE: 0
+loop DEFENCEAC over {AC_MIN..AC_MAX}{
+output [attack] named "Chromatic Orb level 2 VS AC [DEFENCEAC]"
+}\End SAVEBONUS Loop\
+
+
+HITDAMAGE: 2d6 
+CRITICALDAMAGE: 4d6
+MISSDAMAGE: 0
+loop DEFENCEAC over {AC_MIN..AC_MAX}{
+output [attack]+[attack]+[attack] named "Scorching Ray level 2 VS AC [DEFENCEAC]"
+}\End SAVEBONUS Loop\
+
+
+HITDAMAGE: 3d8
+MISSDAMAGE: (3d8)/2
+loop SAVEBONUS over {SAVEBONUSMIN..SAVEBONUSMAX}{
+output [saveattack ] named "ThunderWave level 2 VS CON Bonus [SAVEBONUS]"
+}\End SAVEBONUS Loop\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

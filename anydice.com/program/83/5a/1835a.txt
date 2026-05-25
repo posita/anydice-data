@@ -1,0 +1,19 @@
+FUDGE: {-1, 0, +1}
+
+function: first N:n of SEQ:s {
+  FIRST: {}
+  loop I over {1..N} { FIRST: {FIRST, I@SEQ} }
+  result: FIRST
+}
+
+function: ROLL:s reroll up to SKILL:n target TARGET:n {
+  if ROLL + 0 >= TARGET { result: 1 }                                            \- success -\
+  if #ROLL = 0 | SKILL = 0 | #ROLL@ROLL = 1 { result: 0 }                        \- failure -\
+  result: [[first #ROLL-1 of ROLL] reroll up to SKILL-1 target TARGET - 1dFUDGE] \- reroll  -\
+}
+
+loop TARGET over {-3..4} {
+  loop SKILL over {0..4} {
+    output [4dFUDGE reroll up to SKILL target TARGET] named "target [TARGET], skill [SKILL]"
+  }
+}

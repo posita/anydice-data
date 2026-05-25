@@ -1,0 +1,81 @@
+
+function: roll RHITS:n RDISTANCE:n RCALLEDSHOT:n {
+ SCATTER: [scatter RDISTANCE RCALLEDSHOT]
+ loop S over {1..#SCATTER} {
+  if S@SCATTER < 0 {
+   SCATTER: [set element S in SCATTER to (S@SCATTER + RHITS)]
+   if S@SCATTER > 0 {
+    SCATTER: [set element S in SCATTER to 0]
+   }
+  }
+  else {
+   SCATTER: [set element S in SCATTER to (S@SCATTER - RHITS)]
+   if S@SCATTER < 0 {
+    SCATTER: [set element S in SCATTER to 0]
+   }
+  }
+ }
+ result:SCATTER
+}
+function: set element I:n in SEQ:s to N:n {
+  NEW: {}
+  loop J over {1 .. #SEQ} {
+    if I = J { NEW: {NEW, N} }
+    else { NEW: {NEW, J@SEQ} }
+  }
+  result: NEW
+}
+function: scatter DISTANCE:n CALLEDSHOT:n  {
+  NEW: {}
+  loop J over {1..6} {
+    loop K over {1..6} {
+      NEW: {NEW, ((J + K - 7) * (2 ^ DISTANCE) * (2 ^ (1 - CALLEDSHOT)))}
+    }
+  }
+  result: NEW
+}
+
+
+POOL: 30       \ - \
+DISTANCE: 2    \Kurz: 0, Mittel: 1, Lang: 2, (Über: 3)\
+CALLEDSHOT: 0  \Nein: 0, Ja: 1\
+
+
+HITS: [count {5,6} in POOLd6]
+output HITS
+loop H over {HITS} {
+ HIT: H@{HITS}
+ if DISTANCE = 0 {
+  if CALLEDSHOT = 0 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], Nah, untrainiert"
+  }
+  if CALLEDSHOT = 1 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], Nah, trainiert"
+  }
+ }
+ if DISTANCE = 1 {
+  if CALLEDSHOT = 0 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], Mittel, untrainiert"
+  }
+  if CALLEDSHOT = 1 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], Mittel, trainiert"
+  }
+ }
+ if DISTANCE = 2 {
+  if CALLEDSHOT = 0 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], Fern, untrainiert"
+  }
+  if CALLEDSHOT = 1 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], Fern, trainiert"
+  }
+ }
+ if DISTANCE = 3 {
+  if CALLEDSHOT = 0 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], ÜBER, untrainiert"
+  }
+  if CALLEDSHOT = 1 {
+   output [roll HIT DISTANCE CALLEDSHOT] named "hits: [HIT], ÜBER, trainiert"
+  }
+ }
+}
+

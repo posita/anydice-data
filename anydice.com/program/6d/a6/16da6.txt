@@ -1,0 +1,36 @@
+MISSDAMAGE: 0
+DICE: [highest 1 of 2d20]
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+AC:20
+ATTACK: 9
+HITDAMAGE: d12 + 8
+CRITICALDAMAGE: 3d12+8
+output [damage for [attack DICE vs AC]] named "Standard"
+
+ATTACK: 9-5
+HITDAMAGE: d12 + 8+10
+CRITICALDAMAGE: 3d12+8+10
+output [damage for [attack DICE vs AC]] named "Great Weapon"

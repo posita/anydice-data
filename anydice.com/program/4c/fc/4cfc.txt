@@ -1,0 +1,58 @@
+CHA_MOD: 4
+PROF_MOD: 3
+MAGIC_WEP_HIT_MOD: 1
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ ATTACK: PROF_MOD + CHA_MOD + MAGIC_WEP_HIT_MOD
+ if ROLL = 1 { result: MISS }
+ \if ROLL = 60 { result: CRITICALHIT*3 }\
+ \if ROLL > 39 { result: CRITICALHIT*2 }\
+ if ROLL >= 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKS:s with NUM:n x DICE {
+ D: 0
+ ELEMENTAL_AFINITY: CHA_MOD
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = CRITICALHIT { D: D + (NUM*2)d(DICE) + ELEMENTAL_AFINITY }
+  else if A@ATTACKS = (CRITICALHIT*2) { D: D + [maximum of (NUM*4)d(DICE)] + ELEMENTAL_AFINITY + (CHA_MOD*PROF_MOD*2*4) }
+  else if A@ATTACKS = (CRITICALHIT*3) { D: D + [maximum of (NUM*10)d(DICE)] + ELEMENTAL_AFINITY + (CHA_MOD*PROF_MOD*2*10) }
+  else if A@ATTACKS = HIT { D: D + (NUM)d(DICE) + ELEMENTAL_AFINITY }  
+  if A@ATTACKS != MISS { ELEMENTAL_AFINITY: 0 }
+ }
+ result: D
+}
+
+function: SAVE vs ROLL:n with DEX:n for NUM:n x DAMAGE damage {
+  if ROLL = 1 { result: (NUM d DAMAGE) + CHA_MOD }
+  if ROLL = 20 | ROLL + DEX >=  SAVE { result: ((NUM d DAMAGE) / 2) + CHA_MOD }
+  result: (NUM d DAMAGE) + CHA_MOD
+}
+
+function: spell attack vs DEFENSE {
+  result: [attack [explode d20] vs DEFENSE]
+}
+
+function: spell attack with advantage vs DEFENSE {
+  result: [attack [highest of [explode d20] and [explode d20]] vs DEFENSE]
+}
+
+function: spell attack with disadvantage vs DEFENSE {
+  result: [attack [lowest of [explode d20] and [explode d20]] vs DEFENSE]
+}
+
+
+function: cast level LEVEL:n scorching ray at one target with ac ARMOR_CLASS:n {
+  result: [damage for 4d[spell attack vs ARMOR_CLASS] with 2 x d6]
+}
+
+
+
+output [cast level 3 scorching ray at one target with ac 15] named "Scorching Ray"
+output [(CHA_MOD+8+PROF_MOD) vs d20 with 0 for 8 x d6 damage] named "Fireball" 

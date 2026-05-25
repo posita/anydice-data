@@ -1,0 +1,35 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+CRIT_ROLL: 20
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_ROLL { result: CRIT }
+ if ROLL + TO_HIT_BONUS >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRIT_DMG
+ }
+ if ATTACKRESULT = HIT {
+  result: HIT_DMG
+ }
+ result: 0
+}
+
+ENEMY_AC: d{13..20}
+ATK_ROLL: 1d20
+RECKLESS: [highest 1 of 2d20]
+
+ATK_MOD:5
+PROF: 6
+TO_HIT_BONUS: ATK_MOD + PROF
+
+NUM_ATTACKS:1
+HIT_DMG: 1d8 + 2 + 10d6 + ATK_MOD
+CRIT_DMG: 2d8 + 2 + 20d6 + ATK_MOD
+
+output NUM_ATTACKSd[damage for [attack ATK_ROLL vs ENEMY_AC]] named "B20 Regular Attack"
+output NUM_ATTACKSd[damage for [attack RECKLESS vs ENEMY_AC]] named "B20 Hidden Attack"

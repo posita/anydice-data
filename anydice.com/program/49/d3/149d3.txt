@@ -1,0 +1,37 @@
+SMITE: 5d8
+ESMITE: 6d8
+BSMITE: 5d10
+AELEMENT: 4d6
+MANEUVER: 1d6
+N: 12
+GREATAXE: 1d{{1..2}:2, {3..N}:N+2}
+N: 6
+GREATSWORD: 2d{{1..2}:2, {3..N}:N+2}
+
+GREATAXEDIE: d12
+GREATSWORDDIE: d6
+ABONUS: 4+1+6
+DBONUS: 4+1
+RIDERS: SMITE + ESMITE + BSMITE + AELEMENT + MANEUVER
+
+function: X:n critwith A:n bonus B:n adder C:n tohit D:n ac E:n critrange F:n{
+if X >= 20 {result: 2dA + B + C}
+if X = 1 {result: 0}
+if X + D < E {result:0}
+if X >= F {result: 2dA + B + C}
+result: A + C
+}
+
+loop AC over {20}{
+ loop HEX over {0}{
+  loop GWM over {0,1}{
+   CRITSON:  20 - HEX
+   ATKBONUS: ABONUS - GWM*5
+   DMGBONUS: DBONUS + GWM*10 + HEX*6
+   output [d20 critwith GREATAXE bonus GREATAXEDIE adder DMGBONUS tohit ATKBONUS ac AC critrange CRITSON] named "Greataxe vs [AC] AC with HEX[HEX] GWM[GWM]"
+   output [d20 critwith GREATAXE bonus GREATAXEDIE adder DMGBONUS + GREATAXEDIE tohit ATKBONUS ac AC critrange CRITSON] named "Orc Fury Greataxe vs [AC] AC with HEX[HEX] GWM[GWM]"
+   output [d20 critwith GREATSWORD bonus GREATSWORDDIE adder DMGBONUS tohit ATKBONUS ac AC critrange CRITSON] named "Greatsword vs [AC] AC with HEX[HEX] GWM[GWM]"
+   output [d20 critwith GREATSWORD bonus GREATSWORDDIE adder DMGBONUS + GREATSWORDDIE tohit ATKBONUS ac AC critrange CRITSON] named "Orc Fury Greatsword vs [AC] AC with HEX[HEX] GWM[GWM]"
+   output [{20} critwith GREATAXE bonus GREATAXEDIE adder DMGBONUS+GREATAXEDIE tohit ATKBONUS ac AC critrange CRITSON] named "Portent Orc Fury Greataxe vs [AC] AC with HEX[HEX] GWM[GWM]"
+   output [{20} critwith GREATSWORD bonus GREATSWORDDIE adder DMGBONUS+GREATSWORDDIE tohit ATKBONUS ac AC critrange CRITSON] named "Portent Orc Fury Greatsword vs [AC] AC with HEX[HEX] GWM[GWM]"
+}}}

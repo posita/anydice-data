@@ -1,0 +1,179 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= (20 - CRITRANGE) {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+MISSDAMAGE: 0
+
+loop CRITRANGE over {0}{
+loop STR over {5}{
+loop PB over {4}{
+
+ATTACK: STR + PB
+HITDAMAGE: [reroll {1,2,3,4,5,6} on [reroll {1} on 1d12] to 1d12] + STR
+CRITICALDAMAGE: 3d[reroll {1,2,3,4,5,6} on [reroll {1} on 1d12] to 1d12] + STR*2
+output 6d[attack] named "Greataxe PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+
+\ATTACK: STR + PB
+HITDAMAGE: [reroll {1,2,3,4,5,6} on [explode d12] to 1d12] + STR
+CRITICALDAMAGE: 2d[reroll {1,2,3,4,5,6} on [explode d12] to 1d12] +(STR)*2
+output [attack] named "Lance PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+ATTACK: STR + PB
+HITDAMAGE: 2d[reroll {1,2,3} on 1d6] + STR
+CRITICALDAMAGE: 4d[reroll {1,2,3} on 1d6] + STR*2
+output 6d[attack] named "Greatsword PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+
+\ATTACK: STR + PB
+HITDAMAGE: 2d[reroll {1,2,3} on 1d6] + STR + STR
+CRITICALDAMAGE: 4d[reroll {1,2,3} on 1d6] + STR*2 + STR
+output 6d[attack] named "Greatsword + Sweep PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+ATTACK: STR + PB
+HITDAMAGE: 2d[reroll {1,2,3} on 1d6] + STR + PB
+CRITICALDAMAGE: 4d[reroll {1,2,3} on 1d6] + (STR + PB)*2
+output 6d[attack] named "Greatsword Deadly PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+
+\ATTACK: STR + PB + 2
+HITDAMAGE: [explode d8] + STR
+CRITICALDAMAGE: 2d[explode d8] +(STR)*2
+output [attack] named "Longbow PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB
+HITDAMAGE: 2d[reroll {1,2,3} on 1d6] + STR*2 + PB
+CRITICALDAMAGE: 4d[reroll {1,2,3} on 1d6] + STR + (STR + PB)*2
+output [attack] named "Greatsword Deadly + Sweep PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 2
+HITDAMAGE: [explode [reroll {1} on d10]] + STR
+CRITICALDAMAGE: 3d[explode [reroll {1} on d10]] +(STR)*2
+output [attack] named "Heavy Crossbow PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 3
+HITDAMAGE: [explode [reroll {1} on d10]] + STR + (PB/2)
+CRITICALDAMAGE: 3d[explode [reroll {1} on d10]] +(STR)*2 + (PB/2)
+output [attack] named "Heavy Crossbow Breaching Half PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 3
+HITDAMAGE: [explode [reroll {1} on d10]] + STR + PB
+CRITICALDAMAGE: 3d[explode [reroll {1} on d10]] +(STR)*2 + PB
+output [attack] named "Heavy Crossbow Breaching Full PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 2
+HITDAMAGE: 2d[explode d4] + STR 
+CRITICALDAMAGE: 4d[explode d4] +(STR)*2
+output [attack] named "Warbow PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 3
+HITDAMAGE: 2d[explode d4] + STR + PB
+CRITICALDAMAGE: 4d[explode d4] +(STR)*2 + PB
+output [attack] named "Warbow Breaching Full PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB
+HITDAMAGE: 1d8 + STR + 2
+CRITICALDAMAGE: 1d8 +(STR+2)*2
+output [attack] named "Longsword PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB
+HITDAMAGE: 1d8 + STR + 2 + PB
+CRITICALDAMAGE: 1d8 +(STR+2 + PB)*2
+output [attack] named "Longsword Deadly PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 2
+HITDAMAGE: 2d[explode d6] + STR
+CRITICALDAMAGE: 4d[explode d6] +(STR)*2
+output [attack] named "Pepperbox Carbine PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 3
+HITDAMAGE: 2d[explode d6] + STR + PB
+CRITICALDAMAGE: 4d[explode d6] +(STR)*2 + PB
+output [attack] named "Pepperbox Carbine Breaching Full PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 2
+HITDAMAGE: 2d[explode [reroll {1} on d12]] + STR
+CRITICALDAMAGE: 5d[explode [reroll {1} on d12]] +(STR)*2
+output [attack] named "Rifle PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB + 3
+HITDAMAGE: 2d[explode [reroll {1} on d12]] + STR + PB
+CRITICALDAMAGE: 5d[explode [reroll {1} on d12]] +(STR)*2 + PB
+output [attack] named "Rifle Breaching Full PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB
+HITDAMAGE: [explode 1d6] + STR + 7d6
+CRITICALDAMAGE: 2d[explode 1d6] +(STR)*2 + 14d6
+output [attack] named "Shortsword SneakAttack PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB
+HITDAMAGE: [explode 1d6] + STR + 7d[explode 1d6]
+CRITICALDAMAGE: 2d[explode 1d6] +(STR)*2 + 14d[explode 1d6]
+output [attack] named "Shortsword SneakAttack Intense PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB
+HITDAMAGE: 1d6 + STR + 7d6
+CRITICALDAMAGE: 2d6 +(STR)*2 + 14d6
+output [attack] named "Scimitar Sneak Attack PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+\ATTACK: STR + PB
+HITDAMAGE: 1d6 + STR + PB + 7d6
+CRITICALDAMAGE: 2d6 +(STR + PB)*2 + 14d6
+output [attack] named "Scimitar Deadly SneakAttack PB:[PB] STR:[STR] CRIT:[CRITRANGE]"\
+
+ATTACK: STR + PB
+HITDAMAGE: 1d6 + STR + PB 
+CRITICALDAMAGE: 2d6 +(STR + PB)*2
+output 8d[attack] named "Scimitar Flurry Deadly PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+
+ATTACK: STR + PB
+HITDAMAGE: 1d8 + STR + PB 
+CRITICALDAMAGE: 2d8 +(STR + PB)*2
+output 8d[attack] named "Longsword Flurry Deadly PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+
+ATTACK: STR + PB
+HITDAMAGE: 1d8 + STR 
+CRITICALDAMAGE: 2d8 +(STR)*2
+output 8d[attack] named "Longsword Flurry PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+
+ATTACK: STR + PB
+HITDAMAGE: 1d6 + STR
+CRITICALDAMAGE: 2d6 +(STR)*2
+output 8d[attack] named "Scimitar Flurry PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+
+ATTACK: STR + PB
+HITDAMAGE: [explode 1d6] + STR
+CRITICALDAMAGE: 2d[explode 1d6] +(STR)*2
+output 8d[attack] named "Shortsword Flurry PB:[PB] STR:[STR] CRIT:[CRITRANGE]"
+}}}

@@ -1,0 +1,81 @@
+\ Simulate TFC Downtime Crime \
+\ See https://docs.google.com/document/d/1eORYzEfHq5sufSivMqVS_0ZperALzkBLh9CM0kbmjmw/edit#heading=h.jzs0sq1779q3 \
+
+LEVEL: 10       \ character level \
+DC: 20         \ crime difficulty classs \
+CRIMINAL: 1d4    \ bonus for criminal or charlatan background, or zero \
+URCHIN: 0    \ bonus for urchin or smuggler background, or zero \
+STEALTH: 11     \ stealth skill \
+PERCEPTION: 11  \ perception, investigation, or deception skill \
+TOOLS: 7       \ thieves' tools, forgery, or disguise skill \
+
+\ Crime reward table in gold \
+function: reward DC:n {
+  if DC = 10 { result: 50 * LEVEL }
+  if DC = 15 { result: 100 * LEVEL }
+  if DC = 20 { result: 200 * LEVEL }
+  if DC = 25 { result: 1000 * LEVEL }
+  result: 0
+}
+
+\ Crime penalty table in DT \
+function: penalty DC:n {
+  if DC = 10 { result: 14 }
+  if DC = 15 { result: 28 }
+  if DC = 20 { result: 56 }
+  if DC = 25 { result: 280 }
+}
+
+COST: 25       \ research cost to carry out crime \
+REWARD: [reward DC]    \ crime reward gold \
+
+\ Honest work value table per week \
+function: work ROLL:n {
+  if ROLL <= 0 { result: 0 }
+  if ROLL <= 9 { result: 10 * LEVEL }
+  if ROLL <= 14 { result: 40 * LEVEL }
+  if ROLL <= 19 { result: 50 * LEVEL }
+  if ROLL <= 24 { result: 60 * LEVEL }
+  if ROLL <= 29 { result: 80 * LEVEL }
+  result: 100 * LEVEL
+}
+
+DTVALUE: [work 1d20+6] \ value to character (in gold) of one day of DT \
+
+output DTVALUE named "Honest work"
+
+\ Calculate the value of attempting a crime \
+function: crime SUCCESS:n PARTIAL:n ESC:n {
+  if SUCCESS { result: REWARD - COST }
+  if PARTIAL { result: (REWARD/2) - COST }
+  if ESC { result: -COST }
+  result: - (COST + [penalty DC])
+}
+
+\ Downtime crime rolls \
+RS: d20 + STEALTH + CRIMINAL + URCHIN
+RP: d20 + PERCEPTION + CRIMINAL
+RT: d20 + TOOLS + CRIMINAL
+
+\ Pass/fail for the rolls against crime difficulty \
+CS: RS >= DC
+CP: RP >= DC
+CT: RT >= DC
+
+\ Was the crime a success (three passes)? \
+SUCCESS: CS & CP & CT  
+
+\ Was it a partial success (two passes)? \
+PARTIAL: (CS & CP) | (CS & CT) | (CP & CT)
+
+\ Did you escape (one pass)? \
+ESC: CS | CP | CT
+
+\ Output the total expected value of the crime \
+\ This will also show the probability of each outcome \
+output [crime SUCCESS PARTIAL ESC] named "Crime"
+
+\ Details \
+output ESC named "escape"
+output PARTIAL named "partial success"
+output SUCCESS named "success"

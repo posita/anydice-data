@@ -1,0 +1,101 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE {
+    result: [reroll {1,2} on DICE to DICE]
+}
+
+function: racial {
+    result: 5
+}
+
+function: racial on hit {
+    result: 9
+}
+
+function: rage {
+    result: 2
+}
+
+function: zealot dice {
+    result: 1d[gwf 1d6]
+}
+
+function: zealot bonus {
+    result: 4
+}
+
+function: sneak {
+    result: 2d[gwf 1d6]
+}
+
+function: damage dice {
+    result: 2d[gwf 1d4]
+}
+
+function: damage bonus {
+    result: 5
+}
+
+function: bonus attack dice {
+    result: 1d[gwf 1d4]
+}
+
+function: bonus attack bonus {
+    result: 5
+}
+
+function: T:n hits ac A:n {
+    result: [highest of [lowest of T + 8 - A + 1 and 1] and 0]
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: first attack ROLL:d vs AC:n {
+    result: [attack ROLL plus 8 vs AC
+        hit [damage dice] + [damage bonus] + [rage] + [racial on hit] + [zealot dice] + [zealot bonus] + [sneak] +
+            [second attack ROLL vs AC no hit yet 0]
+        miss [second attack ROLL vs AC no hit yet 1]
+        crit 2d[damage dice] + [damage bonus] + [rage] + [racial on hit] + 2d[zealot dice] + [zealot bonus] +2d[sneak] +
+            [second attack ROLL vs AC no hit yet 0]
+        on 20]
+}
+
+function: second attack ROLL:d vs AC:n no hit yet HIT:n {
+    result: [attack ROLL plus 8 vs AC
+        hit [damage dice] + [damage bonus] + [rage] + [racial on hit] + ([zealot dice] + [zealot bonus] + [sneak])*HIT +
+            [bonus action attack ROLL vs AC no hit yet 0]
+        miss [bonus action attack ROLL vs AC no hit yet (1 * HIT) ]
+        crit 2d[damage dice] + [damage bonus] + [rage] + [racial on hit] + (2d[zealot dice] + [zealot bonus] +2d[sneak])*HIT +
+            [bonus action attack ROLL vs AC no hit yet 0]
+        on 20]
+}
+
+function: bonus action attack ROLL:d vs AC:n no hit yet HIT:n {
+    result: [attack ROLL plus 8 vs AC
+        hit [bonus attack dice] + [bonus attack bonus] + [rage] + [racial on hit] + ([zealot dice] + [zealot bonus] + [sneak])*HIT
+        miss 0
+        crit 2d[bonus attack dice] + [bonus attack bonus] + [rage] + [racial on hit] + (2d[zealot dice] + [zealot bonus] +2d[sneak])* HIT
+        on 20]
+}
+
+loop N over {1..3} {output [racial] + [first attack [highest 1 of Nd20] vs 20] named "AC[N]"}

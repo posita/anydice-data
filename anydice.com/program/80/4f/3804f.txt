@@ -1,0 +1,26 @@
+CARD: d{{1..13}:4, 0, 14}
+DUEL: CARD-CARD
+function: plus N {
+   if N = 0 {result: CARD}
+   result: [highest of [plus N-1] and CARD]
+}
+function: minus N {
+   if N = 0 {result: CARD}
+   result: [lowest of [minus N-1] and CARD]
+}
+function: dam FLIPRES:n LOW MID SEV {
+    if FLIPRES = 0 {result: 0}
+    if FLIPRES = 14 {result: SEV+1}
+    if FLIPRES < 6 {result: LOW}
+    if FLIPRES < 11 {result: MID}
+    if FLIPRES > 10 {result: SEV}
+}
+function: attack FLIPRES:n LOW MID SEV {
+    if FLIPRES = 0 {result: [dam [lowest of [lowest of CARD and CARD] and CARD] LOW MID SEV]}
+    if FLIPRES < 6 {result: [dam [lowest of CARD and CARD] LOW MID SEV]}
+    if FLIPRES < 11 {result: [dam CARD LOW MID SEV]}
+    if FLIPRES > 10 {result: [dam [highest of CARD and CARD] LOW MID SEV]}
+}
+output [attack [plus 1]+1-CARD 2 4 6] named "Fuhatsu damage against Df5"
+output [attack [plus 1]-CARD 2 4 5] named "Wokou raider damage against Df5"
+output [attack [plus 1]-CARD-1 2 4 5] named "Wokou raider damage against Df6"

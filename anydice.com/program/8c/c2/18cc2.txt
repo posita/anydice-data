@@ -1,0 +1,42 @@
+\ new one for opposed rolls. 1 means ATT wins, -1 means DEF wins, 0 means both fail \
+
+ATT: 50
+ATTCRIT: 5
+DEF: 50
+DEFCRIT: 5
+
+function: attacker A:n vs defender B:n {
+  if A <= ATT {
+    if B <= DEF {
+      if A <= ATTCRIT {
+        if B <= DEFCRIT { 
+        	if A > B
+        		{ result: 1 } \ att critted, bigger than def's crit \ 
+        	else
+        		{ result: -1 } \ def critted, bigger than att's crit \
+        	}
+        else { result: 1 } \ att crit, def didn't \ 
+      } else {
+        if B <= DEFCRIT { result: -1 } \ def crit, att didn't \
+        else { 
+        	if A > B
+        		{ result: 1 } \ both succeed, att greater \
+        	else
+        		{ result: -1 } \ both succeed, def greater \
+        }
+      } 
+    } else { result: 1 } \ att succeed, def fail \ 
+  }
+  else {
+  	if B <= DEF { result: -1 } \ def succeed, att fail \ 
+  	else { result: 0 } \ both failed here \ 
+  	}
+}
+
+loop ATT over {30,40,50,60,70} {
+	ATTCRIT: ATT/10
+	loop DEF over {30,40,50,60,70} {
+		DEFCRIT: DEF/10
+		output [attacker d100 vs defender d100] named "attacker [ATT] defender [DEF]"
+	}
+}

@@ -1,0 +1,243 @@
+\ This is the attacker's effective skill, unmodified for range or ROF. \
+ATK: 16
+
+\ This is the defender's effective defense skill. \
+DEF: 10
+
+\ This is the damage the attack deals, DDICEd + DPLUS. \
+DDICE: 2
+DPLUS: 0
+
+\ This is the defender's base DR. \
+DR: 4
+
+\ This is the DR divisor or multiplier.  For attacks with a DR divisor   \
+\ greater than 1, set DRDIV to the divisor and DRMUL to 1.  For attacks  \
+\ that ignore DR completely, set DRDIV to 1 and DRMUL to 0.  For attacks \
+\ with a DR multiplier, like (0.5), set DRDIV to 1 and DRMUL to the      \
+\ reciprocal of the multipler (2, in this instance).                     \
+DRDIV: 1
+DRMUL: 1
+
+\ This is the wound multiplier for penetrating attacks. Pi- has WOUNDMUL: 1 \
+\ and WOUNDDIV: 2, pi+ and cut have WOUNDMUL: 3 and WOUNDDIV: 2, pi++ and   \
+\ imp have WOUNDMUL: 2 and WOUNDDIV: 1, and everything else has both set to \
+\ 1.                                                                        \
+WOUNDMUL: 1
+WOUNDDIV: 1
+
+\ This is the blunt-force trauma modifier.  If the target does not have  \
+\ flexible armor, it is 0.  Otherwise, it is 5 for cr and cut and 10 for \
+\ imp, pi-, pi, pi+, and pi++.                                           \
+TRAUMA: 5
+
+\ This is the rate of fire and recoil of the attack, if it is ranged.  If \
+\ not, they are 1 and 1 respectively.                                     \
+ROF: 3
+RCL: 1
+
+\ This is the size modifier of the target. \
+SIZE: 0
+
+\ This is the range, 1/2D, and Max of the attack in yards, if it is ranged. \
+\ If it is not, then set Max to 0.                                          \
+RANGE: 10
+HALFD: 50
+MAX: 50
+
+\ DO NOT EDIT ANYTHING BELOW THIS LINE. \
+
+\ This table specifies the range modifiers by 1/2 yard for 0 to 10 yards. \
+RTAB: {-4, -2, -1, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5}
+
+\ range RMUL div RDIV gives the range modifier for RMUL/RDIV yards. \
+function: range RMUL:n div RDIV:n {
+  if RMUL > 10 * RDIV {
+    result: 6 + [range RMUL div RDIV * 10]
+  } else {
+    M: (2 * RMUL + RDIV - 1) / RDIV
+    result: M@RTAB
+  }
+}
+
+\ range R gives the range modifier for R yards.  This is 0 for 2 or fewer. \
+function: range R:n {
+  if R <= 2 {
+    result: 0
+  } else if R <= 10 {
+    result: [range R div 1]
+  } else if R <= 100 {
+    result: 6 + [range R div 10]
+  } else if R <= 1000 {
+    result: 12 + [range R div 100]
+  } else if R <= 10000 {
+    result: 18 + [range R div 1000]
+  } else {
+    result: 24 + [range R div 10000]
+  }
+}
+
+\ damage gives the damage dice based on the range, 1/2D, and max. \
+function: damage {
+  if (RANGE <= HALFD) | (MAX <= 0) {
+    result: [highest of DDICEd6 + DPLUS and 1]
+  } else if RANGE <= MAX {
+    result: [highest of (DDICEd6 + DPLUS) / 2 and 0]
+  } else {
+    result: 0
+  }
+}
+
+\ Put the damage in a variable. \
+DAMAGE: [damage]
+
+\ dr gives the total modified DR. \
+function: dr {
+  if DRDIV < DRMUL {
+    if DR = 0 {
+      result: 1
+    } else {
+      result: (DR * DRMUL) / DRDIV
+    }
+  } else {
+    result: (DR * DRMUL) / DRDIV
+  }
+}
+
+\ Put the DR in a variable. \
+TOTDR: [dr]
+
+\ deal DAM against DRES gives the result of dealing DAM damage to a target \
+\ with modified DR DRES, including wounding multipliers and blunt force    \
+\ trauma.                                                                  \
+function: deal DAM:n against DRES:n {
+  if DAM > DRES {
+    result: [highest of WOUNDMUL * (DAM - DRES) / WOUNDDIV and 1]
+  } else if TRAUMA {
+    result: DAM / TRAUMA
+  } else {
+    result: 0
+  }
+}
+
+\ Put the standard damage roll into a variable. \
+BDAM: [deal DAMAGE against TOTDR]
+
+\ crit R with A gives the results of scoring a critical hit, rolling R on \
+\ the  critical hit table, and having A attacks.                          \
+function: crit R:n with A:n {
+  if (R = 3) | (R = 18) {
+    result: Ad[deal 3 * DAMAGE against TOTDR]
+  } else if (R = 4) | (R = 17) {
+    result: Ad[deal DAMAGE against TOTDR / 2]
+  } else if (R = 5) | (R = 16) {
+    result: Ad[deal 2 * DAMAGE against TOTDR]
+  } else if (R = 6) | (R = 15) {
+    result: Ad[deal [maximum of DAMAGE] against TOTDR]
+  } else {
+    result: Ad[deal DAMAGE against TOTDR]
+  }
+}
+
+\ margin of SKILL with R gives the result of rolling R on a roll of SKILL. \
+\ The result is stored in the form:                                        \
+\ 2 * (margin of success or failure) + (1 if the roll is a critical).      \
+function: margin of SKILL:n with R:n {
+  M: SKILL - R
+  if SKILL > 16 {
+    ESKILL: 16
+  } else {
+    ESKILL: SKILL
+  }
+  if (R <= 4) | ((R = 5) & (SKILL >= 16)) | ((R = 6) & (SKILL >= 15)) {
+    result: 2 * [highest of M and 0] + 1
+  } else if (R = 18) | ((R = 17) & (SKILL < 16)) | (R >= SKILL + 10) {
+    result: 2 * (ESKILL - R) + 1
+  } else if R = 17 {
+    result: 2 * (ESKILL - R)
+  } else {
+    result: 2 * M
+  }
+}
+
+\ avoid A with R gives the number of hits that make it through a roll of  \
+\ R, out of A total.                                                      \
+function: avoid A:n with R:n {
+  M: [margin of DEF with R]
+  if (M >= 0) & (M > 2 * (M / 2)) {
+    result: 0
+  } else if M < 0 {
+    result: A
+  } else {
+    result: [highest of A - (M / 2) - 1 and 0]
+  }
+}
+
+\ rofbonus R gives the bonus to attack for high ROF. \
+function: rofbonus R:n {
+  if R <= 16 {
+    result: (R - 1) / 4
+  } else if R <= 24 {
+    result: 4
+  } else if R <= 49 {
+    result: 5
+  } else if R <= 99 {
+    result: 6
+  } else {
+    result: [rofbonus R / 2] + 1
+  }
+}
+
+RATK: ATK + [rofbonus ROF] - [range RANGE] + SIZE
+
+\ hits with R gives the number of hits on rolling an R to hit.  It returns \
+\ a value of the form: 2 * hits + (1 if it is a critical success).         \
+function: hits with R:n {
+  M: [margin of RATK with R]
+  A: [lowest of 1 + (M / 2) / RCL and ROF]
+  if M < 0 {
+    result: 0
+  } else if (M > 2 * (M / 2)) {
+    result: 2 * A + 1
+  } else {
+    result: 2 * [avoid A with 3d6]
+  }
+}
+
+\ iscrit M returns 1 if a result is a critical hit or failure. \
+function: iscrit M:n {
+  if M != 2 * (M / 2) {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+\ crit damage with H hits gives the critical hit damage. \
+function: crit damage with H:n {
+  if H > 2 * (H / 2) {
+    result: [crit 3d6 with H / 2]
+  }
+}
+
+\ attack with H hits gives the result of rolling H hits. \
+function: attack with H:n hits {
+  if H > 2 * (H / 2) {
+    result: [crit 3d6 with H / 2]
+  } else if H > 0 {
+    result: (H / 2)dBDAM
+  } else {
+    result: 0
+  }
+}
+
+\ Store the standard number of hits in a variable. \
+HITS: [hits with 3d6]
+
+ATTACK: [attack with HITS hits]
+
+output HITS / 2 named "Number of hits"
+output [iscrit HITS] named "Number of critical hits"
+output BDAM named "Damage per hit"
+output [crit 3d6 with 1] named "Critical hit damage"
+output ATTACK named "Total Damage"

@@ -1,0 +1,365 @@
+ATTACK: 9
+TARGETAC: 15
+BONUSDAMAGE: 5
+HITDAMAGEDICE: 2d6+1d4
+SAVAGEREROLLDIE: 2d6
+CRITICALRANGE: 19
+NUMBEROFATTACKS: 2
+\CritMode 1: extra die 2: extra die + flat 3: max die 4: max die + flat\
+CRITMODE: 1
+ELVENACC: 0
+GWMCRITBONUSATK: 1
+\Show Toggles Below\
+SHOWCHANCETOHIT: 1
+SHOWDPRNORMAL: 1
+SHOWDPRGWM: 1
+SHOWDPRSAVAGE: 1
+SHOWDPRSAVAGEBG: 1
+SHOWGWMVSSVGCURRENT: 1
+SHOWGWMVSSVGCURRENTBG: 1
+SHOWGWMVSSVG: 1
+SHOWGWMVSSVGNBG: 1
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+ATTACKGWM: ATTACK - 5
+HITDAMAGE: HITDAMAGEDICE + BONUSDAMAGE
+CRITDMGEXDIE: (HITDAMAGEDICE * 2) + BONUSDAMAGE
+CRITDMGEXDIEFLAT: (HITDAMAGEDICE + BONUSDAMAGE) * 2 
+CRITDMGMAXDIE: HITDAMAGEDICE + [maximum of HITDAMAGEDICE] + BONUSDAMAGE
+CRITDMGMAXDIEFLAT: (HITDAMAGEDICE + [maximum of HITDAMAGEDICE]) + BONUSDAMAGE * 2
+
+function: attacknorm ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITICALRANGE {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackgwm ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITICALRANGE {
+  if ROLL + ATTACKGWM >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACKGWM >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+CHANCETOHIT: [attacknorm d20 vs TARGETAC]
+if ELVENACC = 1 {
+ CHANCETOHITADV: [attacknorm [highest of d20 and [highest of d20 and d20]] vs TARGETAC]
+ CHANCETOHITGWMADV: [attackgwm [highest of d20 and [highest of d20 and d20]] vs TARGETAC]
+}
+else {
+ CHANCETOHITADV: [attacknorm [highest of d20 and d20] vs TARGETAC]
+ CHANCETOHITGWMADV: [attackgwm [highest of d20 and d20] vs TARGETAC]
+}
+CHANCETOHITDIS: [attacknorm [lowest of d20 and d20] vs TARGETAC]
+CHANCETOHITGWM: [attackgwm d20 vs TARGETAC]
+CHANCETOHITGWMDIS: [attackgwm [lowest of d20 and d20] vs TARGETAC]
+
+function: nocritatall for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: 0
+ }
+ if ATTACKRESULT = HIT {
+  result: 1
+ }
+ result: 1
+}
+\output [nocritatall for CHANCETOHITADV] * [nocritatall for CHANCETOHITADV] named "TESTING: 0 AT LEAST 1 CRIT, 1 NOT A SINGLE CRIT"\
+
+DEPTHENUM: 1
+OUTPUTTOEXPONENTIATE: [nocritatall for CHANCETOHIT]
+OUTPUTTOEXPONENTIATEADV: [nocritatall for CHANCETOHITADV]
+OUTPUTTOEXPONENTIATEDIS: [nocritatall for CHANCETOHITDIS]
+
+function: exponoutput for OUTPUTTOEXPON:n and STATUS:n {
+ DEPTHENUM: DEPTHENUM + 1
+ if STATUS = 1 {
+  RESULTEXPON: OUTPUTTOEXPON * OUTPUTTOEXPONENTIATE
+  if DEPTHENUM > NUMBEROFATTACKS {
+   result: RESULTEXPON
+  }
+  else {
+   result: [exponoutput for RESULTEXPON and 1]
+  }
+ }
+  if STATUS = 2 {
+  RESULTEXPON: OUTPUTTOEXPON * OUTPUTTOEXPONENTIATEADV
+  if DEPTHENUM > NUMBEROFATTACKS {
+   result: RESULTEXPON
+  }
+  else {
+   result: [exponoutput for RESULTEXPON and 2]
+  }
+ }
+  if STATUS = 3 {
+  RESULTEXPON: OUTPUTTOEXPON * OUTPUTTOEXPONENTIATEDIS
+  if DEPTHENUM > NUMBEROFATTACKS {
+   result: RESULTEXPON
+  }
+  else {
+   result: [exponoutput for RESULTEXPON and 3]
+  }
+ }
+}
+ATLEASTONECRIT: [exponoutput for [nocritatall for CHANCETOHIT] and 1]
+ATLEASTONECRITADV: [exponoutput for [nocritatall for CHANCETOHITADV] and 2]
+ATLEASTONECRITDIS: [exponoutput for [nocritatall for CHANCETOHITDIS] and 3]
+
+function: damage for ATTACKRESULT:n and CRITMODEFUNC:n {
+ if ATTACKRESULT = CRITICALHIT {
+  if CRITMODEFUNC = 1 {
+   result: CRITDMGEXDIE
+  }
+  if CRITMODEFUNC = 2 {
+   result: CRITDMGEXDIEFLAT
+  }
+  if CRITMODEFUNC = 3 {
+   result: CRITDMGMAXDIE
+  }
+  if CRITMODEFUNC = 4 {
+   result: CRITDMGMAXDIEFLAT
+  }
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damagegwm for ATTACKRESULT:n and CRITMODEFUNC:n {
+ if ATTACKRESULT = CRITICALHIT {
+  if CRITMODEFUNC = 1 {
+   result: CRITDMGEXDIE + 10
+  }
+  if CRITMODEFUNC = 2 {
+   result: CRITDMGEXDIEFLAT + 10
+  }
+  if CRITMODEFUNC = 3 {
+   result: CRITDMGMAXDIE + 10
+  }
+  if CRITMODEFUNC = 4 {
+   result: CRITDMGMAXDIEFLAT + 10
+  }
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE + 10
+ }
+ result: MISSDAMAGE
+}
+
+function: damagegwmbonusoncrit for ONECRITCALCS:n and ATTACKRESULT:n and CRITMODEFUNC:n {
+ if ONECRITCALCS = 0 {
+  result: [damagegwm for ATTACKRESULT and CRITMODEFUNC]
+ }
+ else {
+  result: [damagegwm for 0 and CRITMODEFUNC]
+ }
+}
+
+function: damagesavage for ATTACKRESULT:n and CRITMODEFUNC:n {
+ if ATTACKRESULT = CRITICALHIT {
+  if CRITMODEFUNC = 1 {
+   result: ([highest of SAVAGEREROLLDIE and SAVAGEREROLLDIE] + HITDAMAGE - SAVAGEREROLLDIE + HITDAMAGEDICE)
+  }
+  if CRITMODEFUNC = 2 {
+   result: ([highest of SAVAGEREROLLDIE and SAVAGEREROLLDIE] + HITDAMAGE - SAVAGEREROLLDIE + HITDAMAGE)
+  }
+  if CRITMODEFUNC = 3 {
+   result: ([highest of SAVAGEREROLLDIE and SAVAGEREROLLDIE] + HITDAMAGE - SAVAGEREROLLDIE + BONUSDAMAGE + [maximum of HITDAMAGEDICE])
+  }
+  if CRITMODEFUNC = 4 {
+   result: ([highest of SAVAGEREROLLDIE and SAVAGEREROLLDIE] + HITDAMAGE - SAVAGEREROLLDIE + BONUSDAMAGE + [maximum of HITDAMAGEDICE] + BONUSDAMAGE)
+  }
+ }
+ if ATTACKRESULT = HIT {
+  result: ([highest of SAVAGEREROLLDIE and SAVAGEREROLLDIE] + HITDAMAGE - SAVAGEREROLLDIE)
+ }
+ result: MISSDAMAGE
+}
+
+function: damagesavagebg for ATTACKRESULT:n and CRITMODEFUNC:n {
+ if ATTACKRESULT = CRITICALHIT {
+  if CRITMODEFUNC = 1 {
+   result: [highest of CRITDMGEXDIE  and CRITDMGEXDIE]
+  }
+  if CRITMODEFUNC = 2 {
+   result: [highest of CRITDMGEXDIE  and CRITDMGEXDIEFLAT]
+  }
+  if CRITMODEFUNC = 3 {
+   result: [highest of CRITDMGEXDIE  and CRITDMGMAXDIE]
+  }
+  if CRITMODEFUNC = 4 {
+   result: [highest of CRITDMGEXDIE  and CRITDMGMAXDIEFLAT]
+  }
+ }
+ if ATTACKRESULT = HIT {
+  result: [highest of HITDAMAGE  and HITDAMAGE]
+ }
+ result: MISSDAMAGE
+}
+
+if SHOWCHANCETOHIT = 1 {
+ output CHANCETOHIT named "chance to hit (normal)"
+ output CHANCETOHITADV named "chance to hit (advantage)"
+ output CHANCETOHITDIS named "chance to hit (disadvantage)"
+ output CHANCETOHITGWM named "chance to hit (GWM)"
+ output CHANCETOHITGWMADV named "chance to hit (GWM advantage)"
+ output CHANCETOHITGWMDIS named "chance to hit (GWM disadvantage)"
+ output 0 named "-----------------------------------------------------"
+}
+
+if SHOWDPRNORMAL = 1 {
+ output [damage for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS named "DPR"
+ output [damage for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS named "DPR (advantage)"
+ output [damage for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS named "DPR (disadvantage)"
+ output 0 named "-----------------------------------------------------"
+}
+
+if SHOWDPRGWM = 1 {
+ output [damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS named "DPR (GWM)"
+ output [damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS named "DPR (GWM advantage)"
+ output [damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS named "DPR (GWM disadvantage)"
+ output 0 named "-----------------------------------------------------"
+ if GWMCRITBONUSATK = 1 {
+  output ([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRIT and CHANCETOHITGWM and CRITMODE] named "DPR (GWM + bonus atk on crit)"
+  output ([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITADV and CHANCETOHITGWMADV and CRITMODE] named "DPR (GWM advantage + bonus atk on crit)"
+  output ([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITDIS and CHANCETOHITGWMDIS and CRITMODE] named "DPR (GWM disadvantage + bonus atk on crit)" 
+  output 0 named "-----------------------------------------------------"
+ }
+}
+
+if SHOWDPRSAVAGE = 1 {
+ output [damagesavage for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS named "DPR (Savage Attacker)"
+ output [damagesavage for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS named "DPR (Savage Attacker advantage)"
+ output [damagesavage for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS named "DPR (Savage Attacker disadvantage)"
+ output 0 named "-----------------------------------------------------"
+}
+
+if SHOWDPRSAVAGEBG = 1 {
+ output [damagesavagebg for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS named "DPR (Savage Attacker BG3)"
+ output [damagesavagebg for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS named "DPR (Savage Attacker BG3 advantage)"
+ output [damagesavagebg for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS named "DPR (Savage Attacker BG3 disadvantage)"
+ output 0 named "-----------------------------------------------------"
+}
+
+if SHOWGWMVSSVGCURRENT = 1 {
+ if GWMCRITBONUSATK = 1 {
+  output (([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRIT and CHANCETOHITGWM and CRITMODE]) - ([damagesavage for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "GWM + bonus atk on crit vs Savage normal"
+  output (([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITADV and CHANCETOHITGWMADV and CRITMODE]) - ([damagesavage for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "GWM + bonus atk on crit vs Savage adv"
+  output (([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITDIS and CHANCETOHITGWMDIS and CRITMODE]) - ([damagesavage for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "GWM + bonus atk on crit vs Savage dis"
+ }
+ else {
+  output ([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) - ([damagesavage for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "GWM vs Savage normal"
+  output ([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) - ([damagesavage for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "GWM vs Savage adv"
+  output ([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) - ([damagesavage for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "GWM vs Savage dis"
+ }
+ output 0 named "-----------------------------------------------------"
+}
+
+if SHOWGWMVSSVGCURRENTBG = 1 {
+ if GWMCRITBONUSATK = 1 {
+  output (([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRIT and CHANCETOHITGWM and CRITMODE]) - ([damagesavagebg for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "GWM + bonus atk on crit vs Savage BG3 normal"
+  output (([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITADV and CHANCETOHITGWMADV and CRITMODE]) - ([damagesavagebg for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "GWM + bonus atk on crit vs Savage BG3 adv"
+  output (([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITDIS and CHANCETOHITGWMDIS and CRITMODE]) - ([damagesavagebg for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "GWM + bonus atk on crit vs Savage BG3 dis"
+ }
+ else {
+  output ([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) - ([damagesavagebg for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "GWM vs Savage BG3 normal"
+  output ([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) - ([damagesavagebg for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "GWM vs Savage BG3 adv"
+  output ([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) - ([damagesavagebg for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "GWM vs Savage BG3 dis"
+ }
+ output 0 named "-----------------------------------------------------"
+}
+
+if SHOWGWMVSSVG = 1 {
+ output 0 named "------- GWM VS Savage for different AC values -------"
+ loop TARGETAC over {5..25} {
+  CHANCETOHITGWM: [attackgwm d20 vs TARGETAC]
+  CHANCETOHIT: [attacknorm d20 vs TARGETAC]
+  if GWMCRITBONUSATK = 1 {
+   output (([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRIT and CHANCETOHITGWM and CRITMODE]) - ([damagesavage for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+  else {
+   output ([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) - ([damagesavage for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+ }
+ output 0 named "-----------------------------------------------------"
+ loop TARGETAC over {5..25} {
+  if ELVENACC = 1 {
+   CHANCETOHITADV: [attacknorm [highest of d20 and [highest of d20 and d20]] vs TARGETAC]
+   CHANCETOHITGWMADV: [attackgwm [highest of d20 and [highest of d20 and d20]] vs TARGETAC]
+  }
+  else {
+   CHANCETOHITADV: [attacknorm [highest of d20 and d20] vs TARGETAC]
+   CHANCETOHITGWMADV: [attackgwm [highest of d20 and d20] vs TARGETAC]
+  }
+  if GWMCRITBONUSATK = 1 {
+   output (([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITADV and CHANCETOHITGWMADV and CRITMODE]) - ([damagesavage for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+  else {
+   output ([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) - ([damagesavage for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+ }
+ output 0 named "-----------------------------------------------------"
+ loop TARGETAC over {5..25} {
+  CHANCETOHITGWMDIS: [attackgwm [lowest of d20 and d20] vs TARGETAC]
+  CHANCETOHITDIS: [attacknorm [lowest of d20 and d20] vs TARGETAC]
+  if GWMCRITBONUSATK = 1 {
+   output (([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITDIS and CHANCETOHITGWMDIS and CRITMODE]) - ([damagesavage for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+  else {
+   output ([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) - ([damagesavage for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+ }
+ output 0 named "-----------------------------------------------------"
+}
+
+if SHOWGWMVSSVGNBG = 1 {
+ output 0 named "----- GWM VS Savage BG3 for different AC values -----"
+ loop TARGETAC over {5..25} {
+  CHANCETOHITGWM: [attackgwm d20 vs TARGETAC]
+  CHANCETOHIT: [attacknorm d20 vs TARGETAC]
+  if GWMCRITBONUSATK = 1 {
+   output (([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRIT and CHANCETOHITGWM and CRITMODE]) - ([damagesavagebg for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+  else {
+   output ([damagegwm for CHANCETOHITGWM and CRITMODE] * NUMBEROFATTACKS) - ([damagesavagebg for CHANCETOHIT and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+ }
+ output 0 named "-----------------------------------------------------"
+ loop TARGETAC over {5..25} {
+  if ELVENACC = 1 {
+   CHANCETOHITADV: [attacknorm [highest of d20 and [highest of d20 and d20]] vs TARGETAC]
+   CHANCETOHITGWMADV: [attackgwm [highest of d20 and [highest of d20 and d20]] vs TARGETAC]
+  }
+  else {
+   CHANCETOHITADV: [attacknorm [highest of d20 and d20] vs TARGETAC]
+   CHANCETOHITGWMADV: [attackgwm [highest of d20 and d20] vs TARGETAC]
+  }
+  if GWMCRITBONUSATK = 1 {
+   output (([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITADV and CHANCETOHITGWMADV and CRITMODE]) - ([damagesavagebg for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+  else {
+   output ([damagegwm for CHANCETOHITGWMADV and CRITMODE] * NUMBEROFATTACKS) - ([damagesavagebg for CHANCETOHITADV and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+ }
+ output 0 named "-----------------------------------------------------"
+ loop TARGETAC over {5..25} {
+  CHANCETOHITGWMDIS: [attackgwm [lowest of d20 and d20] vs TARGETAC]
+  CHANCETOHITDIS: [attacknorm [lowest of d20 and d20] vs TARGETAC]
+  if GWMCRITBONUSATK = 1 {
+   output (([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) + [damagegwmbonusoncrit for ATLEASTONECRITDIS and CHANCETOHITGWMDIS and CRITMODE]) - ([damagesavagebg for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+  else {
+   output ([damagegwm for CHANCETOHITGWMDIS and CRITMODE] * NUMBEROFATTACKS) - ([damagesavagebg for CHANCETOHITDIS and CRITMODE] * NUMBEROFATTACKS) named "[TARGETAC]"
+  }
+ }
+}

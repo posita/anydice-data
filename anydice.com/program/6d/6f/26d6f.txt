@@ -1,0 +1,65 @@
+function: dh A:n {
+ if A<=3 {
+  result:A
+ }
+ result:0
+}
+
+function: iscrit B:n {
+ if B=3 { result:+1}
+ if B=6 { result:-1}
+ result:0 
+}
+
+function: crit C:n { 
+ if C>0 { result: [dh d6]}
+ if C<0 { result: -[dh d6]}
+ result: 0
+}
+
+function: peppe D:s N:n{
+ T:0
+ R:0
+ loop I over {1..N}{
+  T:T+[dh I@D]
+  R:R+[iscrit I@D]
+ }
+ T:T+[crit R]
+ result: T
+}
+
+function: dhexp D:n {
+ R:0
+ R: [dh D]
+ if D=3 {
+  R: R+[dh d6]
+ } else {
+  if D=6 {
+   R: R-[dh d6]
+  }
+ }
+ result: R
+}
+
+function: udhexp A:n {
+ R:0
+ R: [dh A]
+ if A=1 {
+  R: R+(d6-1)
+ } else {
+  if A=6 {
+   R: R-(d6-1)
+  }
+ }
+ result: R
+}
+
+
+\output [dhexp d6]\
+\output [udhexp d6]\
+
+K:3
+output [peppe Kd6 K]
+
+G:3
+output Gd{1,2,3,0,0,0}

@@ -1,0 +1,87 @@
+\ CONFIGURE \
+
+ORDER_MIN:   2
+ORDER_MAX:   6
+
+MAINTAINING: 0  \ Number of powers you are already maintaining.                   \
+EXERTION:    0  \ -1 - gain strain equal to order | 0 - none | 1+ - strain amount \
+
+SHOW_ADEPT:  0  \ 0 - hide checks with advantage | 1 - show checks with advantage \
+SHOW_NORMAL: 0  \ 0 - hide checks without advan. | 1 - show checks without advan. \
+
+SHOW_ADEPT_REDUCTION: 1 \ 0 - hide strain difference | 1 - show strain difference \
+
+
+\ FUNCTIONS \
+
+function: banana for reference { result: 0 }
+
+function: get manifestation dice for ORDER:n {
+  LOW:  {4, 6, 8}
+  MID:  {6, 8}
+  HIGH: {8}
+
+  if ORDER < 3 {
+    \ Since you can only maintain a number
+      of powers up to your proficiency bonus: \
+    if MAINTAINING < 3 { result: LOW } else
+    if MAINTAINING < 5 { result: MID }
+    result: HIGH
+  }
+  if ORDER < 5 {
+    if MAINTAINING < 5 { result: MID }
+    result: HIGH
+  }
+  result: HIGH
+}
+
+function: manifest power at ORDER:n using MANIFESTATION_DIE:n and ADEPT_DIE:n {
+  if EXERTION = -1 { STRAIN: ORDER    } else
+  if EXERTION > -1 { STRAIN: EXERTION } else { STRAIN: 0 }
+
+  if MANIFESTATION_DIE = ORDER + MAINTAINING { result: STRAIN + 1 }
+  if MANIFESTATION_DIE < ORDER + MAINTAINING {
+    if ADEPT_DIE > ORDER + MAINTAINING { result: STRAIN}
+    if ADEPT_DIE = ORDER + MAINTAINING { result: STRAIN + 1 }
+    result: STRAIN + ORDER
+  }
+  result: STRAIN
+}
+
+function: reduce strain at ORDER:n using ADEPT_DIE:n {
+  if EXERTION = -1 { STRAIN: ORDER    } else
+  if EXERTION > -1 { STRAIN: EXERTION } else { STRAIN: 0 }
+
+  NORMAL: STRAIN + ORDER
+  ADEPT:  STRAIN
+
+  if ADEPT_DIE = ORDER + MAINTAINING { ADEPT: ADEPT + 1 }
+  if ADEPT_DIE < ORDER + MAINTAINING { ADEPT: ADEPT + ORDER }
+  ADEPT: [lowest of ADEPT and NORMAL]
+  result: ADEPT - NORMAL
+}
+
+
+\ PROGRAM \
+
+output [banana for reference] named "Average strain from..."
+
+loop ORDER over {ORDER_MIN..ORDER_MAX} {
+  MANIFESTATION_DICE: [get manifestation dice for ORDER]
+  loop SIZE over MANIFESTATION_DICE {
+    if SHOW_NORMAL {
+      DIE: 1dSIZE
+      ADEPT: 0
+      output [manifest power at ORDER using DIE and ADEPT] named "[ORDER] @ 1d[SIZE]"
+    }
+    if SHOW_ADEPT {
+      DIE: 1dSIZE
+      ADEPT: 1dSIZE
+      output [manifest power at ORDER using DIE and ADEPT] named "[ORDER] @ 2d[SIZE]"
+    }
+    if SHOW_ADEPT_REDUCTION {
+      ADEPT: 1dSIZE
+      output [reduce strain at ORDER using ADEPT] named "[ORDER] @ 2d[SIZE], reduced"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+\Attributes\
+A: 1d8
+B: 1d8
+C: 1d8
+\Number of Skill Dice\
+SKILLNUMBER: 1
+\Dice Type of the Skill Dice\
+SKILLDICE: d8
+\This is the TN you roll against\
+TN: 5
+
+\This function explodes the skilldice\
+function: explode R:n on N:n {
+ if N = R { result: 1 + [explode R on SKILLDICE] }
+ result: N <= TN
+}
+EXPLODED: [explode 1 on SKILLDICE]
+
+\This function compares Att 1 to 3 against the TN\
+function: compare ATONE:n and ATTWO:n and ATTHREE:n {
+if (ATONE <= TN) & (ATTWO <= TN) & (ATTHREE <= TN) {result: 3}
+if (ATONE <= TN) & (ATTWO <= TN) {result: 2}
+if [lowest of ATONE and ATTWO] <= TN {result: 1}
+result: 0
+}
+
+\Finally the output function which yields the result\
+output [lowest of [compare A and B and C] + SKILLNUMBERdEXPLODED and 10] named "Attrib [A], [B], [C]; and skill [SKILLNUMBER][SKILLDICE] against TN[TN]"

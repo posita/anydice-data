@@ -1,0 +1,26 @@
+function: test ROLL:n dc DIFF:n {
+  SUCCESS: (ROLL + BONUS) >= DIFF
+  if (ROLL + BONUS) >= (DIFF + 10) { SUCCESS: SUCCESS + 1 }
+  if (ROLL + BONUS) <= (DIFF - 10) { SUCCESS: SUCCESS - 1 }
+  if ROLL = 20 { SUCCESS: SUCCESS + 1 }
+  if ROLL = 1 { SUCCESS: SUCCESS - 1 }
+  result: SUCCESS
+}
+
+function: med ROLL:n dc DIFF:n {
+  SUCCESS: [test ROLL dc DIFF]
+  if SUCCESS < 0 { result: -1 * 1d8 }
+  if SUCCESS = 0 { result: 0 }
+  if SUCCESS = 1 { HEAL: 2d8 }
+  if SUCCESS >= 2 { HEAL: 4d8 }
+  if DIFF = 15 { result: HEAL }
+  if DIFF = 20 { result: HEAL + 10 }
+  if DIFF = 30 { result: HEAL + 30 }
+  if DIFF = 40 { result: HEAL + 50 }
+}
+
+BONUS: 17
+
+loop DIFF over {15, 20, 30} {
+  output [med 1d20 dc DIFF] named "DC[DIFF]"
+}

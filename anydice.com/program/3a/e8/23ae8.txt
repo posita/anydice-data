@@ -1,0 +1,30 @@
+set "maximum function depth" to 4
+
+function: roll TIMES:n die SIDES:n count SUCC:n explode on EXPL:n {
+  EXPLODED: 0
+  SUCCESSES: 0
+  loop N over {1..TIMES} {
+    DIEROLL: 1dSIDES
+    SUCCESSES: SUCCESSES + [helper DIEROLL ge SUCC]
+    EXPLODED: EXPLODED + [helper DIEROLL ge EXPL]
+  }
+  result: SUCCESSES + [roll EXPLODED die SIDES count SUCC explode on EXPL]
+}
+
+function: helper N:n ge GE:n {
+  if N >= GE { result: 1 }
+  result: 0
+}
+
+N: 2
+D: 6
+C: 4
+E: 6
+output [roll N die D count C explode on E]
+output [roll N die D count C explode on E] > 0 named "Easy"
+output [roll N die D count C explode on E] > 1 named "Moderate"
+output [roll N die D count C explode on E] > 2 named "Hard"
+output [roll N die D count C explode on E] > 3 named "Heroic"
+output [roll N die D count C explode on E] > 4 named "Improbable"
+output [roll N die D count C explode on E] > 5 named "Miracle"
+

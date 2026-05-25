@@ -1,0 +1,42 @@
+PROF: 3
+CON: 3
+DEX: 2
+SAVEDC: 15
+DEXSAVE: 1
+DAMAGE: 4d6
+
+CPROF: PROF + CON
+
+\1 for dex, 0 for con\
+if DEXSAVE = 1 {
+\probability to pass initial dex save\
+SAVEWC: (d20 + DEX)> SAVEDC-1
+SAVERES: (d20+ DEX)> SAVEDC-1
+FAILWC: (d20 + DEX)< SAVEDC
+FAILRES: (d20+ DEX)< SAVEDC
+}
+else {
+\probability to pass initial con save\
+SAVEWC: (d20 + CON)> SAVEDC-1
+SAVERES: (d20+ CPROF)> SAVEDC-1
+FAILWC: (d20 + CON)< SAVEDC
+FAILRES: (d20+ CPROF)< SAVEDC
+}
+
+\chance to save conc at full damage with war caster\
+FWC: ([highest 1 of 2d20] + CON)> (DAMAGE/2)
+\or resilient\
+FRSL: (d20 + CPROF) > (DAMAGE/2)
+\or both\
+FBOTH: ([highest 1 of 2d20] + CPROF)> (DAMAGE/2)
+
+\chance to save conc at half damage with war caster\
+HWC: ([highest 1 of 2d20] + CON)> (DAMAGE/4)
+\or resilient\
+HRSL: (d20 +CPROF) > (DAMAGE/4)
+\or both\
+HBOTH: ([highest 1 of 2d20] +CPROF)> (DAMAGE/4)
+
+output SAVEWC*HWC + FAILWC*FWC named "War Caster"
+output SAVERES*HRSL + FAILRES*FRSL named "Resilient"
+output SAVERES*HBOTH +FAILRES*FBOTH named "Both"

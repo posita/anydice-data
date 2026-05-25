@@ -1,0 +1,43 @@
+
+
+
+function: calc ATTACKER DEFENDER ALVL DLVL VICTORY:n {
+ if VICTORY <= ATTACKER {
+  result: VICTORY/(2*DLVL)
+ }
+ else {
+  result: -(VICTORY-ATTACKER)/(2*ALVL)
+ }
+}
+
+function: do ATTACKER DEFENDER ALVL DLVL REROLL {
+ VICTORY: 1d(ATTACKER + DEFENDER)
+ if REROLL > 0 { 
+  ROLL: 2d(ATTACKER + DEFENDER)
+  VICTORY: 2@ROLL
+ }
+ result: [calc ATTACKER DEFENDER ALVL DLVL VICTORY]
+}
+
+function: chance VICTORY:n ATTACKER {
+ if VICTORY <= ATTACKER {
+  result: 1
+ }
+ else {
+  result: 0
+ }
+}
+function: simple ATTACKER DEFENDER REROLL {
+ VICTORY: 1d(ATTACKER + DEFENDER)
+ if REROLL > 0 { 
+  ROLL: 2d(ATTACKER + DEFENDER)
+  VICTORY: 2@ROLL
+ }
+ result: [chance VICTORY ATTACKER]
+}
+
+
+output [simple 500 500 1] named "airstrikes victory chance"
+output [simple 800 500 0] named "no airstrikes victory chance"
+output [do 500 500 6 6 1] named "airstrikes casualties (30 fewer troops [240 EF] + reroll)"
+output [do 800 500 6 6 0] named "no airstrikes casualties"

@@ -1,0 +1,144 @@
+STR: 4
+PROF: 3
+RAGE: 2
+
+function: atk MOD:n ATKROLL:s based vs AC:n with WEAPON:d magic MAGIC:n modifiers PROF:n MODDMG:n CRIT:n EXTRA:n {
+  if ATKROLL > 20 - CRIT { result: 2dWEAPON + MODDMG * MOD + EXTRA + MAGIC }
+  if ATKROLL >= (AC - MOD - PROF - MAGIC) { result: WEAPON + MODDMG * MOD + EXTRA + MAGIC }
+  result: 0
+} 
+
+function: lio vs AC:n FLURRY:n LEVEL:n {
+  DEX: 4
+  CRIT: 1
+  MAGIC: 0
+  ADDMODDMG: 1
+  NOEXTRA: 0
+  if LEVEL = 4 {
+  PROF: 2
+  WEAPON: 1d4 \ unarmed strike \ 
+  }
+  if LEVEL = 5 {
+  PROF: 3
+  WEAPON: 1d6 \ unarmed strike \
+  }
+  ATK: [atk DEX 1d20 based vs AC with WEAPON magic MAGIC modifiers PROF ADDMODDMG CRIT NOEXTRA]
+  if LEVEL = 5 {
+    if FLURRY = 1 { result: 4dATK }
+    result: 3dATK
+  }
+  if FLURRY = 1 { result: 3dATK }
+  result: 2dATK
+}
+
+loop FLURRY over {0,1} {
+  loop LEVEL over {4,5} {
+    AC: 14
+    output [lio vs AC FLURRY LEVEL] named "Lio vs AC[AC] Level [LEVEL] FLURRY [FLURRY]"
+  }
+}
+
+function: egli vs AC:n RAGE:n LEVEL:n {
+  STR: 4
+  CRIT: 1
+  MAGIC: 0
+  EXTRA: 2*RAGE
+  if LEVEL = 4 {
+  PROF: 2
+  WEAPON: 1d6 \ Hand Axes \ 
+  }
+  if LEVEL = 5 {
+  PROF: 3
+  WEAPON: 2d6 \ Maul \
+  }
+  ATK: [atk STR 1d20 based vs AC with WEAPON magic MAGIC modifiers PROF 1 CRIT EXTRA]
+  ATKOFFHAND: [atk STR 1d20 based vs AC with WEAPON magic MAGIC modifiers PROF 0 CRIT EXTRA]
+  if LEVEL = 5 {
+    result: 2dATK
+  }
+  result: 1dATK + 1dATKOFFHAND
+}
+
+loop LEVEL over {4,5} {
+  AC: 14
+  output [egli vs AC 1 LEVEL] named "Egli vs AC[AC] Level [LEVEL]"
+}
+
+
+function: dmg ATKROLL:s against AC:n with WEAPON:d MAGIC:n with MODDMG:n CRIT:n{
+  if ATKROLL > 20 - CRIT { result: 2dWEAPON + MODDMG + RAGE + MAGIC }
+  if ATKROLL >= (AC - STR - PROF - MAGIC) { result: WEAPON + MODDMG + RAGE + MAGIC }
+  result: 0
+} 
+
+function: klikkerdmg ATKROLL:s against AC:n CRIT:n{
+  DEX: 5
+  PROF: 4
+  MAGIC: 2
+  WEAPON: 1d4 + 3d8 + 5d6
+  if ATKROLL > 20 - CRIT { result: 2dWEAPON + 1d4 + DEX + MAGIC }
+  if ATKROLL >= (AC - DEX - PROF - MAGIC) { result: WEAPON + DEX + MAGIC }
+  result: 0
+} 
+
+function: klikker vs AC:n CRIT:n STEADY:n{
+  if STEADY = 1 {
+    ATK: [klikkerdmg [highest 1 of 2d20] against AC CRIT] 
+    result: 1dATK
+  }
+  ATK: [klikkerdmg 1d20 against AC CRIT]
+  result: 1dATK
+}
+
+function: maul MAGIC:n vs AC:n CRIT:n {
+  WEAPON: 2d6
+  ATK: [dmg 1d20 against AC with WEAPON MAGIC with STR CRIT]
+  result: 2dATK
+}
+
+function: handaxes MAGIC:n vs AC:n CRIT:n {
+  WEAPON: 1d6
+  ATK: [dmg 1d20 against AC with WEAPON MAGIC with STR CRIT]
+  ATKOFFHAND: [dmg 1d20 against AC with WEAPON MAGIC with 0 CRIT] 
+  result: 2dATK + ATKOFFHAND
+}
+
+MAGIC: 0
+AC: 16
+
+NOCRIT: 0
+CRIT: 1
+EXPCRIT: 2
+
+\ WITHOUT CRIT \
+\ loop AC over {10, 12, 14, 16} {
+  output [maul MAGIC vs AC NOCRIT] named "AC[AC] Maul+[MAGIC]/Extra Attack w/o crit"
+}
+loop AC over {10, 12, 14, 16} {
+  output [handaxes MAGIC vs AC NOCRIT] named "AC[AC] Hand Axes+[MAGIC]/Extra Attack w/o crit"
+} \
+
+\ WITH CRIT \ 
+\ loop AC over {10, 12, 14, 16} {
+  output [maul MAGIC vs AC CRIT] named "AC[AC] Maul+[MAGIC]/Extra Attack w/ crit"
+} \
+\ loop AC over {10, 12, 14, 16} {
+  output [handaxes MAGIC vs AC CRIT] named "AC[AC] Hand Axes+[MAGIC]/Extra Attack w/ crit"
+} \
+
+\ KLIKKER \ 
+\ loop AC over {20} {
+  output [klikker vs AC NOCRIT] named "AC[AC] Klikker no crit"
+}
+loop AC over {20} {
+  output [klikker vs AC CRIT 0] named "AC[AC] Klikker crit on 20"
+}
+loop AC over {20} {
+  output [klikker vs AC CRIT 1] named "AC[AC] Klikker crit on 20 (adv)"
+}
+loop AC over {20} {
+  output [klikker vs AC EXPCRIT 0] named "AC[AC] Klikker crit on 19+"
+}
+loop AC over {20} {
+  output [klikker vs AC EXPCRIT 1] named "AC[AC] Klikker crit on 19+ (adv)"
+} \

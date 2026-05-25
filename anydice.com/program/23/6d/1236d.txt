@@ -1,0 +1,17 @@
+function: reroll highest of ROLL:s as REROLL:d if more than MAX:n {
+  HIGHEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if HIGHEST <= MAX {
+    result: [count {1, 1..20} in ROLL]    \ here all results are successes but 1s count twice \
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but last die \
+    result: [count {1, 1, 2, 3} in REROLL] + [count {1, 1, 2, 3} in REST]    \ new die + other results  \
+  }
+}
+
+output [reroll highest of 3d4 as d4 if more than 3] named "# of hits with 3d4 reroll"
+output [reroll highest of 3d6 as d6 if more than 3] named "# of hits with 3d6 reroll"
+output [reroll highest of 3d8 as d8 if more than 3] named "# of hits with 3d8 reroll"
+
+output [count {1, 1, 2, 3} in 3d4] named "# of hits with 3d4"
+output [count {1, 1, 2, 3} in 3d6] named "# of hits with 3d6"
+output [count {1, 1, 2, 3} in 3d8] named "# of hits with 3d8"

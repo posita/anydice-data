@@ -1,0 +1,31 @@
+ATTACK_MOD: 14
+HITDAMAGE_DICE: 1d8+3d4+2d8
+HITDAMAGE_FIX: 15
+NUMBER_OF_ATTACK: 3
+CRITICAL_MINIMUM_ROLL: 18
+MISSDAMAGE: 0
+AC_TARGET: 18
+ADVANTAGE: 1
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITICAL_MINIMUM_ROLL { result: CRITICALHIT }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: 2dHITDAMAGE_DICE+HITDAMAGE_FIX
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE_DICE+HITDAMAGE_FIX
+ }
+ result: MISSDAMAGE
+}
+
+output [damage for [attack [highest 1 of (1+ADVANTAGE)d20] vs AC_TARGET]]*NUMBER_OF_ATTACK
+output [damage for [attack [highest 1 of (1+0)d20] vs AC_TARGET]]*NUMBER_OF_ATTACK

@@ -1,0 +1,103 @@
+\ DSAS + Fold Knife simulator \
+
+\ Grit \
+GRIT: 3
+\ Evasion of the target \
+EVASION: 8
+\ Armor of the target \
+ARMOR: 3
+\ Base accuracy (-1 for Impaired, etc) \
+ACC: 0
+\ Was the target hit with a ranged attack before? \
+RANGEDHIT: 0
+\ Is the target isolated? \
+ISOLATED: 1
+
+\ Roll a d20 with Grit and the specified accuracy. \
+function: rollwith A:n {
+  if (A = 0) {
+    D: 0
+  } else if (A > 0) {
+    D: [highest 1 of Ad6]
+  } else {
+    D: -[highest 1 of (-A)d6]
+  }
+  result: 1d20 + GRIT + D
+}
+
+\ Check a d20 roll versus the target's evasion. A miss is 0, a hit is 1, and a crit is 2. \
+function: check D:n {
+  if (D < EVASION) {
+    result: 0
+  } else if (D < 20) {
+    result: 1
+  } else {
+    result: 2
+  }
+}
+
+\ Roll with the specified accuracy against Evasion. A miss is 0, a hit is 1, and a crit is 2. \
+function: roll A:n {
+  result: [check [rollwith A]]
+}
+
+\ Hit and crit damage for first knife, second knife, and shotgun. \
+FKHIT: [highest of 1d3 - ARMOR and 0]
+FKCRIT: [highest of [highest 1 of 2d3] - ARMOR and 0]
+SKHIT: [highest of 1d3 + ISOLATED * 1d6 - ARMOR and 0]
+SKCRIT: [highest of [highest 1 of 2d3] + ISOLATED * [highest 1 of 2d6] - ARMOR and 0]
+SHHIT: [highest of 2d6 - ARMOR and 0]
+SHCRIT: [highest of [highest 2 of 4d6] - ARMOR and 0]
+
+\ Stab the first time. B = 1 if it's part of a barrage. \
+function: fstab D:n with B:n {
+  RD: [fshot [roll ACC + (D > 0)] with B]
+  if (D = 0) {
+    result: RD
+  } else if (D = 1) {
+    result: FKHIT + RD
+  } else {
+    result: FKCRIT + RD
+  }
+}
+
+\ Shotgun the first time. B = 1 if it's part of a barrage. \
+function: fshot D:n with B:n {
+  RD: [sstab [roll ACC + 1 + (D > 0)] with B]
+  if (D = 0) {
+    result: RD
+  } else if (D = 1) {
+    result: SHHIT + RD
+  } else {
+    result: SHCRIT + RD
+  }
+}
+
+\ Stab the second time. B = 1 if it's part of a barrage. \
+function: sstab D:n with B:n {
+  if (B > 0) {
+    RD: [sshot [roll ACC + (D > 0)]]
+  } else {
+    RD: 0
+  }
+  if (D = 0) {
+    result: RD
+  } else if (D = 1) {
+    result: SKHIT + RD
+  } else {
+    result: SKCRIT + RD
+  }
+}
+
+function: sshot D:n {
+  if (D = 0) {
+    result: 0
+  } else if (D = 1) {
+    result: SHHIT
+  } else {
+    result: SHCRIT
+  }
+}
+
+output [fstab [roll ACC + RANGEDHIT + 1] with 0] named "Skirmish"
+output [fstab [roll ACC + RANGEDHIT + 1] with 1] named "Barrage"

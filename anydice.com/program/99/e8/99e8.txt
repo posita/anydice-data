@@ -1,0 +1,23 @@
+function: roll TIMES:n die SIDES:n count SUCC:n explode on EXPL:n {
+  SUCCESSES: 0
+  DIE: 1dSIDES
+  loop N over {1..TIMES} {
+    SUCCESSES: SUCCESSES + [DIE success on SUCC explode on EXPL]
+  }
+  result: SUCCESSES
+}
+
+function: N:n success on SUCC:n explode on EXPL:n {
+  SUCCESSES: 0
+  if N >= SUCC { SUCCESSES: 1 }
+  if N >= EXPL { SUCCESSES: SUCCESSES + [DIE success on SUCC explode on EXPL] }
+  result: SUCCESSES
+}
+
+X: 3d6+2
+
+output [roll X die 6 count 5 explode on 6]-[roll X die 6 count 5 explode on 6] named "roll (3d6+2)d6 (count 5+, explode on 6+)-1's"
+output [roll 20 die 6 count 5 explode on 6]-[roll 20 die 6 count 1 explode on 6]+4 named "roll 20d6 (count 5+, explode on 6+)-1's+4"
+output [roll 5 die 6 count 5 explode on 6]-[roll 5 die 6 count 1 explode on 6]+1 named "roll 5d6 (count 5+, explode on 6+)-1's+1"
+output [count {5, 6} in 20d6]-[count {1} in 20d6]+4 named "roll 20d6 (count 5+)-1's+4"
+output [count {5, 6} in 5d6]-[count {1} in 5d6]+1 named "roll 5d6 (count 5+)-1's+1"

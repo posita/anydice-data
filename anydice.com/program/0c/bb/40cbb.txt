@@ -1,0 +1,27 @@
+\ CONFIGURATION \
+POOL: 6        \ Change this to your number of dice \
+DIFFICULTY: 7  \ Change this to your target number (3-9) \
+
+\ MECHANIC: WITH RULE OF ONES \
+\ 1s count as -1 success \
+\ 2 through (Difficulty-1) count as 0 \
+\ Difficulty through 10 count as +1 success \
+RULE_OF_ONES_DIE: d{-1, 0:(DIFFICULTY - 2), 1:(11 - DIFFICULTY)}
+
+\ FUNCTION: CLAMP TOTAL TO 0 \
+\ This function takes the final sum of the roll. \
+\ If the sum is less than 0, it returns 0. Otherwise, it returns the sum. \
+function: clamp ROLL:n {
+ if ROLL < 0 { result: 0 }
+ result: ROLL
+}
+
+\ OUTPUT \
+\ We apply the clamp function to the dice roll \
+output [clamp POOL d RULE_OF_ONES_DIE] named "Rule of Ones (Clamped at 0)"
+
+\ COMPARISON \
+\ The version without Rule of Ones never goes below 0 anyway, \
+\ so it does not need the clamp function. \
+NO_ONES_DIE: d{0:(DIFFICULTY - 1), 1:(11 - DIFFICULTY)}
+output POOL d NO_ONES_DIE named "Without Rule of Ones"

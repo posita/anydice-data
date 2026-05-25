@@ -1,0 +1,112 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: bonusattack ROLL:n vs DEFENCE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + BONUSATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + BONUSATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: bonusdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BONUSCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BONUSHITDAMAGE
+ }
+ result: BONUSMISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: bonusattack {
+ result: [bonusdamage for [bonusattack d20 vs DEFENSE]]
+}
+
+DEFENSE: 20
+MISSDAMAGE: 0
+BONUSMISSDAMAGE: 0
+
+function: rolldamage for N:n or M:n {
+ if(N < REROLLDAMAGE) { 
+  result: M
+ }
+ result: N
+}
+
+BONUSATTACK: 5
+BONUSHITDAMAGE: 1d8 + 3
+BONUSCRITICALDAMAGE: 2d8 + 3
+
+ATTACK: 10
+REROLLDAMAGE: 5
+HITDAMAGE: [rolldamage for d10 or d10] + 5
+CRITICALDAMAGE: 3d10 + 5
+output 2d[attack] + [bonusattack] named "Heavy CB + C"
+
+ATTACK: 5
+HITDAMAGE: [rolldamage for d10 or d10] + 15
+CRITICALDAMAGE: 3d10 + 15
+output 2d[attack] + [bonusattack] named "Heavy CB + SS + C"
+
+ATTACK: 9
+HITDAMAGE: d6 + 5
+CRITICALDAMAGE: 2d6 + 5
+REROLLDAMAGE: 0
+output 3d[attack] named "Light CB"
+
+ATTACK: 4
+HITDAMAGE: d6 + 15
+CRITICALDAMAGE: 2d6 + 15
+output 3d[attack] named "Light CB + SS"
+
+ATTACK: 8
+REROLLDAMAGE: 3
+HITDAMAGE: 2d[rolldamage for d6 or d6] + 5
+CRITICALDAMAGE: 4d6 + 5
+output 2d[attack] named "Paladin"
+
+ATTACK: 3
+REROLLDAMAGE: 3
+HITDAMAGE: 2d[rolldamage for d6 or d6] + 15
+CRITICALDAMAGE: 4d6 + 15
+output 2d[attack] named "Paladin + GWM"
+
+ATTACK: 8
+REROLLDAMAGE: 3
+HITDAMAGE: 2d[rolldamage for d6 or d6] + [rolldamage for d8 or d8] + 5
+CRITICALDAMAGE: 4d6 + 4d8 + 5
+output 2d[attack] named "Paladin + Smite"
+
+ATTACK: 3
+REROLLDAMAGE: 3
+HITDAMAGE: 2d[rolldamage for d6 or d6] + [rolldamage for d8 or d8] + 15
+CRITICALDAMAGE: 4d6 + 4d8 + 15
+output 2d[attack] named "Paladin + GWM + Smite"

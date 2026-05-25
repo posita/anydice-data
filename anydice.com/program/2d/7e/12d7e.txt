@@ -1,0 +1,74 @@
+\************ Input Attacker Ships and Defender Ships Here *************\
+
+ASHIPS: 5              \Input number of attacking ships\
+ATTACKRISK: 2          \Aggressive = 1, Stealth = 2, Defensive = 3\
+ 
+DSHIPS: 2              \Input number of defending ships\
+DEFENSERISK: 3         \Aggressive = 1, stealth = 2, Defensive = 3\ 
+
+\***********************************************************************\
+
+EFFA: d{0,1,1,2,2,3} \Aggressive Effect Die - 2 rolled by player who takes this tactic\
+EFFS: d{0,0,1,1,2,2} \Aggressive Effect Die - 2 rolled by player who takes this tactic\
+EFFD: d{-1,0,0,1,1,2} \Aggressive Effect Die - 2 rolled by player who takes this tactic\
+
+RISKA: d{0,0,1,1} \Aggressive Risk Die - 1 rolled by player who takes this tactic\
+RISKS: d{-1,0,0,1} \Stealthy Risk Die - 1 rolled by player who takes this tactic\
+RISKD: d{-1,-1,0,0} \Defensive Risk Die - 1 rolled by player who takes this tactic\
+
+LOSS: d{-3,-2,-1,0,0,0} \Common Loss Die - 2 rolled in common\
+
+\Set Risk Dice\
+if ATTACKRISK = 1 {
+  ARISK: RISKA
+  AEFF: EFFA
+}
+
+if ATTACKRISK = 2 {
+  ARISK: RISKS
+  AEFF: EFFS
+} 
+
+if ATTACKRISK = 3 {
+  ARISK: RISKD
+  AEFF: EFFD
+}
+
+if DEFENSERISK = 1 {
+  DRISK: RISKA
+  DEFF: EFFA
+}
+
+if DEFENSERISK = 2 {
+  DRISK: RISKS
+  DEFF: EFFS
+} 
+
+if DEFENSERISK = 3 {
+  DRISK: RISKD
+  DEFF: EFFD
+}
+
+
+
+function: getloss LOSSA:n LOSSB:n OSHIPS:n MSHIPS:n RISK:n {
+ RES: LOSSA + LOSSB + OSHIPS + RISK
+
+ if RES > 0 {
+   if RES > MSHIPS{ 
+     result: MSHIPS
+   }
+   result: RES    
+ } else {
+   result: 0
+ } 
+}
+
+output ASHIPS - DSHIPS + AEFF + AEFF - DEFF named "Combat Result - Attack Risk:[ATTACKRISK] Defense Risk:[DEFENSERISK] ([ASHIPS]:[DSHIPS])"
+output [getloss LOSS LOSS DSHIPS ASHIPS ARISK] named "Attacker loss - Risk:[ATTACKRISK] ([ASHIPS]:[DSHIPS])"
+output [getloss LOSS LOSS ASHIPS DSHIPS DRISK] named "Defender loss - Risk:[DEFENSERISK] ([ASHIPS]:[DSHIPS])"
+
+
+
+
+

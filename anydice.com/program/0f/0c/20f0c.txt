@@ -1,0 +1,34 @@
+LEVEL: 8
+DC: 20
+REWARD: 200
+CRIMINAL: 1d4
+COST: 25
+STEALTH: 6
+PERCEPTION: 2
+TOOLS: 6
+DTVALUE: 10
+
+function: crime SUCCESS:n PARTIAL:n ESC:n {
+  if SUCCESS { result: REWARD*LEVEL - COST }
+  if PARTIAL { result: (REWARD/2)*LEVEL - COST }
+  if ESC { result: -COST }
+  result: -(REWARD + (REWARD/25)* 7 * DTVALUE)
+}
+
+RS: d20 + STEALTH + CRIMINAL
+RP: d20 + PERCEPTION + CRIMINAL
+RT: d20 + TOOLS + CRIMINAL
+
+CS: RS >= DC
+CP: RP >= DC
+CT: RT >= DC
+
+ESC: CS | CP | CT
+PARTIAL: (CS & CP) | (CS & CT) | (CP & CT)
+SUCCESS: CS & CP & CT  
+
+output ESC named "escape"
+output PARTIAL named "partial success"
+output (CS & CP & CT) named "success"
+
+output [crime SUCCESS PARTIAL ESC] named "expectation"

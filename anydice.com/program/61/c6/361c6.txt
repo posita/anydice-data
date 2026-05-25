@@ -1,0 +1,38 @@
+Q: {0..3}
+
+\ Probas for a double/triple/n-ple \
+\loop N over {2..16} { output Nd{0,0,0,1}}
+loop N over {2..9} { output [count 3 in POOLdQ]}\
+
+\ Probas for several mixed double/triple/n-ple \
+\loop N over {2..8} { output Nd{1,10,100,1000}} \
+
+function: find sets in ROLL:s {
+  COUNTS: {}
+  SETS: {}
+  loop N over {1..#ROLL} {
+    COUNTS: {COUNTS, N = ROLL}
+  }
+  result: COUNTS
+}
+
+\Use only the best Multi-Dices Set, Sum the Power & Area of the Set, then multiply it by the Lethality\
+function: extra damages from ROLL:s with lethality L:n {
+  COUNT: 0
+  D: 1
+
+  loop N over {1..#ROLL} {
+    if (N@ROLL = (N+1)@ROLL) {
+      COUNT: COUNT+1
+    }
+    if ((N@ROLL != (N+1)@ROLL) | (N+1=#ROLL)) & (COUNT>0) {
+      D: D + (N@ROLL+COUNT)
+      result: L*D
+    }
+  }
+  result: L*D
+}
+
+POOL: 9
+output [extra damages from POOLdQ with lethality 4] named "test from [POOL]d4"
+output POOLd{1,10,100,1000}

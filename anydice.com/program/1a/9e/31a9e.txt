@@ -1,0 +1,92 @@
+AC: 13
+INT_MOD: 3
+PROFICIENCY: 3
+
+ADVANTAGE:0
+
+\ Stuff defined by level \
+FLAME_DICE: 1
+MULTIATTACKS: 2
+
+function: roll
+{
+ if ADVANTAGE
+ {
+  result: [highest 1 of 2d20]
+ }
+ else
+ {
+  result: d20
+ }
+}
+
+function: ROLL:n hits with hit HIT and crit CRIT
+{
+ if (ROLL = 20)
+ {
+  result: CRIT
+ }
+ if ((ROLL + INT_MOD + PROFICIENCY) >= AC)
+ {
+  result: HIT
+ }
+ 
+ result: 0
+}
+
+function: green flame blade damage
+{
+ HIT_DAMAGE: 1d8 + INT_MOD + FLAME_DICEd8
+ CRIT_DAMAGE: 2d8 + INT_MOD + (FLAME_DICE * 2)d8
+
+ result: [[roll] hits with hit HIT_DAMAGE and crit CRIT_DAMAGE]
+}
+
+function: green flame blade second target damage
+{
+ HIT_DAMAGE: INT_MOD + FLAME_DICEd8
+ CRIT_DAMAGE: INT_MOD + (FLAME_DICE * 2)d8
+
+ result: [[roll] hits with hit HIT_DAMAGE and crit CRIT_DAMAGE]
+}
+
+function: green flame blade total damage
+{
+ HIT_DAMAGE: 1d8 + INT_MOD + FLAME_DICEd8 + INT_MOD + FLAME_DICEd8
+ CRIT_DAMAGE: 2d8 + INT_MOD + (FLAME_DICE * 2)d8 + INT_MOD + (FLAME_DICE * 2)d8
+
+ result: [[roll] hits with hit HIT_DAMAGE and crit CRIT_DAMAGE]
+}
+
+function: single standard attack
+{
+ HIT_DAMAGE: 1d8 + INT_MOD
+ CRIT_DAMAGE: 2d8 + INT_MOD
+ 
+ result: [[roll] hits with hit HIT_DAMAGE and crit CRIT_DAMAGE]
+}
+function: multiattack damage
+{
+ result: MULTIATTACKSd[single standard attack]
+}
+
+\
+output [green flame blade second target damage] named "Green Flame Blade Second Target Damage"
+output [green flame blade total damage] named "Green Flame Blade Total Damage (2 Targets)"
+\
+
+
+output [green flame blade damage] named "Green Flame Blade Damage"
+output [multiattack damage] named "Multiattack Damage"
+
+
+
+output [green flame blade damage] > 0 named "Green Flame Blade Does Hit"
+output [multiattack damage] > 0 named "Multiattack Does Hit"
+
+
+\
+ADVANTAGE: 1
+output [green flame blade damage] named "Green Flame Blade Damage (Advantage)"
+output [multiattack damage] named "Multiattack Damage (Advantage)"
+\

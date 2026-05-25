@@ -1,0 +1,69 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+CRITICAL_THRESHOLD: 20
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n for SAVAGE:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   result: [ attack with BONUS vs AC rolling ROLL with DICE and MOD for 0 ]
+}
+
+
+\ Let's compare options for a level 5 Barbarian that had 18 STR (created with 17 and \
+\ +1 for boon) and could have picked either ASI (raise STR to 20,) Savage Attacker,  \
+\ or Great Weapon Master. Do the comparison for target ACs ranging from 12 to 20.    \
+PROFICIENCY: 3
+RAGE_BONUS: 2
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+EVERBURN: 2d6 + 1d4
+SAVAGE_EVERBURN: 1@2d6 + 1@2d6 + 1@2d4
+
+WEAPON: EVERBURN
+SAVAGE_WEAPON: SAVAGE_EVERBURN
+
+loop TARGET_AC over { 12..20 } {
+   STR_MOD: 5
+   DAMAGE_BONUS: STR_MOD + RAGE_BONUS
+   HIT_BONUS: STR_MOD + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with WEAPON and DAMAGE_BONUS ] named "ASI normal vs AC[TARGET_AC]"
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with WEAPON and DAMAGE_BONUS ] named "ASI reckless vs AC[TARGET_AC]"
+   
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + RAGE_BONUS
+   HIT_BONUS: STR_MOD + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with SAVAGE_WEAPON and DAMAGE_BONUS ] named "Savage normal vs AC[TARGET_AC]"
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with SAVAGE_WEAPON and DAMAGE_BONUS ] named "Savage reckless vs AC[TARGET_AC]"
+   
+   DAMAGE_BONUS: STR_MOD + RAGE_BONUS + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY - 5
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with WEAPON and DAMAGE_BONUS ] named "GWM normal vs AC[TARGET_AC]"
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with WEAPON and DAMAGE_BONUS ] named "GWM reckless vs AC[TARGET_AC]"
+
+   \ Group the results prettier. \
+   output {0} named ""
+}

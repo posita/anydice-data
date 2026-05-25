@@ -1,0 +1,55 @@
+function: special dice {
+  result: d{0, 0, 1, 1, 2, 2}
+}
+
+
+function: reroll check with CHECK_VALUE:n and ORIGIN_RESULT:n {
+  if CHECK_VALUE = 0 {
+    result: 0
+  }
+  else {
+    result: CHECK_VALUE + ORIGIN_RESULT
+  }
+}
+
+
+function: reroll with CHECK_VALUE:n and ORIGIN_RESULT:s {
+  if CHECK_VALUE = 0 {
+    NEW_ROLL_VALUE: 2dSPEC
+    if #ORIGIN_RESULT = 2 {
+      NEW_ORIGIN_RESULT: {0}
+    }
+    else {
+      if #ORIGIN_RESULT = 3 {
+        NEW_ORIGIN_RESULT: {1@ORIGIN_RESULT}
+      }
+      else {
+        NEW_ORIGIN_RESULT: {1, #ORIGIN_RESULT - 2}@ORIGIN_RESULT
+      }
+    }
+    result: [reroll check with NEW_ROLL_VALUE and NEW_ORIGIN_RESULT]
+  }
+  else {
+    result: ORIGIN_RESULT
+  }
+}
+
+
+function: roll N:n special dice {
+  if N = 1 {
+    result: SPEC
+  }
+
+  ORIGIN_RESULT: NdSPEC
+  if N = 2 {
+    CHECK_VALUE: {1, 2}@ORIGIN_RESULT
+  }
+  else {
+    CHECK_VALUE: {N - 1, N}@ORIGIN_RESULT
+  }
+  result: [reroll with CHECK_VALUE and ORIGIN_RESULT]
+}
+
+
+SPEC: [special dice]
+output [roll 2 special dice] named "小奎骰"

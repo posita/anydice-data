@@ -1,0 +1,66 @@
+set "maximum function depth" to 10
+function: ring DIE:d {
+  result: [ring DIE helper]
+}
+
+function: ring N:n helper {
+  if N=6 { result: 101 + [ring DIE helper] }
+  else if N=5 { result: 101 }
+  else if N=4 { result: 1 }
+  else if N=3 { result: 10000 }
+  else if N=2 { result: 10100 }
+  else { result: 0 }
+}
+
+function: skill DIE:d {
+  result: [skill DIE helper]
+}
+
+function: skill N:n helper {
+  if N=12 { result: 1 + [skill DIE helper] }
+  else if N=11 { result: 101 + [skill DIE helper] }
+  else if N=10 | N=9 | N=8 { result: 10000 }
+  else if N=7 | N=6 { result: 101 }
+  else if N=5 | N=4 { result: 1 }
+  else if N=3 { result: 10001 }
+  else { result: 0 }
+}
+
+function: successes N:n {
+  TEST: N / 100
+  GGLOL: TEST * 100
+  result: N - GGLOL
+}
+
+function: strife N:n {
+  TEST: N / 10000
+  GGLOL: TEST * 10000
+  THIRD: [successes N]
+  result: (N - GGLOL - THIRD) / 100
+}
+
+function: opp N:n {
+  result: N / 10000
+}
+
+function: tn N:n O:n {
+  SUCCS: [successes N]
+  OPPS: [opp N]
+  if OPPS<O { result: -1 }
+  else if SUCCS>8 { result: 9 }
+  else if SUCCS>7 { result: 8 }
+  else if SUCCS>6 { result: 7 }
+  else if SUCCS>5 { result: 6 }
+  else if SUCCS>4 { result: 5 }
+  else if SUCCS>3 { result: 4 }
+  else if SUCCS>2 { result: 3 }
+  else if SUCCS>1 { result: 2 }
+  else if SUCCS>0 { result: 1 }
+  else { result: 0 }
+}
+
+RINGS: 12
+SKILLS: 0
+
+B: RINGSd[ring d6] + SKILLSd[skill d12]
+output [tn B 5] named "+1"

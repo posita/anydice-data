@@ -1,0 +1,134 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MISSDAMAGE: 0
+
+function: first of SEQUENCE:s {
+  loop A over SEQUENCE {
+    result: A
+  }
+}
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [extra damage for ATTACKRESULTS]
+}
+
+function: secondary damage {
+  result: ABOVEANDBELOWSECONDARY * ACTIVATE / 100
+}
+
+function: extra damage for ATTACKRESULTS:s {
+ D: 0
+ if [ATTACKRESULTS contains CRITICALHIT] | [ATTACKRESULTS contains HIT] {
+  D: D + POISON
+ }
+ 
+ if USEABOVE = 1 {
+  FIRST: [first of ATTACKRESULTS]
+  if FIRST = HIT {
+   D: D + ABOVEANDBELOW + [secondary damage]
+  }
+  else if FIRST = CRITICALHIT {
+   D: D + ABOVEANDBELOWCRIT + [secondary damage]
+  }
+ }
+
+ result: D
+}
+
+function: N:n attacks {
+ if ADVANTAGE = DISADVANTAGE {
+  result: [damage for Nd[attack d20 vs AC]]
+ }
+ else if ADVANTAGE = 1 {
+  result: [N advantage attacks]
+ }
+ else {
+  result: [N disadvantage attacks]
+ }
+}
+
+function: N:n advantage attacks {
+ result: [damage for Nd[attack [highest 1 of 2d20] vs AC]]
+}
+
+function: N:n disadvantage attacks {
+ result: [damage for Nd[attack [lowest 1 of 2d20] vs AC]]
+}
+
+ADVANTAGE: 0
+DISADVANTAGE: 0
+ACRANGE: {13, 17, 21}
+ATTACK: 5 + 1
+HITDAMAGE: 1d8 + 5 + 5 + 1
+CRITICALDAMAGE: HITDAMAGE + 1d8
+POISON: 4d6
+ABOVEANDBELOW: 2d6
+ABOVEANDBELOWCRIT: 4d6
+ABOVEANDBELOWSECONDARY: 3d6 + 5
+USEABOVE: 0
+ACTIVATE: d{1..100}
+
+loop AC over ACRANGE {
+ USEABOVE: 0
+ ADVANTAGE: 0
+ output [3 attacks] named "AC [AC] - 3 attacks"
+ USEABOVE: 1
+ ADVANTAGE: 0
+ output [2 attacks] named "AC [AC] - 2 att A&B"
+ \USEABOVE: 0
+ ADVANTAGE: 1
+ output [3 attacks] named "AC [AC] - 3 adv attacks"
+ USEABOVE: 1
+ ADVANTAGE: 1
+ output [2 attacks] named "AC [AC] - 2 adv att A&B"\
+}
+
+\USEABOVE: 1
+loop AC over ACRANGE {
+ output [2 attacks] named "2 attacks with above and below vs AC [AC]"
+}\
+
+\USEABOVE: 0
+ADVANTAGE: 1
+loop AC over ACRANGE {
+ output [3 attacks] named "3 advantage attacks average vs AC [AC]"
+}\
+
+\USEABOVE: 1
+ACTIVATE: d{0..100}
+loop AC over ACRANGE {
+ output [2 attacks] named "2 advantage attacks with above and below vs AC [AC]"
+}\
+
+
+\AC: d{12..22}
+output [3 attacks] named "3 attacks average vs AC 12-22"\
+
+\AC: d{12..22}
+loop ACTIVATE over {0, 50, 100} {
+ output [2 attacks] named "2 attacks with above and below [ACTIVATE]% vs AC 12-22"
+}\
+
+\ACTIVATE: d{0..100}
+output [2 attacks] named "2 attacks with above and below blended% vs AC 12-22"\

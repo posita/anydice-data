@@ -1,0 +1,30 @@
+function: ATTACKROLL:n with ATTACKBONUS:n vs DC:n for DAMAGE damage plus BONUS on crit of CRIT:n {
+  if ATTACKROLL = 0 { result: 0 }
+  if ATTACKROLL >= CRIT {
+    if ATTACKROLL + ATTACKBONUS >= DC { result: [maximum of DAMAGE]+BONUS }
+    result: DAMAGE
+  }
+  if ATTACKROLL + ATTACKBONUS >= DC { result: DAMAGE }
+  result: 0
+}
+
+function: BONUS bonus damage on NUM hits in ATTACKRESULT:n {
+  if ATTACKRESULT > 0 { result: ATTACKRESULT + BONUS }
+  result: ATTACKRESULT
+}
+
+function: NUM:n attacks of ATTACK:d with ATTACKBONUS:n vs DC:n for DAMAGE:d damage plus BONUS:d on crit of CRIT:n {
+  TOTAL: 0
+  loop N over {1..NUM}{
+    TOTAL: TOTAL + [d20 with ATTACK vs DC for DAMAGE damage plus BONUS on crit of CRIT]
+  }
+  result: TOTAL
+}
+
+DC: 11
+\output 1d20 >= DC named "Hit Probability"\
+output [2d8 bonus damage on 1 hits in 2d[1d20 with +0 vs DC for 1d12+7 damage plus 3d6 on crit of 20]] named "Twin Strike"
+output [2d8 bonus damage on 1 hits in [1d20 with +0 vs DC for 1d12+13 damage plus 3d6 on crit of 20]] named "Nimble Strike"
+\output 2d[1d20 with +0 vs DC for 1d12+13 damage plus 3d6 on crit of 18] named "Biting Volley"\
+\output 3d[1d20 with +0 vs DC for 1d12+13 damage plus 3d6 on crit of 20] named "Confounding Arrows"\
+\output [3 attacks of 1d20 vs DC for 3d8+17 damage plus 4d6 on crit of 20] named "Thunder Summons"\

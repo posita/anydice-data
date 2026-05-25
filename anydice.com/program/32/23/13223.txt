@@ -1,0 +1,116 @@
+function: beauregardqstaff ROLL:n vs AC:n {
+ if ROLL >= 20 { result: QSTAFFCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + BEAUREGARDDEX >= AC { result: QSTAFF }
+ result: 0
+}
+
+function: beauregard ROLL:n vs AC:n {
+ if ROLL >= 20 { result: BEAUREGARDCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + BEAUREGARDDEX >= AC { result: BEAUREGARD }
+ result: 0
+}
+
+function: falchion ROLL:n vs AC:n {
+ if ROLL >= 19 { result: FALCHIONCRIT +1 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + FJORDCHA +1 >= AC { result: FALCHION +1 }
+ result: 0
+}
+
+function: tinkertop ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= 20 { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + NOTTDEX >= AC
+}
+
+function: tinkertop ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= 20 { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + NOTTDEX +1 >= AC
+}
+
+function: crossbowexpert N:n times {
+  result: [roll [tinkertop d20] to crossbowexpert N times]
+}
+function: roll FIRSTHIT:n to crossbowexpert N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    TTOP: FIRSTHIT d (TINKERTOP + NOTTSNEAK)
+    loop I over {2..N} {
+      TTOP: TTOP + [tinkertop d20] d TINKERTOP +1
+    }
+    result: TTOP
+  } else {
+    result: [roll [tinkertop d20] to crossbowexpert N-1 times]
+  }
+}
+
+function: yasha ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= 20 { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + YASHASTR >= AC
+}
+
+function: yasha ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= 20 { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + YASHASTR >= AC
+}
+
+function: yashaattacks N:n times {
+  result: [roll [yasha [highest 1 of 2d20]] to yashaattacks N times]
+}
+function: roll FIRSTHIT:n to yashaattacks N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    GSWORD: FIRSTHIT d (JUDGE + YASHANSHROUD + YASHADFURY)
+    loop I over {2..N} {
+      GSWORD: GSWORD + [yasha [highest 1 of 2d20]] d JUDGE
+    }
+    result: GSWORD
+  } else {
+    result: [roll [yasha [highest 1 of 2d20]] to yashaattacks N-1 times]
+  }
+}
+
+AC: d{12..17}
+
+PROFICIENCY: 3
+
+BEAUREGARDDEX: 4
+FJORDCHA: 4
+NOTTDEX: 4
+NOTTSNEAK: 4d6
+YASHASTR: 3
+YASHANSHROUD: 7
+YASHADFURY: 1d6+YASHANSHROUD
+
+QSTAFF: 1d8+BEAUREGARDDEX
+QSTAFFCRIT: 2d8+BEAUREGARDDEX
+
+BEAUREGARD: 1d6+BEAUREGARDDEX
+BEAUREGARDCRIT: 2d6+BEAUREGARDDEX
+
+FALCHION: 1d10+FJORDCHA+PROFICIENCY
+FALCHIONCRIT: 2d10+FJORDCHA+1d10+PROFICIENCY
+
+TINKERTOP: 1d6+NOTTDEX
+JUDGE: 2d6+YASHASTR
+
+output 2d[beauregardqstaff d20 vs AC]+2d[beauregard d20 vs AC] named "Beauregard makes 2 versatile attacks with her quarterstaff and uses Flurry of Blows"
+
+output 2d[falchion d20 vs AC] named "Fjord attacks twice with Summer's Dance against a cursed target"
+
+output [crossbowexpert 2 times] named "Nott attacks twice with the Tinkertop Boltblaster 1000"
+
+output [yashaattacks 2 times] named "Yasha recklessly attacks twice with the Magician's Judge"

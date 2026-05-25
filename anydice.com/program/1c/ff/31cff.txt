@@ -1,0 +1,93 @@
+
+output } named "reroll"
+
+SPELL_LEVEL: 3
+
+TARGET_AC: 15
+TARGET_SAVE_BONUS: 4
+SPELL_ATTACK_BONUS: 5
+SPELL_SAVE_DC: 13
+
+CANTRIPS_BOOL: 1
+FIRSTLEVELSPELLS_BOOL: 1
+SECONDLEVELSPELLS_BOOL: 1
+THIRDLEVELSPELLS_BOOL: 1
+TWINNED_BOOL: 1
+AOE_AFFECTED_COUNT: 2
+
+
+
+
+SPELL_HITS: 1d20 + SPELL_ATTACK_BONUS >= TARGET_AC
+ATTACK_ROLL: 1d20 + SPELL_ATTACK_BONUS
+\TWINNED_HITS: 1d20 + SPELL_ATTACK_BONUS >= TARGET_AC\
+FAILED_SAVE: 1d20 + TARGET_SAVE_BONUS < SPELL_SAVE_DC
+\SUCEEDED_SAVE: !FAILED_SAVE\
+SAVE_THROW: 1d20 + TARGET_SAVE_BONUS 
+
+function: SAVE_THROW:s against SPELL_SAVE_DC:n with DAMAGE:s {
+if SAVE_THROW < SPELL_SAVE_DC {result: DAMAGE}
+result: DAMAGE/2
+}
+
+function: loop SAVE_THROW:s against SPELL_SAVE_DC:n with DAMAGE:s to AOE_AFFECTED_COUNT:n targets {
+RESULT: 0
+loop N over {1..AOE_AFFECTED_COUNT}{
+if SAVE_THROW < SPELL_SAVE_DC {RES: DAMAGE}
+else {RES: DAMAGE/2}
+RESULT: RESULT + RES
+}
+result: RESULT
+}
+
+function: multi hit spell SPELL_HITS:n with DAMAGE:s to AFFECTED_COUNT:n {
+RESULT: 0
+loop N over {1..AFFECTED_COUNT}{
+RESULT: RESULT + SPELL_HITS*(DAMAGE)
+}
+result: RESULT
+}
+
+function: multi ATTACK_ROLL:s vs TARGET_AC:n with DAMAGE:s to AFFECTED_COUNT:n {
+RESULT: 0
+loop N over {1..AFFECTED_COUNT}{
+if ATTACK_ROLL >= TARGET_AC {RES: DAMAGE}
+else {RES: 0}
+RESULT: RESULT + RES
+}
+result: RESULT
+}
+
+if CANTRIPS_BOOL & SPELL_LEVEL < 3 {
+output SPELL_HITS*(1d10) + TWINNED_BOOL*SPELL_HITS*(1d10) named "fire bolt"
+}
+if CANTRIPS_BOOL & SPELL_LEVEL >= 3 & SPELL_LEVEL < 6 {
+output SPELL_HITS*(2d10) + TWINNED_BOOL*SPELL_HITS*(2d10) named "fire bolt"
+}
+if CANTRIPS_BOOL & SPELL_LEVEL >= 6 & SPELL_LEVEL < 9 {
+output SPELL_HITS*(3d10) + TWINNED_BOOL*SPELL_HITS*(3d10) named "fire bolt"
+}
+if CANTRIPS_BOOL & SPELL_LEVEL = 9 {
+output SPELL_HITS*(4d10) + TWINNED_BOOL*SPELL_HITS*(4d10) named "fire bolt"
+}
+
+if FIRSTLEVELSPELLS_BOOL {
+X: SPELL_LEVEL-1
+output 3d4+3 + Xd4 + X named "magic missile"
+output SPELL_HITS*(2d8+1d6 + Xd6) + TWINNED_BOOL*SPELL_HITS*(2d8+1d6 + Xd6) named "chaos bolt"
+output SPELL_HITS*(3d8 + Xd8) + TWINNED_BOOL*SPELL_HITS*(3d8 + Xd8) named "chromatic orb"
+}
+
+if SPELL_LEVEL >= 2 & SECONDLEVELSPELLS_BOOL {
+X: SPELL_LEVEL-2
+output SPELL_HITS*(3d8 + Xd8) + TWINNED_BOOL*SPELL_HITS*(3d8 + Xd8) named "mind spike"
+output [multi hit spell SPELL_HITS with 2d6 to (3+X)] named "scorching ray"
+\output [multi ATTACK_ROLL vs TARGET_AC with 2d6 to (3+X)] named "scorching ray1"\
+}
+
+if SPELL_LEVEL >= 3 & THIRDLEVELSPELLS_BOOL {
+X: SPELL_LEVEL-3
+output [loop SAVE_THROW against SPELL_SAVE_DC with (8d6 + Xd6) to AOE_AFFECTED_COUNT targets] named "lightning bolt/fireball"
+output [loop SAVE_THROW against SPELL_SAVE_DC with 2d6 to (6+2*X) targets] named "melf's minute meteors"
+output [loop SAVE_THROW against SPELL_SAVE_DC with (3d12 + Xd12) to AOE_AFFECTED_COUNT targets] named "erupting earth"
+}

@@ -1,0 +1,53 @@
+D: 14 \ 2 MAG + 6 Skill + 2 Spec + 2 Mentor + 2 Focus \
+E: 7 \ Edge \
+R: 6 \ Resistance \
+DB: 2 \ WMH +2, DD +1 \
+LA: 6 \ Limit first \
+LB: 6 \ Limit second \
+XMAX: 20 \ Display limit for graph \
+
+function: push helper D:n {
+ if D=6 {result: 1 + [push helper 1d6]}
+ if D=5 {result: 1}
+ result: 0
+}
+
+function: push D:n {
+ T: 0
+ loop N over {1..D}{
+  T: T + [push helper 1d6]
+ }
+ result: T
+}
+
+function: push opposed D limit L bonus B against R {
+ NH: [highest of 0 and [push D] - Rd{0,0,1}]
+ D: [net hits NH bonus B]
+ result: D
+}
+
+function: reroll opposed D limit L bonus B against R {
+ NH: [highest of 0 and [lowest of Dd{0,0,1,0,0,1,1,1,1} and L] - Rd{0,0,1}]
+ D: [net hits NH bonus B]
+ result: D
+}
+
+function: opposed D limit L bonus B against R {
+ NH: [highest of 0 and [lowest of Dd{0,0,1} and L] - Rd{0,0,1}]
+ D: [net hits NH bonus B]
+ result: D
+}
+
+function: net hits NH:n bonus B {
+ if NH > 0 {result: NH+B}
+ result: NH
+}
+
+output [lowest of XMAX and 26d{0,0,1,0,0,1,1,1,1}]
+output [reroll opposed 26 limit 12 bonus 0 against 0] named "Reroll"
+output [push opposed 26+3 limit 12 bonus 0 against 0] named "Push"
+
+output [lowest of XMAX and [opposed D limit LA bonus DB against R]] named "First cast"
+output [lowest of XMAX and [opposed D limit LA bonus DB against R] + [opposed D limit LB bonus DB against R]] named "No edge"
+output [lowest of XMAX and [opposed D limit LA bonus DB against R] + [reroll opposed D limit LB bonus DB against R]] named "Reroll"
+output [lowest of XMAX and [opposed D limit LA bonus DB against R] + [push opposed D+E limit LB bonus DB against R]] named "Push"

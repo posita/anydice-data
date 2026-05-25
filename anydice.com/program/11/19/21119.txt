@@ -1,0 +1,126 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+ADV: [highest 1 of 2d20]
+
+DISADV: [lowest 1 of 2d20]
+
+ELV_ACC: [highest 1 of 3d20]
+
+function: ba BONUS_ACTION:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT_DMG:d on CRIT_RANGE:d {
+
+    NO_CRIT: BONUS_ACTION
+    ALREADY_CRIT: BONUS_ACTION
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        NO_CRIT: [attack ROLL plus BONUS vs AC 
+            hit  DMG + NO_CRIT
+            miss NO_CRIT
+            crit DMG + CRIT_DMG + ALREADY_CRIT on CRIT_RANGE
+        ]
+        ALREADY_CRIT: ATTACK + ALREADY_CRIT
+    }
+
+    result: NO_CRIT
+}
+
+AC: d{12..18}
+ROLL: d20
+COMP_ROLL: d20
+
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d10 crit 1d10 on 20] named "Eldritch Blast"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d10 + 2 crit 1d10 on 19] named "Eldritch Blast w/ HBC"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d10 + 1d6 crit 1d10 + 1d6 on 20] named "Eldritch Blast w/ Hex"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d10 + 1d6 + 2 crit 1d10 + 1d6 on 19] named "Eldritch Blast w/ Hex, HBC"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d6 + 8 crit 1d6 on 20] named "Green Flame Blade"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d6 + 10 crit 1d6 on 19] named "Green Flame Blade w/ HBC"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d6 + 8 crit 2d6 on 20] named "Green Flame Blade w/ Hex"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d6 + 10 crit 2d6 on 19] named "Green Flame Blade w/ Hex, HBC"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d6 + 4 crit 1d6 on 20] named "Scimitar"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 1d6 + 6 crit 1d6 on 19] named "Scimitar w/ HBC"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d6 + 4 crit 2d6 on 20] named "Scimitar w/ Hex"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d6 + 6 crit 2d6 on 19] named "Scimitar w/ Hex, HBC"
+
+output
+[ba [attack ROLL plus 3 vs AC for 1d6 crit 1d6 on 20] attacks 1 roll ROLL plus 6 vs AC for 1d6 + 4 crit 1d6 on 20] named "Scimitars"
+
+output
+[ba [attack ROLL plus 3 vs AC for 1d6 + 2 crit 1d6 on 19] attacks 1 roll ROLL plus 6 vs AC for 1d6 + 6 crit 1d6 on 19] named "Scimitars w/ HBC"
+
+output
+[ba [attack ROLL plus 3 vs AC for 2d6 crit 2d6 on 20] attacks 1 roll ROLL plus 6 vs AC for 2d6 + 4 crit 2d6 on 20] named "Scimitars w/ Hex"
+
+output
+[ba [attack ROLL plus 3 vs AC for 2d6 + 2 crit 2d6 on 19] attacks 1 roll ROLL plus 6 vs AC for 2d6 + 6 crit 2d6 on 19] named "Scimitars w/ Hex, HBC"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d8 + 1d6 crit 2d8 + 1d6 on 20] named "Chaos Bolt"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d8 + 1d6 + 2 crit 2d8 + 1d6 on 19] named "Chaos Bolt w/ HBC"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d8 + 2d6 crit 2d8 + 2d6 on 20] named "Chaos Bolt w/ Hex"
+
+output
+[ba 0 attacks 1 roll ROLL plus 6 vs AC for 2d8 + 2d6 + 2 crit 2d8 + 2d6 on 19] named "Chaos Bolt w/ Hex, HBC"
+
+output
+[ba [attack COMP_ROLL plus 6 vs AC for 1d8 + 4 crit 1d8 on 20] attacks 1 roll COMP_ROLL plus 6 vs AC for 2d6 + 4 crit 2d6 on 20] named "Brown Bear"
+
+output
+[ba [attack COMP_ROLL plus 5 vs AC for 1d8 + 3 crit 1d8 on 20] attacks 1 roll COMP_ROLL plus 15 vs AC for 1d8 + 3 crit 1d8 on 20] named "War Priest, Channel Divinity"
+
+output
+[ba 0 attacks 1 roll ADV plus 6 vs AC for 1d12 + 6 crit 1d12 on 20] named "Reckless Attack, Rage"

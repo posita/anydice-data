@@ -1,0 +1,71 @@
+D: d12
+DM: d10
+DL: d8
+W: 2
+B: 3
+A: 12
+AH: A + 2
+function: dhpb N:n M:n O:n {
+ R: N + M + B + O - AH
+ if N = M {
+  R: N + M + B * 2 + O - AH
+ }
+ if R < 0 {result: 0}
+ result: (R)/5 + W
+}
+function: dhpm N:n M:n O:n {
+ R: N + M + B + O - AH
+ if N = M {
+  R: N * 3 + B + O - AH
+ }
+ if R < 0 {result: 0}
+ result: (R)/5 + W
+}
+function: dhp N:n M:n {
+ R: N + M + B - A
+ if N = M {
+  if R < 0 {result: W}
+  result: (R)/5 + W
+ }
+ if N = 20 {
+  result: (R)/5 + W + 2
+ }
+ if R < 0 {result: 0}
+ result: (R)/5 + W
+}
+function: dhpb adv N:n M:n O:n {
+ H: [sort {M, N, O}]
+
+ result: [dhpb 1@H 2@H 0]
+}
+function: dhpm adv anced N:n M:n O:n {
+ H: [sort {M, N, O}]
+ T: {1,2}@H
+ loop P over {1..#H}{
+  V: P@H
+  if [count V in H] >= 2 & V*3 >= T {
+   result: [dhpm V V 0]
+  }
+ }
+ result: [dhpm 1@H 2@H 0]
+}
+function: dhpm adv N:n M:n O:n {
+ H: [sort {M, N, O}]
+
+ result: [dhpm 1@H 2@H 0]
+}
+function: dhpm dis N:n M:n O:n {
+ H: [reverse [sort {M, N, O}]]
+
+ result: [dhpm 1@H 2@H 0]
+}
+\output [dhpm D D 0] named "pair = triple, 2d12"\
+output [dhpm DM DM 1d6] named "pair = triple, 2d10 + 1d6"
+output [dhpm DM DM 0] named "pair = triple, 2d10"
+output [dhpm DM DM 1d{-6..-1}] named "pair = triple, 2d10 - 1d6"
+\output [dhpm DL DL 0] named "pair = triple, 2d8"\
+output [dhp [highest of 1d20 and 1d20] 0] named "DC20, advantage"
+output [dhp 1d20 0] named "DC20"
+output [dhp [lowest of 1d20 and 1d20] 0] named "DC20, disadvantage"
+\output [dhpm adv D D D]\
+\output [dhp D D]\

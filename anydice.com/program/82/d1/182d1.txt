@@ -1,0 +1,130 @@
+\ Iron Man \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BIGATTACK: 6 + 3
+SMALLATTACK: 6 + 3 + 1
+BIGHITDAMAGE: 4d6 + 6
+BIGCRITICALDAMAGE: 8d6 + 6
+SMALLHITDAMAGE: 1d8 + 6 + 1
+SMALLCRITICALDAMAGE: 2d8 + 6 + 1
+MISSDAMAGE: 0
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+
+\ Level 6 \
+
+output [smallmultiattack 3] named "level 6 w/ gauntlets(no SS) vs AC[AC]"
+
+AC:15
+output [smallmultiattack 3] named "level 6 w/ gauntlets(no SS) vs AC[AC]"
+
+AC:20
+output [smallmultiattack 3] named "level 6 w/ gauntlets(no SS) vs AC[AC]"
+
+AC:25
+output [smallmultiattack 3] named "level 6 w/ gauntlets(no SS) vs AC[AC]"
+
+SMALLATTACK: 6 + 3 + 1 - 3
+SMALLHITDAMAGE: 1d8 + 6 + 6 + 1
+SMALLCRITICALDAMAGE: 2d8 + 6 + 6 + 1
+MISSDAMAGE: 0
+AC: 10
+output [smallmultiattack 3] named "level 6 w/ gauntlets(SS) vs AC[AC]"
+
+AC:15
+output [smallmultiattack 3] named "level 6 w/ gauntlets(SS) vs AC[AC]"
+
+AC:20
+output [smallmultiattack 3] named "level 6 w/ gauntlets(SS) vs AC[AC]"
+
+AC:25
+output [smallmultiattack 3] named "level 6 w/ gauntlets(SS) vs AC[AC]"
+
+AC: 10
+output [smallmultiattack 2] + [bigmultiattack 1] named "level 6 w/ gauntlets(SS)/GS(no GWM) vs AC[AC]"
+
+AC:15
+output [smallmultiattack 2] + [bigmultiattack 1] named "level 6 w/ gauntlets(SS)/GS(no GWM) vs AC[AC]"
+
+AC:20
+output [smallmultiattack 2] + [bigmultiattack 1] named "level 6 w/ gauntlets(SS)/GS(no GWM) vs AC[AC]"
+
+AC:25
+output [smallmultiattack 2] + [bigmultiattack 1] named "level 6 w/ gauntlets(SS)/GS(no GWM) vs AC[AC]"
+
+AC: 10
+output [smallmultiattack 1] + [bigmultiattack 2] named "level 6 w/ GS(no GWM)/gauntlets(SS) vs AC[AC]"
+
+AC:15
+output [smallmultiattack 1] + [bigmultiattack 2] named "level 6 w/ GS(no GWM)/gauntlets(SS) vs AC[AC]"
+
+AC:20
+output [smallmultiattack 1] + [bigmultiattack 2] named "level 6 w/ GS(no GWM)/gauntlets(SS) vs AC[AC]"
+
+AC:25
+output [smallmultiattack 1] + [bigmultiattack 2] named "level 6 w/ GS(no GWM)/gauntlets(SS) vs AC[AC]"

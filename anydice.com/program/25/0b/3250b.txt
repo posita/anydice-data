@@ -1,0 +1,80 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+MISSDAMAGE: 0
+CRITRANGE: 20
+
+ATTACK: 4 + 3
+HITDAMAGE: d12 + 4
+CRITICALDAMAGE: 2d12 + 8
+output [attack] named "Greataxe Vanilla"
+
+ATTACK: 4 + 3
+HITDAMAGE: [reroll {1} on 1d12] + 4
+CRITICALDAMAGE: [reroll {1} on 1d12] + [reroll {1} on 1d12] + [reroll {1} on 1d12] + 8
+output [attack] named "Greataxe Updated Brutal"
+
+ATTACK: 4
+HITDAMAGE: [reroll {1} on 1d12] + 7
+CRITICALDAMAGE: [reroll {1} on 1d12] + [reroll {1} on 1d12] + [reroll {1} on 1d12] + 14
+output [attack] named "Greataxe Updated Brutal Weighted"
+
+ATTACK: 4 + 3
+HITDAMAGE: 2d6 + 4
+CRITICALDAMAGE: 3d6 + 8
+output [attack] named "Greatsword Vanilla"
+
+ATTACK: 4 + 3
+HITDAMAGE: 2d6 + 7
+CRITICALDAMAGE: 2d6 + 14
+output [attack] named "Greatsword Deadly"
+
+ATTACK: 4
+HITDAMAGE: 2d6 + 10
+CRITICALDAMAGE: 2d6 + 20
+output [attack] named "Greatsword Deadly/Weighted"
+
+ATTACK: 4 + 3
+HITDAMAGE: 2d6 + 11
+CRITICALDAMAGE: 2d6 + 14
+output [attack] named "Greatsword Deadly + Sweep"
+
+ATTACK: 4
+HITDAMAGE: 2d6 + 14
+CRITICALDAMAGE: 2d6 + 20
+output [attack] named "Greatsword Deadly/Weighted + Sweep"

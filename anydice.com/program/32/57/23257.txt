@@ -1,0 +1,114 @@
+\REMEMBER TO SET [Data] BUTTON TO "At Least"\
+output -1 named "remember to set Data button to At Least"
+
+\SET ME:\
+
+USING_GUIDANCE_POTION:  1  \0 or 1 -- at 400g/16hr~=25g/hr\
+MEN_POTION:             0  \0 to 4 inclusive -- roughly (MEN*300gp)/24hr block i.e. 3 attempts\
+HEADBAND_BONUS:         2  \may be borrowed\
+
+NUM_GEMS_TO_SIM:        {1,2,3,4}
+\advantages: Prodigal\
+
+DC_ADJUST:              -5  \assumes item is well-paired\
+
+\---------------------------\
+ROWAN:1 \enum ignore\
+ASTRAL:2 \ignore\
+NPC:3 \ignore\
+\---------------------------\
+CRAFTERS_TO_SIM:        {ROWAN,ASTRAL,NPC}
+
+\NPC\
+NPC_BASE_CMI_BONUS:     15
+
+\ASTRAL\
+ASTRAL_BASE_CMI_BONUS:  5
+  ASTRAL_ADV_TO_SIM:    {1}
+
+\ROWAN\
+ROWAN_BASE_CMI_BONUS:   9
+  ROWAN_ADV_TO_SIM:     {0,1}
+  CURSEDNESS:           0  \0 to 10\
+
+\------------------------------------------------------- Advantage\
+
+function: POWER x adv DICE {
+  if POWER=0 {
+    result: DICE
+  } else {
+    result: [highest of DICE and [POWER-1 x adv DICE]]
+  }
+}
+function: adv DICE {
+  result: [1 x adv DICE]  \or [highest of X and X]\
+}
+function: double adv DICE {
+  result: [2 x adv DICE]
+}
+
+\------------------------------------------------------- Game logic\
+
+GUIDANCE_DICE: USING_GUIDANCE_POTION * 1d4   \1d4 if using potion, else 0\
+
+function: collapse X:n below THRESHOLD {  \sets all negative results to FAILURE\
+  if X>=THRESHOLD {result: X} else {result: -1}
+}
+
+function: NUM_GEMS:n gems by CRAFTER with ADV advantage {
+  TOTAL_ADV: ADV
+  if CRAFTER=ROWAN {
+    CURSEBUFFED_CMI: ROWAN_BASE_CMI_BONUS + CURSEDNESS + MEN_POTION
+  }
+  if CRAFTER=ASTRAL {
+    CURSEBUFFED_CMI: ASTRAL_BASE_CMI_BONUS + MEN_POTION
+  }
+  if CRAFTER=NPC {
+    CURSEBUFFED_CMI: NPC_BASE_CMI_BONUS + MEN_POTION
+  }
+  DIE: [TOTAL_ADV x adv d20]
+  
+  SUCCESSES: (CURSEBUFFED_CMI+HEADBAND_BONUS) + DIE + GUIDANCE_DICE
+  DC: 15 + DC_ADJUST
+  EXTRA_DIE: d20
+  loop N over {2..NUM_GEMS} {
+    SUCCESSES: SUCCESSES + EXTRA_DIE
+    DC: DC + 20
+  }
+  EXCESS_SUCCESSES: SUCCESSES - DC
+  result: [collapse EXCESS_SUCCESSES/2 below NUM_GEMS]
+}
+
+USINGGUIDANCEPOTION: USING_GUIDANCE_POTION \bugfixes for a parser bug\
+MENPOT: MEN_POTION
+
+output {} named "(#,%) = (achievable boundMana,%P(succ))"
+
+loop NUMGEMS over NUM_GEMS_TO_SIM {
+  output {} named "🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽 [NUMGEMS] gems💎 🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽*🔽"
+
+  loop CRAFTER over CRAFTERS_TO_SIM {
+    if CRAFTER=ROWAN {ADV_TO_SIM: ROWAN_ADV_TO_SIM}
+    if CRAFTER=ASTRAL {ADV_TO_SIM: ASTRAL_ADV_TO_SIM}
+    if CRAFTER=NPC {ADV_TO_SIM: {1}}
+
+    loop ADV over ADV_TO_SIM {
+      RESULT: [NUMGEMS gems by CRAFTER with ADV advantage]
+      output {} named "________ +[ADV]🎲 ________"
+      if CRAFTER=ROWAN {
+        output RESULT named "+[ADV]🎲adv, 🟣Rowan..... [NUMGEMS] gems, guidance=[USINGGUIDANCEPOTION] menPot=[MENPOT]"
+      }
+      if CRAFTER=ASTRAL {
+        output RESULT named "(Prodigal) 🔵Astral..... [NUMGEMS] gems, guidance=[USINGGUIDANCEPOTION] menPot=[MENPOT]"
+      }
+      if CRAFTER=NPC {
+        output RESULT named "(Prodigal) ***CMI-15 NPC***..... [NUMGEMS] gems, guidance=[USINGGUIDANCEPOTION] menPot=[MENPOT]"
+      }
+
+    }
+
+    if CRAFTER=NPC {
+      output {} named "🔽 🔽 🔽 🔽 🔽 🔽 🔽 "
+    }
+  }
+}

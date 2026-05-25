@@ -1,0 +1,46 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+      if ROLL = 1           { result: 0 }
+      if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG }
+      if ROLL + BONUS >= AC { result: DMG }
+      result: 0
+}
+
+function: max A:n B:n {
+  if A > B { result: A }
+  result: B
+}
+
+function: advantaged DIE:d {
+  result: [max DIE DIE]
+}
+
+function: sharp ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+      result: [attack ROLL plus BONUS -5 vs AC for DMG +10 crit CRIT_DMG on CRIT_RANGE]
+}
+
+function: reroll A:n B:n T:n DIE:d {
+  if A < T { result: [max DIE B] }
+  if B < T { result: [max A DIE] }
+  result: [max A B]
+}
+
+function: elven DIE:d {
+  result: [reroll DIE DIE (AC-H) DIE]
+}
+
+WD: 1d6
+B: 5
+H: 8
+AC: 15
+HEX: 1d6
+CHA: 1
+
+
+EHHXBOW: [attack [elven d20] plus H+CHA vs AC for WD+B+HEX+CHA crit WD+HEX on 19]
+SSHHXBOW: [sharp d20 plus H+CHA vs AC for WD+B+HEX+CHA crit WD+HEX on 19]
+HHXBOW: [attack d20 plus H vs AC for WD+B+HEX crit WD+HEX on 19]
+CHAXBOW: [attack d20 plus H+CHA vs AC for WD+B+HEX+CHA crit WD+HEX on 19]
+
+output EHHXBOW+HHXBOW named "DOUBLE ELVEN XBOW HEX"
+output CHAXBOW+CHAXBOW named "CHA ASI INCREASE"
+output SSHHXBOW+SSHHXBOW named "DOUBLE SHARP XBOW HEX"

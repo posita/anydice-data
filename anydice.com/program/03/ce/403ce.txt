@@ -1,0 +1,363 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n fail FAIL:n success SUCCESS:n{
+if SAVE >= DC {result: SUCCESS}
+if SAVE < DC {result: FAIL}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if ROLL = 1 {result: 0}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n onhit ONHIT onmiss ONMISS{
+if ROLL = 20 {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n onhit ONHIT onmiss ONMISS crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n io IO{
+if ROLL = 20 {result: DICE + DICE + FLOAT + IO}
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+output [attack 1d20 plus 1 vs ac 10 for 2d6 plus 3
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d6 plus 0]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 2d6 plus 3]
+] named "R1 HaXbow x2"
+
+output [attack 1d20 plus 1 vs ac 10 for 3d6 plus 3
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 3]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+2d6 plus 3]
+] named "R3 Psy Blade x2"
+
+output [attack 1d20 plus 1 vs ac 10 for 3d6 plus 4
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 4]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+2d6 plus 4]
+] named "R4 Psy Blade x2"
+
+output [attack 1d20 plus 1 vs ac 10 for 3d6 plus 6
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+2d6 plus 6]
+] named "R4/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 for 4d6 plus 6
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+3d6 plus 6]
+] named "R5/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 0 vs ac 10 for 5d6 plus 6
+	onhit [attack 1@2d20 plus 0 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1d20 plus 0 vs ac 10 for 1d4+4d6 plus 6]
+] named "R7/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 0 vs ac 10 for 6d6 plus 6
+	onhit [attack 1@2d20 plus 0 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1d20 plus 0 vs ac 10 for 1d4+5d6 plus 6]
+] named "R9/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 for 6d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+5d6 plus 7]
+] named "R10/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 for 7d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+6d6 plus 7]
+] named "R11/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 for 8d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+7d6 plus 7]
+] named "R13/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 for 9d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+8d6 plus 7]
+] named "R15/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 for 10d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+9d6 plus 7]
+] named "R17/F1 Psy Blade x2 Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 for 11d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d4+10d6 plus 7]
+] named "R19/F1 Psy Blade x2 Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 2d6 plus 3
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d6 plus 0]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 2d6 plus 0]
+] named "R1 HaXbow x2 ADV"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 3d6 plus 3
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 3]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+2d6 plus 3]
+] named "R3 Psy Blade x2 ADV"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 3d6 plus 4
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 4]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+2d6 plus 4]
+] named "R4 Psy Blade x2 ADV"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 3d6 plus 6
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+2d6 plus 6]
+] named "R4/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 4d6 plus 6
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+3d6 plus 6]
+] named "R5/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 0 vs ac 10 for 5d6 plus 6
+	onhit [attack 1@2d20 plus 0 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1@2d20 plus 0 vs ac 10 for 1d4+4d6 plus 6]
+] named "R7/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 0 vs ac 10 for 6d6 plus 6
+	onhit [attack 1@2d20 plus 0 vs ac 10 for 1d4 plus 6]
+	onmiss [attack 1@2d20 plus 0 vs ac 10 for 1d4+5d6 plus 6]
+] named "R9/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 6d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+5d6 plus 7]
+] named "R10/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 7d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+6d6 plus 7]
+] named "R11/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 8d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+7d6 plus 7]
+] named "R13/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 9d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+8d6 plus 7]
+] named "R15/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 10d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+9d6 plus 7]
+] named "R17/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 for 11d6 plus 7
+	onhit [attack 1@2d20 plus 1 vs ac 10 for 1d4 plus 7]
+	onmiss [attack 1@2d20 plus 1 vs ac 10 for 1d4+10d6 plus 7]
+] named "R19/F1 Psy Blade x2 ADV Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+2d6 as 1d8+2d6 if less than 12]+4
+	miss 0
+	crit [reroll 2d8+4d6 as 2d8+4d6 if less than 23]+4
+] named "R4 Rapier OA"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+2d6 as 1d8+2d6 if less than 12]+6
+	miss 0
+	crit [reroll 2d8+4d6 as 2d8+4d6 if less than 23]+6
+] named "R4/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 0 vs ac 10 
+	hit [reroll 1d8+3d6 as 1d8+3d6 if less than 15]+6
+	miss 0
+	crit [reroll 2d8+6d6 as 2d8+6d6 if less than 30]+6
+	crange 19
+] named "R5/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 0 vs ac 10 
+	hit [reroll 1d8+4d6 as 1d8+4d6 if less than 19]+6
+	miss 0
+	crit [reroll 2d8+8d6 as 2d8+8d6 if less than 37]+6
+	crange 19
+] named "R7/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 0 vs ac 10 
+	hit [reroll 1d8+5d6 as 1d8+5d6 if less than 22]+6
+	miss 0
+	crit [reroll 2d8+10d6 as 2d8+10d6 if less than 44]+6
+	crange 19
+] named "R9/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+5d6 as 1d8+5d6 if less than 22]+7
+	miss 0
+	crit [reroll 2d8+10d6 as 2d8+10d6 if less than 44]+7
+	crange 19
+] named "R10/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+6d6 as 1d8+6d6 if less than 26]+7
+	miss 0
+	crit [reroll 2d12+10d6 as 2d12+10d6 if less than 51]+7
+	crange 19
+] named "R11/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+7d6 as 1d8+7d6 if less than 29]+7
+	miss 0
+	crit [reroll 2d14+12d6 as 2d14+12d6 if less than 58]+7
+	crange 19
+] named "R13/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+8d6 as 1d8+8d6 if less than 33]+7
+	miss 0
+	crit [reroll 2d8+16d6 as 2d8+16d6 if less than 65]+7
+	crange 19
+] named "R15/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+9d6 as 1d8+9d6 if less than 36]+7
+	miss 0
+	crit [reroll 2d8+18d6 as 2d8+18d6 if less than 72]+7
+	crange 19
+] named "R17/F1 Rapier OA Duelling"
+
+output [attack 1d20 plus 1 vs ac 10 
+	hit [reroll 1d8+10d6 as 1d8+10d6 if less than 40]+7
+	miss 0
+	crit [reroll 2d8+20d6 as 2d8+20d6 if less than 79]+7
+	crange 19
+] named "R19/F1 Rapier OA Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+2d6 as 1d8+2d6 if less than 12]+4
+	miss 0
+	crit [reroll 2d8+4d6 as 2d8+4d6 if less than 23]+4
+] named "R4 Rapier OA ADV"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+2d6 as 1d8+2d6 if less than 12]+6
+	miss 0
+	crit [reroll 2d8+4d6 as 2d8+4d6 if less than 23]+6
+] named "R4/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 0 vs ac 10 
+	hit [reroll 1d8+3d6 as 1d8+3d6 if less than 15]+6
+	miss 0
+	crit [reroll 2d8+6d6 as 2d8+6d6 if less than 30]+6
+	crange 19
+] named "R5/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 0 vs ac 10 
+	hit [reroll 1d8+4d6 as 1d8+4d6 if less than 19]+6
+	miss 0
+	crit [reroll 2d8+8d6 as 2d8+8d6 if less than 37]+6
+	crange 19
+] named "R7/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 0 vs ac 10 
+	hit [reroll 1d8+5d6 as 1d8+5d6 if less than 22]+6
+	miss 0
+	crit [reroll 2d8+10d6 as 2d8+10d6 if less than 44]+6
+	crange 19
+] named "R9/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+5d6 as 1d8+5d6 if less than 22]+7
+	miss 0
+	crit [reroll 2d8+10d6 as 2d8+10d6 if less than 44]+7
+	crange 19
+] named "R10/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+6d6 as 1d8+6d6 if less than 26]+7
+	miss 0
+	crit [reroll 2d12+10d6 as 2d12+10d6 if less than 51]+7
+	crange 19
+] named "R11/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+7d6 as 1d8+7d6 if less than 29]+7
+	miss 0
+	crit [reroll 2d14+12d6 as 2d14+12d6 if less than 58]+7
+	crange 19
+] named "R13/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+8d6 as 1d8+8d6 if less than 33]+7
+	miss 0
+	crit [reroll 2d8+16d6 as 2d8+16d6 if less than 65]+7
+	crange 19
+] named "R15/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+9d6 as 1d8+9d6 if less than 36]+7
+	miss 0
+	crit [reroll 2d8+18d6 as 2d8+18d6 if less than 72]+7
+	crange 19
+] named "R17/F1 Rapier OA ADV Duelling"
+
+output [attack 1@2d20 plus 1 vs ac 10 
+	hit [reroll 1d8+10d6 as 1d8+10d6 if less than 40]+7
+	miss 0
+	crit [reroll 2d8+20d6 as 2d8+20d6 if less than 79]+7
+	crange 19
+] named "R19/F1 Rapier OA ADV Duelling"

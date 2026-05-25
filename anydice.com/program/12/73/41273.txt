@@ -1,0 +1,37 @@
+DIE: d{1:5, 10:2, 100:3}
+CARD: d{1:5, 10:2, 100:7}
+
+function: alchemist outcome DICE:n with trump CARDS:n {
+  DICE: 1000 + DICE
+  CARDS: 1000 + CARDS
+  EFFECTS: 2@DICE
+  CONTROLS: 3@DICE
+  LOSSES: 4@DICE
+
+  \ TRUMP_EFFECTS: 2@CARDS \
+  TRUMP_CONTROLS: 3@CARDS
+  TRUMP_LOSSES: 4@CARDS
+
+  if EFFECTS > 1 {
+    EFFECTS_TO_CONTROLS: [lowest of EFFECTS - 1 and TRUMP_CONTROLS]
+    EFFECTS: EFFECTS - EFFECTS_TO_CONTROLS
+    CONTROLS: CONTROLS + EFFECTS_TO_CONTROLS
+
+    if EFFECTS > 1 {
+      EFFECTS_TO_LOSSES: [lowest of EFFECTS - 1 and TRUMP_LOSSES]
+      EFFECTS: EFFECTS - EFFECTS_TO_LOSSES
+    }
+  } else if EFFECTS = 1 & CONTROLS = 0 & TRUMP_CONTROLS > 0 {
+    \ In this case, prefer partial success by converting the effect to a control. \
+    result: 3
+  }
+
+  if CONTROLS >= EFFECTS & EFFECTS > 0 { result: 4 } \ 4 = Total Success \
+  if CONTROLS > 0 & EFFECTS = 0 { result: 3 }        \ 3 = Partial Success \
+  if EFFECTS > CONTROLS { result: 2 }                \ 2 = Excessive Success \
+  result: 1                                          \ 1 = Failure \
+}
+
+loop N over {1..6} {
+  output [alchemist outcome NdDIE with trump 1dCARD] named "[N]d10"
+}

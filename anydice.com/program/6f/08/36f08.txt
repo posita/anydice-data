@@ -1,0 +1,117 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+PROFICIENCY: 2
+CRITICAL_THRESHOLD: 20
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+PHALARA: 1d8
+PHALARB: 1d10
+PHALARC: 1d10 + 1d4 + 1d4
+PHALARA_SAVAGE: 1@2d8
+PHALARB_SAVAGE: 1@2d10
+PHALARC_SAVAGE: 1@2d10 + 1@2d4 + 1@2d4
+GWM: 1d4+2
+MW:1
+
+loop TARGET_AC over { 12..20 } {
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARA_SAVAGE and DAMAGE_BONUS ] named "Phalar 1H Savage vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARA and DAMAGE_BONUS ] named "Phalar 1H ASI vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + GWM
+   HIT_BONUS: STR_MOD + 1
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARB and DAMAGE_BONUS ] named "Phalar 2H GWM vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARB_SAVAGE and DAMAGE_BONUS ] named "Phalar 2H Savage vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARB and DAMAGE_BONUS ] named "Phalar 2H ASI vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + GWM
+   HIT_BONUS: STR_MOD + 1
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with PHALARB and DAMAGE_BONUS ] named "Phalar 2H GWM w/ Advantage vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with PHALARB_SAVAGE and DAMAGE_BONUS ] named "Phalar 2H Savage w/ Advantage vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with PHALARB and DAMAGE_BONUS ] named "Phalar 2H ASI w/ Advantage vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + GWM + MW
+   HIT_BONUS: STR_MOD + 1 + MW
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARC and DAMAGE_BONUS ] named "Phalar 2H GWM w/ Crusader, Shriek, and MW vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + MW
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY + MW
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARC_SAVAGE and DAMAGE_BONUS ] named "Phalar 2H Savage w/ Crusader, Shriek, and MW vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 1 + MW
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY + MW
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARC and DAMAGE_BONUS ] named "Phalar 2H ASI w/ Crusader, Shriek, and MW vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + GWM + MW
+   HIT_BONUS: STR_MOD + 1 + MW
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARB and DAMAGE_BONUS ] named "Phalar 2H GWM w/ MW vs AC[TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + MW
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY + MW
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARB_SAVAGE and DAMAGE_BONUS ] named "Phalar 2H Savage w/ MW vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 1 + MW
+   HIT_BONUS: STR_MOD + 1 + PROFICIENCY + MW
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALARB and DAMAGE_BONUS ] named "Phalar 2H ASI w/ MW vs AC[TARGET_AC]"
+
+   \ Group the results prettier. \
+   output {0} named ""
+}

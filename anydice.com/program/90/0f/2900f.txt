@@ -1,0 +1,23 @@
+function: mnco helper N:n AMAX:n DMAX:n AROLL:n DROLL:n CARRY:n {
+  if AROLL > DROLL + CARRY {
+    if N = 6 { result: 5 + AROLL - DROLL }
+    result: N
+  }
+  A: AMAX - AROLL
+  D: DMAX - DROLL
+  C: CARRY + DROLL - AROLL
+  if N = 2 { result: A > D + C }
+  X: d(N-1) = N-1
+  result: [mnco helper N-1 A D AdX DdX C]
+}
+
+function: mnco A:n D:n {
+  X: d6 = 6
+  result: [mnco helper 6 A D AdX DdX 0]
+}
+
+loop A over {5} {
+  loop D over {0..5} {
+    output [mnco A D] named "action [A]d6, danger [D]d6"
+  }
+}

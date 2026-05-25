@@ -1,0 +1,47 @@
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: if CONDITION:n {
+  if CONDITION { result: 1 } else { result: 0 }
+}
+
+AC: 20
+ATK: -1
+DMG: 10 
+ROLL: 1d20
+ATK_ROLL: ROLL + ATK
+NAT: ROLL = 20
+HIT: ATK_ROLL >= AC
+CRIT: (ATK_ROLL >= AC + 10) | (NAT)
+CALC: (HIT * DMG) + (CRIT * (DMG * 2))
+
+output HIT * HIT
+output [if HIT | NAT]
+
+output NAT named "nat 20"
+output CRIT named "crit"
+output HIT named "hit"
+output HIT & NAT named "hit and nat 20"
+output HIT & CRIT named "hit and crit at the same time"
+output CALC named "calc"
+
+function: hit ac AC with bonus ATK for DMG dmg {
+ ROLL: 1d20
+ ATK_ROLL: ROLL + ATK
+ CRIT: (ROLL = 20) | (ROLL != 20 & (ATK_ROLL >= AC + 10))
+ HIT: (ATK_ROLL >= AC) & !CRIT
+ result: (HIT * DMG) + (CRIT * (DMG * 2))
+}
+
+output [hit ac 20 with bonus -1 for 10 dmg] named "Test"
+
+output [hit ac 20 with bonus 8 for 3d4 dmg] named "Asherot - ray of frost (2 actions)"
+
+output [hit ac 20 with bonus 11 for (2d8+4+3d12) dmg] named "Asherot - spellstrike with shocking grasp (2 actions)"
+
+output [hit ac 20 with bonus 10 for 1d6 dmg] + [hit ac 20 with bonus 5 for 1d6 dmg] + [hit ac 20 with bonus 5 for 1d6 dmg] named "Valeros - three shortbow attacks (3 actions)"
+
+output [hit ac 20 with bonus 13 for 2d8+4 dmg] named "Valeros - one longsword attack (1 action)"
+
+output [hit ac 20 with bonus 13 for 2d8+4 dmg] + [hit ac 20 with bonus 8 for 2d8+4 dmg] + [hit ac 20 with bonus 3 for 2d8+4 dmg] named "Valeros - three longsword attacks (3 actions)"

@@ -1,0 +1,25 @@
+L: 05     \Desired level\
+H: 06     \Desired Hit Die size\
+M: 10     \Maximum no. of hit dice\ 
+C: 01     \Constitution bonus. Applied per HD, minim 1HP/HD.\
+
+function: depth { result: 1 + [depth] }
+set "maximum function depth" to L+2  \If you get a "results truncated" message, increase this, but be careful\
+
+function: roll B {
+ if B > M { result: [highest of 1 and 1dH + C] + [roll M-1] }
+ if B > 1 { result: [highest of 1 and 1dH + C] + [roll B-1] }
+ result: [highest of 1 and 1dH + C]
+ }
+
+function: V X {
+ if X > 1 { result: [highest of [roll X] and [V X-1]] }
+ if V=1 { result: [highest of 1 and 1dH + C]}
+ if V=2 { result: [highest of 1 and [highest 1 of 2dH]+C] }
+ if V=3 { result: [highest of 1 and H+C] }
+ }
+
+output [1 L] named "1st level flat HP"
+output [2 L] named "1st lvl Adv. HP"
+output [3 L] named "1st level max HP"
+output [roll L] named "LdH (for reference)"

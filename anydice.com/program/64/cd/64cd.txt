@@ -1,0 +1,22 @@
+WARRIOR: {2, 3, 4, 5, 6, 6}
+ROGUE: {1, 1, 2, 3, 4, 5}
+MAGE_A: {1, 2, 3, 4, 5, 6}
+MAGE_B: {2, 3, 3, 4, 4, 5}
+
+\output 6d6 named "Control"\
+\output 6dWARRIOR named "Warrior"\
+\output 6dROGUE named "Rouge"\
+\output 3dMAGE_A + 3dMAGE_B named "Mage"\
+
+function: test ROLL:s with ability RESULT:s {
+  result: ((ROLL = 1) >= 1@RESULT) & ((ROLL = 2) >= 2@RESULT) & ((ROLL = 3) >= 3@RESULT) & ((ROLL = 4) >= 4@RESULT) & ((ROLL = 5) >= 5@RESULT) & ((ROLL = 6) >= 6@RESULT)
+}
+
+function: test ROLL:s with guard ability {
+  result: [test ROLL with ability {3, 0, 0, 0, 0, 0}] | [test ROLL with ability {0, 3, 0, 0, 0, 0}] | [test ROLL with ability {0, 0, 3, 0, 0, 0}] | [test ROLL with ability {0, 0, 0, 3, 0, 0}] | [test ROLL with ability {0, 0, 0, 0, 3, 0}] | [test ROLL with ability {0, 0, 0, 0, 0, 3}]
+}
+
+output [test 6dWARRIOR with ability {0, 0, 0, 0, 1, 1}] named "Prowokacja"
+output [test 6dWARRIOR with guard ability] named "Garda"
+output [test 6dWARRIOR with ability {0, 0, 0, 0, 1, 1}] & [test 6dWARRIOR with guard ability] named "Prowokacja i Garda"
+output [test 6dWARRIOR with ability {0, 0, 0, 0, 1, 1}] | [test 6dWARRIOR with guard ability] named "Prowokacja lub Garda"

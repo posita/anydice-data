@@ -1,0 +1,35 @@
+\ wizard level \
+WL: 3
+
+\ casting value of spell \
+CV: 10
+
+\ #power dice 1-12 \
+NPD: 5
+
+\ #dispel dice 1-12 \
+NDD: 5
+
+\ dispelling wizard level \
+DWL: 1
+
+\ DO NOT CHANGE ANYTHING BELOW THIS LINE \
+
+function: PD:s WL:n dispelled with DD:s DWL:n {
+ \ critical failure \
+ if #{PD} = 1 & PD <= 2 {result: 0}
+ if #{PD} = 2 & {1,2}@PD = 2 {result: 0}
+ \ cast with irresistible force \
+ if {1,2}@PD = 12 {result: 1}
+ \ dispelled with irresistible force \
+ if {1,2}@DD = 12 {result: 0}
+ result: (PD+WL) > (DD+DWL)
+}
+
+loop N over {1..NPD}{
+ PD: Nd6
+ loop M over {1..NDD}{
+  DD: Md6
+  output [PD WL dispelled with DD DWL] named "[N]d6+[WL] dispelled with [M]d6+[DWL]"
+ }
+}

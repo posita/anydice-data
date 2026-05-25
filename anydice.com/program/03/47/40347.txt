@@ -1,0 +1,60 @@
+\ ORIGINAL FUNCTION FOR A SINGLE OPTIONAL REROLL VS TARGET             \
+\ Usage example:                                                       \
+\       output [roll 7d6 vs TARGET with optional d6 reroll] named "r"  \
+
+function: roll ROLL:s vs TARGET:n with optional REROLL:d reroll {
+  SUM: ROLL + 0  \ force the sequence to be summed into a single number! \
+  if SUM >= TARGET {
+    \ no need to reroll, since we've already met the target \
+    result: 1
+  } else {
+    \ discard and reroll the lowest die \
+    REST: {1..#ROLL-1}@ROLL
+    result: REST + REROLL >= TARGET
+  }
+}
+
+\ This function will do up to TWO optional rerolls vs target \
+\ Although slower, the trick is to make the rerolls sequences rather than dice \
+
+function: roll ROLL:s vs TARGET:n with optional rerolls REROLLONE:s and REROLLTWO:s {
+
+  SUM: ROLL + 0
+
+  if SUM >= TARGET {
+    result: 1
+  } else {  
+    REST: {1..#ROLL-1}@ROLL
+
+    \\\ THIS WORKS \\\
+    if (REST + REROLLONE) >= TARGET {  
+       result: 1    
+    } else {       
+       NEWSEQ: {REST, (REROLLONE+0)}       
+       NEWSEQ: [sort NEWSEQ]               
+       NEWREST: {1..#NEWSEQ-1}@NEWSEQ      
+       if NEWREST + REROLLTWO >= TARGET {  
+          result: 1  
+       } else {      
+          result: 0  
+       } \close out 3rd level else \
+    } \ close out 2nd level else  \
+
+
+  } \ close out top level else \
+  
+} \ close out function definition \
+
+\\\ output \\\
+N: 8
+\MIN: N\
+\MAX: N*6\
+MIN: 8
+MAX: 15
+POOL: Nd6
+loop TARGET over {MIN..MAX} { 
+  output POOL >= TARGET named "[N],[TARGET]: 0rr" 
+  output [roll POOL vs TARGET with optional d6 reroll] named "[N],[TARGET]: 1rr" 
+  output [roll POOL vs TARGET with optional rerolls d6 and d6] named "[N],[TARGET]: 2rr" 
+}
+

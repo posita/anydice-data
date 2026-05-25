@@ -1,0 +1,22 @@
+function: recursively count VALUES:s in DCOUNT:n on SIDES:n sided dice 
+{
+  COUNT: 0
+  if(DCOUNT = 0) {
+    result: 0
+  } else {
+    DICE: (DCOUNT)d(SIDES)
+    result: [count VALUES in DICE]
+  }
+}
+
+function: unsaved with SHOTS:n shots at skill BS:n strength STR:n against toughness TOUGH:n and save SAVE:n
+{
+  HITS:    [count {(7 - BS)..6} in (SHOTS)d6]
+  WOUNDS:  [recursively count {((TOUGH-STR)+4)..6} in HITS on 6 sided dice]
+  UNSAVED: [recursively count {1..SAVE} in WOUNDS on 6 sided dice]
+
+  result: UNSAVED
+}
+
+output [unsaved with 20 shots at skill 4 strength 5 against toughness 4 and save 3] named "PAGK vs MEq"
+output [unsaved with 20 shots at skill 4 strength 5 against toughness 4 and save 2] named "PAGK vs Termies"

@@ -1,0 +1,50 @@
+function: explode N:n helper { 
+  if L = 0 | N < B { result: N }
+  result: N + [explode D ifge B recurse (L-1)]
+}
+
+function: explode D:d ifge B:n recurse L:n  {
+  if L < 0 { result: 0 }
+  result: [explode D helper]
+}
+function: count explode D:d ifge B:n recurse L:n { result: 1 + [explode d(D >= B) ifge 1 recurse (L-1)] }
+
+output [explode d20 ifge 20 recurse 1] named "this is count explode d20"
+\output #[explode d20 ifge 20 recurse 1] named "this is count explode d20"\
+
+function: pool N:n of D:d target T:n { result: Nd(D>=T) }
+
+DX: d20-1
+\DXMIN: 0\
+DXMAX: [maximum of DX]
+EX: [explode DX ifge DXMAX recurse 3]
+EXC: [count explode DX ifge DXMAX recurse 3]
+DXX: DX-DX
+
+
+
+\loop N over {1..10}{ output [pool N of d6 target 4] named "pool [N]d6" }
+output 5d(d6) named "this is a 5 of d6"
+output 5d6 named "this is a 5d6"\
+
+\output EX-EX named "this is a EX-EX"
+output EXC+EXC named "this is count of EX-EX"
+output DXX named "this is a DX-DX"\
+
+function: explode V:n with D:d if C:n isge M:n recurse L:n { 
+  if L < 0 { result: 0 }
+  if C < M { result: V }
+  if V < 0 { result: V - [explode D ifge M recurse L-1] }
+  result: V + [explode D ifge M recurse L-1]
+}
+function: min amplitude of A:n and B:n explode with D:d ifge M:n recurse L:n { 
+  if      [absolute A] < [absolute B] { result: [explode A with D if [absolute B] isge M recurse L] } 
+  else if [absolute B] < [absolute A] { result: [explode B with D if [absolute A] isge M recurse L] } 
+  result: [explode 0 with D if [absolute B] isge M recurse L]-[explode 0 with D if [absolute A] isge M recurse L]
+}
+function: min amplitude of A:n and B:n { result: [min amplitude of A and B explode with d2 ifge 1 recurse 0] }
+
+\output [min amplitude of d20 and -d20] named "min amplitude"\
+\output [explode d20 ifge 20 recurse 1]-[explode d20 ifge 20 recurse 1] named "explode d20-d20"
+output [min amplitude of d20 and -d20 explode with d20 ifge 20 recurse 1] named "min amplitude explode"
+output [middle 1 of 3d6] named "2nd die"\

@@ -1,0 +1,40 @@
+XH: {1,0,0,0,2,2}
+JA: {0,0,0,1,1,1}
+BL: {0,1,1,2,2,3}
+
+function: pos X:n {
+  if X > 0 {
+    result: X
+  } 
+  result: 0
+}
+
+function: hit A:n M:n {
+  if A = 0 { result: 0 }
+  result: A + M
+}
+
+function: roll H:n {
+  result: HdXH / 2
+}
+
+function: roll H:n bonus B:n {
+  RO: [roll H]
+  RES: RO + BdJA
+  result: [pos RES]
+}
+
+function: attack H:n bonus B:n vs P:n {
+  ATT: [roll H bonus B]
+  DMG: [hit ATT 1-P]
+  result: [pos DMG]
+}
+
+function: attack H:n bonus B:n fire vs P:n {
+  BASE: [attack H bonus B vs P]
+  result: [hit BASE 1dBL]
+}
+
+output [attack 9 bonus 3 vs 1] named "easy"
+output [attack 9 bonus 3 vs 3] named "mid"
+output [attack 9 bonus 3 vs 5] named "hard"

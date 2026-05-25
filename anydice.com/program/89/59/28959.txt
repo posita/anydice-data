@@ -1,0 +1,42 @@
+function: attack ROLL:n with TOHIT:n to hit for BASEDMG:d with crit on CRITRANGE:n for CRITDMG:n {
+  if ROLL = 1 { result: 0 }
+  else if ROLL >= CRITRANGE { result: BASEDMG + CRITDMG }
+  else if ROLL + TOHIT >= AC { result: BASEDMG }
+  else { result: 0 }
+}
+
+function: firsthit ROLL:n with TOHIT:n to hit for BASEDMG:n with crit on CRITRANGE:n for CRITDMG:n {
+  if ROLL = 1 {
+    result: 0
+  }
+  if ROLL < AC {
+    result: 0
+  }
+  result: [attack ROLL with TOHIT to hit for BASEDMG with crit on CRITRANGE for CRITDMG]
+}
+
+AC: 17
+
+\ Revenant Blade w/ Sneak Attack, Possibly Rage \
+
+BLAST: [attack 1d20 with 9 to hit for d10+5 with crit on 20 for d10]
+BLASTADV: [attack 1@2d20 with 9 to hit for d10+5 with crit on 20 for d10]
+ATTACK: [attack 1d20 with 9 to hit for 2d4+5 with crit on 20 for 2d4]
+ATTACKADV: [attack 1@2d20 with 9 to hit for 2d4+5 with crit on 20 for 2d4]
+ATTACKRAGE: [attack 1d20 with 9 to hit for 2d4+7 with crit on 20 for 2d4]
+ATTACKRAGEADV: [attack 1@2d20 with 9 to hit for 2d4+7 with crit on 20 for 2d4]
+BONUSATTACK: [attack 1d20 with 9 to hit for 1d4+5 with crit on 20 for 1d4]
+BONUSATTACKADV: [attack 1@2d20 with 9 to hit for 1d4+5 with crit on 20 for 1d4]
+BONUSATTACKRAGE: [attack 1d20 with 9 to hit for 1d4+7 with crit on 20 for 1d4]
+BONUSATTACKRAGEADV: [attack 1@2d20 with 9 to hit for 1d4+7 with crit on 20 for 1d4]
+SNEAK: [firsthit 1@3d20 with 9 to hit for 2d6 with crit on 20 for 2d6]
+SNEAKADV: [firsthit 1@6d20 with 9 to hit for 2d6 with crit on 20 for 2d6]
+SNEAKRAGE: [firsthit 1@3d20 with 9 to hit for 3d6+2 with crit on 20 for 3d6]
+SNEAKRAGEADV: [firsthit 1@6d20 with 9 to hit for 3d6+2 with crit on 20 for 3d6]
+
+output BLAST+BLAST named "Eldritch Blast Baseline"
+output BLASTADV+BLASTADV named "Eldritch Blast Advantage"
+output ATTACK+ATTACK+BONUSATTACK+SNEAK named "Revenant Blade Baseline"
+output ATTACKADV+ATTACKADV+BONUSATTACKADV+SNEAKADV named "Revenant Blade Advantage"
+output ATTACKRAGE+ATTACKRAGE+BONUSATTACKRAGE+SNEAKRAGE named "Revenant Blade Raging"
+output ATTACKRAGEADV+ATTACKRAGEADV+BONUSATTACKRAGEADV+SNEAKRAGEADV named "Revenant Blade Reckless"

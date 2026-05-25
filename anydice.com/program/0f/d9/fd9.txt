@@ -1,0 +1,42 @@
+BATK: 3d6
+BEVD: 2d6
+
+function: evade A:n plus ATK with E:n plus EVD {
+  if (E = [maximum of BEVD]) {
+    result: 0
+  } else if (E + EVD >= A + ATK) {
+    result: 0
+  } else if (2 * (E + EVD) >= A + ATK) {
+    result: (A + ATK) / 2
+  } else {
+    result: A + ATK
+  }
+}
+
+function: hphelp HP:n with A:n and ATK:d and M:n {
+  if (HP <= A) {
+    result: 0
+  } else {
+    N: (HP - A + M - 1) / M
+    result: N + [hphelp HP - A with NdATK and ATK and M]
+  }
+}
+
+function: hp HP:n with ATK:d {
+  M: [maximum of ATK]
+  N: (HP + M - 1) / M
+  result: N + [hphelp HP with NdATK and ATK and M]
+}
+
+set "maximum function depth" to 4
+
+output [evade BATK plus 0 with BEVD plus 0] named "Atk +0 vs Evd +0"
+output [evade BATK plus 0 with BEVD plus 1] named "Atk +0 vs Evd +1"
+output [evade BATK plus 1 with BEVD plus 0] named "Atk +1 vs Evd +0"
+output [evade BATK plus 1 with BEVD plus 1] named "Atk +1 vs Evd +1"
+
+ATK: 1
+EVD: 0
+HP: 0
+
+output [hp 100 + 5 * HP with [evade BATK plus ATK with BEVD plus EVD]] named "Atk +[ATK] vs HP +[HP], Evd +[EVD]"

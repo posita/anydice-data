@@ -1,0 +1,43 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs 12]]
+}
+
+ATTACK: 7
+HITDAMAGE: d8+3
+CRITICALDAMAGE: d8+3
+MISSDAMAGE: 0
+output [attack] named "Crossbow"
+
+ATTACK: 5
+HITDAMAGE: d6+3
+CRITICALDAMAGE: d6+3
+HOLDROLL: [attack]
+
+ATTACK: 5
+HITDAMAGE: d6
+CRITICALDAMAGE: d6
+output [attack]+HOLDROLL named "Two Swords"

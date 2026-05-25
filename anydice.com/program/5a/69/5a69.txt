@@ -1,0 +1,29 @@
+function: gwf ROLL:s with D:d {
+ R: 0
+ loop P over {1..#ROLL} {
+  if P@ROLL <= 2 { R: R + D }
+  else { R: R + P@ROLL }
+ }
+ result: R
+}
+
+GWF : [gwf 2d6 with d6]
+output 2d6 named "regular 2d6"
+output GWF named "gwf 2d6"
+output [highest 1 of 2d(2d6)] named "sa 2d6"
+output [highest 1 of 2dGWF] named "gwf sa 2d6"
+
+GWF: [gwf 1d12 with d12]
+output 1d12 named "regular 1d12"
+output GWF named "gwf 1d12"
+output [highest 1 of 2d12] named "sa 1d12"
+output [highest 1 of 2dGWF] named "gwf sa 1d12"
+
+function: sa twf ROLL:s if below T:n {
+ if 2@ROLL < T { result: 1@ROLL + d6 }
+ result: ROLL
+}
+
+loop T over {2..6} {
+ output [sa twf 2d6 if below T] named "sa twf if below [T]"
+}

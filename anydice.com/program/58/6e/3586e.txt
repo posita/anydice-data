@@ -1,0 +1,34 @@
+function: luckyroll N:d plus M:d {
+ LUCKDIESIZE: [lowest of [maximum of N] and [maximum of M]]
+ result: [luckyrollhelper N plus M with LUCKDIESIZE luck]
+}
+
+function: luckyrollhelper N:n plus M:n with DIESIZE:n luck {
+ if (N = M) & (N != 1) {
+  result: N + M + [burst d(DIESIZE) on a N with DIESIZE die size]
+ }
+ result: N + M
+}
+
+function: burst ROLL:n on a TARGET:n with DIESIZE:n die size{
+ if ROLL = TARGET { result: TARGET + [burst d(DIESIZE) on a TARGET with DIESIZE die size] }
+ result: ROLL
+}
+
+function: damage DIE:n {
+  if DIE >= 12 { result: 4 }
+  if DIE >= 10 { result: 3 }
+  if DIE >= 7 { result: 2 }
+  if DIE >= 2 { result: 1 }
+  result: 0
+}
+A: [damage [explode d4]]
+B: [damage [explode d6]]
+
+output [damage [explode d4]] named "d4"
+output [damage [explode d6]] named "d6"
+output  A + A named "2d4 separate damage"
+output  B + B named "2d6 separate damage"
+output [damage[luckyroll d4 plus d4]] named "2d4 matchboom"
+output [damage[luckyroll d4 plus d6]] named "d4+d6 matchboom"
+output [damage[luckyroll d6 plus d6]] named "2d6 matchboom" 

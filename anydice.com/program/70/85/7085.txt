@@ -1,0 +1,31 @@
+DICE_POOL:5 \* Maximum number of dice to be rolled *\
+EDGE_CHANCE:1
+
+function: reroll ROLL:s DIFFICULTY:n{
+  result: ROLL >= DIFFICULTY
+}
+
+function: evaluate ROLL:s EDGE:s{
+ EDGE_RESULT: EDGE >= EDGE_CHANCE
+ if EDGE_RESULT = 6 
+ { 
+   SIXES: ROLL = 6
+   FIVES: ROLL = 5
+   FOURS: ROLL = 4
+   REROLLS: [reroll SIXES d6 4]
+   SUCCESSES: SIXES + FIVES + FOURS + REROLLS
+   result: SUCCESSES
+ }
+ else
+ {
+   SIXES: ROLL = 6
+   FIVES: ROLL = 5
+   REROLLS: [reroll SIXES d6 5]
+   SUCCESSES: SIXES + FIVES + REROLLS
+   result: SUCCESSES
+ }
+}
+
+loop DICE over {1..DICE_POOL} {
+ output [evaluate DICE d6 1d10] named "[DICE]d"
+}

@@ -1,0 +1,35 @@
+set "maximum function depth" to 999
+
+ATK:  1@1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:    +11  \ bonus to attack roll \
+AC:      11\ target AC: attack hits if ATK + HIT >= AC \
+AUTOMISS: 1   \ max attack roll to automiss \
+CRIT:   20    \ minimum attack roll to crit \
+DMG:   1d10 + 1d6 \ damage rolled on successful hit, rolled twice for a crit \
+DMG_NONCRITDOUBLE: 6 \ damage not doubled on crit \
+BONUS: 0 \ bonus damage on first hit only like sneak attack \
+
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= AUTOMISS { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+ATTACK: [attack ATK]  \ optimization: precalculate the miss/hit/crit probabilities \
+
+function: multiattack N:n times {
+  result: [roll ATTACK to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    result: FIRSTHIT d (DMG + BONUS) + DMG_NONCRITDOUBLE + (N-1) d (ATTACK d DMG + DMG_NONCRITDOUBLE) 
+  } else {
+    result: [roll ATTACK to multiattack N-1 times]
+  }
+}
+
+output [multiattack 3 times] + 1d10

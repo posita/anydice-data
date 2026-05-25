@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/articles/dnd3-attacks/">
+		<meta property="og:type" content="article">
+		<meta property="og:image" content="https://anydice.com/articles/dnd3-attacks/threat-12.png">
+		<meta property="og:description" content="Calculating damage and critical hit probabilities for Dungeons and Dragons third edition.">
+		<meta property="og:title" content="DnD 3 Attacks">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>DnD 3 Attacks</title>
+		<link href="../articles.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"mainEntity": {
+				"@type": "Article",
+				"@id": "https://anydice.com/articles/dnd3-attacks/#article",
+				"headline": "DnD 3 Attacks",
+				"alternativeHeadline": "Critical Hits",
+				"description": "Calculating damage and critical hit probabilities for Dungeons and Dragons third edition.",
+				"datePublished": "2010-10-26",
+				"author": { "@type": "Person", "name": "Jasper Flick", "@id": "https://catlikecoding.com/jasper-flick/#person" },
+				"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+				"image": "https://anydice.com/articles/dnd3-attacks/threat-12.png"
+			},
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/articles/", "name": "Articles" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Articles</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1>D&amp;D 3 Attacks</h1>
+					<p>Critical Hits</p>
+				</header>
+				
+				<p>I've written an article about <a href="../dnd4-attacks/index.html">D&amp;D fourth edition attacks</a>. Here's one about Dungeons and Dragons third edition attacks.</p>
+				
+				<p>The main difference between these two editions of D&amp;D is how critical hits work. In the fourth edition a critical hit occurs when rolling a natural 20, simply resulting in maximized weapon damage, with extra dice rolled for high crit weapons. In the third edition each weapon has its own threat number, and a critical hit results in multiple damage rolls, which include all static bonuses. So a &times;2 critical hit with a 2d6 + 7 attack would become 4d6 + 14.</p>
+				
+				<p>Let's take a generic level 1 Fighter with a Strength of 16 and see how various weapons perform against an AC range from 14 to 20. Here's an AnyDice program that does it.</p>
+				
+				<pre>function: ROLL:n vs AC:n {
+ if ROLL >= THREAT &amp; ROLL + ATTACK >= AC {
+  result: [threat d20]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: DAMAGE }
+ result: 0
+}
+
+function: threat ROLL:n {
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: CRITICAL d DAMAGE
+ }
+ result: DAMAGE
+}
+
+AC: d{14..20}
+STRENGTH: 3
+ATTACK: 1 + STRENGTH
+
+DAMAGE: 1d8 + STRENGTH
+THREAT: 20
+CRITICAL: 3
+output [d20 vs AC] named "Battleaxe"
+
+DAMAGE: 1d8 + STRENGTH
+THREAT: 19
+CRITICAL: 2
+output [d20 vs AC] named "Longsword"
+
+DAMAGE: 1d6 + STRENGTH
+THREAT: 20
+CRITICAL: 4
+output [d20 vs AC] named "Pick, heavy"
+
+DAMAGE: 1d6 + STRENGTH
+THREAT: 18
+CRITICAL: 2
+output [d20 vs AC] named "Scimitar"
+
+DAMAGE: 2d4 + STRENGTH * 3/2
+THREAT: 18
+CRITICAL: 2
+output [d20 vs AC] named "Falchion"
+
+DAMAGE: 1d12 + STRENGTH * 3/2
+THREAT: 20
+CRITICAL: 3
+output [d20 vs AC] named "Greataxe"
+
+DAMAGE: 1d10 + STRENGTH * 3/2
+THREAT: 19
+CRITICAL: 2
+output [d20 vs AC] named "Flail, heavy"
+
+DAMAGE: 2d6 + STRENGTH * 3/2
+THREAT: 19
+CRITICAL: 2
+output [d20 vs AC] named "Greatsword"
+
+DAMAGE: 1d10 + STRENGTH * 3/2
+THREAT: 20
+CRITICAL: 3
+output [d20 vs AC] named "Halberd"
+
+DAMAGE: 2d4 + STRENGTH * 3/2
+THREAT: 20
+CRITICAL: 4
+output [d20 vs AC] named "Scythe"</pre>
+				
+				<p>And here are the results, split up in one-handed and two-handed weapons for convenience. I use the at-least display because I think it's most meaningful.</p>
+				
+				<figure>
+					<img alt="one-handed" src="one-handed.png" width="500" height="400">
+					<img alt="two-handed" src="two-handed.png" width="500" height="400">
+					<figcaption>Damage for one-handed and two-handed weapons.</figcaption>
+				</figure>
+				
+				<p>So if you simply want to dish out damage, pick a sword and you can't go wrong.</p>
+				
+				<section>
+					<h2>Another Look At Critical Hits</h2>
+					
+					<p>If you assume a 50% hit rate, then you could say that your average damage per round is half your average weapon damage. In other words, a damage factor of 0.5. However, this ignores the 2.5% crit rate that accompanies a 50% hit rate for a threat 20 weapon.</p>
+					
+					<p>Including the crit rate for a &times;2 weapon yields a damage factor of 0.5 + 0.025 = 0.525. That's 5% more damage than without the critical hits. In case of a &times;3 weapon, it would be 0.5 + 0.025 &times; 2 = 0.55. That's 10% more damage, nothing to ignore. For a 19&ndash;20/&times;2 weapon, it's 0.5 + 0.05 = 0.55, once again 10% more damage.</p>
+					
+					<p>You have a 50% hit rate if you need to roll at least an 11 with your d20, regardless which modifiers get applied afterwards. But if you need at least a 12 instead, your hit rate becomes 45%. With each extra point needed to hit, the hit rate decreases by 5%, and vice versa. This is the fundamental math of a d20 roll.</p>
+					
+					<p>D&amp;D third edition critical confirmation hits add another d20 roll on top of that. The difference of this roll is that its starting point and steps have different odds. Which odds you need to use depends on the threat range of the wielded weapon.</p>
+					
+					<p>Beyond that, there is one extra thing you need to keep in mind. A threat range only matters if the attack is a hit. For example, if you need to roll at least a 19 to hit, then any threat range larger than 19&ndash;20 functions like it was only 19&ndash;20.</p>
+					
+					<p>Here is a table showing the crit probability for different threat ranges when needing to roll an natural 11 to hit. The step size shows how these odds change when you need to roll higher or lower to hit, as long as you stay out of the threat range.</p>
+					
+					<table>
+						<thead><tr><th>Threat</th><th>Crit</th><th>Step Size</th><th>Up To</th></tr></thead>
+						<tbody>
+							<tr><td>20</td><td>2.5%</td><td>0.25%</td><td>20</td></tr>
+							<tr><td>19&ndash;20</td><td>5.0%</td><td>0.50%</td><td>19</td></tr>
+							<tr><td>18&ndash;20</td><td>7.5%</td><td>0.75%</td><td>18</td></tr>
+							<tr><td>17&ndash;20</td><td>10.0%</td><td>1.00%</td><td>17</td></tr>
+							<tr><td>15&ndash;20</td><td>15.0%</td><td>1.25%</td><td>15</td></tr>
+							<tr><td>12&ndash;20</td><td>22.5%</td><td>2.25%</td><td>12</td></tr>
+						</tbody>
+					</table>
+					
+					<p>And here is the complete table. Effectively reduced threat range values are italic.</p>
+					
+					<table>
+						<thead><tr><th>Needed</th><th>20</th><th>19&ndash;20</th><th>18&ndash;20</th><th>17&ndash;20</th><th>15&ndash;20</th><th>12&ndash;20</th></tr></thead>
+						<tbody>
+							<tr><td>2</td><td>4.75%</td><td>9.50%</td><td>14.25%</td><td>19.00%</td><td>28.50%</td><td>42.75%</td></tr>
+							<tr><td>3</td><td>4.50%</td><td>9.00%</td><td>13.50%</td><td>18.00%</td><td>27.00%</td><td>40.50%</td></tr>
+							<tr><td>4</td><td>4.25%</td><td>8.50%</td><td>12.75%</td><td>17.00%</td><td>25.50%</td><td>38.25%</td></tr>
+							<tr><td>5</td><td>4.00%</td><td>8.00%</td><td>12.00%</td><td>16.00%</td><td>24.00%</td><td>36.00%</td></tr>
+							<tr><td>6</td><td>3.75%</td><td>7.50%</td><td>11.25%</td><td>15.00%</td><td>22.50%</td><td>33.75%</td></tr>
+							<tr><td>7</td><td>3.50%</td><td>7.00%</td><td>10.50%</td><td>14.00%</td><td>21.00%</td><td>31.50%</td></tr>
+							<tr><td>8</td><td>3.25%</td><td>6.50%</td><td>9.75%</td><td>13.00%</td><td>19.50%</td><td>29.25%</td></tr>
+							<tr><td>9</td><td>3.00%</td><td>6.00%</td><td>9.00%</td><td>12.00%</td><td>18.00%</td><td>27.00%</td></tr>
+							<tr><td>10</td><td>2.75%</td><td>5.50%</td><td>8.25%</td><td>11.00%</td><td>16.50%</td><td>24.75%</td></tr>
+							<tr style="font-weight: bold"><td>11</td><td>2.50%</td><td>5.00%</td><td>7.50%</td><td>10.00%</td><td>15.00%</td><td>22.50%</td></tr>
+							<tr><td>12</td><td>2.25%</td><td>4.50%</td><td>6.75%</td><td>9.00%</td><td>13.50%</td><td>20.25%</td></tr>
+							<tr><td>13</td><td>2.00%</td><td>4.00%</td><td>6.00%</td><td>8.00%</td><td>12.00%</td><td><i>16.00%</i></td></tr>
+							<tr><td>14</td><td>1.75%</td><td>3.50%</td><td>5.25%</td><td>7.00%</td><td>10.50%</td><td><i>12.25%</i></td></tr>
+							<tr><td>15</td><td>1.50%</td><td>3.00%</td><td>4.50%</td><td>6.00%</td><td>9.00%</td><td><i>9.00%</i></td></tr>
+							<tr><td>16</td><td>1.25%</td><td>2.50%</td><td>3.75%</td><td>5.00%</td><td><i>6.25%</i></td><td><i>6.25%</i></td></tr>
+							<tr><td>17</td><td>1.00%</td><td>2.00%</td><td>3.00%</td><td>4.00%</td><td><i>4.00%</i></td><td><i>4.00%</i></td></tr>
+							<tr><td>18</td><td>0.75%</td><td>1.50%</td><td>2.25%</td><td><i>2.25%</i></td><td><i>2.25%</i></td><td><i>2.25%</i></td></tr>
+							<tr><td>19</td><td>0.50%</td><td>1.00%</td><td><i>1.00%</i></td><td><i>1.00%</i></td><td><i>1.00%</i></td><td><i>1.00%</i></td></tr>
+							<tr><td>20</td><td>0.25%</td><td><i>0.25%</i></td><td><i>0.25%</i></td><td><i>0.25%</i></td><td><i>0.25%</i></td><td><i>0.25%</i></td></tr>
+						</tbody>
+					</table>
+					
+				</section>
+				
+				<section>
+					<h2>Comparing Threat Ranges</h2>
+					
+					<p>Here is an AnyDice program you can use to get a better look at the individual threat ranges, instead of just believing a large table. Horizontally we have the d20 result needed to hit, vertically the odds to get a miss as 0, a normal hit as 1, and a critical hit as 2.</p>
+					
+					<pre>\ adjust threat \
+
+THREAT: 15
+
+\ use transposed graph \
+
+\ leave rest as is \
+MISS: 0
+NORMALHIT: 1
+CRITICALHIT: 2
+
+ATTACK: 0
+
+function: ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT &amp; ROLL + ATTACK >= AC {
+  result: [threat d20]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: CRITICALHIT
+ }
+ result: NORMALHIT
+}
+
+loop AC over {2..20} {
+ output [d20 vs AC] named "[AC]"
+}</pre>
+					
+					<figure>
+						<img src="threat-20.png" width="500" height="400">
+						<figcaption>Threat range 20.</figcaption>
+					</figure>
+					
+					<p>Needing an 11 to hit corresponds with a 50% hit rate. In that case you crit 2.5% of the time with the usual threat range of 20, the remaining 47.5% will be normal hits. For each extra point you need to hit, the crit rate drops by 0.25%, and vice versa. So when needing a natural 16 you have a 25% hit rate and a 1.25% crit rate.</p>
+					
+					<figure>
+						<img src="threat-19.png" width="500" height="400">
+						<figcaption>Threat range 19&ndash;20.</figcaption>
+					</figure>
+					
+					<p>In case of a 19&ndash;20 threat range, a 50% hit rate corresponds with a 5% crit rate, adjusted 0.5% per step. So it's simply hit rate divided by ten. The exception is when you need a 20 to hit, then the crit rate drops to 0.25% because the extended threat range becomes meaningless.</p>
+					
+					<figure>
+						<img src="threat-18.png" width="500" height="400">
+						<figcaption>Threat range 18&ndash;20.</figcaption>
+					</figure>
+					
+					<p>Next up is the 18&ndash;20 crit rate! Now a 50% hit rate means a 7.5% crit rate, adjusted 0.75% per step. The crit rate drops to 1% when you need a 19 to hit, as it effectively functions like threat 19–20 at that point. For the same reason it drops to 0.25% once you need a 20 to hit.</p>
+					
+					<figure>
+						<img src="threat-17.png" width="500" height="400">
+						<figcaption>Threat range 17&ndash;20.</figcaption>
+					</figure>
+					
+					<p>Some ways to boost a 19–20 threat weapon to 17–20 include the Keen Edge spell, the Keen weapon enhancement, and the Improved Critical feat. 50% to-hit gives you 10% to-crit, adjusted 1% per step, so it's your hit rate divided by five. Once again crit rate deteriorates if you need to roll above the minimum threat to hit at all.</p>
+					
+					<figure>
+						<img src="threat-15.png" width="500" height="400">
+						<figcaption>Threat range 15&ndash;20.</figcaption>
+					</figure>
+					
+					<p>Threat range 15&ndash;20 is the domain of threat-enhanced falchions, kukris, rapiers, and scimitars. Possibly double-keened swords too, if that is allowed. At this point 50% to-hit gets you 15% to-crit, adjusted 1.25% per step. Threat decline sets in once you need a 16 or higher to hit.</p>
+					
+					<figure>
+						<img src="threat-12.png" width="500" height="400">
+						<figcaption>Threat range 12&ndash;20.</figcaption>
+					</figure>
+					
+					<p>You can only get to threat range 12&ndash;20 with double-keened rapiers and the like, which is usually not allowed. By now a 50% hit rate gives you a 22.5% crit rate, adjusted 2.25% per step up to requiring a 12 to hit. Many of your hits will be crits at this point, but as soon as you need a 15 or higher to hit, it's no better than threat range 15&ndash;20.</p>
+					
+					<p>The above threat ranges are the most common. You can use the previously mentioned AnyDice program to compute any other treat range you like. Just for fun, here's the graph for threat range 2&ndash;20.</p>
+					
+					<figure>
+						<img src="threat-02.png" width="500" height="400">
+						<figcaption>Threat range 2&ndash;20.</figcaption>
+					</figure>
+					
+					<p>You can't get a better threat range than this!</p>
+				</section>
+				
+				<section>
+					<h2>Power Critical</h2>
+					
+					<p>Increasing the threat range is not the only way to improve your changes for a critical hit. Take for example the Power Critical feat from the Complete Warrior supplement. This and feat adds an attack bonus for confirming critical hits only, without changing the threat range or the original attack bonus. In this case, it's a +4 bonus to confirm. This results in a four-step shift of the critical odds, with two caveats. First, you can't improved beyond the hit-on-a-two case, so that puts a cap on the top end of the graphs. Second, once again threat decline makes the odds at the bottom of the graphs decrease faster.</p>
+					
+					<p>For example. here is the graph for threat range 15&ndash;20 with Power Critical, using a slightly modified AnyDice program.</p>
+					
+					<pre>\ adjust threat \
+
+THREAT: 15
+
+\ set confirm bonus from Power Critical feat \
+
+CRITICALCONFIRM: 4
+
+\ use transposed graph \
+
+\ leave rest as is \
+MISS: 0
+NORMALHIT: 1
+CRITICALHIT: 2
+
+ATTACK: 0
+
+function: ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT &amp; ROLL + ATTACK >= AC {
+  result: [threat d20]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK + CRITICALCONFIRM >= AC | ROLL = 20 {
+  result: CRITICALHIT
+ }
+ result: NORMALHIT
+}
+
+loop AC over {2..20} {
+ output [d20 vs AC] named "[AC]"
+}</pre>
+					
+					<figure>
+						<img src="power-critical.png" width="500" height="400">
+						<figcaption>Threat 15&ndash;20 with Power Critical.</figcaption>
+					</figure>
+					
+					<p>It looks nice, but is the feat worth it? In case of a 50% hit rate with a 15&ndash;20/&times;2 weapon, your critical rate goes up by 6%. That's a 0.06 increase to your damage factor. By contrast, an extra +1 to attacks in general boosts hit rate by 5% and crit rate by 1.5%, resulting in a damage factor boost of 0.065. So the feat is slightly worse than a +1 attack bonus.</p>
+					
+					<p>For a &times;3 weapon, once again with a 50% hit rate, the normal damage factor is 0.5 + 0.025 &times; 2 = 0.55. With Power Critical it goes up to 0.5 + 0.035 &times; 2 = 0.57. That's only a 0.02 increase. A flat +1 attack bonus results in 0.55 + 0.0275 &times; 2 = 0.605, a 0.055 increase, which seems a lot better than this feat.</p>
+					
+					<p>Finally, for a 19&ndash;20/&times;4 weapon like a keen scythe, the normal 50% hit-rate damage factor is 0.65. With the feat, it becomes 0.71, while the 55% hit-rate damage factor is 0.715. So in this case the feats is once again slightly weaker than a +1 attack bonus.</p>
+					
+				</section>
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+		
+		<script src="../articles.js"></script>
+	</body>
+</html>

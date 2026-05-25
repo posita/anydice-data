@@ -1,0 +1,37 @@
+function: attacker AACCURACY:s ASTRENGTH:s AHASTE:s AWEAPONSKILL:s APARRY:s AARMOR:n ASHIELDED:n vs defender DACCURACY:s DSTRENGTH:s DHASTE:s DWEAPONSKILL:s DPARRY:s DARMOR:n DSHIELDED:n with RECURSIONDEPTH:n {
+
+    if DSHIELDED = 1 {SHIELD: 1}else{SHIELD: 0}
+    HIT: (AACCURACY + AWEAPONSKILL) - (DHASTE + DPARRY + SHIELD)
+
+    if HIT >= 0 {
+        if HIT >= 3{
+            INJURY: (ASTRENGTH + AWEAPONSKILL + 1) - DARMOR
+        }else{
+            INJURY: (ASTRENGTH + AWEAPONSKILL) - DARMOR
+        }
+    
+    }else{
+        if HIT <= -3{
+            if RECURSIONDEPTH <= 5{            
+                NRC: RECURSIONDEPTH + 1
+                result: 1 - [attacker  DACCURACY DSTRENGTH DHASTE DWEAPONSKILL DPARRY DARMOR DSHIELDED vs defender AACCURACY ASTRENGTH AHASTE AWEAPONSKILL APARRY AARMOR ASHIELDED with NRC]
+                }
+
+        }
+        result: 0   
+    }
+
+    if INJURY >= 0 {
+        if INJURY >= 3{
+            result: 2
+        }else{
+            result: 1
+        }
+        
+    }else{
+        result: 0
+    }
+    
+}
+
+output [attacker 6d{1,0:5} 6d{1,0:5} 6d{1,0:5} 2d{1,0:3} 2d{1,0:3} 2 1 vs defender  6d{1,0:5} 6d{1,0:5} 6d{1,0:5} 2d{1,0:3} 2d{1,0:3} 2 1 with 0]

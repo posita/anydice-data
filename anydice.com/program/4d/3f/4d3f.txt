@@ -1,0 +1,97 @@
+NONE_CRASHES: {1,1,1,1,1}
+ONE_CRASHES: {1,1,1,1,2}
+TWO_CRASHES: {1,1,1,2,2}
+THREE_CRASHES: {1,1,2,2,2}
+FOUR_CRASHES: {1,2,2,2,2}
+ALL_CRASHES: {2,2,2,2,2}
+
+SLOTS_THAT_CRASH: 2
+
+\ FIRST TURN \
+FIRST_TURN_RESULT: 1d6
+output [count {0} in FIRST_TURN_RESULT] named "First Turn Chance Lose Card" \ NOTE: THIS CHANCE CURRENTLY DOESN'T INCREASE \
+output [count {0..SLOTS_THAT_CRASH} in FIRST_TURN_RESULT] named "First Turn Chance Lose Server"  \ NOTE: THIS CHANCE INCREASES EACH TIME LOSE CARD \
+
+if 1d6 = 0
+{
+   \ SLOTS_THAT_CRASH: SLOTS_THAT_CRASH + 1\
+}
+
+\ SECOND TURN \
+SECOND_TURN_RESULT: 1d6
+output [count {0} in SECOND_TURN_RESULT] named "First Turn Chance Lose Card" \ NOTE: THIS CHANCE CURRENTLY DOESN'T INCREASE \
+output [count {0..SLOTS_THAT_CRASH} in SECOND_TURN_RESULT] named "First Turn Chance Lose Server"  \ NOTE: THIS CHANCE INCREASES EACH TIME LOSE CARD \
+
+if FIRST_TURN_RESULT = 0
+{
+   SLOTS_THAT_CRASH: SLOTS_THAT_CRASH + 1
+}
+
+function: count VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ result: COUNT
+}
+
+NONE_CRASHES: {1,1,1,1,1}
+ONE_CRASHES: {1,1,1,1,2}
+TWO_CRASHES: {1,1,1,2,2}
+THREE_CRASHES: {1,1,2,2,2}
+FOUR_CRASHES: {1,2,2,2,2}
+ALL_CRASHES: {2,2,2,2,2}
+
+SLOTS_THAT_CRASH: 0
+
+TURN_RESULT: 1d6
+output [count {1} in TURN_RESULT] named "Chance of Error" \ NOTE: THIS CHANCE CURRENTLY DOESN'T INCREASE \
+output [count {0..SLOTS_THAT_CRASH} in TURN_RESULT] named "Chance of Crash"  \ NOTE: THIS CHANCE INCREASES EACH TIME LOSE CARD \
+
+output [error 
+
+\ output 3d6 = {6:3} \
+
+if 1d6 = 0
+{
+   \ SLOTS_THAT_CRASH: SLOTS_THAT_CRASH + 1\
+}
+
+function: error VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ result: COUNT
+}
+
+function: count VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ result: COUNT
+}
+
+\ DECLARATIONS \
+ONE_TO_THREE: 1d{1,1,1,1,1,6}
+FOUR_TO_SIX: 1d{1,1,1,1,6,6}
+SIX_TO_INFINITE: 1d{1,1,6,6,6,6}
+
+NONE_OPEN: 1d{1,1,1,1,1}
+ONE_OPEN: 1d{1,1,1,1,2}
+TWO_OPEN: 1d{1,1,1,2,2}
+THREE_OPEN: 1d{1,1,2,2,2}
+FOUR_OPEN: 1d{1,2,2,2,2}
+ALL_OPEN: 1d{2,2,2,2,2}
+
+\ OUTPUTS \
+
+\ FIRST TURN \
+
+output d6
+
+
+output [count {6} in ONE_TO_THREE] named "1st-3rd Rolls"
+output [count {6} in FOUR_TO_SIX] named "4th-6th Rolls"
+output [count {6} in SIX_TO_INFINITE] named "7th-Infinitieth Rolls"

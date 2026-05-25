@@ -1,0 +1,56 @@
+function: clamp N:n between MIN:n and MAX:n {
+  if N <= MIN { result: MIN }
+  if N >= MAX { result: MAX }
+  result: N
+}
+function: minimum of D:d {
+ result: 1@{D}
+}
+
+function: explode D:d both {
+  MIN: [minimum of D]
+  MAX: [maximum of D]
+  result: [explode D using D with MIN and MAX]
+}
+function: explode N:n using D:d with MIN:n and MAX:n {
+  if N = MIN {
+    result: N - [explode D] 
+  }
+  if N = MAX {
+    result: N + [explode D] 
+  }
+  result: N
+}
+
+
+function: extend D:d {
+  MIN: [minimum of D]
+  MAX: [maximum of D]
+  result: [extend D using D with MIN and MAX]
+}
+function: extend N:n using D:d with MIN:n and MAX:n {
+  if N = MIN {
+    result: N - [extend D using D on MIN] 
+  }
+  if N = MAX {
+    result: N + [extend D using D on MAX] 
+  }
+  result: N
+}
+function: extend N:n using D:d on X:n {
+  if N = X { result: 1 + [extend D using D on X] }
+  result: 0
+}
+
+X: d{0..5}
+\
+output [clamp [extend X] between -15 and 25] named "z5X"
+output [clamp [explode X both] between -15 and 25] named "z5!"
+\
+
+output [clamp 2d[extend X] between -15 and 25] named "2z5X"
+output [clamp 2d[explode X both] between -15 and 25] named "2z5!"
+
+T: d{0..9}
+output [clamp [extend T] between -15 and 25] named "z9X"
+output [clamp [explode T both] between -15 and 25] named "z9!"

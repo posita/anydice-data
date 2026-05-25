@@ -1,0 +1,31 @@
+SAVEBONUS: 0
+FAIL:1
+SAVE:2
+SIZEDICE: 6
+
+function: save ROLL:n vs dc DC:n {
+	if ROLL + SAVEBONUS < DC {result: FAIL}
+	if ROLL + SAVEBONUS >= DC {result: SAVE}
+}
+
+function: saveres SAVERES:n {
+ if SAVERES = SAVE {
+  result: SIZEDICE/2
+ }
+ if SAVERES = FAIL {
+ result: SIZEDICE
+ }
+
+}
+
+function: looptest N:n times with BASEHP:n base hp at DAMAGE:d dice per hp plus BONUSDAM:n at decay of DECAY:n and save result SAVE:n{
+ TOTAL: 0
+ DAMAGE: DAMAGE
+ HP: BASEHP
+ loop I over {1..N} {
+  TOTAL: TOTAL + (HP*DAMAGE)dSAVE + BONUSDAM
+  HP: HP - DECAY
+ }
+ result: TOTAL 
+}
+output [looptest 2 times with 3 base hp at 1 dice per hp plus 2 at decay of 1 and save result [saveres [save [highest 1 of 1d20] vs dc 30]]]

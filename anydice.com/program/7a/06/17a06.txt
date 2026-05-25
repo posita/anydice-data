@@ -1,0 +1,40 @@
+CRIT: 3
+HIT:  1
+MISS: 0
+
+ATK: 6+4+4
+AC: d{18..24}
+
+function: attack ROLL:n TATK:n AC:n {
+  if (ROLL+TATK >= AC + 10) {
+    if ROLL = 1 {
+      result: HIT
+    }
+    result: CRIT
+  }
+
+  if (ROLL+TATK >= AC) {
+    if ROLL = 20 {
+      result: CRIT
+    }
+    if ROLL = 1 {
+      result: MISS
+    }
+    result: HIT
+  }
+
+  if ((ROLL+TATK > AC + 10) & (ROLL = 20)) {
+    result: HIT
+  }
+
+  result: MISS
+}
+
+output [attack d20 ATK AC] named "Strike"
+
+output ([attack d20 ATK AC] + [attack d20 (ATK-5) AC]) named "2 Strikes"
+
+\output ([attack d20 ATK AC] + [attack d20 (ATK-5) AC] + [attack d20 (ATK-10) AC]) named "3 Strikes"\
+output ([attack d20 (ATK-2) AC] + [attack d20 (ATK-2) AC]) named "Double Shot"
+\output ([attack d20 (ATK-2) AC] + [attack d20 (ATK-2) AC] + [attack d20 (ATK-10) AC]) named "Double Shot + Strike"\
+\output ([attack d20 (ATK-4) AC] + [attack d20 (ATK-4) AC] + [attack d20 (ATK-4) AC]) named "Triple Shot"\

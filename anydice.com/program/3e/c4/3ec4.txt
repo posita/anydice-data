@@ -1,0 +1,33 @@
+function: compare THIS:n with THAT:n {
+ if (THIS < THAT) { result: -1 }
+ if (THIS = THAT) { result: 0 }
+ result: 1}
+
+function: crit DICE:d on BON:n and MIN:n {
+ result: [crit helper DICE]}
+
+function: crit helper RES:n {
+ if RES = 1 { result: [implode DICE 0] }
+ if RES = 6 { result: [explode DICE 0] }
+ result: RES
+}
+
+function: implode IR:n C:n {
+ if IR = MIN & C < 6{ result: [implode DICE C+1] }
+ result: RES - C
+}
+
+function: explode IR:n C:n {
+ if IR = BON & C < 6{ result: [explode DICE C+1] }
+ result: RES + C
+}
+
+
+
+output [crit 1@6d6 on 5 and 1] named "High with modified expl."
+loop N over {2..5} {
+output [crit N@6d6 on 6 and 1] named "[N] normals"
+}
+output [crit 6@6d6 on 6 and 2] named "Low with modified expl."
+
+output [crit 1@6d6 on 5 and 1] - 6 named "Low tier high with modified expl."

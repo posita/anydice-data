@@ -1,0 +1,61 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+} MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: uwattack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{18}
+
+ATTACK: 5 + 3 +1
+HITDAMAGE: d10 +11
+CRITICALDAMAGE: 2dHITDAMAGE +d10
+MISSDAMAGE: 0
+output [attack] named "dsOne Attack"
+output 2d[attack] named "dsTwin Strike"
+output 3d[attack] named "dsfrenzy Strike"
+
+ATTACK: 5 + 3 +1
+HITDAMAGE: d8 +11
+CRITICALDAMAGE: 2dHITDAMAGE +d8
+MISSDAMAGE: 0
+output [uwattack] named "krOne Attack"
+output 2d[uwattack] named "krTwin Strike"
+output 3d[uwattack] named "krfrenzy Strike"
+
+ATTACK: 5 + 3 
+HITDAMAGE: d12+10
+CRITICALDAMAGE: 2dHITDAMAGE +d12
+MISSDAMAGE: 0
+output [attack] named "baOne Attack"
+ATTACK: 5 + 3 
+HITDAMAGE: 2d6+10
+CRITICALDAMAGE: 2dHITDAMAGE +d6
+MISSDAMAGE: 0
+output [attack] named "gsOne Attack"
+ATTACK: 5 + 3 
+HITDAMAGE: 2d6+5
+CRITICALDAMAGE: 2dHITDAMAGE +2d6
+MISSDAMAGE: 0
+output [attack] named "dhaOne Attack"

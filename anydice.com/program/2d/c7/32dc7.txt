@@ -1,0 +1,223 @@
+set "maximum function depth" to 10
+
+function: replace lowest A:s with X:n{
+  if #A@A < X & X >= 0 {result: {1..(#A-1)}@A + X}
+  result: A
+  }
+
+function: jam chance A:n TEN:n{
+if OVERHEATS {result: (A>91 & A<=(TOHIT+TOHITBONUS))<1}
+else if MODE = 0 & RELIABLE {if  TEN = 1 & (A>96 & A<=(TOHIT+TOHITBONUS)) {result:  0} result: 1}
+else if MODE = 0 {result: (A>96 & A<=(TOHIT+TOHITBONUS))<1}
+else if RELIABLE {if TEN = 1 & (A>94 & A<=(TOHIT+TOHITBONUS)) {result:  0} result: 1}
+result: (A>94 & A<=(TOHIT+TOHITBONUS))<1
+}
+
+function: scatter extra hits DOS:n{
+if SCATTER & (RANGE<1) {result: DOS/2}
+result: 0
+}
+
+function: X:n dos A:n Y:n{
+if (X+TOHITBONUS) >= A & Y { result: (X+TOHITBONUS - A)/10 }
+result: -1
+}
+
+function: hits DOS:n{
+SCATTER_EXTRA_HITS: [scatter extra hits DOS]
+if MODE = 0 & DOS >= 0 {result: 1*(STORM+1) + SCATTER_EXTRA_HITS}
+else if MODE = 1 & DOS >= 0
+{
+  if ROF <= DOS/2 {result: ROF*(STORM+1) + SCATTER_EXTRA_HITS}
+  else {result: (DOS/2 + 1)*(STORM+1) + SCATTER_EXTRA_HITS}
+}
+else if MODE = 2 & DOS >= 0
+{
+  if ROF <= DOS {result: ROF + SCATTER_EXTRA_HITS}
+  else {result: (DOS + 1)*(STORM+1) + SCATTER_EXTRA_HITS}
+}
+result: 0
+}
+
+function: soak DOS:n{
+if (DOS > 2 & RAZORSHARP) | MELTA {result: [highest of AP-(PEN*2) and 0] + (TB*[highest of (UNT-FELLING) and 1])}
+else {result: [highest of AP-PEN and 0] + TB*[highest of (UNT-FELLING) and 1]}}
+
+function: ag test X:n{
+result: AG < X
+}
+
+function: flamer damage{
+result: NUMBEROFDTENSd[explode d10] + BONUS
+}
+
+function: damage{
+if FLAMER{result: [flamer damage]}
+N: NUMBEROFDTENS + ACCURATE*([highest of DOS/2 and 2])
+DICE:[highest of [explode d10] and PROVEN]
+if TEARING{result: [replace lowest [highest N of (N+1)dDICE]with DOS] + BONUS}
+else {result: [replace lowest NdDICE with DOS] + BONUS}}
+
+function: flamer wounds caused AG:n{
+if AG {result: [highest of [flamer damage] - [soak DOS] and 0]}
+result: 0
+}
+
+function: wounds caused {
+result: [highest of (DAMAGE - [soak DOS]) and 0]
+}
+
+function: wounds caused total{
+if FLAMER{result: [flamer wounds caused [ag test d100]]}
+result: [wounds caused] * HITS}
+
+function: will it kill{
+result: (NUMBEROFDTENS*4)@{[wounds caused]} > WOUNDS}
+
+function: kills DOS:s{
+if FLAMER{ result: [kills flamer] }
+if [will it kill]{result: HITS*(WOUNDS <= [wounds caused])}                   
+result: 100*[wounds caused total]/WOUNDS
+}
+
+function: kills flamer{
+if (NUMBEROFDTENS*4)@{[flamer wounds caused[ag test d100]]}>WOUNDS
+{result: (WOUNDS <= [flamer wounds caused[ag test d100]])}
+result: 100*[flamer wounds caused[ag test d100]]/WOUNDS
+}
+
+function: flamer horde kills{
+QUARTER: FLAMERRANGE/4
+if FLAMERRANGE != QUARTER*4 {QUARTER: QUARTER + 1}
+HITSFLAMER: QUARTER + 1d5
+result: HITSFLAMER*([wounds caused] > 0)}
+
+function: horde mag killed{
+if FLAMER {result: [flamer horde kills]}
+if BLAST {result: (HITS*BLAST + (HITS>0)*EXPLOSIVEDAMAGE)*([wounds caused] > 0)*(DEVISTATING+1)}
+result: (HITS+(HITS>0)*EXPLOSIVEDAMAGE)*([wounds caused] > 0)*(DEVISTATING+1)}
+
+
+NUMBEROFDTENS: 1
+BONUS: 9
+PEN: 4
+STB: 5                \don't add the +2 from armour, only applies to melee attacks\
+
+ROF: 1
+MODE: 0               \0 = single; 1 = semi; 2 = full auto\
+TOHIT: 60             \60 is a pretty good guess for what ws or bs the player is going to have if they spec'ed into it\
+RANGE: 1              \0 = point blank; 1 = close range; 2 = normal range; 3 = long range; 4 = extreme range\
+ATTACHMENTBONUS: 0    \what +0 to hit all the scopes and stuff on the gun gives\
+AIM: 10               \0, +10 or +20\
+MELEE: 0              \1 = account for STB and FEATOFSTRENGTH, remember MODE = 0 for melee\
+
+ACCURATE:    1
+BLAST:       0
+DEVISTATING: 0
+EXPLOSIVEDAMAGE: 1
+FEATOFSTRENGTH: 0    \1 is 3x STB and 2 is 4x STB (which is only available to rank 7)\
+FELLING:     0
+FLAMER:      0
+FLAMERRANGE: 0       \used for horde calcs\
+MELTA:       0       \assuems short range or closer, set to 0 for longer ranges\
+OVERHEATS:   0
+PROVEN:      0            
+RAZORSHARP:  0
+RELIABLE:    0
+SCATTER:     0        \it assumes point-blank, if you want to compare the weapon at other ranges set SCATTER to 0 and double the ap\
+STORM:       0
+TEARING:     1
+
+TOHITBONUS: [lowest of 60 and (1-MODE)*10 + ATTACHMENTBONUS + ACCURATE*10*(AIM>0) + AIM + 10*((2-RANGE)*5/3)]
+DOS: [TOHIT dos 1d100 [jam chance 1d100 1d10]]
+HITS: [hits DOS]
+BONUS: BONUS + MELEE*(STB*(2+FEATOFSTRENGTH)+2)
+DAMAGE: [damage]
+
+output (TOHIT+TOHITBONUS)*(FLAMER<1) named "to hit - base"
+output [highest of DOS and 0] named "number of Degrees of Success"
+output HITS named "number of hits"
+output DAMAGE named "raw damage - no size bonus to hit"
+
+
+AP: 3
+TB: 3
+UNT: 1
+WOUNDS: 9
+AG: 55               \used vs flamers\
+SIZE: 4              \sizes follow OW and later, so 4 is human and every up and down is ±10\
+TOHITBONUS: [lowest of TOHITBONUS + (SIZE-4)*10 and 60]
+DOS: [TOHIT dos 1d100 [jam chance 1d100 1d10]]
+HITS: [hits DOS]
+BONUS: BONUS + MELEE*(STB*(2+FEATOFSTRENGTH)+2)
+DAMAGE: [damage]
+output [wounds caused total] named "Troop - total damage"
+output [kills DOS] named "Troop - enemies killed" \if 1 shoot can kill it gives in number of death, if 1 shoot can't kill it gives in % to kill 1\
+output 100*[wounds caused total]/WOUNDS named "Troop - % to kill one"
+output [horde mag killed] named "horde magnitude killed"
+
+AP: 8
+TB: 5
+UNT: 2
+WOUNDS: 48
+AG: 44               \used vs flamers\
+SIZE: 6              \sizes follow OW and later, so 4 is human and every up and down is ±10\
+TOHITBONUS: [lowest of TOHITBONUS + (SIZE-4)*10 and 60]
+DOS: [TOHIT dos 1d100 [jam chance 1d100 1d10]]
+HITS: [hits DOS]
+BONUS: BONUS + MELEE*(STB*(2+FEATOFSTRENGTH)+2)
+DAMAGE: [damage]
+output [wounds caused total] named "Elite - total damage"
+output [kills DOS] named "Elite - enemies killed" \if 1 shoot can kill it gives in number of death, if 1 shoot can't kill it gives in % to kill 1\
+\output 100*[wounds caused total]/WOUNDS named "Elite - % to kill one"
+\
+
+AP: 10
+TB: 5
+UNT: 3
+WOUNDS: 120
+AG: 44               \used vs flamers\
+SIZE: 7              \sizes follow OW and later, so 4 is human and every up and down is ±10\
+TOHITBONUS: [lowest of TOHITBONUS + (SIZE-4)*10 and 60]
+DOS: [TOHIT dos 1d100 [jam chance 1d100 1d10]]
+HITS: [hits DOS]
+BONUS: BONUS + MELEE*(STB*(2+FEATOFSTRENGTH)+2)
+DAMAGE: [damage]
+output [wounds caused total] named "Master - total damage"
+output [kills DOS] named "Master- enemies killed" \if 1 shoot can kill it gives in number of death, if 1 shoot can't kill it gives in % to kill 1\
+\output 100*[wounds caused total]/WOUNDS named "Master - % to kill one"
+\
+
+AP: 31
+TB: 0
+UNT: 1
+WOUNDS: 25
+AG: 20               \used vs flamers\
+SIZE: 7              \sizes follow OW and later, so 4 is human and every up and down is ±10\
+TOHITBONUS: [lowest of TOHITBONUS + (SIZE-4)*10 and 60]
+DOS: [TOHIT dos 1d100 [jam chance 1d100 1d10]]
+HITS: [hits DOS]
+BONUS: BONUS + MELEE*(STB*(2+FEATOFSTRENGTH)+2)
+DAMAGE: [damage]
+output [wounds caused total] named "Tank - total damage"
+output [kills DOS] named "Tank - enemies killed" \if 1 shoot can kill it gives in number of death, if 1 shoot can't kill it gives in % to kill 1\
+\output 100*[wounds caused total]/WOUNDS named "Tank - % to kill one"
+\
+
+AP: 50
+TB: 0
+UNT: 1
+WOUNDS: 95
+AG: 20               \used vs flamers\
+SIZE: 8              \sizes follow OW and later, so 4 is human and every up and down is ±10\
+TOHITBONUS: [lowest of TOHITBONUS + (SIZE-4)*10 and 60]
+DOS: [TOHIT dos 1d100 [jam chance 1d100 1d10]]
+HITS: [hits DOS]
+BONUS: BONUS + MELEE*(STB*(2+FEATOFSTRENGTH)+2)
+DAMAGE: [damage]
+output [wounds caused total] named "Heavy Tank - total damage"
+output [kills DOS] named "Heavy Tank- enemies killed" \if 1 shoot can kill it gives in number of death, if 1 shoot can't kill it gives in % to kill 1\
+\output 100*[wounds caused total]/WOUNDS named "Heavy Tank - % to kill one"
+\
+
+

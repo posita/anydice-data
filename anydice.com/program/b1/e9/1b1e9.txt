@@ -1,0 +1,28 @@
+\ This function returns +1 if A wins, -1 if B wins and 0 if it's a draw: \
+function: ATTR_A:n versus ATTR_B:n {
+  result: [2d10 attr ATTR_A versus 2d10 attr ATTR_B]  \ call helper function \
+}
+
+function: ROLL_A:s attr ATTR_A:n versus ROLL_B:s attr ATTR_B:n {
+  SUCC_A: ROLL_A <= ATTR_A
+  SUCC_B: ROLL_B <= ATTR_B
+
+  \ higher number of successes wins: \
+  if SUCC_A > SUCC_B { result: +1 }
+  if SUCC_A < SUCC_B { result: -1 }
+
+  \ if both have two successes, highest roll wins: \
+  if SUCC_A = 2 & ROLL_A > ROLL_B { result: +1 }
+  if SUCC_A = 2 & ROLL_A < ROLL_B { result: -1 }
+
+  \ if both have one success, higher successful roll wins: \
+  if SUCC_A = 1 & 2@ROLL_A > 2@ROLL_B { result: +1 }
+  if SUCC_A = 1 & 2@ROLL_A < 2@ROLL_B { result: -1 }
+
+  \ otherwise it's a draw: \
+  result: 0
+}
+
+A: 6
+B: 5
+output [A versus B] named "[A] vs. [B]"

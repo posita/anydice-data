@@ -1,0 +1,33 @@
+function: dicepool SEQ:s above MINSUCCESS:n {
+
+\ function declaration with arbitrary text surrounding input variables: :s means "this function
+  takes a sequence of numbers in this position" (basically an array), :n means number and :d
+  means TYPE of die roll. Depending on the type of the variables, the program will insert the
+ appropriate type: a dice roll input can become any of them, a sequence becomes either a sequence
+ or a sum of all the integers in the sequence (I think..) and a number can only be a number,
+  but of course you can USE numbers to generate dice rolls and sequences with variables: KdM
+  is perfectly valid, as is SEQUENCE: { N, NTWO, NFOUR } \
+
+ result: SEQ >= MINSUCCESS
+  \ compare the SEQUENCE to a NUMBER (the order here is significant: MINSUCCESS <= SEQ is different)
+   and receive the number of integers in the sequence that are equal or greater than MINSUCCESS \
+  
+  \ instead of returns, there are results, but they function pretty similarly. A result from one function
+  to another can be any type (seq, num or dice), but when you output it the results collapse into a single
+  value result (sequences are summed, dice are rolled and summed, numbers are just output) \
+
+}
+
+output [dicepool 11d6 above 5]
+
+\ how the program works (my speculation): each time the program encounters a die roll within the program that
+  it rolls (not just a dice variable (:d) that it passes along that tells what kind of roll it is), it goes through
+  each possible permutation of that roll one by one, repeating a loop that can contain other inner dice loops within it.
+  Here, we only roll once per loop: 11d6 is input into the above function as a sequence that contains all the results of the roll.
+  Then the function does something with that roll, and returns a result for that permutation. Then the program returns
+  to where it was (going through permutations for 11d6) and takes the next permutation, and returns a result.
+ 
+  Each result that goes up to the output is collated into a table where each result is counted how many times it has
+ happened. In the end, the program just outputs this data as percentages of all rolls. \
+
+output 11d{0:4, 1:2} \ four zeroes and two ones and the same curve as above \

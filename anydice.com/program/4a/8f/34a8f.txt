@@ -1,0 +1,59 @@
+function: saved ROLL:n vs ARMOR {
+ if ROLL > ARMOR{
+   result: 0
+ }
+ result: 1
+}
+
+function: woundtable STRENGH vs TOUGHNESS {
+ if STRENGH = TOUGHNESS {
+   result: 4
+ }
+ if STRENGH-1 = TOUGHNESS {
+   result: 3
+ }
+ if STRENGH-1 > TOUGHNESS {
+   result: 2
+ }
+ if STRENGH+1 = TOUGHNESS {
+   result: 5
+ }
+ result: 6
+}
+
+function: wound ROLL:n STRENGH vs TOUGHNESS {
+ if ROLL >= [woundtable STRENGH vs TOUGHNESS ]{
+   result: 1
+ }
+ result: 0
+}
+
+function: hittable CC_ATT vs CC_DEF {
+ if CC_ATT = CC_DEF {
+   result: 4
+ }
+ if CC_ATT > (CC_DEF*2) {
+   result: 2
+ }
+ if CC_ATT > CC_DEF{
+   result: 3
+ }
+ if (CC_ATT*2) < CC_DEF{
+   result: 6
+ }
+ result: 5
+}
+
+function: hit ROLL:n CC_ATT vs CC_DEF {
+ if ROLL >= [hittable CC_ATT vs CC_DEF]{
+   result: 1
+ }
+ result: 0
+}
+
+function: attack cc CC_ATT vs CC_DEF st STR vs END sv SVG inv INV reg REG {
+  result: [saved d6 vs REG]*[saved d6 vs INV]*[saved d6 vs SVG]*[wound d6 STR vs END]*[hit d6 CC_ATT  vs CC_DEF]
+}
+
+
+output 20d[attack cc 5 vs 4 st 3 vs 3 sv 6 inv 6 reg 7] named "wound"

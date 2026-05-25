@@ -1,0 +1,236 @@
+DAMAGE: 4             \Attacker's Weapon Damage Value\
+ARMOR: 1              \Defender's Armor Value\
+SHIELD: 0             \Mana Spent on Shields\
+EQUIPPEDSHIELD: 1     \Defensive Value of the Equipped Shield\
+
+RIPOSTE: -1           \The negative value of a Riposted attack\
+ 
+ASTR: 3               \Attacker STR\
+ADEX: 3               \Attacker DEX\
+ASTA: 3               \Attacker STA\
+AMELEE: 3             \Attacker Melee\
+
+DSTR: 3               \Defender STR\
+DDEX: 3               \Defender DEX\
+DSTA: 3               \Defender STA\
+DMELEE: 3             \Defender Melee\
+DDODGE: 3             \Defender Dodge\
+
+BASEDIFFICULTY: 6        \Difficulty on Contested Roll\
+MODIFIEDDIFFICULTY: 7    \Difficulty for Attacker using an Axe or Spear\
+
+HAMMERDAMAGEBONUS: 2
+AXEDAMAGEBONUS: 1
+SPEARARMORDEBUFF: 1
+
+function: eveon spec N:n diff D:n {
+ if N >= 9 { result: 1 + [eveon spec d10 diff D] }
+ if N <= 1 { result: -1 }
+ result: N >= D
+}
+
+function: eveon norm N:n diff D:n {
+ if N <= 1 { result: -1 }
+ result: N >= D
+}
+
+function: eveon contested N:n vs M:n {
+ result: N-M
+}
+
+function: eveon sword damage N:n vs block M:n {
+ HIT: N-M
+ DEALT: DAMAGE + HIT - ARMOR - EQUIPPEDSHIELD
+ if HIT > 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon sword damage N:n vs parry M:n {
+ HIT: N-M
+ DEALT: DAMAGE + HIT - ARMOR
+ if HIT > 0 { \To Hit Check\
+  if (DEALT  <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon sword damage N:n vs dodge M:n {
+ HIT: N-M
+ DEALT: DAMAGE + HIT - ARMOR
+ if HIT >= 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if N-M < 0 {result: 0}
+}
+
+function: eveon spear damage N:n vs block M:n {
+ if ARMOR + EQUIPPEDSHIELD > 0 {NEWARMOR: ARMOR + EQUIPPEDSHIELD - SPEARARMORDEBUFF}
+ HIT: N-M
+ DEALT: DAMAGE + HIT - NEWARMOR
+ if HIT  > 0 { \To Hit Check\
+  if (DEALT  <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT  - SHIELD <= 0) {result: 0}
+  result: DEALT  - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon spear damage N:n vs parry M:n {
+ if ARMOR > 0 {NEWARMOR: ARMOR - SPEARARMORDEBUFF}
+ if NEWARMOR < 0 {NEWARMOR: 0}
+ HIT: N-M
+ DEALT: DAMAGE + HIT - NEWARMOR
+ if HIT > 0 { \To Hit Check\
+  if (DAMAGE + N-M - NEWARMOR <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DAMAGE + N-M - NEWARMOR - SHIELD <= 0) {result: 0}
+  result: DAMAGE + N-M - NEWARMOR - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon spear damage N:n vs dodge M:n {
+ if ARMOR > 0 {NEWARMOR: ARMOR - SPEARARMORDEBUFF}
+ if NEWARMOR < 0 {NEWARMOR: 0}
+ HIT: N-M
+ DEALT: DAMAGE + HIT - NEWARMOR
+ if HIT >= 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if N-M < 0 {result: 0}
+}
+
+function: eveon axe damage N:n vs block M:n {
+ HIT: N-M
+ DEALT: DAMAGE + AXEDAMAGEBONUS + HIT - ARMOR - EQUIPPEDSHIELD
+ if HIT > 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon axe damage N:n vs parry M:n {
+ HIT: N-M
+ DEALT: DAMAGE + AXEDAMAGEBONUS + HIT - ARMOR
+ if HIT > 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon axe damage N:n vs dodge M:n {
+ HIT: N-M
+ DEALT: DAMAGE + AXEDAMAGEBONUS + HIT - ARMOR
+ if HIT >= 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ result: 0
+}
+
+function: eveon hammer damage N:n vs block M:n {
+ HIT: N-M
+ DEALT: DAMAGE + HAMMERDAMAGEBONUS + HIT - ARMOR - EQUIPPEDSHIELD
+ if HIT > 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon hammer damage N:n vs parry M:n {
+ HIT: N-M
+ DEALT: DAMAGE + HIT - ARMOR
+ if HIT > 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if HIT <= -3 {result: RIPOSTE}
+ result: 0
+}
+
+function: eveon hammer damage N:n vs dodge M:n {
+ HIT: N-M
+ DEALT: DAMAGE + HIT - ARMOR
+ if HIT >= 0 { \To Hit Check\
+  if (DEALT <= 0) {
+   if SHIELD >= 1 {result: 0} 
+   result: 1
+  }
+  if (DEALT - SHIELD <= 0) {result: 0}
+  result: DEALT - SHIELD
+ }
+ if N-M < 0 {result: 0}
+}
+
+output [eveon sword damage AMELEEd[eveon norm d10 diff (BASEDIFFICULTY - (ASTR-DDEX))] vs dodge DDODGEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Sword Damage vs Dodge"
+output [eveon sword damage AMELEEd[eveon norm d10 diff (BASEDIFFICULTY - (ASTR-DDEX))] vs parry DMELEEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Sword Damage vs Parry"
+output [eveon sword damage AMELEEd[eveon norm d10 diff (BASEDIFFICULTY - (ASTR-DSTA))] vs block DMELEEd[eveon norm d10 diff (6 - (DSTA-ASTR))]] named "Sword Damage vs Block"
+
+output [eveon spear damage AMELEEd[eveon norm d10 diff (MODIFIEDDIFFICULTY - (ASTR-DDEX))] vs dodge DDODGEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Spear Damage vs Dodge"
+output [eveon spear damage AMELEEd[eveon norm d10 diff (MODIFIEDDIFFICULTY - (ASTR-DDEX))] vs parry DMELEEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Spear Damage vs Parry"
+output [eveon spear damage AMELEEd[eveon norm d10 diff (MODIFIEDDIFFICULTY - (ASTR-DSTA))] vs block DMELEEd[eveon norm d10 diff (6 - (DSTA-ASTR))]] named "Spear Damage vs Block"
+
+output [eveon axe damage AMELEEd[eveon norm d10 diff (MODIFIEDDIFFICULTY - (ASTR-DDEX))] vs dodge DDODGEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Axe Damage vs Dodge"
+output [eveon axe damage AMELEEd[eveon norm d10 diff (MODIFIEDDIFFICULTY - (ASTR-DDEX))] vs parry DMELEEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Axe Damage vs Parry"
+output [eveon axe damage AMELEEd[eveon norm d10 diff (MODIFIEDDIFFICULTY - (ASTR-DSTA))] vs block DMELEEd[eveon norm d10 diff (6 - (DSTA-ASTR))]] named "Axe Damage vs Block"
+
+output [eveon hammer damage AMELEEd[eveon norm d10 diff (BASEDIFFICULTY - (ASTR-DDEX))] vs dodge DDODGEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Hammer Damage vs Dodge"
+output [eveon hammer damage AMELEEd[eveon norm d10 diff (BASEDIFFICULTY - (ASTR-DDEX))] vs parry DMELEEd[eveon norm d10 diff (6 - (DDEX-ASTR))]] named "Hammer Damage vs Parry"
+output [eveon hammer damage AMELEEd[eveon norm d10 diff (BASEDIFFICULTY - (ASTR-DSTA))] vs block DMELEEd[eveon norm d10 diff (6 - (DSTA-ASTR))]] named "Hammer Damage vs Block"

@@ -1,0 +1,56 @@
+RESULTS: 0
+VALUES: 1
+BASE_DICE: 3
+MAX_DICE: 10
+EACH_DIE: {0..9}
+RANGE: MAX_DICE - BASE_DICE
+loop MOD_DICE over {-RANGE..RANGE}
+{
+    NUM_DICE: BASE_DICE + [absolute MOD_DICE]
+    ROLL_DICE: (NUM_DICE)d{EACH_DIE}
+
+    if MOD_DICE < 0 {    
+        ALL: [ lowest BASE_DICE of ROLL_DICE]
+    } else {
+        ALL: [highest BASE_DICE of ROLL_DICE]
+    }    
+
+    if VALUES
+    {
+      if MOD_DICE < 0 {
+        set "position order" to "lowest first"
+        if BASE_DICE > 3 {
+          output (BASE_DICE-3)@ROLL_DICE named "4th Highest [BASE_DICE]D[MOD_DICE]" }
+        if BASE_DICE > 2 {
+          output (BASE_DICE-2)@ROLL_DICE named "3rd Highest [BASE_DICE]D[MOD_DICE]" }
+        if BASE_DICE > 1 {
+          output (BASE_DICE-1)@ROLL_DICE named "2nd Highest [BASE_DICE]D[MOD_DICE]" }
+        if BASE_DICE > 0 {
+          output (BASE_DICE-0)@ROLL_DICE named "The Highest [BASE_DICE]D[MOD_DICE]" }
+      } else {
+        set "position order" to "highest first"
+        if BASE_DICE > 3 { 
+          output 4@ROLL_DICE named "4th Highest [BASE_DICE]D+[MOD_DICE]" }
+        if BASE_DICE > 2 {
+          output 3@ROLL_DICE named "3rd Highest [BASE_DICE]D+[MOD_DICE]" }
+        if BASE_DICE > 1 {
+          output 2@ROLL_DICE named "2nd Highest [BASE_DICE]D+[MOD_DICE]" }
+        if BASE_DICE > 0 {
+          output 1@ROLL_DICE named "The Highest [BASE_DICE]D+[MOD_DICE]" }
+        }
+ 
+      output ALL named "All ([MOD_DICE])"
+\      output T_I named "Top ([MOD_DICE])"
+      output T_II named "Mid ([MOD_DICE])"
+      output T_III named "Bot ([MOD_DICE])"
+\    }
+    
+    if RESULTS
+    {
+        loop DIVISOR over {1..10}
+        {
+            output ALL / DIVISOR named "[MOD_DICE] By [DIVISOR]"
+        }
+    }
+
+}

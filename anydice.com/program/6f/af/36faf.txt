@@ -1,0 +1,48 @@
+function: high A:n B:n {
+  if(A>=B) { result: A }
+  result: B
+}
+function: low A:n B:n {
+  if(A<=B) { result: A }
+  result: B
+}
+
+function: evaluate BR:n stats SA:n SB:n aff AS:n {
+  LS: [low SA SB]
+  HS: [high SA SB]
+  R: BR - AS
+  if (BR = 1)  { result: 0 } \ critical success \
+  if (BR = 100) { result: 4 } \ critical failure \
+
+  if (R <= LS) { result: 1 } \ success \
+  if (R <= HS) { result: 2 } \ partial success \
+  result: 3 \ failure \
+}
+
+R: [lowest 1 of 2d100]
+BAD: 20
+AVERAGE: 45
+GOOD: 65
+EXCELLENT: 90
+
+\ output [evaluate R stats BAD BAD aff 0] named "very bad"
+output [evaluate R stats AVERAGE BAD aff 0] named "bad"
+output [evaluate R stats AVERAGE AVERAGE aff 0] named "average"
+output [evaluate R stats GOOD AVERAGE aff 0] named "good"
+output [evaluate R stats EXCELLENT BAD aff 0] named "specialized"
+output [evaluate R stats GOOD GOOD aff 0] named "very good"
+output [evaluate R stats EXCELLENT GOOD aff 0] named "excellent" \
+
+output [evaluate R stats GOOD AVERAGE aff 0] named "good"
+output [evaluate R stats GOOD AVERAGE aff 2] named "good with low affinity"
+output [evaluate R stats GOOD AVERAGE aff 5] named "good with nice affinity"
+output [evaluate R stats GOOD AVERAGE aff 10] named "good with good affinity"
+output [evaluate R stats GOOD AVERAGE aff 20] named "good with awesome affinity"
+
+\
+0: Critical Success (succeeds with 1 bonus effect)
+1: Success  (succeeds)
+2: Partial Success (succeeds at cost of 1 effect)
+3: Failure (fails)
+4: Critical Failure (fails with 1 malus effect)
+\

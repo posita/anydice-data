@@ -1,0 +1,41 @@
+\ CONFIG \
+
+DOMAIN_SIZE: 2
+
+
+\ FUNCTIONS \
+
+function: remain NUM:n turns with DIE:d {
+  START: 7
+  TEST: 1
+  if NUM > 0 & NUM <= TURN_MAX {
+    loop N over {1..NUM} {
+    TEST: TEST & (DIE < START + N)
+    }
+  }
+  result: TEST
+}
+
+function: duration with TEST:d {
+  TURNS: 0
+  loop T over TURN_SEQ {
+    TURNS: TURNS + [remain T turns with TEST]
+  }
+  result: TURNS
+}
+
+
+\ PROGRAM \
+
+TURN_MIN: 4
+TURN_MAX: TURN_MIN + DOMAIN_SIZE
+TURN_SEQ: {0..TURN_MAX-1} \ first turn auto-succeeds \
+
+\ Spread of skill bonuses from +1 to +4, by domain size: \
+BONUS: 1@DOMAIN_SIZEd4
+NOSKILL: 1d20
+SKILLED: 1d20 + BONUS
+
+output BONUS named "Domain skill bonus"
+output [duration with NOSKILL] named "Without domain skill"
+output [duration with SKILLED] named "With    domain skill"

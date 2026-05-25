@@ -1,0 +1,42 @@
+\**** Damage calculator ****\
+\Duel Weilder feat vs CHA ASI at level 5 assuming 2 attacks per Attack\
+
+function: attackrollcha ROLL:n vs AC:n {
+if ROLL >= CRITROLL { result: CRITDAMAGE }
+if ROLL = 1 { result: 0 }
+if ROLL + PROFICIENCY + CHA >= AC { result: DAMAGE }
+result: 0
+}
+
+function: attackrollasi ROLL:n vs AC:n {
+if ROLL >= CRITROLL { result: CRITDAMAGE }
+if ROLL = 1 { result: 0 }
+if ROLL + PROFICIENCY + CHA + 1 >= AC { result: DAMAGEASI }
+result: 0
+}
+
+function: attackrollstr ROLL:n vs AC:n {
+if ROLL >= CRITROLL { result: CRITDAMAGEASI }
+if ROLL = 1 { result: 0 }
+if ROLL + PROFICIENCY + STR >= AC { result: 1d8}
+result: 0
+}
+
+\looped against enemy AC from 12-20\
+ENEMYAC: d{12..20}
+
+CHA: 3
+STR: 1
+DMGBONUS: 0
+PROFICIENCY: 3
+HEXMOVECHANCE: d{0,1,1,1}
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 1d8 + CHA + 1d6
+CRITDAMAGE: 2d8 + CHA + 2d6 
+DAMAGEASI: 1d8 + CHA+ 1 + 1d6
+CRITDAMAGEASI: 2d8 + CHA + 1 + 2d6
+output ATTACKTIMESd[attackrollcha d20 vs ENEMYAC] named "Longsword main"
+output ATTACKTIMESd[attackrollcha d20 vs ENEMYAC]+ HEXMOVECHANCEd[attackrollstr d20 vs ENEMYAC] named "Longsword main + offhand"
+output ATTACKTIMESd[attackrollasi d20 vs ENEMYAC] named "Longsword main with ASI"

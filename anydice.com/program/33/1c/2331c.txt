@@ -1,0 +1,99 @@
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+SIX: [d6 reroll {1,2} as d6]
+EIGHT: [d8 reroll {1,2,3,4} as d8]
+TEN: [d10 reroll {1,2,3,4,5} as d10]
+
+function: poison ROLL:n con CON:n {
+  if ROLL + CON  < 12 { result: 2d4 }
+  result: 0
+}
+
+TARGETAC: 15
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= TARGETAC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+output [attack [highest 1 of 2d20] plus 3 + 2 vs 13
+    hit  1d10+1d6+3+2
+    miss 0
+    crit 2d10+2d6+3+2 on 20
+] named "Lvl 3 reckless Zealot against ac 13"
+
+output
+[attack d20 plus 4 + 2 vs 13
+    hit  1dEIGHT+4
+    miss 0
+    crit 1dEIGHT+2d8+4 on 20
+] +
+[attack d20 plus 4 + 2 vs 13
+    hit  1d6+4
+    miss 0
+    crit 1d6+2d6+4 on 20
+] +
+[attack d20 plus 4 + 2 vs 13
+    hit  1d6+4
+    miss 0
+    crit 1d6+2d6+4 on 20
+]named "Lvl 3 Lizardfolk monk against ac 13"
+
+output [attack [highest 1 of 2d20] plus 3 + 2 vs 13
+    hit  1d10+1d6+3+2
+    miss 0
+    crit 2d10+2d6+3+2 on 20
+] +
+[attack [highest 1 of 2d20] plus 3 + 2 vs 13
+    hit  1d4+3+2
+    miss 0
+    crit 2d4+3+2 on 20
+]named "Lvl 3 PAM reckless Zealot against ac 13"
+
+output [attack [highest 1 of 2d20] plus 3 + 2 vs 13
+    hit  1dTEN+1d6+3+2
+    miss 0
+    crit 1dTEN+2d10+2d6+3+2 on 20
+] +
+[attack [highest 1 of 2d20] plus 3 + 2 vs 13
+    hit  1d4+3+2
+    miss 0
+    crit 2d4+3+2 on 20
+]named "Lvl 3 PAM reckless piercer Zealot against ac 13"
+
+output [attack [highest 1 of 2d20] plus 3 + 2 vs 13
+    hit  1d10+1d6+3+2+[poison d20 con 0]
+    miss 0
+    crit 2d10+2d6+2d4+3+2+[poison d20 con 0] on 20
+] +
+[attack [highest 1 of 2d20] plus 3 + 2 vs 13
+    hit  1d4+3+2
+    miss 0
+    crit 2d4+3+2 on 20
+]named "Lvl 3 PAM reckless grung Zealot against ac 13"
+
+output [attack [highest 1 of 2d20] plus 3 + 2 - 5 vs 13
+    hit  1d10+1d6+3+2+10
+    miss 0
+    crit 2d10+2d6+3+2+10 on 20
+] +
+[attack [highest 1 of 2d20] plus 3 + 2 - 5 vs 13
+    hit  1d4+3+2+10
+    miss 0
+    crit 2d4+3+2+10 on 20
+]named "Lvl 3 PAM GWM reckless Zealot against ac 13"

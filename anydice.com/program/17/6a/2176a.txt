@@ -1,0 +1,66 @@
+output 1d20
+output 6d4
+output 4d6
+output 3d8
+output 2d12
+output [explode 1d10]
+output [count 2 in 2d10]
+output [highest 2 of 3d10]
+output [highest of 6d4 and 4d6]
+
+function: switch S:n for G:d L:d {
+ if S > 0 { result: G }
+ result: L
+}
+
+output d20 named "d20"
+output [switch d4 - 1 for d20 3d6] named "3:1"
+output [switch d4 - 2 for d20 3d6] named "1:1"
+output [switch d4 - 3 for d20 3d6] named "1:3"
+output 3d6 named "3d6"
+
+M: 3
+N: 18
+loop X over {1..N - M} {
+ if ((N - M) / X) * X = N - M {
+  Y: (X + N - M) / X
+  Z: X - M
+  if Z > 0 {
+   output XdY - Z named "[X]d[Y] - [Z]"
+  }
+  else {
+   Z: -Z
+   output XdY + Z named "[X]d[Y] + [Z]"
+  }
+ }
+}
+
+function: between M:n N:n for I:n {
+ L: 0
+ loop X over {1..N - M} {
+  if ((N - M) / X) * X = N - M {
+    L: L + 1
+    if (L = I) {
+     result: Xd((X + N - M) / X) - (X - M)
+    }
+  }
+ }
+}
+
+output [switch d4 - 3 for [between 3 18 for 2] [between 3 18 for 3]] named "1:3 for 3d6 4d2-2"
+
+output {1, 69, 2, 3}@2 named "funny number"
+
+function: between M:n N:n for I:n exploding {
+ L: 0
+ loop X over {1..N - M} {
+  if ((N - M) / X) * X = N - M {
+    L: L + 1
+    if (L = I) {
+     result: Xd((X + N - M) / X) - (X - M)
+    }
+  }
+ }
+}
+
+output [switch d4 - 3 for [between 3 18 for 2 exploding] [between 3 18 for 3 exploding]] named "1:3 for 3d6 4d2-2 exploding"

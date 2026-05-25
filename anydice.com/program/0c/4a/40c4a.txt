@@ -1,0 +1,58 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: accuracy NOM:s {
+ X: [highest NOM of NOMd6]
+ result: (X)
+}
+
+function: attack ROLL:n ACC:n vs EVASION:n {
+ Y: ROLL + GRIT + ACC
+ if Y >= 20 {
+  if Y >= EVASION { result: CRITICALHIT }
+  result: HIT
+ }
+ if Y >= EVASION { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 ACCURACYB vs EVASION]]
+}
+
+GRIT: 2
+EVASION: d{6..12}
+MISSDAMAGE: 0
+
+\Tactical Melee Weapon\
+ACCURACY: 0
+HITDAMAGE: 1d6+2
+CRITICALDAMAGE: [highest 1 of 2d6] + 2
+ACCURACYB: [accuracy ACCURACY]
+
+loop EVASIONA over {6, 7, 8, 9, 10, 11, 12} {
+ output [damage for [attack d20 ACCURACYB vs EVASIONA]] named "TMW evasion [EVASIONA]"
+}
+output [attack] named "Tactical Melee Weapon D. AVG"
+
+\Variable Sword\
+ACCURACY: 1
+HITDAMAGE: 3
+CRITICALDAMAGE: [highest 1 of 2d6] + 3
+ACCURACYB: [accuracy ACCURACY]
+
+loop EVASIONA over {6, 7, 8, 9, 10, 11, 12} {
+ output [damage for [attack d20 ACCURACYB vs EVASIONA]] named "VS evasion [EVASIONA]"
+}
+output [attack] named "Variable Sword D. AVG"

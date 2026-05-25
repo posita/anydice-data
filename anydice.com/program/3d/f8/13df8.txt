@@ -1,0 +1,318 @@
+\
+
+GREETINGS, you fine folk, and welcome to my funky roll-dice-by-level-in-specific-ordered-patterns program! Yes, you read that right, and yes, I need to come up with a better title! Get off my bellyfat about it then!
+
+There are several sections to this program before you get to the bottom:
+
+dA glossary of which variables are claimed and the function grammar, if you want to mess around with anything.
+
+1. Sets of dice that are ordered A-H
+2. Some generic conditional statements (in a comment) that allow you to use any integer as a count index in a function, with explanations as to how they can be altered to start at any value, regardless of count index.
+3. The definitions of the two basic sequences (EVENLEVELS and THIRDLEVELS) needed for those conditional statements to function.
+4. A proto-function that defines A-H with integer "metalevels", and can be used to roll any number of dice at that metalevel.
+5. The end-game function that allows you to roll dice in specific patterns based on their order in a set, using conditional statements to check the player's level in relation to the metalevel of each die that needs to be rolled in one instance of the pattern (before it's repeated). Several patterns are already programmed into the function, with explanations to help get you started.
+
+
+
+
+Claimed variables:
+
+
+
+A-H 
+for the dice sets. If you add more dice, add more letters. It's okay. Really, it is.
+
+EVENLEVELS and THIRDLEVELS 
+for the two basic sequences, which count by 2s and 3s up to 36. (if your player levels go higher than 36, you'll have to add them).
+
+METALEVEL 
+takes the numbers 1-8 in the first function, and corresponds to the dice A-H, respectively. (if you add dice to the dice sets, you'll have to put in 9, 10, etc. manually), and...
+
+DICENUMBER 
+does the same thing for... you guessed it, the number of dice that are rolled when defined for that first function. This can be any old integer.
+
+PATTERN 
+really just designates which part of the code internal to the second function will be used. Unforunately, I haven't yet written a function that allows you to define patterns, but that would be pretty rad and I might try it, though it would be hella complicated. In the meantime, if you try to add a new pattern, just keep adding numbers in a new internal chunk of code with the statement if PATTERN = 4,5,6, etc... followed by an &... and don't add any code corresponding to an existing pattern, or you'll screw everything up, buddy!
+
+LEVEL: any old integer. Also for use in the second function, this is whatever "level" a player is at. Right now, we cap off at 36, but if you want to go higher, you can add numbers greater than 36 to the two sequences (EVENLEVELS and THIRDLEVELS) below.
+
+
+
+
+
+The grammar of the two functions:
+
+
+
+[roll DICENUMBER dice at a metalevel of METALEVEL] 
+
+-- I made this first function primarily to use it in the second function, but if you want to just test some specific dice from a set, you can use it for that purpose as well.
+
+[roll at level LEVEL using pattern PATTERN] 
+
+-- Again, LEVEL is the player's level, and can be any integer up to 36. PATTERN is also an integer, but you can't just select any integer--you have to define a series of conditional statements that correspond to that integer within the function's code block to get anything useful. I've defined 3 patterns so far, meaning that substituting 1, 2, and 3 for PATTERN will get you something from the function.
+
+
+
+The patterns:
+
+1: rolls AA for level one, AB for level two, BB for level three, BC for level four, and so on.
+2.
+
+\
+
+
+\Set 1\
+\
+A: {0,1,1,2,2,3}
+B: {1,1,2,2,3,3}
+C: {1,2,2,3,3,4}
+D: {2,2,3,3,4,4}
+E: {2,3,3,4,4,6}
+F: {3,3,4,4,6,6}
+G: {3,4,4,6,6,8}
+H: {4,4,6,6,8,8}
+\
+
+
+\Set 2\
+\
+A: {0,1,1,1}
+B: {1,1,1,2}
+C: {1,1,2,2}
+D: {1,2,2,2}
+E: {2,2,2,3}
+F: {2,2,3,3}
+G: {2,3,3,3}
+H: {3,3,3,4}
+\
+
+\Set 3\
+\
+A: d2
+B: 2d2
+C: d4 + d2
+D: 2d4
+E: d6+d4
+F: 2d6
+G: d8+d6
+H: 2d8
+\
+
+\Set 4\
+\
+A: d6
+B: {1,2,3,4,6,8}
+C: {2,3,4,5,6,8}
+D: {3,4,5,6,7,8}
+E: {3,4,5,6,7,9}
+F: {4,5,6,7,8,9}
+G: {4,5,6,7,8,10}
+H: {5,6,7,8,9,10}
+\
+
+\Set 5\
+\
+A: {0,0,1,1,2,2}
+B: {0,1,1,2,2,3}
+C: {1,1,2,2,3,3}
+D: {1,2,2,3,3,4}
+E: {2,2,3,3,4,4}
+F: {2,3,3,4,4,5}
+G: {3,3,4,4,5,5}
+H: {3,4,4,5,5,6}
+\
+
+\Set 6\
+
+A: {1,1,2,3}
+B: {1,2,2,3}
+C: {2,2,3,4}
+D: {2,3,3,4}
+E: {3,3,4,5}
+F: {3,4,4,5}
+G: {4,4,5,6}
+H: {4,5,5,6}
+
+
+\
+
+Below are some sets defined that, when combined with specific if statements in a function definition, allow you to select values using a count by 2's, 3's, 4's, and every integer increment thereafter. You only technically need two sets--a set of numbers counting up by 2, and a set of numbers counting up by 3. All other sets can be derived by dividing any number by your counting index, checking if the quotient is in the set of two or three, then checking if the quotient is in the set of primes by checking if the quotient increased by one is in the set of even numbers. After 3, this method works for every integer that you can type into anydice.
+
+There is also a method detailed for counting by any of the numbers above, but starting with an integer that has a lower value: simply change LEVEL to LEVEL less the difference between the value of the count index and the value of the starting integer (for example, counting by 7s starting at 5 would require you to use LEVEL-2 instead of just LEVEL). Finally, if you want to start at any integer of a value that is greater than your counting index, use the same method, but define your start by using &! (and not) and then a statement checking if your counting index is less than the value of the integer you wish to start with. (For example, counting by 7 starting at 13 would use LEVEL-6 and then the statement &! LEVEL < 13).
+
+Below, the basic statements are written out so you can copy/paste them into the code as needed:
+
+if [EVENLEVELS contains LEVEL]
+
+(all even numbers)
+
+if [EVENLEVELS contains LEVEL-1]
+
+(all odd numbers)
+
+if [THIRDLEVELS contains LEVEL]
+
+(all multiples of 3)
+
+if [THIRDLEVELS contains LEVEL/4] | [EVENLEVELS contains LEVEL/4] | [EVENLEVELS contains LEVEL/4 + 1]
+
+(all multiples of 4)
+
+&! LEVEL < An integer
+
+(to start somewhere above the value of your counting index).
+
+
+\
+
+
+
+\THE SETS DEFINED... yes, they're defined, but only two of them, and only through 36. So if you're counting by 14's, you need to add some numbers. Without further ado... THE SETS DEFINED.\
+
+
+
+EVENLEVELS: {2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36}
+THIRDLEVELS:{3,6,9,12,15,18,21,24,27,30,33,36}
+
+
+
+
+\AND NOW, THE FUNCTIONS.\
+
+
+
+
+
+\The first function  allows you to pick a specific number of dice (X) from an ordered dice set containing dice labeled A-H. This is needed to establish the "order" of the dice in each set, so that the following function can pick the dice via integer--otherwise, it would be much more difficult to transfer a player's level (usually a number) to an named die (defining the dice with integers is out of the question, since you can't define variable names with numerics in AnyDice, and defining the dice names as numerics is also out of the question, sine you need those names to correspond to a unique die, not an integer Yeah, I'm into it.\
+
+
+\THAT THERE FIRST FUNCTION check it out:\
+
+function: roll DICENUMBER dice at a metalevel of METALEVEL
+{
+if METALEVEL = 1 {result: DICENUMBERdA}
+if METALEVEL = 2 {result: DICENUMBERdB}
+if METALEVEL = 3 {result: DICENUMBERdC}
+if METALEVEL = 4 {result: DICENUMBERdD}
+if METALEVEL = 5 {result: DICENUMBERdE}
+if METALEVEL = 6 {result: DICENUMBERdF}
+if METALEVEL = 7 {result: DICENUMBERdG}
+if METALEVEL = 8 {result: DICENUMBERdH}
+result: d{}
+}
+
+
+
+\This second function chooses dice according to specific patterns (and technically, you could make your own patterns that are quite complex, though right now there are only 8 dice defined as part of the ordered set A-H, and the player level can only go up to 36 for the time being (because both the EVENLEVELS and the THIRDLEVELS set end at 36). Essentially, each pattern is defined in a comment metalevels 1-8, but letting the player level define which metalevels to choose via the conditional counting statements as seen above. Since choosing multiple dice requires counting by that number of dice, but occasionally needs to result in an integer that isn't the counting index (or a multiple of it), which is why it is then necessary to use LEVEL-1, LEVEL-2, and so on in place of LEVEL. When rolling any die that isn't a multiple of the counting index but combining it with a number that is, or starts elsewhere in relation to the counting index, it requires additional conditional statements containing two versions of the function above to define the result. Finally, to avoid getting any values that aren't wanted, the function returns the empty die when no conditional statement associated with a given pattern is satisfied, as well as if the pattern listed does not exist or the user doesn't provide one. Try making your own patterns!\
+
+
+
+
+\THE SECOND AND YET PRIMARY FUNCTION, which is the point of this whole program:\
+
+
+
+function: roll at level LEVEL using pattern PATTERN {
+
+\pattern 1: AA, AB, BB, BC...\
+
+if PATTERN = 1 & [EVENLEVELS contains LEVEL+1]  {result: [roll 2 dice at a metalevel of ((LEVEL+1)/2)] }
+if PATTERN = 1 & [EVENLEVELS contains LEVEL] {result: [roll 1 dice at a metalevel of (LEVEL/2)] + [roll 1 dice at a metalevel of (LEVEL/2)+1]}
+
+\pattern 2: AAA, AAB, ABB, BBB, BBC...\
+
+if PATTERN = 2 & [THIRDLEVELS contains LEVEL] {result: [roll 1 dice at a metalevel of (LEVEL/3)] + [roll 2 dice at a metalevel of (LEVEL/3)+1] }
+if PATTERN = 2 & [THIRDLEVELS contains LEVEL+1] {result: [roll 1 dice at a metalevel of ((LEVEL+1)/3)+1] + [roll 2 dice at a metalevel of ((LEVEL+1)/3)]}
+if PATTERN = 2 & [THIRDLEVELS contains LEVEL+2] {result: [roll 3 dice at a metalevel of ((LEVEL+2)/3)]}
+
+\pattern 3: AAB,ABB,BBB,ABC...BBC,BCC,CCC,CCD...\
+
+\Pattern 3 is interesting. This comment isn't.\
+
+
+
+if PATTERN = 3 & [EVENLEVELS contains LEVEL+1] & [EVENLEVELS contains (LEVEL+1)/2] {result: [roll 3 dice at a metalevel of ((LEVEL+1)/4)+1]}
+
+result: d{}
+}
+
+\outputs for pattern 1\
+\
+output [roll at level 1 using pattern 1] named "1AA"
+output [roll at level 2 using pattern 1] named "2AB"
+output [roll at level 3 using pattern 1] named "3BB"
+output [roll at level 4 using pattern 1] named "BC"
+output [roll at level 5 using pattern 1] named "CC"
+output [roll at level 6 using pattern 1] named "CD"
+output [roll at level 7 using pattern 1] named "DD"
+output [roll at level 8 using pattern 1] named "DE"
+output [roll at level 9 using pattern 1] named "EE"
+output [roll at level 10 using pattern 1] named "EF"
+output [roll at level 11 using pattern 1] named "FF"
+output [roll at level 12 using pattern 1] named "FG"
+output [roll at level 13 using pattern 1] named "GG"
+output [roll at level 14 using pattern 1] named "GH"
+output [roll at level 15 using pattern 1] named "HH"
+\
+
+\outputs for pattern 2\
+\
+output [roll at level 1 using pattern 2] named "1AAA"
+output [roll at level 2 using pattern 2] named "2AAB"
+output [roll at level 3 using pattern 2] named "3ABB"
+output [roll at level 4 using pattern 2] named "4BBB"
+output [roll at level 5 using pattern 2] named "5BBC"
+output [roll at level 6 using pattern 2] named "6BCC"
+output [roll at level 7 using pattern 2] named "7CCC"
+output [roll at level 8 using pattern 2] named "8CCD"
+output [roll at level 9 using pattern 2] named "9CDD"
+output [roll at level 10 using pattern 2] named "10DDD"
+output [roll at level 11 using pattern 2] named "11DDE"
+output [roll at level 12 using pattern 2] named "12DEE"
+output [roll at level 13 using pattern 2] named "13EEE"
+output [roll at level 14 using pattern 2] named "14EEF"
+output [roll at level 15 using pattern 2] named "15EFF"
+output [roll at level 16 using pattern 2] named "16FFF"
+output [roll at level 17 using pattern 2] named "17FFG"
+output [roll at level 18 using pattern 2] named "18FGG"
+output [roll at level 19 using pattern 2] named "19GGG"
+output [roll at level 20 using pattern 2] named "20GGH"
+output [roll at level 21 using pattern 2] named "21GHH"
+output [roll at level 22 using pattern 2] named "22HHH"
+\
+
+
+\outputs for pattern 3\
+
+output [roll at level 1 using pattern 3] named "AAB"
+output [roll at level 2 using pattern 3] named "ABB"
+output [roll at level 3 using pattern 3] named "ABC"
+output [roll at level 4 using pattern 3] named "BBB"
+output [roll at level 5 using pattern 3] named "BBC"
+output [roll at level 6 using pattern 3] named "BCC"
+output [roll at level 7 using pattern 3] named "BCD"
+output [roll at level 8 using pattern 3] named "CCC"
+output [roll at level 9 using pattern 3] named "CCD"
+output [roll at level 10 using pattern 3] named "CDD"
+output [roll at level 11 using pattern 3] named "CDE"
+output [roll at level 12 using pattern 3] named "DDD"
+output [roll at level 13 using pattern 3] named "DDE"
+output [roll at level 14 using pattern 3] named "DEE"
+output [roll at level 15 using pattern 3] named "DEF"
+output [roll at level 16 using pattern 3] named "EEE"
+output [roll at level 17 using pattern 3] named "EEF"
+output [roll at level 18 using pattern 3] named "EFF"
+output [roll at level 19 using pattern 3] named "EFG"
+output [roll at level 20 using pattern 3] named "FFF"
+output [roll at level 21 using pattern 3] named "FFG"
+output [roll at level 22 using pattern 3] named "FGG"
+output [roll at level 23 using pattern 3] named "FGH"
+output [roll at level 24 using pattern 3] named "GGG"
+output [roll at level 25 using pattern 3] named "GGH"
+output [roll at level 26 using pattern 3] named "GHH"
+
+
+
+
+

@@ -1,0 +1,403 @@
+\ '''This script is for pally/hexblade
+    build sketch is CL(PAM), 16/8/15/8/8/16, pally 4 (WC), hex 1 (for BB), pally 4 (+CHA), hex 11 (+CHA, rescon, lucky)
+    skipping on hexcurse and the hex spectre.
+    '''\
+
+
+\-------------------------------------------------------------------------------
+#Code block. Do not change.  Scroll down to adjust AC or enter more outputs
+-------------------------------------------------------------------------------\
+
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d {
+    if ROLL >= CRITRANGE {
+        result:  CRITABLEDAM + CRITABLEDAM + HITDAM
+    }
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= AC - ATTACKBONUS {
+        result: CRITABLEDAM + HITDAM
+    }
+    else {
+        result: 0
+    }
+}
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d with booming secondary at LEVEL: n{
+    SECONDARY: [booming secondary LEVEL dice 1d20]
+
+    if ROLL >= CRITRANGE {
+        result:  CRITABLEDAM + CRITABLEDAM + HITDAM + SECONDARY
+    }
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= AC - ATTACKBONUS {
+        result: CRITABLEDAM + HITDAM + SECONDARY
+    }
+    else {
+        result: 0
+    }
+}
+
+
+
+\#Notes on reference data below: typos happen, so if there are errors, please fix, and let us know\
+TM_TARGET_AC: {14,14,14,15,16,16,16,17,18,18,18,18,19,19,19,19,20,20,20,20} \#TM Baseline assumptions\
+DMG_TARGET_AC: {13,13,13,14,15,15,15,16,16,17,17,17,18,18,18,18,19,19,19,19} \#DMG pg 274\
+BOH_TARGET_AC: {13,13,14,14,14,15,15,15,16,16,16,17,17,17,18,18,18,19,19,19} \#Statistical analysis of MM by Blog of holding http://blogofholding.com/?p=7338\
+PROF_BONUSES: {2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6} \#PHB Standard\
+WARLOCK_MOD_PROGRESSION: {3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ #Assumed primary attack mod starts at 16 at level 1, and then adding ASI at each available level\
+FIGHTER_MOD_PROGRESSION: {3,3,3,3,3,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5} \ #Assume Fighter starts with Crossbow expert at level 1, picks up sharpshooter at level 4, and then ASIs at 6 and 8\
+CRITRANGE: 20
+EB_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4}
+EA_SCALING: {1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4}
+BB_SCALING: {0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3} \#just primary damage dice here\
+
+PAL_MOD_PROGRESSION:{3,3,3,3,3,3,3,3,4,4,4,5,5,5,5,5,5,5,5,5}
+
+
+\BB primary\
+function: booming primary LEVEL: n {
+    DICE:LEVEL@BB_SCALING
+    result: DICEd8
+}
+
+\BB secondary\
+function: booming secondary LEVEL:n dice PROB:n {
+    DICE:LEVEL@BB_SCALING+1
+    if PROB <= BOOMING_CHANCE {
+        result: DICEd8
+    }
+    else {
+        result: 0
+    }
+}
+
+
+ \#PAM reaction proc damage\
+function: proc reaction die ROLL:n chance CHANCE:n proc HIT:d fail MISS:d {
+    if ROLL <= CHANCE {
+        result: HIT
+    }
+    else {
+        result: MISS
+    }
+}
+
+
+
+
+\# Pal 1 - PAM\
+function: pal one LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus MOD]
+    BA_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for 1d4 plus MOD]
+    REACTION: [proc reaction die 1d20 chance RAW_PAM_REACTION proc ATT_DAM fail 0]
+    result: ATT_DAM + BA_DAM + REACTION
+}
+
+\# Pal 2-4 - PAM + Duelling + Bless\
+\# Crits overstated due to bless\
+function: pal twofour LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    ATT_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    BA_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2]
+    REACTION: [proc reaction die 1d20 chance RAW_PAM_REACTION proc ATT_DAM fail 0]
+    result: ATT_DAM + BA_DAM + REACTION
+}
+
+\# Pal 5 - PAM + Duelling + Bless + BB\
+\# Crits overstated due to bless\
+function: pal five LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    BOOM_PRIMARY: [booming primary LEVEL]
+    ATT_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    BA_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2]
+    REACTION: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2 with booming secondary at LEVEL]
+    result: ATT_DAM + BA_DAM + REACTION
+}
+
+
+\# Pal 6-7 - PAM + Duelling + Bless + BB+ Extra Attack\
+\# Crits overstated due to bless\
+function: pal sixseven LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    BOOM_PRIMARY: [booming primary LEVEL]
+    ATT_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2]
+    BA_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2]
+    REACTION: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2 with booming secondary at LEVEL]
+    result: ATT_DAM + ATT_DAM + BA_DAM + REACTION
+}
+
+
+\# Pal 8-10 - PAM + Duelling + Bless + BB+ Extra Attack + Aura of Hate\
+\# Crits overstated due to bless\
+function: pal eightten LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    BOOM_PRIMARY: [booming primary LEVEL]
+    ATT_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for CRIT plus MOD+2+MOD]
+    BA_DAM: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2+MOD]
+    REACTION: [roll 1d20 + 1d4 at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2+MOD with booming secondary at LEVEL]
+    result: ATT_DAM + ATT_DAM + BA_DAM + REACTION
+}
+
+\# Pal 11 - PAM + Duelling + BB+ Extra Attack + Aura of Hate + flock of familiars or darkness adv\
+function: pal elevenplusadv LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    BOOM_PRIMARY: [booming primary LEVEL]
+    ATT_DAM: [roll 1@2d20  at plus ATT_BONUS vs ac AC for CRIT plus MOD+2+MOD]
+    BA_DAM: [roll 1@2d20  at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2+MOD]
+    REACTION: [roll 1@2d20  at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2+MOD with booming secondary at LEVEL]
+    result: ATT_DAM + ATT_DAM + BA_DAM + REACTION
+}
+
+\# Pal 11+NO ADV - PAM + Duelling + BB+ Extra Attack + Aura of Hate \
+function: pal elevenplusbase LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    BOOM_PRIMARY: [booming primary LEVEL]
+    ATT_DAM: [roll 1d20  at plus ATT_BONUS vs ac AC for CRIT plus MOD+2+MOD]
+    BA_DAM: [roll 1d20  at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2+MOD]
+    REACTION: [roll 1d20  at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2+MOD with booming secondary at LEVEL]
+    result: ATT_DAM + ATT_DAM + BA_DAM + REACTION
+}
+
+\# Pal 20 - PAM + Duelling + BB+ Extra Attack + Aura of Hate+lifedrinker \
+function: pal twentybase LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    BOOM_PRIMARY: [booming primary LEVEL]
+    ATT_DAM: [roll 1d20  at plus ATT_BONUS vs ac AC for CRIT plus MOD+2+MOD+MOD]
+    BA_DAM: [roll 1d20  at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2+MOD+MOD]
+    REACTION: [roll 1d20  at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2+MOD+MOD with booming secondary at LEVEL]
+    result: ATT_DAM + ATT_DAM + BA_DAM + REACTION
+}
+
+
+\# Pal 20 - PAM + Duelling + BB+ Extra Attack + Aura of Hate+lifedrinker +ADV from summon\
+function: pal twentyadv LEVEL: n using AC_SCALING:s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d6
+    BOOM_PRIMARY: [booming primary LEVEL]
+    ATT_DAM: [roll 1@2d20  at plus ATT_BONUS vs ac AC for CRIT plus MOD+2+MOD+MOD]
+    BA_DAM: [roll 1@2d20  at plus ATT_BONUS vs ac AC for 1d4 plus MOD+2+MOD+MOD]
+    REACTION: [roll 1@2d20  at plus ATT_BONUS vs ac AC for CRIT+BOOM_PRIMARY plus MOD+2+MOD+MOD with booming secondary at LEVEL]
+    result: ATT_DAM + ATT_DAM + BA_DAM + REACTION
+}
+
+
+
+\# Summon undead at level 3\
+function: summon undead three level LEVEL:n using AC_SCALING: s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d8
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus 3+3+MOD]
+    result: ATT_DAM
+}
+
+
+\# Summon undead at level 4\
+function: summon undead four level LEVEL:n using AC_SCALING: s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d8
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus 3+4+MOD]
+    result: ATT_DAM + ATT_DAM
+}
+
+\# Infernal Calling - White Abishai\
+function: infernal calling white level LEVEL:n using AC_SCALING: s {
+    ATT_BONUS: 6
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    
+    BITE: [roll 1@2d20 at plus ATT_BONUS vs ac AC for 1d4+1d6 plus 3+MOD]
+    CLAW: [roll 1@2d20 at plus ATT_BONUS vs ac AC for 1d10 plus 3+MOD]
+    SWORD:[roll 1@2d20 at plus ATT_BONUS vs ac AC for 1d8 plus 3+MOD]
+    result: BITE+CLAW+SWORD
+}
+
+\# Infernal Calling - Black Abishai\
+function: infernal calling black level LEVEL:n using AC_SCALING: s {
+    ATT_BONUS: 6
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    BITE: [roll 1@2d20 at plus ATT_BONUS vs ac AC for 1d10 plus 3+MOD]
+    SWORD:[roll 1@2d20 at plus ATT_BONUS vs ac AC for 1d6 plus 3+MOD]
+    result: BITE+SWORD+SWORD
+}
+
+
+
+\# Summon fiend at level 6\
+function: summon fiend level LEVEL:n using AC_SCALING: s {
+    ATT_BONUS: LEVEL@PAL_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    AC: LEVEL@AC_SCALING
+    MOD: LEVEL@PAL_MOD_PROGRESSION
+    CRIT: 1d12
+    ATT_DAM: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus 3+6+MOD]
+    result: ATT_DAM+ATT_DAM+ATT_DAM
+}
+
+
+
+
+
+
+
+\#TM baseline warlock with Agonizing Blast and Hex\
+function: warlock LEVEL:n using AC_SCALING:s {
+    NUM_BLAST: LEVEL@EB_SCALING
+    ATT_BONUS: LEVEL@WARLOCK_MOD_PROGRESSION+LEVEL@PROF_BONUSES
+    CRIT: 1d10+1d6 \hex\
+    if LEVEL >= 2 {
+        NO_CRIT: LEVEL@WARLOCK_MOD_PROGRESSION \Agonizing\
+    } else {
+        NO_CRIT: 0
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    W: [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    loop I over {1..NUM_BLAST}{
+        TOTAL: TOTAL + W
+    }
+    result: TOTAL
+}
+
+\#Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1)\
+function: fighter LEVEL:n using AC_SCALING:s {
+    NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+    CRIT: 1d6
+    if LEVEL >= 4 {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+    } else {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    loop I over {1..NUM_SHOT}{
+        TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    }
+    result: TOTAL
+}
+
+
+\#Subclass-less fighter with archery (lvl1), sharpshooter (lvl4), crossbow expert (lvl1); using action surge\
+function: fighter action surge LEVEL:n using AC_SCALING:s {
+    if LEVEL >= 2 {
+        NUM_SHOT: LEVEL@EA_SCALING +LEVEL@EA_SCALING+ 1 \Crossbow expert\
+    } else {
+        NUM_SHOT: LEVEL@EA_SCALING + 1 \Crossbow expert\
+    }
+
+    CRIT: 1d6
+    if LEVEL >= 4 {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 - 5 \Archery+Sharpshooter\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION+10 \Sharpshooter\
+    } else {
+        ATT_BONUS: LEVEL@FIGHTER_MOD_PROGRESSION+LEVEL@PROF_BONUSES + 2 \Archery\
+        NO_CRIT: LEVEL@FIGHTER_MOD_PROGRESSION
+    }
+    AC: LEVEL@AC_SCALING
+    TOTAL: 0
+    loop I over {1..NUM_SHOT}{
+        TOTAL: TOTAL + [roll 1d20 at plus ATT_BONUS vs ac AC for CRIT plus NO_CRIT]
+    }
+    result: TOTAL
+}
+
+\#selects PAL function and returns result for this level\
+function: pal chooser LEVEL:n using AC_SCALING:s {
+    if LEVEL <= 1 {
+        result: [pal one LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 4 {
+        result: [pal twofour LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 5 {
+        result: [pal five LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 7 {
+        result: [pal sixseven LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 10 {
+        result: [pal eightten LEVEL using AC_SCALING]
+    }
+    if LEVEL <= 20 {
+        result: [pal elevenplusadv LEVEL using AC_SCALING]
+    }
+}
+
+
+
+
+
+
+\#---------------------------------------------------------------------------------------\
+\#---------------------------------------------------------------------------------------\
+\#---------------------------------------------------------------------------------------\
+\#---------------------------------------------------------------------------------------\
+\#HUMAN INPUT SECTION\
+
+AC_ASSUMPTION: TM_TARGET_AC \#options are DMG_TARGET_AC, TM_TARGET_AC, or BOH_TARGET_AC\
+BOOMING_CHANCE: 20 \#d20 roll <= to this means booming secondary damage procs\
+RAW_PAM_REACTION: 11 \#d20 roll <= to this means PAM reaction procs\
+
+
+loop N over {1..20} {
+    if N < 11 {
+    output [pal chooser N using AC_ASSUMPTION] named "Pally [N]"
+    }
+    else {
+        output [pal elevenplusbase N using AC_ASSUMPTION] named "Pally NO CONC case [N]"
+        output [pal elevenplusadv N using AC_ASSUMPTION] named "Pally ADV case [N]"
+        if N <= 14 {
+            output [summon undead three level N using AC_ASSUMPTION] named "Summon Undead (level3) [N]"
+        }
+        if N <= 16 {
+            output [summon undead four level N using AC_ASSUMPTION] named "Summon Undead (level4) [N]"
+        }
+        else {
+            output [infernal calling white level N using AC_ASSUMPTION] named "Infernal Calling white (level5) [N]"
+            output [infernal calling black level N using AC_ASSUMPTION] named "Infernal Calling black (level5) [N]"
+            output [summon fiend level N using AC_ASSUMPTION] named "Summon Fiend (level6) [N]"
+        }
+        if N = 20 {
+            output [pal twentybase N using AC_ASSUMPTION] named "Pally lifedrinker NO CONC case [N]"
+            output [pal twentyadv N using AC_ASSUMPTION] named "Pally lifedrinker ADV case [N]"
+        }
+        
+    }
+}
+

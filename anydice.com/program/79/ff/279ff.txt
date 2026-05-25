@@ -1,0 +1,41 @@
+CRITRANGE: 20
+AC: 16
+DEX_MOD: 3
+PROF_BONUS: 3
+SNEAK: 2d6
+HITDAM: DEX_MOD 
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d {
+    if ROLL >= CRITRANGE {
+    result: CRITABLEDAM + CRITABLEDAM + HITDAM
+    }
+        if ROLL = 1 {
+        result: 0
+        }
+            if ROLL >= AC - ATTACKBONUS {
+            result: CRITABLEDAM + HITDAM
+            }
+                else {
+                result: 0
+                }
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+DART_HIT_HCB:  [roll 1d20 at plus PROF_BONUS+DEX_MOD vs ac AC for 1d6 plus DEX_MOD] 
+DART_MISS_HCB:  [roll 1d20 at plus PROF_BONUS+DEX_MOD vs ac AC for 1d6+SNEAK plus DEX_MOD]
+
+\output [attack 1@2d20 plus PROF_BONUS+DEX_MOD vs AC hit 1d4 + DEX_MOD+2+SNEAK+DART_HIT_HCB miss DART_MISS_HCB crit 2d4 + DEX_MOD+2+SNEAK+SNEAK+DART_HIT_HCB on CRITRANGE] named "Soul Captcha level 4 [Dart + Hand crossbow, advantage on first attack]"\
+
+output [roll 1@2d20 at plus PROF_BONUS+DEX_MOD vs ac AC for 1d8+SNEAK plus DEX_MOD+3d8] named "Soul Captcha level 5 [Booming Rapier, advantage]"

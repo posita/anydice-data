@@ -1,0 +1,26 @@
+function: interpret ROLL:s DV:n {
+ R: 0
+ A: 0
+ B: 0
+ C: 0
+ if {1@ROLL} <= DV & {1@ROLL} > 0 {A: {1@ROLL}}
+ if {2@ROLL} <= DV & {2@ROLL} > 0 {B: {2@ROLL}}
+ if {3@ROLL} <= DV & {3@ROLL} > 0 {C: {3@ROLL}}
+ T: [highest of A and B]
+ T: [highest of T and C]
+  if (A = B & B > 0) | (A = C & C > 0) | (B = C & C > 0){T: T + 1}
+ if A = B & B = C & A > 0 {T: T + 1}
+ R: T  
+ result: R
+}
+
+PS: 10
+ES: 10
+PN: 3
+EN: 2
+
+loop N over {PN..PN}{
+  loop B over {EN..EN}{
+    output [interpret Nd20 PS] - [interpret Bd20 ES] named "[PN] Player dice with Skill of [PS] vs [EN] Enemy Dice with Enemy Skill of [ES]"
+  }
+}

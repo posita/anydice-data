@@ -1,0 +1,136 @@
+function: dh A:n {
+ if A<=3 {
+  result:A
+ }
+ result:0
+}
+
+function: ddh A:n {
+ if A<=2 {
+  result:A
+ }
+ result:0
+}
+
+function: iscrit B:n {
+ if B=3 { result:+1}
+ if B=6 { result:-1}
+ result:0 
+}
+
+function: crit C:n { 
+ if C>0 { result: [dh d6]}
+ if C<0 { result: -[dh d6]}
+ result: 0
+}
+
+function: dcrit C:n { 
+ if C>0 { result: [ddh d6]}
+ if C<0 { result: -[ddh d6]}
+ result: 0
+}
+
+function: peppe D:s N:n{
+ T:0
+ R:0
+ Z:0
+ X:0
+ loop I over {1..N}{
+  T:T+[dh I@D]
+ }
+ R:[count 3 in D]
+ Z:[count 6 in D]
+ X:R-Z
+ T:T+[crit X]
+ result: T
+}
+
+function: dpeppe D:s N:n{ \nei critici i dadi valgono solo 1,2\
+ T:0
+ R:0
+ Z:0
+ X:0
+ loop I over {1..N}{
+  T:T+[ddh I@D]
+ }
+ R:[count 2 in D]
+ Z:[count 6 in D]
+ X:R-Z
+ T:T+[dcrit X]
+ result: T
+}
+
+function: dhexp D:n {
+ R:0
+ R: [dh D]
+ if D=3 {
+  R: R+[dh d6]
+ } else {
+  if D=6 {
+   R: R-[dh d6]
+  }
+ }
+ result: R
+}
+
+function: udhexp A:n {
+ R:0
+ R: [dh A]
+ if A=1 {
+  R: R+(d6-1)
+ } else {
+  if A=6 {
+   R: R-(d6-1)
+  }
+ }
+ result: R
+}
+
+
+\output [dhexp d6]\
+\output [udhexp d6]\
+
+loop K over {1..6}{
+
+G:6
+output Kd{1,2,3,0,0,0} named "[K] dadi"
+
+output [peppe Kd6 K] named "[K] dadi, critico"
+
+\output [dpeppe Kd6 K] named "[K] dado, critico solo 1 e 2" \
+}
+
+\
+ T:0
+ R:0
+ Z:0
+ N:0
+ loop N over {6..6}{
+ D:Nd6
+ T: [count 3 in D]
+ Z: [count 6 in D]
+ R: T-Z
+ output T named "conteggio 3 #[N]"
+ output Z named "conteggio 6 #[N]"
+ output [dcrit R] named "totale contatore #[N]"
+ }\
+\
+function: soprasotto A:s {
+ CAZZO: 0
+ loop I over {1..CICCA}{
+  if I@A >= 3 {
+   CAZZO: CAZZO+1
+  }
+ }
+ result: CAZZO
+}
+
+loop YETI over {1..6}{
+CICCA:YETI
+MERDA:0
+QWE:CICCAd6
+
+MERDA: [soprasotto QWE]
+output MERDA
+}\
+

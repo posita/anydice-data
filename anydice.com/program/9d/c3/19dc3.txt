@@ -1,0 +1,24 @@
+function: rolls DICE:n threshold DC:n{
+ SUCCEEDS: 0
+ loop N over {1..DICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL DC]
+ }
+ result: SUCCEEDS
+}
+function: decide ROLL:n DC:n {
+ if ROLL >= DC {
+  result: 1 + [exceed (ROLL-DC)]
+ } 
+ result: 0
+}
+function: exceed ROLL:n {
+ if ROLL >= 4 {
+  result: 1 + [exceed (ROLL-4)]
+ }
+ result: 0
+} 
+
+\output [count {2..20} in [rolls 2 threshold 6] + [rolls 1 threshold 6] ] named "0 Stress, least 2"\
+output [rolls 2 threshold 4] named "1 Stress, distribution"
+output [rolls 3 threshold 4] named "2 Stress, distribution"

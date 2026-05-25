@@ -1,0 +1,42 @@
+set "explode depth" to 10
+
+RANGE: 40
+DIE: d12
+DIEMAX: [maximum of DIE]
+DIEMID: DIEMAX / 2 + 1
+
+DLUCK: d{0,0,0,0,0,1}
+DZFIVE: d{0..5}
+ZNINE: d{0..9}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: extend N:n {
+  if N = DIEMAX { result: N + [explode DZFIVE] }
+  result: N
+}
+
+function: roll {
+  result: [roll DIE]
+}
+function: roll N:n {
+  if N = DIEMAX { result: N + [explode DZFIVE] }
+  if N = 1 { result: N - [explode DZFIVE] }
+  result: N
+}
+\
+output [clamp [roll]-7 between -RANGE and RANGE] named "[DIE]X"
+
+output [clamp [extend d12]-[extend d12]-d{0..1} between -RANGE and RANGE] named "[DIE]X vs"
+output [clamp [roll]-[roll]-d{0..1} between -RANGE and RANGE] named "[DIE]X vs"
+output [clamp [explode DZFIVE]+3-[explode DZFIVE]-d6 between -RANGE and RANGE] named "z5!+3-d6+z5!"
+
+output [clamp [explode DZFIVE]+d6-[explode DZFIVE]-d6-d{0..1} between -RANGE and RANGE] named "d6+z5! vs"
+output [clamp [explode DZFIVE]+d6-[explode DZFIVE]-4 between -RANGE and RANGE] named "d6+z5!-z5!-4"
+\
+output [clamp [explode d8]+d8-[explode d8]-d8-d{0..1} between -RANGE and RANGE] named "d8+d8! vs"
+

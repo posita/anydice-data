@@ -1,0 +1,43 @@
+function: prof L {
+  result: 2 + (L-1)/4
+}
+
+function: slot L {
+  result: [lowest of (L+1)/2 and 9]
+}
+
+function: vantage D:s V {
+  if V > 0 {
+    result: [highest of dD and dD]
+  }
+  else {
+    if V < 0 {
+      result: [lowest of dD and dD]
+    }
+    else {
+      result: dD
+    }
+  }
+}
+
+function: spellcasting N expertise E int mod I has mark M reliable R vantage V checkbonus C proficiency bonus P {
+  if R {
+    result: [lowest of [slot N] and (([vantage {10:10, 11..20} V] + M * 1d4 + I + ((1+E) * ([prof N] + P)) + C) - 10) / 2]
+  } 
+  else {
+    result: [lowest of [slot N] and (([vantage {1..20} V] + M * 1d4 + I + ((1+E) * ([prof N] + P)) + C) - 10) / 2]
+  }
+}
+
+INTMOD: 5
+V: 1
+E: 1
+\Roll Minimum means features like reliable talent\
+\numbers it loops over are levels\
+loop N over {6} {
+  P: [prof N]
+  output [spellcasting N expertise E int mod INTMOD has mark 1 reliable 0 vantage V checkbonus 0 proficiency bonus 0] named "Level [N], Normal Roll, No Magic Items, Proficiency [P]"
+  output [spellcasting N expertise E int mod INTMOD has mark 1 reliable 1 vantage V checkbonus 0 proficiency bonus 0] named "Level [N], Roll minimum 10, No Magic Items, Proficiency [P]"
+  output [spellcasting N expertise E int mod INTMOD has mark 1 reliable 0 vantage V checkbonus 1 proficiency bonus 0] named "Level [N], Normal Roll, With Magic Items, Proficiency [P]"
+  output [spellcasting N expertise E int mod INTMOD has mark 1 reliable 1 vantage V checkbonus 1 proficiency bonus 0] named "Level [N], Roll minimum 10, With Magic Items, Proficiency [P]"
+}

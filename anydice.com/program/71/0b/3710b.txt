@@ -1,0 +1,127 @@
+TRAIT: 1d10    \ this is your trait roll, high traits show as 1d12+3 or such \
+CASTMOD: +0    \ If you're casting an especially cheap spell and it has a + to the cast roll 
+                 (such as from restrictions like 'self only'), add the + here \
+CASTBOOST: +2  \ this is how much you're going to boost each cast roll (2 PPE/ISP per +1, to a max of +2) ; 
+                 it's assumed you'll do the same boost every round, so if you don't actually need the boost,
+                 your actual Ritual attempt may not require as much ISP as this tool calculates \
+RANGE: 0        \ This is how many range modifications you're making.  Not the penalty, the count
+                  For instance: doubling the range is 1.  Tripling is 2.  Etc. \
+DURATION: 2     \ This is how many duration steps you're increasing.  Set to 0 for no duration mods,
+                  1 for rounds->minutes, 2 for minutes->hours, etc \
+IEBONUSES: 0    \ Set to the number of Improved Effect bonus +2 effects to your final casting roll to see if
+                  you get a raise or not on the spell effect \
+OTHERIES: 0     \ specify the number of (other) IE effects you're adding, that aren't the +2 effect roll one \
+DIFMODINIT: 0       \ If you have additional difficulty modifiers, such as from being fatigued \
+REROLL: 0       \ Rerolling every round, or not at all (1 or 0) \
+REROLLS: 3      \ Number of total rerolls, instead of rerolling every round
+                 Note: rerolls are only done when a test is failed, not when they
+                 succeed, and not when they raise \
+\ REROLLONSUC: 0   Set to 1 if you also want to reroll successes, chasing raises (ill advised \
+\===========================================================\
+\ === should not need to change anything below this line == \
+
+set "position order" to "lowest first"    \ this isn't technically necessary, but it's used for finding the lowest value of a range of die rolls using 1@ \
+
+\===================
+   Ritscore takes your bonus die (WILD) and your die roll (TRAIT),
+            and applies the provided modifier MOD as appropriate,
+            returning a distributed set of numbers.
+            It also identifies critical failures with a big fat negative number.
+ ===================\
+function: ritscore BON:n and ROLL:n with MOD:n {
+  if ROLL = MIN_TRAIT & BON = MIN_WILD { result: CRITFAIL }
+  R: [highest of BON and ROLL] + MOD
+  result: (R >= 4) + (R >= 8)
+}
+
+
+\====================
+  Evaluate a 'ritual' distribution of roll results.
+  If the number matches or exceeds the success count, mark it as a 1
+  Otherwise if it's betwee 0 and success count, mark it as a failure
+  If it's negative, mark it as -1 -- this represents all critical failures.
+ ===================\
+function: evaluate RITUAL:n {
+  if RITUAL >= SUCCS { result: 1 }
+  if RITUAL >= 0 { result: 0 }
+  result: -1
+}
+
+
+\====================
+  ritual:  runs the ritual for ROUNDS rounds, performing
+           rerolls only when the ROLL result is 0 (fail).
+           Results >= 4 (success or raise) will not be
+           rerolled.
+ ====================\
+function: ritual for ROUNDS:n with REROLLS:n roll N:n {
+  if N < 0 { result: N }
+  if N = 0 & REROLLS {
+    result: N + [ritual for ROUNDS with REROLLS - 1 roll STANDARD_ROLL]
+  }
+  if ROUNDS > 1 {
+   result: N + [ritual for ROUNDS - 1 with REROLLS roll STANDARD_ROLL]
+  }
+  result: N
+}
+
+\=========
+   This is for display purposes only, because CRITFAILS get added together as they happen,
+   resulting in a distribution of negative numbers, when we only care if it's negative or 0.
+   This collapses all negative numbers into -1's  \
+function: clampfail N:n {
+  result: [highest of N and -1]
+}
+
+
+loop IEBONUSES over {IEBONUSES..IEBONUSES+2} {
+  IE: IEBONUSES+OTHERIES
+  CHOICES: (IE>0) + (RANGE>0) + (DURATION>0)
+  if CHOICES = 0 {
+     output 1d1 named "<font size=+5 color=red>ERROR:</font> you have to have at least 1 thing you're ritualing!" 
+    }
+\=================
+    Compute difficulty modifier based on IE, range, and duration effects
+    - the first effect has no penalty, then it's a cumulative -1 per step \
+  DIFMOD: DIFMODINIT - (IE>1)*(IE-1) - (RANGE>0)*(RANGE-1) - (DURATION>0)*(DURATION-1)
+
+  ROUNDS: 3+(CHOICES-1)      \ Leave this alone - modify round count based on # of choices \
+  SUCCS: 4+(2*(CHOICES-1))       \ Leave this alone - modify success target based on # of choices \
+  NETMOD: DIFMOD+CASTMOD+CASTBOOST   \ this is just consolidating all the bonuses into one \
+  CASTBOOSTCOST: CASTBOOST*2*ROUNDS      \ this is computing the cost of your cast boost, for display purposes only \
+  WILD: [explode 1d6]      \ Wild die are always 1d6 (or are they?) \
+  TRAIT: [explode TRAIT]
+
+  MIN_TRAIT: 1@{TRAIT}
+  MIN_WILD: 1@{WILD}
+  CRITFAIL: -((ROUNDS+REROLLS)*SUCCS*10)   \ To make critical fails cause an overall failure, they basically deduct enough to make it impossible for subsequent rolls to succeed \
+  SUCCESS: 1      \ Count successes as 1 \
+  RAISE: 2        \ Count raises as 2 \
+  FAIL: 0         \ Count failures as 0 \
+  IEMOD: IEBONUSES*2
+\======== the optional Improved Enhancement makes the final test roll better by increments of +2 for each IE bump \
+
+  STANDARD_ROLL: [ritscore WILD and TRAIT with NETMOD]
+  ENHANCED_ROLL: [ritscore WILD and TRAIT with NETMOD + IEMOD]
+
+  if REROLL = 1 {
+      if REROLLS = 0 { REROLLS: ROUNDS }   \ one reroll per round, by default \
+  }
+  RITUAL: [ritual for ROUNDS with REROLLS roll STANDARD_ROLL]
+
+\===============================================================\
+\     OUTPUT SECTION                                            \
+\===============================================================\
+  if IEBONUSES {
+    \==== Improved Effect is selected, so enhance the final roll =====\
+    FINAL_ROLL: ENHANCED_ROLL
+    output SUCCS named "Improved Effect(IE) is <font size=+1 color=green>ON (+[IEMOD])</font>, ROUNDS:[ROUNDS], SUCCS:[SUCCS], CHOICES: [CHOICES], REROLLS:[REROLLS], sinking [CASTBOOSTCOST] ISP/PPE for +[CASTBOOST] + additional castmod of [CASTMOD] + effect modifier [DIFMOD] == [NETMOD]"
+  } else {
+    FINAL_ROLL: STANDARD_ROLL
+    output SUCCS named "Improved Effect(IE) is <font size=+1 color=red>OFF</font>, ROUNDS:[ROUNDS], SUCCS:[SUCCS], CHOICES: [CHOICES], REROLLS:[REROLLS], sinking [CASTBOOSTCOST] ISP/PPE for +[CASTBOOST] + additional castmod of [CASTMOD] + effect modifier [DIFMOD] == [NETMOD]"
+  }
+
+  output [evaluate RITUAL] named "Overall result (-1=critfail, 0=fail, 1=succ) ([ROUNDS] rounds, [SUCCS] successes, [REROLLS] rerolls, +[IEMOD] IE bonus)"
+  output [clampfail FINAL_ROLL]  named "Final (of [ROUNDS]) raise test (0 = no raise, 1 = raise, [REROLLS] rerolls, [NETMOD]+[IEMOD] =  [RANGE]ran, [DURATION]dur, [IE]ie (at +[IEMOD]), [DIFMODINIT]diff other mods)"
+
+}

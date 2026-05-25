@@ -1,0 +1,22 @@
+PROF: 4
+DEXMOD: 5
+ATKBONUS: 1 \magic weapon\
+DMGBONUS: 1 \magic weapon\
+ARCHERY: 1
+SHARP: 1
+ADV: 1
+ELVEN: 1
+PIERCE: 1
+CRITRANGE: 19
+loop AC over {d12*2+4} {
+loop CRITRANGE over {19} {
+ DMG: {}
+ loop ATK over {1..3}{
+  ATTACK: 1@(1+ADV+ADV*ELVEN)d20
+  CRIT: ATTACK >= CRITRANGE
+  TOHIT: ATTACK + DEXMOD + PROF + ATKBONUS + ARCHERY*2 - (AC<18+ADV*3+ADV*ELVEN*2)*SHARP*5
+  DMG: DMG + (TOHIT >= AC) * (1d12 +DEXMOD + DMGBONUS + CRIT*(1+PIERCE)d12 + PIERCE*(ATK=1)*4 + (AC<18+ADV*3+ADV*ELVEN*2)*SHARP*10)
+ }
+ output DMG named "Sharp[SHARP] Elven[ELVEN] Pierce[PIERCE] Adv[ADV] Dex[DEXMOD] [AC]"
+}
+}

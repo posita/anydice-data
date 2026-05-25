@@ -1,0 +1,60 @@
+function: roll DIE:d with N:n TAR:n {
+ if N < 0 { result: [deroll DIE with -N TAR] }
+ if N > 0 { result: [reroll DIE with N TAR] }
+ result: DIE >= TAR
+}
+
+function: deroll D:d with N:n TAR:n {
+ if N > 0 { result: ((D >= TAR ) & [deroll D with (N-1) TAR])}
+ result: (D >= TAR)
+}
+
+function: reroll R:d with N:n TAR:n {
+ if N > 0 { result: ((R >= TAR ) | [reroll R with (N-1) TAR])}
+ result: (R >= TAR)
+}
+loop N over {-3,-2,-1} {
+
+output [roll (6@6d6) with N+3 2] named "[N]: -3"
+output [roll (6@6d6) with N+2 2] named "-2"
+output [roll (6@6d6) with N+1 2] named "-1"
+
+ loop T over {2..6} {
+  output [roll 6@6d6 with N T] named "[T]"
+ }
+
+output [roll (6@6d6) with N-1 6] named "+1"
+output [roll (6@6d6) with N-2 6] named "+2"
+output [roll (6@6d6) with N-3 6] named "+3"
+}
+
+
+loop N over {6,5,4,3,2,1} {
+NUM: 7-N
+output [roll (N@6d6) with +3 2] named "[NUM]: -3"
+output [roll (N@6d6) with +2 2] named "-2"
+output [roll (N@6d6) with +1 2] named "-1"
+
+ loop T over {2..6} {
+  output N@6d6 >= T named "[T]"
+ }
+
+output [roll (N@6d6) with -1 6] named "+1"
+output [roll (N@6d6) with -2 6] named "+2"
+output [roll (N@6d6) with -3 6] named "+3"
+}
+
+loop N over {1,2,3} {
+
+output [roll (1@6d6) with N+3 2] named "[N]: -3"
+output [roll (1@6d6) with N+2 2] named "-2"
+output [roll (1@6d6) with N+1 2] named "-1"
+
+ loop T over {2..6} {
+  output [roll 1@6d6 with N T] named "[T]"
+ }
+
+output [roll (1@6d6) with N-1 6] named "+1"
+output [roll (1@6d6) with N-2 6] named "+2"
+output [roll (1@6d6) with N-3 6] named "+3"
+}

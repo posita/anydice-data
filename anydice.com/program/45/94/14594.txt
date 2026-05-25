@@ -1,0 +1,51 @@
+\**** Mokunai Push and Flurry Damage calculator ****\
+function: attackroll ROLL:n vs AC:n {
+if ROLL >= CRITROLL { result: CRITDAMAGE }
+if ROLL = 1 { result: 0 }
+if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+result: 0
+}
+function: pushattack ROLL:n vs OPPOSEDROLL:n {
+if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS > OPPOSEDROLL { result: 2}
+result: 1
+}
+ENEMYROLL: 1d20+2
+
+ENEMYAC: 17
+ATTACKMOD: 2
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+
+DAMAGE: 1d4 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d4 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll [highest 1 of [pushattack d20 vs ENEMYROLL]]d20 vs ENEMYAC] named "Mokunai Push and Flurry"
+
+\**** Mokunai Flurry Damage calculator ****\
+function: uaattackroll ROLL:n vs AC:n {
+if ROLL >= CRITROLL { result: UACRITDAMAGE}
+if ROLL = 1 { result: 0 }
+if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: UADAMAGE }
+result: 0
+}
+function: aattackroll ROLL:n vs AC:n {
+if ROLL >= CRITROLL { result: ACRITDAMAGE}
+if ROLL = 1 { result: 0 }
+if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: ACRITDAMAGE}
+result: 0
+}
+
+ENEMYAC: 17
+ATTACKMOD: 2
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+ADAMAGE: 1d6 + 1d4 + ATTACKMOD + DMGBONUS
+UADAMAGE: 1d4 +ATTACKMOD + DMGBONUS
+ACRITDAMAGE: 2d6 + 2d4 + ATTACKMOD + DMGBONUS
+UACRITDAMAGE:2d4 + ATTACKMOD + DMGBONUS
+output 1d[aattackroll [highest 1 of 1d20] vs ENEMYAC] + 2d[uaattackroll [highest 1 of 1d20] vs ENEMYAC] named "Mokunai Flurry Damage"
+

@@ -1,0 +1,23 @@
+MAJORSETBACK: -1
+MINORSETBACK: 0
+PROGRESS: 1
+
+
+function: check ROLL:n plus TRAIT:n plus CONVICTION:n vs CR:n and TN:n{
+ BONUS: TRAIT
+ if CONVICTION > 6{ CONVICTION: 6}
+ if CONVICTION > TRAIT { BONUS: CONVICTION}
+ if ROLL + BONUS >= TN { result: PROGRESS}
+ if ROLL = 1 { result: MAJORSETBACK }
+ if ROLL + BONUS <= TN {
+  if ROLL + BONUS <= CR { result: MAJORSETBACK }
+  result: MINORSETBACK
+ }
+}
+
+TD: 4  \number of trait dice\
+CD: 0  \number of conviction dice\
+AD: 1  \number of action dice\
+loop CHALLENGE over {1..10} {
+ output [check [highest 1 of ADd20] plus [highest 1 of TDd6] plus [highest 1 of CDd12] vs CHALLENGE and CHALLENGE + 10] named "[CHALLENGE]"
+}

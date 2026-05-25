@@ -1,0 +1,27 @@
+function: savage ROLL:d {
+    result: [highest of [explode 1d6] and [explode ROLL]]
+}
+function: savage ROLL:d plus N:n{
+    result: [highest of [explode 1d6+N] and [explode ROLL+N]]
+}
+function: reroll TN:n from A:n to B:d {
+    if A = 1 {result: 1}
+    if A<TN {result: B}
+    result: A
+}
+function: reroll TN:n from A:n to B:d to C:d {
+    result: [reroll TN from [reroll TN from A to B] to C]
+}
+function: check R:n rolls DIE:d vs TN:n {
+    if R = 1 {
+        result: [savage DIE] >= TN
+    }
+    if R = 2 {
+        result: [reroll TN from [savage DIE] to [savage DIE]] >= TN
+    }
+    result: [reroll TN from [reroll TN from [savage DIE] to [savage DIE]] to [savage DIE]] >= TN
+}
+
+output [check 2 rolls 1d12 vs 6]+2 named "2 rolls of 1d12 vs TN4"
+output [highest of [highest of [savage 1d10] and [savage 1d10]] and [savage 1d10]] named "Three rolls of 1d10"
+output [check 3 rolls 1d12 vs 9]+2 named "3 rolls of 1d12+2 vs TN11"

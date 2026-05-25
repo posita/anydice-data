@@ -1,0 +1,27 @@
+function: crit DIE:d vs N {
+  result: [highest 1 of DIE] >= N
+}
+
+function: hit DIE:d ATK vs AC N {
+  H: [highest 1 of DIE]
+  result: (H + ATK) >= AC & H < N
+}
+
+function: dmg DIE:d ATK for DMGD:d DMGF:n vs AC CRIT {
+  CRITD: [crit DIE vs CRIT] * (2d(DMGD) + DMGF)
+  NORMALD: [hit DIE ATK vs AC CRIT] * (DMGD + DMGF)
+  MISS: 0
+  result: CRITD + NORMALD
+}
+
+output [crit 2d20 vs 19]
+D: d20
+A: 5
+DD: d10
+DF: 5
+AC: 15
+loop D over {1, 2} {
+loop C over {20,19,18,17,16,15,14,13,12,11,10} {
+  output [dmg (D)d20 A for DD DF vs AC C] named "[D], [C]"
+}
+}

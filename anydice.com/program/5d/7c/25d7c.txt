@@ -1,0 +1,38 @@
+\scroll to bottom to play with the simulation\
+
+\ from https://anydice.com/articles/dnd4-attacks/ \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 3
+HITDAMAGE: d6+2
+CRITICALDAMAGE: [maximum of HITDAMAGE]
+MISSDAMAGE: 0
+AC: 10
+DR: 1
+MAX_BONUS: 8
+output [damage for [attack d20 vs d{AC..AC+MAX_BONUS}]] named "avg AC dmg"
+output [damage for [attack d20 vs AC]] -d{DR..DR+MAX_BONUS} named "avg DR dmg"
+
+output [damage for [attack d20 vs (AC+MAX_BONUS)]] named "static AC dmg"
+output [damage for [attack d20 vs 10]] -(DR+MAX_BONUS) named "static DR dmg"

@@ -1,0 +1,146 @@
+ROLL: [count {4,5,6,6} in 1d6]
+ROLLONE: [count {4,5,6} in 1d6]
+ROLLALT: [count {5,6,6} in 1d6]
+ADV: [count {1} in 1d6]
+
+function: limit N:n from I:n to J:n {
+  result: [highest of I and [lowest of J and N]]
+}
+
+\output 1d1\
+loop N over {1..5} {
+  \output [limit 5dROLL - NdROLL from -5 to 5] named "[N]d6"\
+  output [limit NdROLL - 2dROLL from -10 to 10] named "Skill [N]"
+  \output [limit NdROLLALT - 2dROLLALT from -10 to 10] named "Skill [N] (alt)"\
+  \output [limit NdROLL - 1dROLLALT from -10 to 10] named "[N]d6 single"\
+  \output [limit NdADV - 3dADV from -5 to 5] named "[N]dADV"\
+}
+S: 1
+D: 0
+P: 3
+\output [limit SdROLL - DdROLL from -10 to 10] named "No penalty"\
+\output [limit (S-P)dROLL - DdROLL from -10 to 10] named "Penalty as -skill"\
+\output [limit SdROLL - (D+P)dROLL from -10 to 10] named "Penalty as difficulty"\
+\output [limit SdROLL - DdROLL from 0 to 10] named "Skill [N]"\
+\output [limit SdROLLALT - DdROLLALT from 0 to 10] named "Skill [N] (alt)"\
+
+\output 5 + 4dROLL named "base"\
+\output 5*2 + 4dROLL named "double base"\
+\output 5 + (4dROLL)*2 named "double success"\
+
+STAT: 2@3d5
+\output 4dSTAT\
+\output 4d5\
+
+function: success S:n vs D:n {
+  if S - D > 0 {
+    result: S
+  }}
+
+function: margin S:n vs D:n {
+  if S - D > 0 {
+    result: S - D
+  }
+}
+
+\output 1d10 named "CoC handgun"\
+\output 1d3 named "CoC unarmed"\
+\output 1d8 named "CoC heavy melee weapon"\
+\output 4d6 named "CoC shotgun"\
+\output [limit 3dROLL- 2dROLL from -10 to 10]\
+\output 0 + [success 3dROLL vs 2dROLL] named "successes"\
+\output 0 + [margin 3dROLL vs 2dROLL] named "margin"\
+
+function: combat A:n vs D:n {
+  if A = 0 & D = 0{
+    result: -100
+  }
+  result: A - D
+}
+
+
+function: fight A:n vs D:n {
+  if A = 0 & D = 0 {
+    result: -10
+  }
+  if D = A {
+    result: 0
+  }
+  if A > D {
+    result: 1
+  }
+  if D > A {
+    result: -1
+  }
+}
+
+function: coc D:n with S:n {
+  if D > S {
+    result: 0
+  }
+  if D <= S  / 5 {
+    result: 3
+  }
+  if D <= S / 2 {
+    result: 2
+  }
+  if D <= S / 1 {
+    result: 1
+  }
+}
+
+
+A: 1
+D: 5
+
+\output [fight AdROLL vs DdROLL] named "Test"\
+\output AdROLL - DdROLL named "Test2"\
+
+\output [coc 1d100 with 60] named "coc"\
+\output [fight [coc 1d100 with 60] vs [coc 1d100 with 40]] named "coc fight"\
+
+function: damage S:n vs D:n plus P:n {
+  if S - D > 0 {
+    result: S + P
+  }
+  \result: 0\
+}
+
+function: stressdamage S:n vs D:n plus P:n {
+  if S - D > 0 {
+    result: P
+  }
+  result: D + P
+}
+
+function: autodamage S:n vs D:n plus P:n {
+  if S - D > 0 {
+    result: [limit (S-D) from 0 to 20] * (P + S)
+  }
+  \result: 0\
+}
+
+function: autodamagealt S:n vs D:n plus P:n {
+  if S - D > 0 {
+    result: (S-D) * (P)
+  }
+ \result: 0\
+}
+
+S: 3
+D: 3
+\output [autodamage [limit 2dROLL - 2dROLL from 0 to 20] plus 5]\
+\output [autodamage SdROLL vs (D+0)dROLL plus 0] named "rapid fire"\
+\output [damage SdROLL vs DdROLL plus 5] named "single shot"\
+\output [autodamagealt SdROLL vs (D+1)dROLL plus 5] named "full auto"\
+
+\output [damage SdROLL vs DdROLL plus 4] named "reg"\
+\output [damage SdROLLALT vs DdROLLALT plus 4] named "alt"\
+
+loop S over {1..5} {
+  \output [stressdamage SdROLL vs DdROLL plus D] named "stress ([S] Willpower)"\
+}
+
+\output 2dROLL\
+
+\output ([lowest 1 of 2d10] -1) * 10 + 1d10\

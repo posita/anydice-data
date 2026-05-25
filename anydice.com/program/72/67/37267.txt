@@ -1,0 +1,52 @@
+function: dungeon ROLL:n {
+  MIN: ROLL >= 7
+  MAJ: ROLL >= 10
+  CRIT: ROLL >= 12
+  result: MIN + MAJ + CRIT
+}
+
+function: intdragon ROLL:n MOD:n {
+  if ROLL = 20 {
+    result: 3
+  }
+
+  ROLL: ROLL + MOD
+
+  MIN: ROLL >= 10
+  MAJ: ROLL >= 18
+
+  result: MIN + MAJ
+}
+
+function: dragon MOD:n {
+  result: [intdragon 1d20 MOD]
+}
+
+function: intblades ROLL:s {
+  if 1@ROLL = 6 {
+    result: 2 + (2@ROLL = 6)
+  }
+
+  result: 1@ROLL >= 4
+}
+
+function: blades COUNT:n {
+  if COUNT = 0 {
+    result: [intblades 2@2d6]
+  }
+
+  result: [intblades COUNTd6]
+}
+
+
+loop I over {0..3} {
+  output [dungeon 2d6+I] named "Dungeon World +[I]"
+}
+
+loop I over {0, 1, 3, 5} {
+  output [dragon I] named "Dragon World +[I]"
+}
+
+loop I over {0..3} {
+  output [blades I] named "Blades [I]"
+}

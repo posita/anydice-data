@@ -1,0 +1,26 @@
+function: std A:n tn B:n {
+ result: (2d6 >= B) * A
+}
+function: alt A:n tn B:n {
+ if ( A <= 0 ) { result: 0 }
+ if ( A > 1 ) { result: ( 2d6 >= B ) + [alt (A - 1) tn B] }
+ result: (2d6 >= B )
+}
+function: altloop A:n with D:n tn B:n {
+ X: { }
+ loop N over {1..A} {
+  X: X + ((D+1d6)>=B)
+ }
+ result: X
+}
+function: altb A:n tn B:n {
+ if ( A <= 0 ) { result: 0 }
+ result: [altloop A with 1d6 tn B]
+}
+
+DAMAGE: 3
+TARGET: 9
+output [std DAMAGE tn TARGET] named "Standard 2d6 Roll with Damage [DAMAGE] at TN [TARGET]"
+output [alt DAMAGE tn TARGET] named "Point Roll with Damage [DAMAGE] at TN [TARGET]"
+output [altb DAMAGE tn TARGET] named "Pilot Roll with Damage [DAMAGE] at TN [TARGET]"
+

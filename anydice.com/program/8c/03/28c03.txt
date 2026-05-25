@@ -1,0 +1,42 @@
+TEND: 5
+TAGI: 5
+TCHA: 5
+TSPEECH: 50
+END: 7
+AGI: 5
+CHA: 5
+SPEECH: 50
+XXIV: 0
+XII: 0
+VI: 0
+TYPELEVEL: 3
+GENDERPERK: 2
+VIABUFF: 0
+
+
+function: xp ROLL:n {
+MULT: 1
+if ROLL=1 {MULT: 0}
+if ROLL=20 {MULT: 2}
+DC: (((TEND+TAGI+TCHA+(TSPEECH/10))/4)+7)
+MOD: (((END+AGI+CHA+(SPEECH/10))/4)-5)
+MOD: MOD-XXIV-XII-2*VI
+MOD: MOD+TYPELEVEL+GENDERPERK+VIABUFF
+RESULT: (ROLL+MOD-DC)*MULT
+if RESULT < 1 {RESULT: 1}
+result: RESULT
+}
+
+function: result ROLL:n {
+if ROLL=1 {result: -1}
+if ROLL=20 {result: 2}
+DC: (((TEND+TAGI+TCHA+(TSPEECH/10))/4)+7)
+MOD: (((END+AGI+CHA+(SPEECH/10))/4)-5)
+MOD: MOD-XXIV-XII-2*VI
+MOD: MOD+TYPELEVEL+GENDERPERK+VIABUFF
+RESULT: -(ROLL+MOD<DC)+1
+result: RESULT
+}
+
+output [xp 1d20] named "xp"
+output [result 1d20] named "Result"

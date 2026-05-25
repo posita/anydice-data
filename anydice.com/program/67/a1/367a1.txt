@@ -1,0 +1,33 @@
+
+function: damage ROLL:s armor ARMOR spread SPREAD vicious VICIOUS piercing PIERCING {
+ RES: 0
+ if VICIOUS = 1 {
+     loop P over {1,1,2,3,3,4,4} {
+       RES: RES+ (P = ROLL)
+     }
+ }
+ else {
+     loop P over {1,1,2,3,4} {
+       RES: RES+ (P = ROLL)
+     }
+ }
+ 
+ ARMOR_MODIFIER: 0
+ loop P over {3,4} {
+   ARMOR_MODIFIER: ARMOR_MODIFIER + [highest of 0 and (ROLL = P) * PIERCING]
+ }
+ ARMORX: [highest of 0 and ARMOR - ARMOR_MODIFIER]
+
+ TOTAL: [highest of RES - [highest of 0 and ARMORX] and 0]
+
+ if SPREAD = 1 {
+    loop P over {3,4} {
+       TOTAL: TOTAL + (P = ROLL) * [highest of (RES/2) - ARMORX and 0]
+    }
+ }
+ 
+ result: TOTAL
+}
+
+
+output [damage 16d6 armor 0 spread 0 vicious 1 piercing 0]

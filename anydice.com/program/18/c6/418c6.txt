@@ -1,0 +1,53 @@
+function: min A:n and B:n {
+result: [count {1..B} in {1..A}]
+}
+
+function: explode die D:d rounds R:n {
+COUNT: [count {5..20} in D]
+TOTAL: COUNT
+NEW: COUNT
+
+loop I over {1..R} {
+  EXTRA: [count {5..20} in NEWdD]
+  TOTAL: TOTAL + EXTRA
+  NEW: EXTRA
+}
+
+result: TOTAL
+}
+
+function: sumroll SIX:n and EIGHT:n and TEN:n and TWELVE:n and TWENTY:n and floats F:n and rounds R:n {
+DICECOUNT: SIX + EIGHT + TEN + TWELVE + TWENTY
+MAXCOUNT: DICECOUNT * (R + 1)
+
+EXP: SIXd([explode die d6 rounds R])
+EXP: EXP + EIGHTd([explode die d8 rounds R])
+EXP: EXP + TENd([explode die d10 rounds R])
+EXP: EXP + TWELVEd([explode die d12 rounds R])
+EXP: EXP + TWENTYd([explode die d20 rounds R])
+
+BASESUCC: SIXd(d{0,0,0,0,1,1})
+BASESUCC: BASESUCC + EIGHTd(d{0,0,0,0,1,1,1,1})
+BASESUCC: BASESUCC + TENd(d{0,0,0,0,1,1,1,1,1,1})
+BASESUCC: BASESUCC + TWELVEd(d{0,0,0,0,1,1,1,1,1,1,1,1})
+BASESUCC: BASESUCC + TWENTYd(d{0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1})
+
+MISSES: DICECOUNT - BASESUCC
+
+NEAR: SIXd(d{0,1,1,1,0,0})
+NEAR: NEAR + EIGHTd(d{0,1,1,1,0,0,0,0})
+NEAR: NEAR + TENd(d{0,1,1,1,0,0,0,0,0,0})
+NEAR: NEAR + TWELVEd(d{0,1,1,1,0,0,0,0,0,0,0,0})
+NEAR: NEAR + TWENTYd(d{0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0})
+
+FLOATOK: Fd(d{0,0,1,1})
+
+BOOST: [min NEAR and FLOATOK]
+BOOST: [min BOOST and MISSES]
+
+result: [min (EXP + BOOST) and MAXCOUNT]
+}
+
+output [sumroll 1 and 1 and 0 and 0 and 0 and floats 1 and rounds 1] named "d6+d8 explode 1 float 1 (5+)"
+output [sumroll 4 and 2 and 0 and 0 and 0 and floats 2 and rounds 1] named "4d6+2d8 explode 1 float 2 (5+)"
+output [sumroll 4 and 2 and 0 and 0 and 0 and floats 0 and rounds 1] named "4d6+2d8 explode 1 no float (5+)"

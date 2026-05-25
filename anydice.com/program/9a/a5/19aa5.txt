@@ -1,0 +1,87 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs EVASION:n {
+  if ROLL < EVASION {
+    result: MISS
+  }
+  if ROLL >= 20 {
+    result: CRITICALHIT
+  }
+  result: HIT
+}
+
+function: damage for ATTACKRESULT:n from HITDAMAGE:n and CRITDAMAGE:n{
+  if ATTACKRESULT = CRITICALHIT {
+    result: CRITDAMAGE
+  }
+  if ATTACKRESULT = HIT {
+    result: HITDAMAGE
+  }
+  result: 0
+}
+
+function: variableswordattack vs EVASION:n {
+  result: [damage for [attack VARIABLESWORD vs EVASION] from VARIABLESWORDHIT and VARIABLESWORDCRIT]
+}
+
+function: foldknifeattack vs EVASION:n {
+  result: [damage for [attack FOLDKNIFE vs EVASION] from FOLDKNIFEHIT and FOLDKNIFECRIT ]
+}
+
+function: hunterkniferoll after ROLL:n vs EVASION:n {
+  if ROLL > 0 {
+   result: ROLL + [hunterknifeattack vs EVASION] + [integratedknifeattack vs EVASION]
+  }
+  result: ROLL
+}
+
+function: hunterknifeattack vs EVASION:n {
+  result: [damage for [attack HUNTERKNIFE vs EVASION] from HUNTERKNIFEHIT and HUNTERKNIFECRIT ]
+}
+
+function: integratedknifeattack vs EVASION:n {
+  result: [damage for [attack INTEGRATEDKNIFE vs EVASION] from INTEGRATEDKNIFEHIT and INTEGRATEDKNIFECRIT ]
+}
+
+function: skirmish vs EVASION:n {
+  result: [variableswordattack vs EVASION] + [foldknifeattack vs EVASION]
+}
+
+function: skirmishwithhunter vs EVASION:n {
+  result: [hunterkniferoll after [variableswordattack vs EVASION] vs EVASION] + [foldknifeattack vs EVASION]
+}
+
+function: skirmishcombo vs EVASION:n {
+  result: [hunterkniferoll after [variableswordattack vs EVASION] vs EVASION] + [foldknifeattack vs EVASION] + [integratedknifeattack vs EVASION]
+}
+
+VARIABLESWORD: 3+1d20+[highest 1 of 2d6]
+VARIABLESWORDHIT: 3
+VARIABLESWORDCRIT: 3+[highest 1 of 2d6]+[highest 1 of 2d6]
+
+FOLDKNIFE: 3+1d20+1d6
+FOLDKNIFEHIT: 1d3
+FOLDKNIFECRIT: [highest 1 of 2d3]
+
+HUNTERKNIFE: 3+1d20+1d6
+HUNTERKNIFEHIT: 1d3
+HUNTERKNIFECRIT: [highest 1 of 2d3]
+
+INTEGRATEDKNIFE: 3+1d20+1d6
+INTEGRATEDKNIFEHIT: 1d3
+INTEGRATEDKNIFECRIT: [highest 1 of 2d3]
+
+EVASION: 10
+output [attack VARIABLESWORD vs EVASION] named "Variable Sword Hit rate"
+output [attack FOLDKNIFE vs EVASION] named "Fold Knife Hit rate"
+output [variableswordattack vs EVASION] named "Variable Sword attack"
+output [foldknifeattack vs EVASION] named "Fold Knife attack"
+output [skirmish vs EVASION] named "Skirmish attack"
+output [skirmishwithhunter vs EVASION] named "Skirmish w/Hunter attack"
+output [skirmishcombo vs EVASION] named "Skirmish Full Combo attack"
+
+\loop EVASION over {10..20} {
+ output [skirmish vs EVASION] named "[EVASION]"
+}\

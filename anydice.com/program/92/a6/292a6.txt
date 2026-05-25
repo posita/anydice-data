@@ -1,0 +1,140 @@
+ATTACK: 5 + 4 + 2
+DEFENSE: 18
+QUARRY: 1d4+1d6
+CRIT: 19
+
+\ [highest 1 of 2d20] \
+DICE: d20
+
+function: greatbow for ROLL:n bonus BONUS:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL >= CRIT { result: 2d10 + 2dBONUS + DAMAGE }
+    if ROLL + ATTACK + HITMOD >= DEFENSE { result: d10 + BONUS + DAMAGE }
+    result: 0
+}
+
+function: bonus for ROLL:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL >= CRIT { result: 2dQUARRY }
+    if ROLL + ATTACK + HITMOD >= DEFENSE { result: QUARRY }
+    result: 0
+}
+
+function: greatbowbonus for ROLL:n {
+    result: [greatbow for ROLL bonus 0] + [bonus for ROLL]
+}
+
+function: zephyrbonus for ROLL:n {
+    result: [greatbow for ROLL bonus d8] + [bonus for ROLL]
+}
+
+function: seconddamage for ROLL:n FIRSTDAMAGE:n {
+    if FIRSTDAMAGE = 0 { result: [greatbowbonus for SECOND] }
+    else { result: [greatbow for SECOND bonus 0] }
+}
+
+function: damage for FIRST:n and SECOND:n {
+    D: [greatbowbonus for FIRST]
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+function: zephyr for FIRST:n and SECOND:n {
+    D: [zephyrbonus for FIRST]
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+DAMAGE: 7
+HITMOD: 0
+output [damage for DICE and DICE] named "Greatbow"
+\output [zephyr for [highest 1 of 2d20] and DICE] named "Zephyr"\
+
+
+
+
+
+
+
+
+\ old longbow
+function: greatbow for ROLL:n bonus BONUS:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL >= CRIT { result: 2d8 + 2dBONUS + DAMAGE }
+    if ROLL + ATTACK + HITMOD >= DEFENSE { result: d10 + BONUS + DAMAGE }
+    result: 0
+}
+
+CRIT: 20
+DAMAGE: 5
+output [damage for DICE and DICE] named "Yew Bow"
+\
+
+
+
+\ add hunter's mark d6 to all damage
+function: greatbow for ROLL:n bonus BONUS:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL >= CRIT { result: 2d10 + 2d6 + 2dBONUS + DAMAGE }
+    if ROLL + ATTACK + HITMOD >= DEFENSE { result: d10 + d6 + BONUS + DAMAGE }
+    result: 0
+}
+
+output [damage for DICE and DICE] named "Hunter's Mark"
+\
+
+\ sharpshooter maths
+DAMAGE: 17
+HITMOD: -5
+output [damage for DICE and DICE] named "Sharpshooter"
+output [zephyr for [highest 1 of 2d20] and DICE] named "Zephyr/SS"
+\
+
+\ safety shot
+function: seconddamage for ROLL:n FIRSTDAMAGE:n {
+    if FIRSTDAMAGE = 0 { 
+        DAMAGE: 7
+        HITMOD: 0
+        result: [greatbowbonus for SECOND] }
+    else { result: [greatbow for SECOND bonus 0] }
+}
+
+function: damage for FIRST:n and SECOND:n {
+    DAMAGE: 17
+    HITMOD: -5
+    D: [greatbowbonus for FIRST]
+
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+function: zephyr for FIRST:n and SECOND:n {
+    DAMAGE: 17
+    HITMOD: -5
+    D: [zephyrbonus for FIRST]
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+output [damage for DICE and DICE] named "Safety"
+output [zephyr for [highest 1 of 2d20] and DICE] named "Zephyr/Safety"
+\
+
+
+\ Creed is a guy. Add big crits for fun
+function: greenblade for ROLL:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL = 20 { result: 2d8 + 2d6 + 4 + 2 + 1 }
+    if ROLL + 4 + 4 + 1 >= DEFENSE { result: 1d8 + 1d6 + 4 + 2 + 1 }
+    result: 0
+}
+
+function: unarmed for ROLL:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL = 20 { result: 2d6 + 4 }
+    if ROLL + 4 + 4 >= DEFENSE { result: 1d6 + 4 }
+    result: 0
+}
+
+output [greenblade for DICE] + [greenblade for DICE] + [unarmed for DICE] named "Creed"
+\

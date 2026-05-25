@@ -1,0 +1,34 @@
+DIE: 8
+SMALLDIE: 6
+TN: 6
+
+function: attcap CAP:n skillroll SEQ:s wound dice negate WOUNDS:s {
+  SUCC: 0
+  loop N over {1..CAP}{
+    SUCC: SUCC + (N@SEQ >= TN)
+  }
+  result: [highest of 0 and (SUCC - (WOUNDS >= TN))]
+}
+
+function: attcap CAP:n skillroll SEQ:s and SEQTWO:s {
+  result: [lowest of CAP and ((SEQ >= TN) + (SEQTWO >= TN))]
+}
+
+function: attcap CAP:n skillroll SEQ:s subtract ones capped by WOUNDS {
+  result: [highest of 0 and [lowest of CAP and (SEQ >= TN)] - [lowest of (SEQ = 1) and WOUNDS]]
+}
+
+C: 4
+S: 4
+W: 2
+
+output [attcap C skillroll SdDIE wound dice negate WdDIE] named "Wound dice"
+\ Cap everything at C, roll skills and wound dice and negate skill successes with wound successes\
+
+output [attcap C skillroll (S-W)dDIE and WdSMALLDIE] named "Replaced with d6's"
+\ Cap everything, wounds replace d8's (or whatever) with d6's (or whatever) \
+
+output [attcap C skillroll SdDIE subtract ones capped by W] named "Subtract ones"
+\ Cap skill roll. Wounds transform 1's into negative successes. The higher your skill, the more likely you're going to roll 1's... \
+
+output [lowest of C and Sd(1dDIE >= SMALLDIE)] named "Capped, no wounds"

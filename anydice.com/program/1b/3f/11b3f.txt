@@ -1,0 +1,48 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: lucky ROLL:n {
+ if ROLL = 1 {result: 1d20}
+ result: ROLL
+}
+
+\output [lucky 1d20] named "Lucky Probabilities"\
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 2
+DMGBONUS: 17
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 3
+DAMAGE: 1d8 + DMGBONUS
+CRITDAMAGE: 2d8 + DMGBONUS
+output ATTACKTIMESd[attackroll [highest 1 of 2d[lucky 1d20]] vs ENEMYAC] named "Hordebreaker/sharpshooter -- advantage"
+
+ATTACKTIMES: 2
+DAMAGE: 1d8 + DMGBONUS + 1d6
+CRITDAMAGE: 2d8 + DMGBONUS + 2d6
+output ATTACKTIMESd[attackroll [highest 1 of 2d[lucky 1d20]] vs ENEMYAC] named "Sharpshooter + Hex -- advantage"
+
+ATTACKMOD: 2
+DMGBONUS: 17
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 3
+DAMAGE: 1d8 + DMGBONUS
+CRITDAMAGE: 2d8 + DMGBONUS
+output ATTACKTIMESd[attackroll [lucky 1d20] vs ENEMYAC] named "Hordebreaker/sharpshooter"
+
+ATTACKTIMES: 2
+DAMAGE: 1d8 + DMGBONUS + 1d6
+CRITDAMAGE: 2d8 + DMGBONUS + 2d6
+output ATTACKTIMESd[attackroll [lucky 1d20] vs ENEMYAC] named "Sharpshooter + Hex"

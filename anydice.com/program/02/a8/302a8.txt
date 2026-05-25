@@ -1,0 +1,27 @@
+NUM_A: 1
+NUM_B: 1
+
+BONUS_AA: 40
+BONUS_BA: 13
+PROGRESS_A: 0
+PROGRESS_B: 0
+CLASH_NUM: 3
+
+function: evaluate ROLL:s {
+ SUCCESSES: ROLL >= 0
+ if SUCCESSES > 0 { result: ROLL}
+ result: 0
+}
+
+loop C over {1..CLASH_NUM} {
+ loop D over {1..2} {
+  RESULT: (1d100 + BONUS_A) - (1d100 + BONUS_B)
+  PROGRESS_A: PROGRESS_A + [evaluate RESULT]
+  PROGRESS_B: PROGRESS_B + [evaluate -RESULT]
+ }
+}
+
+output [lowest of PROGRESS_A and 250 + BONUS_A]
+output [lowest of PROGRESS_B and 250 + BONUS_B]
+\output PROGRESS_A\
+\output PROGRESS_B\

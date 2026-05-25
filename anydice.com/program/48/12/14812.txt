@@ -1,0 +1,87 @@
+function: touch ac at CR {
+ if CR =  1 { result: 12 }
+ if CR =  2 { result: 12 }
+ if CR =  3 { result: 12 }
+ if CR =  4 { result: 12 }
+ if CR =  5 { result: 12 }
+ if CR =  6 { result: 11 }
+ if CR =  7 { result: 12 }
+ if CR =  8 { result: 11 }
+ if CR =  9 { result: 12 }
+ if CR = 10 { result: 11 }
+ if CR = 11 { result: 11 }
+ if CR = 12 { result: 12 }
+ if CR = 13 { result: 10 }
+ if CR = 14 { result: 11 }
+ if CR = 15 { result: 13 }
+ if CR = 16 { result: 10 }
+ if CR = 17 { result:  9 }
+ if CR = 18 { result:  8 }
+ if CR = 19 { result:  7 }
+ if CR = 20 { result: 13 }
+}
+function: bab at L {
+ if L =  1 { result: {0} }
+ if L =  2 { result: {1} }
+ if L =  3 { result: {2} }
+ if L =  4 { result: {3} }
+ if L =  5 { result: {3} }
+ if L =  6 { result: {4} }
+ if L =  7 { result: {5} }
+ if L =  8 { result: {2,2,2,-3,-3} }
+ if L =  9 { result: {2,2,2,-3,-3} }
+ if L = 10 { result: {3,3,3,-2,-2} }
+ if L = 11 { result: {4,4,4,-1,-1,-6} }
+ if L = 12 { result: {5,5,5,0,0,-5} }
+ if L = 13 { result: {5,5,5,0,0,-5} }
+ if L = 14 { result: {6,6,6,2,2,-4} }
+ if L = 15 { result: {7,7,7,3,3,-3,-3} }
+ if L = 16 { result: {8,8,8,4,4,-2,-2} }
+ if L = 17 { result: {8,8,8,4,4,-2,-2} }
+ if L = 18 { result: {9,9,9,5,5,-1,-1} }
+ if L = 19 { result: {10,10,10,6,6,0,0} }
+ if L = 20 { result: {11,11,11,7,7,1,1} }
+}
+function: int at L {
+ if L <= 7 { result: 4 }
+ if L <= 8 { result: 5 }
+ if L <= 13 { result: 8 }
+ if L <= 19 { result: 11 }
+ if L =20 { result: 12 } 
+}
+function: dex at L {
+ if L <=  8 { result: 4 }
+ if L <= 13 { result: 7 }
+ if L <= 20 { result: 9 }
+}
+function: dice at L{
+ if L <=  2 { result: 1d6 }
+ if L <=  4 { result: 2d6 }
+ if L <=  6 { result: 3d6 }
+ if L <=  8 { result: 4d6 }
+ if L <= 10 { result: 5d6 }
+ if L <= 12 { result: 6d6 }
+ if L <= 14 { result: 7d6 }
+ if L <= 16 { result: 8d6 }
+ if L <= 18 { result: 9d6 }
+ if L <= 20 { result: 10d6 }
+}
+function: fullround at L with C ac DR dr plus D dam and A atk {
+ TOTAL: 0
+ INT: [int at L]
+ DEX: [dex at L]
+ DAM: [dice at L] + INT + D - DR
+ BAB: [bab at L]
+ loop SING over {1..#BAB}{
+  BONUS: SING@BAB
+  RESULT: (1d20 + BONUS + DEX + A >= C) * DAM 
+  TOTAL: RESULT + TOTAL
+ }
+ result: TOTAL
+}
+
+loop LVL over {1..20}{
+ output [fullround at LVL with [touch ac at LVL] ac 0 dr plus (2 + LVL/2) dam and 3 atk] named "dist at lvl [LVL]"
+}
+\output [fullround at 20 with 29 ac 20 dr plus 13 dam and 3 atk] named "dist at vs biggo"\
+

@@ -1,0 +1,90 @@
+\Dieter's Weapon Calculations\
+
+\variable definitions\
+AC:  15  \Target AC\
+STR:  4  \Strength Modifier\
+DEX:  3  \Dexterity Modifier\
+PROF: 3  \Proficiency Modifier\
+ADV:  1  \0=Disadvantage 1=straight roll 2=advantage\
+CR:  20  \Range of Critical Hit\
+
+\setting advantage or disadvantage\
+if ADV >= 2 {
+ ROLL: [highest 1 of 2d20]
+ }
+else {
+ if ADV <= 0 {
+  ROLL: [lowest 1 of 2d20]
+  }
+else {
+ ROLL: 1d20
+}}
+
+\Great Weapon Fighting damage calculations\
+function: X:n gwfs {
+ if X <= 2 {
+  result: 1d6
+  }
+  result: X
+}
+function: Y:n gwfa {
+ if Y <= 2 {
+  result: 1d12
+  }
+  result: Y
+}
+
+\Main Attack Function\
+function: attack ROLL:n plus BONUS:n vs AC:n miss MISS:d hit HIT:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS > AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+\Outputs\
+output [
+attack ROLL plus STR + PROF vs AC
+    miss 0
+    hit  [1d6 gwfs] + [1d6 gwfs] + STR
+    crit [1d6 gwfs] + [1d6 gwfs] + [1d6 gwfs] + [1d6 gwfs] + STR on CR
+] named "Greatsword"
+output [
+attack ROLL plus STR + PROF - 5 vs AC
+    miss 0
+    hit  [1d6 gwfs] + [1d6 gwfs] + STR + 10
+    crit [1d6 gwfs] + [1d6 gwfs] + [1d6 gwfs] + [1d6 gwfs] + STR + 10 on CR
+] named "Greatsword GWM"
+output [
+attack ROLL plus STR + PROF vs AC
+    miss 0
+    hit  [1d12 gwfa] + STR
+    crit [1d12 gwfa] + [1d12 gwfa] + STR on CR
+] named "Greataxe"
+output [
+attack ROLL plus STR + PROF - 5 vs AC
+    miss 0
+    hit  [1d12 gwfa] + STR + 10
+    crit [1d12 gwfa] + [1d12 gwfa] + STR + 10 on CR
+] named "Greataxe GWM"
+output [
+attack ROLL plus STR + PROF vs AC
+    miss 0
+    hit  1d6 + STR
+    crit 2d6 + STR on CR
+] named "Mace of Disruption"
+output [
+attack ROLL plus STR + PROF vs AC
+    miss 0
+    hit  3d6 + STR
+    crit 6d6 + STR on CR
+] named "Mace of Disruption Undead"
+output [
+attack ROLL plus DEX + PROF vs AC
+    miss 0
+    hit  1d8 + DEX
+    crit 2d8 + DEX on CR
+] named "Longbow"

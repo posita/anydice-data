@@ -1,0 +1,88 @@
+function: combat ATKDEF:n ATKATK:n vs DEFDEF:n DEFATK:n {
+  O: (DEFDEF - ATKATK) <= 0
+  P: (ATKDEF - DEFATK) <= 0
+
+  if(O & P) {
+   result: 3
+  } else {
+   if(O) {
+    result: 1
+   } else {
+    if(P) {
+     result: 2
+    } else {
+     result: 0
+    }
+   }
+  }
+
+}
+
+function: ctwo ATKDEF:n ATKATK:n vs DEFDEF:n DEFATK:n {
+  O: (DEFDEF - ATKATK) <= 0
+  P: (ATKDEF - DEFATK) <= 0
+  Q: (DEFDEF - ATKATK) <= -4
+  R: (ATKDEF - DEFATK) <= -4
+
+  if(O & P) {
+   if(Q & R) {
+    result: 3
+   } else{if(Q) {
+    result: 1
+   } else{if(R) { 
+    result: 2
+   } else {
+    result: 3
+   }
+   }
+   }
+  } else {
+   if(O) {
+    result: 1
+   } else {
+    if(P) {
+     result: 2
+    } else {
+     result: 0
+    }
+   }
+  }
+
+}
+
+function: cthree ATKDEF:n ATKATK:n vs DEFDEF:n DEFATK:n {
+  O: (DEFDEF - ATKATK)
+  P: (ATKDEF - DEFATK)
+
+  if(O < 0 & P < 0) {
+   result: 3
+  } else {
+   if(P < 0 & O > P) {
+    result: 2
+   } else {
+    if(O < 0 & P > O) {
+     result: 1
+    }
+   }
+  }
+  result: 0
+
+}
+
+\      1  2  3  4  5  6\
+SA:   {0, 1, 1, 1, 2, 2} \7\
+MA:   {0, 0, 1, 2, 3, 3} \10\
+XA:   {0, 0, 1, 2, 4, 5} \12\
+BB:   {0, 1, 1, 1, 1, 1} 
+BBB:  {0, 0, 0, 1, 1, 1}
+
+\output [cthree 6dSA+1dBBW 3dSA+2dBBW vs 3dSA+3dBBW 3dXA] named "c3"\
+\output 1d6\
+
+loop N over {6..6} {
+output NdSA named "S"
+output NdMA named "M"
+output NdXA named "X"
+output NdBB named "BB"
+output NdBBB named "BBB"
+}

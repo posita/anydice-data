@@ -1,0 +1,77 @@
+\ Yoyojo's Level 15 Rage Strike at level 18 \
+
+BRUTALONE  : {2..12}
+BRUTALTWO  : {3..12}
+BRUTALTHREE: {4..12}
+W          : {3..12}
+
+BASEDMGBONUS: 14
+POWERDMG    : 7dW
+BASECRIT    : [maximum of POWERDMG] + 1d10 + 3d12 + 1dW
+RING        : {1d12,3d12,36}
+ATTACK      : {23,25}
+DEFENSE     : {35}
+
+BLOODY     : {0,4}
+RAGING     : {0,4}
+WINDED     : {0,2}
+PACT       : {0,2..16}
+RADIANT    : {0,2..12}
+VULNERABLE : {0,16}
+
+MISS       : 0
+HIT        : 1
+CRITICALHIT: 2
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Make an attack roll using the supplied       \
+\ Attack (ATT), Defense (DEF), and Roll (ROLL) \
+function: attack ATT ROLL:n vs DEF:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATT >= DEF { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATT >= DEF { result: HIT }
+
+ result: MISS
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Test nesting functions                       \
+function: kill HITMODE:n {
+ if HITMODE=0 {result: [deal miss damage]}
+ if HITMODE=1 {result: [deal hit damage]}
+ if HITMODE=2 {result: [deal crit damage]}
+ result: 99999
+}
+
+function: deal miss damage {
+ result: [deal hit damage] / 2
+}
+
+function: deal hit damage {
+ BONUS: BASEDMGBONUS
+ BONUS: BONUS + BLOODY
+ BONUS: BONUS + RAGING
+ BONUS: BONUS + WINDED
+
+ result: POWERDMG + BONUS
+}
+
+function: deal crit damage {
+ BONUS: 1d10 + 3d12 + 1dW
+ BONUS: BONUS + 1dBLOODY + 1dRAGING + 1dWINDED + 1dRING
+ BONUS: BONUS + 1dPACT + 1dRADIANT + 1dVULNERABLE
+ result: [maximum of [deal hit damage]] + BONUS
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Generate the numbers                         \
+loop Y over ATTACK {
+ loop X over DEFENSE {
+  \output [attack Y 1d20 vs X] named "Attack +[Y] Vs AC [X]"\
+  DATA: [attack Y 1d20 vs X]
+  output [kill DATA] named "Attacking +[Y] vs AC [X] with 15th Level Rage Strike"
+ }
+}

@@ -1,0 +1,57 @@
+\
+Rolls a die using CPRED critical success/failure logic.
+D:n = Dice; The die/dice to roll. CPRED standard is 1d10.
+BASE = Number; The character's bonus to the roll.
+N = Boolean; Whether or not Fumble Recovery is active.
+\
+function: roll D:n with BASE recover N {
+  if D=10 {result: [critical d10 with BASE+10]}
+  if !N {
+    if D=1  {result: [fumble d10 with BASE+1]}
+  }
+  result: BASE + D
+}
+
+\
+Overload function for when you want to forget about Solos.
+D:n = Dice; The die/dice to roll. CPRED standard is 1d10.
+BASE = Number; The character's bonus to the roll.
+\
+function: roll D:n with BASE {
+  result: [roll D with BASE recover 0]
+}
+
+\
+Helper function for fumbles since dice can't be rolled inside a function.
+D:n = Dice; the die roll to subtract from the previous total.
+BASE = Number; the total before critical failure.
+\
+function: fumble D:n with BASE {
+  result: BASE - D
+}
+
+\
+Helper function for criticals since dice can't be rolled inside a function.
+D:n = Dice; the die roll to add to the previous total.
+BASE = Number; the total before critical success.
+\
+function: critical D:n with BASE {
+  result: BASE + D
+}
+
+\
+output [roll d10 with 10] named "Odds, Standard, Base 10"
+output [roll d10 with 10 recover 1] named "Odds, Recovery, Base 10"
+output [roll d10 with 8] > [roll d10 with 4] named "Speed: Killer beats Netrunner 4 (+0)"
+\
+
+ICEARRAY: {2,4,6,8}
+BOSARRAY: {0,1,2}
+
+loop RANK over {4..7} {
+  loop ICE over ICEARRAY {
+    loop BOOST over BOSARRAY {
+      output [roll d10 with ICE] > [roll d10 with RANK+2*BOOST] named "ICE with STAT [ICE] vs. Netrunner [RANK] with [BOOST] Booster(s)"
+    }
+  }
+}

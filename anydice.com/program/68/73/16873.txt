@@ -1,0 +1,64 @@
+function: ac at CR {
+ CRLIST:{14,15,15,17,18,19,20,21,23,24,25,27,28,29,30,31,32,34,35,37,38,39,40,42,43,45,46,47,48,48}
+ result: CR@CRLIST
+}
+function: bab at L {
+ N: (L + 4) / 5
+ BAB: {}
+ loop A over {1..N}{
+  BAB: {BAB, (L - (A - 1) * 5)}
+ }
+ result: BAB
+} 
+function: str at L { \rough\
+ if L < 4 {result: 5} \3 nat + rage\ 
+ if L < 11 {result: 6} \+ 1 size \
+ if L < 21 {result: 12} \+ 3 belt + 1 rage + 2 rage buff\
+}
+function: critr at L { 
+ if L >= 8 {result: 6}
+ result: 3
+}
+function: miscmod at L {
+ if L < 4 {result: 0}
+ if L < 7 {result: 1}
+ if L < 11 {result: 3}
+ if L < 14 {result: 5}
+ if L < 21 {result: 8} 
+}
+
+
+
+function: fullround with MOD modifier against AC ac and DAM damage {
+ TOTAL: 0
+ BAB: [bab at L]
+ loop SING over {1..#BAB}{
+  BONUS: SING@BAB + MOD  
+  TOTAL: TOTAL + [singular attack d20 a d20 with BONUS modifier against AC ac and DAM damage]
+ }
+ result: TOTAL
+}
+
+function: singular attack X:n a Y:n with MOD modifier against AC ac and DAM damage {
+ if X >= (21 - CRITR) {
+  if Y + MOD >= AC {result: DAM + DAM}
+  result: DAM
+ }
+ if X + MOD >= AC {result: DAM}
+ result: 0
+}
+
+loop L over {1..20}{
+
+AC: [ac at L]
+DR: 0
+
+CRITR: [critr at L]
+POWER: (L + 4) / 4
+MISCMOD: [miscmod at L]
+STR: [str at L]
+MOD: MISCMOD + STR - POWER
+DAM: 2d4 + (3 * STR / 2) + (3 * POWER) - DR
+
+output [fullround with MOD modifier against AC ac and DAM damage] named "damage distribution at lvl [L]"
+}

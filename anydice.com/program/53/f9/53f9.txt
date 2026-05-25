@@ -1,0 +1,65 @@
+PL: 10 \ Series power level \
+
+TOUGH: PL   \ Toughness rating\
+DEFENSE: PL \ Dodge/Parry rating \
+
+DAMAGE: PL
+ATTACK: PL
+
+HOMING: 0      \ Ranks in Homing \
+MULTIATTACK: 0 \ Does your attack have Multiattack? \
+CRIT: 20       \ On what roll does your attack crit? \
+\ This program assumes you will always take the Increased Effect option. \
+
+function: damage DAMAGE:n with bonus ATTACK:n on roll ROLL:n with homing HOMING:n {
+  DC: DEFENSE + 10
+  if ROLL = 20 {
+    if ROLL + ATTACK < DC {
+      CRIT: 21 \ If we wouldn't crit, then make sure the crit function doesn't trigger \
+      DC: ROLL + ATTACK \ Rolls of 20 auto-hit \
+    }
+  }
+  if ROLL >= CRIT {
+    DAMAGE: DAMAGE + 5
+  }
+  if ROLL + ATTACK >= DC {
+    if MULTIATTACK > 0 {
+      if ROLL + ATTACK >= DC + 5 {
+        DAMAGE: DAMAGE + 2
+      }
+      if ROLL + ATTACK >= DC + 10 {
+        DAMAGE: DAMAGE + 3 \ total +5 \
+      }
+    }
+    TOUGHROLL: 1d20
+    TOUGHROLL: [damage check TOUGHROLL] + TOUGH
+    DMG_VAL: (TOUGHROLL < DAMAGE + 15)
+    DMG_VAL: DMG_VAL + (TOUGHROLL < DAMAGE + 10)
+    DMG_VAL: DMG_VAL + (TOUGHROLL < DAMAGE + 5)
+    DMG_VAL: DMG_VAL + (TOUGHROLL < DAMAGE)
+    result: DMG_VAL
+  }
+  else {
+    if HOMING > 0 {
+      result: [damage DAMAGE with bonus ATTACK on roll 1d20 with homing HOMING-1]
+    }
+    else {
+      result: 0
+    }
+  }
+}
+
+function: damage check TOUGHROLL:n {
+  if TOUGHROLL = 20 {
+    TOUGHROLL: 9000
+  }
+  result: TOUGHROLL
+}
+
+output [damage DAMAGE-3 with bonus ATTACK+3 on roll 1d20 with homing HOMING] named "Damage [DAMAGE]-3 / Attack [ATTACK]+3 | Homing [HOMING]"
+output [damage DAMAGE-2 with bonus ATTACK+2 on roll 1d20 with homing HOMING] named "Damage [DAMAGE]-2 / Attack [ATTACK]+2 | Homing [HOMING]"
+output [damage DAMAGE-1 with bonus ATTACK+1 on roll 1d20 with homing HOMING] named "Damage [DAMAGE]-1 / Attack [ATTACK]+1 | Homing [HOMING]"
+output [damage DAMAGE with bonus ATTACK on roll 1d20 with homing HOMING] named "Damage [DAMAGE] / Attack [ATTACK] | Homing [HOMING]"
+output [damage DAMAGE+1 with bonus ATTACK-1 on roll 1d20 with homing HOMING] named "Damage [DAMAGE]+1 / Attack [ATTACK]-1 | Homing [HOMING]"
+output [damage DAMAGE+2 with bonus ATTACK-2 on roll 1d20 with homing HOMING] named "Damage [DAMAGE]+2 / Attack [ATTACK]-2 | Homing [HOMING]"
+output [damage DAMAGE+3 with bonus ATTACK-3 on roll 1d20 with homing HOMING] named "Damage [DAMAGE]+3 / Attack [ATTACK]-3 | Homing [HOMING]"

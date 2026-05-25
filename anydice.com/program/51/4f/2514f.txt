@@ -1,0 +1,32 @@
+function: DICE:d with gwf {
+  X: 0
+  loop N over {1..#DICE} {
+    X: X + [reroll 1d[maximum of 1@DICE] as 1d[maximum of 1@DICE] under 3]
+  }
+  result: X
+}
+
+function: reroll ROLL:n as REROLL:d under LIMIT:n {
+  if ROLL < LIMIT {result: REROLL}
+  result: ROLL
+}
+
+function: attack AC:n with R:n plus ATK:n for DMG:d plus BONUS:n {
+  if R = CRIT { result: DMG + DMG + BONUS }
+  if (R+ATK) < AC | R = FAIL { result: 0 }
+  result: DMG + BONUS
+}
+
+DMG: 5
+ATK: 9
+ROLL: 1d20
+CRIT: 20
+FAIL: 1
+TW: 1d8 
+TH: 2d6
+NUMATK: 3
+AC: 16
+
+output [attack AC with ROLL plus ATK for [TH with gwf] plus DMG]*NUMATK named "Greatsword (GWF)"
+output [attack AC with ROLL plus ATK-5 for [TH with gwf] plus DMG+10]*NUMATK named "Greatsword (GWF, GWM)"
+output [attack AC with ROLL plus ATK for TW plus DMG]*(NUMATK+1) named "Longsword (TWF, DW)" 

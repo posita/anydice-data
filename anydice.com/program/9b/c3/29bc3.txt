@@ -1,0 +1,52 @@
+\
+Rolls a die using CPRED critical success/failure logic.
+D:n = Dice; The die/dice to roll. CPRED standard is 1d10.
+BASE = Number; The character's bonus to the roll.
+N = Boolean; Whether or not Fumble Recovery is active.
+\
+function: roll D:n with BASE recover N {
+  if D=10 {result: [critical d10 with BASE+10]}
+  if !N {
+    if D=1  {result: [fumble d10 with BASE+1]}
+  }
+  result: BASE + D
+}
+
+\
+Overload function for when you want to forget about Solos.
+D:n = Dice; The die/dice to roll. CPRED standard is 1d10.
+BASE = Number; The character's bonus to the roll.
+\
+function: roll D:n with BASE {
+  result: [roll D with BASE recover 0]
+}
+
+\
+Helper function for fumbles since dice can't be rolled inside a function.
+D:n = Dice; the die roll to subtract from the previous total.
+BASE = Number; the total before critical failure.
+\
+function: fumble D:n with BASE {
+  result: BASE - D
+}
+
+\
+Helper function for criticals since dice can't be rolled inside a function.
+D:n = Dice; the die roll to add to the previous total.
+BASE = Number; the total before critical success.
+\
+function: critical D:n with BASE {
+  result: BASE + D
+}
+
+output [roll d10 with 14] > 13 named "Chance to hit with single-shot"
+output 2d6 named "SMG"
+output 3d6 named "Heavy SMG"
+output 2d6*([highest of 0 and [lowest of [roll d10 with 14]-17 and 3]]) named "Autofire 3 (RAW)"
+output ([highest of 0 and [lowest of [roll d10 with 14]-13 and 6]])d6 named "Autofire 3 (NEW)"
+output 5d6 named "Assault Rifle"
+output 2d6*([highest of 0 and [lowest of [roll d10 with 14]-17 and 4]]) named "Autofire 4 (RAW)"
+output ([highest of 0 and [lowest of [roll d10 with 14]-13 and 8]])d6 named "Autofire 4 (NEW)"
+output 2d6*([highest of 0 and [lowest of [roll d10 with 14]-17 and 5]]) named "Autofire 5 (RAW)"
+output ([highest of 0 and [lowest of [roll d10 with 14]-13 and 10]])d6 named "Autofire 5 (NEW)"
+output ([highest of 0 and [lowest of [roll d10 with 14+1]-13 and 4]])d6 + ([highest of 0 and [lowest of [roll d10 with 14+1]-13 and 4]])d6 named "NEW Tsunami Arms Helix (ROF 2 Autofire Shells)"

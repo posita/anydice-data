@@ -1,0 +1,29 @@
+
+function: owod roll COUNT:n dice target TARGET:n specialized SPECIALIZED:n willpower WILLPOWER:n {
+  RELABELED: {1, 2:(TARGET-2), 9:(10-TARGET), 10}
+  result: [owod roll COUNT d RELABELED target TARGET specialized SPECIALIZED willpower WILLPOWER]
+}
+function: owod roll ROLL:s target TARGET:n specialized SPECIALIZED:n willpower WILLPOWER:n {
+  MAXSUCCESS: 10
+  SUPERSUCCESSROLLS: {11}
+  if SPECIALIZED {
+    MAXSUCCESS: 9
+    SUPERSUCCESSROLLS: {10}
+  }
+  SUCCESSROLLS: {TARGET..MAXSUCCESS}
+  BOTCHROLLS: {1}
+
+  SUPERSUCCESSES: [count SUPERSUCCESSROLLS in ROLL]
+  SUCCESSES: [count SUCCESSROLLS in ROLL]
+  BOTCHES: [count BOTCHROLLS in ROLL]
+
+  FINALSUCCESSES: SUCCESSES+(SUPERSUCCESSES*2)+WILLPOWER
+
+ 
+  if (FINALSUCCESSES = 0) & (BOTCHES > 0) {
+  }
+  result: FINALSUCCESSES-BOTCHES
+}
+
+output [owod roll 13 dice target 3 specialized 1 willpower 0]
+output [owod roll 20 dice target 6 specialized 1 willpower 0]

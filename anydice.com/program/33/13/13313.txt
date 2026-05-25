@@ -1,0 +1,50 @@
+function: attack ROLL:n {
+ if ROLL >= CRIT {
+  result: 2
+ }
+ if ROLL = 1 | ROLL + AB < AC {
+  result: 0 
+ } 
+ result: 1
+}
+
+function: hit HIT:n for DICE:d plus DB:n {
+ if HIT > 0 {
+  result: (HIT d DICE) + DB
+ } 
+ result: 0
+}
+
+function: addifnotzero NOTZERO:n ADD:n {
+ if NOTZERO > 0 {
+  result: NOTZERO + ADD
+ }
+ result: 0
+}
+
+function: multiple TIMES:n with ATTACK:d for DICEN:s DICE:s plus BONUS:s plus EXTRA:n plus FIRSTHIT:n {
+ TOTAL: 0
+ loop N over {1..TIMES} {
+  TOTAL: TOTAL + [hit [attack ATTACK] for (N@DICEN)d(N@DICE) plus (N@BONUS)+EXTRA]
+ }
+ result: [addifnotzero TOTAL FIRSTHIT]
+}
+
+
+AC: 14
+ATK: 1@1d20
+
+CRIT: 20
+DEX: 4
+PROF: 3
+AB: DEX+PROF+2-5
+
+output [multiple 2 with ATK for {1,1} {10,10} plus {DEX, DEX} plus 10 plus 0] named "hvy xbow @5"
+output [multiple 3 with ATK for {1,1,1} {6,6,6} plus {DEX, DEX, DEX} plus 10 plus 0] named "hand xbow @5"
+
+AB: DEX+PROF-5
+output [multiple 2 with ATK for {2,2} {6,6} plus {DEX, DEX} plus 10 plus 0] named "gs @5"
+
+DEX: 3
+AB: DEX+PROF-5
+output [multiple 3 with ATK for {1,1,1} {10,10,4} plus {DEX,DEX,DEX} plus 10 plus 0] named "pam @5"

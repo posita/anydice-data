@@ -1,0 +1,31 @@
+function: extpick NTH:n of SEQ:s k K:n m M:n{
+ MIN: 1
+ if NTH@SEQ = M { result: NTH@SEQ+(SEQ = M) - NTH }
+ if NTH@SEQ = MIN { result: NTH@SEQ-(SEQ = MIN) + (1+K-NTH) }
+ result: NTH@SEQ
+}
+
+function: pick NTH:n of SEQ:s and BON:s {
+ ALL: [sort {SEQ, BON}]
+ if NTH@ALL = BON { result: [extpick (NTH-1) of ALL k #ALL m 10]}
+ result: [extpick NTH of ALL k #ALL m 10]
+}
+
+function: pick NTH:n of SEQ:s on BON:n {
+ if BON = 1 { result: [extpick (NTH-1) of SEQ k #SEQ m 10] }
+ result: [extpick NTH of SEQ k #SEQ m 10]
+}
+
+DIE: 10
+
+\output 1@4dDIE named "1"\
+loop N over {3,2} {
+output [extpick N of 5dDIE k 5 m 10] named "[N]"
+\output [pick N of 4dDIE and 1dDIE] named "[N]+"
+output [pick N of 3dDIE and 2dDIE] named "[N]++"\
+output [pick N of 3dDIE and 2dDIE] named "[N]+++"
+\output [pick N of 1dDIE and 4dDIE] named "[N]++++"\
+}
+output [pick 3 of 5dDIE on 1d{1:1,0:1}] named "control"
+output [pick 2 of 5dDIE on 1d{1:1,0:1}] named "control"
+output [extpick 1 of 5dDIE k 5 m 10] named "1"

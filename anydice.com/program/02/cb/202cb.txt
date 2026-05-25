@@ -1,0 +1,39 @@
+MISS: 0
+HIT: 1d8
+HIT_MAX: 8
+CRIT: 2d8
+CRIT_MAX: 16
+
+SKILL_BONUS: 3
+PROF_BONUS: 3
+
+HP: 15
+
+function: attack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: headshot ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRIT_MAX + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: HIT_MAX + SKILL_BONUS }
+  result: MISS
+}
+
+function: centre ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS + 5 >= AC { result: HIT + SKILL_BONUS }
+  result: MISS
+}
+
+loop AC over {10,15,20} {
+  output 0 named "[AC] AC"
+  output [attack d20 vs AC] > HP named "Attack"
+  output [attack d20 vs AC] + [attack d20 vs AC] >= HP named "Flurry"
+  output [headshot d20 vs AC] >= HP named "Headshot"
+  output [centre d20 vs AC] >= HP named "Centre"
+}

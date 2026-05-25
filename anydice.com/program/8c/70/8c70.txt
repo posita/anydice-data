@@ -1,0 +1,57 @@
+\---- How to use ----\
+\Adjust the variables below (MOD, DIE, NUMDIE, MIN) to suit your calculation then click "Calculate" below the text box\
+\---------------------------------------------------------------------------------------------------------------------\
+\EXAMPLE, DO NOT EDIT:                                                                                                \
+\For Great Weapon Fighter with a Greatsword you would use the following:                                              \
+\MOD: [Strength modifier]                                                                                             \
+\DIE: 6      (Greatsword damage: 2d[6])                                                                               \
+\NUMDIE: 2   (Greatsword damage: [2]d6)                                                                               \
+\MIN: 2      (Default for GWF is reroll 1s and 2s)                                                                    \
+\---------------------------------------------------------------------------------------------------------------------\
+
+\VARIABLES - Edit these to change output!                           \
+\-------------------------------------------------------------------\
+MOD:2     \This is the damage modifier. I.E. Strength modifier, etc.\
+DIE:6     \Die size. I.E. DIE:6 for d6                              \
+NUMDIE:2  \Number of damage dice. I.E. NUMDIE:2 for Greatsword/Maul \
+MIN:2     \Lower limit for Great Weapon Fighter. Default of 2       \
+\-------------------------------------------------------------------\
+
+\Don't touch the code below, this is where the magic happens!\
+\It's been documented for others to understand functionality \
+\------------------------------------------------------------\
+
+\Description -----------------------------------------------------------------------------------\
+\This function returns the re-rolled value of the die if it is lower or equal to the lower limit\
+\Variables -------------------------------------------------------------------------------------\
+\A = Initial input value. I.E. 1 to 6 for d6                                                    \
+\B = Lower reroll limit. I.E. 2 for Great Weapon Fighter                                        \
+\C = Dice value. I.E. 6 for d6                                                                  \
+\-----------------------------------------------------------------------------------------------\
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A:[reroll 1dC B C] 
+ } 
+ else { 
+  result: A 
+ }
+}
+
+\Description ---------------------------------------------\
+\This function simulates the Great Weapon Master feat     \
+\Variables -----------------------------------------------\
+\A = Dice value I.E. A=6 for 1d6                          \
+\B = Number of damage dice I.E. B = 2 for Greatsword (2d6)\
+\C = Lower limit for reroll. Default 2                    \
+\---------------------------------------------------------\
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+output [greatweaponmaster DIE NUMDIE MIN] + MOD

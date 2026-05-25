@@ -1,0 +1,26 @@
+function: die N:n weapontn WTN:n shieldtn STN:n shieldlvl SL:n {
+ if N < WTN { 
+  result: 0
+ }
+ else { 
+  result: 1 - [block die d6 shieldtn 5 shieldlvl SL-1] 
+ }
+}
+
+function: block die N:n shieldtn STN:n shieldlvl SL:n {
+ if SL < 0 {
+  result: 0
+ }
+
+ if N < STN {
+  result: 0 + [block die d6 shieldtn STN shieldlvl SL-1]
+ } else {
+  result: 1
+ }
+}
+
+HIT: [die d6 weapontn 5 shieldtn 5 shieldlvl 0]
+
+loop N over {1..10} {
+ output [lowest of NdHIT and 10] named "[N]d"
+}

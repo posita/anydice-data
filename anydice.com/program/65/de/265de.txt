@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+function: savingthrow ROLL:n vs DC:n {
+ if ROLL + PROFBONUS < DC { result: HIT }
+ result: MISS
+}
+
+PROFBONUS: 10
+
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+X: [d6 reroll {1} as d6]
+
+HITDAMAGE: 20dX
+CRITICALDAMAGE: HITDAMAGE
+MISSDAMAGE: HITDAMAGE/2
+output [damage for [savingthrow d20 vs 19]] named "Meteor Swarm (Fire/Bludgeoning)"
+
+HITDAMAGE: 20dX + 20dX
+CRITICALDAMAGE: HITDAMAGE
+MISSDAMAGE: HITDAMAGE/2
+output [damage for [savingthrow d20 vs 19]] named "Meteor Swarm (Total)"

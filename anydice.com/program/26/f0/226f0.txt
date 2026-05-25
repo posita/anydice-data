@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n crit on CRIT:s {
+ if ROLL = 1 { result: MISS }
+ if ROLL = CRIT {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE crit on CRITRANGE]]
+}
+
+function: X:n attacks {
+ result: Xd[attack]
+}
+
+DEFENSE: d{12..18}
+
+ATTACK: +5
+HITDAMAGE: 1d12+3
+CRITICALDAMAGE: 1d12+12+3
+CRITRANGE: {20}
+MISSDAMAGE: 0
+
+output [attack] named "One attack"
+output [2 attacks] named "Two attacks"

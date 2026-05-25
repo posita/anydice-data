@@ -1,0 +1,29 @@
+function: RING:n SKILL:n successes {
+ RING_S: 0
+ SKILL_S: 0
+ loop N over {1..RING}{
+  RING_S: RING_S + [explode d6]
+ }
+ loop N over {1..SKILL}{
+  SKILL_S: SKILL_S + [explode d12]
+ }
+ result: RING_S + SKILL_S
+}
+
+function: explode DIE:d {
+ MAX: [maximum of DIE]
+ if MAX=6 { result: [explode DIE ring] }
+ if MAX=12 { result: [explode DIE skill] }
+}
+
+function: explode N:n ring {
+ if N = 6 { result: 1 + [explode DIE ring] }
+ else { if N >= 4 { result: 1 } else { result: 0 }}
+}
+
+function: explode N:n skill {
+ if N >= 11 { result: 1 + [explode DIE skill] }
+ else { if N >= 6 { result: 1 } else { result: 0 }}
+}
+
+output [2 1 successes]

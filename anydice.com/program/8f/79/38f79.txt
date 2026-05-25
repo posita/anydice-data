@@ -1,0 +1,36 @@
+MAUL_DICE: 2d6
+GLAIVE_DICE: 1d10
+GLAIVE_DICE_TWO: 1d4
+DMG_MOD: 3
+TO_HIT: 5
+CRIT: 20
+
+function: maul ROLL:n {
+if ROLL = 1  {result: 0}
+if ROLL >= CRIT {result: 2*MAUL_DICE + DMG_MOD}
+if ROLL+TO_HIT >= AC {result: MAUL_DICE + DMG_MOD}
+result: 0}
+
+function: glaive ROLL:n {
+if ROLL = 1  {result: 0}
+if ROLL >= CRIT {result: 2*GLAIVE_DICE + DMG_MOD}
+if ROLL+TO_HIT >= AC {result: GLAIVE_DICE + DMG_MOD}
+result: 0}
+
+function: bonus glaive ROLL:n {
+if ROLL = 1  {result: 0}
+if ROLL >= CRIT {result: 2*GLAIVE_DICE_TWO + DMG_MOD}
+if ROLL+TO_HIT >= AC {result: GLAIVE_DICE_TWO + DMG_MOD}
+result: 0}
+
+loop AC over {8..23} {
+ output [glaive d20] named "Galive vs. [AC] AC"
+}
+
+loop AC over {8..23} {
+ output [maul d20] named "Maul vs. [AC] AC"
+}
+
+loop AC over {8..23} {
+ output [glaive d20] + [bonus glaive d20] named "PAM vs. [AC] AC"
+}

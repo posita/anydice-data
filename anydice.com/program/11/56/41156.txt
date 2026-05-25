@@ -1,0 +1,43 @@
+\Function for weapon/spell with attack rolls (Do not edit)\
+function: ROLL:n vs AC:n {
+ if ROLL >= CRIT_MIN  {
+  result: CRIT_TOTAL
+ }
+ if ROLL + ATTACK_BONUS >= AC {
+  result: HIT_TOTAL
+ }
+ result: 0
+}
+
+\Function for spells/cantrips with saves (Do not edit)\ 
+function: ROLL:n SAVE_BONUS:n save vs DC:n {
+ if (ROLL + SAVE_BONUS) >= DC {
+  result: SAVE_DAMAGE}
+ result: FAIL_DAMAGE
+}
+
+\ Function for attacks that force saves on hits (Do not edit)\
+function: on ATTACK_ROLL:n AC:n hit save SAVE_ROLL:n {
+ if ATTACK_ROLL >= CRIT_MIN  {
+  result: CRIT_TOTAL + d [SAVE_ROLL SAVE_BONUS save vs DC]
+ }
+ if (ATTACK_ROLL + ATTACK_BONUS) >= AC {
+  result: HIT_TOTAL + d [SAVE_ROLL SAVE_BONUS save vs DC]
+ }
+ result: 0
+}
+
+\Make changes here if you want to compare your attacks to enemies with higher ACs or saving throw bonuses\
+AC: 16      \For each attack choose a random AC between 14 and 20\
+
+
+ATTACKS: 2        \Number of Attacks per Round\
+ATTACK_BONUS: 9   \Attack bonus to hit (Ability Modifier + Proficiency)\ 
+DAMAGE_DICE: 1d10+1d8  \Damage dice on a standard hit (Include dice from both weapon and features like sneak attack)\
+DAMAGE_BONUS: 5   \Damage bonus (Ability Modifier, 0 for most cantrips)\
+CRIT_MIN: 20      \Minimum number required to score a critical hit (Champion Fighters should change to 18 or 19)\
+CRIT_BONUS: 0     \Additional damage deal on a critical hit (e.g. Brutal Critical, Paladins choosing to smite on a crit)\
+\Calculate the total damage for both a regular hit and a critical hit\
+HIT_TOTAL: DAMAGE_DICE + DAMAGE_BONUS
+CRIT_TOTAL: DAMAGE_DICE + DAMAGE_DICE + DAMAGE_BONUS + CRIT_BONUS
+output ATTACKS d [d20 vs AC] named "Paladin"

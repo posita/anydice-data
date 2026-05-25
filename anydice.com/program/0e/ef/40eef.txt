@@ -1,0 +1,110 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n plus MOD:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + MOD >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRIT_DMG
+ }
+ if ATTACKRESULT = HIT {
+  result: HIT_DMG
+ }
+ result: MISS_DMG
+}
+
+function: attack {
+ result: [damage for [attack d20 plus ATK_MOD vs AC]]
+}
+
+function: save {
+ result: [damage for [attack d20 plus ST_MOD vs DC]]
+}
+
+\ ELDRITCH_BLAST: [damage for [attack ATK_ROLL plus ATK_MOD vs AC]] \ 
+\ output ELDRITCH_BLAST named "One eldritch blast" \
+\ output ELDRITCH_BLAST + ELDRITCH_BLAST named "Two eldritch blasts" \
+
+\ Enemy Stats \
+AC: 12
+DEX_ST_MOD: 2
+WIS_ST_MOD: 2
+
+\ Player Stats \
+MAGNUS_SPELL_SAVE_DC: 14
+MAGNUS_SPELL_ATK_MOD: 6
+
+
+ATK_MOD: 4
+HIT_DMG: 1d10 + 4
+CRIT_DMG: 2d10 + 4
+MISS_DMG: 0
+ELDRITCH_BLAST: [attack]
+output ELDRITCH_BLAST + ELDRITCH_BLAST named "Moloch: 2 Eldritch Blasts"
+
+ATK_MOD: 4
+HIT_DMG: 1d10 + 4 + 1d6
+CRIT_DMG: 2d10 + 4 + 2d6
+MISS_DMG: 0
+HEXED_ELDRITCH_BLAST: [attack]
+output HEXED_ELDRITCH_BLAST + HEXED_ELDRITCH_BLAST named "Moloch: 2 Eldritch Blasts + Hex"
+
+ATK_MOD: 5
+HIT_DMG: 1d6 + 3 + 2d6
+CRIT_DMG: 2d10 + 4
+MISS_DMG: 0
+IMP_STING: [attack]
+output HEXED_ELDRITCH_BLAST + HEXED_ELDRITCH_BLAST + IMP_STING named "Moloch: 2 Eldritch Blasts + Hex + Imp Sting"
+
+DC: 15
+ST_MOD: DEX_ST_MOD
+HIT_DMG: (8d6)/2
+CRIT_DMG: HIT_DMG
+MISS_DMG: 8d6
+MOLOCH_FIREBALL: [save]
+output MOLOCH_FIREBALL named "Moloch: Fireball"
+
+
+
+DC: MAGNUS_SPELL_SAVE_DC
+ST_MOD: WIS_ST_MOD
+HIT_DMG: 0
+CRIT_DMG: 0
+MISS_DMG: 2d6
+MAGNUS_VICIOUS_MOCKERY: [save]
+output MAGNUS_VICIOUS_MOCKERY named "Magnus: Viscious Mockery"
+
+ATK_MOD: MAGNUS_SPELL_ATK_MOD
+HIT_DMG: 1d8 + 3 + 1d6
+CRIT_DMG: 2d8 + 3 + 2d6
+MISS_DMG: 0
+MAGNUS_TRUE_STRIKE: [attack]
+output MAGNUS_TRUE_STRIKE named "Magnus: True Strike (crossbow)"
+
+DC: MAGNUS_SPELL_SAVE_DC
+ST_MOD: WIS_ST_MOD
+HIT_DMG: (5d6)/2
+CRIT_DMG: HIT_DMG
+MISS_DMG: 5d6
+MAGNUS_DISSONANT_WHISPERS: [save]
+output MAGNUS_DISSONANT_WHISPERS named "Magnus: Dissonant Whispers (lvl 3)"
+
+DC: MAGNUS_SPELL_SAVE_DC
+ST_MOD: DEX_ST_MOD
+HIT_DMG: (8d6)/2
+CRIT_DMG: 0
+MISS_DMG: 8d6
+MAGNUS_FIREBALL: [save]
+output MAGNUS_FIREBALL named "Magnus: Fireball"
+
+
+

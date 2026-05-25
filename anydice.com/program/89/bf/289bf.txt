@@ -1,0 +1,39 @@
+\ mit 2 Vorteilen = 3erPool, Würfel 1-10 \
+\ Höchster 1-3er Pool, Ergebnisse mit 1-3 Explosionen \ 
+
+POOL:3
+MULTI:0
+
+
+output [count 10 in POOL d{1..10}] named "10er im 1.durchgang"
+\output [highest 1 of POOL d{1..10}] named "höchster aus pool"\
+
+function: helper {
+POOL:POOL-1
+MULTI:MULTI+1
+result:[count 10 in POOL d{1..10}]
+}
+
+function: count VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ if 
+  COUNT >= 2 { result: [helper] }
+ else 
+  {result: MULTI*10  + [highest 1 of POOL d{1..10}] }
+}
+
+
+\output [count 10 in POOL d{1..10}] named "ergebnis mit 1er explosion"\
+
+loop N over {1..3}{
+POOL:N
+ output [count 10 in POOL d{1..10}]named "ergebnis mit [N] explosion"
+}
+
+loop N over {1..3}{
+ output [highest 1 of Nd{1..10}]named "höchster aus [N]er pool"
+}
+

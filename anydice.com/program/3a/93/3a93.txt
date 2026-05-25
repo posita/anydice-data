@@ -1,0 +1,90 @@
+function: gcd of A:n and B:n {
+  if A < 0 {
+    CA: -A
+  } else {
+    CA: A
+  }
+  if B < 0 {
+    CB: -B
+  } else {
+    CB: B
+  }
+  if CA < CB {
+    T: CA
+    CA: CB
+    CB: T
+  }
+  if CB = 0 { result: CA }
+  if CB = 1 { result: 1 }
+  loop K over {1..CA} {
+    M: CA - CB * (CA / CB)
+    if M = 0 { result: CB }
+    CA: CB
+    CB: M
+  }
+  result: CB
+}
+
+\ Calculate the integer square root of a number with Newton's method.
+  It returns 0 if N <= 0, so there are no empty values.
+  For N > 0, it returns the largest number S such that S * S <= N. \
+function: sqrt N:n {
+  if N <= 0 {
+    result: 0
+  } else {
+\ Figure out the initial guess. L is the length of the number in digits,
+  or in other words 1 + floor(log10(N)). \
+    L: #N
+\ This is a rather complex expression, so we'll go over it piece by piece.
+  10^((L-1)/2): N is equal to 10^(L-1) * a mantissa between 1 and 9, so
+                the square root is half the magnitude.
+  L=2*(L/2): Determines whether L is even, or alternatively whether L-1 is
+             odd.
+  1+2*(L=2*(L/2)): If L-1 is even, then this is sqrt(1) = 1. If L-1 is odd,
+                   this is sqrt(10) ~ 3 to clean up the extra factor of 10
+                   in the square root.
+  (1@N)@111222223: A factor based on the first digit of N, equal to
+                   floor(sqrt(1@N)). I'm not sure if this is faster or slower
+                   than (1@N)@{1,1,1,2,2,2,2,2,3}. \
+    X: 10^((L-1)/2)*(1+2*(L=2*(L/2)))*((1@N)@111222223)
+\ The core of Newton's method. Since we don't have while loops (except for
+  recursion, which I'd rather avoid due to function depth issues), I have to
+  guess a number of loops to use. Due to the N^2 convergence, L loops should
+  be enough to converge. \
+    loop K over {1..L} {
+      X: (X * X + N) / (2 * X)
+    }
+\ The method will either converge to sqrt(N) or sqrt(N)+1. Adjust it in the
+  all-too-likely case that it's the latter. \
+    if (X * X > N) { X: X - 1 }
+    result: X
+  }
+}
+function: poisson N:n {
+  result: [poisson N over 1]
+}
+
+function: poisson MN:n over MD:n {
+  \ Make sure a sensible value was passed to the function. \
+  if (MN * MD) <= 0 { result: 0 }
+  \ Calculate numerator for 4 * sqrt(mean). \
+  SN: [sqrt 16 * MN * MD]
+  \ Calculate four-sigma lower bound, rounding down. \
+  LB: (MN - SN) / MD
+  if LB < 0 { LB: 0 }
+  \ Calculate four-sigma upper bound, rounding up. \
+  UB: (MN + SN + MD - 1) / MD
+  \ Make sure it's sensible, at least. \
+  if UB < 10 { UB: 10 }
+  \ Figure out what ratio is needed. \
+  PMD: MD * UB
+  G: [gcd of MN and PMD]
+  CMN: MN / G
+  CMD: PMD / G
+  result: UBd{0:(CMD-CMN), 1:CMN}
+}
+
+output [poisson 1 over 10] named "Poisson, mean = 0.1"
+output [poisson 1] named "Poisson, mean = 1"
+output [poisson 355 over 113] named "Poisson, mean = pi"
+output [poisson 10] named "Poisson, mean = 10"

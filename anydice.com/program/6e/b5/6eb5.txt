@@ -1,0 +1,60 @@
+function: eval longer straight VALUES:s STRATEGY:n {
+ CURRENTVAL: 0
+ MAXCOUNT: 0
+ COUNT: 0
+ SEQ: {}
+ MAXSEQ: {}
+ DUPLISEQ: {}
+ loop P over {1..#VALUES} {
+  VAL: P@VALUES
+  NEXTVAL: CURRENTVAL - 1
+  if VAL = NEXTVAL {
+   COUNT: COUNT + 1
+   SEQ: {SEQ, P}
+   if (COUNT > MAXCOUNT) {
+    MAXCOUNT: COUNT
+    MAXSEQ: SEQ
+   }
+  }
+  else {
+   if VAL != CURRENTVAL {
+    COUNT: 1
+    SEQ: {P}
+    if (COUNT > MAXCOUNT) {
+     MAXCOUNT: COUNT
+     MAXSEQ: SEQ
+    }
+   }
+   else {
+    DUPLISEQ: {DUPLISEQ, P}
+   }
+  }
+  CURRENTVAL: VAL
+ }
+ if STRATEGY = 0 {
+   result: MAXCOUNT
+ }
+ else {
+  if STRATEGY = 1 {
+   REROLLSEQ: reroll MAXSEQ not in VALUES
+   SORTEDREROLLSEQ: sort REROLLSEQ
+   result: SORTEDREROLLSEQ
+  }
+ }
+}
+
+function reroll SEQ:s in VALUES:s {
+ RETSEQ: {}
+ loop P over {1..#VALUES} {
+  if [SEQ contains P] {
+   RETSEQ: {RETSEQ, P@VALUES}
+  }
+  else {
+   RETSEQ: {RETSEQ; 1@1d6}
+  }
+ }
+}
+
+loop N over {1..6}{
+output [eval longer straight Nd6 0] named "[N]D longer straight"
+}

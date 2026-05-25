@@ -1,0 +1,65 @@
+\ hardcaml \
+
+CHA:     24   \Charisma\
+LVL:     12   \Player level\
+BONUS:   2    \Critical Strike Bonus\
+FIXCRIT: 0    \Fixed Crit\
+
+SNEAK:   1    \Enable full sneak attack abuse\
+ROGUE:   8    \Levels of Rogue\
+SKUL:    1    \Skullduggery Gloves\
+
+RHAP:    1    \Rhapsody\
+MARKO:   0    \Markoheshkir\
+SPLSPK:  1    \Spellsparkler\
+MOURN:   0    \Mourning Frost\
+ALUVE:   1    \Phalar Aluve\
+HEX:     1    \Hex\
+
+AGON:    1    \Agonizing Blast\
+DRAC:    0    \Draconic Sorcerer 6\
+ELE_AUG: 0    \Elemental Augmentation Amulet\
+PO_ROBE: 1    \Potent Robe\
+GLOW:    1    \Callous Glow Ring\
+EX:      0    \Any extra bonuses that could apply\
+
+VULN:    1    \Vulnerability\
+PS:      1    \Perilous Stakes\
+
+CULL:    1    \Cull the Weak\
+I_PWR:   16   \# of Evolved Illithid Powers\
+T_HP:    238  \Target HP\
+
+if PS > 1 { VULN: 1 }
+
+function: crit D:n with B:n {
+   if D >= 20-B { result: 1 } else { result: 0 }
+}
+
+function: every D:n {
+   if D = 1 { result: 1 } else { result: 0 }
+}
+
+function: AB:n mod {
+   result: (AB - 10)/2
+}
+
+ADV: [highest 1 of 2d20]
+CRIT: [crit ADV with BONUS]
+if FIXCRIT > 0 { CRIT: 0 }
+
+PROF: 1+(LVL+3)/4
+CANT_SCALE: 1 + LVL/5
+
+SDICE: (ROGUE+1)/2
+SDAMAGE: SDICEd6 + SKULd4
+
+EB_DICE: d10 + SNEAK*SDAMAGE + ALUVEd4
+EB_FLAT: (AGON + PO_ROBE)*[CHA mod] + 3*RHAP + 2*GLOW + (1+CRIT)*HEXd6
+EB_SRC: (1+ALUVE+SNEAK*(1+SKUL))
+
+EB_FST: PS*CANT_SCALE*(EB_DICE + EB_SRC*EB_FLAT + (CRIT+FIXCRIT)*EB_DICE + FIXCRIT*HEXd6) + EB_SRC*SPLSPK*VULN
+EB_DMG: PS*CANT_SCALE*(EB_DICE + EB_SRC*(EB_FLAT + SPLSPK*VULN) + (CRIT+FIXCRIT)*EB_DICE + FIXCRIT*HEXd6) + SPLSPK*VULN*(1+d8)
+
+output EB_FST named "EB | SNK: [SNEAK] (No LC)"
+output EB_DMG named "EB | SNK: [SNEAK]"

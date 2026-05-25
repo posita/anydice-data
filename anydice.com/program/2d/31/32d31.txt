@@ -1,0 +1,248 @@
+function: ccviejo DETALLE:n ATAQUE:s ATAQUESUPERAR:n DEFENSA:s DEFENSASUPERAR:n HERIDAS:n{
+ CA: ATAQUE = 6
+ CD: DEFENSA = 6
+
+ RETAO: 0
+ CRITICOS: 0
+ NORMALES: 0
+
+ if CA > 0 {
+   if CD > 0 {
+      if CA > CD {
+         CRITICOS: (CA - CD)
+         
+         A: (ATAQUE > ATAQUESUPERAR) - (CA - CD)
+         D: (DEFENSA > DEFENSASUPERAR) - CD
+      } else {
+         A: (ATAQUE > ATAQUESUPERAR) - CA
+         D: (DEFENSA > DEFENSASUPERAR)- CD
+      }
+   } else {
+      CRITICOS: CA
+      A: (ATAQUE > ATAQUESUPERAR) - CA
+      D: (DEFENSA > DEFENSASUPERAR)
+   }
+ } else {
+   A: (ATAQUE > ATAQUESUPERAR)
+   D: (DEFENSA > DEFENSASUPERAR)
+ }
+
+ if A > D {
+    NORMALES: (A - D)
+ }
+ 
+ RA: ((CRITICOS + NORMALES) * HERIDAS) + CRITICOS
+ RB: CRITICOS * 1000 + NORMALES
+
+ if DETALLE = 0 {
+   result: RA
+ } else {
+   result: RB
+ }
+}
+
+function: cc DETALLE:n ATAQUE:s ATAQUESUPERAR:n DEFENSA:s DEFENSASUPERAR:n HERIDAS:n{
+ CA: ATAQUE = 10
+ CD: DEFENSA = 10
+
+ NA: (ATAQUE > ATAQUESUPERAR) - CA
+ ND: (DEFENSA > DEFENSASUPERAR) - CD
+
+ if CA > CD {
+    CA: CA - CD
+    CD: 0
+ } else if CD > CA{
+    CD: CD - CA
+    CA: 0
+ } else {
+   CA: 0
+   CD: 0
+ }
+
+ if (CD > 0) { ND: ND + CD }
+
+ if NA >= ND {
+   NA: NA - ND
+ } else {
+   NA: 0
+ }
+
+ CRITICOS: CA
+ NORMALES: NA
+
+ RA: ((CRITICOS + NORMALES) * HERIDAS) + CRITICOS
+ RB: CRITICOS * 1000 + NORMALES
+
+ if DETALLE = 0 {
+   result: RA
+ } else {
+   result: RB
+ }
+}
+
+function: cd DETALLE:n ATAQUE:s ATAQUESUPERAR:n HERIDAS:n{
+ CA: ATAQUE = 10
+
+ CRITICOS: 0
+ NORMALES: 0
+
+ if CA > 0 {
+   CRITICOS: CA
+   A: (ATAQUE > ATAQUESUPERAR) - CA
+ } else {
+   A: (ATAQUE > ATAQUESUPERAR)
+ }
+
+ NORMALES: A
+
+ RA: ((CRITICOS + NORMALES) * HERIDAS) + CRITICOS
+ RB: CRITICOS * 1000 + NORMALES
+
+ if DETALLE = 0 {
+   result: RA
+ } else {
+   result: RB
+ }
+}
+
+DC: d{1,2,3,4,5,10}
+DCMAS: d{2,3,4,5,6,10}
+DCMENOS: d{0,1,2,3,4,10}
+DCMENOSDOS: d{0,0,1,2,3,10}
+
+DMAS: d{2,3,4,5,6,6}
+DMENOS: d{1,1,2,3,4,5}
+DMENOSDOS: d{1,1,1,2,3,4}
+
+function: ataquecc DETALLE:n con ATAQUE:s superar ATAQUESUPERAR:n con defensa DEFENSA:s superar DEFENSASUPERAR:n cada herida vale HERIDAS:n{
+ CA: ATAQUE = 10
+ CD: DEFENSA = 10
+
+ NA: (ATAQUE > ATAQUESUPERAR) - CA
+ ND: (DEFENSA > DEFENSASUPERAR) - CD
+
+ if CA > CD {
+    CA: CA - CD
+    CD: 0
+ } else if CD > CA{
+    CD: CD - CA
+    CA: 0
+ } else {
+   CA: 0
+   CD: 0
+ }
+
+ if (CD > 0) { ND: ND + CD }
+
+ if NA >= ND {
+   NA: NA - ND
+ } else {
+   NA: 0
+ }
+
+ CRITICOS: CA
+ NORMALES: NA
+
+ RA: ((CRITICOS + NORMALES) * HERIDAS) + CRITICOS
+ RB: CRITICOS * 1000 + NORMALES
+
+ if DETALLE = 0 {
+   result: RA
+ } else {
+   result: RB
+ }
+}
+
+function: ataquecc con ATAQUE:s superar ATAQUESUPERAR:n con defensa DEFENSA:s superar DEFENSASUPERAR:n cada herida vale HERIDAS:n {
+  result: [ataquecc 0 con ATAQUE superar ATAQUESUPERAR con defensa DEFENSA superar DEFENSASUPERAR cada herida vale HERIDAS]
+}
+
+function: ataquedistancia DETALLE:n con ATAQUE:s superar ATAQUESUPERAR:n cada herida vale HERIDAS:n{
+ CA: ATAQUE = 10
+
+ CRITICOS: 0
+ NORMALES: 0
+
+ if CA > 0 {
+   CRITICOS: CA
+   A: (ATAQUE > ATAQUESUPERAR) - CA
+ } else {
+   A: (ATAQUE > ATAQUESUPERAR)
+ }
+
+ NORMALES: A
+
+ RA: ((CRITICOS + NORMALES) * HERIDAS) + CRITICOS
+ RB: CRITICOS * 1000 + NORMALES
+
+ if DETALLE = 0 {
+   result: RA
+ } else {
+   result: RB
+ }
+}
+
+function: ataquedistancia con ATAQUE:s superar ATAQUESUPERAR:n cada herida vale HERIDAS:n {
+   result: [ataquedistancia 0 con ATAQUE superar ATAQUESUPERAR cada herida vale HERIDAS]
+}
+
+function: enfrentada con ATAQUE:s superar ATAQUESUPERAR:n con DEFENSA:s superar DEFENSASUPERAR:n {
+ NA: (ATAQUE > ATAQUESUPERAR)
+ ND: (DEFENSA > DEFENSASUPERAR)
+
+ if NA >= ND {
+   NA: NA - ND
+ } else {
+   NA: 0
+ }
+
+ result: NA
+}
+
+function: enfrentada atributo ataque ATTA:n atributo defensa ATTD:n {
+ result: [enfrentada con ATTAd6 superar ATTD con ATTDd6 superar ATTA]
+}
+
+function: enfrentada atributo ataque ATTA:n dado ataque DATAQ:d atributo defensa ATTD:n dado defensa DDEF:d{
+ result: [enfrentada con ATTAdDATAQ superar ATTD con ATTDdDDEF superar ATTA]
+}
+
+function: tirada dificultad DIFICULTAD:n con DADOS:d obtener EXITOS:n exitos {
+   result: [ataquedistancia con DADOS superar DIFICULTAD cada herida vale 1] >= EXITOS
+}
+
+output [enfrentada con 2d6 superar 3 con 2d6 superar 3] named "Enfrentada"
+
+output [ccviejo 0 3d6 2 2d6 3 2] named "Daño Total CC"
+output [ccviejo 1 3d6 2 2d6 3 2] named "Exitos CC"
+
+output [cd 0 3d6 2 2] named "Daño Total Distancia"
+output [cd 1 3d6 2 2] named "Exitos Distancia"
+
+DOS: d{0,0,1,1,1,1}
+output [highest 3 of 3dDOS]
+
+output [cc 0 2dDC 3 2dDCMAS 2 1] named "Ataque a la hija"
+output [cc 0 2dDCMENOS 3 2dDCMAS 2 1] named "Ataque a la hija Con Mono"
+
+output [cc 0 3dDC 2 2dDC 3 2] named "Daño Total CC"
+output [cc 0 3dDCMAS 2 2dDC 3 2] named "Daño Total CC + 1"
+output [cc 0 3dDCMENOS 2 2dDC 3 2] named "Daño Total CC Izq o Segunda"
+output [cc 0 3dDCMENOSDOS 2 2dDC 3 2] named "Daño Total CC Izq y Segunda"
+
+output [cd 0 3d6 2 2] named "Daño Total Distancia"
+
+output [count {3..6} in 3d6]
+
+
+
+output [enfrentada con 3d6 superar 2 con 2d6 superar 3] named "Enfrentada"
+output [enfrentada atributo ataque 3 atributo defensa 2] named "Enfrentada-2"
+
+output [enfrentada atributo ataque 3 dado ataque DMAS atributo defensa 2 dado defensa d6] named "Enfrentada-Con bonificador"
+output [enfrentada con 3dDMAS superar 2 con 2d6 superar 3] named "Enfrentada"
+
+
+output [highest 2 of 4d{0,0,0,0,1,1}] = 2 named "Reparar con 4 Inteligencia"
+output [tirada dificultad 4 con 4d6 obtener 2 exitos] named "Reparar con 4 Inteligencia"
+

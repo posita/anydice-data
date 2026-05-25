@@ -1,0 +1,40 @@
+
+AC  : {25,22,25,26}
+FORT: {14,18,16,14}
+REFL: {15,14,15,16}
+WILL: {16,13,13,15}
+
+function : step DR:n DIFF:n
+{
+ Y : ((DIFF - 10 < DR)*1) + ((DIFF <= DR)*1) + ((DIFF + 10 <= DR)*1) + ((DR > 1)*1) + ((DR = 20)*1)
+ Y : (Y > 1)*(Y - 1)
+ Y : (Y < 3)*(Y - 3) + 3
+ result : Y
+}
+
+function : roll DC:n
+{
+ result : [step 1d{1..20} DC]
+}
+
+function : strike ATK:n AC:n
+{
+ result : [roll AC - ATK]
+}
+
+function : attack ATK TGT:n
+{
+ result : [strike ATK TGT@FORT]
+}
+function : knockdown ATK:n TGT:n
+{
+ result : [strike ATK TGT@REFL]>1
+}
+function : push ATK:n TGT:n
+{
+ result : [strike ATK TGT@FORT]>1
+}
+
+output 2^([attack 22 1d4] - 2)
+output 2^([attack 22+(2*[knockdown 22 1d4]) 1d4]-2)
+

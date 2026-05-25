@@ -1,0 +1,64 @@
+\ Situational inputs \
+AC: 14
+SACRED_WEAPON: 0
+GREAT_WEAPON: 0
+DIVINE_SMITE: 0 \0, 2 or 3\
+BLESS: 0
+TYPE: 0 \0 = normal, 1 = advantage, 2 = disadvantage\
+
+\ Character attributes \
+STR: 2
+CHAR: 3
+PROF: 3
+
+\ Hit calculation \
+MOD: STR + PROF
+
+if SACRED_WEAPON {
+  MOD: MOD + CHAR
+}
+
+if GREAT_WEAPON {
+  MOD: MOD - 5
+}
+
+HIT_DICE: 1d20
+
+if BLESS {
+  HIT_DICE: HIT_DICE + 1d4
+}
+
+\ Damage calculation \
+function: great weapon N {
+  result: {{1..2}, {3..N}:N/2+1}
+}
+
+DMG_MOD: 0
+
+if GREAT_WEAPON {
+  DMG_MOD: DMG_MOD + 10
+}
+
+DMG_DICE: 2d[great weapon 6] + DIVINE_SMITEd8
+
+\ Damage given hit calculation \
+function: attack ROLL:n {
+  if ROLL = 1  {result: 0}
+  if ROLL >= 20 {result: 2d{DMG_DICE} + DMG_MOD}
+  if ROLL+MOD >= AC {result: DMG_DICE + DMG_MOD}
+  result: 0
+}
+
+DICE: 1d20
+if TYPE = 1 { DICE: [highest of 1d20 and 1d20] }
+if TYPE = 2 { DICE: [lowest of 1d20 and 1d20] }
+
+DGH: [attack DICE] 
+
+\ Outputs \
+output DGH named "damage given hit"
+
+if 0 {
+  output HIT named "hit"
+  output DMG named "damage"
+}

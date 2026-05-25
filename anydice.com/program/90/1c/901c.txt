@@ -1,0 +1,49 @@
+function: chargen BASE:n and FINAL:n {
+ BB: 0
+ BF: 0
+ MIN: 0
+ if BASE = 1 | BASE = 3 | BASE = 5 { BB: 1 }
+ if FINAL= 1 | FINAL= 3 | FINAL= 5 { BF: 1 }
+ if FINAL= 1 & BASE = 1 { MIN:1 BF:0 }
+ BONUS: BBd{0,1} + BFd{0,0,0,1}
+ result: BASE/2 + FINAL/2 + MIN + BONUS
+}
+
+function: chargenb BASE:n and FINAL:n {
+ BB: 0
+ BF: 0
+ MIN: 1
+ if BASE = 2 | BASE = 4 | BASE = 6 { BB: 1 }
+ if FINAL= 2 | FINAL= 4 | FINAL= 6 { BF: 1 }
+ BONUS: BBd{0,1} + BFd{0,0,0,1}
+ result: (BASE-1)/2 + (FINAL-1)/2 + MIN + BONUS
+}
+
+
+\output [chargen d6 and d6] named "chargen"\
+\output [chargenb d6 and d6] named "chargenb"\
+
+\output 2d{0,1,1,2,2,3} named "2d{0,1,1,2,2,3}"\
+\output 1 + 2d{0,1,2} named "1+2d{0,1,2}"\
+
+\output 1 + 2d{0,0,0,0,1,1} named "2d{0,1}"\
+
+\output [count 0 in 4d{0,1,1,2,2,2,3,3,4} ]\
+
+function: skills ROLL:n in ABILITY:n {
+ if ROLL > 0 & ROLL < ABILITY { result: ROLL }
+ else { result: 0 }
+}
+
+\output [skills [lowest 1 of 2d6] in 1+2d{0,1,2}]\
+\output [skills [absolute d6-d6] in 1+2d{0,1,2}]\
+
+\loop A over {1..5} {
+ output [skills [lowest 1 of 2d6] in A] named "skill lvl for ability [A] lowesr 2d6"
+ output [skills d6 in A] named "skill lvl for ability [A] d6"
+}\
+
+ABILITIES: 4 d (1+2d{0,1,2})
+loop P over {1..4} {
+ output P @ ABILITIES named "Ability [P]"
+}

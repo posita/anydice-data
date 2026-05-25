@@ -1,0 +1,65 @@
+ATK:  1d20
+HIT:    +7
+AC: d{12..20}
+CRIT:   20
+DMG:   1d8+6 
+BONUS: 0 
+
+function: attack ROLL:n {
+  if ROLL <= 1 { result: 0 }
+  if ROLL >= CRIT { result: 2 }
+  result: ROLL + HIT >= AC
+}
+
+function: multiattack N:n times {
+  result: [roll [attack ATK] to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    DAMAGE: FIRSTHIT d (DMG + BONUS)
+    loop I over {2..N} {
+      DAMAGE: DAMAGE + [attack ATK] d DMG
+    }
+    result: DAMAGE
+  } else {
+    result: [roll [attack ATK] to multiattack N-1 times]
+  }
+}
+
+output [multiattack 3 times] named "Ranger MA"
+
+FATK:  1d20
+FHIT:    +8
+FAC: d{12..20}
+FCRIT:   20
+FDMG:   1d8+7 
+FBONUS: 0 
+
+function: attack ROLL:n {
+  if ROLL <= 1 { result: 0 }
+  if ROLL >= CRIT { result: 2 }
+  result: ROLL + FHIT >= AC
+}
+
+function: fmultiattack N:n times {
+  result: [roll [attack FATK] to fmultiattack N times]
+}
+function: roll FIRSTHIT:n to fmultiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    FDAMAGE: FIRSTHIT d (FDMG + FBONUS)
+    loop I over {2..N} {
+      FDAMAGE: FDAMAGE + [attack FATK] d FDMG
+    }
+    result: FDAMAGE
+  } else {
+    result: [roll [attack FATK] to fmultiattack N-1 times]
+  }
+}
+
+output [fmultiattack 2 times] named "Fighter MA"

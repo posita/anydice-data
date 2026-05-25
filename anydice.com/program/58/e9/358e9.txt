@@ -1,0 +1,35 @@
+output 0 named "Functions Reroll once, All or One dice, More or Less than target, or Specific Targets."
+
+\ Choose your Custom Dice \
+CD: d6
+
+function: reroll N:n and less as ROLL:n {
+ if ROLL <= N { result: dCD }
+ result: ROLL
+}
+function: reroll N:n and more as ROLL:n {
+ if ROLL >= N { result: dCD }
+ result: ROLL
+}
+function: reroll TARGETS:s from ROLL:n as another NEW_DICE:d {
+    if [TARGETS contains ROLL] { result: NEW_DICE }
+    result: ROLL
+}
+
+\ Number of Dices rolled \
+POOL: 1
+output 0 named "Roll [POOL] dices :"
+\ Target for Successes \
+TS: 6
+\
+output POOLd(dCD>=TS) named "no reroll & successes on 6+"
+output POOLd([reroll 5 and more as dCD]>=TS) named "reroll 5+ & successes on 6+"
+output POOLd([reroll 1 and less as dCD]>=TS) named "reroll 1s & successes on 6+"
+output POOLd([reroll {1,2} from dCD as another dCD]>=TS) named "reroll 1&2 (=2-) & successes on 6+"
+\
+
+output (POOL-1)d(dCD>=TS) + 1d([reroll 1 and less as dCD]>=TS) named "reroll ONE 1 & successes on 6+"
+
+Q: {d6,2..6}
+output (POOL-1)d(dCD>=6) + 1d(dQ>=6) named "reroll ONE 1"
+

@@ -1,0 +1,69 @@
+function: hc AC:n THB:n N:n{
+  BASE: (1d20+THB)>=AC
+  RES: 0
+  loop I over {1..N}{
+    RES: RES + BASE
+  }
+  result: RES > 0
+}
+
+function: crit DIE:d BASE:n{
+  result: DIE * (1d20>=BASE)
+}
+
+function: optdmg DIST:s DMG:n {
+  NEW: {}
+  loop I over {1..#DIST} {
+    if I@DIST = 0 {NEW: {NEW: 0}}
+    if I@DIST > 0 {NEW: {NEW, I@DIST + DMG}}
+  }
+  result: NEW
+}
+
+EB: 1d10
+HX: 1d6
+CHR: 5
+PROF: 3
+AAS: 8
+
+HBC: 19
+NMC: 20
+
+TAC: 16
+THB: 8
+BH: [hc TAC THB 1]
+AD: [hc TAC THB 2]
+SA: [hc TAC THB 3]
+
+ALL_HEX_HE_DMG: (EB + HX) + CHR + PROF + [crit (EB + HX) HBC]
+ALL_HEX_HE_BH: BH* ALL_HEX_HE_DMG
+ALL_HEX_HE_AD: AD * ALL_HEX_HE_DMG
+ALL_HEX_HE_SA: SA * ALL_HEX_HE_DMG
+
+HEX_HE_DMG: (EB + HX) + CHR + [crit (EB + HX) NMC]
+HEX_HE_BH: BH * HEX_HE_DMG
+HEX_HE_AD: AD * HEX_HE_DMG
+HEX_HE_SA: SA * HEX_HE_DMG
+
+ALL_AAS_DS_DMG: (EB + HX) + CHR + [crit (EB + HX) NMC]
+ALL_AAS_DS_BH: BH * ALL_AAS_DS_DMG
+ALL_AAS_DS_AD: AD * ALL_AAS_DS_DMG
+
+AAS_DS_DMG: (EB + HX) + CHR + [crit (EB + HX) NMC]
+AAS_DS_BH: BH * AAS_DS_DMG
+AAS_DS_AD: AD * AAS_DS_DMG
+
+output ALL_HEX_HE_BH + ALL_HEX_HE_BH named "Half Elf Hexblade L8 Allhex BH"
+output [optdmg (ALL_AAS_DS_BH + ALL_AAS_DS_BH) 8] named "Aasimar DS L8 Racial BH"
+output ALL_HEX_HE_AD + ALL_HEX_HE_AD named "Half Elf Hexblade L8 Allhex AD"
+output [optdmg (ALL_AAS_DS_AD + ALL_AAS_DS_AD) 8] named "Aasimar DS L8 Racial AD"
+output ALL_HEX_HE_SA + ALL_HEX_HE_SA named "Half Elf Hexblade L8 Allhex SA"
+
+output HEX_HE_BH + HEX_HE_BH named "Half Elf Hexblade L8 BH"
+output AAS_DS_BH + AAS_DS_BH named "Aasimar DS L8 BH"
+output HEX_HE_AD + HEX_HE_AD named "Half Elf Hexblade L8 AD"
+output AAS_DS_AD + AAS_DS_AD named "Aasimar DS L8 AD"
+output HEX_HE_SA + HEX_HE_SA named "Half Elf Hexblade L8 SA"
+
+output ALL_HEX_HE_SA + ALL_HEX_HE_SA + ALL_HEX_HE_SA + ALL_HEX_HE_SA named "Half Elf Sorc Best Case"
+output [optdmg (ALL_AAS_DS_AD + ALL_AAS_DS_AD + ALL_AAS_DS_AD + ALL_AAS_DS_AD) 8] named "Aasimar Sorc Best Case"

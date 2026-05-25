@@ -1,0 +1,80 @@
+output 0 named "Add Pairing (x++ -> Pair>=x) Possibilities to Successes :"
+
+\ Dices based on D4 \
+_QUATRE: d{0..3}
+_DEUX: d{0..1}
+_QUATRE_TO_TROIS: d{0,1,1,2}
+Q: _QUATRE
+
+
+function: overflow pairing SEQUENCE:s on TARGET:n{
+ SIZEMAX: #SEQUENCE
+ SIZEMIN: 1
+ COUNT: 0
+ loop M over {1..#SEQUENCE} {
+  END: 0
+
+  if (M@SEQUENCE >= TARGET) { COUNT: COUNT + 1 }            \COUNT: COUNT + (M@SEQUENCE>=TARGET)\
+
+  if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) {
+    loop N over {(SIZEMIN)..(SIZEMAX-M)} {
+       if (END=0) {
+         if ((M@SEQUENCE + (SIZEMAX-N+1)@SEQUENCE) >= TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: N+1
+         }
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+function: exact pairing SEQUENCE:s on TARGET:n {
+ SIZEMAX: #SEQUENCE
+ SIZEMIN: 1
+ COUNT: 0
+ loop M over {1..#SEQUENCE} {
+  END: 0
+
+  if (M@SEQUENCE = TARGET) { COUNT: COUNT + 1 }            \COUNT: COUNT + (M@SEQUENCE>=TARGET)\
+
+  if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) {
+    loop N over {(SIZEMIN)..(SIZEMAX-M)} {
+       if (END=0) {
+         if ((M@SEQUENCE + (SIZEMAX-N+1)@SEQUENCE) = TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: N+1
+         }
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+
+POOL: 2
+\
+output [overflow pairing POOLdQ on 1] named "count pairing [POOL]d4 on 1"
+output [overflow pairing POOLdQ on 2] named "count pairing [POOL]d4 on 2"
+output [overflow pairing POOLdQ on 3] named "count pairing [POOL]d4 on 3"
+output [overflow pairing POOLdQ on 4] named "count pairing [POOL]d4 on 4"
+output [overflow pairing POOLdQ on 5] named "count pairing [POOL]d4 on 5"
+output [overflow pairing POOLdQ on 6] named "count pairing [POOL]d4 on 6"
+
+output [exact pairing POOLdQ on 6] named "count pairing [POOL]d4 on 6"\
+
+
+
+output [overflow pairing 2dQ on 6] named "count pairing [2]d4 on 6"
+output 1d{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}                                           \d16 w1 1s\
+
+output [overflow pairing 3dQ on 6] named "count pairing [3]d4 on 6"
+output 1d{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1}           \d32 w5 1s\
+
+output [overflow pairing 4dQ on 6] named "count pairing [4]d4 on 6"
+output 1d{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}             \d256 w36 1s &1 2s\
+

@@ -1,0 +1,22 @@
+function: hit HIT:d crit CRIT:d atk DICE:n MOD:n ac AC:n {
+ATK: DICE+MOD
+if ATK>=AC+10 | (DICE=20 & ATK>=AC) { result: CRIT }
+if ATK>=AC | (DICE=20 & ATK>AC-10) { result:HIT }
+result: 0
+}
+
+function: ds res RES:n FST_ATK:n SND_ATK:n {
+ if FST_ATK+SND_ATK<=RES {result: 0}
+ result: FST_ATK+SND_ATK-RES
+}
+
+RES: 7
+AC: 18
+MOD: 9
+FMAP: 5
+
+output [highest of [hit 2d10+4 crit (2d10+4)*2+d8 atk d20 MOD ac AC]-RES and 0] named "Power Attack"
+
+output [highest of [hit d6+4 crit (d6+4)*2+d8 atk d20 MOD ac AC]+[hit d4+4 crit (d4+4)*2+d8 atk d20 MOD ac AC]-RES and 0] named "Double Slice"
+
+output [highest of [hit d10+4 crit (d10+4)*2+d8 atk d20 MOD ac AC]-RES and 0]+[highest of [hit d10+4 crit (d10+4)*2+d8 atk d20 MOD-FMAP ac AC]-RES and 0] named "Tow Strikes"

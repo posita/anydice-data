@@ -1,0 +1,58 @@
+PPIKE: {{6..10}:3, {1..5}} \ piercer pike \
+GWF: {{3..10}:6, {1..2}} \ great wepon fighting 1d10 \
+GWFPPIKE: {{6..10}:83, {3..5}:23, {1..2}:8} \ (GWF) -> piercer -> (GWF) \
+
+DMG_DIE: GWFPPIKE
+ATK: 7 \ bonus do attacku \
+BNS: 6 \ bonus do dmg \
+ADV: 1 \ 1 - neni advantage, 2 - je advantage, 3 - super advantage \
+CBD: 1 \ pocet bonusovych dmg gostek \
+
+
+function: attack D:n bonus B:n armor A:n {
+  R: [ attack helper [highest 1 of Dd20] armor A ]
+  result: [ damage R bonus B ]
+}
+
+function: damage R:n bonus B:n {
+  if R = 0 {
+    result: 0
+  }
+  result: RdDMG_DIE + B
+}
+
+function: attack helper R:n armor A:n {
+  if R = 20 { result: 2 + CBD }
+  else {
+    if (R) >= A { result: 1 }
+  }
+  result: 0
+}
+
+function: print attack AC:n {
+  ACC: AC - ATK
+  result: [ attack ADV bonus (10 + BNS) armor (ACC+5) ] - [ attack ADV bonus BNS armor ACC ]
+}
+
+AC: 9+ATK
+ACC: AC-ATK+5
+output [ attack ADV bonus (10 + BNS) armor ACC ] named "GWM x AC [AC]"
+AC: 9+ATK
+ACC: AC-ATK
+output [ attack ADV bonus BNS armor ACC ] named "x AC [AC]"
+
+AC: 8+ATK
+output [ print attack AC ] named "AC=[AC]"
+AC: 9+ATK
+output [ print attack AC ] named "AC=[AC]"
+AC: 10+ATK
+output [ print attack AC ] named "AC=[AC]"
+AC: 11+ATK
+output [ print attack AC ] named "AC=[AC]"
+AC: 12+ATK
+output [ print attack AC ] named "AC=[AC]"
+AC: 13+ATK
+output [ print attack AC ] named "AC=[AC]"
+AC: 14+ATK
+output [ print attack AC ] named "AC=[AC]"
+

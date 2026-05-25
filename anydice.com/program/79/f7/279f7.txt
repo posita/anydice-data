@@ -1,0 +1,45 @@
+CRITRANGE: 20
+AC: 16
+DEX_MOD: 3
+PROF_BONUS: 3
+
+HITDAM: DEX_MOD 
+
+function: roll ROLL:n at plus ATTACKBONUS:n vs ac AC:n for CRITABLEDAM:d plus HITDAM:d {
+    if ROLL >= CRITRANGE {
+    result: CRITABLEDAM + CRITABLEDAM + HITDAM
+    }
+        if ROLL = 1 {
+        result: 0
+        }
+            if ROLL >= AC - ATTACKBONUS {
+            result: CRITABLEDAM + HITDAM
+            }
+                else {
+                result: 0
+                }
+}
+
+
+function: net combo ROLL:n at plus ATTACKBONUS:n vs ac AC:n {
+  HCB: [roll 1@2d20 at plus PROF_BONUS + DEX_MOD vs ac AC for 1d6+3d6 plus HITDAM]
+  DAGGER: [roll 1@2d20 at plus PROF_BONUS + DEX_MOD vs ac AC for 1d4+3d6 plus HITDAM]
+  if ROLL >= CRITRANGE {
+     result: HCB+DAGGER
+  }
+  if ROLL = 1 {
+    result: 0
+  }
+  if ROLL >= AC - ATTACKBONUS  {
+     result: HCB+DAGGER
+  }
+  result: 0
+
+
+}
+
+COMBO: [net combo 1@2d20 at plus PROF_BONUS+DEX_MOD vs ac AC]
+RAPIER: [roll 1@2d20 at plus PROF_BONUS + DEX_MOD vs ac AC for 1d8+3d6 plus HITDAM+3d8]
+
+output COMBO named "Soul Captcha level 7 [Net Combo]"
+output RAPIER named "Soul Captcha level 7 [Booming Rapier, advantage]"

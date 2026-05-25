@@ -1,0 +1,59 @@
+\EDIT DICES HERE\
+ATK: 1d10
+DEF: 1d10+11
+\End of editable variables\
+
+\ not actually infinite, but close enough! \
+INFINITY: 99
+
+\ replaces the lowest value of DIE with -INFINITY and the highest value with +INFINITY \
+function: modify DIE:d {
+  MAX: 1@[sort {DIE}]
+  MIN: 1@[reverse [sort {DIE}]]
+  result: [modify DIE min MIN max MAX]
+}
+
+\ helper function for [modify DIE] \
+function: modify ROLL:n min MIN:n max MAX:n {
+  if ROLL = MIN { result: -INFINITY }
+  if ROLL = MAX { result: +INFINITY }
+  result: ROLL
+}
+
+function: roll ATTACKER:n and DEFENDER:n{
+ if (ATTACKER > DEFENDER) {
+  if (ATTACKER=99) & (DEFENDER<99) {result:2}
+  else {result: 1}
+  }
+ else {result: 0}
+}
+function: rerollatk ATTACKER:n and DEFENDER:n{
+ if (ATTACKER <= DEFENDER){TEMP: [modify ATK]}
+  else {TEMP: ATTACKER}
+ result: [roll TEMP and DEFENDER]
+}
+function: rerolldef ATTACKER:n and DEFENDER:n{
+ if (ATTACKER > DEFENDER){TEMP: [modify DEF]}
+  else {TEMP: DEFENDER}
+ result: [roll ATTACKER and TEMP]
+}
+
+
+ATTACKER: [modify ATK]
+DEFENDER: [modify DEF]
+
+
+output [roll ATTACKER and DEFENDER] named "Crit_Aware: 2 = crit, 1 = hit, 0 = miss"
+output [rerollatk ATTACKER and DEFENDER] named "Crit_Aware: 2 = crit, 1 = hit, 0 = miss (with attacker reroll)"
+output [rerolldef ATTACKER and DEFENDER] named "Crit_Aware: 2 = crit, 1 = hit, 0 = miss (with defender reroll)"
+
+output ATTACKER > DEFENDER named "1 = attacker wins, 0 = defender wins"
+
+output (ATTACKER > DEFENDER) | (ATTACKER > DEFENDER)
+  named "1 = attacker wins, 0 = defender wins (with attacker reroll)"
+
+output (ATTACKER > DEFENDER) & (ATTACKER > DEFENDER)
+  named "1 = attacker wins, 0 = defender wins (with defender reroll)"
+
+output ([highest 1 of 2d(ATTACKER)]>DEFENDER) named "proper ATK reroll"
+output (ATTACKER>[highest 1 of 2d(DEFENDER)]) named "proper DEF reroll"

@@ -1,0 +1,39 @@
+\ These are the class modifiers of the four contestants. \
+
+MAGE: 74
+ROGUE: 45
+DK: 32
+DRUID: 22
+
+\ They should roll a d100 each, but that's expensive to compute, because four independent d100 require checking 100,000,000 combinations. So we use a smaller die and scale the modifiers for an approximation. A d25 works, but a d20 is reasonable gives these specific modifiers. \
+
+DIE: 20
+DIVISOR: 100 / DIE
+
+MAGE: dDIE + MAGE / DIVISOR
+ROGUE: dDIE + ROGUE / DIVISOR
+DK: dDIE + DK / DIVISOR
+DRUID: dDIE + DRUID / DIVISOR
+
+\ The next function checks which participant beats all others. If none do, first place is tied between two, three, or all contestants. Rerolling only those contestants adds a lot more dice, so we won't do that. There's two approaches.
+
+a) Let everyone reroll on a tie, not just the fist place ties. It gives the losers another shot at winning. This is the approach that this program initially uses.
+
+b) Report ties as 0, so you can see how often it happens (it depends a lot on the approximation die, for a d100 it's around 1% of the time). To see this approach, uncomment (remove backslashes around) the "result: 0" at the end of the function. \
+
+function: A:n vs B:n vs C:n vs D:n{
+ if A > B & A > C & A > D { result: 1 }
+ if B > A & B > C & B > D { result: 2 }
+ if C > A & C > D & C > D { result: 3 }
+ if D > A & D > B & D > C { result: 4 }
+\ result: 0 \
+}
+
+\ Finally, we call the function with the contestants in order from most likely to least likely to win, to get the best performance. That means
+1: mage wins
+2: rogue wins
+3: dk (dark knight? drunk?) wins
+4: druid wins
+and 0: winners tie, if we opt to show that. \
+
+output [MAGE vs ROGUE vs DK vs DRUID] named "winners"

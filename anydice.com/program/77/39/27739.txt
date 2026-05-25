@@ -1,0 +1,28 @@
+POKER: {9, 10, 11, 12, 13, 14}
+\ sequences are lists of numbers \
+
+\ ranks will be coded as: zip=0, 1pair=1; 2pair=2; 3kind=3;
+straight=4; fullhouse=5; 4kind=6; 5kind=7 \
+
+function: rankle HAND:s {
+ NINES: [count 9 in HAND]
+ TENS: [count 10 in HAND]
+ JACKS: [count 11 in HAND]
+ QUEENS: [count 12 in HAND]
+ KINGS: [count 13 in HAND]
+ ACES: [count 14 in HAND]
+ MATCHES: [sort {NINES, TENS, JACKS, QUEENS, KINGS, ACES}]
+ BIGMATCH: 1 @ MATCHES
+ LILMATCH: 2 @ MATCHES
+ FIVEKIND: 7 * (BIGMATCH=5)
+ FOURKIND: 6 * (BIGMATCH=4)
+ FULLHOUSE: 5 * (BIGMATCH=3 & LILMATCH=2)
+ STRAIGHT: 4 * ((NINES=1 & TENS=1 & JACKS=1 & QUEENS=1 & KINGS=1) | (TENS=1 & JACKS=1 & QUEENS=1 & KINGS=1 & ACES=1))
+ TRIPS: 3 * (BIGMATCH=3 & LILMATCH=1)
+ TWOPAIR: 2 * (BIGMATCH=2 & LILMATCH=2)
+ ONEPAIR: BIGMATCH=2 & LILMATCH=1
+ ZIP: BIGMATCH=1
+ result: FIVEKIND + FOURKIND + FULLHOUSE + STRAIGHT + TRIPS + TWOPAIR + ONEPAIR
+}
+
+output [rankle 5dPOKER] named "hands"

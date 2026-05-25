@@ -1,0 +1,46 @@
+set "explode depth" to 5
+set "maximum function depth" to 8
+
+function: pairplode DIE:d TAR:n {
+ result: [pairplode helper DIE]
+} \ main function to get the DIE... wait... this wasn't necessary \
+
+function: pairplode helper SEQ:s {
+ SUCS: (SEQ >= TAR)
+ if SUCS > 0 {
+   if (1@SEQ = (SUCS)@SEQ) { result: SUCS + SUCSd[poolplode 1d6 4 6] }
+ }
+ result: SUCS
+}
+
+function: workaround S:s T:n {
+ result: (S >= T)
+}
+
+function: poolplode DIE:d TN:n EN:n {
+ result: [poolplode helper DIE]
+}
+
+function: poolplode helper RES:n {
+ if RES >= EN { result: 1 + [poolplode helper DIE] }
+ if RES >= TN { result: 1 }
+ result: 0
+}
+
+ output 12d[poolplode 1d6 4 6]
+ output 12d[explode (1d6 >= 4)]
+
+loop N over {1..12} {
+ output [pairplode Nd6 4]
+}
+
+ output 12d(1d6 >= 4)
+
+
+\loop N over {1..16} {
+ output Nd[poolplode 1d6 4 6]
+}\
+\ loop N over {1..8} {
+ output Nd(1d6 >= 4)
+}\
+

@@ -1,0 +1,45 @@
+\ 1. DEFINE THE FUNCTION \
+\ We use T (Trait), W (Wild), and M (Modifier) \
+\ Note: We avoid the name 'mod' because it is a reserved keyword \
+
+function: savage T:n W:n M:n {
+    
+    \ Check for Snake Eyes (Natural 1 on both dice) \
+    if W <= 1 {
+       if T = 1 { result: 1 }
+    }
+
+    \ Determine the Highest Die (Manual check to be safe) \
+    MAX: T
+    if W > T { MAX: W }
+    
+    \ Calculate Total \
+    TOTAL: MAX + M
+    
+    \ Check Buckets: Raise (8+), Success (4-7), Failure (<4) \
+    if TOTAL >= 8 { result: 4 }
+    if TOTAL >= 4 { result: 3 }
+    
+    \ If none of the above, it's a Failure \
+    result: 2
+}
+
+\ 2. DEFINE DICE \
+\ We use 'explode' here. The function will run for every possible number. \
+WILD: [explode d6]
+
+\ 3. OUTPUTS \
+\ 1 = Snake Eyes \
+\ 2 = Failure \
+\ 3 = Success \
+\ 4 = Raise \
+
+output [savage [explode d4] WILD (-2)] named "d4-2"
+output [savage [explode d4] WILD (-1)] named "d4-1"
+output [savage [explode d4] WILD 0] named "d4"
+output [savage [explode d4] 0 0] named "d4 no wild"
+output [savage [explode d4] 0 (-1)] named "d4-1 no wild"
+output [savage [explode d4] WILD (+2)] named "d4+2"
+output [savage [explode d4] WILD (+1)] named "d4+1"
+output [savage [explode d6] WILD 0] named "d6"
+output [savage [explode d6] 0 0] named "d6 no wild"

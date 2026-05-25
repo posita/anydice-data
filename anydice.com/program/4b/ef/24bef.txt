@@ -1,0 +1,61 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL = 19 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: MISS
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 7
+HITDAMAGE: d8 + 3
+CRITICALDAMAGE: 2d8 +3
+MISSDAMAGE: 0
+output [attack] named "Longbow"
+
+ATTACK: 5
+HITDAMAGE: 3d8 + 3
+CRITICALDAMAGE: 6d8 +3
+MISSDAMAGE: 0
+output [attack] named "Laser Rifle"
+
+ATTACK: 4
+HITDAMAGE: 2d6 + 2
+CRITICALDAMAGE: 4d6 + 2
+MISSDAMAGE: 0
+output [attack] named "Greatsword"
+
+X: [d6 reroll {1,2} as d6]
+ATTACK: 4
+HITDAMAGE: 2dX + 2
+CRITICALDAMAGE: 4dX + 2
+MISSDAMAGE: 0
+output [attack] named "GWF Greatsword"
+

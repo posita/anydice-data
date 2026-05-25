@@ -1,0 +1,209 @@
+\By Bebshleb\
+\CODE START - DO NOT EDIT UNLESS YOU KNOW WHAT YOU ARE DOING\
+
+function: attacks X:n {
+    TOTAL: 0
+    loop N over {1..X}{
+    TOTAL: TOTAL + [hitstep d6]
+    }
+    result: TOTAL
+}
+
+function: hitstep X:n {
+    if TORRNT {result: [woundstep d6]}
+    if X = 1 {
+     if RRHITO|RRHITS {result:[hitsteprr d6]}
+     else {result:0}
+}
+    if (X >= CRTHIT){
+     if SUSHIT&LETHIT {result:[sustainhit]+[savestep d6]}
+     if SUSHIT {result:[sustainhit]+[woundstep d6]}
+     if LETHIT {result:[savestep d6]}
+     else {result:[woundstep d6]}
+}
+    if X+HITMOD >= BS {result:[woundstep d6]}
+    else {
+     if RRHITS {result:[hitsteprr d6]}
+     else {result:0}
+}
+}
+
+function: hitsteprr X:n {
+    if X = 1 {result:0}
+    if (X >= CRTHIT){
+     if SUSHIT&LETHIT {result:[sustainhit]+[savestep d6]}
+     if SUSHIT {result:[sustainhit]+[woundstep d6]}
+     if LETHIT {result:[savestep d6]}
+     else {result:[woundstep d6]}
+}
+    if X+HITMOD >= BS {result:[woundstep d6]}
+    else {result:0}
+}
+
+function: sustainhit {
+    TOTAL: 0
+    loop N over {1..SUSHIT}{
+    TOTAL: TOTAL + [woundstep d6]
+}
+    result: TOTAL
+}   
+
+function: woundtar {
+    if S > T * 2 {result: 2}
+    if S > T {result: 3}
+    if S = T {result: 4}
+    if S < T / 2 {result: 6}
+    if S < T {result: 5}
+}
+
+function: woundstep X:n {
+    if X = 1 {
+     if RRWNDO|RRWNDS {result: [woundsteprr d6]}
+     else {result:0}
+}
+    if X >= CRTWND {
+     if DEVWND {result: D}
+     if CRWBAP {result: [savestepbap d6]}
+     else {result: [savestep d6]}
+}
+    if X+WNDMOD >= [woundtar] {result: [savestep d6]}
+    else {
+     if RRWNDS {result: [woundsteprr d6]}
+     else {result:0}
+}
+}
+function: woundsteprr X:n {
+    if X = 1 {result:0}
+    if X >= CRTWND {
+     if DEVWND {result: D}
+     if CRWBAP&!DEVWND {result: [savestepbap d6]}
+     else {result: [savestep d6]}
+}
+    if X+WNDMOD >= [woundtar] {result: [savestep d6]}
+    else {result:0}
+}
+
+
+function: savestep X:n {
+    if ((SV-AP)<ISV)|ISV=0 {
+     if X >= (SV-AP) {result: 0}
+     else {result: [damagestep D]}
+}
+    if (SV-AP)>=ISV {
+     if X >= ISV {result: 0}
+     else {result: [damagestep D]}
+}
+}
+
+function: savestepbap X:n {
+    if ((SV-(AP-CRWBAP))<ISV)|ISV=0 {
+     if X >= (SV-(AP-CRWBAP)) {result: 0}
+     else {result: [damagestep D]}
+}
+    if (SV-(AP-CRWBAP))>=ISV {
+     if X >= ISV {result: 0}
+     else {result: [damagestep D]}
+}
+}
+
+function: damagestep X:n {
+    if FNP {
+     TOTAL: 0
+     loop N over {1..D}{TOTAL: (FNP>1d6)+TOTAL}
+     if TOTAL>W {result: W}
+     else {result: TOTAL}
+}
+    else {
+     VAL:0
+     if X>W {result: W}
+     else {result: X}
+}
+}
+
+\CODE END - EXPLANATION BELOW\
+
+\This algorithm simulates one of a unit's weapons attacking as a group against a target and provides probabilities for all resulting wounds.\
+\Edit the variables below to match your weapon's and the target's profile.\
+\The algorithim will probably work even if you go outside expected ranges, or put dice values where they shouldn't go.\
+
+\NUM: Number of models equipped with the weapon in unit.\
+\ATK: Attacks characteristic of weapon. Can be a number, dice, or both.\
+\BS: Ballistic or Weapon Skill characteristic of weapon. Should be between 2-5\
+\S: Strength characteristic of weapon.\
+\AP: Armor Penetration characteristic of weapon. Should be negative.\
+\D: Damage characteristic of weapon. Can be a number, dice, or both.\
+
+\TORRNT: Toggles Torrent for the weapon. 1 on, 0 off.\
+\HITMOD: Modifies the Hit/BS/WS roll. Total all external rules and abilities that modify it here. Should between 1 and -1.\
+\CRTHIT: Defines what number on the D6 or above counts as a Critical Hit. Should be 6, unless you have an external rule that changes that.\
+\RRHITO: Toggles rerolling hit rolls of one. 1 on, 0 off.\
+\RRHITS: Toggles rerolling hit rolls. 1 on, 0 off.\
+\WNDMOD: Modifies the wound roll. Total all external rules and abilities that modify it here. Should between 1 and -1.\
+\CRTWND: Defines what number on the D6 or above counts as a Critical Wound. Should be 6, unless you have an external rule that changes that.\
+\RRWNDO: Toggles rerolling wound rolls of one. 1 on, 0 off.\
+\RRWNDS: Toggles rerolling wound rolls. 1 on, 0 off.\
+\LETHIT: Toggles Lethal Hits for the weapon. 1 on, 0 off.\
+\SUSHIT: Enables Sustained Hits for the weapon. 0 is off, 1 gets Sustained Hits 1, 2 gets Sustained Hits 2, and so on.\
+\DEVWND: Toggles Devastating Wounds for the weapon. 1 on, 0 off.\
+\CRWBAP: Enables Critical Wounds increasing AP of the attack, such as with Icon of Flame. # is equal to AP added (Probably 1)\
+
+\T: The target's Toughness characteristic.\
+\SV: The target's Save characteristic.\
+\ISV: The target's Invulnerable Save ability. 0 if they don't have one.\
+\FNP: The target's Feel No Pain ability. 0 if they don't have one.\
+\W: The target's Wounds characteristic.\
+
+\USER DEFINED VALUES BELOW\
+\You can copy-paste the whole block of variables and the output line to create more than one weapon analysis to compare them.\
+\You can copy-paste only a few variables, such as only the target variables, and the output line to compare slight variants of the same weapon without copying everything. But copying everything works too.\
+\You can (and should) change the text within the quotation marks in the output line to rename the stat graph/table.\
+
+NUM:1
+ATK:2d6
+BS:2
+S:6
+AP:-1
+D:2
+TORRNT:0
+HITMOD:0
+CRTHIT:6
+RRHITO:1
+RRHITS:0
+WNDMOD:0
+CRTWND:6
+RRWNDO:1
+RRWNDS:0
+LETHIT:1
+SUSHIT:3
+DEVWND:1
+CRWBAP:1
+
+T:9
+SV:5
+ISV:4
+FNP:0
+W:20
+
+output [attacks NUM*ATK] named "Fires of the Abyss vs Kairos"
+
+NUM:1
+ATK:2d6
+BS:3
+S:7
+AP:-2
+D:2
+TORRNT:1
+HITMOD:0
+CRTHIT:6
+RRHITO:0
+RRHITS:0
+WNDMOD:0
+CRTWND:6
+RRWNDO:1
+RRWNDS:0
+LETHIT:0
+SUSHIT:0
+DEVWND:1
+CRWBAP:1
+
+output [attacks NUM*ATK] named "Screamer Invocation Focused vs Termies"

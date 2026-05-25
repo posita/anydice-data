@@ -1,0 +1,42 @@
+MISS: 0
+function: ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICAL }
+  result: DAMAGE
+ }
+ if ROLL + ATTACK >= DEFENSE { result: DAMAGE }
+ result: MISS
+}
+
+function: apply deadlystrike to ATTACKRESULT:n {
+ if ATTACKRESULT > 0 { result: ATTACKRESULT + EXPERTISE }
+ result: ATTACKRESULT
+}
+
+function: twin strike {
+ result: [apply deadlystrike to 2d[lowest 1 of 2d[d20 vs DEFENSE]]]
+}
+
+DEFENSE: d{12..17}
+
+ATTACK: 3 + 3
+DAMAGE: d10 + 3
+CRITICAL: 10 + 3 + 2d6
+EXPERTISE: d4
+
+output [apply deadlystrike to [d20 vs DEFENSE]] named "Pre-Gen Dwarf with one battleaxe and Deadly Strike"
+
+ATTACK: 3 + 3
+DAMAGE: d10
+CRITICAL: 10 + 2d6
+EXPERTISE: d4
+
+output [twin strike] named "Pre-Gen Dwarf with two battleaxes and Deadly Strike"
+
+ATTACK: 3 + 3
+DAMAGE: d10
+CRITICAL: 10 + 2d6
+EXPERTISE: d4
+
+output [apply deadlystrike to [d20 vs DEFENSE]] named "sad oneaxe dwarf"

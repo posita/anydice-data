@@ -1,0 +1,71 @@
+function: roll ROLL:n threshold TARGET {
+  if ROLL >= TARGET {
+   result: 1
+  }
+
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold TARGET {
+  if ROLL = 6 {
+   result: 1 + [rollexploding 1d6 threshold TARGET]
+  }
+
+  result: [roll ROLL threshold TARGET]
+}
+
+function: roll ROLL:n exact TARGET {
+ if ROLL = TARGET {
+  result: TARGET
+ }
+
+ result: 0
+}
+
+function: rollexploding ROLL:n exact TARGET {
+ RESULT: [roll ROLL exact TARGET]
+ if ROLL = 6 {
+  result: RESULT + [rollexploding 1d6 exact TARGET]
+ }
+
+ result: RESULT
+}
+
+function: wrapper DICE:n target TARGET threshold THRESHOLD explode EXPLODE {
+  RESULT: 0
+
+  loop N over {1..DICE} {
+    if EXPLODE & THRESHOLD {
+     RESULT: RESULT + [rollexploding 1d6 threshold TARGET]
+    } else if EXPLODE {
+     RESULT: RESULT + [rollexploding 1d6 exact TARGET]
+    } else if THRESHOLD {
+     RESULT: RESULT + [roll 1d6 threshold TARGET]
+    } else {
+     RESULT: RESULT + [roll 1d6 exact TARGET]
+    }
+  }
+
+  result: RESULT
+}
+
+
+function: p DICE:n {
+  result: [wrapper DICE target 4 threshold 1 explode 0]
+}
+
+function: pe DICE:n {
+ result: [wrapper DICE target 4 threshold 1 explode 1]
+}
+
+function: ps DICE:n {
+ result: [wrapper DICE target 1 threshold 0 explode 1]
+}
+
+
+set "maximum function depth" to 7
+
+loop DICE over {1..12} {
+ output [pe DICE] named "[DICE]d6 pool"
+ output [ps DICE] named "spent from [DICE]d6 pool"
+}

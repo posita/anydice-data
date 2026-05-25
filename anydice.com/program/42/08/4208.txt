@@ -1,0 +1,51 @@
+
+
+function: dxexplode VAL:n with cv CV:n
+{
+  if VAL >= CV { result: 0 }
+  else { result: VAL }
+}
+
+\ rerolls criticals \
+function: dxreroll helper COUNT:n with CV:n
+{
+  if COUNT = 0 { result: 0 }
+  D: COUNTd[dxexplode d10 with cv CV]
+  C: [count 0 in D]
+  result: C + [dxreroll helper C with CV]
+}
+
+\ reroll initial criticals, count up subsequent criticals and add to result \
+function: dxreroll DICE:d with HIGH:n and CV:n
+{
+  H: [highest of HIGH and 1@DICE]
+  VAL: [count 0 in DICE]
+  VAL: VAL + [dxreroll helper VAL with CV]
+  result: 10 * VAL + H
+}
+
+function: dxreroll starter C:n with HIGH:n and CV:n
+{
+  if C = 0 { result: HIGH }
+  result: 10 + [dxreroll Cd[dxexplode d10 with cv CV] with HIGH and CV]
+}
+
+function: dxroll NUM:n with cv CV:n
+{
+  DICE: NUMd[dxexplode d10 with cv CV]
+  P: [count 0 in DICE]
+  HIGHEST: 1@DICE
+  R: [dxreroll starter P with HIGHEST and CV]
+  result: R
+}
+
+set "maximum function depth" to 5
+\output [dxroll 3 with cv 5] named "3d10 with CV 7"\
+\output [dxroll 3 with cv 10] named "3d10 with CV 10"\
+\output [dxroll 3 with cv 11] named "3d10 with CV 11"\
+output [dxroll 5 with cv 7] named "5d10 with CV 7"
+output [dxroll 5 with cv 10] named "5d10 with CV 10"
+output [dxroll 5 with cv 11] named "5d10 with CV 11"
+output [dxroll 7 with cv 7] named "7d10 with CV 7"
+output [dxroll 7 with cv 10] named "7d10 with CV 10"
+output [dxroll 7 with cv 11] named "7d10 with CV 11"

@@ -1,0 +1,30 @@
+_QUATRE: d{0..3}
+
+function: reroll one of TARGETS:s from ROLL:n as another NEW_DICE:d {
+    if [TARGETS contains ROLL] {
+        result: NEW_DICE
+    }
+    result: ROLL
+}
+
+function: reroll one of TARGETS:s as same DICE:d {
+    result: [reroll one of TARGETS from DICE as another DICE]
+}
+\ Same function with Custom D4 by default \
+function: reroll one of TARGETS:s {
+    DICE: d_QUATRE
+    result: [reroll one of TARGETS from DICE as another DICE]
+}
+
+output 20d(d_QUATRE>=3)
+output 20d([reroll one of {0,1} as same _QUATRE]>=3) named "Roll 20d4 on 3+ & reroll fails on 2+"
+output 20d([reroll one of {0,1}]>=3) named "Roll 20d4 on 3+ & reroll fails on 2+"
+
+
+function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+
+output 20d([d_QUATRE replace {0..1} with d_QUATRE] >= 3) named "Roll 20d4 on 3+ & reroll fails on 2+"
+

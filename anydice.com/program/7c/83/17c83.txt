@@ -1,0 +1,44 @@
+\**** Damage calculator normal Vs advantage ****\
+
+function: attackrollblast ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGEBLAST } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMODBLAST + ACCBONUSBLAST >= AC { result: DAMAGEBLAST }
+ result: 0
+}
+
+function: attackrollmeleew ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGEMELEEW } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMODMELEE + ACCBONUS >= AC { result: DAMAGEMELEEW }
+ result: 0
+}
+
+
+function: attackrollmelee ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGEMELEE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMODMELEE + ACCBONUS >= AC { result: DAMAGEMELEE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{22}
+
+ATTACKMODMELEE: 8 \cha(6) + stuff(2)\
+DMGBONUSMELEE: 8 \curse(6) + fight style(2)\
+ATTACKMODBLAST: 6 \cha(6)\
+DMGBONUSBLAST: 6 \curse(6)\
+PROFICIENCY: 6
+ACCBONUS: 0
+ACCBONUSBLAST: 2 \staff(2)\
+CRITROLL: 19
+ATTACKTIMES: 4
+DAMAGEMELEEW: 1d6 + ATTACKMODMELEE + DMGBONUSMELEE + 7d8
+CRITDAMAGEMELEEW: 2d6 + ATTACKMODMELEE + DMGBONUSMELEE + 14d8 \with accurate strike\
+DAMAGEMELEE: 1d6 + ATTACKMODMELEE + DMGBONUSMELEE + 6d8
+CRITDAMAGEMELEE: 2d6 + ATTACKMODMELEE + DMGBONUSMELEE + 12d8
+DAMAGEBLAST: 1d10 + ATTACKMODBLAST + DMGBONUSBLAST
+CRITDAMAGEBLAST: 2d10 + ATTACKMODBLAST + DMGBONUSBLAST
+
+output ATTACKTIMESd[attackrollmeleew [highest 1 of 3d20] + 1d8 vs ENEMYAC] + 1d[attackrollmelee [highest 1 of 3d20] vs ENEMYAC] + ATTACKTIMESd[attackrollblast [highest 1 of 3d20] vs ENEMYAC] named "super nova"

@@ -1,0 +1,119 @@
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+
+function: multiattack N:n times {
+  result: [roll [attack ATK] to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    DAMAGE: FIRSTHIT d (DMG + BONUS) + BONUSSTR + STR
+    loop I over {2..N} {
+      DAMAGE: DAMAGE + [attack ATK] d DMG
+    }
+    result: DAMAGE
+  } else {
+    result: [roll [attack ATK] to multiattack N-1 times]
+  }
+}
+
+AC: 15
+
+ATK: 1@2d20
+DMG: 2d6
+STR: +3+2+1
+CRIT: 20
+HIT: 7
+BONUS:1d6 
+BONUSSTR: +3
+output [multiattack 2 times]named "Yasha"
+
+ATK:  1d20
+DMG: 1d6
+STR: +4
+CRIT: 20
+HIT: 7
+BONUS: +3d6
+BONUSSTR: +2
+output [multiattack 2 times] named "Nott"
+
+ATK:  1@2d20
+DMG: 1d6
+STR: +4
+CRIT: 20
+HIT: 7
+BONUS: +3d6
+BONUSSTR: +2
+output [multiattack 1 times] named "Sneaky Nott"
+
+ATK:  1d20
+DMG: 2d6
+STR: +4
+CRIT: 20
+HIT: 7
+BONUS:d0
+BONUSSTR: 0
+output [multiattack 3 times] named "Molly"
+
+ATK:  1d20
+DMG: 1d10
+STR: +4
+CRIT: 20
+HIT: 7
+BONUS:d0
+BONUSSTR: 0
+output [multiattack 2 times] named "Fjord"
+
+ATK:  1d20
+DMG: 1d8
+STR: +5
+CRIT: 20
+HIT: 8
+BONUS:d0
+BONUSSTR: 0
+output [multiattack 2 times] named "Fjord SD"
+
+ATK:  1d20
+DMG: 1d7
+STR: +4
+CRIT: 20
+HIT: 7
+BONUS: d0
+BONUSSTR: 0
+output [multiattack 4 times] named "Beau" 
+
+ATK:  1d20
+AC: 25
+DMG: 2d12+1d6
+STR:+10
+CRIT: 19
+HIT: 15
+BONUS: d0
+BONUSSTR: 0
+output [multiattack 6 times] named "Percy" 
+
+ATK:  1@2d20
+AC: 25
+DMG: 1d12+1d6
+STR:+24
+CRIT: 20
+HIT: 16
+BONUS: d0
+BONUSSTR: 0
+output [multiattack 5 times] named "Grog" 
+
+ATK:  1@2d20
+AC: 25
+DMG: 1d4+2d8+1d6
+STR:+18
+CRIT: 20
+HIT: 14
+BONUS: 7d6
+BONUSSTR: 0
+output [multiattack 4 times] named "Vax" 

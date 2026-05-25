@@ -1,0 +1,81 @@
+Extended BNF notation for AnyDice syntax.
+
+Contains context-sensitive and recursive rules.
+Unspecified trivial semantics are written between question marks.
+Whitespaces are not specified, this is handled by a smart tokenizer.
+
+program = { statement } , end of input ;
+
+statement (outside function) = variable definition | conditional block | loop block | function definition | output statement | setting ;
+
+statement (inside function) = variable definition | conditional block | loop block ;
+
+setting = 'set' , string , 'to' , [ operation | string ] ;
+
+output statement = 'output' , operation , [ 'named' string ] ;
+
+string = '"' , ? text not containing a double quote ? , '"' ;
+
+variable definition = variable word , ':' , operation ;
+
+function definition = 'function' , ':' , { function signature part } , code block ;
+
+function signature part = function word | parameter definition ;
+
+parameter definition = variable word , [ ':' , data type ] ;
+
+function word = ? lowercase character ? , { ? lowercase character ? } ;
+
+variable word = ? uppercase character ? , { ? uppercase character ? } ;
+
+data type = 'd' | 'n' | 's' | '?' ;
+
+code block (outside function) = '{' , { statement } , '}' ;
+
+code block (inside function) = '{' , { statement } , [ result definition ] , '}' ;
+
+result definition = 'result' , ':' , operation ;
+
+operation = operation (7)
+
+operation (0) = { unary operator } value ;
+
+operation (N) = operation (N-1) , { binary operator (N) , operation (N-1) } ;
+
+unary operator = 'd', '+', '-', '!', '#'
+
+binary operator (7) = '&' | '|' ;
+
+binary operator (6) = '<' | '>' | '<=' | '>=' | '=' | '!=' ;
+
+binary operator (5) = '+' | '-' ;
+
+binary operator (4) = '*' | '/' ;
+
+binary operator (3) = '^' ;
+
+binary operator (2) = '@' ;
+
+binary operator (1) = 'd' ;
+
+value = function call | nested operation | variable word | value definition | legacy
+
+legacy = 'legacy' , string
+
+nested operation = '(' , operation , ')' ;
+
+function call = '[' , { function call part } , ']' ;
+
+function call part = function word | operation ;
+
+conditional block = 'if' , operation , code block [ 'else' , ( conditional block | code block ) ] ;
+
+loop block = 'loop' , variable word , 'over' , operation , code block ;
+
+value definition = integer | sequence definition;
+
+integer = ? digit ? , { ? digit ? } ;
+
+sequence definition = '{' [ sequence part { ',' , sequence part } ] '}' ;
+
+sequence part = operation , [ '..' , operation ] , [ ':' , operation ] ;

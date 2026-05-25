@@ -1,0 +1,42 @@
+\returns a d20 specialized for an arbitrary activity\
+function: vs TRUE_DC:n with outcomes CF:n F:n S:n CS:n {
+ 
+ OUTCOMES:{}
+
+ if 1 >= TRUE_DC+10 { OUTCOMES:{OUTCOMES,S} }
+ else if 1 >= TRUE_DC { OUTCOMES:{OUTCOMES,F} }
+ else { OUTCOMES:{OUTCOMES,CF} }
+
+ loop N over {2..19}{
+  if N >= TRUE_DC+10 { OUTCOMES:{OUTCOMES,CS} }
+  else if N >= TRUE_DC { OUTCOMES:{OUTCOMES,S} }
+  else if N > TRUE_DC-10 { OUTCOMES:{OUTCOMES,F} }
+  else { OUTCOMES:{OUTCOMES,CF} }
+ }
+
+ if 20 >= TRUE_DC { OUTCOMES:{OUTCOMES,CS} }
+ else if 20 > TRUE_DC-10 { OUTCOMES:{OUTCOMES,S} }
+ else { OUTCOMES:{OUTCOMES,F} }
+
+ result: OUTCOMES
+}
+
+\returns a d20 specialized for counterspell\
+function: counterspell with MOD:n vs DC:n {
+ result: [vs DC-MOD with outcomes (-10) (-1) 1 3]
+}
+
+YOURSPELL:4
+YOURMOD: 8
+
+TARGETSPELL:5
+TARGETDC: 20
+
+DIE:[counterspell with YOURMOD vs TARGETDC]
+
+output 1dDIE >= TARGETSPELL-YOURSPELL named "Your L[YOURSPELL] vs Target L[TARGETSPELL], 1d20+[YOURMOD] vs DC [TARGETDC]"
+
+output 1dDIE >= -1 named "Target spell is lower level, 1d20+[YOURMOD] vs DC [TARGETDC]"
+output 1dDIE >= 0 named "Target spell is the same level or 1 level higher, 1d20+[YOURMOD] vs DC [TARGETDC]"
+output 1dDIE >= 2 named "Target spell is 2 or 3 levels higher, 1d20+[YOURMOD] vs DC [TARGETDC]"
+output 1dDIE >= 4 named "Target spell is 4 or more levels higher, 1d20+[YOURMOD] vs DC [TARGETDC]"

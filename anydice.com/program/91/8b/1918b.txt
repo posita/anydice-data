@@ -1,0 +1,350 @@
+SAVE: 5
+REROLLMAX: 0
+PALAWOUNDBONUS: 0
+HITBONUS: 0
+
+function: ROLL:n hit TARGET:n {
+ if ROLL >= TARGET {
+  result: 1
+ }
+ result:0
+}
+
+function: hit TARGET:n {
+ result: [d6 hit TARGET]
+}
+
+function: ROLL:n rehit TARGET:n REHIT:n {
+ if ROLL >= TARGET {
+  result: 1
+ }
+ if ROLL <= REHIT {
+  result: [hit TARGET]
+ }
+ result:0
+}
+
+function: rehit TARGET:n REHIT:n {
+ result: [d6 rehit TARGET REHIT]
+}
+
+function: ROLL:n nosave REND:n {
+ if ROLL >= (SAVE+REND) {
+  result: 0
+ }
+ if ROLL <= REROLLMAX+REND & REROLLMAX > 0 {
+  result: d6 < (SAVE+REND)
+ }
+ result: 1
+}
+
+function: nosave REND:n {
+ result: [d6 nosave REND]
+}
+
+function: dowound TOHIT:n TOWOUND:n REND:n REHIT:n REWOUND:n {
+ result: [rehit TOHIT REHIT]*[rehit TOWOUND REWOUND]*[nosave REND]
+}
+
+function: attacks ATTACKS:n hit TOHIT:n wound TOWOUND:n rend REND:n dmg DAMAGE:n {
+ result: [attacksr ATTACKS hit TOHIT wound TOWOUND rend REND dmg DAMAGE reroll 0 0]
+}
+
+function: attacksr ATTACKS:n hit TOHIT:n wound TOWOUND:n rend REND:n dmg DAMAGE:n reroll REHIT:n REWOUND:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+   TOTAL: TOTAL + DAMAGE * [dowound TOHIT TOWOUND REND REHIT REWOUND]
+ }
+ result: TOTAL
+}
+
+function: attackdthree ATTACKS:n hit TOHIT:n wound TOWOUND:n rend REND:n {
+ result: [attackrdthree ATTACKS hit TOHIT wound TOWOUND rend REND reroll 0 0]
+}
+
+function: attackrdthree ATTACKS:n hit TOHIT:n wound TOWOUND:n rend REND:n reroll REHIT:n REWOUND:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+   TOTAL: TOTAL + d3 * [dowound TOHIT TOWOUND REND REHIT REWOUND]
+ }
+ result: TOTAL
+}
+
+function: daemonbladeattack HITROLL:n HITREROLL:n wnd WOUNDROLL:n WOUNDREROLL:n reroll REHIT:n REWOUND:n {
+ HIT: 0
+ DAEMONHIT: 0
+ if HITROLL >= 4 {
+  HIT: 1
+  if HITROLL >= 6 {
+   DAEMONHIT: 1
+  }
+ } else {
+  if HITROLL <= REHIT {
+   if HITREROLL >= 4 {
+    HIT: 1
+    if HITREROLL >= 6 {
+     DAEMONHIT: 1
+    }
+   }
+  }
+ }
+ 
+ WOUND: 0
+ WOUNDRESULT: WOUNDROLL
+ if WOUNDROLL >= 3 {
+  WOUND: 1
+ } else {
+  if WOUNDROLL <= REWOUND {
+   WOUNDRESULT: WOUNDREROLL
+   if WOUNDREROLL >= 3 {
+    WOUND: 1
+   }
+  }
+ }
+
+ TOTAL: 0
+ if WOUNDRESULT >= 2 {
+  TOTAL: DAEMONHIT
+ }
+
+ TOTAL: TOTAL + HIT * WOUND * [hit (8-SAVE)]
+
+ result: TOTAL
+}
+
+function: skullreaperattacks ATTACKS:n reroll REHIT:n REWOUND:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [daemonbladeattack (d6) (d6) wnd (d6) (d6) reroll REHIT REWOUND]
+ }
+ result: TOTAL
+}
+
+function: retriattack HITROLL:n {
+ if HITROLL >= 6 {
+   result: 2
+ }
+ result: [HITROLL hit 3]*[hit (3-PALAWOUNDBONUS)]*[hit (8-SAVE-1)]*2
+
+}
+
+function: retriattacks ATTACKS:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [retriattack (d6 + HITBONUS)]
+ }
+ result: TOTAL
+}
+
+function: kingattack HITROLL:n {
+ if HITROLL = 6 {
+   result: [HITROLL hit 3]*[hit 3]*[hit (8-SAVE-5)]*d3
+ }
+ result: [HITROLL hit 3]*[hit 3]*[hit (8-SAVE-1)]*d3
+
+}
+
+function: kingattacks ATTACKS:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [kingattack d6]
+ }
+ result: TOTAL
+}
+
+function: varanattack HITROLL:n {
+ if HITROLL = 6 {
+   result: [hit 2]
+ }
+ result: [HITROLL hit 3]*[hit 4]*[hit (8-SAVE-1)]
+
+}
+
+function: varanattacks ATTACKS:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [varanattack d6]
+ }
+ result: TOTAL
+}
+
+function: dracothattack WOUNDROLL:n {
+ DMG: 1
+ if WOUNDROLL = 6 {
+   DMG: d6
+ }
+ result: [WOUNDROLL hit 3]*[hit 3]*[hit (8-SAVE-1)]*DMG
+
+}
+
+function: dracothattacks ATTACKS:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [dracothattack d6]
+ }
+ result: TOTAL
+}
+
+function: insensateattack WOUNDROLL:n charge CHARGE:n carnage CARNAGE:n {
+ DMG: d6
+
+ CARNAGEBONUS: 3
+ if CARNAGE = 2 {
+  CARNAGEBONUS: d3
+ }
+ if CARNAGE = 3 {
+  CARNAGEBONUS: 1
+ }
+
+ TOTAL: [WOUNDROLL hit 2]*[rehit 4 CHARGE]*[hit (8-SAVE-2)]*DMG
+ if WOUNDROLL = 6 {
+   TOTAL: TOTAL + CARNAGEBONUS
+ }
+ result: TOTAL
+}
+
+function: insensateattacks ATTACKS:n charge CHARGE:n carnage CARNAGE:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [insensateattack d6 charge CHARGE carnage CARNAGE]
+ }
+ result: TOTAL
+}
+
+function: carnageattack CARNAGE:n reroll REHIT:n REWOUND:n {
+ TOTAL: [rehit CARNAGE REWOUND]
+ DMG: 1 + TOTAL * 7
+ result: [rehit 4 REHIT] * DMG
+}
+
+function: carnageattacks ATTACKS:n carnage CARNAGE:n reroll REHIT:n REWOUND:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [carnageattack CARNAGE reroll REHIT REWOUND]
+ }
+ result: TOTAL
+}
+
+function: hammerstrike {
+  \ Prosecutors \
+  TOTAL: [attacks 2 hit 3 wound 3 rend 1 dmg 2]
+  TOTAL: TOTAL + [attacks 2 hit 3 wound 3 rend 0 dmg 2]
+
+  \ Retributors \
+  TOTAL: TOTAL + [retriattacks 11]*(2d6>=3)
+
+  \ Protectors (Glaives) \
+  TOTAL: TOTAL + [attacks 10 hit 3 wound (3-PALAWOUNDBONUS) rend 1 dmg 1]*(2d6>=3)
+
+  \ Protectors (Starsoul) \
+  TOTAL: TOTAL + 2d3*(2d6>=3)
+
+  result: TOTAL
+}
+
+\
+output [hammerstrike]
+
+output [attacks 4 hit 2 wound 3 rend 1 dmg 1] named "Default"
+output [attacks 6 hit 2 wound 3 rend 1 dmg 1] named "Strife-Ender"
+output [attacks 4 hit 2 wound 3 rend 2 dmg 1] named "Obsidian"
+output [attacks 4 hit 2 wound 3 rend 1 dmg 1]*(1+(d4=4)) named "Hammer of Might"
+
+output [attacks 3 hit 3 wound 3 rend 1 dmg 3] named "Skulltaker default"
+output [attacksr 3 hit 3 wound 3 rend 1 dmg 3 reroll 6 6] named "Skulltaker antihero"
+output [attacks 6 hit 3 wound 3 rend 2 dmg 1] named "Valkia default"
+output [attackdthree 6 hit 3 wound 3 rend 2] named "Valkia charge"
+
+output [attacks 5 hit 3 wound 3 rend 1 dmg 2] named "Khorgorath melee"
+output [attacks 3 hit 3 wound 4 rend 0 dmg 1] named "Khorgorath ranged"
+output [attacks 3 hit 3 wound 3 rend 1 dmg 1] + [dracothattacks 3] named "Fulminator melee"
+output [attacks 3 hit 3 wound 3 rend 1 dmg 3] + [dracothattacks 3] named "Fulminator charge"
+output [attacks d3 hit 3 wound 1 rend 99 dmg 1] named "Fulminator breath"
+
+output [attacks 1 hit 4 wound 3 rend 1 dmg 1] named "Scyla 1fist"
+output [attacks 2d6 hit 4 wound 3 rend 1 dmg 1] + [attackdthree 2 hit 3 wound 3 rend 1] named "Scyla melee"
+output [attacks 5 hit 2 wound 3 rend 1 dmg 1] named "Skarr"
+output [attacks 8 hit 2 wound 3 rend 1 dmg 1] named "Skarr8"
+
+output [attacks 4 hit 4 wound 3 rend 1 dmg 1] named "Wrathmonger default"
+output [attacks 4 hit 3 wound 3 rend 1 dmg 1] named "Wrathmonger charge"
+output [skullreaperattacks 3 reroll 1 0] named "Skullreaper default"
+output [skullreaperattacks 3 reroll 6 0] named "Skullreaper half power"
+output [skullreaperattacks 3 reroll 6 6] named "Skullreaper full power"
+
+output [attackdthree 6 hit 3 wound 2 rend 2] + [attacks 1 hit 3 wound 3 rend 1 dmg 6] + d3 named "Wrath of Khorne BT"
+output [attackrdthree 6 hit 3 wound 1 rend 2 reroll 6 0] + [attacksr 1 hit 3 wound 2 rend 1 dmg 6 reroll 6 0] + d3 named "Wrath of Khorne BT (hero+hunt)"
+output [insensateattacks 4 charge 0 carnage 1] named "Insensate Rage BT"
+output [insensateattacks 4 charge 1 carnage 1] named "Insensate Rage BT (charge)"
+output [attackdthree 4 hit 4 wound 3 rend 1] + [attackdthree 6 hit 3 wound 2 rend 2] + [hit 6] named "Unfettered BT"
+output [attacksr 4 hit 4 wound 3 rend 2 dmg 3 reroll 6 0] + [carnageattacks 1 carnage 5 reroll 0 0] named "Skarbrand"
+output [attacksr 5 hit 4 wound 3 rend 2 dmg 3 reroll 6 6] + [carnageattacks 1 carnage 4 reroll 0 0] named "Skarbrand Furious"
+output [attacksr 6 hit 4 wound 3 rend 2 dmg 3 reroll 6 6] + [carnageattacks 1 carnage 3 reroll 0 0] + [attacks 3 hit 4 wound 1 rend 99 dmg 1] named "Skarbrand Seething"
+output [attacksr 7 hit 4 wound 3 rend 2 dmg 3 reroll 6 6] + [carnageattacks 1 carnage 2 reroll 6 0] + [attacks 4 hit 4 wound 1 rend 99 dmg 1] named "Skarbrand Enraged"
+output [attacksr 8 hit 4 wound 3 rend 2 dmg 3 reroll 6 6] + [carnageattacks 1 carnage 1 reroll 6 0] + [attacks 5 hit 4 wound 1 rend 99 dmg 1] named "Skarbrand Incandescent"
+
+output [attacks 6 hit 3 wound 3 rend 1 dmg 1] named "Varanguard Ensorcelled Weapon"
+output [attacks 3 hit 3 wound 4 rend 1 dmg 2] named "Varanguard Fellspear"
+output [attacks 3 hit 3 wound 3 rend 2 dmg 2] named "Varanguard Fellspear C"
+output [varanattacks 4] named "Varanguard Daemonblade"
+
+output [attackdthree 3 hit 3 wound 3 rend 2] named "Akhelian Polearm"
+output [attacks 3 hit 3 wound 3 rend 2 dmg 3] named "Akhelian Polearm Charge"
+output [attackdthree 4 hit 3 wound 3 rend 1] named "Akhelian Greatsword"
+output [kingattacks 5] named "Volturnos Astra Solus"
+
+output [attackdthree 3 hit 3 wound 2 rend 1] named "Stardrake Celestine Hammer"
+output [attacks 3 hit 1 wound 4 rend 1 dmg 2] named "Stardrake Celestine Hammer"
+output [attacks 6 hit 3 wound 3 rend 0 dmg 1] named "Drakesworn Tempest Axe"
+output [attacks 2 hit 2 wound 3 rend 1 dmg 3] named "Drakesworn Arc Hammer"
+output [attacks 3 hit 3 wound 3 rend 1 dmg 2] named "Drakesworn Stormlance"
+output [attacks 1 hit 3 wound 3 rend 1 dmg 1] named "Drakesworn Skybolt Bow"
+output [attackdthree 4 hit 3 wound 3 rend 1] named "Stardrake's Great Claws"
+
+output [attacksr 3 hit 3 wound 3 rend 1 dmg 2 reroll 6 0] named "Korghos Khul"
+output [attacksr 3 hit 3 wound 4 rend 0 dmg 1 reroll 6 0] named "Grizzlemaw"
+output [attacksr 3 hit 3 wound 3 rend 1 dmg 2 reroll 0 0] named "Mighty Lord of Khorne"
+output [attacksr 3 hit 3 wound 4 rend 0 dmg 1 reroll 0 0] named "MLoK Flesh Hound"
+\
+\
+output [retriattacks 7] + 2d3 named "Retributors"
+output [attacksr 21 hit (3 - HITBONUS) wound 3 rend 1 dmg 1 reroll 0 6] + 10d{0,1} named "Evocators with tempest blade"
+output [attacksr 16 hit (3 - HITBONUS) wound 3 rend 0 dmg 2 reroll 0 6] + 10d{0,1} named "Evocators with grandstave"
+\
+\
+output [attacksr 2 hit 3 wound 3 rend 0 dmg 1 reroll 6 0] named "Sequitor Maul"
+output [attacksr 3 hit 3 wound 4 rend 0 dmg 1 reroll 6 0] named "Sequitor Blade"
+output [attacksr 2 hit 3 wound 3 rend 1 dmg 2 reroll 6 0] named "Sequitor Greatmace"
+\
+\
+output [attacks 3 hit 4 wound 3 rend 1 dmg 2] + [attacks 8 hit 4 wound 3 rend 0 dmg 1] named "Liberators"
+output [attacks 3 hit 3 wound 3 rend 1 dmg 2] + [attacks 8 hit 3 wound 3 rend 0 dmg 1] named "Liberators vs big"
+output [attacks 5 hit 3 wound 3 rend 1 dmg 2] + [attacks 6 hit 3 wound 4 rend 0 dmg 1] named "Sequitors safe"
+output [attacksr 5 hit 3 wound 3 rend 1 dmg 2 reroll 6 0] + [attacksr 6 hit 3 wound 4 rend 0 dmg 1 reroll 6 0] named "Sequitors aggro"
+\
+\
+output ([attacks 51 hit 5 wound 2 rend 0 dmg 1] + [attacks 3 hit 3 wound 3 rend 0 dmg 1] + [attacks 24 hit 4 wound 3 rend 0 dmg 1])*(d6<=4) named "Stabbas"
+output [attacks 12 hit 4 wound 3 rend 2 dmg 3] named "Rockguts"
+\
+\
+loop SAVE over {1..6}{
+  output [attacks 3 hit 3 wound 3 rend 2 dmg 2] named "Ax vs [SAVE]+"
+  output [attackdthree 4 hit 5 wound 3 rend 1] + 2*4d(d6 = 6) named "Sword vs [SAVE]+"
+
+}
+\
+\
+loop SAVE over {1..6}{
+  output [attacks 3 hit 3 wound 3 rend 1 dmg 1] named "Ensorc vs [SAVE]+"
+  output [attacks 2 hit 4 wound 3 rend 0 dmg 1] named "Lance vs [SAVE]+"
+  output [attacks 2 hit 4 wound 3 rend 2 dmg 2] named "Lance charge vs [SAVE]+"
+  output [attacks d6 hit 4 wound 3 rend 0 dmg 1] named "Flail vs [SAVE]+"
+}
+\
+
+loop SAVE over {1..6}{
+  output [attacks 2 hit 4 wound 3 rend 0 dmg 1]+[attacks 2 hit 4 wound 6 rend 0 dmg 1] named "Nurglance vs [SAVE]+"
+  output [attacks 2 hit 3 wound 3 rend 0 dmg 1] named "Slaance vs [SAVE]+"
+  output [attacks 2 hit 4 wound 3 rend 2 dmg 2]+[attacks 2 hit 4 wound 6 rend 2 dmg 1] named "Nurglance charge vs [SAVE]+"
+  output [attacks 2 hit 3 wound 3 rend 2 dmg 2] named "Slaance charge vs [SAVE]+"
+}

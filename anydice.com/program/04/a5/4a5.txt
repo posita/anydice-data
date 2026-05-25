@@ -1,0 +1,107 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\ ******* Calculates if an attack is a miss, hit, or crit ******* \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE {
+  if ROLL + ATTACKBONUS >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACKBONUS >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\ ******* Calculates the damage for a sequence of attacks ******* \
+function: damage for ATTACKS:s {
+  D: 0
+  loop A over {1..#ATTACKS} {
+    if A@ATTACKS = CRITICALHIT { D: D + [maximum of ATTACKDAMAGE] + CRITDAMAGE }
+    else if A@ATTACKS = HIT { D: D + ATTACKDAMAGE }
+    else if A@ATTACKS = MISS { D: D + MISSDAMAGE }
+  }
+  result: D + [extra damage for ATTACKS]
+}
+
+\ ******* Applies all sorts of extra damage that might be applied after all attacks are rolled (IE quarry) ******* \
+function: extra damage for ATTACKS:s {
+  D: 0
+  if USEQUARRY {
+    if [ATTACKS contains CRITICALHIT] {
+      D: D + [maximum of QUARRYDAMAGE]
+    } else {
+      if [ATTACKS contains HIT] { D: D + QUARRYDAMAGE }
+    }
+  }
+  if USETWOHITBONUS {
+    if (ATTACKS >= HIT) >= 2 { D: D + TWOHITBONUSDAMAGE }
+  }
+  if USETHREEHITBONUS {
+    if (ATTACKS >= HIT) >= 3 { D: D + THREEHITBONUSDAMAGE }
+  }
+  result: D
+}
+
+\ ******** DEFINE DEFAULTS ******** \
+USEQUARRY: 0
+ATTACKBONUS: 0
+QUARRYDAMAGE: 0
+ATTACKDAMAGE: 0
+CRITDAMAGE: 0
+CRITRANGE: 20
+MISSDAMAGE: 0
+USETWOHITBONUS: 0
+TWOHITBONUSDAMAGE: 0
+USETHREEHITBONUS: 0
+THREEHITBONUSDAMAGE: 0
+
+
+
+
+
+\ ******** CUSTOM ATTACKS ******* \
+MONSTERLEVEL: 18
+AC: MONSTERLEVEL + 14
+NAD: MONSTERLEVEL + 12
+
+\ *** Hugh *** \
+ATTACKBONUS: 23
+USEQUARRY: 1
+QUARRYDAMAGE: 2d8
+
+ATTACKDAMAGE: 1d12+7
+CRITDAMAGE: 3d6
+
+CRITRANGE: 20
+output [damage for 2d[attack d20 vs AC]] named "At-Will: Twin Strike"
+
+ATTACKDAMAGE: 1d12+13
+output [damage for [attack d20 vs AC]] named "At-Will: Nimble Strike"
+
+CRITRANGE: 18
+output [damage for 2d[attack d20 vs AC]] named "Encounter: Biting Volley"
+
+CRITRANGE: 20
+USETWOHITBONUS: 1
+TWOHITBONUSDAMAGE: 1d6
+output [damage for 3d[attack d20 vs AC]] named "Encounter: Pounding Barrage"
+
+CRITRANGE: 20
+USETWOHITBONUS: 0
+USETHREEHITBONUS: 1
+THREEHITBONUSDAMAGE: 2d12+14
+output [damage for 3d[attack d20 vs AC]] named "Daily: Confounding Arrows"
+
+
+\ *** Wrenn *** \
+ATTACKBONUS: 20
+USEQUARRY: 0
+ATTACKDAMAGE: 3d8+17
+USETHREEHITBONUS: 0
+
+output [damage for 3d[attack d20 vs NAD]] named "Encounter: Thunder Summons"
+
+ATTACKDAMAGE: 3d8+17
+MISSDAMAGE: ATTACKDAMAGE / 2
+output [damage for 1d[attack d20 vs NAD]] named "Daily: Reeling Torment"

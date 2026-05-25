@@ -1,0 +1,29 @@
+\**************************************************************************\
+\Mages really shouldn't be binding. At all. Not with the rules in SR4.     \
+\The former probability uses the normal method for calculating conjuration \
+\Drain, where the Drain DV is equal to 2x the number of hits the Spirit    \
+\gets to resist being bound. The latter uses Street Magic's alternate rule,\
+\where the Drain DV equals half the Spirit's Force plus the number of hits \
+\it scores. Just to rub in the fact that the former rule is pathetic,      \
+\there's another spread between the two, using the former's ruleset after  \
+\spending an Edge point to reroll.                                         \
+\**************************************************************************\
+
+DRAIN: 18 \Number of dice the conjurer is resisting Drain with.\
+FORCE: 5  \Force of the spirit being conjured.\
+TRACK: 12 \Conjurer's relevant damage track. This only places an upper cap on the Drain the conjurer suffers so AnyDice doesn't flood you with useless numbers.\
+
+function:edge DICE:n HITS:n {
+  REROLL: DICE - HITS
+  result: HITS + REROLLd{0,0,1}
+}
+
+output [lowest of [highest of ((FORCE*2)d{0,0,1})*2-(DRAINd{0,0,1}) and 0] and TRACK] named "Force [FORCE] resisted with [DRAIN] dice"
+output [lowest of [highest of ((FORCE*2)d{0,0,1})*2-[edge DRAIN DRAINd{0,0,1}] and 0] and TRACK] named "Force [FORCE] resisted with [DRAIN] dice, rerolled with Edge"
+output [lowest of [highest of ((FORCE/2)+(FORCE*2)d{0,0,1})-(DRAINd{0,0,1}) and 0] and TRACK] named "Force [FORCE] alt resisted with [DRAIN] dice"
+
+output [lowest of [highest of ((FORCE)d{0,0,1})*2-(DRAINd{0,0,1}) and 0] and TRACK] named "Force [FORCE] summoned resisted with [DRAIN] dice"
+output [lowest of [highest of ((FORCE)d{0,0,1})*2-[edge DRAIN DRAINd{0,0,1}] and 0] and TRACK] named "Force [FORCE] summoned resisted with [DRAIN] dice, rerolled with Edge"
+output [lowest of [highest of (FORCE/2)+((FORCE)d{0,0,1})-(DRAINd{0,0,1}) and 0] and TRACK] named "Force [FORCE] alt summoned resisted with [DRAIN] dice"
+
+output [lowest of [highest of (((FORCE/2)+(FORCE*2)d{0,0,1})*3/2)-(DRAINd{0,0,1}) and 0] and TRACK] named "Force [FORCE] alt resisted with [DRAIN] dice, invoked"

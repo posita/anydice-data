@@ -1,0 +1,72 @@
+\DAMAGE MODIFIERS AND COMBINATIONS\
+
+DMGMOD: 4
+PROFBONUS: 3
+ATKMOD: DMGMOD + PROFBONUS
+MISSDMG: 0 \This allows support for the Graze Weapon mastery property. Simply change 0 to DMGMOD\
+WEAPDMG_A: 1d6 
+WEAPDMG_B: 1d6 
+BASICDMG_A: WEAPDMG_A + DMGMOD
+BASICDMG_B: WEAPDMG_B + DMGMOD
+NICKDMG: WEAPDMG_A + WEAPDMG_B + DMGMOD \Can't Add DMGMOD here without Two-weapon Fighting Feat!\
+TWFNICK: NICKDMG + DMGMOD 
+CRITBASIC_A: 2dWEAPDMG_A + DMGMOD 
+CRITBASIC_B: 2dWEAPDMG_B + DMGMOD  
+
+\Bonus Damage Modifiers [Hunter's Mark, Smites, etc.]\
+BONUSDMG_A: 0
+BONUSDMG_B: 0
+
+
+\This function rolls a given die and checks it against another value. In this case, we will roll a d20 and check it against one or more ACs\
+
+MISS: 0
+HIT: 1
+
+function: attack ROLL:n vs AC:n {
+   if ROLL + ATKMOD >= AC { result: HIT }
+   if ROLL + ATKMOD < AC { result: MISS }
+ }
+
+
+\This function outputs the above results. Here are some basic output commands. N=number of your choice\
+  \"AC: d{N}" will output the Hit Chance for one specific AC\
+  \"AC: d{N1, N2, N3...}" will output the Hit Chance each of a defined set of ACs\
+  \"AC: d{N1..N2}" will output the AVERAGE Hit Chance over a range of ACs\
+  \"loop AC over {N1..N2}" will repeat the function over a series of AC values \
+
+
+AC: d{8..22}
+  output [attack d20 vs AC] named "Average Hit chance vs AC 8-22"
+
+
+
+\This function describes when and how to apply Damage. This supports output for Bonus Damage that is NOT limited to the number of uses per round [e.g. Hunter's Mark]. It will apply the bonus damage with every hit\
+
+function: damage for ATTACKRESULT:s {
+D: 0
+  loop A over ATTACKRESULT {
+   if A = HIT 
+     { D: NICKDMG }
+   else if A = MISS 
+     { D: D }
+   if !A = MISS {D: D + [bonusdmg for ATTACKRESULT]}
+}
+result: D
+}
+function: bonusdmg for ATTACKRESULT:s {
+ result: BONUSDMG_A + BONUSDMG_B
+}
+function: attack {
+ result: [damage for [attack d20 vs AC]]
+}
+function: N:n attack {
+ result: [damage for Nd[attack d20 vs AC]]
+}
+
+
+\ADD DAMAGE OUTPUT FUNCTION BELOW: "output Nd[attack] named "______""\
+
+ output  d[attack] named "MMA x1 w/ Hunter's Mark vs AC 8-22"
+ output  2d[attack] named "MMA x2 w/ Hunter's Mark vs AC 8-22"
+

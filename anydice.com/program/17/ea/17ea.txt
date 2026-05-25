@@ -1,0 +1,32 @@
+FIRSTDICE: 3d10		\ Change this first dice pool. You can only use one type of die. \
+SECONDDICE: 7d10	\ Change this second dice pool. You can only use one type of die. \
+TARGETNUMBER: 7		\ Default value: 1. Increase to make the program count successes. \
+
+			\ Compares two values with each other. 0 means they are the same numbers. \
+function: highest of A:n or B:n { if A = B { result: 0 } if A > B { result: -1 } result: 1 }
+
+			\ Returns the maximum of a single die in a dice pool. \
+function: maximum C:d {
+  result: [maximum of C] / #C
+}
+
+			\ Checks if the dice should be added together or compared to a target number. \
+function: yeehaw {
+  if TARGETNUMBER = 1 {
+    A: FIRSTDICE
+    B: SECONDDICE
+  }
+  else {
+    A: [count {TARGETNUMBER..[maximum FIRSTDICE]} in FIRSTDICE]
+    B: [count {TARGETNUMBER..[maximum SECONDDICE]} in SECONDDICE]
+  }
+  result: [highest of A or B]
+}
+
+			\ The output of the result. TARGETNUMBER 1 means all the dice are added. \
+if TARGETNUMBER = 1 {
+  output [yeehaw] named "Comparing which one that rolls the highest of [FIRSTDICE] (-1) and [SECONDDICE] (1). 0 means that they rolled the same number."
+}
+else {			\ The output of the result. TARGETNUMBER>1 counts successes. \
+  output [yeehaw] named "Comparing successes on [TARGETNUMBER]+ between [FIRSTDICE] (-1) and [SECONDDICE] (1). 0 means that they rolled equal number of successes."
+}

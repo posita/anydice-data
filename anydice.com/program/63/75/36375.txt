@@ -1,0 +1,80 @@
+output 0 named "Combat Sequence : Unit vs Unit"
+Q: d{0..3}      \Custom D4 Dice\
+I: d{1,1,2,3}   \Custom Damages Dice\
+\AT (Attacker): A(Attacks), V(Velocity Weapon), L(Lethality Weapon)\
+\DF (Defender):  M(Movement), S(Defensive Save:to put as an addition???)\
+\Ex: A: 2d+0    V: 5    L: 1   M: 3   S: M-V       2 Servitors vs 2 Servitors\
+
+
+function: ceiling VALUE:n in SEQUENCE:n {
+ if (SEQUENCE >= VALUE){
+   result: VALUE
+ }
+ result: SEQUENCE
+}
+function: limit to zero in SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+function: limit to max in SEQUENCE:n {
+ if (SEQUENCE > 100){result: 100}
+ result: SEQUENCE
+}
+
+
+\ Remove 3s from the Hits roll \
+function: size of ROLL:s without threes {
+ COUNT: 0
+ loop N over {1..#ROLL} {
+   if(N@ROLL != 3){ result: #ROLL -N+1 }
+ }
+ result: 0
+}
+
+\ Passed Hits : Hits Roll into Save ROll : \
+function: HITSROLL:s attacks with modifier MF:n and save SAVE:n{
+ R: [size of HITSROLL without threes]
+ result: [limit to zero in (HITSROLL+MF - (SAVE + RdQ))]
+}
+
+\ Unsaved Damages : Passed Hits into Damages : \
+function: PASSEDHITS:s into D:n damages{
+ result: [limit to max in (PASSEDHITS * D)]
+}
+
+\
+A: 2d+0    L: 1  S: -10     Low Attacks, Low Lethality, Low Save
+A: 2d+0    L: 1   S: 10     Low Attacks, Low Lethality, High Save : Sequence MIN possible
+
+A: 2d+0    L: 10  S: -10    Low Attacks, High Lethality, Low Save : 3 Snipers
+A: 2d+0    L: 10  S: 10     Low Attacks, High Lethality, High Save : 3 Snipers
+
+A: 15d+0    L: 1  S: -10    High Attacks, Low Lethality, Low Save : 5 gatlings
+A: 15d+0    L: 1  S: 10     High Attacks, Low Lethality, High Save : 5 gatlings
+
+A: 15d+0   L: 10   S: -10   High Attacks, High Lethality, Low Save : Sequence MAX possible
+A: 15d+0   L: 10   S: 10    High Attacks, High Lethality, High Save
+
+output [AdQ attacks with save S] named "Passed Hits from [A]A vs [S]Save"
+output [[AdQ attacks with save S] into L damages] named "Unsaved Damages (before any regen)"\
+
+
+output 2dQ
+output [2dQ attacks with modifier 0 and save 0] named "Passed Hits from 2A vs 0 Save"
+output [2dQ attacks with modifier 1 and save 0] named "Passed Hits from 2A+1 vs 0 Save"
+output [2dQ attacks with modifier 0 and save -1] named "Passed Hits from 2A vs -1 Save"
+
+\output [2dQ attacks with save 6] named "Passed Hits from 2A vs 6 Save"
+output [2dQ attacks with save 0] named "Passed Hits from 2A vs 0 Save"
+output [2dQ attacks with save -6] named "Passed Hits from 2A vs -6 Save"
+output [2dQ attacks with save -10] named "Passed Hits from 2A vs -10 Save"
+
+output [10dQ attacks with save 6] named "Passed Hits from 10A vs 6 Save"
+output [10dQ attacks with save 0] named "Passed Hits from 10A vs 0 Save"
+output [10dQ attacks with save -6] named "Passed Hits from 10A vs -6 Save"\
+
+\output [[2dQ attacks with save 6] into 1 damages] named "Unsaved Damages: 2A, 6Sv, 1L"
+output [[10dQ attacks with save 6] into 1 damages] named "Unsaved Damages: 10A, 6Sv, 1L"
+
+output [[2dQ attacks with save -6] into 1 damages] named "Unsaved Damages: 2A, -6Sv, 1L"
+output [[10dQ attacks with save -6] into 1 damages] named "Unsaved Damages: 10A, -6Sv, 1L"\

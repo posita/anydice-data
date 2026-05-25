@@ -1,0 +1,73 @@
+function: burst X:n of DIE:d cha N:n {
+ MAX: [maximum of DIE]
+ result: [helper DIE count 0 die 1 at 0]
+}
+
+function: helper D:n count C:n die U:n at T:n {
+ R: T + D
+ I: C
+ W: U
+ if W = X { 
+  if I = N { result: R }
+  if D = MAX {
+   I: C + 1
+   result: [helper DIE count I die W at R]
+  }
+  result: R
+ }
+ if I = N {
+  W: U + 1
+  result: [helper DIE count I die W at R]
+ }
+ if D = MAX { 
+  I: C + 1
+  result: [helper DIE count I die W at R]
+ }
+ W: U + 1
+ result: [helper DIE count I die W at R]
+}
+
+output 1d8 named "1d8"
+output [burst 1 of d8 cha 4] named "lvl 1 burst"
+output 2d8 named "2d8"
+output [burst 2 of d8 cha 4] named "lvl 5 burst"
+
+
+
+
+
+
+
+
+
+\
+function: cha4 burst DA:d and DB:d {
+ MAXA: [maximum of DA]
+ MAXB: [maximum of DB]
+ TOTAL: DA + DB
+ COUNT: 0
+ if DA = MAXA {
+  COUNT: COUNT + 1
+  TOTAL: TOTAL + 
+ }
+
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = MAX { result: N + [explode DIE helper] }
+ result: N
+}
+\
+
+
+\
+set "maximum function depth" to 5
+output [explode d6]
+output 2d[explode 1d8] named "explode 1d8"
+output 2d[explode 1d{2,2,3,4,5,6,7,8}] named "explode 1d8+"
+
+output 8d{2,2,3,4,5,6} named "Lightning Bolt/Fireball"
+output 5d{2,2,3,4,5,6,7,8} named "Chromatic Orb"
+output 5d{2,2,3,4,5,6,7,8,9,10,11,12} named "Witch Bolt"
+\

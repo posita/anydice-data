@@ -1,0 +1,76 @@
+\A negativ result means that more of our are wounded than of the enemy.\
+ONERVE: 3
+ENERVE: 2
+OWEAPON: 3
+EWEAPON: 2
+OARMOR: 3
+EARMOR: 0
+TOHIT: 10
+ODEATH: 0
+EDEATH: 0
+
+function: ourguys ONUMBER:n vsenemyguys ENUMBER:n withtacticsbonus TATIC:n {
+ OTOHIT: TOHIT - ONERVE - OWEAPON - TATIC
+ ETOHIT: TOHIT - ENERVE - EWEAPON
+ OWIN: [oguys ONUMBER winon OTOHIT]
+ EWIN: [eguys ENUMBER winon ETOHIT]
+ OATT: [roundup OWIN]
+ ODEF: [rounddown OWIN]
+ EATT: [roundup EWIN]
+ EDEF: [rounddown EWIN]
+ ODEATH: ODEATH + [suffer EATT against ODEF with OARMOR]
+ EDEATH: EDEATH + [suffer OATT against EDEF with EARMOR]
+ result: EDEATH - ODEATH
+}
+function: oguys NUMBER:n winon DC:n{
+ SUCCEEDS: 0
+ loop N over {1..NUMBER} {
+  ROLL: 1d10
+  ODEATH: [fail ROLL]
+  SUCCEEDS: SUCCEEDS + [{DC..10} contains d10]
+ }
+ result: SUCCEEDS
+}
+function: fail ROLL:n {
+ if ROLL <= 1 {
+  result: 1
+ }
+ result: 0
+}
+function: eguys NUMBER:n winon DC:n{
+ SUCCEEDS: 0
+ loop N over {1..NUMBER} {
+  ROLL: d10
+  EDEATH: [fail ROLL]
+  SUCCEEDS: SUCCEEDS + [{DC..10} contains d10]
+ }
+ result: SUCCEEDS
+}
+function: roundup NUMBER:n {
+ if NUMBER >= 2 {
+  result: 1 + [roundup (NUMBER-2)]
+ }
+ if NUMBER >=1 {
+  result: 1
+ }
+ result: 0
+}
+function: rounddown NUMBER:n {
+ if NUMBER >= 2 {
+  result: NUMBER/2 
+ }
+}
+function: suffer ATT:n against DEF:n with ARMOR:n {
+ if ATT - DEF - ARMOR <= 0 {
+  result: 0
+ }
+ result: ATT - DEF - ARMOR
+}
+
+output [eguys 22 winon 6] named "Enemy Base"
+output [oguys 16 winon 4] named "We without Bonus"
+output [ourguys 16 vsenemyguys 22 withtacticsbonus 0 ] named "Compared without Bonus"
+output [ourguys 16 vsenemyguys 22 withtacticsbonus 1 ] named "Compared with 1 Bonus"
+output [ourguys 16 vsenemyguys 22 withtacticsbonus 2 ] named "Compared with 2 Bonus"
+output [ourguys 16 vsenemyguys 22 withtacticsbonus 3 ] named "Compared with 3 Bonus"
+output [ourguys 16 vsenemyguys 22 withtacticsbonus 3 ] named "Compared with 4 Bonus"

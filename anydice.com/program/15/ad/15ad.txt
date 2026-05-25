@@ -1,0 +1,102 @@
+\ Write the static modifier here (a whole number), then push the "Calculate" button below. \
+STATMOD: 0
+\ After it's done calculating, you can view tables of the % probabilities of each roll. \
+\ You can click the "Graph" tab below to see a line graph of the probabilities. \
+\ You can click the "At Least" tab below to see the likelihood of at least that roll occurring. \
+
+
+
+
+
+
+ITERATIONS: [absolute STATMOD]/10 + 1
+VARIMOD: 0
+TRUE: 1
+FALSE: 0
+CONT: TRUE
+TEMPMOD: [absolute STATMOD]
+loop N over {0..ITERATIONS}{if CONT{
+   if ( TEMPMOD > 10 )
+   {
+      VARIMOD: VARIMOD + 1d20
+      TEMPMOD: TEMPMOD - 10
+\      output CONT named "+10" \
+   }
+   else if ( TEMPMOD = 10 )
+   {
+      VARIMOD: VARIMOD + 1d20
+      TEMPMOD: TEMPMOD - 10
+      CONT: FALSE
+\      output CONT named "+10" \
+   }
+   else if ( TEMPMOD = 9 )
+   {
+      VARIMOD: VARIMOD + 2d8
+      CONT: FALSE
+\      output CONT named "+9" \
+   }
+   else if ( TEMPMOD = 8 )
+   {
+      VARIMOD: VARIMOD + 3d4
+      CONT: FALSE
+\      output CONT named "+8" \
+   }
+   else if ( TEMPMOD = 7 )
+   {
+      VARIMOD: VARIMOD + 2d6
+      CONT: FALSE
+\      output CONT named "+7" \
+   }
+   else if ( TEMPMOD = 6 )
+   {
+      VARIMOD: VARIMOD + 1d12
+      CONT: FALSE
+\      output CONT named "+6" \
+   }
+   else if ( TEMPMOD = 5 )
+   {
+      VARIMOD: VARIMOD + 1d10
+      CONT: FALSE
+\      output CONT named "+5" \
+   }
+   else if ( TEMPMOD = 4 )
+   {
+      VARIMOD: VARIMOD + 1d8
+      CONT: FALSE
+\      output CONT named "+4" \
+   }
+   else if ( TEMPMOD = 3 )
+   {
+      VARIMOD: VARIMOD + 1d6
+      CONT: FALSE
+\      output CONT named "+3" \
+   }
+   else if ( TEMPMOD = 2 )
+   {
+      VARIMOD: VARIMOD + 1d4
+      CONT: FALSE
+\      output CONT named "+2" \
+   }
+   else if ( TEMPMOD = 1 )
+   {
+      VARIMOD: VARIMOD + 1
+      CONT: FALSE
+\      output CONT named "+1" \
+   }
+}}
+
+CHANCEROLL: 3d6
+
+if ( STATMOD > 0 )
+{
+   CHANCEROLL: CHANCEROLL + VARIMOD
+\   output 1 named "BONUS" \
+}
+else if ( STATMOD < 0 )
+{
+   CHANCEROLL: CHANCEROLL - VARIMOD
+\   output 1 named "PENALTY" \
+}
+
+if ( STATMOD != 0 & [absolute STATMOD] != 1 ) { output VARIMOD named "Variable Modifier Probabilities" }
+output CHANCEROLL named "Final Roll Result Probabilities"

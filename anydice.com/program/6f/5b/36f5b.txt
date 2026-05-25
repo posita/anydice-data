@@ -1,0 +1,30 @@
+TO_HIT_MODIFIER: 6
+DAMAGE_MODIFIER: 6
+DAMAGE: {1, 12}
+AC: 15
+
+TOTAL_DAMAGE_DEALT: 0
+
+function: damage calculator CRIT:n{
+ loop I over {1..#(DAMAGE)}{
+  if I/2*2 != I {
+   TOTAL_DAMAGE_DEALT: TOTAL_DAMAGE_DEALT + ((CRIT*I@DAMAGE)d((I+1)@DAMAGE))
+  }
+ }
+ result: TOTAL_DAMAGE_DEALT + DAMAGE_MODIFIER
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL = 20 { 
+  result: [damage calculator 2]
+ }
+ if ROLL + TO_HIT_MODIFIER >= DEFENSE { 
+  result: [damage calculator 1]
+ }
+ result: 0
+}
+
+output [attack [highest 1 of 2d20] vs AC] named "Advantage"
+output [attack d20 vs AC] named "Flat"
+output [attack [lowest 1 of 2d20] vs AC] named "Disadvantage"

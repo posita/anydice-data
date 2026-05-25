@@ -1,0 +1,43 @@
+MISS:0
+HIT:1
+CRITICALHIT:2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: advattack {
+ result: [damage for [attack [highest 2 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{20}
+
+ATTACK: 12
+HITDAMAGE: d10 + d6 + 6 + 6
+CRITICALDAMAGE: 2d10 + 2d6 + 6 + 6
+MISSDAMAGE: 0
+output 12d[advattack] named "Eldritch Blast"
+
+ATTACK: 12
+HITDAMAGE: 40 + 24 + 24 + 24
+CRITICALDAMAGE: 80 + 48 + 24 + 24
+output 3d[advattack] named "Utterdark Blast"

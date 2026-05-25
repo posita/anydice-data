@@ -1,0 +1,51 @@
+function: A:s vs D:n {
+result: A > D
+}
+
+function: A:s vssoft D:n {
+result: A >= D
+}
+
+function: reroll A:n ifmore B:n as C:d{
+if A > B {
+ result: C
+}
+else {
+ result: A
+}
+}
+
+function: supertrue A:n B:n C:n {
+if A+B+C >= 2{
+ result: 1
+ } else {
+ result: 0
+ }
+}
+function: N:n positive {
+if N < 0 {result: 0}
+result: N}
+
+function: N:n round{
+if N = 0 {result: 0}
+if N = 1 {result: 0}
+if N = 2 {result: 1}
+if N = 3 {result: 1}
+if N = 4 {result: 1}
+result: N}
+
+SA: 2
+PA: 4
+SK: 4
+X: SA + PA + SK
+Y: -1
+
+ATT: [SKd[supertrue [SA vssoft d4] [PA vssoft d8] [SK vssoft [reroll d12 ifmore 9 as d12]]]round] +SKd[X - d4 - d8 - [reroll d12 ifmore 9 as d12] positive]
+
+function: N:n tryagain{
+if N = 0 {P: 9[[supertrue [SA vssoft d4] [PA vssoft d8] [SK vssoft [reroll d12 ifmore 9 as d12]]]round] + [X - d4 - d8 - [reroll d12 ifmore 9 as d12] positive]}
+else {result: N}
+if P > 0 {result: P}
+result: N}
+
+output [[[supertrue [SA vssoft d4] [PA vssoft d8] [SK vssoft [reroll d12 ifmore 9 as d12]]]round] + [X - d4 - d8 - [reroll d12 ifmore 9 as d12] positive] tryagain]

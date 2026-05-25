@@ -1,0 +1,59 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 18 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: doubleattack {
+ PRIMARY: [damage for [attack d20 vs DEFENSE]]
+ HITDAMAGE: d6
+ CRITICALDAMAGE: 2d6
+ OFFHAND: [damage for [attack d20 vs DEFENSE]]
+ result: PRIMARY + OFFHAND
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: +5
+HITDAMAGE: d10 + 3
+CRITICALDAMAGE: 2d10+3
+MISSDAMAGE: 0
+output [attack] named "Talon"
+
+ATTACK: +8
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 2d8 +4
+output [attack] named "Longbow"
+
+ATTACK: +7
+HITDAMAGE: 1d8 + 5
+CRITICALDAMAGE: 2d8 +5
+output [attack] named "Magic Rapier"
+
+ATTACK: +6
+HITDAMAGE: 1d6 + 4
+CRITICALDAMAGE: 2d6 + 4
+output [attack] named "Single Shortsword"
+output [doubleattack] named "Double Shortswords"

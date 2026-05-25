@@ -1,0 +1,43 @@
+\ spellstrike with ignition \
+
+\variables\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+HITDAMAGE: 2d8 + 6 + 5 + 1d12 + 1d4 + 1d6 + 5d12
+CRITICALDAMAGE: (2d8 + 6 + 5 + 1d12 + 1d4 + 1d6 + 5d12) * 2 + 16d6 \ 16d6 in here is the assumed 4 turns of persistent damage with it's 25% of actually being stopped, crude, but effective \
+MISSDAMAGE: 0
+ATTACK: 4 + 12 + 1 + 2 \ assuming he got off-guard off, which activates his bonuses. \
+AC: 26
+DTWT: d20
+
+function: attack ROLL:n vs DEFENSE:n {
+  if ROLL = 20 {
+    if ROLL >= DEFENSE {result: CRITICALHIT }
+    if ROLL < DEFENSE {
+      if ROLL >= DEFENSE - 10 {result: HIT}
+    }
+  }
+  if ROLL + ATTACK >= DEFENSE + 10 { result: CRITICALHIT }
+  if ROLL + ATTACK >= DEFENSE { result: HIT }
+  if ROLL + ATTACK < DEFENSE { result: MISS }
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: surestrike ROLLO:n vs ROLLT:n {
+  if ROLLO > ROLLT {result: ROLLO}
+  if ROLLO < ROLLT {result: ROLLT}
+  if ROLLO = ROLLT {result: ROLLO}
+}
+
+\output all functions at once :) \
+output [damage for [attack [surestrike d20 vs d20] vs AC]]

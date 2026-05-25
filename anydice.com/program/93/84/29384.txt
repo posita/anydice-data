@@ -1,0 +1,102 @@
+\HARD STATS\
+AC: 2d6+14 \Estimation of Monster AC\
+PB: 4
+DEX: 5
+OFFDEX: 0
+
+\Basic bonuses to attacks e.g. +X Weapons\
+SWORDBONUS: 1
+FISTBONUS: 1
+
+\Crit on this number or higher\
+CRIT: 20
+
+\Damage Die of the weapon\
+FISTDIE: 4
+SWORDDIE: 8
+
+\Control which spell is being used, 1=Shroud 2=Tensers\
+SPELL: 1
+
+\Additional dice added\
+SHROUD: 1 \from Shroud\
+GLOVE: 0 \from gloves of soul stealing\
+BB: 2 \from booming blade\
+CLAW:0 \from eldritch claw tattoo\
+
+\misc flat bonuses to damage, e.g. duelling style\
+FISTDBONUS: 0
+SWORDDBONUS: 0
+
+function: crit R:n{
+ if R >= CRIT {
+  result: 2
+ }
+ result: 1
+}
+
+function: tensers A:n abonus B:n dmgcount C:n dmgsize D:n dbonus{
+ATT: 1@2d20
+CRT: [crit ATT]
+result: ((ATT >= CRIT)+(ATT+A > AC) > 0)*(ATT > 1)*((B*CRT)dC+D+(2*CRT)d12+(GLOVE*CRT)d12+(CLAW*CRT)d6)
+
+}
+
+function: tensersfist A:n abonus B:n dmgcount C:n dmgsize D:n dbonus{
+ATT: 1@1d20
+CRT: [crit ATT]
+result: ((ATT >= CRIT)+(ATT+A > AC) > 0)*(ATT > 1)*((B*CRT)dC+D+(2*CRT)d12+(GLOVE*CRT)d12+(CLAW*CRT)d6)
+
+}
+
+function: bb shroud A:n abonus B:n dmgcount C:n dmgsize D:n dbonus{
+ATT: 1d20
+CRT: [crit ATT]
+result: ((ATT >= CRIT)+(ATT+A > AC) > 0)*(ATT > 1)*((B*CRT)dC+D+(SHROUD*CRT)d8+(BB*CRT)d8+(CLAW*CRT)d6)
+
+}
+
+function: shroud A:n abonus B:n dmgcount C:n dmgsize D:n dbonus{
+ATT: 1d20
+CRT: [crit ATT]
+result: ((ATT >= CRIT)+(ATT+A > AC) > 0)*(ATT > 1)*((B*CRT)dC+D+(SHROUD*CRT)d8+(GLOVE*CRT)d12+(CLAW*CRT)d6)
+}
+
+function: sword {
+ if SPELL = 2 {
+  result: [tensers DEX+PB+SWORDBONUS abonus 1 dmgcount SWORDDIE dmgsize DEX+SWORDBONUS+SWORDDBONUS dbonus]
+ }
+ result: [shroud DEX+PB+SWORDBONUS abonus 1 dmgcount SWORDDIE dmgsize DEX+SWORDBONUS+SWORDDBONUS dbonus]
+}
+
+function: offhand {
+ if SPELL = 2 {
+  result: [tensers DEX+PB+SWORDBONUS abonus 1 dmgcount SWORDDIE dmgsize OFFDEX+SWORDBONUS+SWORDDBONUS dbonus]
+ }
+ result: [shroud DEX+PB+SWORDBONUS abonus 1 dmgcount SWORDDIE dmgsize OFFDEX+SWORDBONUS+SWORDDBONUS dbonus]
+}
+
+function: bb {
+ result: [bb shroud DEX+PB+SWORDBONUS abonus 1 dmgcount SWORDDIE dmgsize DEX+SWORDBONUS+SWORDDBONUS dbonus]
+}
+
+function: fist {
+ if SPELL = 2 {
+  result: [tensersfist DEX+PB+FISTBONUS abonus 1 dmgcount FISTDIE dmgsize DEX+FISTBONUS+FISTDBONUS dbonus]
+ }
+ result: [shroud DEX+PB+FISTBONUS abonus 1 dmgcount FISTDIE dmgsize DEX+FISTBONUS+FISTDBONUS dbonus]
+}
+
+function: backbiting {
+ if SPELL = 2 {
+  result: [tensers DEX+PB+SWORDBONUS abonus 2 dmgcount SWORDDIE dmgsize DEX+SWORDBONUS+SWORDDBONUS dbonus]
+ }
+ result: [shroud DEX+PB+SWORDBONUS abonus 2 dmgcount SWORDDIE dmgsize DEX+SWORDBONUS+SWORDDBONUS dbonus]
+}
+
+output [bb] + [sword] + [fist]+ [sword] + [fist] + [fist] named "Shroud Wiz 8/Monk 3"
+
+SWORDBONUS: 2
+SWORDDIE: 6
+
+output [bb] + [backbiting]+ [backbiting] + [fist] + [fist] named "Backbiting Shroud Wiz 8/Monk 3"

@@ -1,0 +1,49 @@
+
+
+function: resolve ATK:n ATK_TN:n DEF_GRIT:n DEF_GRIT_TN:n IGNORE_TN:n {
+ HITS: [roll ATK ATK_TN]
+
+ DEF_GRIT: [min HITS DEF_GRIT]
+
+ CONVERTS: [roll DEF_GRIT DEF_GRIT_TN]
+ HITS_A: [remove HITS CONVERTS]
+
+ IGNORES: [roll HITS_A IGNORE_TN]
+ HITS_B: [remove HITS IGNORES]
+
+ result: HITS_B
+}
+
+function: remove HITS:n BLOCKS:n {
+ if HITS < BLOCKS {
+  result: 0
+ }
+
+ result: HITS - BLOCKS
+
+}
+
+function: min A:n B:n {
+ if A < B {
+  result: A
+ }
+}
+
+function: roll DICE:n TN:n {
+ ROLL: DICE d6
+ TNN: 6 - TN
+ result: [count {1..TNN} in ROLL]
+}
+
+loop I over {5..7} {
+ ATK: I
+ ATK_TN: 3
+ DEF_ARM: 1
+ DEF_GRIT: 3
+ DEF_GRIT_TN: 4
+ IGNORE_TN: 4
+
+ R: [resolve ATK ATK_TN DEF_GRIT DEF_GRIT_TN IGNORE_TN]
+
+ output R named "ATK [I]d"
+}

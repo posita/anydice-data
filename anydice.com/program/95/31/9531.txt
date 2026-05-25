@@ -1,0 +1,97 @@
+HDICE: 5
+RDICE: 2
+PARA: 7
+BURN: 0
+RESERVE: 0
+HAND: 0
+SUCCESSES: 0
+FAIL: 0
+
+if PARA = 0 {
+  BURN: BURN + HDICE
+  SUCCESSES: SUCCESSES + [count {6} in HDICEd6]
+}
+else if PARA = 1 {
+  BURN: BURN + HDICE
+  SUCCESSES: SUCCESSES + [count {5,6} in HDICEd6]
+}
+else if PARA = 2 {
+  BURN: BURN + HDICE
+  SUCCESSES: SUCCESSES + [count {4,5,6} in HDICEd6]
+}
+else if PARA = 3 {
+  BURN: BURN + [count {1,2,3,4,5} in HDICEd6]
+  RESERVE: RESERVE + [count {6} in HDICEd6]
+  SUCCESSES: SUCCESSES + [count {3,4,5,6} in HDICEd6]
+}
+else if PARA = 4 {
+  BURN: BURN + [count {1,2,3,4} in HDICEd6]
+  RESERVE: RESERVE + [count {5,6} in HDICEd6]
+  SUCCESSES: SUCCESSES + [count {2,3,4,5,6} in HDICEd6]
+}
+else if PARA = 5 {
+  BURN: BURN + [count {1,2,3} in HDICEd6]
+  RESERVE: RESERVE + [count {4,5,6} in HDICEd6]
+  SUCCESSES: SUCCESSES + HDICE
+}
+else if PARA = 6 {
+  BURN: BURN + [count {1,2} in HDICEd6]
+  RESERVE: RESERVE + [count {3,4,5} in HDICEd6]
+  HAND: HAND + [count {6} in HDICEd6]
+  SUCCESSES: SUCCESSES + HDICE
+}
+else if PARA = 7 {
+  BURN: BURN + [count {1} in HDICEd6]
+  RESERVE: RESERVE + [count {2,3,4} in HDICEd6]
+  HAND: HAND + [count {5,6} in HDICEd6]
+  SUCCESSES: SUCCESSES + HDICE
+}
+else if PARA = 8 {
+  RESERVE: RESERVE + [count {1,2,3} in HDICEd6]
+  HAND: HAND + [count {4,5,6} in HDICEd6]
+  SUCCESSES: SUCCESSES + HDICE
+}
+else if PARA = 9 {
+  RESERVE: RESERVE + [count {1,2} in HDICEd6]
+  HAND: HAND + [count {3,4,5,6} in HDICEd6]
+  SUCCESSES: SUCCESSES + HDICE
+}
+else if PARA = 10 {
+  RESERVE: RESERVE + [count {1,2} in HDICEd6]
+  HAND: HAND + [count {2,3,4,5,6} in HDICEd6]
+  SUCCESSES: SUCCESSES + HDICE
+}
+
+output BURN named "Burn"
+output RESERVE named "Reserve"
+output HAND named "Hand"
+output SUCCESSES named "Successes"
+
+\
+output 1d6-1 named "1d6"
+output 2d6-2 named "2d6"
+output [highest 2 of 4d6] - 2 named "4d6"
+output [highest 2 of 6d6] - 2 named "6d6"
+
+
+SWORDSUCC: [count {2,3,4,5,6} in 6d6]
+output SWORDSUCC named "Magic Sword"
+SWORDEXPLODE: [count {6} in 6d6]
+output SWORDEXPLODE named "Sword Explode Expect"
+SWORDEXPLSUCC: [count {5,6} in SWORDEXPLODEd6]
+output SWORDEXPLSUCC named "Sword Explode Success"
+
+output SWORDEXPLSUCC+SWORDSUCC named "Sword Successes Total"
+
+RIFLESUCC: [count {3,4,5,6} in 12d6]
+output RIFLESUCC named "Assault Rifle"
+RIFLEEXPLODE: [count {6} in 12d6]
+output RIFLEEXPLODE named "Rifle Explode Expect"
+RIFLEEXPLSUCC: [count {5,6} in RIFLEEXPLODEd6]
+output RIFLEEXPLSUCC named "Rifle Explode Success"
+output RIFLEEXPLSUCC + RIFLESUCC named "Rifle Successes Total"
+
+output [count {4,5,6} in 4d6] named "Standard Skill"
+
+NAV: ([lowest 4 of 6d4] + ((1d20 + 1d6) - (4d6))) * 5
+\

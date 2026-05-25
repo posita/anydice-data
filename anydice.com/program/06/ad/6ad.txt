@@ -1,0 +1,29 @@
+function: count NUM:n against DICEPOOL:s {
+  if SKILL > #(DICEPOOL) { result: 0 }	\ Borde snabba upp beräkningen något. \
+
+  SUM: 0 
+  loop N over {1..#(DICEPOOL)} {
+    SUM: SUM + [N@DICEPOOL contains 1]	\ Adderar ett om tärningen visar 1 \
+  }
+
+  if SUM > SKILL { result: 0 }	\ Misslyckat resultat \
+  else { result: 1 }		\ Lyckat resultat \
+}
+
+DIETYPE: d2	\ Ändra för att ändra tärningstyp. Ex. d4, d6, d8 \
+MAXSKILL: 5	\ Maximala färdighetsnivån som programmet ska jämföra emot \
+MINDICE: 2	\ Minimala antalet tärningar att slå. \
+MAXDICE: 10	\ Maximala antalet tärningar att slå. \
+
+loop SKILL over {(MINDICE-1)..MAXSKILL} {	\ Loopar färdighetsvärdet \
+  MARKERING: 1
+  loop NUMBEROFDICE over {MINDICE..MAXDICE} {	\ Loopar antalet tärningar \
+    if MARKERING {
+      output [count SKILL against NUMBEROFDICEdDIETYPE] named "SKILL: [SKILL], [NUMBEROFDICE][DIETYPE]"
+      MARKERING: 0
+    }
+    else {
+      output [count SKILL against NUMBEROFDICEdDIETYPE] named "[NUMBEROFDICE][DIETYPE] against [SKILL]"
+    }
+  }
+}

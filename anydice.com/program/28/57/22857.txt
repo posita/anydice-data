@@ -1,0 +1,102 @@
+\TODO:\
+\For every level 1 - 20 I want to figure out the average AC and saving throw of creatures at that CR\
+\I'm ignoring CR's above 20 and below 1 for now\
+\Long-term I would like to add 160 outputs: one for each class for each level\
+\The output will be "the highest DPR build for that class at that level"\
+\If a higher DPR build is found, the one being output will be replaced\
+\In this way we can compare classes across levels to see which class is most powerful at level X\
+
+
+\Helper Functions\
+
+function: check X:n crit on C:s miss on M:s for DMG:d plus MOD:n {
+    \Process crit before miss, since crit auto-hits\
+    if [C contains X] { result: DMG + DMG + MOD }
+    \Process miss\
+    if [M contains X] { result: 0 }
+    result: DMG + MOD
+}
+
+function: hit H:n for DMG:d plus MOD:n crit C:s {
+    HIT: 20 - (AC - H) + 1
+    M: {1..(20 - HIT)}
+    result: [check d20 crit on C miss on M for DMG plus MOD]
+}
+
+function: hit H:n for DMG:d plus MOD:n {
+    result: [hit H for DMG plus MOD crit {20}]
+}
+
+function: hit H:n for DMG:d {
+    result: [hit H for DMG plus 0 crit {20}]
+}
+
+function: save vs DC:n for DMG:d {
+    X: 20 - (DC - SAVE) + 1
+    result: 1d{0:X, 1:(20-X)} * DMG
+}
+
+function: savehalf DC:n for DMG:d {
+    X: 20 - (DC - SAVE) + 1
+    result: (1d{1:X, 2:(20-X)} * DMG) / 2
+}
+
+function: reroll S:s of D:d {
+    CNT: #D
+    MAX: [maximum of D] / CNT
+    RES: 0
+    loop N over {1..CNT} {
+        RES: RES + 1d{{(#S + 1)..MAX}:(MAX + #S), S:(#S)}
+    }
+    result: RES
+}
+
+function: X times Y {
+    Z: 0
+    loop N over {1..X} {
+        Z: Z + Y
+    }
+    result: Z
+}
+
+\Calculations\
+
+\Level 1\
+AC: 14
+SAVE: 2
+output [hit (2 \PROF\ + 3 \STR\ - 5 \GWM\) for [reroll {1..2} of 2d6] plus (3 \STR\ + 10 \GWM\)] named "LVL 1 - V.Human Fighter (Great Weapon Fighting Style) w/ GWM using Greatsword"
+output [hit (2 \PROF\ + 3 \STR\) for 1d10 plus (3 \STR\ + 2 \RAGE\)] + [hit (2 + 3) for 1d4 plus 2] named "LVL 1 - Raging V.Human Barbarian w/ PAM using Glaive"
+output [hit (2 \PROF\ + 3 \STR\) for 1d8 plus 3] + [hit (2 + 3) for 1d8 plus 3] named "LVL 1 - V.Human Fighter (Two-Weapon Fighting Style) w/ TWF using 2 Longswords"
+
+\Level 2\
+AC: 15
+SAVE: 2
+output [hit 6 for 1d8 plus 4] + [hit 6 for 2d6 plus 4] named "LVL 2 - Moon Druid Brown Bear Multiattack"
+
+\Level 3\
+AC: 15
+SAVE: 2
+\These are sub-optimal ways to fight at level 3, just wanted to demo the crit range calculation:\
+output [hit (2 \PROF\ + 3 \STR\) for 1d10 plus 3] named "LVL 3 - Normal Fighter"
+output [hit (2 \PROF\ + 3 \STR\) for 1d10 plus 3 crit {19..20}] named "LVL 3 - Champion Fighter"
+
+\Level 12\
+AC: 17
+SAVE: 5
+output [hit (4 \PROF\ + 5 \INT\) for 4d{2:2, 3..10} plus 5] named "LVL 12 - Evocation Wizard w/ Elemental Adept (Firebolt)"
+output [hit (4 \PROF\ + 5 \INT\) for 3d10+1d8] + [hit (4 + 5) for 3d8] named "LVL 12 - Boomstiddle w/ Firebolt + Ballista"
+output [hit (4 \PROF\ + 5 \INT\) for 2d6+1d8] + [2 times [hit (4 \PROF\ + 5 \INT\) for 2d6]] + [hit (4 + 5) for 3d8] named "LVL 12 - Boomstiddle w/ Scorching Ray + Ballista"
+output [savehalf (4 \PROF\ + 5 \INT\ + 8) for 3d8+1d8] + [savehalf (4 + 5 + 8) for 3d8] named "LVL 12 - Boomstiddle w/ Shatter + Flamethrower"
+
+\Level 14\
+AC: 18
+SAVE: 5
+output [2 times [hit (5 \PROF\ + 5 \CHA\ + 1 \IPW\) for [reroll {1..2} of 2d6]+[reroll {1..2} of 1d8] plus (5 \CHA\ + 5 \Hate\ + 1 \IPW\)]] named "LVL 14 - Oathbreaker Paladin 11 (Great Weapon Fighting Style) / Hexblade Warlock 3 (Pact of the Blade) using Pact Greatsword w/ Improved Pact Weapon"
+output [2 times [hit (5 \PROF\ + 5 \CHA\ + 1 \IPW\ - 5 \GWM\) for [reroll {1..2} of 2d6]+[reroll {1..2} of 1d8] plus (5 \CHA\ + 5 \Hate\ + 1 \IPW\ + 10 \GWM\)]] named "LVL 14 - Oathbreaker Paladin 11 (Great Weapon Fighting Style) / Hexblade Warlock 3 (Pact of the Blade) using Pact Greatsword w/ Improved Pact Weapon and GWM"
+
+\Level 20\
+AC: 21
+SAVE: 8
+output [5 times [hit (6 \PROF\ + 5 \DEX\ + 2 \Archery\ - 5 \SS\) for 1d6 plus (5 \DEX\ + 10 \SS\) crit {18..20}]] named "LVL 20 - Champion Fighter w/ Archery Fighting Style + Sharpshooter + Crossbow Expert using hand crossbow"
+output [4 times [hit (6 \PROF\ + 5 \CHA\) for 1d10 plus 5]] named "LVL 20 - Warlock w/ Eldritch Blast + Agonizing Blast"
+output [hit (6 \PROF\ + 5 \DEX\) for 1d8+10d6 plus 5] named "LVL 20 - Rogue assuming sneak attack"

@@ -1,0 +1,64 @@
+\ COMPARING the DPR of TWO ATTACKERS AGAINST THE SAME ENEMY IN WEIRD WIZARD \
+
+ENEMYDEFENSE: 16
+
+\ ATTACK SECTION attacker A \
+ABOONS: 1                   \ number of boons \
+ABANES: 0                   \ number of banes \
+AATKFLATBONUS: 5            \ stat bonus + other flat bonuses \
+
+\ ATTACK SECTION attacker B \
+BBOONS: 1                   \ number of boons \
+BBANES: 0                   \ number of banes \
+BATKFLATBONUS: 5            \ stat bonus + other flat bonuses \
+
+\ DAMAGE SECTION attacker A \
+ADMGDICE: 19                \ the number of damage dice \
+ABRUTAL: 1                  \ 1 if you reroll 1s, otherwise 0 \
+ADMGFLATBONUS: 0            \ Some paths/spells give flat bonuses to damage \
+AREROLLDMG: 0               \ 1 to roll all damage dice twice and take higher sum \
+
+\ DAMAGE SECTION attacker B \
+BDMGDICE: 14                \ the number of damage dice \
+BBRUTAL: 1                  \ 1 if you reroll 1s, otherwise 0 \
+BDMGFLATBONUS: 28            \ Some paths/spells give flat bonuses to damage \
+BREROLLDMG: 1               \ 1 to roll all damage dice twice and take higher sum \
+
+\ DO NOT EDIT BELOW THIS LINE \
+
+ABOONSBANES: ABOONS - ABANES
+BBOONSBANES: BBOONS - BBANES
+
+\ reroll 1's if BRUTAL is 1. Thanks to Vilarinof of stackexchange! \
+function: reroll DICE:n as REROLL:d if BRUTAL:n {
+  if BRUTAL=1 {
+    if DICE=1 {
+      result: REROLL
+    }
+    result: DICE
+  }
+  result: DICE
+}
+
+\ REROLL whole dice set if HIGHEST is 1, thanks to Vilarinof of stackexchange! \
+function: highest of two DICE:d if HIGHEST {
+  if HIGHEST=1 {
+    result: [highest of DICE and DICE]
+  }
+  result: DICE
+}
+
+AREROLLED: [reroll d6 as d6 if ABRUTAL]  \ now we got the new "rerolled dice sequence" for attacker A \
+BREROLLED: [reroll d6 as d6 if BBRUTAL]  \ and for attacker B. If they don't have brutal, it's just d6 \
+
+\ Hit Probabilities. Thanks to stealth_elephant on reddit! \
+AHITPROB: [highest of [lowest of ((d20) + AATKFLATBONUS + [highest 1 of ABOONSBANESd6] -ENEMYDEFENSE + 1) and 1] and 0]
+BHITPROB: [highest of [lowest of ((d20) + BATKFLATBONUS + [highest 1 of BBOONSBANESd6] -ENEMYDEFENSE + 1) and 1] and 0] 
+
+\ Pure damage, unaffected by tohit probabilities. Thanks to Vilarinof of stackexchange! \
+ADMG: [highest of two ADMGDICE d AREROLLED if AREROLLDMG] + ADMGFLATBONUS
+BDMG: [highest of two BDMGDICE d BREROLLED if BREROLLDMG] + BDMGFLATBONUS
+
+\ DPR \
+output ADMG * AHITPROB named "A's DPR v. defense [ENEMYDEFENSE]. ATK: d20 + [AATKFLATBONUS] with [ABOONSBANES] boons. DMG: [ADMGDICE]d6 + [ADMGFLATBONUS]. Brutal: [ABRUTAL] Reroll: [AREROLLDMG]"
+output BDMG * BHITPROB named "B's DPR v. defense [ENEMYDEFENSE]. ATK: d20 + [BATKFLATBONUS] with [BBOONSBANES] boons. DMG: [BDMGDICE]d6 + [BDMGFLATBONUS]. Brutal: [BBRUTAL] Reroll: [BREROLLDMG]"

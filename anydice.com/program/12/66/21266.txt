@@ -1,0 +1,112 @@
+\**** LVL 11 - Battle Smith Sharpshooter vs Artillerist Single Target vs Artillerist Multi-Target ****\
+
+\*** BASIC STATS ***\
+AC: 17
+INTMOD: 5
+PROFMOD: 5
+MAGICATKMOD: 1
+SPELLSAVEMOD: 2
+SPELLDC: 8 + INTMOD + PROFMOD + SPELLSAVEMOD
+
+
+\*** BATTLE SMITH STATS ***\
+SHARPATTACKTIMES: 3
+ENLARGEDMG: 1d4
+
+\*** ARTILLERIST STATS ***\
+FORCEATTACKTIMES: 2
+ENEMYDEXSAVE: 4
+ENEMYCONSAVE: 6
+SWORDBURSTSAVETARGETS: 2
+FLAMESAVETARGETS: 2
+FLAMETHROWERUSES: 1
+SHATTERSAVETARGETS: 2
+
+
+function: sharpshooter ROLL:n vs AC:n {
+if ROLL >= 20 { result: SHARPCRITDAMAGE }
+if ROLL = 1 { result: 0 }
+if ROLL + SHARPATTACKMOD >= AC { result: SHARPDAMAGE }
+result: 0
+}
+
+SHARPDAMAGE: 1d6 + 16 + ENLARGEDMG
+SHARPCRITDAMAGE: 2d6 + 16 + ENLARGEDMG + ENLARGEDMG
+SHARPATTACKMOD: INTMOD + PROFMOD + MAGICATKMOD - 5
+SHARPDMG: SHARPATTACKTIMESd[sharpshooter [highest 1 of 2d20] vs AC]
+
+function: steeldefender ROLL:n vs AC:n {
+if ROLL >= 20 { result: SDCRITDAMAGE }
+if ROLL = 1 { result: 0 }
+if ROLL + SDATTACKMOD >= AC { result: SDDAMAGE }
+result: 0
+}
+
+SDDAMAGE: 1d8 + PROFMOD
+SDCRITDAMAGE: 2d8 + PROFMOD
+SDATTACKMOD: INTMOD + PROFMOD + MAGICATKMOD
+SDDMG: 1d[sharpshooter [highest 1 of 1d20] vs AC]
+
+function: firebolt ROLL:n vs AC:n {
+if ROLL >= 20 { result: FBCRITDAMAGE }
+if ROLL = 1 { result: 0 }
+if ROLL + FBATTACKMOD >= AC { result: FBDAMAGE }
+result: 0
+}
+
+FBDAMAGE: 2d10 + 1d8 + 1d6
+FBCRITDAMAGE: 4d10 + 2d8 + 2d6
+FBATTACKMOD: INTMOD + PROFMOD + MAGICATKMOD
+FBATTACKTIMES: 1
+FBDMG: FBATTACKTIMESd[firebolt [highest 1 of 2d20] vs AC]
+
+function: forceballista ROLL:n vs AC:n {
+if ROLL >= 20 { result: FORCECRITDAMAGE }
+if ROLL = 1 { result: 0 }
+if ROLL + FORCEATTACKMOD >= AC { result: FORCEDAMAGE }
+result: 0
+}
+
+FORCEDAMAGE: 3d8 + 1d6
+FORCECRITDAMAGE: 6d8 + 2d6
+FORCEATTACKMOD: INTMOD + PROFMOD + MAGICATKMOD
+FORCEDMG: FORCEATTACKTIMESd[forceballista [highest 1 of 1d20] vs AC]
+
+function: swordburst ROLL:n vs SPELLDC:n {
+if ROLL + ENEMYDEXSAVE >= SPELLDC { result: 0 }
+if ROLL + ENEMYDEXSAVE < SPELLDC { result: SBDAMAGE }
+result: 0
+}
+
+SBDAMAGE: 3d6 + 1d8
+SWORDBURSTDMG: SWORDBURSTSAVETARGETSd[swordburst [highest 1 of 1d20] vs SPELLDC]
+
+function: shatter ROLL:n vs SPELLDC:n {
+if ROLL + ENEMYCONSAVE >= SPELLDC { result: SHATTERDAMAGE/2 }
+if ROLL + ENEMYCONSAVE < SPELLDC { result: SHATTERDAMAGE }
+result: 0
+}
+
+SHATTERDAMAGE: 4d8
+SHATTERDMG: SHATTERSAVETARGETSd[shatter [highest 1 of 1d20] vs SPELLDC]
+
+function: flamethrower ROLL:n vs SPELLDC:n {
+if ROLL + ENEMYDEXSAVE >= SPELLDC { result: FTDAMAGE/2 }
+if ROLL + ENEMYDEXSAVE < SPELLDC { result: FTDAMAGE }
+result: 0
+}
+
+FTDAMAGE: 3d8
+FLAMEDMG: FLAMETHROWERUSES * (FLAMESAVETARGETSd[flamethrower [highest 1 of 1d20] vs SPELLDC])
+
+output SHARPDMG + SDDMG named "Battle Smith - Sharpshooter"
+output FBDMG + FORCEDMG named "Artillerist - Single Target"
+output SWORDBURSTDMG + FLAMEDMG  named "Artillerist - Sword Burst + Flamethrower"
+output SHATTERDMG + FLAMEDMG named "Artillerist - Shatter + Flamethrower"
+
+
+
+
+
+
+

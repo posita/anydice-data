@@ -1,0 +1,39 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack roll ROLL:n  {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 { result: HIT }
+ else { result: HIT }
+}
+
+function: damage with ATTACKRESULT:n and damage dice DAMAGE:d {
+  if ATTACKRESULT = MISS {
+    result: 0
+  }
+
+  if ATTACKRESULT = CRITICALHIT {
+    result: DAMAGE + DAMAGE
+  }
+
+  result: DAMAGE
+}
+
+function: chaos bolt with leap prob LP:s {
+  result: LPdONE_CHAOS_BOLT
+}
+
+LEAP_PROB: d{1:56, 2:7, 3:1}
+
+loop LEVEL over {1..9} {
+  CHAOS_BOLT_DAMAGE_DICE: 2d8 + LEVELd6
+  ONE_CHAOS_BOLT: [damage with [attack roll d20] and damage dice CHAOS_BOLT_DAMAGE_DICE]
+  CHAOS_BOLT: [chaos bolt with leap prob LEAP_PROB]
+
+  output CHAOS_BOLT named "chaos bolt, lvl [LEVEL]"
+
+  CHROMATIC_ORB_DAMAGE_DICE: (2+LEVEL)d8
+  CHROMATIC_ORB: [damage with [attack roll d20] and damage dice CHROMATIC_ORB_DAMAGE_DICE]
+  output CHROMATIC_ORB named "chromatic orb lvl [LEVEL]"
+}

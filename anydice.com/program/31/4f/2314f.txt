@@ -1,0 +1,26 @@
+function: reroll greatest of ROLL:s as REROLL:n if greater than TARGET:n {
+  SUCCESSES: ROLL <= TARGET
+  if SUCCESSES < #ROLL {
+    result: SUCCESSES + (REROLL <= TARGET)
+  }
+  else {
+   result: SUCCESSES
+  }
+}
+
+function: reroll least of ROLL:s as REROLL:n if less than TARGET:n {
+  SUCCESSES: ROLL <= TARGET
+  if SUCCESSES > 0 {
+    result: SUCCESSES - 1 + (REROLL <= TARGET)
+  }
+  else {
+   result: 0
+  }
+}
+
+
+loop N over {8, 10, 12, 14, 16, 18} {
+  \output [reroll greatest of 3d20 as 1d20 if greater than N] named "Advantage [N]"\
+  output [count {1..N} in 3d20] named "Normal [N]"
+  \output [reroll least of 3d20 as 1d20 if less than N] named "Disadvantage [N]"\
+}

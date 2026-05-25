@@ -1,0 +1,70 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: double N:d {
+    result: 2d(N)
+}
+
+ADVANTAGE: [highest 1 of 2d20]
+
+DISADVANTAGE: [lowest 1 of 2d20]
+
+LUCKY: [reroll 1 on d20]
+
+AC: 18
+STRENGTH: 4
+PROFICIENCY: 3
+SNEAK_ATTACK: 3d6
+
+ENHANCEMENT: 0
+
+DAMAGE_DICE: 1d4
+DAMAGE_MOD: STRENGTH + ENHANCEMENT
+ATTACK: PROFICIENCY + STRENGTH + ENHANCEMENT
+
+output
+[attack LUCKY plus ATTACK vs AC
+    hit  DAMAGE_DICE + DAMAGE_MOD + SNEAK_ATTACK + [attack LUCKY plus ATTACK vs AC for DAMAGE_DICE crit [double DAMAGE_DICE] on 20]
+    miss                  [attack LUCKY plus ATTACK vs AC for DAMAGE_DICE + SNEAK_ATTACK crit [double DAMAGE_DICE + SNEAK_ATTACK] on 20]
+    crit [double DAMAGE_DICE + SNEAK_ATTACK] + [attack LUCKY plus ATTACK vs AC for DAMAGE_DICE crit [double DAMAGE_DICE] on 20] on 20
+] named "double daggers"
+
+ENHANCEMENT: 1
+ATTACK: PROFICIENCY + STRENGTH + ENHANCEMENT
+SNEAK_ATTACK: 3d6
+
+DAMAGE_DICE: 1d6
+DAMAGE_MOD: STRENGTH + ENHANCEMENT
+
+output
+[attack LUCKY plus ATTACK vs AC
+    hit  DAMAGE_DICE + DAMAGE_MOD + SNEAK_ATTACK
+    miss                  0
+    crit [double DAMAGE_DICE + SNEAK_ATTACK] on 20
+] named "shortbow"
+

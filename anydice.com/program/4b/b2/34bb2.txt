@@ -1,0 +1,54 @@
+TRUE: 1
+FALSE:0
+
+function: ROLL:s succeed on NUM:n{
+ SUCCESSES: ROLL >= NUM
+ result: SUCCESSES
+}
+
+function: HITS:n at sSTR:n vs tTGH:n with twinlinked TWL{
+ if TWL{
+  ROLL: HITSd[highest 1 of 2d6]
+ } else {
+  ROLL: HITSd6
+ }
+ 
+ if STR >= TGH*2 {
+  result: [ROLL succeed on 2]
+ } else if STR > TGH{
+  result: [ROLL succeed on 3]
+ } else if STR*2 <= TGH{
+  result: [ROLL succeed on 6]
+ } else if STR < TGH{
+  result: [ROLL succeed on 5]
+ } else if STR = TGH{
+  result: [ROLL succeed on 4]
+ } else {
+  result: 999999999
+ }
+}
+
+function: ROLL:s attacks hitting on BS:n critting on CRT:n with strength SRT:n vs toughness TGH:n has twinlinked TWL:n lethalhits LTH:n torrent TOR:n sustainedhits SSH:n{
+ TWIN_LINKED: TWL
+ LETHAL_HITS: LTH
+ SUSTAINED_HITS: SSH
+ TORRENT: TOR
+ 
+ if TORRENT{
+  result: [#ROLL at sSRT vs tTGH with twinlinked TWIN_LINKED]
+ } else {
+  HITS:  [ROLL succeed on BS]
+  CRITS: [ROLL succeed on CRT]
+  if LETHAL_HITS{
+   result: [HITS-CRITS+CRITS*SUSTAINED_HITS at sSRT vs tTGH with twinlinked TWIN_LINKED]+CRITS
+  } else {
+   result: [HITS+CRITS*SUSTAINED_HITS at sSRT vs tTGH with twinlinked TWIN_LINKED]
+  }
+ }
+}
+
+loop T over {4}{
+ output [{4}d6 attacks hitting on 4 critting on 6 with strength 5 vs toughness T has twinlinked FALSE lethalhits FALSE torrent FALSE sustainedhits 0] named "ATTACK 1 vs t[T]"
+ output [{8}d6 attacks hitting on 4 critting on 6 with strength 3 vs toughness T has twinlinked FALSE lethalhits FALSE torrent FALSE sustainedhits 0] named "ATTACK 2 vs t[T]"
+}
+

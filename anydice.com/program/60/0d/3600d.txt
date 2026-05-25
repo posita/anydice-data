@@ -1,0 +1,43 @@
+
+BONUS: 1
+BONUSS: 1
+BONUSSS: 1
+CARACT: 4
+
+function: attackdice X:n{
+ if X = 1 {result:+0}
+ if X = 2 {result:+1}
+ if X = 3 {result:+1}
+ if X = 4 {if BONUS >= 1 {result:+1}}
+ if X = 5 {if BONUS >= 2 {result:+2}result:+1}
+ if X = 6 {result:+1+[attackdice d6] }
+}
+function: actiondice X:n{
+ if X = 1 {result:0}
+ if X = 2 {result:+1}
+ if X = 3 {result:+1}
+ if X = 4 {if CARACT >= 2 {result:+1}result:+0}
+ if X = 5 {if CARACT >= 3 {result:+1}result:+0}
+ if X = 6 {if CARACT >= 4 {result:+1}result:+0}
+ if X = 7 {if BONUSS >= 1 {result:+2}result:+1}
+ if X = 8 {result:+1+[actiondice d8] }
+}
+function: defensedice X:n{
+ if X = 1 {result:+0}
+ if X = 2 {result:+0}
+ if X = 3 {result:+1}
+ if X = 4 {if DEFENSE >= 1 {result:+DEFENSE}result:+0}
+ if X = 5 {if BONUSSS >= 1 {result:+1}result:+0}
+ if X = 6 {result:+1+[defensedice d6] }
+}
+
+function: highest N:n of A:s and B:s and C:s and D:s{
+ result: {1..N}@[sort {A,B,C,D}]
+}
+
+
+loop CARACT over {1..4} {
+ loop DEFENSE over {0..3}{
+ output [attackdice d6]+[actiondice d8]+[actiondice d8]-([defensedice d6]+[actiondice d8]) named "attackdice CARACT[CARACT]-DEFENSE [DEFENSE]"
+}
+}

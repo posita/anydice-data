@@ -1,0 +1,44 @@
+AC: 10
+TOHIT: 7
+TOHITSHARP: TOHIT-5
+DMGMOD: 5
+DMGMODSHARP: DMGMOD+10
+BOWDMG: 1d6
+MARKDMG: 1d6
+SLAYDMG: 1d8
+
+function: hit { result:
+ BOWDMG+MARKDMG
+}
+function: hbatk A:n {
+ if A+TOHIT < AC {
+  result: 0
+ }
+ if A+TOHIT >= AC & A < 20 {
+  result: [hit]+DMGMOD
+ }
+ if A = 1 {
+  result: 0
+ }
+ if A = 20 {
+  result: [hit]+[hit]+DMGMOD
+ }
+}
+function: csatk A:n {
+ B:0
+ if A+TOHIT < AC {
+  result: 0
+ }
+ if A+TOHIT >= AC & A < 20 {
+  result: if B=0
+   [hit]++DMGMOD
+ }
+ if A = 1 {
+  result: 0
+ }
+ if A = 20 {
+  result: [hit]+[hit]+DMGMOD
+ }
+}
+output [hbatk 1d20]+[hbatk 1d20]+[hbatk 1d20] named "Horde Breaker"
+

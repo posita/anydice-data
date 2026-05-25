@@ -1,0 +1,67 @@
+\Chance to hit and average damage\
+
+\variable definitions\
+
+AC:  15  \Target AC\
+STR:  5  \Strength Modifier\
+DEX:  3  \Dexterity Modifier\
+PROF: 3  \Proficiency Modifier\
+ADV:  1  \0=Disadvantage 1=straight roll 2=advantage\
+
+\setting advantage or disadvantage\
+
+if ADV = 2 {
+ ROLL: [highest 1 of 2d20]
+ }
+else {
+ if ADV = 0 {
+  ROLL: [lowest 1 of 2d20]
+  }
+else {
+ ROLL: 1d20
+}}
+
+\Chance to hit Calculations\
+
+function: R:n hits {
+ if (R + STR + PROF) > AC {result: 1}
+  result: 0
+}
+
+function: R:n hitg {
+ if (R + STR + PROF - 5) > AC {result: 1}
+  result: 0
+}
+
+function: R:n hitd {
+ if (R + DEX + PROF) > AC {result: 1}
+  result: 0
+}
+
+\Great Weapon Fighting damage calculations\
+
+function: X:n gwfs {
+ if X <= 2 {result: 1d6}
+  result: X
+}
+
+function: Y:n gwfa {
+ if Y <= 2 {result: 1d12}
+  result: Y
+}
+
+\outputs\
+
+output [ROLL hits] * ([1d6 gwfs] + [1d6 gwfs] + STR) named "Greatsword"
+
+output [ROLL hitg] * ([1d6 gwfs] + [1d6 gwfs] + STR + 10) named "Greatsword GWM"
+
+output [ROLL hits] * ([1d12 gwfa] + STR) named "Greataxe"
+
+output [ROLL hitg] * ([1d12 gwfa] + STR + 10) named "Greataxe GWM"
+
+output [ROLL hits] * (1d6 + STR) named "Mace of Disruption"
+
+output [ROLL hits] * (3d6 + STR) named "Mace of Disruption Undead"
+
+output [ROLL hitd] * (1d8 + DEX) named "Longbow"

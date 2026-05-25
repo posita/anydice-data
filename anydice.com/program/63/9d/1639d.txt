@@ -1,0 +1,53 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGEA } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGEA }
+ result: 0
+}
+
+function: punchroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGEB } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGEB }
+ result: 0
+}
+
+function: turn X:n Y:n{
+ TOTAL: 0
+ loop N over {1..X}{
+  CURRENT: [attackroll d20 vs ENEMYAC]
+  TOTAL: TOTAL + CURRENT
+ }
+ loop N over {1..Y}{
+  CURRENT: [punchroll d20 vs ENEMYAC]
+  TOTAL: TOTAL + CURRENT
+ }
+ result: TOTAL
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{1}
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 6
+ACCBONUS: 1
+CRITROLL: 20
+DAMAGEA: 2d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGEA: 4d6 + ATTACKMOD + DMGBONUS
+DAMAGEB: 1d8 + ATTACKMOD
+CRITDAMAGEB: 2d8 + ATTACKMOD
+output [turn 9 0] named "9 Normal Attacks"
+
+ATTACKMOD: 5
+DMGBONUS: 11
+PROFICIENCY: 6
+ACCBONUS: -4
+CRITROLL: 20
+DAMAGEA: 2d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGEA: 4d6 + ATTACKMOD + DMGBONUS
+DAMAGEB: 1d8 + ATTACKMOD
+CRITDAMAGEB: 2d8 + ATTACKMOD
+output [turn 9 0] named "9 Power Attacks"

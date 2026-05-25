@@ -1,0 +1,60 @@
+function: modulo B of A{
+X: A/B
+result: A-(X*B)
+}
+
+function: matchcritnorm A:s and B:s{
+
+\----> Roll 2d10. Crit successes on evens, fails on odds. <----\
+
+X: A
+Y: B
+if X=Y{
+if [modulo 2 of X]=0 {result:20}
+if [modulo 2 of X]=1 {result:1} 
+}
+else{result: X+Y}
+}
+
+function: matchadvantage A:s and B:s and C:s and D:s{
+X: [matchcritnorm A and B]
+Y: [matchcritnorm C and D]
+if X>Y{result: X}
+else{result: Y}
+}
+
+function: matchadvantagetwo A:s and B:s and C:s{
+
+\----> Roll 2d10 with advantage: Reroll lowest 
+       single d10 and take the higher result. 
+       Crit fail only when all three die are a
+       matching odd number, such as 5, 5, & 5. <----\
+
+MODA:[modulo 2 of A]
+MODB:[modulo 2 of B]
+MODC:[modulo 2 of C]
+
+if A=B & B=C {
+if MODA = 1 {result: 1}
+
+}
+if A=B & MODA = 0 {result: 20}
+if B=C & MODB = 0 {result: 20}
+if C=A & MODC = 0 {result: 20}
+
+X:A
+Y:B
+if C > A{
+X:C
+}
+else{if C>B{
+Y:C
+}}
+result:X+Y
+}
+
+
+output [matchcritnorm 1d10 and 1d10] named "2d10, crits/fails on double evens/odds"
+output [matchadvantage 1d10 and 1d10 and 1d10 and 1d10] named "above, standard advantage"
+output [matchadvantagetwo 1d10 and 1d10 and 1d10] named "above, r3th2"
+output 1@2d20 named "d20 with advantage"

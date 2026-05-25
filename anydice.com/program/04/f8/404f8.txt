@@ -1,0 +1,205 @@
+function: explode ROLLEDVALUE:n {
+ if ROLLEDVALUE = 2 { result: 2 - 1d9 }
+ if ROLLEDVALUE = 3 { result: 3 - 1d9 }
+ if ROLLEDVALUE = 18 { result: 18 + 1d9 }
+ result: ROLLEDVALUE
+}
+
+function: maxdoses TOTAL:n ROLLEDVALUE:n {
+ result: [clamp (7 - (TOTAL - [explode ROLLEDVALUE]))]
+}
+
+function: clamp NUMBER:n {
+  if NUMBER >= 0 { result: NUMBER }
+  result: 0
+}
+
+function: nonneg NUMBER:n {
+  if NUMBER >= 0 { result: 1 }
+  result: 0
+}
+
+function: pass NUMBER:n {
+  if NUMBER < 0 { result: 0 }
+  result: 1
+}
+
+function: time TOTAL:n ROLLEDVALUE:n {
+  result: [clamp ((3000 - 90 * (TOTAL - [explode ROLLEDVALUE])) / 60)]
+}
+
+function: wnk H:n TOTAL:n ROLLEDVALUE:n {
+  result: (TOTAL + H - 2 - [explode ROLLEDVALUE] + 5)/15 + 1
+}
+
+function: max A:n B:n {
+  if A > B { result: A }
+  result: B
+}
+function: min A:n B:n {
+  if A < B { result: A }
+  result: B
+}
+
+function: repair TOTAL:n ROLL:n {
+  result: [max 0 [min 50 (50 - ((TOTAL - 5 - [explode ROLL]) - 3) * 5)]]
+}
+
+function: repairdiff VALUE:n {
+  result: [max (-5) (3 - (VALUE / 1000))]
+}
+
+function: repaircheck TOTAL:n VALUE:n ROLL:n {
+  result: TOTAL - [explode ROLL] + [repairdiff VALUE]
+}
+
+function: repairval TOTAL:n VALUE:n ROLL:n {
+  result: [max 0 [min 50 (50 - (([repaircheck TOTAL VALUE ROLL] - 3) * 5))]]
+}
+
+function: scrimclamp CHECK:n {
+  if CHECK < 0 { result: 0 }
+  if CHECK > 7 { result: 7 }
+  result: CHECK
+}
+
+function: tattoo LENGTH:n SKILL:n ROLL:n {
+  if LENGTH > 25 { result: (14 - LENGTH - (LENGTH - 25) / 11 * 5 + SKILL) - ROLL }
+  result: (14 - LENGTH + SKILL) - ROLL
+}
+
+function: tattooself LENGTH:n SKILL:n ROLL:n {
+  if LENGTH > 25 { result: (7 - LENGTH - (LENGTH - 25) / 11 * 5 + SKILL) - ROLL }
+  result: (7 - LENGTH + SKILL) - ROLL
+}
+
+function: successclamp VAL:n {
+  if VAL > 0 { result: 1 }
+  result: VAL
+}
+
+function: pickone X:n Y:n ROLL:n {
+  if ROLL = 1 { result: X }
+  result: Y
+}
+
+function: pick HACKROLL:n LOCKROLL:n WEIGHTROLL:n {
+  if (HACKROLL < 0) & (LOCKROLL < 0) { result: [pickone HACKROLL LOCKROLL 1d2] }
+  if HACKROLL < 0 { result: HACKROLL }
+  if LOCKROLL < 0 { result: LOCKROLL }
+  result: (WEIGHTROLL * HACKROLL + (4 - WEIGHTROLL) * LOCKROLL) / 4
+}
+
+function: pickresult CHECK:n {
+  if CHECK < -8 { result: -3 }
+  if CHECK < -1 { result: -2 }
+  if CHECK < 0 { result: -1 }
+  if CHECK < 3 { result: 0 }
+  if CHECK < 9 { result: 1 }
+  result: 2
+}
+
+function: seekbonus ROLLA:n ROLLB:n {
+  if ROLLA < 8 { result: ROLLB }
+  result: 0
+}
+
+function: calcdart CHECKONE:n CHECKTWO:n {
+  if CHECKTWO < 6 { result: CHECKONE }
+  if CHECKTWO < 9 { result: 2 * CHECKONE }
+  if CHECKTWO < 12 { result: 50 }
+  result: 3 * CHECKONE
+}
+
+function: dart TOTAL:n ROLLA:n ROLLB:n {
+  result: [calcdart [min (TOTAL - ROLLA) 20] (TOTAL - ROLLB - 4)]
+}
+
+function: scrimdifficulty LENGTH:n {
+  result: [max 0 [min 8 ((LENGTH - 40) / 40)]] + 5
+}
+
+function: scrimcheck TOTAL:n ROLL:n LENGTH:n {
+  result: TOTAL - ROLL - [scrimdifficulty LENGTH]
+}
+
+function: scrimshaw TOTAL:n ROLL:n LENGTH:n {
+  if [scrimcheck TOTAL ROLL LENGTH] <= 0 { result: 0 }
+  result: [max 1 [min 7 ([scrimcheck TOTAL ROLL LENGTH] / 3)]]
+}
+
+function: fertilizereduction TOTAL:n ROLL:n {
+  result: 10 * (TOTAL - [explode ROLL] + 1)
+}
+
+function: fertilizecooldown TOTAL:n ROLL:n {
+  result: 3600 - [fertilizereduction TOTAL ROLL]
+}
+
+function: empathshock TOTAL:n SKILLROLL:n CHANCEROLL:n {
+  HARM: 80 + 2 * CHANCEROLL
+  DOSES: HARM / 40
+  result: [min 5 [max 0 (DOSES - [max 0 (TOTAL - [explode SKILLROLL] - (2 * DOSES))])]]
+}
+
+
+function: skipstone TOTAL:n SKILLROLL:n CHANCEROLL:n {
+  SKIPS: (3 * (TOTAL - [explode SKILLROLL] + 5)) / 2
+  if CHANCEROLL < 10 {
+    SKIPS: SKIPS * 2
+  }
+  result: [max SKIPS 0]
+}
+
+function: crackdoseint CHECK:n {
+  if CHECK <= 0 {
+    result: -10
+  }
+  else {
+    result: CHECK * 2 + 10
+  }
+}
+
+function: crackdoses TOTAL:n ROLL:n {
+  CHECK: TOTAL - [explode ROLL] - 3
+  result: 30 + [crackdoseint CHECK]
+}
+
+function: portalgun TOTAL:n SKILLROLL:n DIEROLL:n RANDDIEROLL:n {
+  if DIEROLL < 10 {
+    SUB: RANDDIEROLL
+  }
+  else {
+    SUB: 0
+  }
+  result: TOTAL - [explode SKILLROLL] - 1 - SUB
+}
+
+function: portalgunfail TOTAL:n SKILLROLL:n DIEROLL:n RANDDIEROLL:n FAILROLL:n {
+  CHECK: [portalgun TOTAL SKILLROLL DIEROLL RANDDIEROLL]
+  if CHECK < 0 { result: FAILROLL - CHECK }
+  result: -20
+}
+
+function: crash TOTAL:n SKILLROLL:n {
+  CHECK: TOTAL - [explode SKILLROLL] + 1
+  DAMAGE: -CHECK * 2
+  result: [min 20 [max 0 DAMAGE]]
+}
+
+function: maybeimprove TOTAL:n RAW:n DIFFICULTY:n ROLL:n {
+  CHECK: TOTAL - ROLL + DIFFICULTY
+  if CHECK >= 5 {
+    result: 0
+  }
+  else {
+    if CHECK <= -3 {
+      result: 0
+    }
+    else {
+      result: [max 1 (40 - RAW * 3 - CHECK * 5)]
+    }
+  }
+}
+
+output 18 - [explode 2d9] - 8

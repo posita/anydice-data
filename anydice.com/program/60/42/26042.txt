@@ -1,0 +1,122 @@
+\Generic reroll if X function.\
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d
+{
+ if [REROLL contains ROLL]
+ {
+  result: REPLACEMENT
+ }
+ result: ROLL
+}
+
+\Specific reroll function to format GWM\					 
+function: C:n gwm D:n
+{
+ T: 0
+ loop N over {1..C}
+ {
+  T: T + [reroll 1 on 1dD to 1dD]
+ }
+ result: T
+}
+
+\Calculate the outcome of an attack roll.
+ R: 1d20 Roll
+ T: Target AC
+ M: Modifier (This would include both the stat modifier (like STR) and +# on the weapon, since both add to tohit and damage.
+ P: Proficiency modifier (or other bonuses tohit but not damage).
+ D: Basic dicepool for the attack.
+ F: Flat damage added to attack. This is not for conditional damage like Vicious (which only adds damage on a crit).
+ C: Crit target, almost always 20 unless modified by an outside feature.
+ E: Nuke damage (extra damage applied on a crit) These dice will NOT be doubled. (This would be for brutal critical, or vicious.)
+\
+function: roll R:n to attack T:n with M:n modifier and P:n proficiency for D:d damage plus F:n critting on C:n with E:n extra damage
+{
+ if      R     >= C {result: 2dD + M + F + E} \Crit, double dice, but flat modifiers only once. Plus any extra crit effect, like brutal critical.\
+ else if R+M+P >= T {result: 1dD + M + F    } \Hit\
+ else               {result: 0              } \Miss, no damage\
+}
+
+\A: # of attacks
+ T: Target AC
+ M: Modifier (This would include both the stat modifier (like STR) and +# on the weapon, since both add to tohit and damage.
+ P: Proficiency modifier (or other bonuses tohit but not damage).
+ D: Basic dicepool for the attack.
+ F: Flat damage added to attack. This is not for conditional damage like Vicious (which only adds damage on a crit).
+ X: Extra damage, usually from a limited resource ability like smite, maneuver, sneak attack, etc.
+ Y: Number of times the limited ability will be used, usually once (for sneak attack) or multiple times (if you really wanna smite something to death).
+ C: Crit target, almost always 20 unless modified by an outside feature.
+ E: Nuke damage (extra damage applied on a crit) These dice will NOT be doubled. (This would be for brutal critical, or vicious.)
+\
+function: attack A:n times against T:n ac with a M:n modifier and P:n proficiency for D:d plus F:n damage and X:d extra damage Y:n times critting on C:n with E:n extra damage
+{
+ TOTAL: 0
+ ROLL: Ad20
+ loop N over {1..A}
+ {
+  if N <= Y \Are we using an extra damage ability?\
+   { \N@ allows us to pick specific rolls out of our group of A dice. 1@ will be the highest roll, which gives us an every so slightly over estimation on damage.
+      It basically let's the attacker roll all attack dice at once and choose optimally instead of completing one attack before moving on to the next.\
+    SUB:[roll N@ROLL to attack T with M modifier and P proficiency for D+X damage plus F critting on C with E extra damage]
+   } else { \No extra ability used, just the basic damage dice + modifier.\
+    SUB:[roll N@ROLL to attack T with M modifier and P proficiency for D   damage plus F critting on C with E extra damage]
+   }
+   TOTAL: TOTAL + SUB
+ }
+ result: TOTAL
+}
+
+\Some effects cause the target to make a save instead of roll an attack die.
+ R: 1d20 Roll
+ B: Bonus to save (such as Wisdom modifier+Proficiency)
+ C: Spell Save DC
+ D: Basic dicepool for the attack/spell.
+ H: Damage modifier on save. Since anydice only does integer math, this has to be a whole number and we'll do division instead of multiplication.
+    Half damage will be 2. No damage will be something obscene like 999999.
+    It won't be perfect, but it'll be close enough. (Example: Half of 1 will be 0.)
+\
+function: R:n save plus B:n vs C:n dc against D:d damage save for H:n modifier
+{
+ if   R+B >= C {result: (1dD+1) / H} \Save. Trying plus 1 to help with rounding errors.\
+ else          {result: 1dD        } \No save, full damage\
+}
+
+\Some constants. That way we only have to change them in one place (like if we wanna change the AC of the target, or level up our characters).
+ Level:       6\
+AC:          14
+SAVE_BONUS:   3 \Target's bonus to save, 2 modifier (average modifier of a 5 CR or so) + 1 proficiency (average chance of them having proficiency)\
+PROF:         3
+F_STR_MOD:    4 \F: Fighter\
+W_STR_MOD:    3 \W: Warden\
+W_CON_MOD:    4
+F_SAVE_DC:    8+PROF+F_STR_MOD
+W_SAVE_DC:    8+PROF+W_CON_MOD
+SUP_DICE:   1d8 \Superiority Dice from Battle Master (This class was the baseline for Warden)\
+DISC_DICE:  1d8 \Discharge Dice from Warden\
+
+\Comparison attacks\
+output [attack 2 times against AC ac with a F_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus         0 damage and        0 extra damage 0 times critting on 20 with 0 extra damage] named "6F: 2 Great Sword w/ GWM"
+output [attack 2 times against AC ac with a F_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus         0 damage and SUP_DICE extra damage 1 times critting on 20 with 0 extra damage] named "6F: 2 Great Sword w/ GWM + Maneuver"
+output [attack 2 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus         0 damage and        0 extra damage 0 times critting on 20 with 0 extra damage] named "6W: 2 Great Sword w/ GWM"
+output [attack 2 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus         0 damage and        0 extra damage 0 times critting on 20 with 0 extra damage] +
+       [attack 1 times against AC ac with a W_CON_MOD modifier and PROF proficiency for DISC_DICE
+        plus         0 damage and        0 extra damage 0 times critting on 20 with 0 extra damage] named "6W: 2 Great Sword w/ GWM + BA Bolt"
+output [attack 1 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus         0 damage and        0 extra damage 0 times critting on 20 with 0 extra damage] +
+       3d[1d20 save plus SAVE_BONUS vs W_SAVE_DC dc against DISC_DICE damage save for 2 modifier] named "6W: 1 Great Sword w/ GWM + Blast/Burst (3 Targets)"
+output [attack 1 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus         0 damage and        0 extra damage 0 times critting on 20 with 0 extra damage] +
+       4d[1d20 save plus SAVE_BONUS vs W_SAVE_DC dc against DISC_DICE damage save for 2 modifier] named "6W: 1 Great Sword w/ GWM + Blast/Burst (4 Targets)"
+output [attack 2 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus         0 damage and        0 extra damage 0 times critting on 18 with 0 extra damage] named "6W: 2 Great Sword w/ GWM + Keen"
+output [attack 2 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus W_CON_MOD damage and        0 extra damage 0 times critting on 20 with 0 extra damage] named "6W: 2 Great Sword w/ GWM + Entwined Fate"
+output [attack 2 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus W_CON_MOD damage and        0 extra damage 0 times critting on 20 with 0 extra damage] +
+       [attack 1 times against AC ac with a W_CON_MOD modifier and PROF proficiency for DISC_DICE
+        plus         0 damage and        0 extra damage 0 times critting on 20 with 0 extra damage] named "6W: 2 Great Sword w/ GWM + Entwined Fate + BA Bolt"
+output [attack 2 times against AC ac with a W_STR_MOD modifier and PROF proficiency for [2 gwm 6]
+        plus W_CON_MOD damage and        0 extra damage 0 times critting on 18 with 0 extra damage] named "6W: 2 Great Sword w/ GWM + Entwined Fate + Keen"

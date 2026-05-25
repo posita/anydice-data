@@ -1,0 +1,34 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+  if ROLL = 1 {result: MISS}
+  if ROLL = 20 {result: CRITICALHIT}
+  if ROLL+ATTACK >= DEFENSE {result: HIT}
+  result: MISS
+}
+
+function: damagefirst for ATTACKRESULT:n {
+  if ATTACKRESULT = CRITICALHIT {result: CRITICALDAMAGE}
+  if ATTACKRESULT = HIT {result: HITDAMAGE}
+  result: MISSDAMAGE
+}
+
+function: damagesecond for ATTACKRESULT:n {
+  if ATTACKRESULT = CRITICALHIT {result: CRITICALDAMAGES}
+  if ATTACKRESULT = HIT {result: HITDAMAGES}
+  result: MISSDAMAGES
+}
+
+ATTACK: 6
+HITDAMAGE: 2d{3..6}+2d{3..8}+3
+CRITICALDAMAGE: 4d{3..6}+4d{3..8}+3
+MISSDAMAGE: 0
+HITDAMAGES: 2d{3..8}+3
+CRITICALDAMAGES: 4d{3..8}+3
+MISSDAMAGES: 0
+
+
+ADV: 1@2d20
+output [damagefirst for [attack ADV vs 13]]+[damagesecond for [attack d20 vs 13]] named "Dano no Ivor"

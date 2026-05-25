@@ -1,0 +1,75 @@
+function: degree ROLL:s at TN:n advantage A:n {
+ SORT: [sort ROLL]
+
+ if [count 10 in SORT] = #SORT | (A < 0 & 2@SORT = 10) {
+  result: 0
+ }
+
+ RSORT: [reverse SORT]
+ 
+ X: 0
+ 
+ if A >= 0 {
+  if 2@RSORT = 1 {
+   X: [highest of X and (1@SORT + 5)]
+  }
+  loop FD over {1..(#SORT-1)}{
+   loop LD over {2..(#SORT)}{
+    if FD@SORT + LD@SORT <= TN {
+     X: [highest of X and FD@SORT]
+    }
+   }
+  } 
+ }
+ 
+ if A < 0 {
+  if 1@SORT = 1 {
+   X: [highest of X and 6]
+  }
+  if 1@SORT + 2@SORT <= TN {
+   X: [highest of X and 1@RSORT]
+  }
+ }
+
+ result: X
+}
+
+function: pass ROLL:s at TN:n advantage A:n {
+ SORT: [sort ROLL]
+
+ if [count 10 in SORT] = #SORT | (A < 0 & 2@SORT = 10) {
+  result: -1
+ }
+
+ RSORT: [reverse SORT]
+
+ if A >= 0 {
+  X: 0
+  if 2@RSORT = 1 {
+   result: 2
+  }
+  if 1@RSORT + 2@RSORT <= TN {
+   result: 1
+  }
+ }
+ 
+ if A < 0 {
+  if 1@SORT = 1 {
+   result: 2
+  }
+  if 1@SORT + 2@SORT <= TN {
+   result: 1
+  }
+ }
+
+ result: 0
+}
+
+loop TN over {3,6,9,12}{
+ loop ADV over {0..3}{
+  output [pass (2 + [absolute ADV])d10 at TN advantage ADV] named "degree at TN [TN] adv [ADV]"
+ }
+}
+
+
+

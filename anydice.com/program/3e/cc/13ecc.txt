@@ -1,0 +1,73 @@
+\Armor celu\
+A: 0 
+\Thoughness celu\
+T: 0
+
+\BS strzelającego\
+BS:60
+\Modyfikator do strzału (bez accurate)\
+M:40
+\Czy przycelowanie (1 lub 0) - modyfikator musi być wliczony wyżej\
+AIM: 0
+
+\Wynik rzutu\
+R:50
+
+
+function: zero Z:n {
+  if (Z>0) { result: Z}
+  else { result: 0}
+}
+
+function: pen P dmg D {
+  AP: A - P
+  if AP > 0 {result: [zero(- T - AP + D)] } 
+  else {result: [zero(- T + D)]}
+}
+
+function: skillcheck {
+  D: BS+M-R
+  if AIM {D: D+10}
+  if D<0 { result: 0 }
+  else {
+    result: 1 + D/10
+  }
+}
+
+DOS: [skillcheck]
+
+function: single DMG:n ACC {
+  if DOS <= 0 { result: 0 }
+  if ACC & AIM { result: DMG + DOS*2 }
+  result: DMG
+}
+
+function: semifull DMG:n ROF {
+  if DOS <= 0 { result: 0 }
+  if DOS = 1 { result: DMG }
+  DOSH: DOS-1
+  RES: DMG
+  loop N over {2..ROF}{
+    if DOSH>0 {
+      RES: RES+DMG
+      DOSH: DOSH-2
+    }
+  }
+  result: RES
+}
+
+BOLTGUN: [pen 4 dmg ([highest of d10 and d10] + 5)]
+SNIPER: [pen 3 dmg (1d10 + 4)]
+PLASMA: [pen 6 dmg (1d10 + 7)]
+MAXPLASMA: [pen 8 dmg (2d10 + 7)]
+PULSERIFLE: [pen 4 dmg (2d10 + 3)]
+
+output DOS named "DoS"
+output [single BOLTGUN 0] named "Single Boltgun"
+output [semifull BOLTGUN 3] named "Semi Boltgun"
+output [single SNIPER 1] named "Sniper Rifle"
+output [semifull PLASMA 2] named "Semi Plasma"
+output [single MAXPLASMA 0] named "Maximal Plasma"
+output [single PULSERIFLE 0] named "Single PulseRifle"
+output [semifull PULSERIFLE 2] named "Semi PulseRifle"
+output [semifull PULSERIFLE 4] named "Full PulseRifle"

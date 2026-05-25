@@ -1,0 +1,29 @@
+\ wizard level \
+WL: 4
+\ power dice xd6 \
+PD: 3d6
+\ dispelling wizard level \
+DWL: 1
+\ the difference in dispel dice compared to power dice \
+DIF: 2
+
+\ DO NOT CHANGE ANYTHING BELOW THIS LINE \
+
+function: PD:s WL:n dispelled with DD:s DWL:n {
+ \ critical failure \
+ if #{PD} = 1 & PD <= 2 {result: 0}
+ if #{PD} = 2 & {1,2}@PD = 2 {result: 0}
+ \ cast with irresistible force \
+ if {1,2}@PD = 12 {result: 1}
+ \ dispelled with irresistible force \
+ if {1,2}@DD = 12 {result: 0}
+ result: (PD+WL) > (DD+DWL)
+}
+
+N: #(PD)
+loop M over {(N-DIF)..(N+DIF)}{
+ if M > 0 {
+  DD: Md6
+  output [PD WL dispelled with DD DWL] named "[PD]+[WL] dispelled with [M]d6+[DWL]"
+ }
+}

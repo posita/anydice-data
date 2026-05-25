@@ -1,0 +1,141 @@
+ENEMY_AC: d{10..20}  \looped against enemy AC from 10-20\
+LEVEL: 15
+STAT_MOD: 5
+
+\\\***Attack A***\\\
+ATTACK_DICE_A: d6
+DICE_NUMBER_A: 2
+BONUS_DAM_MOD_A: 0
+BONUS_DICE_A: 0
+HIT_BONUS_A: 0
+MAGIC_A: 0
+REROLL_A: 0
+
+\\\***Attack B***\\default to GWM/SS\\\
+ATTACK_DICE_B: ATTACK_DICE_A
+DICE_NUMBER_B: DICE_NUMBER_A
+BONUS_DAM_MOD_B: 10
+BONUS_DICE_B: BONUS_DICE_A
+HIT_BONUS_B: -5
+MAGIC_B: MAGIC_A
+REROLL_B: REROLL_A
+
+CRIT_RANGE: 20
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+HIT_DIS: [lowest 1 of 2d20]
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+PROF: (LEVEL+7)/4
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: xattack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= ENEMY_AC { result: HIT }
+ result: MISS
+}
+function: xattackadv ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= ENEMY_AC { result: HIT }
+ result: MISS
+}
+function: xattackdis ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= ENEMY_AC { result: HIT }
+ result: MISS
+}
+function: xattack {
+ result: [damage for [xattack NORMAL_HIT vs ENEMY_AC]]
+}
+function: xattackadv {
+ result: [damage for [xattackadv HIT_ADV vs ENEMY_AC]]
+}
+function: xattackdis {
+ result: [damage for [xattackadv HIT_DIS vs ENEMY_AC]]
+}
+
+function: yattack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= ENEMY_AC { result: HIT }
+ result: MISS
+}
+function: yattackadv ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= ENEMY_AC { result: HIT }
+ result: MISS
+}
+function: yattackdis ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= ENEMY_AC { result: HIT }
+ result: MISS
+}
+function: yattack {
+ result: [damage for [yattack NORMAL_HIT vs ENEMY_AC]]
+}
+function: yattackadv {
+ result: [damage for [yattackadv HIT_ADV vs ENEMY_AC]]
+}
+function: yattackdis {
+ result: [damage for [yattackadv HIT_DIS vs ENEMY_AC]]
+}
+
+function: reroll R:n under N:n {
+   if R <= N {result: ATTACK_DICE_A} else {result: R}
+}
+function: reroll R:n under N:n {
+   if R <= N {result: ATTACK_DICE_B} else {result: R}
+}
+
+ATTACK: STAT_MOD + PROF + MAGIC_A + HIT_BONUS_A
+HITDAMAGE: DICE_NUMBER_Ad[reroll ATTACK_DICE_A under REROLL_A] + STAT_MOD + MAGIC_A + BONUS_DAM_MOD_A + BONUS_DICE_A
+CRITICALDAMAGE: 2d(DICE_NUMBER_Ad[reroll ATTACK_DICE_A under REROLL_A]) + STAT_MOD + MAGIC_A + BONUS_DAM_MOD_A + 2dBONUS_DICE_A
+MISSDAMAGE: 0
+output [xattack] named "Attack A"
+output [xattackadv] named "Adv Attack A"
+
+ATTACK: STAT_MOD + PROF + MAGIC_B + HIT_BONUS_B
+HITDAMAGE: DICE_NUMBER_Bd[reroll ATTACK_DICE_B under REROLL_B] + STAT_MOD + MAGIC_B + BONUS_DAM_MOD_B + BONUS_DICE_B
+CRITICALDAMAGE: 2d(DICE_NUMBER_Bd[reroll ATTACK_DICE_B under REROLL_B]) + STAT_MOD + MAGIC_B + BONUS_DAM_MOD_B + 2dBONUS_DICE_B
+MISSDAMAGE: 0
+output [yattack] named "Attack B"
+output [yattackadv] named "Adv Attack B"

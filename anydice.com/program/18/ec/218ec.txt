@@ -1,0 +1,55 @@
+function: clamp N:n between MIN:n and MAX:n {
+  if N <= MIN { result: MIN }
+  if N >= MAX { result: MAX }
+  result: N
+}
+
+R: d{0..5}
+RMAX: [maximum of R]
+function: resultR N:n {
+  if N = 0 { result: -[explode R] }
+  if N = RMAX { result: N + [explode R] }
+  result: N
+}
+\
+output [resultR R] named "z5!"
+output [clamp 2d[resultR R] between -10 and 20] named "2z5!"
+\
+
+X: d{0..5}
+function: extend D:d {
+  MIN: 0 \no minimum function?\
+  MAX: [maximum of D]
+  result: [extend D using D with MIN and MAX]
+}
+function: extend D:d up {
+  MAX: [maximum of D]
+  result: [extend D using D with -1 and MAX]
+}
+function: extend N:n using D:d with MIN:n and MAX:n {
+  if N = MIN { result: N + [extend D down using D at MIN] }
+  if N = MAX { result: N + [extend D up using D at MAX] }
+  result: N
+}
+function: extend N:n down using D:d at MIN:n {
+  if N = MIN { result: -1 + [extend D down using D at MIN] }
+  result: 0
+}
+function: extend N:n up using D:d at MAX:n {
+  if N = MAX { result: 1 + [extend D up using D at MAX] }
+  result: 0
+}
+\
+output [extend X] named "z5X"
+\
+output [clamp 2d[extend X] between -10 and 20] named "2z5X"
+
+
+output [clamp [extend X up] - [extend X up] between -10 and 15] named "Skill/Skill"
+\
+output [clamp [explode X] - [explode X] between -10 and 15] named "Luck/Luck"
+output [clamp [extend X up] - [explode X] between -10 and 15] named "Skill/Luck"
+\
+output [clamp [explode X] - [extend X up] between -10 and 15] named "Luck/Skill"
+
+

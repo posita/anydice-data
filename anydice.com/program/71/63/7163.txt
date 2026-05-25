@@ -1,0 +1,104 @@
+\
+  AUTHOR:
+  Auston Lindsay
+
+  LAST MODIFIED:
+  11/21/15
+
+  OVERVIEW:
+  The following is a breakdown of the skill checks system for my RPG.
+
+  In certain situations, players must make skill checks to see how their characters fair. In addition, non-player characters
+  may need to make similar checks; in this case, the GM makes them. These checks are somewhat random, but rely heavily on the
+  skills that a specific character has.
+
+  There are two different types of checks, either unopposed, or opposed. In either case, the player rolls d10s (10-sided dice).
+  The total number of d10’s that the player rolls is equivalent to the number of skill points they have in the skill they are
+  checking. For example, if a character has a Strength skill of 3 and is attempting to make a Strength check, the player or GM
+  that represents them, rolls 3 d10s.
+
+  The player or GM is also always trying to beat a particular value with their roll, which is dependent on the difficulty and
+  type of check they are trying to make (described below). For each roll that beats that specified value, the total value of the
+  roll is increased by one. For example, if the player is trying to beat a 4 and in rolling 3 d10’s, 2 of them were higher than
+  4, the result of the roll is a 2.
+
+  The following are simulations for this system, which output correct data as to the probabilities of possible outcomes.
+
+  Both uncontested and contested checks are represented.
+\
+
+\ -------- TOTAL NUMBER OF LEVELS THAT WILL BE SIMULATED ------- \
+
+                           STATLVLS: 10
+
+\ -------------------------------------------------------------- \
+
+\ UNCONTESTED NOTES:
+
+  This is the breakdown of what must be met in order to succeed in a check:
+
+  Trivial    : Must beat a 3 (i.e. 4 or higher) at least 1 time
+  Easy       : Must beat a 4 (i.e. 5 or higher) at least 2 times
+  Medium     : Must beat a 5 (i.e. 6 or higher) at least 3 times
+  Difficult  : Must beat a 6 (i.e. 7 or higher) at least 4 times
+  Impossible : Must beat a 7 (i.e. 8 or higher) at least 5 times
+
+  The following are representations of possible stat checks against various difficulties. These
+  representations simulate the rules for rolling uncontested skill checks. For example:
+
+  In the Trivial check, there are three 0's (failures), and seven 1's (successes) simulating rolling higher than 3.
+  If the total value is over 0, it means we rolled at least one success and the result is 1 or success.
+
+\
+
+\--------------------- CODE STARTS HERE ------------------------- \
+
+loop STAT over {1..STATLVLS}
+{
+    output STATd{0:3,1:7} > 0 named "Trivial  with stat of [STAT]"
+    output STATd{0:4,1:6} > 1 named "Easy with stat of [STAT]"
+    output STATd{0:5,1:5} > 2 named "Medium with stat of [STAT]"
+    output STATd{0:6,1:4} > 3 named "Difficult with stat of [STAT]"
+    output STATd{0:7,1:3} > 4 named "Impossible with stat of [STAT]"
+}
+
+\---------------------- CODE ENDS HERE --------------------------- \
+
+\ CONTESTED NOTES: 
+
+  If a character is attempting to take an action that relies on their skill, but which can also be affected by the skill
+  of another creature or object, they roll an Opposed Check. To be successful in an Opposed Check, a player must usually
+  beat a 5 at least as many times as the character that they are opposed with. For example, if a player finds themself in
+  opposition with a Savage and is required to make a Discipline check, each rolls as if they were making an Average 
+  Unopposed Check. However, the result of the check is instead determined by whoever rolls more successes (values higher than 5).
+  If the same, the state of things does not change. For example, if someone was attacking the sword continues swinging and 
+  the attack is not blocked; while if one character was attempting to hold a door shut, and another was attempting to open it,
+  the door would remain shut.
+
+  ADVANTAGE AND DISADVANTAGE:
+  Certain situations may dictate that a certain character has advantage or disadvantage. Characters with advantage gain -1 to the
+  value they must beat or +1 if  disadvantaged. They can have up to -2 or +2. If both characters have disadvantage, or if they both
+  have advantage, subtract the value closer to zero from both. For example, if a character has -2 and the other has -1, subtracting
+  the value closer to zero, -1, from both yields -1 and 0 in terms of the advantages. If both values are equal, subtract that value
+  from both, e.g. +1 and +1 becomes +0 and +0.
+
+\
+
+\--------------------- CODE STARTS HERE ------------------------- \
+
+loop STAT over {1..STATLVLS}
+{
+    ADVANTAGE: 0
+    ENEMYADV: 0
+
+    STATSEQ: {0:5-ADVANTAGE,1:5+ADVANTAGE}
+    ENEMYSTATSEQ: {0:5-ENEMYADV,1:5+ENEMYADV}
+
+    loop ENEMY over {1..STATLVLS}
+    {
+        output STATdSTATSEQ >= ENEMYdENEMYSTATSEQ named "Winning an offensive check against a LVL [ENEMY] (+[ENEMYADV] ATG) with stat LVL [STAT] (+[ADVANTAGE] ATG)"
+\        output STATdSTATSEQ - ENEMYdENEMYSTATSEQ named "Damage dealt against enemy with Discipline of [ENEMY] (+[ENEMYADV] ATG) with Strength of [STAT] (+[ADVANTAGE] ATG)"\
+    }    
+}
+
+\---------------------- CODE ENDS HERE --------------------------- \

@@ -1,0 +1,80 @@
+function: damagearea a A dmg D target T
+{
+N:{1,2} 
+DI:0
+if T=1@ARM{DI:1dD+DMG N:ARM}
+if T=1@SH{DI:1dD+DMG N:SH}
+if T=1@UK{DI:2dD+DMG N:UK}
+if T=1@OK{DI:3dD+DMG*2 N:OK}
+if T=1@KOPF{DI:5d6+DMG*3 N:KOPF}
+
+LT: 1@N
+HT: #N@N
+if A >= LT{
+ZD:0
+ZD:A-LT
+if ZD>HT-LT{ZD:HT-LT}
+result: DI\+ZE\+ASTR-BSTR
+}
+result:0
+}
+
+function: twoarea a A dmg D target T{
+if T{
+T:3
+}}
+
+
+function: noarea A:n vs B:n damage D:n{
+X:(A+AA+AM)-(B+BA+BM)
+ifX>0{
+Y:{1,2}
+if [OK contains X]{Y:OK}
+if [UK contains X]{Y:UK} 
+\if [SH contains X]{Y:SH}\
+if [ARM contains X]{Y:ARM}
+result: [damagearea a A+AA+AM-(B+BA+BM) dmg D target Y]
+}
+}
+
+function: sub A:n vs B:n dmg D:n am AM:n bm BM:n target T:n{
+if (A+AA+AM)-(B+BA+BM)>0{
+result:
+[damagearea a A+AA+AM-(B+BA+BM)dmg D target T]+ASTR-BSTR
+}result:0
+}
+
+
+
+ASTR:2 BSTR:4
+AA:8   BA:2
+AM:3   BM:3
+DICE:6
+DMG:0
+
+ARM:{1,3}
+SH:{0..0}
+UK:{3..10} \{3..10}\
+OK:{1,7..15}\{7..15}\ 
+KOPF:{15..16}
+\Nur ARM UK OK KOPF\
+
+A:1d20
+B:1d20
+
+
+
+function: t T{
+result:[sub A vs B dmg DICE am AM bm BM target 1@T]
+}
+
+output [noarea A vs B damage DICE]
+output [t KOPF]named"Kopf"
+output [t ARM] named"Arm"
+\output [t SH]  named"Shoulder"\
+output [t UK]  named"Unterkörper" 
+output [t OK]  named"Oberkörper"
+
+output [lowest 1 of 2d6] named"light"
+output [highest 1 of 2d6] named "heavy"
+output [highest 1 of 1d6] named "normal"

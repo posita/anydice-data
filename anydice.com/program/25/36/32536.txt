@@ -1,0 +1,31 @@
+function: push REROLL:s HITS:n SIXES:n {
+ NEW_HITS: [count {5, 6} in REROLL]
+ NEW_SIXES: [count 6 in REROLL]
+ if SIXES + NEW_SIXES >= 2 {
+  result: 3
+ }
+ if NEW_HITS >= 1 {
+  result: [lowest of HITS + NEW_HITS and 2]
+ }
+ result: [lowest of HITS - 1 and 2]
+}
+
+function: vaesen INITIAL:s {
+ HITS: [count {5, 6} in INITIAL]
+ SIXES: [count 6 in INITIAL]
+ if SIXES >= 2 {
+  result: 3
+ }
+ if HITS >= 1 {
+  REROLLS: [count {2, 3, 4} in INITIAL]
+  if REROLLS >= 1 {
+    result: [push REROLLSd6 HITS SIXES]
+  }
+  result: [lowest of HITS and 2]
+ }
+ result: 0
+}
+
+loop C over {1..6} {
+ output [vaesen Cd6] named "[C]d"
+}

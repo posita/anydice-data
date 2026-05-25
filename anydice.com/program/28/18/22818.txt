@@ -1,0 +1,47 @@
+\ change numbers below \
+\ WARNING: floats are not supported - put closest integer value \
+BONUS: 12 \ your bonus to skill you intend to use \
+MAINTENANCE: 80 \ maintenance for your size of business, GP \
+LOAN: 0 \ the loan you need to pay each month, GP \
+MONTHS: 1 \ the number of months to calculate for \
+\ Click CALCULATE and then click SUMMARY \
+
+\ DON'T change anything below unless you know what you are doing \
+NUMBEROFDICE: 4
+
+function: downtime ROLL {
+    result: (NUMBEROFDICE)d(ROLL)/(NUMBEROFDICE)
+}
+function: income ROLL:n {
+    MULT: 10
+    if ROLL <= 29 { MULT: 8 }
+    if ROLL <= 24 { MULT: 6 }
+    if ROLL <= 19{ MULT: 4 }
+    if ROLL <= 14 { MULT: 2 }
+    if ROLL <= 9 { MULT: 0 }
+    if ROLL <= 4 { MULT: -2 }
+    result: MAINTENANCE*MULT
+}
+function: incomenpc ROLL:n {
+    INC: [income ROLL-5]
+    if ROLL <= 4 { INC: MAINTENANCE*-4 }
+    if ROLL > 30 { INC: MAINTENANCE*8 }
+    result: INC
+}
+
+SOLO: [downtime 1d20+BONUS]
+HELP: [downtime [highest 1 of 2d20]+BONUS]
+INC_SOLO: [income SOLO]-LOAN
+INC_HELP: [income HELP]-LOAN
+INC_NPC: [incomenpc SOLO]-LOAN
+
+\ outputs \
+output SOLO named "on your own, average of [NUMBEROFDICE] check(s)"
+output HELP named "  with help, average of [NUMBEROFDICE] check(s)"
+
+output MONTHS*INC_SOLO named "           you alone, income in [MONTHS] month(s), GP"
+output MONTHS*INC_HELP named "you with player help, income in [MONTHS] month(s), GP"
+output MONTHS*INC_NPC named "            NPC alone, income in [MONTHS] month(s), GP"
+
+PPP: INC_HELP-INC_SOLO
+output (1@[sort PPP])/(#PPP) named "proposed player pay, GP"

@@ -1,0 +1,78 @@
+
+\ toHIT STATS \
+
+ATTACKS:    1
+ATK:        5
+DEF:        5
+
+\ toHIT ROLL \
+
+HITMOD: ATK - DEF
+if HITMOD > 4
+{HITMOD: 4}
+if HITMOD < -4
+{HITMOD: -4}
+
+HITS: [count {6-HITMOD..20} in ATTACKSd10]
+
+\ toWOUND STATS \
+
+STR:        5
+TGH:        5
+AP:        0
+ARM:        0
+
+\ toWOUND ROLL \
+
+WOUNDMOD: STR - TGH
+ARMMOD: AP - ARM
+if AP > ARM
+{ARMMOD: 0}
+
+FINALMOD: WOUNDMOD + ARMMOD
+  if FINALMOD > 4
+{FINALMOD: 4}
+  if FINALMOD < -4
+{FINALMOD: -4}
+
+function: roll POSSIBLEWOUNDS:s wound rolls{
+if POSSIBLEWOUNDS = 1 {result: [count {6-FINALMOD..20} in 1d10]}
+if POSSIBLEWOUNDS = 2 {result: [count {6-FINALMOD..20} in 2d10]}
+if POSSIBLEWOUNDS = 3 {result: [count {6-FINALMOD..20} in 3d10]}
+if POSSIBLEWOUNDS = 4 {result: [count {6-FINALMOD..20} in 4d10]}
+if POSSIBLEWOUNDS = 5 {result: [count {6-FINALMOD..20} in 5d10]}
+result: 0
+}
+WOUNDS: [roll HITS wound rolls]
+
+CTW: [count {6-FINALMOD..20} in 1d10]
+
+function: check ISWOUNDED:s status {
+if ISWOUNDED >= 1 {result: 2}
+result: 0
+}
+
+output [check CTW status] named "Chance to Wound per landed hit"
+
+\ MORALE \
+
+MRL: 5
+SS: 4 + [check CTW status]
+MRLMOD: MRL - SS
+
+function: test MRLTEST:s with MOD:s{
+if MRLTEST = 0 {result: 0}
+result: [count {1..5-(MOD-MRLTEST+1)} in 1d10]
+}
+MORALE: [test HITS with MRLMOD]
+
+
+
+
+
+
+
+\ VISUALIZE AS "AT LEAST" \
+output HITS named "Hits"
+output WOUNDS named "Wounds"
+output MORALE named "Suppression"

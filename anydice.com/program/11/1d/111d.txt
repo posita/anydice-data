@@ -1,0 +1,30 @@
+function: pentastar ROLL:s {
+ if 1@ROLL < 6 { result: 1@ROLL }
+ result: 5 + (ROLL = 6)
+}
+
+function: pentastar ROLL:s penalty PENALTY:s {
+ \ recursive approach, passing along dice positions to consider \
+ result: [eliminate 1 with 1]
+}
+
+function: eliminate R with P {
+ RH: R@ROLL
+ if RH = 0 { result: 0 \ everything got eliminated \ }
+ PH: P@PENALTY
+ if RH > PH {
+  \ found the highest remaining die \
+  if RH < 6 { result: RH }
+  result: 5 + (ROLL = 6) - (PENALTY = 6)
+ }
+ if RH < PH { result: [eliminate R with P + 1] \ skip unneeded penalty die \ }
+ \ PH = RH \
+ result: [eliminate R + 1  with P + 1] \ cancel die \
+}
+
+loop D over {1..5}{
+ output [pentastar Dd6] named "PentaStar [D]d6"
+ loop P over {2}{
+  output [pentastar Dd6 penalty Pd6] named "PentaStar [D]d6 w/ penalty [P]d6"
+ }
+}

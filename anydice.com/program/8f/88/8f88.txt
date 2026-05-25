@@ -1,0 +1,30 @@
+FUMBLE: -1
+MISS: 0
+WOUND: 1
+SEVERE: 2
+CRITICAL: 3
+
+function: successes in ROLL:s {
+  \ explosions count, and so do their extra dice (whatever is rolled) so just double-count them \
+  result: [count {3..6,6} in ROLL]
+}
+
+\output [successes in {3,6}] named "success check"\
+
+function: evaluate ROLL:s {
+  SUCCESSES: [successes in ROLL]
+  if [count 1 in ROLL] > [count 6 in ROLL] { result: FUMBLE }
+  if SUCCESSES = 0 { result: MISS }
+  if SUCCESSES = {1..2} { result: WOUND }
+  if SUCCESSES = {3..5} { result: SEVERE }
+  if SUCCESSES >= 6 { result: CRITICAL }
+}
+
+set "explode depth" to 4
+LOW: {1..4}
+MID: {5}
+HIGH: {6}
+DIE: [explode d6]
+loop DICE over LOW { \ manually switch this to get around 5s timeout \
+  output [evaluate DICEdDIE] named "[DICE]d6"
+}

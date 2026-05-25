@@ -1,0 +1,18 @@
+function: inloop RES:n F:n T:n D:d {
+ FIN: 0
+ if (RES>=T) {FIN: FIN+1}                                   \the -1 tells the func not to recurse, as nothing ever checks for it\
+ if (F=1) {if (RES<T){FIN: FIN + [explode -1 T 1 D]}}       \it could be any non-bool num theoretically (not 0 or 1). 2 would work\
+ if (F=0) {if (RES>=T) {FIN: FIN + [explode -1 T 1 D]}}     \its actually in a roundabout way telling this function not to recurse\
+ result: FIN                                                \fsr calling inloop throws an error; it thinks I'm calling it with 3 vars\
+}
+
+function: explode F:n T:n M:n D:d {
+ SUC: 0
+ loop N over {1..M} {
+  SUC: SUC + [inloop D F T D]  \necessary to convert dice into a single number while also remembering max dice size\
+ }
+ result: SUC
+}
+
+output [explode 1 4 6 1d6] named "burst"
+output [explode 0 4 6 1d6] named "piercing"

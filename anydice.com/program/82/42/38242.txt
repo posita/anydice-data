@@ -1,0 +1,30 @@
+PERCENTILE: d{0,10,20,30,40,50,60,70,80,90}
+ADJUSTEDPERCENTILE: d{100,10,20,30,40,50,60,70,80,90}
+DIGIT: d{0,1,2,3,4,5,6,7,8,9}
+
+function: roll check { result: [roll using 1dDIGIT] }
+function: roll using VALUE:n {
+ if VALUE = 0 { result: 1dADJUSTEDPERCENTILE + VALUE}
+ result: 1dPERCENTILE + VALUE
+}
+
+function: roll check with BONUS:n bonus { result: [roll (BONUS + 1) bonus using 1dDIGIT] }
+function: roll BONUS:n bonus using VALUE:n {
+ if VALUE = 0 { result: [lowest 1 of BONUSdADJUSTEDPERCENTILE] + VALUE}
+ result: [lowest 1 of BONUSdPERCENTILE] + VALUE
+}
+
+function: roll check with PENALTY:n penalty { result: [roll (PENALTY + 1) penalty using 1dDIGIT] }
+function: roll PENALTY:n penalty using VALUE:n {
+ if VALUE = 0 { result: [highest 1 of PENALTYdADJUSTEDPERCENTILE] + VALUE}
+ result: [highest 1 of PENALTYdPERCENTILE] + VALUE
+}
+
+output [roll check] named "Standard Check"
+output [roll check with 1 bonus] named "+1 Bonus Check"
+output ([lowest 1 of 2dDIGIT]*10+1d10) named "Geekroller +1 Bonus Check"
+
+\output [roll check with 2 bonus] named "+2 Bonus Check"\
+\output [roll check with 1 penalty] named "+1 Penalty Check"\
+\output [roll check with 2 penalty] named "+2 Penalty Check"\
+

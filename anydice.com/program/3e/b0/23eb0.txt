@@ -1,0 +1,90 @@
+\ -------      Heroquest Probability Calculator      ------- \
+\ -------      By Scott A, updated by Ludovic C      ------- \
+
+\ Edit the numbers below to change the calculations \
+\ NOTE: Target numbers go from 0-20, while Masteries must be 0 or higher \
+    PC_TARGET_NUMBER: 10
+    PC_MASTERIES: 0
+
+    OPPOSED_TARGET_NUMBER: 10
+    OPPOSED_MASTERIES: 3
+
+\ In the outcome tables/graphs, the numbers represent the number of successes    \
+\ obtained by the roll                                                           \
+
+
+
+
+
+
+
+function: successes X:n vs TN:n {
+    if X > TN {
+        \ Fail \ 
+        result: 0
+    }
+    if X < TN {
+        \ Success \ 
+        result: 1
+    }
+    if X = TN {
+        \ Crit \ 
+        result: 2
+    }
+}
+
+
+function: successmargin PC_SUCCESSES:n PC_ROLL:n PC_TN:n vs GM_SUCCESSES:n GM_ROLL:n GM_TN:n {
+    \ Need intermediate values due to weird behaviour in updating variable values \
+    PCS: PC_SUCCESSES
+    GMS: GM_SUCCESSES
+    if PC_SUCCESSES = GM_SUCCESSES {
+        \ Tie, highest roll gets a success \
+        if PC_ROLL > GM_ROLL {
+            PCS: PC_SUCCESSES + 1
+        }
+        else if GM_ROLL > PC_ROLL {
+            GMS: GM_SUCCESSES + 1
+        }
+        \ Tie and same roll, this is a true tie \
+    }
+    MARGIN: PCS - GMS
+    result: MARGIN
+}
+
+
+function: contest PC_TN:n PC_W:n vs GM_TN:n GM_W:n {
+    PC_ROLL: d20
+    GM_ROLL: d20
+    
+    PC_SUCCESSES: [successes PC_ROLL vs PC_TN] + PC_W
+    GM_SUCCESSES: [successes GM_ROLL vs GM_TN] + GM_W
+    
+    MARGIN: [successmargin PC_SUCCESSES PC_ROLL PC_TN vs GM_SUCCESSES GM_ROLL GM_TN]
+    result: MARGIN
+}
+
+
+\ Short variable names due to a bug in string interpolation \
+PCW: PC_MASTERIES
+PCN: PC_TARGET_NUMBER
+
+GMW: OPPOSED_MASTERIES
+GMN: OPPOSED_TARGET_NUMBER
+
+if PCW = 0 {
+    if GMW = 0 {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN] vs Opposed [GMN]"
+    }
+    else {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN] vs Opposed [GMN]W[GMW]"
+    }
+}
+else {
+    if GMW = 0 {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN]W[PCW] vs Opposed [GMN]"
+    }
+    else {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN]W[PCW] vs Opposed [GMN]W[GMW]"
+    }
+}

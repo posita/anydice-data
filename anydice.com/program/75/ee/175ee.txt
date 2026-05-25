@@ -1,0 +1,39 @@
+N: 4
+DADO: 10
+
+function: luck ROLLA:n and ROLLB:n{
+ RES: 0
+
+ if ([count {1..3} in ROLLA]) {
+   RES: RES +1
+ }
+ if ([count {8..10} in ROLLA]) {
+   RES: RES -1
+ }
+
+ result: RES
+}
+LUCK: [luck d10 and d10]
+
+function: positiveorcero N:n{
+ RES: 0
+
+ if (N > 0) {
+   RES: N
+ }
+ result: RES
+}
+
+DIF: 2
+HA: 5
+HB: 5
+SUCCESSES: 1 \* Complicación (-1), Éxito (0), Ventaja(2), Ventaja importante (3) *\
+
+
+  output ([count {1..HA} in NdDADO] + LUCK) - DIF
+  named "[TIRADA ESTÁTICA] ..... Habilidad [HA] vs [DIF] Dificultad ............................. LEYENDA: ( - ) No lo sacas ( 0 ) Lo sacas ( 2 ) Ventaja ( 3 ) Ventaja importante"
+
+    SUCCESSESA: [count {1..HA} in NdDADO] + [luck d10 and d10]
+    SUCCESSESB: [count {1..HB} in NdDADO] + [luck d10 and d10]    
+    output [positiveorcero (SUCCESSESA)] - [positiveorcero (SUCCESSESB)]
+      named  "[TIRADA ENFRENTADA] ..... Habilidad [HA] vs [HB] Habilidad  ............................. LEYENDA: ( - ) Fallas el ataque ( 0 ) Éxito atacante ( 2 ) Ventaja ( 3 ) Ventaja importante"

@@ -1,0 +1,40 @@
+output 20d6
+ATTACK: 21
+ATTACKDICE: 0
+HITDAMAGE: 3d10+12+1d4+2
+CRITICALDAMAGE: HITDAMAGE * 2
+NOA: 2
+AC: 22
+HP: 546
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+MISSDAMAGE: 0
+loop AC over {AC} {
+DPR: [damage for [attack [highest 1 of 4d20] + ATTACKDICE vs AC]]
+}
+
+output HP / (DPR * NOA) named "rounds to kill"
+output DPR * NOA named "damage per round"

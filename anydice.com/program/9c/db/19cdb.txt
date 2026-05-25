@@ -1,0 +1,57 @@
+\A negativ result means that more of our are wounded than of the enemy.\
+function: ourguys ONUMBER:n winon ODC:n enemyguys ENUMBER:n winon EDC:n {
+ OWIN: [guys ONUMBER winon ODC]
+ EWIN: [guys ENUMBER winon EDC]
+ OATT: [roundup OWIN]
+ ODEF: [rounddown OWIN]
+ OFAIL: [guysfail ONUMBER ]
+ EATT: [roundup EWIN]
+ EDEF: [rounddown EWIN]
+ EFAIL: [guysfail ENUMBER ]
+ OWOUNDS: [suffer EATT against ODEF with OFAIL]
+ EWOUNDS: [suffer OATT against EDEF with EFAIL]
+ result: EWOUNDS - OWOUNDS
+}
+function: guys NUMBER:n winon DC:n{
+ SUCCEEDS: 0
+ loop N over {1..NUMBER} {
+  ROLL: 1d10
+  SUCCEEDS: SUCCEEDS + [{DC..10} contains d10]
+ }
+ result: SUCCEEDS
+}
+function: guysfail NUMBER:n {
+ SUCCEEDS: 0
+ loop N over {1..NUMBER} {
+  ROLL: 1d10
+  SUCCEEDS: SUCCEEDS + [ 1 contains d10]
+ }
+ result: SUCCEEDS
+}
+function: roundup NUMBER:n {
+ if NUMBER >= 2 {
+  result: 1 + [roundup (NUMBER-2)]
+ }
+ if NUMBER >=1 {
+  result: 1
+ }
+ result: 0
+}
+function: rounddown NUMBER:n {
+ if NUMBER >= 2 {
+  result: NUMBER/2 
+ }
+}
+function: suffer ATT:n against DEF:n with FAIL:n {
+ if ATT - DEF <= 0 {
+  result: FAIL
+ }
+ result: ATT - DEF + FAIL
+}
+
+\output [rounddown 7]
+output [roundup 5]
+output [guys 22 winon 4]\
+output [ourguys 16 winon 1 enemyguys 22 winon 4 ]
+output [ourguys 16 winon 2 enemyguys 22 winon 4 ]
+

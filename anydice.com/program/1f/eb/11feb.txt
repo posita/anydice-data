@@ -1,0 +1,53 @@
+\* DIFS: {0 TRIVIAL, NORMAL 1, CONSIDERABLE 2, DIFÍCIL 3} Si no se dice nada, un éxito es suficiente (Dificultad 1 por defecto, Normal)
+Atributos: Pool que te permite por sesión bajar resultados de dados, o retirar dados (anunciando antes de tirar)?chrome-extension://bpelaihoicobbkgmhcbikncnpacdbknn/popup.html#
+Habilidades: Admite modificadores a habilidades máximas (6, ó 7 potenciada por atributo) -> probar HABS: {0..10}
+Resumen: 6 Niveles Hab, 6 Niveles Atributo (+1 Hab), Pifia -1, Critico (+2 niveles de éxito)
+         1d10 Suerte [{1..3} +1 {8..10} -1], 3 Dificultades habituales{1..3} y 0 Fácil o 4 Pulp, Modifs +/- Nivel Hab           *\
+
+function: luck ROLLA:n and ROLLB:n{
+ RES: 0
+
+ if ([count {1..3} in ROLLA]) {
+   RES: RES +1
+ }
+ if ([count {8..10} in ROLLA]) {
+   RES: RES -1
+ }
+
+ result: RES
+}
+LUCK: [luck d10 and d10]
+
+function: managepifia SUCCESSES:n DIFF:n{
+ if (SUCCESSES = -1) {
+   result: 0
+ }
+ if (SUCCESSES < 0) {
+  result: 0
+ }
+ result: SUCCESSES - DIFF
+}
+
+function: passivedifficulty HAB:n {
+ result: 0
+}
+
+N: 4
+DADO: 10
+HABSA: {0..7} \* HABS: {0..10} *\
+HABSB: {0..7} \* HABS: {0..10} *\
+DIFFSA: {1}
+DIFFSB: {2}
+
+loop HA over HABSA {
+ loop HB over HABSB {
+  DIFFA: [passivedifficulty HA]
+  DIFFB: [passivedifficulty HB]
+  output [managepifia ([count {1..HA} in NdDADO] ) DIFFB] 
+       - [managepifia([count {1..HB} in NdDADO] ) DIFFA]  
+       + LUCK
+       named "[HA]vs[DIFFB] VS [HB]vs[DIFFA]"
+ }
+}
+
+

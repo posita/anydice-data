@@ -1,0 +1,43 @@
+function: cost A:n {
+ if A = 7 { result: -4 }
+ if A = 8 { result: -2 }
+ if A = 9 { result: -1 }
+ if A = 10 { result: 0 }
+ if A = 11 { result: 1 }
+ if A = 12 { result: 2 }
+ if A = 13 { result: 3 }
+ if A = 14 { result: 5 }
+ if A = 15 { result: 7 }
+ if A = 16 { result: 10 }
+ if A = 17 { result: 13 }
+ if A = 18 { result: 17 }
+ result: 1000
+}
+function: fixcost A:n {
+ if A < 103 { result: A }
+ result: 103
+}
+function: pointbuy A:d {
+ result: [fixcost 6d [cost A]]
+}
+
+STANDARD: [pointbuy [highest 3 of 4d6]]
+CLASSIC: [pointbuy 3d6]
+HERO: [pointbuy 2d6+6]
+
+function: trimpoints A:d {
+ if [maximum of A] <= 103 { result: A }
+}
+
+function: trim SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#SEQUENCE} {
+  COUNT: COUNT + (103 = P@SEQUENCE)
+ }
+ NUMBER: #SEQUENCE - COUNT
+ result: {1..NUMBER}@SEQUENCE
+}
+
+output [trim STANDARD] named "Standard"
+output [trim CLASSIC] named "Classic"
+output [trim HERO] named "Hero"

@@ -1,0 +1,28 @@
+set "maximum function depth" to 3
+
+function: explode DIE:d {
+  MAX: [maximum of 1@DIE]
+  NUM: #DIE
+  TOTAL: 0
+  loop I over {1..NUM} {
+    TOTAL: TOTAL + [explode I@DIE helper]
+  }
+  result: TOTAL
+}
+
+function: explode N:n helper {
+  if N = MAX { result: I@DIE - 1 + [explode I@DIE helper] }
+  result: I@DIE
+}
+
+function: explode helper {
+  if I@DIE = MAX { result: I@DIE - 1 + [explode helper] }
+  result: I@DIE
+}
+
+MAX: 6
+I: 1
+DIE: 2d6
+output [explode helper] named "test"
+output [explode 1d6] + [explode 1d6] named "d6p+d6p"
+output [explode 2d6] named "2d6p"

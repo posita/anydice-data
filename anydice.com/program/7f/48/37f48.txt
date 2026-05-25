@@ -1,0 +1,52 @@
+LOOP: 0
+TOTALDAMAGE: 0
+ATTACK: 19
+TARGETAC: 20
+
+function: confirm ROLL:n mod ATTACK target AC damage DAMAGE extra EXTRA {
+ if ROLL > 1 & ROLL+ATTACK >= AC {
+  result: DAMAGE + DAMAGE + EXTRA
+ } else {
+  result: DAMAGE + EXTRA
+ }
+}
+
+function: roll ROLL:n mod ATTACK target AC damage DAMAGE extra EXTRA {
+ if ROLL = 20 {
+  result: [confirm 1d20 mod ATTACK target AC damage DAMAGE extra EXTRA]
+ } else if ROLL > 1 & ROLL + ATTACK >= AC {
+  result: DAMAGE + EXTRA
+ }
+ else
+ {
+  result: 0
+ }
+}
+
+loop LOOP over {1..2} {
+ DAMAGE: [roll 1d20 mod ATTACK target TARGETAC damage 1d6+8 extra 1d4]
+ TOTALDAMAGE: TOTALDAMAGE + DAMAGE
+ output DAMAGE named "Claw Attack #[LOOP]"
+}
+
+loop LOOP over {1..3} {
+ if LOOP = 3 {
+  DAMAGE: [roll 1d20 mod ATTACK-5 target TARGETAC damage 1d8+8 extra 1d4]
+ } else {
+  DAMAGE: [roll 1d20 mod ATTACK target TARGETAC damage 1d8+8 extra 1d4]
+ }
+ output DAMAGE named "Bite Attack #[LOOP]"
+ TOTALDAMAGE: TOTALDAMAGE + DAMAGE
+}
+
+loop LOOP over {1..2} {
+ DAMAGE: [roll 1d20 mod ATTACK-2 target TARGETAC damage 1d6+6 extra 1d4]
+ TOTALDAMAGE: TOTALDAMAGE + DAMAGE
+ output DAMAGE named "Wing Attack #[LOOP]"
+}
+
+DAMAGE: [roll 1d20 mod ATTACK-2 target TARGETAC damage 1d8+6 extra 1d4]
+TOTALDAMAGE: TOTALDAMAGE + DAMAGE
+output DAMAGE named "Stinger Attack"
+
+output TOTALDAMAGE named "Total Damage"

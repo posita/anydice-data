@@ -1,0 +1,24 @@
+INITMOD: 0 \Your initiative bonus goes here.\
+ENEMYINITMOD: 0 \Enemy's initiative bonus goes here.\
+
+output (1d20+INITMOD)-(1d20+ENEMYINITMOD) > 0 named "Chance of winning initiative (both creatures have +0 init)"
+output (1d20+INITMOD)-(1d20+ENEMYINITMOD) = 0 named "Chance of tying initiative (both creatures have +0 init)"
+output (1d20+INITMOD)-(1d20+ENEMYINITMOD) < 0 named "Chance of losing initiative (both creatures have +0 init)"
+
+\If you want to represent Advantage, replace "1d20" with "[highest 1 of 2d20]"
+If you want to represent Disadvantage, replace "1d20" with "[lowest 1 of 2d20]"
+For example:\
+
+INITMOD: 5
+ENEMYINITMOD: 0
+output ([highest 1 of 2d20]+INITMOD)-(1d20+ENEMYINITMOD) > 0 named "Chance of winning initiative (you have +5 Init and Advantage, enemy has +0 init)"
+
+\Now let's try something more complex:  comparing the value of a higher chance of winning initiative between two characters.\
+
+INITA: 5  \This is the initiative mod of Character A\
+INITB: 0  \This is the initiative mod of Character B, who you want to compare the effectiveness of character A to\
+ENEMYINITMOD: 0 \This is the initiative mod of the monster they're fighting\
+NUMBEROFROUNDS: 3 \This is the number of rounds we assume that an initiative-winning character gets to accomplish their damage output goal.  Initiative-losing characters effectively get one less round\
+TIEBREAKER: 0 \Enter 1 if your DM makes a tie win initiative for the PC, and 0 if your DM makes a tie lose initiative for the PC\
+
+output (((1d20+INITA)-(1d20+ENEMYINITMOD) > 0-TIEBREAKER) - ((1d20+INITB)-(1d20+ENEMYINITMOD) > 0-TIEBREAKER))*(1/NUMBEROFROUNDS)

@@ -1,0 +1,34 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+ATTACKDICE  : 2
+MAT: 6
+DMGDICE:2
+POW:13
+
+DEF: 13
+ARM:16
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 2 { result: MISS }
+ else 
+   {
+   if ROLL + MAT >= DEFENSE { result: HIT }
+   else 
+   { result: MISS }
+ }
+}
+
+function: damage for ATTACKS:s {
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = HIT { D: D + [highest of 0 and DMGDICEd6 + POW - ARM] }
+ }
+ result: D 
+}
+
+output [attack ATTACKDICEd6 vs DEF] named "Chance of hit on [ATTACKDICEd]6 vs DEF [DEF] with MAT [MAT]"
+
+output [damage for [attack ATTACKDICEd6 vs DEF]] named "Expected minimum damage on [ATTACKDICE]d6 + MAT [MAT], [DMGDICE]d6 + POW [POW] against DEF [DEF] and ARM [ARM]"

@@ -1,0 +1,57 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs AC:n {
+ if ROLL >= 19 { result: CRIT }
+ if ROLL = 0 { result: MISS }
+ if ROLL + TOHIT >= AC {result: CRIT}
+ result: CRIT
+}
+
+function: damage for ATKRSLT:n {
+ if ATKRSLT = CRIT { result: CRITDMG }
+ if ATKRSLT = HIT { result: HITDMG }
+ if ATKRSLT = MISS { result: 0 }
+}
+
+function: swing {
+ result: [damage for [attack [highest 1 of 2d20] vs AC]]
+}
+
+function: savage attacker A:n or B:n {
+ if A>B { result: A }
+ result: B
+}
+
+AC: d{16..25}
+
+TOHIT: 5\STR20\ + 6\PROF\ + 1\Magic Weapon\ - 5\Great Weapon Mastery\
+CRITDMG: 6d{{1,2}, {3..12}:7} + 5 + 4\Rage\ + 1\Magic Weapon\ + 10\Great Weapon Mastery\
+HITDMG: 1d{{1,2}, {3..12}:7} + 5 + 4\Rage\ + 1\Magic Weapon\ + 10\Great Weapon Mastery\
+output 3 * [swing] named "Greataxe GWM"
+
+TOHIT: 5\STR20\ + 6\PROF\ + 1\Magic Weapon\ - 5\Great Weapon Mastery\
+CRITDMG: 8d{{1,2}, {3..6}:4} + 5 + 4\Rage\ + 1\Magic Weapon\ + 10\Great Weapon Mastery\
+HITDMG: 2d{{1,2}, {3..6}:4} + 5 + 4\Rage\ + 1\Magic Weapon\ + 10\Great Weapon Mastery\
+output 3 * [swing] named "Maul GWM"
+
+TOHIT: 5\STR20\ + 6\PROF\ + 1\Magic Weapon\
+CRITDMG: [savage attacker 6d{{1,2}, {3..12}:7} or 6d{{1,2}, {3..12}:7}] + 5 + 4\Rage\ + 1\Magic Weapon\
+HITDMG: [savage attacker 1d{{1,2}, {3..12}:7} or 1d{{1,2}, {3..12}:7}] + 5 + 4\Rage\ + 1\Magic Weapon\
+output [swing] named "Greataxe SA1"
+
+TOHIT: 5\STR20\ + 6\PROF\ + 1\Magic Weapon\
+CRITDMG: 6d{{1,2}, {3..12}:7} + 5 + 4\Rage\ + 1\Magic Weapon\
+HITDMG: 1d{{1,2}, {3..12}:7} + 5 + 4\Rage\ + 1\Magic Weapon\
+output 2 * [swing] named "Greataxe SA2+3"
+
+TOHIT: 5\STR20\ + 6\PROF\ + 1\Magic Weapon\
+CRITDMG: [savage attacker 8d{{1,2}, {3..6}:4} or 8d{{1,2}, {3..6}:4}] + 5 + 4\Rage\ + 1\Magic Weapon\
+HITDMG: [savage attacker 2d{{1,2}, {3..6}:4} or 2d{{1,2}, {3..6}:4}] + 5 + 4\Rage\ + 1\Magic Weapon\
+output [swing] named "Maul SA1"
+
+TOHIT: 5\STR20\ + 6\PROF\ + 1\Magic Weapon\
+CRITDMG: 8d{{1,2}, {3..6}:4} + 5 + 4\Rage\ + 1\Magic Weapon\
+HITDMG: 2d{{1,2}, {3..6}:4} + 5 + 4\Rage\ + 1\Magic Weapon\
+output 2 * [swing] named "Maul SA2+3"

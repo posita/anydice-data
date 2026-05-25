@@ -1,0 +1,29 @@
+DICES: 8
+SMALLEST_DICE_SIDES: 6
+
+function: check NUM:n {result: NUM >= 6}
+
+function: skillcheck LEVEL:n {
+ ROW: (LEVEL-1)/DICES
+
+ SMALL_DICE_SIDE: 0
+ BIG_DICE_SIDE: SMALLEST_DICE_SIDES
+ 
+ if ROW > 0 {
+  SMALL_DICE_SIDE: 2 * (ROW + 2)
+  BIG_DICE_SIDE: SMALL_DICE_SIDE + 2
+ }
+
+ SMALL_DICE_AMOUNT: DICES - (LEVEL - DICES * ROW)
+ BIG_DICE_AMOUNT: DICES - SMALL_DICE_AMOUNT
+
+
+ TOTAL: 0
+ TOTAL: TOTAL + [count {6..12} in (SMALL_DICE_AMOUNT)d{1..SMALL_DICE_SIDE}]
+ TOTAL: TOTAL + [count {6..12} in (BIG_DICE_AMOUNT)d{1..BIG_DICE_SIDE}]
+ result: TOTAL
+}
+
+
+loop LEVEL over {1..(DICES*4)} {
+output [skillcheck LEVEL]  named "[LEVEL]"}

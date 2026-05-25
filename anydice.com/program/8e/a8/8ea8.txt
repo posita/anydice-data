@@ -1,0 +1,36 @@
+DECK: 54
+PLUS: DECK / 3
+BLANK: PLUS
+MINUS: PLUS
+SEQUENCE:{1:PLUS,0:BLANK,-1:MINUS}
+
+\ The deck is treated as a mutating die.
+# Sequence-mutating function library by zespri:
+# http://rpg.stackexchange.com/questions/63174/is-it-possible-to-model-this-die-with-anydice?answertab=votes#tab-top
+ \
+
+function: remove N:n from SEQUENCE:s {
+  RESULT:{}
+  REMOVED: 0
+  loop C over SEQUENCE {
+    if (REMOVED = 0) & (C=N) { REMOVED: 1 } else { RESULT: {RESULT,C} }
+  }
+  result: RESULT
+}
+
+function: draw from SEQUENCE:s with X:n and RESULT:s C:n more times{
+  if C = 0 {
+   result: RESULT
+  } else {
+    SEQUENCE: [remove X from SEQUENCE]
+    result: [draw from SEQUENCE with dSEQUENCE and {RESULT,X} C-1 more times]
+  }
+}
+
+function: draw from SEQUENCE:s N:n times {
+  result: [draw from SEQUENCE with dSEQUENCE and {} N more times]
+}
+
+\ And now to compare. \
+output [draw from SEQUENCE 4 times] named "mydeck"
+output 4d{-1..1} named "4dF"

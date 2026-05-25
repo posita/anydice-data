@@ -1,0 +1,29 @@
+function: lament ROLL:s {
+ if 1@ROLL = 1 {
+  \ catastrophe \
+  result: -1
+ }
+ ONES: [count 1 in ROLL]
+ if ONES >= (#ROLL+1) / 2 {
+  \ failure \
+  result: 0
+ }
+ if !SPOILED & [count 6 in ROLL] >= ONES + 2 {
+  \ critical success \
+  result: 2
+ }
+ \ success \
+ result: 1
+}
+
+function: lament ROLL:s spoiled N:n {
+ SPOILED: N = 1
+ result: [lament [sort {ROLL, N}]]
+}
+
+SPOILED: 0
+
+loop N over {2..10} {
+ output [lament Nd6] named "[N]d"
+ output [lament (N-1)d6 spoiled d4] named "[N]d spoiled"
+}

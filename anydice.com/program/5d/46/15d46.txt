@@ -1,0 +1,26 @@
+function: restrict ROLL:n to RANGE:s else REROLL:d {
+  if ROLL = RANGE { result: ROLL }
+  else { result: REROLL }
+}
+function: restrict ROLL:d to RANGE:s {
+  loop I over {1..20} {
+    ROLL: [restrict ROLL to RANGE else ROLL]
+  }
+  result: ROLL
+}
+
+\ expects relabeled dice where < 0 is fail and > 0 is success \
+function: count fails in ROLL:s if N:n or more successes {
+  FAILS: ROLL < 0
+  SUCCESSES: ROLL > 0
+  if SUCCESSES < N { result: -1 }
+  else { result: FAILS }
+}
+
+N: 4
+POOL: Nd{-1,0,+1}
+
+loop K over {0..N} {
+  FAILS: [count fails in POOL if K or more successes]
+  output [restrict FAILS to {0..N}] named "fails assuming [K]+ successes out of [N]"
+}

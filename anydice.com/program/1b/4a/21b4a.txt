@@ -1,0 +1,17 @@
+function: stunt points for DICE:s and STUNT_DIE:n vs TARGET:n {
+  if {1,2}@DICE + STUNT_DIE < TARGET { result: 0 }  \ miss \
+
+  \ it's a hit; can we choose a pair that will give us stunts? \
+  if 1@DICE = STUNT_DIE { result: STUNT_DIE }
+  if DICE = STUNT_DIE & 1@DICE + 2 * STUNT_DIE >= TARGET { result: STUNT_DIE }
+  loop I over {1..#DICE-1} {
+    if I@DICE = (I+1)@DICE & 2 * I@DICE + STUNT_DIE >= TARGET { result: STUNT_DIE }
+  }
+
+  result: 0  \ hit but no pair \
+}
+
+TARGET: 10
+loop X over {2..6} {
+  output [stunt points for Xd6 and d6 vs TARGET] named "[X]+1 dice, hit on [TARGET]"
+}

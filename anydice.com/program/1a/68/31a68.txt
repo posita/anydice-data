@@ -1,0 +1,30 @@
+\**** Remi Sharpshooter ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 4
+ENCHANT: 1
+ADV: 0
+HIGHGROUND: 0
+DMGBONUS: ENCHANT
+PROFICIENCY: 3
+CRITROLL: 18
+
+
+ACCBONUS: ENCHANT + 2*HIGHGROUND - 5
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS + 10 + 4d6
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS + 10 + 8d6
+output [attackroll [highest 1 of (ADV+1)d20] vs ENEMYAC] named "Sharpshooter"
+
+ACCBONUS: ENCHANT + 2*HIGHGROUND
+DAMAGE: d6 + ATTACKMOD + DMGBONUS + 4d6
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS + 8d6
+output [attackroll [highest 1 of (ADV+1)d20] vs ENEMYAC] named "No SS"

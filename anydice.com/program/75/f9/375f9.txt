@@ -1,0 +1,48 @@
+ACCURACY: -1
+ACCURACYROLL: [highest 1 of ACCURACYd6]
+output 1d20+[highest 1 of ACCURACYd6]
+ACCURATETRAIT: 1d6
+TESTEVASION: 8
+TESTARMOR: 0
+
+function: armordiff INCOMINGDAMAGE:n vs ARMOR:n {
+ if INCOMINGDAMAGE >= ARMOR { result: INCOMINGDAMAGE-ARMOR }
+ result: 0
+}
+
+function: antimaterielrifle ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 0
+ if ROLL = 1 { OUTGOINGDAMAGE: 0}
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 2 of 4d6]
+ }
+ if ROLL >= DEFENSE { OUTGOINGDAMAGE: 2d6}
+ result: [armordiff OUTGOINGDAMAGE vs ARMOR]
+}
+
+output [antimaterielrifle  d20+ACCURATETRAIT vs TESTEVASION and TESTARMOR] named "Anti-Materiel Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+function: assaultrifle ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 2
+ if ROLL = 1 { OUTGOINGDAMAGE: 2}
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d{2,2,3,4,5,6}]
+ }
+ if ROLL >= DEFENSE { OUTGOINGDAMAGE: 1d{2,2,3,4,5,6}}
+ result: [armordiff OUTGOINGDAMAGE vs ARMOR]
+}
+
+output [assaultrifle d20 vs TESTEVASION and TESTARMOR] named "Assault Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+function: chargedblade ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 0
+ if ROLL = 1 { OUTGOINGDAMAGE: 0}
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d3]+3
+ }
+ if ROLL >= DEFENSE { OUTGOINGDAMAGE: 1d3}
+ result: OUTGOINGDAMAGE
+}
+
+output [chargedblade d20 vs TESTEVASION and TESTARMOR] named "Charged Blade vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+

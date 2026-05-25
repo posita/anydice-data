@@ -1,0 +1,64 @@
+MISS: 0
+HIT: 1
+CRITICAL_HIT: 2
+
+function: attack ROLL:n mod BONUS:n crit CRIT:n vs DEFENSE:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRIT {
+    if ROLL + BONUS >= DEFENSE { result: CRITICAL_HIT }
+    result: HIT
+  }
+  if ROLL + BONUS >= DEFENSE { result: HIT }
+  result: MISS
+}
+
+function: dmgseq ROLL:d mod BONUS:n on attack ATTACK:n {
+  if ATTACK = MISS { result: {0} }
+  X:ROLL + BONUS
+  if ATTACK = CRITICAL_HIT {
+    X:X + ROLL
+  }
+  result: X
+}
+
+function: N:n is hit {
+  result: N = HIT | N = CRITICAL_HIT
+}
+
+function: seq N:n times D:d {
+  X:D
+  loop ATTEMPT over {2..N} {
+    X: X + D
+  }
+  result: X
+}
+
+
+DISADV: [lowest 1 of 2d20]
+ADV: [highest 1 of 2d20]
+ELVENADV: [highest 1 of 3d20]
+
+BASED: [attack DISADV mod 11 crit 20 vs 21]
+DMGD: [dmgseq 1d10 mod 5 on attack BASED]
+
+BASEN: [attack ADV mod 13 crit 20 vs 25]
+DMGN: [dmgseq 1d10 mod 7 on attack BASEN]
+BASESHIELD: [attack d20 mod 11 crit 20 vs 26]
+DMGSHIELD: [dmgseq 1d10 mod 5 on attack BASESHIELD]
+DMGEB: [seq 4 times DMGN]
+output [seq 4 times DMGEB] named "4 Normal on 25"
+
+DMGWEAP: [dmgseq 1d8 mod 5 on attack BASEN]
+DMGGFB: [dmgseq 4d8 mod 5 on attack BASEN]
+\ output [seq 1 times DMGWEAP] + [seq 1 times DMGGFB] named "Att + GFB on 21"
+\
+
+BASETARR: [attack DISADV mod 19 crit 20 vs 36]
+DMGTARRBITE: [dmgseq 4d12 mod 10 on attack BASETARR]
+DMGTARRCLAW: [dmgseq 4d8 mod 10 on attack BASETARR]
+DMGTARRHORNS: [dmgseq 4d10 mod 10 on attack BASETARR]
+DMGTARRTAIL: [dmgseq 4d6 mod 10 on attack BASETARR]
+DMGTARRRND: DMGTARRBITE + DMGTARRCLAW + DMGTARRCLAW + DMGTARRHORNS + DMGTARRTAIL
+output [seq 4 times DMGTARRRND] named "Tarrasque 4 rnd dmg"
+
+

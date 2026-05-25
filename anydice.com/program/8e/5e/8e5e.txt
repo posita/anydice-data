@@ -1,0 +1,78 @@
+MISS: 0 
+HIT: 1 
+CRITICALHIT: 2 
+
+function: attack ROLL:n vs DEFENSE:n { 
+if ROLL = 1 { result: MISS } 
+if ROLL = 20 { 
+if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT } 
+result: HIT 
+} 
+if ROLL + ATTACK >= DEFENSE { result: HIT } 
+result: MISS 
+} 
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: uadamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITUADAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: UADAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: lstaffdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITLSTAFFDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: LSTAFFDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack { 
+result: [damage for [attack d20 vs DEFENSE]] 
+} 
+
+function: unarmedattack {
+ result: [uadamage for [attack d20 vs DEFENSE]]
+}
+
+
+function: lstaffattack {
+ result: [uadamage for [attack d20 vs DEFENSE]]
+}
+
+
+DEFENSE: d{10..20} 
+
+ATTACK: 7 
+
+HITDAMAGE: d8 + 4 
+CRITICALDAMAGE: 2d8 + 4 
+UADAMAGE: 1d4 + 4
+CRITUADAMAGE: 2d4 + 4
+LSTAFFDAMAGE: 1d8 + 1d6 + 4
+CRITLSTAFFDAMAGE: 2d8 + 2d6 + 4
+MISSDAMAGE: 0 
+
+
+output [attack] named "Pip - Monk Staff"
+output [attack] + [unarmedattack] named "Staff + Unarmed Strike"
+output [attack] + [unarmedattack] + [unarmedattack] named "Staff & FoB"
+output [lstaffattack] + [unarmedattack] + [unarmedattack] named "Staff+1 & FoB"
+output [lstaffattack] + [lstaffattack] + [unarmedattack] + [unarmedattack] named "Staff+1 & Extra Attack & FoB"
+
+

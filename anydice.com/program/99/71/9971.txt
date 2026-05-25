@@ -1,0 +1,97 @@
+\Function for weapon/spell with attack rolls (Do not edit)\
+function: ROLL:n vs AC:n {
+ if ROLL >= CRIT_MIN  {
+  result: CRIT_TOTAL
+ }
+ if ROLL + ATTACK_BONUS >= AC {
+  result: HIT_TOTAL
+ }
+ result: 0
+}
+
+\Function for spells/cantrips with saves (Do not edit)\ 
+function: ROLL:n SAVE_BONUS:n save vs DC:n {
+ if (ROLL + SAVE_BONUS) >= DC {
+  result: SAVE_DAMAGE}
+ result: FAIL_DAMAGE
+}
+
+\ Function for attacks that force saves on hits (Do not edit)\
+function: on ATTACK_ROLL:n AC:n hit save SAVE_ROLL:n {
+ if ATTACK_ROLL >= CRIT_MIN  {
+  result: CRIT_TOTAL + d [SAVE_ROLL SAVE_BONUS save vs DC]
+ }
+ if (ATTACK_ROLL + ATTACK_BONUS) >= AC {
+  result: HIT_TOTAL + d [SAVE_ROLL SAVE_BONUS save vs DC]
+ }
+ result: 0
+}
+
+\Make changes here if you want to compare your attacks to enemies with higher ACs or saving throw bonuses\
+AC: d{14..20}      \For each attack choose a random AC between 14 and 20\
+SAVE_BONUS: d{0..5} \For each saving throw choose a random saving throw bonus between 0 and 5\
+
+
+\ Copy and edit the block below to compare additional attack options.\
+ATTACKS: 2        \Number of Attacks per Round\
+ATTACK_BONUS: 9   \Attack bonus to hit (Ability Modifier + Proficiency)\ 
+DAMAGE_DICE: 1d8  \Damage dice on a standard hit (Include dice from both weapon and features like sneak attack)\
+DAMAGE_BONUS: 5   \Damage bonus (Ability Modifier, 0 for most cantrips)\
+CRIT_MIN: 20      \Minimum number required to score a critical hit (Champion Fighters should change to 18 or 19)\
+CRIT_BONUS: 0     \Additional damage deal on a critical hit (e.g. Brutal Critical, Paladins choosing to smite on a crit)\
+\Calculate the total damage for both a regular hit and a critical hit\
+HIT_TOTAL: DAMAGE_DICE + DAMAGE_BONUS
+CRIT_TOTAL: DAMAGE_DICE + DAMAGE_DICE + DAMAGE_BONUS + CRIT_BONUS
+output ATTACKS d [d20 vs AC] named "Two longsword attacks with +5 str and +4 proficiency"
+
+\Copy edit the block below for comparing additional spells or cantrips \
+SAVE_DAMAGE: 0     \Damage dealt when the target saves\
+FAIL_DAMAGE: 2d8+5 \Damage dealt when the target fails saving throw\
+DC: 17
+output d [d20 SAVE_BONUS save vs DC] named "Empowered Cantrip Sacred Flame (DC 17)"
+
+\ Example attack that forces a save\
+ATTACKS: 1        \Number of Attacks per Round\
+ATTACK_BONUS: 9   \Attack bonus to hit (Ability Modifier + Proficiency)\ 
+DAMAGE_DICE: 1d4 \Damage dice on a standard hit (Include dice from both weapon and features like sneak attack)\
+DAMAGE_BONUS: 5   \Damage bonus (Ability Modifier, 0 for most cantrips)\
+CRIT_MIN: 20      \Minimum number required to score a critical hit (Champion Fighters should change to 18 or 19)\
+CRIT_BONUS: 0     \Additional damage deal on a critical hit (e.g. Brutal Critical, Paladins choosing to smite on a crit)\
+\Calculate the total damage for both a regular hit and a critical hit\
+HIT_TOTAL: DAMAGE_DICE + DAMAGE_BONUS
+CRIT_TOTAL: DAMAGE_DICE + DAMAGE_DICE + DAMAGE_BONUS + CRIT_BONUS 
+SAVE_DAMAGE: 1d10     \Damage dealt when the target saves\
+FAIL_DAMAGE: 2d10 \Damage dealt when the target fails saving throw\
+DC: 15
+POISON_DAGGER: d [on d20 AC hit save d20]
+output POISON_DAGGER named "Poisoned Dagger (on hit DC15 save for half of 2d10)"
+
+
+\Complex example Calculating Average Damage per Round for a Giant Scorpion\
+ATTACKS: 2        \Number of Attacks per Round\
+ATTACK_BONUS: 4   \Attack bonus to hit (Ability Modifier + Proficiency)\ 
+DAMAGE_DICE: 1d8  \Damage dice on a standard hit (Include dice from both weapon and features like sneak attack)\
+DAMAGE_BONUS: 2   \Damage bonus (Ability Modifier, 0 for most cantrips)\
+CRIT_MIN: 20      \Minimum number required to score a critical hit (Champion Fighters should change to 18 or 19)\
+CRIT_BONUS: 0     \Additional damage deal on a critical hit (e.g. Brutal Critical, Paladins choosing to smite on a crit)\
+\Calculate the total damage for both a regular hit and a critical hit\
+HIT_TOTAL: DAMAGE_DICE + DAMAGE_BONUS
+CRIT_TOTAL: DAMAGE_DICE + DAMAGE_DICE + DAMAGE_BONUS + CRIT_BONUS
+CLAW_ATTACKS: ATTACKS d [d20 vs AC]
+
+ATTACKS: 1        \Number of Attacks per Round\
+ATTACK_BONUS: 4   \Attack bonus to hit (Ability Modifier + Proficiency)\ 
+DAMAGE_DICE: 1d10 \Damage dice on a standard hit (Include dice from both weapon and features like sneak attack)\
+DAMAGE_BONUS: 2   \Damage bonus (Ability Modifier, 0 for most cantrips)\
+CRIT_MIN: 20      \Minimum number required to score a critical hit (Champion Fighters should change to 18 or 19)\
+CRIT_BONUS: 0     \Additional damage deal on a critical hit (e.g. Brutal Critical, Paladins choosing to smite on a crit)\
+\Calculate the total damage for both a regular hit and a critical hit\
+HIT_TOTAL: DAMAGE_DICE + DAMAGE_BONUS
+CRIT_TOTAL: DAMAGE_DICE + DAMAGE_DICE + DAMAGE_BONUS + CRIT_BONUS 
+SAVE_DAMAGE: 2d10     \Damage dealt when the target saves\
+FAIL_DAMAGE: 4d10 \Damage dealt when the target fails saving throw\
+DC: 12
+STING_ATTACK: d [on d20 AC hit save d20]
+
+
+output CLAW_ATTACKS + STING_ATTACK named "Giant Scorpion (2 claws 1 sting)"

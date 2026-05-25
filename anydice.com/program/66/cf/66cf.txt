@@ -1,0 +1,30 @@
+MELEE:0
+DISTANCE:18
+
+ACCURACY:2
+ATTACKCS:2
+DAMAGE:2
+RANGE:2
+
+AGILITY:1
+DEFENDCS:2
+RESILIENCE:1
+
+if MELEE = 1 {
+HIT: d6 + d6 + ATTACKCS - ((DEFENDCS + 2) * AGILITY)
+}
+else {
+HIT: d6 + d6 + ACCURACY - ((DISTANCE / RANGE) + AGILITY)
+}
+
+HIT: HIT >= 0
+
+output HIT named "Hit"
+
+WOUND: d6 + d6 + DAMAGE - RESILIENCE
+
+output (WOUND <= 4) * HIT named "'Tis But A Scratch"
+output ([count WOUND in {5,6}]) * HIT named "Limping"
+output ([count WOUND in {7,8}]) * HIT named "Bleeding"
+output ([count WOUND in {9,10}]) * HIT named "Winded"
+output (WOUND >= 11) * HIT named "Unconscious"

@@ -1,0 +1,119 @@
+\chose what you want to display (1) or hide (0)\
+SUCC: 0
+FAIL: 0
+ADVR: 1
+
+function: push D:n {
+\D: dice, T: target\
+ result: 2@2dD
+}
+
+function: roll N:n dc D:n vs T:s push P:n {
+\N: nb dices, D: dice, T: target, P: push or not\
+  if P = 0 {result: [count NdD in T]}
+  R: 0
+  loop I over {1..N}{
+    R: R + [count [push D] in T]
+  }
+  result: R
+}
+
+function: roll N:n dc D:n highest P:n {
+\N: nb dices, D: dice, P: push or not\
+  if P = 0 {result: [highest 1 of NdD]}
+  R: 0
+  loop I over {1..N}{
+    R: R + [highest of [push D] and R]
+  }
+  result: R
+}
+
+\init output to avoid errors if not used\
+RCP: 0
+RDF: 0
+RAT: 0
+FCP: 0
+FDF: 0
+FAT: 0
+
+\system range values\
+DES: {20, 12, 10, 8, 6, 4}
+DE_AT: 4
+NV_AT: {0..3}
+NV_DF: 2
+NV_FQ: {0..2}
+NV_CP: {0..4}
+NV_RR: {0..3}
+KO: {8..20}
+
+\Defines when Attribute is included in Stats\
+CT_AT: {1,2}
+\Defines Push mechanism\
+RR_AT: {2}
+RR_CP: {3}
+RR_DF: {5}
+
+\remove var from loops if fixed\
+NAT: 1
+DAT: DE_AT@DES
+KAT: {8..20}
+KCP: {8..20}
+KDF: {8..20}
+DDF: 1@DES
+
+
+loop AT over NV_AT {
+  MAT: (AT + 1)
+  SAT: {1..MAT}
+  MCP: (AT + 1)
+  SCP: {1..MCP}
+  MDF: (AT + 1)
+  SDF: {1..MDF}
+
+  loop FQ over NV_FQ {
+    DCP: (NV_DF + FQ)@DES
+
+    loop CP over NV_CP {
+      NCP: CP
+      NDF: 4 - CP
+
+      loop PH over NV_RR {  
+
+        if [count {PH} in RR_AT] > 0 {PAT: 1} else {PAT: 0}
+        if [count {PH} in RR_CP] > 0 {PCP: 1} else {PCP: 0}
+        if [count {PH} in RR_DF] > 0 {PDF: 1} else {PDF: 0}
+
+        if SUCC {
+          RAT: [roll NAT dc DAT vs SAT push PAT]
+          RCP: [roll NCP dc DCP vs SCP push PCP]
+          RDF: [roll NDF dc DDF vs SDF push PDF]
+          R: RCP + RDF
+          if [count {PH} in CT_AT] > 0 {R: R + RAT} 
+          R: [lowest of R and 4]
+          if PH = 0 {output R named "CMP:OK:[AT]:[FQ]:[CP]"}
+          if PH = 1 {output R named "ADR:OK:[AT]:[FQ]:[CP]"}
+          if PH = 2 {output R named "PAD:OK:[AT]:[FQ]:[CP]"}
+          if PH = 3 {output R named "PCP:OK:[AT]:[FQ]:[CP]"} 
+        }
+
+        if FAIL {
+          FAT: [roll NAT dc DAT vs KAT push PAT]
+          FCP: [roll NCP dc DCP vs KCP push PCP]
+          FDF: [roll NDF dc DDF vs KDF push PDF]
+          F: FCP + FDF
+          if [count {PH} in CT_AT] > 0 {F: F + FAT}  
+          F: [lowest of F and 4] > 2
+          if PH = 0 {output F named "CMP:KO:[AT]:[FQ]:[CP]"}
+          if PH = 1 {output F named "ADR:KO:[AT]:[FQ]:[CP]"}
+          if PH = 2 {output F named "PAD:KO:[AT]:[FQ]:[CP]"}
+          if PH = 3 {output F named "PCP:KO:[AT]:[FQ]:[CP]"} 
+        }
+
+        if ADVR {
+          A: [roll NCP dc DCP  highest PCP]
+          B: [roll NDF dc DDF  highest PDF]
+          output (([middle 1 of A] > 6) & ([middle 1 of A] < 11)) | 
+          (([middle 1 of B] > 6) & ([middle 1 of B] < 11)) named "ADV:[AT]:[FQ]:[CP]"
+        }
+
+}}}}

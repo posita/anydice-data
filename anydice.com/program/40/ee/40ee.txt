@@ -1,0 +1,25 @@
+function: roll RANK:n bonus BONUS:n penalty PENALTY:n{
+  RES:0
+  DICE: RANK + BONUS
+  PREVIOUS: 0
+  loop N over {1..RANK} {
+    if BONUS > 0
+    {
+     A: 1d6
+     B: 1d6
+     NEWVAL: [highest of PREVIOUS and [highest of A and B]]
+     RES: RES + NEWVAL
+     BONUS: BONUS -1
+     DISCARD: [lowest of PREVIOUS and [lowest of A and B]]
+     PREVIOUS: (A + B + PREVIOUS) - NEWVAL - DISCARD
+    }
+    else
+    {
+     RES: RES + [highest of 1d6 and PREVIOUS]
+     PREVIOUS: 0
+    }
+  }
+  result:RES
+}
+
+output [roll 3 bonus 0 penalty 0]

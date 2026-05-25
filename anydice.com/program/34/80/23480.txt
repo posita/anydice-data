@@ -1,0 +1,62 @@
+\Attacker Values, change these as desired\
+PV: 16
+TO_HIT: 0
+BASE_DMG: 4d16
+ON_HIT_BONUS: 0 \for any damage that happens on a hit, regardless of penetration\
+MASTERWORK: 0 \change to 1 for masterwork, can be set higher to simulate higher crit chances (+5% per increment of 1)\
+ATTACKER_IS_PLAYER:0 \set to 1 if player is attacking, according to the wiki a player crit guarantees minimum of 1 penetration\
+
+\Defender Values, change these as desired\
+AV: 22
+DV: 0
+
+\These set how many times the calculation will "explode" dice, and how many times it will loop over the penetration function (when all 3 tests penetrate)\
+set "explode depth" to 5
+set "maximum function depth" to 10
+
+
+function: hit roll X:n
+{
+    if X >= 20 - MASTERWORK { result: 2 }
+    if X + TO_HIT > DV { result: 1 }
+    result: 0
+}
+
+function: penetration test _PV tally N:n
+{
+    if N < 3 & N > 0 { result: 1 }
+    if N = 0 { result: 0 }
+    
+    TRI: 0
+    loop I over {1..3}
+    {
+        TRI: TRI + ([explode 1d10 - 2] + _PV > AV)
+    }
+    
+    result: (N = 3) + [penetration test (_PV - 2) tally TRI]
+}
+
+function: dmg calc _HIT:n _PEN:n
+{
+    if _HIT = 2 & _PEN = 0 & ATTACKER_IS_PLAYER { _PEN: 1}
+
+    DMG: 0
+    if _HIT > 0 & _PEN > 0
+    {
+	loop I over {1.._PEN}
+        {
+	    DMG: DMG + BASE_DMG
+	}
+
+	DMG: DMG + ON_HIT_BONUS
+    }
+    result: DMG
+}
+
+HIT: [hit roll d20] \This calls the hit check function\
+output HIT named "Hit and Crit Chance (0 is miss, 1 is hit, 2 is crit)"
+
+PEN: [penetration test PV tally -1] \This calls the penetration check function\
+output PEN named "Number of Penetrations"
+
+output [dmg calc HIT PEN] named "Damage (Average is first value in brackets)->" \This calls and outputs the damage calculation function. The average damage can be seen in the brackets next to the output title\

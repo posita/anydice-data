@@ -1,0 +1,62 @@
+function: ROLL:s skill SKIL diff DIF{
+ result:(ROLL <= SKIL) + (ROLL = SKIL) - (ROLL < DIF)* 2 
+}
+
+function: adv ADV:s{
+ result: (ADV = 4)
+}
+
+function: dis DIS:s{
+ result: (DIS = 1) * -2
+}
+
+ DIF: 2
+ AD: [adv 1d4]
+ ADD: [adv 2d4]
+ ADDD: [adv 3d4]
+ DS: [dis 1d6]
+ DSS: [dis 2d6]
+ DSSS: [dis 3d6]
+ NUM: 0
+loop N over {2..0}{
+ R: [2d20 skill N diff DIF]
+ output R > NUM named "Skill [N]"
+ O: R + AD
+}
+
+function: dmg ROLL:s I B{
+ R: (ROLL <= I) + (ROLL = I) - (ROLL < B)*2 + [lowest 1 of 3d4] - 1
+ result: R
+}
+
+
+A: [dis 4d6]
+AA: [dis 6d6]
+BOD: 3
+loop T over {6..0}{
+ D: [dmg 2d20 T BOD] 
+ output D named "Impact [T] Body [BOD]"
+ \output (D + A) > 0 named "Impact [T] Body [BOD] arm3"
+ output (D + AA) > 0 named "Impact [T] Body [BOD] arm5"\
+}
+
+
+function: auto ROLL:s TN DIF{
+ R: (ROLL <= TN) - (ROLL < DIF)
+ if R < 0{R: 0}
+ result: R
+}
+
+TNO: 7
+DFO: 2
+TNT: 7
+DFT: 3
+
+loop H over {1..4}{
+ O: [auto Hd10 TNO H]
+ output O named "[H]-[TNO] Auto [H]"
+}
+loop H over {1..4}{
+ T: [auto Hd12 TNT DFT]
+ output T named "[DFT]-[TNT] Auto [H]"
+}

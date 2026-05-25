@@ -1,0 +1,39 @@
+function: roll DICE:n DIE:d MEANS:n times at difficulty DIFF:n {
+    result: MEANSd[roll DICE DIE minus DIFF once]
+}
+
+function: roll DICE:n DIE:d minus DIFF:n once {
+    result: [highest of DICEdDIE - DIFF + 1 and 0]
+}
+
+function: failure on DICE:n DIE:d minus DIFF:n once {
+    result: [invert [lowest of [roll DICE DIE minus DIFF once] and 1]]
+}
+
+function: failure on DICE:n DIE:d MEANS:n times at difficulty DIFF:n {
+    result: MEANSd[failure on DICE DIE minus DIFF once]
+}
+
+function: botch on DICE:n DIE:d once at target TN:n {
+    X: DICEd(TN-1)
+    result: [highest of [lowest of [count 1 in X] and 1] and 0] * [failure on DICE DIE minus 1 once]
+}
+
+function: botch on DICE:n DIE:d MEANS:n times at target TN:n {
+    result: MEANSd[botch on DICE DIE once at target TN]
+}
+
+function: invert X:n {
+    if X = 0 {result: 1}
+    else {result: 0}
+}
+
+TN: 5
+DOUBLE: 10
+if DOUBLE < TN {DOUBLE: TN}
+DICE: d{0:-(1-TN), 1:(DOUBLE-TN), 2:(11-DOUBLE)}
+POOL: 16
+MEANS: 1
+output [botch on POOL DICE 5+MEANS times at target TN] named "botch"
+output [failure on POOL DICE 5+MEANS times at difficulty 5] named "failure"
+output [roll POOL DICE 5+MEANS times at difficulty 5] named "total"

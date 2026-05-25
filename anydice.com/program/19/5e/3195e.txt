@@ -1,0 +1,60 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+PROFICIENCY: 2
+STR_MOD: 3
+CRITICAL_THRESHOLD: 20
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+EVER: 2d6 + 1d4
+EVER_SAVAGE: 1@2d6 + 1@2d6 + 1@2d4
+GS: 2d6 
+GS_SAVAGE: 1@2d6 + 1@2d6
+
+loop TARGET_AC over { 12..20 } {
+
+   DAMAGE_BONUS: STR_MOD + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY - 5 + 1d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with EVER and DAMAGE_BONUS ] named "Everburn GWM vs AC[TARGET_AC]"
+
+   DAMAGE_BONUS: STR_MOD
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with EVER_SAVAGE and DAMAGE_BONUS ] named "Everburn Savage vs AC[TARGET_AC]"
+
+   DAMAGE_BONUS: STR_MOD + 11
+   HIT_BONUS: STR_MOD + PROFICIENCY - 4 + 1d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with GS and DAMAGE_BONUS ] named "Greatsword+1 GWM vs AC[TARGET_AC]"
+
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1 + 1d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with GS_SAVAGE and DAMAGE_BONUS ] named "Greatsword+1 Savage vs AC[TARGET_AC]"
+
+   \ Group the results prettier. \
+   output {0} named ""
+}

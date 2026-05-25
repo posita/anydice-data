@@ -1,0 +1,63 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack 1d20 vs DEFENSE]]
+}
+function: reckless {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{18..24}
+FRENZY: 0
+ATTACKS: 2 + FRENZY
+PROF: 5
+STR: 6
+
+MAGIC: 1
+ATTACK: PROF + STR + MAGIC
+HITDAMAGE: 1d10 + STR + MAGIC
+CRITICALDAMAGE: 1d10 + 2d10
+MISSDAMAGE: 0
+output ATTACKSd[attack] named "+1 Battleaxe"
+output ATTACKSd[reckless] named "Reckless +1 Battleaxe"
+
+MAGIC: 0
+ATTACK: PROF + STR + MAGIC
+HITDAMAGE: 1d10 + STR + MAGIC + 2d6
+CRITICALDAMAGE: 1d10 + 2d10 + 2d6
+MISSDAMAGE: 0
+output ATTACKSd[attack] named "FlameTongue"
+output ATTACKSd[reckless] named "Reckless FlameTongue"
+
+MAGIC: 3
+ATTACK: PROF + STR + MAGIC
+HITDAMAGE: 1d8 + STR + MAGIC
+CRITICALDAMAGE: 1d8 + 2d8
+MISSDAMAGE: 0
+output ATTACKSd[attack] named "Staff of Striking"
+output ATTACKSd[reckless] named "Reckless Staff of Striking"
+CHARGE: 3
+HITDAMAGE: 1d8 + STR + MAGIC + CHARGEd6
+CRITICALDAMAGE: 1d8 + 2d8 + CHARGEd6
+output ATTACKSd[attack] named "Staff of Striking w/ 3chgs"
+output ATTACKSd[reckless] named "Reckless Staff of Striking w/ 3chgs"

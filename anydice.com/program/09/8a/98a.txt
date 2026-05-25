@@ -1,0 +1,57 @@
+EXPWILDDIE:[explode d6]
+TRAITDIE:d12
+output d10000 < 2 named "ODDS FOR [TRAITDIE]"
+
+function: fail on TD:d with mod MOD:n {
+ EXPTRAITDIE: [explode TD]
+ TMOD: EXPTRAITDIE + MOD
+ WMOD: EXPWILDDIE + MOD
+ result: ((EXPTRAITDIE != 1) & ((TMOD < 4) & (WMOD < 4))) 
+}
+
+function: critfail on TD:d with mod MOD:n {
+ EXPTRAITDIE: [explode TD]
+ result: EXPTRAITDIE = 1
+}
+
+function: success on TD:d with mod MOD:n {
+ EXPTRAITDIE: [explode TD]
+ TMOD: EXPTRAITDIE + MOD
+ WMOD: EXPWILDDIE + MOD
+ TDSUCCESSONLY: (TMOD >= 4 & TMOD < 8) & WMOD < 4
+ WDSUCCESSONLY: (WMOD >= 4 & WMOD < 8) & (EXPTRAITDIE != 1 & TMOD < 4)
+ BOTHSUCCESS: (WMOD >= 4 & WMOD < 8) & (TMOD >= 4 & TMOD < 8)
+ result: (TDSUCCESSONLY | WDSUCCESSONLY) | BOTHSUCCESS
+}
+
+function: raisedsuccess on TD:d with mod MOD:n {
+ EXPTRAITDIE: [explode TD]
+ TMOD: EXPTRAITDIE + MOD
+ WMOD: EXPWILDDIE + MOD
+ TDSUCCESSONLY: TMOD >= 8 & WMOD < 8
+ WDSUCCESSONLY: WMOD >= 8 & (EXPTRAITDIE != 1 & TMOD < 8)
+ BOTHSUCCESS: WMOD >= 8 & TMOD >= 8
+ result: (TDSUCCESSONLY | WDSUCCESSONLY) | BOTHSUCCESS
+}
+
+output d10000 < 2 named "----------"
+output [critfail on TRAITDIE with mod -4] named "CF [TRAITDIE]-4"
+output [fail on TRAITDIE with mod -4] named "F [TRAITDIE]-4"
+output [success on TRAITDIE with mod -4] named "S [TRAITDIE]-4"
+output [raisedsuccess on TRAITDIE with mod -4] named "RS [TRAITDIE]-4"
+output d10000 < 2 named "----------"
+output [critfail on TRAITDIE with mod -2] named "CF [TRAITDIE]-2"
+output [fail on TRAITDIE with mod -2] named "F [TRAITDIE]-2"
+output [success on TRAITDIE with mod -2] named "S [TRAITDIE]-2"
+output [raisedsuccess on TRAITDIE with mod -2] named "RS [TRAITDIE]-2"
+output d10000 < 2 named "----------"
+output [critfail on TRAITDIE with mod 0] named "CF [TRAITDIE]"
+output [fail on TRAITDIE with mod 0] named "F [TRAITDIE]"
+output [success on TRAITDIE with mod 0] named "S [TRAITDIE]"
+output [raisedsuccess on TRAITDIE with mod 0] named "RS [TRAITDIE]"
+output d10000 < 2 named "----------"
+output [critfail on TRAITDIE with mod 2] named "CF [TRAITDIE]+2"
+output [fail on TRAITDIE with mod 2] named "F [TRAITDIE]+2"
+output [success on TRAITDIE with mod 2] named "S [TRAITDIE]+2"
+output [raisedsuccess on TRAITDIE with mod 2] named "RS [TRAITDIE]+2"
+output d10000 < 2 named "----------"

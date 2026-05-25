@@ -1,0 +1,23 @@
+function: lose server on machine TURN:n rolling ROLL:s
+{
+ SLOTS: 0
+ loop P over {2..TURN}
+ {
+   if [ROLL contains 6] {SLOTS: SLOTS + 1}
+ }
+
+ result: [count {0..SLOTS} in 1d6]
+}
+
+TURNS: 10
+TURN_DIE: d{1,2,3,4,5,6}
+
+CHANCE: 1
+
+loop P over {1..TURNS}
+ {
+   if P > 3 { TURN_DIE: d{1,2,3,4,6,6} }
+   if P > 6 { TURN_DIE: d{1,2,3,6,6,6} }
+   CHANCE: CHANCE - [lose server on machine P rolling TURN_DIE]
+   output 1 - CHANCE = 0 named "Chance Lose Server when taking [P] turns"  \ NOTE: THIS CHANCE INCREASES EACH TIME LOSE CARD \
+ }

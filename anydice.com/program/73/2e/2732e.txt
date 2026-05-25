@@ -1,0 +1,37 @@
+MINDICE: 6
+MAXDICE: 20
+MAXDEPTH: 1
+
+function: explode N:n plus X {
+ if N = 6 { result: [explode d6 plus X + 1] }
+ if N = 5 { result: X + 1 }
+ if N = 1 {
+  if X { result: -X }
+  result: -100
+ }
+ result: X
+}
+
+function: parse ROLL:s {
+ ONES: 0
+ HITS: 0
+ loop N over ROLL {
+  if N > 0 { HITS: HITS + N }
+  else if N = -100 { ONES: ONES + 1 }
+  else if N < 0 {
+   HITS: HITS - N
+   ONES: ONES + 1
+  }
+ }
+ if ONES * 2 > #ROLL {
+  if HITS { result: -1 }
+  result: -2
+ }
+ result: HITS
+}
+
+set "maximum function depth" to MAXDEPTH
+D: [explode d6 plus 0]
+loop DICE over {MINDICE..MAXDICE} {
+ output [parse DICEdD] named "[DICE]d6"
+}

@@ -1,0 +1,32 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRITDMG
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDMG
+ }
+ result: MISSDMG
+}
+ATTACK: 7
+HITDMG: d10+4
+CRITDMG: 2*(d10)+4
+MISSDMG: 0
+loop AC over {10..25} {
+ output [damage for [attack d20 vs AC]] named "NonSS[AC]"
+}
+ATTACK: ATTACK-5
+HITDMG: HITDMG+10
+CRITDMG: CRITDMG+10
+MISSDMG: 0
+loop AC over {10..25} {
+ output [damage for [attack d20 vs AC]] named "SS[AC]"
+}

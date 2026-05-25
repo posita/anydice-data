@@ -1,0 +1,68 @@
+\
+  Represents the Ability Mod range.
+\
+ABILITY_MOD: {-1..5}
+
+\
+  Represents the Proficiency Bonus range.
+  If not proficient: 0 extra die, if proficient: 1 extra die, if expertise: 2 extra dice.
+\
+PROF_TIER: {0..2}
+
+\
+  Represents the difficulty classes for skill checks.
+  Each difficulty class corresponds to a specific level of task difficulty.
+  The number of dice removed from the roll pool is based on the difficulty class.
+\
+DIFFICULTY_CLASSES: {
+  0, \ Very Easy - Minimal difficulty, suitable for simple tasks. \
+  1, \ Easy - Low difficulty, generally achievable with little effort. \
+  2, \ Medium - Moderate difficulty, requires some skill or effort. \
+  3, \ Hard - High difficulty, challenging but feasible for skilled individuals. \
+  4, \ Very Hard - Very high difficulty, requires exceptional skill or effort. \
+  5  \ Nearly Impossible - Extremely high difficulty, almost impossible to succeed without extraordinary means. \
+}
+
+
+\
+  Determines the outcome of a skill roll.
+  @param {Roll} ROLL - The roll result.
+  @returns {number} - The result of the skill roll.
+\
+function: skill ROLL:s {
+ if 1@ROLL = 6 {                        
+  result: 2 + (2@ROLL = 6)              
+ }
+ result: 1@ROLL >= 4                    
+}
+
+\
+  Adds two numbers together.
+  @param {number} A - The first number.
+  @param {number} B - The second number.
+  @returns {number} - The sum of A and B.
+\
+function: add A to B {
+ result: A + B                          
+}
+
+\
+  General Idea for Skill Checks:
+  0: Critical fail.
+  1: Success, but with complications.
+  2: Success.
+  3: Critical success!
+ \
+
+\
+  Outputs skill results based on ability modifiers and proficiency bonuses.
+\
+START_DIE_N: 3
+output 0d0 named "Description of System: a pool of Xd6 where X is the base (3) plus/minus your Ability Modifier and an additional 1d6 if proficient or 2d6 if expert"
+loop AM over ABILITY_MOD {
+ loop PT over PROF_TIER {
+  loop DC over DIFFICULTY_CLASSES {
+   output [skill ([add START_DIE_N to [add PT to AM]] - DC)d6] named "Raw Die: [START_DIE_N] | Ability Mod: [AM] | Prof Level: [PT] Vs DC[DC]"
+  }
+ }
+}

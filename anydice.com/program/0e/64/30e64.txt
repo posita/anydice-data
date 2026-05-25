@@ -1,0 +1,36 @@
+FAILURE: 0
+SUCCESS: 1
+TRIUMPH: 2
+
+MIT: 3
+TEC: 3
+FINESSE: 0
+BRUTAL: 0
+PRECISE: 1
+DEADLY: 0
+TWOHAND: 0
+LITHE: 0
+PIERCING: 0
+BONUS: 1
+
+STRIKE: MIT*(1 + BRUTAL - FINESSE) + TEC*(1 + FINESSE - BRUTAL) + BONUS
+DAMAGE: 6 - PRECISE*1 - DEADLY*1 - BRUTAL*1 - FINESSE*2 + TWOHAND*3 - LITHE*[highest of 0 and (2 + TWOHAND - FINESSE)] - PIERCING*(3 - 2*FINESSE)
+NICK: [highest of 1 and DAMAGE/2 - 1] + 2*PRECISE
+CRITICAL: DAMAGE*2 + DAMAGE*DEADLY + (NICK - 2*PRECISE)*FINESSE - BRUTAL*(DAMAGE/2)
+
+function: strike ROLL:s vs DEFENSE:n {
+ if {1,2}@ROLL = 12 { result: TRIUMPH }
+ if {1,2}@ROLL = 2 { result: FAILURE }
+ if ROLL + STRIKE >= DEFENSE + 6 { result: TRIUMPH }
+ if ROLL + STRIKE >= DEFENSE { result: SUCCESS }
+ result: FAILURE
+}
+
+function: damage for ATTACKRESULT:n vs SOAK:n {
+ if ATTACKRESULT = TRIUMPH { result: CRITICAL - SOAK*(1 - PIERCING) }
+ if ATTACKRESULT = SUCCESS { result: DAMAGE - SOAK*(1 - PIERCING) }
+ result: NICK - SOAK*(1 - PIERCING)
+}
+
+output [damage for [strike 2d6 vs 11] vs 0]
+output [damage for [strike 2d6 vs 11] vs 2]

@@ -1,0 +1,53 @@
+TARGETAC:18
+TOHIT:5
+MOD:3
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+function: attackroll D:n DD:n DMG:n CRITDICE:n { 
+if  DD >= D {
+ D:DD
+}
+
+if  D = 20 {
+  X:0
+  loop N over {1..CRITDICE} {
+  X: X + DMG
+ }
+ result: X
+ }
+ else { 
+if (D + TOHIT) >= TARGETAC { 
+  result: DMG
+  }
+  else { 
+   result:0 
+  } 
+ }
+}
+
+
+function: savageattack A:n B:n { 
+ if A >= B { 
+  result:A 
+ }
+ else { 
+  result:B 
+ } 
+}
+
+
+
+output ([attackroll 1d20 1d20 1d12 2]+ MOD) named "GreatAxe"
+output ([attackroll 1d20 1d20 2d6 2]+ MOD) named "GreatSword"
+
+output ([attackroll 1d20 1d20 [savageattack 1d12 1d12] 2]+ MOD) named "savage GreatAxe"
+output ([attackroll 1d20 1d20 [savageattack 2d6 2d6] 2]+ MOD) named "savage GreatSword"
+
+output ([attackroll 1d20 1d20 [savageattack 1d12 1d12] 3]+ MOD) named "Brutal crit, savage GreatAxe"
+output ([attackroll 1d20 1d20 [savageattack 2d6 2d6] 3]+ MOD) named "Brutal crit, savage GreatSword"

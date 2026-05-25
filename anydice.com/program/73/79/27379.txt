@@ -1,0 +1,48 @@
+LV:19
+AC: 10
+ROLL: 1d20
+ADV: [highest 1 of 2d20]
+
+PROF: 2+((LV-1)/4)
+ATK: 1 + (LV >= 5)
+FATK: ATK + (LV >= 11)
+MATK: (1 + PROF)/2
+RAGE: 2 + (LV >= 9) + (LV >= 16)
+BRUTAL: (LV >= 5)d12+(LV >= 9)d12+(LV >= 13)d12+(LV >= 17)d12
+
+function: double A:n if B:n above C:n {
+ if B >= C { result: A + A }
+ result: A
+}
+function: hit A:n die D:n with B:n{
+ if D >= 20 { result: [maximum of A]}
+ if D <= 1 { result: 0 }
+ result: (ROLL+B >= AC)*A
+}
+
+function: mark{
+ if LV >= 20 { result: 1d20 }
+ if LV >= 17 { result: 1d10 }
+ if LV >= 9 { result: 1d8 }
+ result: 1d6
+}
+X: [mark]
+
+F: 1d8 + 5
+M: 1 + 5
+R: 1d4 + 5 + (LV/2 + 1)d6
+B: 1d12 + 5 + RAGE
+
+function: Fighter hit H:n damage D:n{
+ result: FATKd[hit F+H die ROLL with D] 
+}
+output [Fighter hit 0 damage 0] named "Fighter (Armor)"
+output [Fighter hit 2 damage 0] named "Fighter (Duelling)"
+output [Fighter hit 0 damage 2] named "Fighter (Archer)"
+output [Fighter hit 0 damage 0]+[hit F die ROLL with 0] named "Fighter (Two-Weapons)"
+output [Fighter hit 0 damage 0]+[Fighter hit 0 damage 0] named "Action Surge"
+
+output (MATK+1)d[hit M die ROLL with 0] + [hit 1d6+5 die ROLL with 0] named "Monk"
+output (1 + 2*MATK)d[hit M die ROLL with 0] + [hit 1d6+5 die ROLL with 0] named "Ki"
+output [hit [double (1d8 + 5 + X) if LV above 5] die ROLL with X] named "Ranger"
+output [hit R die ADV with 0] named "Rogue"

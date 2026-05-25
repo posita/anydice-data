@@ -1,0 +1,23 @@
+NUM_DICE: 5
+IGNORE_ONE_SHLD: 0
+IGNORE_TWO_SHLD: 0
+
+
+function: defence dice helper ROLL_RESULT:s {
+  MULT: [count -1 in ROLL_RESULT]
+  BASE: 0
+  loop P over ROLL_RESULT {
+    if (P = 2) & (IGNORE_TWO_SHLD = 0) {
+      BASE: BASE + 2
+    } else if (P = 1) & (IGNORE_ONE_SHLD = 0) {
+      BASE: BASE + 1
+    }
+  }
+  result: (2^MULT)*BASE
+}
+
+function: roll N:n defence dice {
+  result: [defence dice helper Nd{0,0,1,1,2,-1}] \ -1 is (x2) \
+}
+
+output [roll NUM_DICE defence dice]

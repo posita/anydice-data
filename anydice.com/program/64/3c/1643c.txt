@@ -1,0 +1,44 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+output
+[attack d20 plus 2 + 3 vs 17 for d12 + 3 crit 2d12 on 20]
+named "Batrok Puro 1d12"
+
+output
+[attack d20 plus 2 + 3 vs 17 for 2d6 + 3 crit 3d6 on 20]
+named "Batrok Puro 2d6"
+
+output
+[attack [highest 1 of 2d20] plus 2 + 3 vs 17 for d12 + 3 crit 2d12 on 20]
+named "Batrok Puro 1d12 con Ventaja"
+
+output
+[attack [highest 1 of 2d20] plus 2 + 3 vs 17 for 2d6 + 3 crit 3d6 on 20]
+named "Batrok Puro 2d6 con Ventaja"

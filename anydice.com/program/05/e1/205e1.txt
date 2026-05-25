@@ -1,0 +1,41 @@
+\Calculates the chance to hit of a piercing monster spell. Accounts for WARLOCK MIRROR and EV.\
+HD: 20
+EV: 47
+SH: 16
+NUMBEROFBLOCKSSINCELASTINPUT: 0
+\Spell Details:
+You can find these in zap-data.h, in the monster_tohit field. They typically look like 
+new tohit_calculator<FLATACCURACY, POWERNUMERATOR, POWERDENOMINATOR>. \
+FLATACCURACY: 16
+POWERNUMERATOR: 1
+POWERDENOMINATOR: 25
+\This is special-cased in monscast.cc::_mons_power_hd_factor() for a few spells; 12 is the default.\
+SPELLPOWERMULT: 12 \Almost always 12\
+
+\Calculations:\
+
+TOHIT: HD*SPELLPOWERMULT*POWERNUMERATOR/POWERDENOMINATOR+FLATACCURACY
+
+SHTOHIT: TOHIT*13/10+4*NUMBEROFBLOCKSSINCELASTINPUT*NUMBEROFBLOCKSSINCELASTINPUT
+
+EVROLL: (1d(EV)-1 + 1d(EV)-1)/2
+
+EVHIGHROLL: (1d(EV+5)-1 + 1d(EV+5)-1)/2
+
+SHBYPASS: 1d(SHTOHIT)-1 >= SH
+
+EVBYPASS: (1d(TOHIT)-1) >= EVHIGHROLL
+
+EVRMSLBYPASS: (1d(TOHIT)-1)*(1d50+49)/100 >= EVROLL
+
+output SHBYPASS named "WARLOCKS SHIELD BLOCK CHANCE"
+
+output EVRMSLBYPASS named "EV with Repel Missles"
+
+output EVBYPASS named "EV+5"
+
+output [lowest of SHBYPASS and EVRMSLBYPASS] named "WARLOCKS SHIELD and EV with Repel Missles"
+
+output [lowest of SHBYPASS and EVBYPASS ] named "WARLOCKS SHIELD and EV+5"
+
+

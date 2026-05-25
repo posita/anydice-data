@@ -1,0 +1,54 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n with ATTACKS:n attacks {
+ if ROLL >= CRITROLL { 
+  if ATTACKS > 1 { result: CRITDAMAGE + [attackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+  result: CRITDAMAGE 
+ } 
+ if ROLL = 1 { 
+  if ATTACKS > 1 { result: [attackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+  result: 0
+ } 
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS  >= AC { 
+  if ATTACKS > 1 { result: DAMAGE + [attackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+  result: DAMAGE 
+ } 
+ if ATTACKS > 1 { result: [attackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+ result: 0
+}
+
+function: firstattackroll ROLL:n vs AC:n with ATTACKS:n attacks {
+ if ROLL >= CRITROLL { 
+  if ATTACKS > 1 { result: CRITDAMAGE + ONETIMECRIT + [attackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+  result: CRITDAMAGE + ONETIMECRIT
+ } 
+ if ROLL = 1 { 
+  if ATTACKS > 1 { result: [firstattackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+  result: 0
+ } 
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS  >= AC { 
+  if ATTACKS > 1 { result: DAMAGE + ONETIMEDAMAGE + [attackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+  result: DAMAGE + ONETIMEDAMAGE
+ } 
+ if ATTACKS > 1 { result: [firstattackroll 1d20 vs ENEMYAC with (ATTACKS -1) attacks] }
+ result: 0
+}
+
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+\*****************************************************************************************************************\
+
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 2
+CRITROLL: 20
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+ONETIMEDAMAGE: 0
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+ONETIMECRIT: 0
+output [firstattackroll 1d20 vs ENEMYAC with 2 attacks] named "Level 3 rogue level 5 champion archer"
+\*****************************************************************************************************************\

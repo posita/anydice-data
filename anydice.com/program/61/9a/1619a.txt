@@ -1,0 +1,45 @@
+TARGET_AC: 18
+COLD_IMMUNE: 0
+COLD_RESIST: 0
+MAGICAL_SLASH_IMMUNE: 0
+MAGICAL_SLASH_RESIST: 0
+
+function: gwm helper DIE_VAL:n DIE:d {
+  if DIE_VAL <= 2 {
+    result: DIE
+  }
+  else {
+    result: DIE_VAL
+  }
+}
+
+\usage [gwm 1d10] only intended to be used on one die at a time\
+function: gwm DIE:d {
+  result: [gwm helper DIE DIE]
+}
+
+function: cold DIE:d {
+  if COLD_IMMUNE {
+    result: {0}
+  }
+  else if COLD_RESIST {
+    result: DIE / 2
+  }
+  else {
+    result: DIE
+  }
+}
+
+function: hit HIT:n for DICE:d {
+  if HIT < TARGET_AC {
+    result: DICE
+  }
+  else {
+    result: {0}
+  }
+}
+
+\output [gwm 1d12] + [cold [gwm 1d6]] + 4\
+
+output [gwm 1d12] + [cold [gwm 1d6]] + 1d8 + 4 named "frostbrand greataxe damage"
+output [hit 1d20+10 for [gwm 1d12] + [cold [gwm 1d6]] + 1d8 + 4] named "frostbrand greataxe attack"

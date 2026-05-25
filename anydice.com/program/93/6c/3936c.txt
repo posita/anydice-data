@@ -1,0 +1,92 @@
+MISS: 0
+HIT: 1
+CRIT: 20
+
+ATKMOD: 4 + 3
+DMGMOD: 4
+WEAPDMGA: d6
+WEAPDMGB: d6
+NICKDMG: WEAPDMGA + WEAPDMGB + DMGMOD
+TWFDMG: NICKDMG + DMGMOD
+CRITDMG: 2dWEAPDMGA + DMGMOD 
+CRITTWF: 2dWEAPDMGA + 2dWEAPDMGB + DMGMOD + DMGMOD 
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATKMOD >= AC { result: HIT }
+ if ROLL + ATKMOD <= AC { result: MISS }
+}
+
+output [attack d20 vs d{8..22}] named " Average Hit chance vs AC 8-22"
+
+
+function: damage for ATTACKRESULTS:s {
+D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRIT { D: CRITDMG }
+  if A = HIT { D: WEAPDMGA + DMGMOD }
+  else if A = MISS { D: 0 }
+ }
+ result: D + [bonusdmg for ATTACKRESULTS]
+}
+
+function: bonusdmg for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: N:n attack {
+ result: [damage for Nd[attack d20 vs d{8..22}]]
+}
+
+output [1 attack] named "Basic Attack"
+
+function: bonusdmg for ATTACKRESULTS:s {
+ if [A contains CRIT] {
+  result: 2d6
+ }
+ if [A contains HIT] {
+  result: 1d6
+ }
+ else if [ATTACKRESULTS contains MISS] {
+  result: 0
+ }
+}
+
+function: twf ROLL:n vs AC:n {
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATKMOD >= AC { result: HIT }
+ if ROLL + ATKMOD <= AC { result: MISS }
+}
+
+function: damage for TWFRESULTS:s {
+D: 0
+ loop B over TWFRESULTS {
+  if B = CRIT { D: CRITTWF }
+  if B = HIT { D: TWFDMG + DMGMOD }
+  else if B = MISS { D: 0 }
+ }
+ result: D + [bonusdmg for TWFRESULTS]
+}
+
+function: bonusdmg for TWFRESULTS:s {
+ result: 0
+}
+
+function: N:n twf {
+ result: [damage for Nd[ twf d20 vs d{8..22}]]
+}
+
+output [1 twf] named "TWF"
+output [1 twf] + [2 attack] named "TWF with Flurry of Blows"
+
+function: bonusdmg for TWFRESULTS:s {
+ if [B contains HIT] {
+  result: 1d6
+ }
+ if [B contains CRIT] {
+  result: 2d6
+ }
+ else if [TWFRESULTS contains MISS] {
+  result: 0
+ }
+}

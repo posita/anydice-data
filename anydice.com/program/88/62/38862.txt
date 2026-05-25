@@ -1,0 +1,48 @@
+function: roll ROLL:s vs TARGET:n with optional REROLL:d reroll {
+  SUM: ROLL + 0  \ force the sequence to be summed into a single number! \
+  if SUM >= TARGET {
+    \ no need to reroll, since we've already met the target \
+    result: ROLL
+  } else {
+    \ discard and reroll the lowest die \
+    REST: {1..#ROLL-1}@ROLL
+    result: REST + REROLL
+  }
+}
+
+function: dos of ROLL:s vs TARGET:n {
+  SUM: ROLL + 0
+  
+  \ Degrees of success \
+  if SUM >= TARGET {
+    if SUM >= TARGET + 5 {
+      DOS: 2
+    } else {
+      DOS: 1
+    }
+  } else if SUM < TARGET - 5 {
+    DOS: -1
+  } else {
+    DOS: 0
+  }
+  
+  \ Rolling min or max \
+  if SUM = 2 {
+    DOS: DOS - 1
+  } else if SUM = 12 {
+    DOS: DOS + 1
+  }
+
+  \ Capping DoS \
+  if DOS > 2 {
+    DOS: 2
+  } else if DOS < -1 {
+    DOS: -1
+  }
+  result: DOS
+}
+
+loop TARGET over {-3 .. 18} {
+  output [dos of 2d6 vs TARGET] named "2d6 vs [TARGET]"
+  \ output [dos of [roll 2d6 vs TARGET with optional d6 reroll] vs TARGET] named "2d6 vs [TARGET] with optional reroll" \
+}

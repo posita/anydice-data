@@ -1,0 +1,77 @@
+\ Paladin/Hexblade 15/5 (17/3?, 19,1?) \
+\ EB Build can go straight warlock, or sorlock \
+\ Longsword/Spear + Shield or Glaive \
+
+ATTACKS: 2
+EB_CASTS: 2
+CHA_MOD: 3
+WEAPON_MOD: 1
+EB: 1d10
+HEX: 1d6
+GLAIVE: 1d10
+LONGSWORD: 1d8
+SPEAR: 1d6
+MADDENING_HEX: CHA_MOD
+PAM_BA: 1d4
+DUELING_BONUS: 2
+
+\ Great Weapon Fighting \
+\ 1d[gwfdice 10] == 1d10 w/ GWF \
+function: gwfdice N {
+ result: {{1..2}, {3..N}:N/2+1}
+}
+
+\ GWF Attacks \
+GWF_GLAIVE: 1d[gwfdice 10]
+GWF_PAM_BA: 1d[gwfdice 4]
+
+
+\ Smite at spell slot level X \
+function: smite at X {
+ SMITE_DIE: [lowest of X+1 and 5]
+ result: SMITE_DIEd8
+}
+
+\ Attack logic \
+function: attack ROLL:n MODIFIER:n vs DEFENSE:n {
+ MISS: 0
+ HIT: 1
+ CRIT: 2
+
+ if ROLL = 20 { result: CRIT}
+ if ROLL = 1 { result: MISS }
+ if ROLL+MODIFIER >= DEFENSE { result: HIT }
+ result: { MISS }
+}
+
+\ Sustained, with hex up \
+
+LONGSWORD_SUSTAINED: (ATTACKS*(LONGSWORD+CHA_MOD+WEAPON_MOD+DUELING_BONUS+HEX))+MADDENING_HEX
+output LONGSWORD_SUSTAINED named "LONGSWORD_SUSTAINED"
+output [attack 1d20 5 vs 10]*LONGSWORD_SUSTAINED
+
+SPEAR_SUSTAINED: (ATTACKS*(SPEAR+CHA_MOD+WEAPON_MOD+DUELING_BONUS+HEX))+(PAM_BA+DUELING_BONUS+CHA_MOD+WEAPON_MOD+HEX)
+output SPEAR_SUSTAINED named "SPEAR_SUSTAINED"
+
+\ Assuming Agonizing Blast \
+EB_SUSTAINED: (EB_CASTS*(EB+CHA_MOD+HEX))+MADDENING_HEX
+output EB_SUSTAINED named "EB_SUSTAINED"
+
+PAM_SUSTAINED: (ATTACKS*(GWF_GLAIVE+CHA_MOD+WEAPON_MOD+HEX))+(GWF_PAM_BA+CHA_MOD+WEAPON_MOD+HEX)
+output PAM_SUSTAINED named "PAM_SUSTAINED"
+
+
+\ Smite Novas, with hex up \
+
+LONGSWORD_NOVA: (ATTACKS*(LONGSWORD+CHA_MOD+WEAPON_MOD+2+HEX+[smite at 2]))+MADDENING_HEX
+output LONGSWORD_NOVA named "LONGSWORD_NOVA"
+
+SPEAR_NOVA: (ATTACKS*(SPEAR+CHA_MOD+WEAPON_MOD+DUELING_BONUS+HEX+[smite at 2]))+(PAM_BA+DUELING_BONUS+CHA_MOD+WEAPON_MOD+HEX+[smite at 1])
+output SPEAR_NOVA named "SPEAR_NOVA"
+
+PAM_NOVA:   (ATTACKS*(GWF_GLAIVE+CHA_MOD+WEAPON_MOD+HEX+[smite at 2]))+(GWF_PAM_BA+CHA_MOD+WEAPON_MOD+HEX+[smite at 1])
+output PAM_NOVA named "PAM_NOVA"
+
+\ EB Nova, Quickened, with hex up \
+EB_NOVA: 2*EB_CASTS*(EB+CHA_MOD+HEX)
+output EB_NOVA named "EB_NOVA"

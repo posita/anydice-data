@@ -1,0 +1,111 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{14}
+
+ATTACK: 10
+HITDAMAGE: 1d6 + 5 + 1d6
+CRITICALDAMAGE: 2d6 + 5 + 2d6
+MISSDAMAGE: 0
+output [3 attacks] named "blich"
+
+ATTACK: 10
+HITDAMAGE: 1d6 + 5 + 2d6
+CRITICALDAMAGE: 2d6 + 5 + 4d6
+MISSDAMAGE: 0
+output [3 attacks] named "blich vs undead"
+
+ATTACK: 7
+HITDAMAGE: 4d6+4
+CRITICALDAMAGE: 8d6+4
+MISSDAMAGE: 0
+output [2 attacks] named "anya"
+
+ATTACK: 8
+HITDAMAGE: 1d8+9
+CRITICALDAMAGE: 2d8+9
+MISSDAMAGE: 0
+output [2 attacks] named "hammer"
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: SNEAKATTACK * 2
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: SNEAKATTACK
+ }
+ result: 0
+}
+
+ATTACK: 8
+HITDAMAGE: 1d6+5
+CRITICALDAMAGE: 2d6+5
+SNEAKATTACK: 4d6
+MISSDAMAGE: 0
+output [2 attacks] named "dongle"
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL = 19 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+ATTACK: 6
+HITDAMAGE: 2d{{3..6}:4, {1..2}}+3
+CRITICALDAMAGE: 4d{{3..6}:4, {1..2}}+3
+MISSDAMAGE: 0
+output [2 attacks] named "israel"

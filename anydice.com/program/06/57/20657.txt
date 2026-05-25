@@ -1,0 +1,124 @@
+MISS: 0
+RIFLE_HIT: 1d10
+RIFLE_HIT_MAX: 10
+RIFLE_CRIT: 2d10
+RIFLE_CRIT_MAX: 20
+
+PISTOL_HIT: 1d6
+PISTOL_HIT_MAX: 6
+PISTOL_CRIT: 2d6
+PISTOL_CRIT_MAX: 12
+
+LONGBOW_HIT: 1d8
+LONGBOW_CRIT: 2d8
+SNEAK_HIT: 3d6
+SNEAK_CRIT: 6d6
+
+DYNAMITE: 2d6
+
+SKILL_BONUS: 3
+PROF_BONUS: 3
+
+function: rifleattack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: RIFLE_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: RIFLE_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: rifleheadshot ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: RIFLE_CRIT_MAX + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: RIFLE_HIT_MAX + SKILL_BONUS }
+  result: MISS
+}
+
+function: riflecentre ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: RIFLE_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS + 5 >= AC { result: RIFLE_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: pistolattack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: PISTOL_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: PISTOL_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: pistolheadshot ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: PISTOL_CRIT_MAX + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: PISTOL_HIT_MAX + SKILL_BONUS }
+  result: MISS
+}
+
+function: pistolcentre ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: PISTOL_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS + 5 >= AC { result: PISTOL_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: longbowattack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: LONGBOW_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: LONGBOW_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: longbowsneak ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: LONGBOW_CRIT + SNEAK_CRIT + SKILL_BONUS }
+  if ROLL + SKILL_BONUS + PROF_BONUS >= AC { result: LONGBOW_HIT + SNEAK_HIT + SKILL_BONUS }
+  result: MISS
+}
+
+function: dynamite vs SAVE:n with BONUS:n {
+  if SAVE + BONUS >= 8 + SKILL_BONUS + PROF_BONUS { result: (DYNAMITE + SKILL_BONUS) / 2 }
+  result: DYNAMITE + SKILL_BONUS
+}
+
+function: dynamitetrigger ROLL:n vs SAVE:n with BONUS:n {
+  if ROLL + SKILL_BONUS + PROF_BONUS < 10 { result: 0 }
+  if SAVE + BONUS >= 8 + SKILL_BONUS + PROF_BONUS { result: (DYNAMITE + SKILL_BONUS) / 2 }
+  result: DYNAMITE + SKILL_BONUS
+}
+
+function: fireball vs SAVE:n with BONUS:n {
+  if SAVE + BONUS >= 8 + SKILL_BONUS + PROF_BONUS { result: 8d6 / 2 }
+  result: 8d6
+}
+
+loop AC over {10, 15, 20, 25} {
+  if AC = 25 {
+    SAVEBONUS: 5
+  } else {
+    SAVEBONUS: 0
+  }
+
+  output 0 named ""
+  output 0 named "[AC] AC, +[SAVEBONUS] to Saving Throws"
+  output 0 named ""
+  output [rifleattack d20 vs AC] + [rifleattack d20 vs AC] named "Rifle Flurry"
+  output [rifleheadshot d20 vs AC] named "Rifle Headshot"
+  output [riflecentre d20 vs AC] named "Rifle Centre"
+  output 0 named ""
+  output [pistolattack d20 vs AC] + [pistolattack d20 vs AC] + [pistolattack d20 vs AC] named "Desperado Flurry"
+  output [pistolheadshot d20 vs AC] + [pistolattack d20 vs AC] named "Desperado Headshot"
+  output [pistolcentre d20 vs AC] + [pistolattack d20 vs AC] named "Desperado Centre"
+  output [pistolattack [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] named "Reckless Desperado Flurry"
+  output [pistolheadshot [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] named "Reckless Desperado Headshot"
+  output [pistolcentre [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] named "Reckless Desperado Centre"
+  output 0 named ""
+  output [longbowattack d20 vs AC] named "Longbow"
+  output [longbowsneak d20 vs AC] named "Longbow Sneak Attack"
+  output 0 named ""
+  output [dynamitetrigger d20 vs d20 with SAVEBONUS] named "Dynamite Trigger"
+  output [pistolattack d20 vs AC] + [dynamite vs d20 with SAVEBONUS] named "Pistol + Dynamite"
+  output 0 named ""
+  output [pistolattack d20 vs AC] + [pistolattack d20 vs AC] + [pistolattack d20 vs AC] + [pistolattack d20 vs AC] + [pistolattack d20 vs AC] + [pistolattack d20 vs AC] named "Hammer Fan"
+  output [pistolattack [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] + [pistolattack [highest 2 of 2d20] vs AC] named "Reckless Hammer Fan"
+  output [fireball vs d20 with SAVEBONUS] named "Fireball"
+}

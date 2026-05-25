@@ -1,0 +1,57 @@
+\### AVERAGE CHANCE OF POWS ###\
+function: count white pows in SEQUENCE:s {
+  result: [count {4,5,6} in SEQUENCE]
+}
+function: count blue and red pows in SEQUENCE:s {
+  result: [count {4,5} in SEQUENCE] + ([count {6} in SEQUENCE] * 2)
+}
+\### AVERAGE CHANCE OF OOFS ###\
+function: count white oofs in SEQUENCE:s {
+  result: [count {1} in SEQUENCE] 
+} 
+function: count blue oofs in SEQUENCE:s {
+  result: [count {1} in SEQUENCE] 
+} 
+function: count red oofs in SEQUENCE:s {
+  result: [count {1,2} in SEQUENCE] 
+} 
+
+\### SUCCESS CHANCE FOR TARGET NUMBER ###\
+function: get blue and red success chance for TN:n in SEQUENCE:s {
+  result: [get double successes in SEQUENCE] >= TN
+}
+function: get white success chance for TN:n in SEQUENCE:s {
+  result: [get successes in SEQUENCE] >= TN
+}
+\### CRITICAL FAILURE CHANCE FOR TARGET NUMBER ###\
+function: get crit fail chance for SEQUENCE:s {
+  result: [get white successes in SEQUENCE] < [count 1 in SEQUENCE]
+}
+\### DIFFERENCE BETWEEN WHITE AND BLUE/RED CHANCE FOR TARGET NUMBER ###\
+function: get difference between doubles and singles chance for TN:n in SEQUENCE:s {
+  result: [get doubles success chance for TN in SEQUENCE] - [get success chance for TN in SEQUENCE]
+}
+
+
+\
+loop D over {10} {
+  DIEPOOL: 10d6
+  DIEPOOLWHITE: 5d6
+  DIEPOOLBLUE: 5d6
+
+  output [get successes in DIEPOOLWHITE] named "white Pows"
+  output [get oofs in DIEPOOLWHITE] named "+Stress"
+  output [get blue successes in DIEPOOLBLUE] named "blue Pows"
+  output [get oofs in DIEPOOLBLUE] named "-Spark"
+  output [get red oofs in DIEPOOLWHITE] named "STRESS DICE -Spark"
+  output [get critical failure chance for DIEPOOL] named "[D]d6 --- CRIT FAIL chance (OOFS > POWS)"
+
+  loop TN over {3..6} {
+    output [get success chance for TN in DIEPOOL] named "TN=[TN] single"
+    output [get doubles success chance for TN in DIEPOOL] named "TN=[TN] double"
+    output [get difference between doubles and singles chance for TN in DIEPOOL] named "TN=[TN] --- difference between single & double"    
+    
+  }
+  
+}
+\

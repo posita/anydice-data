@@ -1,0 +1,62 @@
+ATTACKDIE: d{-1,-1,1,1,1,2}
+DEFENSEDIE: d{0,0,0,0,1,2}
+
+MELEEDIE: d{0,0,1,1,1,2}
+RANGEDIE: d{0,0,0,1,1,2}
+
+\****\
+
+function: roll D:n now {
+  result: D
+}
+
+function: MYDIE:d with R:n rerolls {
+  ROLL: 0
+  ROLL: {1}@1d6
+  if ROLL=0 {
+    if R>0 {
+      R: R-1
+      ROLL: [MYDIE with R rerolls]
+    }
+  }
+  result: ROLL
+}
+output [MELEEDIE with 2 rerolls]
+output [roll MELEEDIE now]
+output MELEEDIE
+
+
+\*******************************************************\
+
+function: explode N:n in melee {
+  if N=2 { result: 1 + [explode ATTACKDIE in melee] }
+  else if N=-1 { result: 0 }
+  result: N
+}
+MELEE: [explode ATTACKDIE in melee]
+
+\*******************************************************\
+
+function: explode N:n in range {
+  if N=2 { result: 1 + [explode ATTACKDIE in range] }
+  else if N=-1 { result: 1 }
+  result: 0
+}
+RANGE: [explode ATTACKDIE in range]
+
+\*******************************************************\
+
+function: explode N:n in response {
+  if N=2 { result: 1 + [explode DEFENSEDIE in response] }
+  else if N=-1 { result: 1 }
+  result: 0
+}
+DEFEND: [explode DEFENSEDIE in response]
+
+\*******************************************************
+
+output 4dMELEE named "melee"
+output 3dRANGE named "ranged"
+output 7dDEFEND named "defense"
+
+\

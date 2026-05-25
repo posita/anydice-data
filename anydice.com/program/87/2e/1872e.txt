@@ -1,0 +1,69 @@
+	\ THIS PROGRAM: https://anydice.com/program/1872c \
+ DIE: d{0,0,0,0,0,0,0,1,1,2} \ die sequence: 0=failure, 1=success, 2=explode \
+ DN: 3		\ die success fraction numerator \
+ DD: 10		\ …denominator = total die faces \
+ BZ: 0		\ bonus=none (probably should be hard-coded below…) \
+ BA: 1		\ bonus=1 \
+ BB: 2		\ bonus=2 \
+ BC: 3		\ bonus=3 \
+ BD: 0		\* ext.bonus skill3to6=bonus1to4; SET TO 1, PA=3; SET TO 0 TO DISABLE \
+ BPA: BA+BD	\ skill4 fix for named "" if BD=1 \
+ BPB: BB+BD	\ skill5 fix for named "" if BD=1 \
+ BPC: BC+BD	\ skill6 fix for named "" if BD=1 \
+ PS: 4		\* start of bonus level (P=the loop, number of dice rolled) \
+ PA: -1		\* skill=3, MUST SET PS=3; SET TO {not P} TO DISABLE BONUS@SKILL3 \
+ MAX: 6		\* maximum function depth: #@d6, 6@d8, #@d10, #@d12 \
+
+loop P over {1..8} {
+  function: explode N:n {
+   if N = 2 { result: 1 + [explode DIE] }
+   result: N
+  }
+  set "maximum function depth" to MAX
+    if P<PS {
+      output BZ+Pd[explode DIE] named "[DN]/[DD]: [P]EX[DD]+[BZ]"
+    }
+\   THE BONUS LEVELS: \
+      if P=PA {
+        output BA+Pd[explode DIE] named "[DN]/[DD]: [P]EX[DD]+[BA]"
+      }
+      if P=4 {
+        output BA+BD+Pd[explode DIE] named "[DN]/[DD]: [P]EX[DD]+[BPA]"
+      }
+      if P=5 {
+        output BB+BD+Pd[explode DIE] named "[DN]/[DD]: [P]EX[DD]+[BPB]"
+      }
+      if P>5 {
+        output BC+BD+Pd[explode DIE] named "[DN]/[DD]: [P]EX[DD]+[BPC]"
+      }
+}
+\
+	OTHER IDEAS:
+output [count {4..12,12} in 6d12]	9/12(0.75) success on d12 + explode counts×2
+	(exploding=double can apply to all fractions of success (see below);
+		however, it does create "bumpy" graphs)
+
+output --------------------------	9/12(0.75) success on d12
+output --------------------------	6/8(0.75) success on d8
+output --------------------------	7/10(0.7) success on d10
+output --------------------------	8/12(0.666) success on d12
+output --------------------------	4/6(0.666) success on d6
+https://anydice.com/program/1810f	5/8(0.625) success on exploding d8
+https://anydice.com/program/18110	6/10(0.6) success on exploding d10
+https://anydice.com/program/18119	7/12(0.58333) success on exploding d12
+https://anydice.com/program/18113	6/12(0.5) success on exploding d12
+https://anydice.com/program/18112	5/10(0.5) success on exploding d10
+https://anydice.com/program/18111	4/8(0.5) success on exploding d8
+https://anydice.com/program/18070	3/6(0.5) success on exploding d6
+https://anydice.com/program/18071	5/12(0.41666) success on exploding d12
+https://anydice.com/program/18072	4/10(0.4) success on exploding d10
+https://anydice.com/program/18073	3/8(0.375) success on exploding d8
+output --------------------------	4/12(0.33333) success on exploding d12
+https://anydice.com/program/18074	2/6(0.33333) success on exploding d6
+
+https://anydice.com/program/18114	various methods for 0-lvl skill
+output --------------------------	3/10(0.3) success on exploding d10
+output --------------------------	3/12(0.25) success on exploding d12
+output --------------------------	2/8(0.25) success on exploding d8
+output --------------------------	2/10(0.2) success on exploding d10
+\

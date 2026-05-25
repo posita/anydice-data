@@ -1,0 +1,82 @@
+MISS:0
+HIT:1
+PRECISION_HIT:2
+CRIT:3
+
+ARCHERY_STYLE: 2
+
+ENEMY_AC: 14
+ENEMY_STR: 12
+
+function: 
+precision roll ROLL:n
+with modifiers MODIFIERS:n
+and superiority SUP:n
+against AC:n ac{
+  
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + MODIFIERS >= AC {
+        result: HIT
+    }
+    if ROLL + MODIFIERS + SUP >= AC {
+        result: PRECISION_HIT
+    }
+    result: MISS
+}
+
+function: sharpshooter trip attack 
+    NUM_ATTACKS:n times 
+    for WEAPON_DMG:n
+    and superiority die SUP:n
+    roll ROLL:n
+    advantage roll ADVANTAGE_ROLL:n
+    against AC:n ac
+    and STR:n strength
+{
+    DEX_MODIFIER: (DEX-10)/2
+    PROFICIENCY: ((LEVEL-1)/4) + 2
+    TRIP_DC: 8 + PROFICIENCY + DEX_MODIFIER
+    TOTAL_DAMAGE: 0
+
+    loop N over {1..NUM_ATTACKS} {
+        WEAPON_DMG_WITH_MODIFIERS: WEAPON_DMG + DEX_MODIFIER + 10
+        ATTACK_RESULT: [precision roll ROLL with modifiers DEX_MODIFIER + PROFICIENCY + ARCHERY_STYLE - 5 and superiority SUP against AC ac]
+
+        if ATTACK_RESULT = PRECISION_HIT {
+            TOTAL_DAMAGE: TOTAL_DAMAGE + WEAPON_DMG_WITH_MODIFIERS
+        }
+
+        if ATTACK_RESULT = HIT {
+            TOTAL_DAMAGE: TOTAL_DAMAGE + WEAPON_DMG_WITH_MODIFIERS + SUP
+        }
+
+        if ATTACK_RESULT = CRIT {
+            TOTAL_DAMAGE: TOTAL_DAMAGE + WEAPON_DMG_WITH_MODIFIERS + WEAPON_DMG 
+        }
+    }
+
+    result: TOTAL_DAMAGE
+}
+
+LEVEL: 3
+DEX:16
+SUPERIORITY_DIE: 1d8
+SUPERIORITY_DICE: 4
+
+output [
+    sharpshooter trip attack 
+    2 times 
+    for 1d6 
+    and superiority die SUPERIORITY_DIE
+    roll 1d20
+    advantage roll [highest 1 of 2d20]
+    against ENEMY_AC ac
+    and ENEMY_STR strength
+] named "Level [LEVEL] Battlemaster Sharpshooter Crossbow Expert"
+
+

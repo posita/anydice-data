@@ -1,0 +1,32 @@
+set "explode depth" to 4
+
+function: test A {
+  if A > 0 { result: [highest 2 of (2 + A)d10] }
+  if A < 0 { result: [lowest  2 of (2 - A)d10] }
+  result: 2d10
+}
+
+function: rank R {
+  if R =  1 { result:   [explode  d4] }
+  if R =  2 { result:   [explode  d6] }
+  if R =  3 { result:   [explode  d8] }
+  if R =  4 { result:   [explode d10] }
+  if R =  5 { result:   [explode d12] }
+  if R =  6 { result: 2d[explode  d6] }
+  if R =  7 { result:   [explode  d8] +   [explode  d6] }
+  if R =  8 { result: 2d[explode  d8] }
+  if R =  9 { result:   [explode d10] +   [explode  d8] }
+  if R = 10 { result: 2d[explode d10] }
+  if R = 11 { result:   [explode d12] +   [explode d10] }
+  if R = 12 { result: 2d[explode d12] }
+  if R = 13 { result:   [explode d12] + 2d[explode  d6] }
+
+  result: 0
+}
+
+loop R over {0..7} {
+  loop A over {-2..2} {
+    if A < 0  { output [test A] + [rank R] named "Rank [R], dis[A]" }
+    if A > -1 { output [test A] + [rank R] named "Rank [R], adv-[A]" } 
+  }
+}

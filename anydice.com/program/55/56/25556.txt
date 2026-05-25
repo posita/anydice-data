@@ -1,0 +1,99 @@
+
+function: check successes in ROLL:s by APP:n 
+{
+ FSC: 0 \final max score current\
+ CS: 0 \6 count\
+ \TSC temporary score holder\
+ 
+ loop I over {1..6} \I is checker\
+ {
+  TSC: 0
+  
+  loop J over {1..#ROLL} 
+  {
+   if J@ROLL = I 
+   { 
+    if I=6 
+     {
+     TSC: TSC +1
+     CS: CS +1
+     }
+    else 
+     {
+     if APP>=I {TSC: TSC+1}
+     }
+   }
+   
+  }
+
+  if I=1 
+   {
+   FSC: TSC
+   }
+  else { if FSC < TSC { FSC: TSC} }
+ } \I loop ends\
+ 
+ if CS>0
+  {
+   if CS = FSC { FSC: FSC+1 }
+  }
+ result: FSC
+}
+
+N:5
+ROLL: Nd6
+loop T over {1..5} {
+  output [check successes in ROLL by T] named "[N] dice rolled with [T] approach"
+ }
+
+\
+loop N over {4..5} {
+ ROLL: Nd6
+ loop T over {1..5} {
+  output [check successes in ROLL by T] named "[N] dice rolled with [T] approach"
+ }
+}\
+
+\
+T:3
+loop N over {1..6} {
+ ROLL: Nd6
+ output [check successes in ROLL by T] named "[N] dice rolled with [T] approach"
+}\
+
+
+
+function: check score in ROLL:s {
+ CSC: 0 \final max score current\
+ CC: 0 \critical counter\
+ \TSC temporary score holder\
+ 
+ loop I over {1..6} { \I is checker\
+  TSC: 0
+  
+  loop J over {1..#ROLL} {
+   if J@ROLL = I { 
+    if I=6 {
+     CC: CC +1
+    }
+    else {
+     TSC: TSC+1
+    }}
+   
+  }
+
+  if I=1 {
+   CSC: TSC
+  }
+  else { if CSC < TSC { CSC: TSC} }
+ }
+ 
+ result: CSC + CC
+}
+\
+loop N over {1..6} {
+DROLL: Nd6
+output [check score in DROLL] named "[N]d6 score"
+}\
+
+

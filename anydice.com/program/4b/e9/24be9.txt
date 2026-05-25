@@ -1,0 +1,53 @@
+\RESULTS\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\FUNCTIONS\
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_MIN {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { 
+  result: HIT 
+ }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n using BONUS:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE + 2 d BONUS
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE + BONUS
+ }
+ result: MISSDAMAGE
+}
+
+\Character\
+CRIT_MIN: 20
+STRENGTH: 3
+PROFICIENCY: 5
+MAGIC_WEAPON_BONUS: 1
+WEAPON_DIE: d10
+DIVINE_SMITE: 5d8
+IMPROVED_DIVINE_SMITE: d8
+STAGGERING_SMITE: 4d6
+
+
+ATTACK: STRENGTH + PROFICIENCY + MAGIC_WEAPON_BONUS
+HITDAMAGE: WEAPON_DIE + STRENGTH + MAGIC_WEAPON_BONUS + IMPROVED_DIVINE_SMITE + DIVINE_SMITE
+CRITICALDAMAGE: 2 d WEAPON_DIE + STRENGTH + MAGIC_WEAPON_BONUS + 2 d IMPROVED_DIVINE_SMITE + 2 d DIVINE_SMITE
+MISSDAMAGE: 0
+
+\CALCULATIONS\
+\loop AC over {18} {
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "Advantage [AC]"
+ output [damage for [attack [lowest 1 of 2d20] vs AC]] named "Disadvantage [AC]"
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}\
+
+\Bonus action to cast Staggering Smite then 2 attacks as part of attack action\
+output [damage for [attack d20 vs 30] using STAGGERING_SMITE] + [damage for [attack d20 vs 30] using 0] named "Crits Only"

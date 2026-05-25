@@ -1,0 +1,42 @@
+T: 16 \TargetNumber \
+N: 4 \ Number of Skill Dice \
+S: {1..6} \ Success die: d6 \
+W: {0,0,0,4..6} \ Weary success die: d6, discard 1-3 \
+F: {0..10,50} \ Feat die: 1-10, 0 (Eye of Sauron), 50 (Gandalf rune) \
+FF: [highest 1 of 2dF] \ Favoured feat die \
+IF: [lowest 1 of 2dF] \ Ill-favoured feat die \
+M: {1..10,-50,50} \ Miserable feat die: autofail on Eye of Sauron \
+FM: [highest 1 of 2dM] \ Favoured miserable feat die \
+IM: [lowest 1 of 2dM] \ Ill-favoured miserable feat die \
+
+function: tor FEAT:s SUCCESS:s TN:n {
+  TOTAL: FEAT + SUCCESS
+  TENG: [count 6 in SUCCESS]
+  if TENG > 1 { \ Extraordinary Success (more than one 6 on success dice) \
+    LEVEL: 3
+  }
+  if TENG = 1 { \ Great Success (one 6 on success dice) \
+    LEVEL: 2
+  }
+  if TENG = 0 { \ Success (beat TN but no 6s on success dice) \
+    LEVEL: 1
+  }
+  if TOTAL >= TN { \ Success only happens if TN is beaten, even with 6s on d6 \
+    result: LEVEL
+  }
+  result: 0
+}
+
+output [tor 1dIM NdW T] named "ill-favoured miserable weary [N]d vs TN[T]"
+output [tor 1dIF NdW T] named "ill-favoured weary [N]d vs TN[T]"
+output [tor 1dM NdW T] named "miserable weary [N]d vs TN[T]"
+output [tor 1dF NdW T] named "weary [N]d vs TN[T]"
+output [tor 1dIM NdS T] named "ill-favoured miserable [N]d vs TN[T]"
+output [tor 1dIF NdS T] named "ill-favoured [N]d vs TN[T]"
+output [tor 1dM NdS T] named "miserable [N]d vs TN[T]"
+output [tor 1dF NdS T] named "[N]d vs TN[T]"
+
+\ 0 = Fail
+1 = Success
+2 = Great Success
+3 = Extraordinary Success\

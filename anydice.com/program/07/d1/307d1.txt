@@ -1,0 +1,42 @@
+set "maximum function depth" to 5
+
+\ 0=botch; 1=miss; 2=weak; 3=strong; 4=crit \
+function: map N:n {
+  if N = 0 {
+    result: 0
+  }
+  if N <= 3 {
+    result: 1
+  }
+  if N <= 5 {
+    result: 2
+  }
+  if N <= 6 {
+    result: 3
+  }
+  result: 4
+}
+
+function: resolve POS:s NEG:s PI:n NI:n {
+  if PI > #POS {
+    result: [map 0]
+  }
+  if NI > #NEG {
+    result: [map PI@POS]
+  }
+  if PI@POS != NI@NEG {
+    if PI < #POS {
+      if (PI+1)@POS = 6 { result: [map 7] }
+      if PI@POS = 1 { result: [map 0] }
+      result: [map PI@POS]
+    }
+    result: [map PI@POS]
+  }
+  result: [resolve POS NEG (PI+1)(NI+1)]
+}
+
+loop P over {1..4} {
+  loop N over {0..4} {
+    output [resolve Pd6 Nd6 1 1] named "+[P] -[N]"
+  }
+}

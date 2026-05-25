@@ -1,0 +1,26 @@
+HP: (3d6*5 + 3d6*5)/10
+
+
+DEEP_ONE_HP: 13
+DEEP_ONE_DMG: 1d7+d4 \ d7 = average of d6 and d8 weapons \
+PLAYER_HIT: 50        \ rough average player combat skill \
+PLAYER_DMG: 1d8+d2   \ d2 = average of 0 and 1d4 dmgbonus \
+
+
+function: combat P D N H {
+ DDMG:  N * DEEP_ONE_DMG / 2 \ divide by 2 is an approximation; deep one Brawl skill is 45%. \
+ result: ROUNDSdDDMG > H     \ likelihood of 1 = TPK \
+}
+
+loop PARTYSIZE over {1..5} {
+ TOTAL_HP: HP * PARTYSIZE
+ loop ENEMIES over {1..10} {
+  loop ROUNDS over {1..3} {
+   PLAYER_HP: TOTAL_HP
+   ENEMY_HP: ENEMIES * DEEP_ONE_HP
+  
+   output [combat PLAYER_HP ENEMY_HP ENEMIES TOTAL_HP] named "[ROUNDS] rounds of [PARTYSIZE] player fighting [ENEMIES] deep ones"
+  }
+ }
+}
+

@@ -1,0 +1,37 @@
+function: gwf N:n{
+ result: {1,2,{3..N}:(N/2+1)}
+}
+
+function: attack N:n vs AC:n STR:n P:n D:n {
+ if N = 1 {result: 0}
+ if N = 20 {result: 1d[gwf D] * 2 + 1d[gwf D] + STR}
+ if (N+STR+P) < AC {result: 0}
+result: 1d[gwf D] + STR
+}
+
+function: attack N:n vs AC:n STR:n P:n D:n ngwf {
+ if N = 1 {result: 0}
+ if N = 20 {result: 1dD * 2 + 1dD + STR}
+ if (N+STR+P) < AC {result: 0}
+result: 1dD + STR
+}
+
+function: attack N:n vs AC:n STR:n P:n sb L:n{
+ if N = 1 {result: 0}
+ if N = 20 {result: Ld8 * 2 + 1d8 + STR}
+ if (N+STR+P) < AC {result: 0}
+result: Ld8 + STR
+}
+
+
+loop AC over {17}{
+ output (4d[attack 1d20 vs AC 3 3 10] + [attack 1d20 vs AC 3 3 4]) named "[AC]"
+ output (4d[attack [highest 1 of 2d20] vs AC 3 3 10] + [attack [highest 1 of 2d20] vs AC 3 3 4]) named "[AC] adv"
+
+ output (4d[attack 1d20 vs AC 3 3 sb 2]) + [attack 1d20 vs AC 0 6 6 ngwf] named "[AC] sb level 2"
+
+ output (4d[attack 1d20 vs AC 3 3 sb 3]) + [attack 1d20 vs AC 0 6 6 ngwf] named "[AC] sb level 3"
+ output (4d[attack [highest 1 of 2d20] vs AC 3 3 sb 2]) + [attack 1d20 vs AC 0 6 6 ngwf] named "[AC] sb level 2 dark"
+ output (4d[attack [highest 1 of 2d20] vs AC 3 3 sb 3]) + [attack 1d20 vs AC 0 6 6 ngwf] named "[AC] sb level 3 dark"
+}
+

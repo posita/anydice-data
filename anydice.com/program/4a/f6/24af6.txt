@@ -1,0 +1,66 @@
+CHARACTERISTIC_BONUS: 0 \ Бонус от уровня характеристики \
+SKILL_LEVEL: 1          \ Уровень прокачки навыка \
+MAX_SKILL_POOL: 4       \ Максимальный размер добавочного дайспула \
+LUCK_LEVEL: 1           \ Уровень характеристики удачи. Помним что она может расти и влево. Удача растущая\ 
+                        \влево добавляет проклятые дайсы количеством равным уровню удачи \
+CORRUPTED: 1            \ 1 - удача растет влево и добавляет проклятый дайс в добавочный пулл \
+                        \дополняя его или же заменяя SKILL_DICE если не осталось места. 0- \
+                        \удача растет вправо и не виляет на количество порченных кубов \
+SKILL_DICE: d{0,0,0,1}  \Кастомный Скилл дайс дающий +1 к результату броска добавочного\ 
+                        \дайспула только в случае крит успеха)\
+CORRUPTED_DICE: d{-1,0,0,-1}\Порченный Скилл дайс дающий -1 к результату броска добавочного\ 
+                            \дайспула только в случае крит успеха или крит неудачи)\
+ROLL_LEVEL: 6           \Уровень сложности проверки навыка\
+
+
+function: sand \SAND проверяет результат броска добавочного дайспула\
+{
+
+ if CORRUPTED !=0 & (MAX_SKILL_POOL - SKILL_LEVEL) >= LUCK_LEVEL & SKILL_LEVEL != 0 \Если есть порченный дайс то он \
+                                                                                    \будет записан в свободное место MAX_SKILL_POOL\
+ {
+  ADDITIONAL_DICE_POOL: SKILL_LEVEL d SKILL_DICE + LUCK_LEVEL d CORRUPTED_DICE
+ }
+ 
+ if CORRUPTED !=0 & (MAX_SKILL_POOL - SKILL_LEVEL) < LUCK_LEVEL & SKILL_LEVEL != 0 \Если есть порченный дайс и для него нет места то он будет\
+                                                                                    \записан вместо СкиллДайса\
+ {
+  SKILL_LEVEL:  - LUCK_LEVEL
+  ADDITIONAL_DICE_POOL: SKILL_LEVEL d SKILL_DICE + LUCK_LEVEL d CORRUPTED_DICE
+ }
+
+ if CORRUPTED !=0 & SKILL_LEVEL = 0                                                \Порченный скилл дайс будет просто внесен в добавочный пулл если\ 
+                                                                                   \нет владения навыком\
+ {
+  ADDITIONAL_DICE_POOL: LUCK_LEVEL d CORRUPTED_DICE
+ }
+ 
+  if CORRUPTED != 1                                                                \Дайспул будет создан из скилл дайсов если нет отрицательной \
+                                                                                   \удачи\
+ {
+  ADDITIONAL_DICE_POOL: SKILL_LEVEL d SKILL_DICE
+ }
+
+ result: ADDITIONAL_DICE_POOL
+}
+
+
+
+function: additionalcheck \Проверка на результат проброски добавочного дайспула\
+{
+  result: [sand] < 0 
+}
+
+
+function: skillcheck {                         \Проверка навыка\
+ ROLL_RESULT: 1d12 + CHARACTERISTIC_BONUS       \Результат броска основной кости+ бонуса характеристики\
+ 
+ RL_TEMP: [additionalcheck] = 0 & ROLL_RESULT > ROLL_LEVEL \Проверка сложности. чтобы пройти проверку нужно перебросить сложность и не иметь\ 
+                                                           \отрицательный результат от броска добавочного дайспула т.е.\ 
+                                                           \успех броска порченного кубика сжигает успех скилл дайса или\ 
+                                                           \полностью фэйлит броско если нет критов скилл адйса что можно сжечь \
+ result: RL_TEMP
+}
+
+
+output [additionalcheck]

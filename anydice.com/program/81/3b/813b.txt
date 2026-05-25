@@ -1,0 +1,56 @@
+AC: 18        \Target's AC\
+MODIFIER: +4  \Attacker's to hit modifier\
+DICE: 2       \Number of damage dice\
+SIDES: 8      \Sides of damage dice\
+PLUS: 2       \Damage modifier\
+TARGETA: 12   \HP to render unconscious\
+TARGETB: 24   \HP to kill\
+
+\Function to determine miss (0), hit (1) and critical (2)\
+function: hit AC:n with HITMODIFIER:n {
+ATTACK: {0, 2}
+
+loop N over {2..19}{
+  ATTACK: {ATTACK, N>=AC-HITMODIFIER}
+}
+result:  ATTACK
+}
+
+\Function for RAW critical (double dice)\
+function: hit AC:n with HITMODIFIER:n for N:n dice SIDES:n plus DAMAGEMODIFER {
+TOHIT: [hit AC with HITMODIFIER]
+BASE: NdSIDES+DAMAGEMODIFER
+CRITICAL: (2*N)dSIDES+DAMAGEMODIFER
+RES: {}
+
+loop M over TOHIT {
+  if M=0 {
+    RES: {RES, 0}
+  } else {
+    if M=1 {
+      RES: {RES, {BASE}}
+    } else {
+      RES: {RES, {CRITICAL}}
+    }
+  }
+}
+result: RES
+}
+
+\Function for alternate Critical (double damage)\
+function: nonstandard hit AC:n with HITMODIFIER:n for N:n dice SIDES:n plus DAMAGEMODIFER {
+TOHIT: [hit AC with HITMODIFIER]
+
+result: dTOHIT * (NdSIDES)+DAMAGEMODIFER 
+}
+
+output [hit AC with MODIFIER for DICE dice SIDES plus PLUS] named "double dice"
+output [nonstandard hit AC with MODIFIER for DICE dice SIDES plus PLUS] named "doubled total"
+
+output [hit AC with MODIFIER for DICE dice SIDES plus PLUS]>TARGETA named "double dice >12"
+output [nonstandard hit AC with MODIFIER for DICE dice SIDES plus PLUS]>TARGETA named "doubled total >12"
+
+output [hit AC with MODIFIER for DICE dice SIDES plus PLUS]>TARGETB named "double dice >24"
+output [nonstandard hit AC with MODIFIER for DICE dice SIDES plus PLUS]>TARGETB named "doubled total >24"
+
+

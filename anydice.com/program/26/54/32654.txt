@@ -1,0 +1,65 @@
+YES: 1
+NO: 0
+EVASION:8
+INVISIBLE:NO
+ARMOR:1
+RESISTANCE: NO*2
+GRIT:2
+RELIABLE:0
+ACCURACY:3
+AP: NO
+HITDAMAGE: 2d6 + 1
+CRITICALDAMAGE: [highest 2 of 4d6] + 1
+CRITSHRED: NO
+
+function: attack {
+ result: (1d20+[highest 1 of ACCURACYd6]+GRIT)*((1d2-1)^INVISIBLE)
+}
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: hit ROLL:n vs DEFENSE:n {
+ if ROLL >= 20 {
+  result: CRITICALHIT
+ }
+ if ROLL >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: adjarmor {result: ARMOR*!AP}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  if CRITSHRED = YES {
+   result: CRITICALDAMAGE
+  }
+  result: (CRITICALDAMAGE - [adjarmor])
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE - [adjarmor]
+ }
+ result: RELIABLE - ARMOR
+}
+output 0*[hit [attack] vs EVASION] named "Chance to Hit/Crit"
+output 0*[damage for [hit [attack] vs EVASION]]
+loop N over {1..6}{
+ output [highest 1 of Nd6] named "[N]d6"
+}

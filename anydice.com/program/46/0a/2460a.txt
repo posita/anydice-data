@@ -1,0 +1,55 @@
+WPN: 3d10 + 10 + 2d6
+THW: WPN + 2d10
+
+function: attack ROLL:n BONUS:n AC:n DMG:n {
+  if ROLL + BONUS < AC & ROLL < 20 {
+    result: 0
+  }
+  else {
+    if (ROLL + BONUS < (AC + 10) & ROLL < 20) | ROLL = 20 {
+      result: DMG
+    }
+    else {
+      result: DMG + DMG
+    }
+  }
+}
+
+function: attack ROLL:n plus BONUS:n ac AC:n {
+  result: [attack ROLL BONUS AC WPN]
+}
+
+function: power attack ROLL:n plus BONUS:n ac AC:n {
+  result: [attack ROLL BONUS AC THW]
+}
+
+BASE_AC: 35
+MAX_LVL_ADV: 5
+TS_ROLL: [highest 1 of 2d20]
+
+ONE: 0
+TWO: 0
+THREE: 0
+FOUR: 0
+FIVE: 0
+
+loop ENEMY_AC over {BASE_AC .. BASE_AC + MAX_LVL_ADV} {
+
+TWO_ATTACKS: [attack d20 plus 29 ac ENEMY_AC] + [attack d20plus 24 ac ENEMY_AC]
+
+NO_EXACTING: TWO_ATTACKS + ((d20+ 24 < ENEMY_AC) * [attack d20 plus 19 ac ENEMY_AC])
+THREE_ATTACKS: TWO_ATTACKS + (((d20+ 24 >= ENEMY_AC) * [attack d20 plus 19 ac ENEMY_AC]) + ((d20+ 24 < ENEMY_AC) * [attack d20 plus 24 ac ENEMY_AC]))
+
+
+ONE: ONE + NO_EXACTING
+TWO: TWO + THREE_ATTACKS
+THREE: THREE + [power attack d20 plus 29 ac ENEMY_AC] + [attack d20 plus 24 ac ENEMY_AC]
+FOUR: FOUR + [power attack TS_ROLL plus 29 ac ENEMY_AC]
+FIVE: FIVE + [attack TS_ROLL plus 29 ac ENEMY_AC] + [attack d20 plus 24 ac ENEMY_AC]
+}
+
+output ONE / (MAX_LVL_ADV + 1) named "Three attacks"
+output TWO / (MAX_LVL_ADV  + 1)  named "Three attacks, exacting"
+output THREE / (MAX_LVL_ADV  + 1)  named "Power attack + attack"
+output FOUR / (MAX_LVL_ADV  + 1)  named "True Strike + Power Attack"
+output FIVE / (MAX_LVL_ADV  + 1)  named "True Strike + Two Attacks"

@@ -1,0 +1,55 @@
+\ Rolling function for the Agora RPG \\ by Seraaron \\ v0.3 \\ GNU General Public License. \
+
+function: agora dice D:n grade G:n health H:n factors F:n kiss K:n ego E:n {
+ \ define variables \
+ SUCCESSES: 0
+ KISSES: 0
+ DOUBLES: 0
+
+ DIFF: D - F \ count dice minus difficulty \
+ if DIFF >= H {
+  \ standard result, if difficulty does not subtract your dice down below your health \
+  loop I over {1..DIFF} {
+   ROLL: d6 \ we have to roll dice in a loop because using normal counting functions seems to break \
+   SUCCESSES: SUCCESSES + (ROLL >= G)
+   if 1@E {
+    DOUBLES: DOUBLES + (ROLL = 6) \ count doubled successes separately \
+   }
+  }
+  if K > 0 {
+   L: DIFF - [count 0 in {SUCCESSES}] \ weird hack to count the number of failures as an integer \
+   if 0 <= L {
+    KISSES: 0 \ this ensures you don't reroll if there are no failures \ 
+   } else {
+    KISS: [lowest of K and L] \ and this ensures you don't kiss more dice than you have failures \
+    KISSES: [agora dice KISS grade G health 0 factors 0 kiss 0 ego E]
+    \ simulate rerolling by feeding the function back into itself... watch out recursion though! \
+   }
+  }
+ } else {
+  B: G+1 \ health dice use one grade lower (ie. G+1) and can't be kissed \
+  loop I over {1..H} {
+   HEALTH: d6
+   SUCCESSES: SUCCESSES + (HEALTH >= B)
+   if 1@E {
+    DOUBLES: DOUBLES + (HEALTH = 6) \ count doubled successes separately \
+   }
+  }
+ }
+ result: SUCCESSES + KISSES + DOUBLES
+}
+
+\ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~INSTRUCTIONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+\ change the output grade G to: \
+\   - 6 for 'copper', 5 for 'bronze', 4 for 'silver', 3 for 'gold', or 2 for 'platinum' \
+\ change the output health H to change minimum amount of dice rollable, regardless of difficulty \
+\ change the output factors F to add to the difficulty, subtracting dice before rolling \ 
+\ change the output kiss K to re-roll that many failed dice, typical maximum is 4 \ 
+\   - note that K is how many dice you could *potentially* kiss, not how many you *will* kiss \
+\ change the output ego E from 0 to 1 to count all rolled 6s as double-successes \
+\ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+
+loop N over {1..8} {
+ output [agora dice N grade 3 health 2 factors 0 kiss 2 ego 0] named "[N]D"
+}
+\ you really only need one success to get what you wanted, but more successes means less compromises \

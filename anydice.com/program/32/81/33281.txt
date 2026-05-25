@@ -1,0 +1,38 @@
+function: attack D:n plus B:n vs AC:n {
+    if D = 20 { result: 2 }
+    else if D+B >= AC { result: 1 }
+    else { result: 0 }
+}
+
+function: damage DD:n plus B:n if HIT:n {
+    if HIT = 2 { result: (DD*2)+B }
+    else if HIT = 1 { result: DD+B }
+    else { result: 0}
+}
+
+\ Attack Config: Normal or Advantage or Disadvantage \
+function: attconfig {
+    \ Normal: 1d20 \
+    \ Advantage: [highest 1 of 2d20] \
+    \ Disadvantage: [lowest 1 of 2d20] \
+
+    result: 1d20 \ Set Option Here \
+}
+
+\ Main Function: Attack for each AC from 5 to 20 (Level 5) \
+loop AC over {15..20} {
+    TOTAL_NA: 0 \ Total Damage \
+    TOTAL_AA: 0 \ w Advantage \
+
+    \ Main Action (Attack w Sharpshooter + Action Surge + Bonus Action Attack) \
+    loop NOA over {1..1} {
+        HIT: [ attack [attconfig] plus 8 vs AC ]
+        TOTAL_NA: TOTAL_NA+[ damage 1d6 plus 17 if HIT ]
+
+        HIT: [ attack [highest 1 of 2d20] plus 8  vs AC ]
+        TOTAL_AA: TOTAL_AA+[ damage 1d6 plus 17 if HIT ]
+    }
+
+    output TOTAL_NA named "NA:[AC]"
+    output TOTAL_AA named "AA:[AC]"
+}

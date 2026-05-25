@@ -1,0 +1,48 @@
+function: DAMAGE:d damage with crit on CRIT:n and BONUS:d bonus when rolling ATTACK:n for attack {
+  if ATTACK >= CRIT {
+    result: [maximum of DAMAGE]+BONUS
+  } else {
+    result: DAMAGE
+  }
+result: DAMAGE
+}
+
+function: ATTACK:s vs DC:n with DAMAGE:d damage with crit on CRIT:n and BONUS:d bonus {
+  if ATTACK >= DC {
+    result: [DAMAGE damage with crit on CRIT and BONUS bonus when rolling ATTACK for attack]
+  } else {
+    result: 0
+  }
+}
+
+function: NUM:n attacks of ATTACK:d vs DC:n with DAMAGE:d damage with crit on CRIT:n and BONUS:d bonus {
+  TOTAL: 0
+  loop N over {1..NUM}{
+    TOTAL: TOTAL + [ATTACK vs DC with DAMAGE damage with crit on CRIT and BONUS bonus]
+  }
+  result: TOTAL
+}
+
+function: NUM:n attacks of ATTACK:d vs DC:n with DAMAGE:d damage with crit on CRIT:n and BONUS:d bonus with MULTIBONUS:s on MULTIREQ:n hits {
+  TOTAL: 0
+  HITS: 0
+  loop N over {1..NUM}{
+    THISHIT: {1}
+    if 1@THISHIT > 0 {HITS: HITS + 1}
+    TOTAL: TOTAL + THISHIT
+  }
+  if HITS >= MULTIREQ {TOTAL: TOTAL + MULTIBONUS}
+  result: TOTAL
+}
+
+function: chance to hit ATTACK:s vs DC:n {
+  if ATTACK >= DC {result: 1} else {result: 0}
+}
+
+DC: 11
+output [2 attacks of 11 vs DC with 2 damage with crit on 20 and 1 bonus with 1 on 1 hits] named "Test"
+output [chance to hit 1d20 vs DC] named "Hit Probability"
+output [2 attacks of 1d20 vs DC with 1d12+7 damage with crit on 20 and 3d6 bonus] named "Twin Strike"
+output [1d20 vs DC with 1d12+13 damage with crit on 20 and 3d6 bonus] named "Nimble Strike"
+output [2 attacks of 1d20 vs DC with 1d12+13 damage with crit on 18 and 3d6 bonus] named "Biting Volley"
+output [9 attacks of 1d20 vs DC with 1d12+13 damage with crit on 20 and 3d6 bonus] named "Confounding Arrows"

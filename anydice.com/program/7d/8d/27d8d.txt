@@ -1,0 +1,26 @@
+function: count VAL in SEQ {
+ COUNT: 0
+ loop P over {1..#VAL} {COUNT: COUNT + (P@VAL = SEQ)}
+ result: COUNT
+}
+
+function: testa A:s {result: [count {5..6, 6} in A]}
+function: testb B:s {result: [count {1..1} in B]}
+
+function: abs NB:n{
+ if NB < 0 { result: -NB }
+ result: NB
+}
+
+function: test LANCER:s{
+ TEST: 0
+ TESTA: [testa LANCER]                    \Compte les 5 et 6 ; les 6 comptent double\
+ TESTB: [testb LANCER]                    \Compte les 1 qui valent double\
+ TEST: TESTA - TESTB                      \Combien de 5, 6 moins combien de 1\
+ TEST: [abs TEST]                         \Transpose en valeur absolue\
+ if TEST > LANCER {result: 1}             \-> Réussite\
+ if TEST <= LANCER {result: 0}           \-> Echec\
+ else {result: -1}
+}
+
+loop N over {1..12} {output [test Nd6] named "[N]D"}

@@ -1,0 +1,26 @@
+set "maximum function depth" to 100
+function: remove N:n from SEQUENCE:s {
+  RESULT:{}
+  REMOVED: 0
+  loop C over SEQUENCE {
+    if (REMOVED = 0) & (C=N) { REMOVED: 1 } else { RESULT: {RESULT,C} }
+  }
+  result: RESULT
+}
+
+function: draw from SEQUENCE:s with X:n and RESULT:s whites WHITES:n until END:n whites{
+  if WHITES=END {
+   result: RESULT
+  } else {
+    SEQUENCE: [remove X from SEQUENCE]
+    if (X=0) {NEWWHITES: WHITES+1} else {NEWWHITES: WHITES}
+    result: [draw from SEQUENCE with dSEQUENCE and {RESULT,X} whites NEWWHITES until END whites]
+  }
+}
+
+function: draw from SEQUENCE:s until N:n whites {
+  result: [draw from SEQUENCE with dSEQUENCE and {} whites 0 until N whites]
+}
+
+SEQUENCE:{1:10,0:7}
+output [draw from SEQUENCE until 3 whites] named "mydie"

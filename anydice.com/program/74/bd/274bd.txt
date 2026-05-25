@@ -1,0 +1,415 @@
+\ anydice-bf \
+\ by terra brown \
+
+\ ===========================================================================\
+
+\ to input a program, translate ><+-.,[] to 12345678, separated by commas \
+\ translator: https://tio.run/##NYxNCsMgEIX3PYU7FeNA6a6IFwlZhMRSSzPKxC5C6dntmKYPZt43v3kr94SXWuOSExWxbuspU8SiZCckPFJExT1YyxwRKIyz0lxQzOyFRlyfYwnqnWhWk77yRKE5a3FLJLCbREQR8LUEalvSO2Oh6wepP1rrWs2h3v9zg184lh08k7fem94NrfTgrbVw3EED4Kaz4Ha2uw5j4Evgf/AF \
+
+\ hello world \
+\ ++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++. \
+PRGM: {3, 3, 3, 3, 3, 3, 3, 3, 7, 1, 3, 3, 3, 3, 7, 1, 3, 3, 1, 3, 3, 3, 1, 3, 3, 3, 1, 3, 2, 2, 2, 2, 4, 8, 1, 3, 1, 3, 1, 4, 1, 1, 3, 7, 2, 8, 2, 4, 8, 1, 1, 5, 1, 4, 4, 4, 5, 3, 3, 3, 3, 3, 3, 3, 5, 5, 3, 3, 3, 5, 1, 1, 5, 2, 4, 5, 2, 5, 3, 3, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 5, 1, 1, 3, 5, 1, 3, 3, 5}
+
+\ cat \
+\ ,[.,] \
+\ PRGM: {6, 7, 5, 6, 8} \
+
+\ ===========================================================================\
+
+\ input values \ 
+IN: {48+4, 48+2, 48+0, 48+6, 48+9}
+
+\ number of cells \
+SIZE: 100
+
+\ max value of a cell \
+MAX: 255
+
+\ ===========================================================================\
+
+\ pain \
+set "maximum function depth" to 500
+
+\ set value to given position in sequence \
+function: setat SEQ:s I:n V:n {
+  NEW: {}
+  loop J over {1..#SEQ} {
+    VAL: J@SEQ
+    if J = I {
+      VAL: V
+    }
+    NEW: {NEW, VAL}
+  }
+  result: NEW
+}
+
+\ find matching [ or ] \
+function: match PPTR:n PRGM:s BAL:n MAT:n DIR:n {
+  if DIR = 1 {
+    PPTRS: {PPTR+1..#PRGM}
+  } else {
+    PPTRS: [reverse {1..PPTR-1}]
+  }
+
+  COUNT: 0
+  loop PTR over PPTRS {
+    INST: PTR@PRGM
+    if INST = MAT {
+      if COUNT = 0 {
+        result: PTR
+      } else {
+        COUNT: COUNT - 1
+      }
+    } else if INST = BAL {
+      COUNT: COUNT + 1
+    }
+  }
+
+  result: -1
+}
+
+\ main program executor \
+function: exec PPTR:n PRGM:s DPTR:n DATA:s IPTR:n IN:s OUT:s {
+  \ do 500 iters per call, to curb recursion \
+  loop ITER over {1..500} {
+    if PPTR > #PRGM {
+      result: OUT
+      \ result: DATA \ \ for debugging \
+    }
+
+    INST: PPTR@PRGM
+
+    if INST = 1 {
+      \ > : increase data ptr \
+      if DPTR = #DATA {
+        DPTR: 1
+      } else {
+        DPTR: DPTR + 1
+      }
+      PPTR: PPTR + 1
+    } else if INST = 2 {
+      \ < : decrease data ptr \
+      if DPTR = 1 {
+        DPTR: #DATA
+      } else {
+        DPTR: DPTR - 1
+      }
+      PPTR: PPTR + 1
+    } else if INST = 3 {
+      \ + : increase value at data ptr \
+      VAL: DPTR@DATA
+      if VAL = MAX {
+        VAL: 0
+      } else {
+        VAL: VAL + 1
+      }
+      DATA: [setat DATA DPTR VAL]
+      PPTR: PPTR + 1
+    } else if INST = 4 {
+      \ - : decrease value at data ptr \
+      VAL: DPTR@DATA
+      if VAL = 0 {
+        VAL: MAX
+      } else {
+        VAL: VAL - 1
+      }
+      DATA: [setat DATA DPTR VAL]
+      PPTR: PPTR + 1
+    } else if INST = 5 {
+      \ . : output value \
+      OUT: {OUT, DPTR@DATA}
+      PPTR: PPTR + 1
+    } else if INST = 6 {
+      \ , : input value \
+      if IPTR > #IN {
+        IV: 0
+      } else {
+        IV: IPTR@IN
+        IPTR: IPTR + 1
+      }
+      DATA: [setat DATA DPTR IV]
+      PPTR: PPTR + 1
+    } else if INST = 7 {
+      \ [ : if value is zero, jump to matching ] \
+      if DPTR@DATA = 0 {
+        PPTR: [match PPTR PRGM 7 8 1] + 1
+      } else {
+        PPTR: PPTR + 1
+      }
+    } else if INST = 8 {
+      \ ] : if value is nonzero, jump to matching [ \
+      if DPTR@DATA != 0 {
+        PPTR: [match PPTR PRGM 8 7 0] + 1
+      } else {
+        PPTR: PPTR + 1
+      }
+    } else {
+      \ unknown inst \
+      PPTR: PPTR + 1
+    }
+  }
+
+  \ result: DATA \ \ for debugging \
+  result: [exec PPTR PRGM DPTR DATA IPTR IN OUT]
+}
+
+\ jank output reading loop, if-elses are generated \
+OUT: [exec 1 PRGM 1 {0: SIZE} 1 IN {}]
+loop CHAR over OUT {
+  if CHAR = 0 {output CHAR named "\x00"}
+  else if CHAR = 1 {output CHAR named "\x01"}
+  else if CHAR = 2 {output CHAR named "\x02"}
+  else if CHAR = 3 {output CHAR named "\x03"}
+  else if CHAR = 4 {output CHAR named "\x04"}
+  else if CHAR = 5 {output CHAR named "\x05"}
+  else if CHAR = 6 {output CHAR named "\x06"}
+  else if CHAR = 7 {output CHAR named "\x07"}
+  else if CHAR = 8 {output CHAR named "\x08"}
+  else if CHAR = 9 {output CHAR named "\t"}
+  else if CHAR = 10 {output CHAR named "\n"}
+  else if CHAR = 11 {output CHAR named "\x0b"}
+  else if CHAR = 12 {output CHAR named "\x0c"}
+  else if CHAR = 13 {output CHAR named "\r"}
+  else if CHAR = 14 {output CHAR named "\x0e"}
+  else if CHAR = 15 {output CHAR named "\x0f"}
+  else if CHAR = 16 {output CHAR named "\x10"}
+  else if CHAR = 17 {output CHAR named "\x11"}
+  else if CHAR = 18 {output CHAR named "\x12"}
+  else if CHAR = 19 {output CHAR named "\x13"}
+  else if CHAR = 20 {output CHAR named "\x14"}
+  else if CHAR = 21 {output CHAR named "\x15"}
+  else if CHAR = 22 {output CHAR named "\x16"}
+  else if CHAR = 23 {output CHAR named "\x17"}
+  else if CHAR = 24 {output CHAR named "\x18"}
+  else if CHAR = 25 {output CHAR named "\x19"}
+  else if CHAR = 26 {output CHAR named "\x1a"}
+  else if CHAR = 27 {output CHAR named "\x1b"}
+  else if CHAR = 28 {output CHAR named "\x1c"}
+  else if CHAR = 29 {output CHAR named "\x1d"}
+  else if CHAR = 30 {output CHAR named "\x1e"}
+  else if CHAR = 31 {output CHAR named "\x1f"}
+  else if CHAR = 32 {output CHAR named " "}
+  else if CHAR = 33 {output CHAR named "!"}
+  else if CHAR = 34 {output CHAR named "''"}
+  else if CHAR = 35 {output CHAR named "#"}
+  else if CHAR = 36 {output CHAR named "$"}
+  else if CHAR = 37 {output CHAR named "%"}
+  else if CHAR = 38 {output CHAR named "&"}
+  else if CHAR = 39 {output CHAR named "'"}
+  else if CHAR = 40 {output CHAR named "("}
+  else if CHAR = 41 {output CHAR named ")"}
+  else if CHAR = 42 {output CHAR named "*"}
+  else if CHAR = 43 {output CHAR named "+"}
+  else if CHAR = 44 {output CHAR named ","}
+  else if CHAR = 45 {output CHAR named "-"}
+  else if CHAR = 46 {output CHAR named "."}
+  else if CHAR = 47 {output CHAR named "/"}
+  else if CHAR = 48 {output CHAR named "0"}
+  else if CHAR = 49 {output CHAR named "1"}
+  else if CHAR = 50 {output CHAR named "2"}
+  else if CHAR = 51 {output CHAR named "3"}
+  else if CHAR = 52 {output CHAR named "4"}
+  else if CHAR = 53 {output CHAR named "5"}
+  else if CHAR = 54 {output CHAR named "6"}
+  else if CHAR = 55 {output CHAR named "7"}
+  else if CHAR = 56 {output CHAR named "8"}
+  else if CHAR = 57 {output CHAR named "9"}
+  else if CHAR = 58 {output CHAR named ":"}
+  else if CHAR = 59 {output CHAR named ";"}
+  else if CHAR = 60 {output CHAR named "<"}
+  else if CHAR = 61 {output CHAR named "="}
+  else if CHAR = 62 {output CHAR named ">"}
+  else if CHAR = 63 {output CHAR named "?"}
+  else if CHAR = 64 {output CHAR named "@"}
+  else if CHAR = 65 {output CHAR named "A"}
+  else if CHAR = 66 {output CHAR named "B"}
+  else if CHAR = 67 {output CHAR named "C"}
+  else if CHAR = 68 {output CHAR named "D"}
+  else if CHAR = 69 {output CHAR named "E"}
+  else if CHAR = 70 {output CHAR named "F"}
+  else if CHAR = 71 {output CHAR named "G"}
+  else if CHAR = 72 {output CHAR named "H"}
+  else if CHAR = 73 {output CHAR named "I"}
+  else if CHAR = 74 {output CHAR named "J"}
+  else if CHAR = 75 {output CHAR named "K"}
+  else if CHAR = 76 {output CHAR named "L"}
+  else if CHAR = 77 {output CHAR named "M"}
+  else if CHAR = 78 {output CHAR named "N"}
+  else if CHAR = 79 {output CHAR named "O"}
+  else if CHAR = 80 {output CHAR named "P"}
+  else if CHAR = 81 {output CHAR named "Q"}
+  else if CHAR = 82 {output CHAR named "R"}
+  else if CHAR = 83 {output CHAR named "S"}
+  else if CHAR = 84 {output CHAR named "T"}
+  else if CHAR = 85 {output CHAR named "U"}
+  else if CHAR = 86 {output CHAR named "V"}
+  else if CHAR = 87 {output CHAR named "W"}
+  else if CHAR = 88 {output CHAR named "X"}
+  else if CHAR = 89 {output CHAR named "Y"}
+  else if CHAR = 90 {output CHAR named "Z"}
+  else if CHAR = 91 {output CHAR named "["}
+  else if CHAR = 92 {output CHAR named "\\"}
+  else if CHAR = 93 {output CHAR named "]"}
+  else if CHAR = 94 {output CHAR named "^"}
+  else if CHAR = 95 {output CHAR named "_"}
+  else if CHAR = 96 {output CHAR named "`"}
+  else if CHAR = 97 {output CHAR named "a"}
+  else if CHAR = 98 {output CHAR named "b"}
+  else if CHAR = 99 {output CHAR named "c"}
+  else if CHAR = 100 {output CHAR named "d"}
+  else if CHAR = 101 {output CHAR named "e"}
+  else if CHAR = 102 {output CHAR named "f"}
+  else if CHAR = 103 {output CHAR named "g"}
+  else if CHAR = 104 {output CHAR named "h"}
+  else if CHAR = 105 {output CHAR named "i"}
+  else if CHAR = 106 {output CHAR named "j"}
+  else if CHAR = 107 {output CHAR named "k"}
+  else if CHAR = 108 {output CHAR named "l"}
+  else if CHAR = 109 {output CHAR named "m"}
+  else if CHAR = 110 {output CHAR named "n"}
+  else if CHAR = 111 {output CHAR named "o"}
+  else if CHAR = 112 {output CHAR named "p"}
+  else if CHAR = 113 {output CHAR named "q"}
+  else if CHAR = 114 {output CHAR named "r"}
+  else if CHAR = 115 {output CHAR named "s"}
+  else if CHAR = 116 {output CHAR named "t"}
+  else if CHAR = 117 {output CHAR named "u"}
+  else if CHAR = 118 {output CHAR named "v"}
+  else if CHAR = 119 {output CHAR named "w"}
+  else if CHAR = 120 {output CHAR named "x"}
+  else if CHAR = 121 {output CHAR named "y"}
+  else if CHAR = 122 {output CHAR named "z"}
+  else if CHAR = 123 {output CHAR named "{"}
+  else if CHAR = 124 {output CHAR named "|"}
+  else if CHAR = 125 {output CHAR named "}"}
+  else if CHAR = 126 {output CHAR named "~"}
+  else if CHAR = 127 {output CHAR named "\x7f"}
+  else if CHAR = 128 {output CHAR named "\x80"}
+  else if CHAR = 129 {output CHAR named "\x81"}
+  else if CHAR = 130 {output CHAR named "\x82"}
+  else if CHAR = 131 {output CHAR named "\x83"}
+  else if CHAR = 132 {output CHAR named "\x84"}
+  else if CHAR = 133 {output CHAR named "\x85"}
+  else if CHAR = 134 {output CHAR named "\x86"}
+  else if CHAR = 135 {output CHAR named "\x87"}
+  else if CHAR = 136 {output CHAR named "\x88"}
+  else if CHAR = 137 {output CHAR named "\x89"}
+  else if CHAR = 138 {output CHAR named "\x8a"}
+  else if CHAR = 139 {output CHAR named "\x8b"}
+  else if CHAR = 140 {output CHAR named "\x8c"}
+  else if CHAR = 141 {output CHAR named "\x8d"}
+  else if CHAR = 142 {output CHAR named "\x8e"}
+  else if CHAR = 143 {output CHAR named "\x8f"}
+  else if CHAR = 144 {output CHAR named "\x90"}
+  else if CHAR = 145 {output CHAR named "\x91"}
+  else if CHAR = 146 {output CHAR named "\x92"}
+  else if CHAR = 147 {output CHAR named "\x93"}
+  else if CHAR = 148 {output CHAR named "\x94"}
+  else if CHAR = 149 {output CHAR named "\x95"}
+  else if CHAR = 150 {output CHAR named "\x96"}
+  else if CHAR = 151 {output CHAR named "\x97"}
+  else if CHAR = 152 {output CHAR named "\x98"}
+  else if CHAR = 153 {output CHAR named "\x99"}
+  else if CHAR = 154 {output CHAR named "\x9a"}
+  else if CHAR = 155 {output CHAR named "\x9b"}
+  else if CHAR = 156 {output CHAR named "\x9c"}
+  else if CHAR = 157 {output CHAR named "\x9d"}
+  else if CHAR = 158 {output CHAR named "\x9e"}
+  else if CHAR = 159 {output CHAR named "\x9f"}
+  else if CHAR = 160 {output CHAR named "\xa0"}
+  else if CHAR = 161 {output CHAR named "¡"}
+  else if CHAR = 162 {output CHAR named "¢"}
+  else if CHAR = 163 {output CHAR named "£"}
+  else if CHAR = 164 {output CHAR named "¤"}
+  else if CHAR = 165 {output CHAR named "¥"}
+  else if CHAR = 166 {output CHAR named "¦"}
+  else if CHAR = 167 {output CHAR named "§"}
+  else if CHAR = 168 {output CHAR named "¨"}
+  else if CHAR = 169 {output CHAR named "©"}
+  else if CHAR = 170 {output CHAR named "ª"}
+  else if CHAR = 171 {output CHAR named "«"}
+  else if CHAR = 172 {output CHAR named "¬"}
+  else if CHAR = 173 {output CHAR named "\xad"}
+  else if CHAR = 174 {output CHAR named "®"}
+  else if CHAR = 175 {output CHAR named "¯"}
+  else if CHAR = 176 {output CHAR named "°"}
+  else if CHAR = 177 {output CHAR named "±"}
+  else if CHAR = 178 {output CHAR named "²"}
+  else if CHAR = 179 {output CHAR named "³"}
+  else if CHAR = 180 {output CHAR named "´"}
+  else if CHAR = 181 {output CHAR named "µ"}
+  else if CHAR = 182 {output CHAR named "¶"}
+  else if CHAR = 183 {output CHAR named "·"}
+  else if CHAR = 184 {output CHAR named "¸"}
+  else if CHAR = 185 {output CHAR named "¹"}
+  else if CHAR = 186 {output CHAR named "º"}
+  else if CHAR = 187 {output CHAR named "»"}
+  else if CHAR = 188 {output CHAR named "¼"}
+  else if CHAR = 189 {output CHAR named "½"}
+  else if CHAR = 190 {output CHAR named "¾"}
+  else if CHAR = 191 {output CHAR named "¿"}
+  else if CHAR = 192 {output CHAR named "À"}
+  else if CHAR = 193 {output CHAR named "Á"}
+  else if CHAR = 194 {output CHAR named "Â"}
+  else if CHAR = 195 {output CHAR named "Ã"}
+  else if CHAR = 196 {output CHAR named "Ä"}
+  else if CHAR = 197 {output CHAR named "Å"}
+  else if CHAR = 198 {output CHAR named "Æ"}
+  else if CHAR = 199 {output CHAR named "Ç"}
+  else if CHAR = 200 {output CHAR named "È"}
+  else if CHAR = 201 {output CHAR named "É"}
+  else if CHAR = 202 {output CHAR named "Ê"}
+  else if CHAR = 203 {output CHAR named "Ë"}
+  else if CHAR = 204 {output CHAR named "Ì"}
+  else if CHAR = 205 {output CHAR named "Í"}
+  else if CHAR = 206 {output CHAR named "Î"}
+  else if CHAR = 207 {output CHAR named "Ï"}
+  else if CHAR = 208 {output CHAR named "Ð"}
+  else if CHAR = 209 {output CHAR named "Ñ"}
+  else if CHAR = 210 {output CHAR named "Ò"}
+  else if CHAR = 211 {output CHAR named "Ó"}
+  else if CHAR = 212 {output CHAR named "Ô"}
+  else if CHAR = 213 {output CHAR named "Õ"}
+  else if CHAR = 214 {output CHAR named "Ö"}
+  else if CHAR = 215 {output CHAR named "×"}
+  else if CHAR = 216 {output CHAR named "Ø"}
+  else if CHAR = 217 {output CHAR named "Ù"}
+  else if CHAR = 218 {output CHAR named "Ú"}
+  else if CHAR = 219 {output CHAR named "Û"}
+  else if CHAR = 220 {output CHAR named "Ü"}
+  else if CHAR = 221 {output CHAR named "Ý"}
+  else if CHAR = 222 {output CHAR named "Þ"}
+  else if CHAR = 223 {output CHAR named "ß"}
+  else if CHAR = 224 {output CHAR named "à"}
+  else if CHAR = 225 {output CHAR named "á"}
+  else if CHAR = 226 {output CHAR named "â"}
+  else if CHAR = 227 {output CHAR named "ã"}
+  else if CHAR = 228 {output CHAR named "ä"}
+  else if CHAR = 229 {output CHAR named "å"}
+  else if CHAR = 230 {output CHAR named "æ"}
+  else if CHAR = 231 {output CHAR named "ç"}
+  else if CHAR = 232 {output CHAR named "è"}
+  else if CHAR = 233 {output CHAR named "é"}
+  else if CHAR = 234 {output CHAR named "ê"}
+  else if CHAR = 235 {output CHAR named "ë"}
+  else if CHAR = 236 {output CHAR named "ì"}
+  else if CHAR = 237 {output CHAR named "í"}
+  else if CHAR = 238 {output CHAR named "î"}
+  else if CHAR = 239 {output CHAR named "ï"}
+  else if CHAR = 240 {output CHAR named "ð"}
+  else if CHAR = 241 {output CHAR named "ñ"}
+  else if CHAR = 242 {output CHAR named "ò"}
+  else if CHAR = 243 {output CHAR named "ó"}
+  else if CHAR = 244 {output CHAR named "ô"}
+  else if CHAR = 245 {output CHAR named "õ"}
+  else if CHAR = 246 {output CHAR named "ö"}
+  else if CHAR = 247 {output CHAR named "÷"}
+  else if CHAR = 248 {output CHAR named "ø"}
+  else if CHAR = 249 {output CHAR named "ù"}
+  else if CHAR = 250 {output CHAR named "ú"}
+  else if CHAR = 251 {output CHAR named "û"}
+  else if CHAR = 252 {output CHAR named "ü"}
+  else if CHAR = 253 {output CHAR named "ý"}
+  else if CHAR = 254 {output CHAR named "þ"}
+  else if CHAR = 255 {output CHAR named "ÿ"}
+}

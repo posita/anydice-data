@@ -1,0 +1,98 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+\ halves damage on save\
+function: cast ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:CRIT}
+ if ROLL = 20{
+  result:HIT
+ }
+ if ROLL+SAV>=DC{result:HIT}
+ result: CRIT
+}
+\ nulls damage on save, no halves \
+function: locast ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:CRIT}
+ if ROLL = 20{
+  result:MISS
+ }
+ if ROLL+SAV>=DC{result:MISS}
+ result:CRIT
+}
+\evasion rules, halves damage on fail save\
+function: evasion ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:HIT}
+ if ROLL = 20{
+  result:MISS
+ }
+ if ROLL+SAV>=DC{result:MISS}
+ result:HIT
+}
+\standard hit indicator\
+function: attack ROLL:n sum ACC:s vs AC:s{
+ if ROLL = 1{result: MISS}
+ if ROLL = 20{
+  result:CRIT
+ }
+ if ROLL+ACC >= AC{result:HIT}
+ result: MISS
+}
+MISSDAMAGE: 0
+\damage vs AC\
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: enemy damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: ECD
+ }
+ if ATTACKRESULT = HIT {
+  result: ED
+ }
+ result: MISSDAMAGE
+}
+\damage vs saves\
+function: magic for MR:n{
+ if MR = CRIT{
+  result: SPELL
+ }
+ if MR = HIT{
+  result: SPELL/2
+ }
+ result: MISSDAMAGE
+}
+\threshold vs damage\
+function: threshold DMG:n vs T:n{
+ if DMG >= T{result: DMG}
+ result: 0
+}
+\chance with crit success and fail rules\
+function: chance ROLL:n sum MOD:s vs DC:s{
+ if ROLL = 1{result:0}
+ if ROLL = 20{
+  result: 1
+ }
+ if ROLL + MOD >= DC{result: 1}
+ result: 0
+}
+\ standard check with no crit \
+function: lochance ROLL:n sum MOD:s vs DC:s{
+ if ROLL + MOD >= DC{result: 1}
+ result: 0
+}
+\below are damage vs AC\
+HITDAMAGE: d{1d8+3:2,3d4}
+CRITICALDAMAGE: d{2d8+3:2,6d4}
+ED: d{2d4,2d8:2,1d6+3:2,2d6:2,2d10:3}
+ECD: d{4d4,4d8:2,2d6+3:2,4d6:2,4d10:3}
+\ spell is damage used for damage vs saves \
+SPELL: 6d10
+output [enemy damage for [attack d20 sum d{3:3,4:3,5:2} vs 16]] named "enemy damage"
+output [damage for[attack d20 sum d{4,5:2} vs d{13,14:2,15:2,16:3}]] named "player damage"
+output [magic for [cast d20 sum 4 vs 13]] named "sniper"

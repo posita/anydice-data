@@ -1,0 +1,40 @@
+function: min X Y {
+  if X < Y { result: Y } else { result: X }
+}
+
+function: roll DIE:n target T:n {
+  if DIE >= [min T 2] {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+function: attack HIT:n target AC:n { result: [roll d20 target AC-HIT] }
+function: attack with advantage HIT:n target AC:n { result: [roll 1@2d20 target AC-HIT] }
+function: attack with disadvantage HIT:n target AC:n { result: [roll 2@2d20 target AC-HIT] }
+
+function: cloaked N:n attacks HIT:n target AC:n {
+  result: [cloaked N of N attacks HIT target AC]
+}
+
+function: cloaked X:n of Y:n attacks HIT:n target AC:n {
+  if N = 1 {
+    result: Yd[attack with disadvantage HIT target AC]
+  } else {
+  }
+}
+
+ATK: 12
+DEF: 20
+MULTI: 1
+
+output MULTId[attack with disadvantage ATK target DEF] named "[MULTI]x disadvantage"
+output MULTId[attack ATK target DEF+2] named "[MULTI]x hasted"
+output [cloaked MULTI attacks ATK target DEF] named "[MULTI]x displaced"
+
+output [attack ATK target DEF] named "sanity check: straight roll"
+output d20+ATK named "sanity check: distribution"
+
+output [attack with disadvantage ATK target DEF] named "sanity check: disadvantage"
+output 2@2d20+ATK named "sanity check: distribution"

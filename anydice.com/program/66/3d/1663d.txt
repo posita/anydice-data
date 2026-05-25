@@ -1,0 +1,54 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+CHA:5
+PROF:3
+AC:14
+DOBBEL:d20
+
+output
+[attack DOBBEL plus CHA + PROF vs AC for 1d10 + CHA crit 1d10 on 20] +
+[attack DOBBEL plus CHA + PROF vs AC for 1d10 + CHA crit 1d10 on 20]
+named "Eldritch Blast"
+
+output
+[attack DOBBEL plus CHA + PROF vs AC for 1d8 + CHA + 1d8 + CHA + 1d8 + CHA crit 1d8 + 1d8 on 20]
+named "Green Flame Blade double"
+
+output
+[attack DOBBEL plus CHA + PROF vs AC for 1d8 + CHA + 1d8 + CHA crit 1d8 + 1d8 on 20]
+named "Green Flame Blade single"
+
+output
+[attack DOBBEL plus CHA + PROF vs AC for 1d8 + CHA + 1d8 + 2d8 crit 1d8 + 1d8 on 20]
+named "Booming Blade movement"
+
+output
+[attack DOBBEL plus CHA + PROF vs AC for 1d8 + CHA + 1d8 crit 1d8 + 1d8 on 20]
+named "Booming Blade standing"

@@ -1,0 +1,31 @@
+SK_ONE: 100 \Skill for character one\
+SK_TWO: 100 \Skill for character two\
+RL_ONE: 1d100 \The roll for character one\
+RL_TWO: 1d100 \and for two\
+
+ONE_CS: [count {01,11,22,33,44,55,66,77,88,99,100} in RL_ONE] * (RL_ONE <= SK_ONE) \Chances for a critical success\
+TWO_CS: [count {01,11,22,33,44,55,66,77,88,99,100} in RL_TWO] * (RL_TWO <= SK_TWO)
+
+WW: (RL_ONE <= SK_ONE) * (RL_TWO <= SK_TWO) \The 4 major categories of possibilities: Both succeed, One succeed, neither Succeed\
+WL: (RL_ONE <= SK_ONE) * (RL_TWO > SK_TWO)
+LW: (RL_ONE > SK_ONE) * (RL_TWO <= SK_TWO)
+LL: (RL_ONE > SK_ONE) * (RL_TWO > SK_TWO)
+
+WW_ONE: WW * (RL_ONE < RL_TWO) \Breakdown 'Both Succeed' into who wins in that case\
+WW_TWO: WW * (RL_TWO < RL_ONE)
+WW_TIE: WW * (RL_ONE = RL_TWO)
+
+WW_TWO_CS: WW_ONE & TWO_CS & (1-ONE_CS) \One beats Two, but Two Critically Succeeds\
+WW_ONE_CS: WW_TWO & ONE_CS & (1-TWO_CS) \Two beats One, but One Critically Succeeds\
+
+WW_SUM_ONE: 1/2
+
+output WW named "###### Both succeed..."
+output WW_ONE named "... and One Wins"
+output WW_TWO named "... and Two Wins"
+output WW_TIE named "... and Tie"
+
+output WW_TWO_CS
+output WW_ONE_CS
+output WW_SUM_ONE
+

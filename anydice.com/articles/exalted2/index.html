@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/articles/exalted2/">
+		<meta property="og:type" content="article">
+		<meta property="og:image" content="https://anydice.com/articles/exalted2/exalted.png">
+		<meta property="og:description" content="A short look at the dice probabilities of Exalted, second edition.">
+		<meta property="og:title" content="Exalted 2">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Exalted 2</title>
+		<link href="../articles.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"mainEntity": {
+				"@type": "Article",
+				"@id": "https://anydice.com/articles/exalted2/#article",
+				"headline": "Exalted 2",
+				"alternativeHeadline": "From Botch to Success",
+				"description": "A short look at the dice probabilities of Exalted, second edition.",
+				"datePublished": "2010-11-01",
+				"author": { "@type": "Person", "name": "Jasper Flick", "@id": "https://catlikecoding.com/jasper-flick/#person" },
+				"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+				"image": "https://anydice.com/articles/exalted2/exalted.png"
+			},
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/articles/", "name": "Articles" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Articles</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1>Exalted 2</h1>
+					<p>From Botch to Success</p>
+				</header>
+				
+				<p>Let's have a short look at the dice mechanics of Exalted, 2<sup>nd</sup> edition.</p>
+				
+				<p>It's a dice pool mechanic, you roll some d10 and each die that rolled at least the target number counts as a success. The default target number is 7, so you have a 40% success rate per die. You typically need to roll between one and five successes to get something done. As a bonus, each 10 rolled counts as two successes. Rolling no successes at all means you fail, but there's an additional snag. If you rolled any 1s while failing, the result is a botch, which is supposed to be extra bad.</p>
+				
+				<p>So, here's an AnyDice program that calculates the odds for pools with up to ten dice. A result of -1 indicates a botch, a result of 0 is a failure, the rest indicating degree of success.</p>
+				
+				<pre>function: evaluate ROLL:s {
+ SUCCESSES: ROLL >= 7
+ if SUCCESSES > 0 { result: SUCCESSES + (ROLL = 10) }
+ if [count 1 in ROLL] { result: -1 }
+ result: 0
+}
+
+loop DICE over {1..10} {
+ output [evaluate DICE d10] named "[DICE]d"
+}</pre>
+				
+				<p>It's not the fastest way to compute it, but it can be done in just under five seconds. If AnyDice times out, the server is busy. Just try again, maybe with with less pools at once.</p>
+				
+				<figure>
+					<img alt="normal" src="exalted.png" width="500" height="400">
+					<img alt="at least" src="exalted-at-least.png" width="500" height="400">
+					<figcaption>Degree of success, normal and at-least.</figcaption>
+				</figure>
+				
+				<p>Using a slight tweak and the transposed view, we can see how the odds of botch, failure, and success change with the pool size.</p>
+				
+				<pre>loop DICE over {1..10} {
+ output [lowest of [evaluate DICE d10] and 1] named "[DICE]d"
+}</pre>
+				
+				<figure>
+					<img src="success-failure-botch.png" width="500" height="400">
+					<figcaption>Success, failure, and botch.</figcaption>
+				</figure>
+				
+				<p>As you can see, when using a pool size of four dice or larger, you're slightly more likely to botch than to fail. Your chances of getting at least one success are pretty good at that point though.</p>
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+		
+		<script src="../articles.js"></script>
+	</body>
+</html>

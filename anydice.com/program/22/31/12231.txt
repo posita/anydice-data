@@ -1,0 +1,186 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: precise SUP:n attack ROLL:n vs AC:n for DMG:d {
+    if ROLL + SUP >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:s use USE:d pass PASS:d {
+    if ROLL = 1 {
+        result: PASS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG + 2dSUP + USE
+    }
+    if [PRECISE_RANGE contains (ROLL + BONUS)] {
+        result: [precise SUP attack ROLL + BONUS vs AC for DMG] + USE
+    }
+    if ROLL + BONUS >= AC {
+        if SUP_DICE >= ATTACKS {
+            result: DMG + SUP + USE
+        }
+        result: DMG + PASS
+    }
+
+    result: PASS
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d {
+
+    \A B C D E F G are previous attack with 0, 1, 2, 3, 4, 5, or 6 superiority dice remaining\
+
+    A: 0
+    B: 0
+    C: 0
+    D: 0
+    E: 0
+    F: 0
+    G: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        G: [battlemaster 6 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use F pass G]
+        F: [battlemaster 5 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use E pass F]
+        E: [battlemaster 4 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use D pass E]
+        D: [battlemaster 3 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use C pass D]
+        C: [battlemaster 2 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use B pass C]
+        B: [battlemaster 1 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use A pass B]
+        A: ATTACK + A
+    }
+
+    if SUP_DICE = 6 {
+        result: G
+    }
+    if SUP_DICE = 5 {
+        result: F
+    }
+    if SUP_DICE = 4 {
+        result: E
+    }
+    if SUP_DICE = 3 {
+        result: D
+    }
+    if SUP_DICE = 2 {
+        result: C
+    }
+    if SUP_DICE = 1 {
+        result: B
+    }
+    if SUP_DICE = 0 {
+        result: A
+    }
+}
+
+
+output
+[attack d20 plus 2 + 3 + 2 vs 13 for 1d10 + 3 crit 1d10 on 20] named "[1] Heavy crossbow"
+
+output
+2d[attack d20 plus 2 + 3 + 2 vs 13 for 1d6 + 3 crit 1d6 on 20] named "[1] Variant human crossbow expert"
+
+output
+2d[attack d20 plus 2 + 3 + 2 vs 13 for 1d10 + 3 crit 1d10 on 20] named "[2] Heavy crossbow"
+
+output
+3d[attack d20 plus 2 + 3 + 2 vs 13 for 1d6 + 3 crit 1d6 on 20] named "[2] Variant human crossbow expert"
+
+output
+2d[attack [highest 1 of 2d20] plus 2 + 3 + 2 vs 13 for 1d10 + 3 crit 1d10 on 20] named "[3] Samurai advantage"
+
+output
+[battlemaster 4 superiority d8 precise {13-8 .. 13-1} attacks 3 roll d20 plus 3 + 4 + 2 vs 13 for 1d6 + 4 crit 1d6 on 20] named "[3] Variant human battlemaster crossbow expert"
+
+output
+2d[attack [highest 1 of 2d20] plus 3 + 3 + 2 - 5 vs 14 for 1d8 + 3 + 10 crit 1d10 on 20] named "[4] Samurai advantage sharpshooter"
+
+output
+[battlemaster 4 superiority d8 precise {15-8 .. 15-1} attacks 3 roll d20 plus 3 + 3 + 2 - 5 vs 15 for 1d6 + 3 + 10 crit 1d6 on 20] named "[4] Battlemaster crossbow expert sharpshooter"
+
+output
+4d[attack [highest 1 of 2d20] plus 3 + 3 + 2 - 5 vs 15 for 1d8 + 3 + 10 crit 1d8 on 20] named "[5] Samurai advantage sharpshooter"
+
+output
+[battlemaster 4 superiority d8 precise {15-8 .. 15-1} attacks 5 roll d20 plus 3 + 3 + 2 - 5 vs 15 for 1d6 + 3 + 10 crit 1d6 on 20] named "[5] Battlemaster crossbow expert sharpshooter"
+
+output
+4d[attack [highest 1 of 3d20] plus 3 + 4 + 2 - 5 vs 15 for 1d8 + 4 + 10 crit 1d8 on 20] named "[6] Samurai advantage elven accuracy sharpshooter"
+
+output
+[battlemaster 4 superiority d8 precise {15-8 .. 15-1} attacks 5 roll d20 plus 3 + 4 + 2 - 5 vs 15 for 1d6 + 4 + 10 crit 1d6 on 20] named "[6] Battlemaster crossbow expert sharpshooter"
+
+output
+[battlemaster 5 superiority d8 precise {15-8 .. 15-1} attacks 5 roll d20 plus 3 + 4 + 2 - 5 vs 15 for 1d6 + 4 + 10 crit 1d6 on 20] named "[7] Battlemaster crossbow expert sharpshooter"
+
+output
+4d[attack [highest 1 of 3d20] plus 3 + 5 + 2 - 5 vs 16 for 1d8 + 5 + 10 crit 1d8 on 20] named "[8] Samurai advantage elven accuracy sharpshooter"
+
+output
+[battlemaster 5 superiority d8 precise {16-8 .. 16-1} attacks 5 roll d20 plus 3 + 5 + 2 - 5 vs 16 for 1d6 + 5 + 10 crit 1d6 on 20] named "[8] Battlemaster sharpshooter"
+
+
+output
+[battlemaster 5 superiority d10 precise {17-10 .. 17-1} attacks 5 roll d20 plus 4 + 5 + 2 - 5 vs 17 for 1d6 + 5 + 10 crit 1d6 on 20] named "[10] Battlemaster crossbow expert sharpshooter"
+
+
+output
+6d[attack [highest 1 of 3d20] plus 4 + 5 + 2 - 5 vs 17 for 1d8 + 5 + 10 crit 1d8 on 20] named "[11] Samurai advantage elven accuracy sharpshooter"
+
+
+output
+[battlemaster 5 superiority d10 precise {17-10 .. 17-1} attacks 7 roll d20 plus 4 + 5 + 2 - 5 vs 17 for 1d6 + 5 + 10 crit 1d6 on 20] named "[11] Battlemaster crossbow expert sharpshooter"
+
+output
+6d[attack [highest 1 of 3d20] plus 4 + 5 + 2 - 5 vs 17 for 1d10 + 5 + 10 crit 1d10 on 20] named "[12] Samurai advantage elven accuracy crossbow expert sharpshooter"
+
+PROF: 5
+AC: 18
+
+output
+[attack d20 plus PROF + 5 + 2 - 5 vs AC for 1d10 + 5 + 10 crit 1d10 on 20] +
+6d[attack [highest 1 of 3d20] plus PROF + 5 + 2 - 5 vs AC for 1d10 + 5 + 10 crit 1d10 on 20] named "[15] Samurai advantage elven accuracy crossbow expert sharpshooter"
+
+
+output
+[battlemaster 6 superiority d10 precise {AC-10 .. AC-1} attacks 7 roll d20 plus PROF + 5 + 2 - 5 vs AC for 1d6 + 5 + 10 crit 1d6 on 20] named "[15] Battlemaster crossbow expert sharpshooter"
+
+PROF: 6
+AC: 19
+
+output
+[battlemaster 6 superiority d12 precise {AC-12 .. AC-1} attacks 7 roll d20 plus PROF + 5 + 2 - 5 vs AC for 1d6 + 5 + 10 crit 1d6 on 20] named "[18] Battlemaster crossbow expert sharpshooter"
+
+output
+[attack d20 plus PROF + 5 + 2 - 5 vs AC for 1d10 + 5 + 10 crit 1d10 on 20] +
+8d[attack [highest 1 of 3d20] plus PROF + 5 + 2 - 5 vs AC for 1d10 + 5 + 10 crit 1d10 on 20] named "[20] Samurai advantage elven accuracy crossbow expert sharpshooter"
+
+output
+[battlemaster 6 superiority d12 precise {AC-12 .. AC-1} attacks 9 roll d20 plus PROF + 5 + 2 - 5 vs AC for 1d6 + 5 + 10 crit 1d6 on 20] named "[20] Battlemaster crossbow expert sharpshooter"

@@ -1,0 +1,37 @@
+set "explode depth" to 10
+set "maximum function depth" to 10
+
+\
+output [highest of [explode d10] and [explode d6]] named "wild"
+output [explode d10] named "extra"
+
+function: myexplode N:n on SIZE:n {
+ if N = SIZE {
+  result: N + [myexplode d(SIZE) on SIZE]
+ }
+ result: N
+}
+\
+
+\these represent chances of each raise for successful hits, based on Fighting d10 with +2 bonus vs Parry 6\
+WILDHIT: d{7,6:2,5:5,4:6,3:49,2:52,1:282,0:453}
+EXTRAHIT: d{7,6:2,5:3,4:4,3:39,2:41,1:210,0:400}
+\these capped at two raises\
+WILDMAX: d{2:115,1:282,0:453}
+EXTRAMAX: d{2:90,1:210,0:400}
+\these capped at 1 raise\
+WILDOLD: d{1:397,0:453}
+EXTRAOLD: d{1:300,0:400}
+
+WEAPON: 10
+STRENGTH: 10
+TOUGH: 9
+
+output (([explode d(STRENGTH)] + [explode d(WEAPON)] + WILDOLD * [explode d6])-TOUGH)/4 named "RAW,wild"
+output (([explode d(STRENGTH)] + [explode d(WEAPON)] + EXTRAOLD * [explode d6])-TOUGH)/4 named "RAW,extra"
+
+output ((d(STRENGTH) + d(WEAPON) + WILDHIT d6)-TOUGH)/4 named "Zadmar,wild"
+output ((d(STRENGTH) + d(WEAPON) + EXTRAHIT d6)-TOUGH)/4 named "Zadmar,wild"
+
+output ((d(STRENGTH) + d(WEAPON) + WILDMAX d6)-TOUGH)/4 named "Zadmar2,wild"
+output ((d(STRENGTH) + d(WEAPON) + EXTRAMAX d6)-TOUGH)/4 named "Zadmar2,wild"

@@ -1,0 +1,53 @@
+TARGET: 10
+PROF: 3
+MOD: 3
+DAM: d12
+DAM_AV: 7
+WOCO: 1
+SS: 0
+
+function: gwf D:n{
+ if D <= 2 {
+  result: DAM
+ }
+ result: D
+}
+
+function: hit D:n{
+ if D = 20 {result: [gwf DAM] + [gwf DAM] + MOD + SS*2}
+ result: [gwf DAM] + MOD + 2*SS
+}
+
+function: hitw D:n{
+ if D = 20 {result: 2*(D + MOD + SS*2)}
+ if D < DAM_AV {result: [hit D]}
+ result: D + MOD + 2*SS
+}
+
+function: roll D:n{
+ if D + PROF + MOD - SS >= TARGET & D > 1{
+  if WOCO = 1 {
+   result: [hitw D]
+  }
+  result: [hit D]
+ }
+ result: 0
+}
+
+function: atk{
+ if WOCO = 1 {result: [roll [lowest 1 of 2d20]]}
+ result: [roll d20]
+}
+
+loop I over {10..18}{
+ TARGET: I
+ WOCO: 0
+ SS: 0
+ output [atk] named "AC [TARGET]"
+ WOCO: 1
+ output [atk] named "AC [TARGET] WOCO"
+ SS: 5
+ output [atk] named "AC [TARGET] WOCO SS"
+ WOCO: 0
+ output [atk] named "AC [TARGET] SS"
+}

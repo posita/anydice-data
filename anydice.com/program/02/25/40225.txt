@@ -1,0 +1,45 @@
+function: explode N:n {
+ if N = 1 {
+  result: N - d10
+ }
+ if N = 10 {
+  result: N + d10
+ }
+ result: N
+}
+
+function: damage N:n {
+ result: N
+}
+
+function: crit N:n {
+ if N = 6 {
+ result: 1
+ }
+ result: 0
+}
+
+DAMAGE: 5d([damage d6])
+CRIT: 5d([crit d6])
+ATTACK: [explode 1d10]+19
+DODGE: [explode 1d10]+18
+DV: 15
+PEN: 4d6+6-18
+
+output ATTACK > DODGE named "Vs Dodge"
+output ATTACK > DV named "Vs DV"
+output DAMAGE named "Damage"
+output CRIT > 1 named "Crit Chance"
+output PEN > 0 named "Pen"
+
+function: highest NUMBER:n of DICE:d {
+ result: {1..NUMBER}@DICE
+}
+
+VAR: [explode 1d10]+10
+VARTWO: [explode 1d10]+10
+VARTHREE: [explode 1d10]+10
+VARFOUR: [highest of VAR and VARTWO]
+VARFIVE: [highest of VARFOUR and VARTHREE]
+NETRUNNER: [explode 1d10]+12
+output NETRUNNER > VARFIVE named "Stealth"

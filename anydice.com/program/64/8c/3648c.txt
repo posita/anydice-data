@@ -1,0 +1,18 @@
+function: skill roll SKILL_TARGET:n or better in ROLL:s with BOOSTS:n boosts {
+ \ Clamp skill target between 2 and 6, assuming a roll can never be impossible or guaranteed \
+ SKILL_TARGET: [lowest of SKILL_TARGET and 6]
+ SKILL_TARGET: [highest of SKILL_TARGET and 2]
+
+ \ Calculate a boost die target number. This CAN be an autosuccess. \
+ BOOST_TARGET: SKILL_TARGET-1
+
+ PASSES: [count {SKILL_TARGET..6} in ROLL]
+ BOOST_PASSES: [lowest of [count BOOST_TARGET in ROLL] and BOOSTS]
+ result: PASSES+BOOST_PASSES
+
+}
+
+output [skill roll 5 or better in 11d6 with 1 boosts] named "W/Bonus"
+output [count{5,6} in 10d6]+1 named "W/Autosucc"
+output [skill roll 5 or better in 11d6 with 0 boosts] named "5+"
+output [skill roll 4 or better in 11d6 with 0 boosts] named "4+"

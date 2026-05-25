@@ -1,0 +1,30 @@
+function: score ROLL:s {
+ R: 0
+ 
+ \ add lowest if it's singular \
+ LOWEST: (#ROLL)@ROLL
+ LOWESTCOUNT: [count LOWEST in ROLL]
+ if LOWESTCOUNT = 1 {
+  R: LOWEST
+ }
+
+ \ add 2n lowest if it exists and is singular \
+ if LOWESTCOUNT < #ROLL {
+  SECONDLOWEST: (#ROLL - LOWESTCOUNT)@ROLL
+  if [count SECONDLOWEST in ROLL] = 1 {
+   R: R + SECONDLOWEST
+  }
+ }
+ 
+ \ add all matches \
+ loop N over {1..6} {
+  C: [count N in ROLL]
+  if C > 1 { R: R + C * N }
+ }
+ result: R
+}
+
+loop D over {1..6} {
+ output [score Dd6] named "[D]d"
+}
+

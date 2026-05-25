@@ -1,0 +1,24 @@
+set "maximum function depth" to 4
+
+SIDES: 10
+
+function: offset for N:n vs SKILL:n with POLARITY:n {
+ OFFSET: 0
+ if POLARITY >= 0 {
+  if N <= SKILL { OFFSET: 1 }
+  if N = 1 { OFFSET: 1 + [offset for 1dSIDES vs SKILL with 1] }
+ }
+ if POLARITY <= 0 {
+  \ if N > SKILL { OFFSET: -1 } \
+  if N = SIDES { OFFSET: -1 + [offset for 1dSIDES vs SKILL with -1] }
+ }
+ result: OFFSET
+}
+
+function: N:n vs SKILL:n {
+ result: SKILL + [offset for N vs SKILL with 0]
+}
+
+loop SKILL over {0..6} {
+ output [1dSIDES vs SKILL] named "vs. [SKILL]"
+}

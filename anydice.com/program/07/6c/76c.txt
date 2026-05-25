@@ -1,0 +1,35 @@
+function: roll SUCCESS:n for TARGET:n with FAILURESALLOWED:n {
+ if SUCCESS {
+  \ rolled a single or double success \
+  if SUCCESS >= TARGET {
+   \ passed the challenge \
+   result: 1
+  }
+  \ continue rolling with lower target \
+  result: [roll SUCCESSDIE for TARGET - SUCCESS with FAILURESALLOWED]
+ }
+ \ rolled a failure \
+ if FAILURESALLOWED = 0 {
+  \ failed the challenge \
+  result: -1
+ }
+ \ continue rolling with fewer allowed failures \
+ result: [roll SUCCESSDIE for TARGET with FAILURESALLOWED - 1]
+}
+
+\ depth of 14 needed because at most X + 2 rolls are possible \
+set "maximum function depth" to 14
+
+\ d20 with 0..3 failure, 4..19 success, 20 double success \
+SUCCESSDIE: d{0:3, 1:16, 2}
+
+loop X over {4, 6, 8, 10, 12} {
+ output [roll SUCCESSDIE for X with 2] named "[X] A-E"
+}
+
+\ d20 with 0..5 failure, 6..19 success, 20 double success \
+SUCCESSDIE: d{0:5, 1:14, 2}
+
+loop X over {4, 6, 8, 10, 12} {
+ output [roll SUCCESSDIE for X with 2] named "[X] F-J"
+}

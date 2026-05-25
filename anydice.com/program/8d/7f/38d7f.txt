@@ -1,0 +1,70 @@
+DC: 7
+HIT: 2d6
+DIFF: [highest 2 of 3d6]
+ACC: [lowest 2 of 3d6]
+
+function: attack half on ties X:n Y:n Z:n {
+  if (X = 7) {result: ((Y+Z)/2)-2}
+  if (X > 7) {result: (Y)+Z-2}
+  result: 0
+}
+
+function: crazy attack X:n Y:n Z:n A:n{
+  if (X+A = 7) {
+   result: ((Y+Z+A)/2)-2
+  }
+  if (X+A > 7) {
+   result: (Y+Z+A)-2
+  }
+  result: -10
+}
+
+function: hunter double attack X:n Y:n Z:n D:n{
+  A: 0
+  B: 0
+  C: [crazy attack X Y Z A]
+  if (C > -10) {
+   if (C >= 0) {B: B+C}
+   A: A+1
+  }
+  C: [crazy attack X D Z A]
+  if (C > -10) {
+   if (C >= 0) {B: B+C}
+   A: A+1
+  }
+  C: [crazy attack X Y Z A]
+  if (C > -10) {
+   if (C >= 0) {B: B+C}
+   A: A+1
+  }
+  C: [crazy attack X D Z A]
+  if (C > -10) {
+   if (C >= 0) {B: B+C}
+   A: A+1
+  }
+  result: B
+}
+
+output [hunter double attack 2d6 1d8 2 1d4] named "awesome cool monk"
+output (DIFF >= DC)*(3d6+2)
+output (HIT <= DC)*(1d3+1) named "light cannon"
+output (HIT <= DC)*(1d5+1) named "cannon"
+output (HIT <= DC)*(1d2+3) named "burst cannon"
+output (HIT <= DC)*([explode 1d3]+1) named "eruption cannon"
+output (HIT <= DC)*(1d5+3) named "heavy cannon"
+output (HIT <= DC)*([explode d6]+1) named "high explosive cannon"
+output ((DIFF <= DC)*(3d2+3)) + ((DIFF >= DC)*(3d2+3)) named "machine autocannon"
+output (HIT <= DC)+(HIT >= DC) named "ultralight turret"
+output ((HIT <= DC)*(d3+2)) named "auto turret"
+output (HIT <= DC)*(2d{2..3}+1) named "heavy turret"
+output ((HIT <= DC)*(d3+1))+((HIT >= DC)*(d3+1)) named "hyper turret"
+output (HIT <= DC) * ([explode d3]+[explode d3]) named "explosive turret"
+output (ACC <= DC)*(d3) named "missile barrage S"
+output ((ACC <= DC)*(d3))+((ACC >= DC)*(d3)) named "missile barrage L"
+output (ACC <= DC)*(1d3+2) named "pin missile"
+output ((ACC <= DC)*(d2+1))+((ACC >= DC)*(d2+1)) named "uber missiles"
+output (HIT <= DC)*([explode d3]+[explode d3]+[explode d3]+1) named "mini nuke"
+output (HIT <= DC)*(2d{2..6}) named "coilgun"
+output (HIT <= DC)*(2d{2..6}+1) named "mass driver"
+output (HIT <= DC)*([explode d6]+[explode d6]+[explode d6]+[explode d6]+[explode d6]+1) named "death rail"
+output (HIT <= DC)*([explode d{2..3}]+[explode d{2..3}]+[explode d{2..3}]+[explode d{2..3}]) named "min max custom weapon weight 3"

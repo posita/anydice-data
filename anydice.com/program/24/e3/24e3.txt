@@ -1,0 +1,70 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKS:s {
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = CRITICALHIT { D: D + CRITICAL }
+  else if A@ATTACKS = HIT { D: D + DAMAGE }
+ }
+ result: D + [extra damage for ATTACKS]
+}
+
+function: extra damage for ATTACKS:s {
+\ if [ATTACKS contains CRITICALHIT] { \
+\  result: [maximum of RAGE] \
+\ } \
+ if [ATTACKS contains HIT] { result: RAGE }
+ result: 0
+}
+
+function: two weapon attack {
+ result: [damage for 2d[attack d20 vs DEFENSE]]
+}
+
+function: single weapon attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: advantaged single weapon attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+function: advantaged two weapon attack {
+ result: [damage for 2d[attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+RAGE: 2
+
+ATTACK  : 5
+DAMAGE  : d6
+CRITICAL: d6+d6
+output [two weapon attack] named "two hand axes"
+
+ATTACK  : 5
+DAMAGE  : d6
+CRITICAL: d6+d6
+output [advantaged two weapon attack] named "two hand axes, advantaged"
+
+ATTACK  : 5
+DAMAGE  : d8
+CRITICAL: d8+d8
+output [single weapon attack] named "long bow"
+
+ATTACK  : 5
+DAMAGE  : d8
+CRITICAL: d8+d8
+output [advantaged single weapon attack] named "long bow, advantaged"
+

@@ -1,0 +1,36 @@
+set "maximum function depth" to 8
+KARMA: 5
+
+function: blowup ROLLED:n SIZE:n on THRESH:n {
+if ROLLED >= THRESH {
+  if SIZE = 20 {
+    result: ROLLED + [blowup d20 20 on 20]
+  }
+  if SIZE = 12 {
+    result: ROLLED + [blowup d(SIZE+8) (SIZE+8) on (THRESH+8)]
+  }
+  result: ROLLED + [blowup d(SIZE+2) (SIZE+2) on (THRESH+2)]
+ }
+result: ROLLED
+}
+
+function: blowupkarma ROLLED:n SIZE:n on THRESH:n karma K:n {
+if ROLLED >= (THRESH - K) {
+  if SIZE = 20 {
+    result: SIZE + [blowupkarma d20 20 on 20 karma (ROLLED - THRESH + K)]
+  }
+  if SIZE = 12 {
+    result: SIZE + [blowupkarma d(SIZE+8) (SIZE+8) on (THRESH+8) karma (ROLLED - THRESH + K)]
+  }
+  result: SIZE + [blowupkarma d(SIZE+2) (SIZE+2) on (THRESH+2) karma (ROLLED - THRESH + K)]
+ }
+result: ROLLED + K
+}
+
+output [blowupkarma d2 2 on 2 karma KARMA]
+output [blowupkarma d4 4 on 4 karma KARMA]
+output [blowupkarma d6 6 on 6 karma KARMA]
+output [blowupkarma d8 8 on 8 karma KARMA]
+output [blowupkarma d10 10 on 10 karma KARMA]
+output [blowupkarma d12 12 on 12 karma KARMA]
+output [blowupkarma d20 20 on 20 karma KARMA]

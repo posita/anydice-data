@@ -1,0 +1,222 @@
+POISON: 1       \1 Enabled/ 0 Disabled; POISONDAMG weapon damage per hit \
+ENLARGE: 1      \1 Enabled/ 0 Disabled; 1d4 weapon damage per hit \
+HEX: 1          \1 Enabled/ 0 Disabled; 1d6 earned at level 11 \
+SHARPSHOOTER: 1 \1 Enabled/ 0 Disabled; -5 hit | +10 damage \
+
+
+DEXBONUS: 5        \5 Earned at level 9 \
+WEAPONBONUS_HIT: 3 \+? Weapon (HIT ONLY) \
+WEAPONBONUS_DMG: 3 \+? Weapon (DAMAGE ONLY) \
+ARCHERY: 1         \1 Enabled/0 Disabled; +2 hit earned at fighter 2 \
+ASSASSINATION: 1   \1 Enabled/ 0 Disabled; Enables hit advantage for crits \
+
+AC:25
+ENEMYCON:10
+\ ENEMYCON Used to calculate poison success \
+
+POISONDAMG: 12d6     \Basic: 1d4; Serpent Venom: 3d6; Wyvern Poison: 7d6; Purple Worm: 12d6 [NOTE: Poison is not effected by crit] \
+POISONSAVE: 19 \Basic: 10; Serpent Venom: 11 ; Wyvern Poison: 15 ; Purple Worm: 19 \
+
+
+MARTIALFEAT: 0  \1 Enabled/0 Disabled; if +1 martial dice are active \
+HALFORC: 1      \1 Enabled/0 Disabled; if 3 crit die are active \
+
+\ ASSUMPTION:
+   Stats: Starting 18 dex
+   Level 1 Fighter
+   Level 2-4 Rogue [Assassination]
+   Level 5-20 Fighter [Archer/Martial]
+
+   Feat 1: Crossbow Expert [Level 7]
+   Feat 2: Sharpshooter;No Range Issue, -5 hit=10 damage [Level 9]
+   Feat 3: Magic Initiate; Warlock w/Hex [Level 11]
+   Feat 4/5: [Level 15,17]
+      Alert;+5 Init
+      +2 Stats
+   Feat 6: [Level 19]
+      Martial Adept; +1 Sup Dice [Super meh because of chance to hit on alpha] \
+
+
+
+
+\CALCULATION STUFF BELOW, DO NOT MODIFY\
+HITBONUS: DEXBONUS + WEAPONBONUS_HIT
+DAMAGEBONUS: DEXBONUS+WEAPONBONUS_DMG
+if HALFORC>=1{
+CRITMULT:3 \Half-orc trait\
+} else {
+CRITMULT:2
+}
+
+if ASSASSINATION >=1 {
+CRITHITDICE: 2
+} else {
+CRITHITDICE: 1
+}
+
+
+if ENLARGE >=1{
+ENLARGE: 1d4
+}
+if HEX >=1{
+HEX: 1d6
+}
+if SHARPSHOOTER >=1{
+HITBONUS: HITBONUS - 5
+DAMAGEBONUS: DAMAGEBONUS+10
+}
+if ARCHERY >=1{
+HITBONUS: HITBONUS + 2
+}
+if POISON >=1{
+POISON: POISONDAMG
+}
+
+
+function: proficiency LEVEL {
+result: ((LEVEL-1)/4) + 2
+}
+
+
+function: hit DICE HITS LEVEL {
+result: [hit DICE HITS LEVEL 0 0]
+}
+
+function: hit DICE HITS LEVEL offhand {
+result: [hit DICE HITS LEVEL 0 1]
+}
+
+function: chit DICE HITS LEVEL {
+result:[hit DICE HITS LEVEL 1 0]
+}
+
+function: chit DICE HITS LEVEL offhand{
+result:[hit DICE HITS LEVEL 1 1]
+}
+
+function: hit DICE HITS LEVEL CRIT OFFHAND{
+if OFFHAND>=1{
+OFFHAND: 0
+} else {
+OFFHAND: 1
+}
+if CRIT>=1{
+CRIT: CRITMULT
+NORMCRIT: 2
+HIT: CRITHITDICE
+} else {
+CRIT: 1
+NORMCRIT: 1
+HIT: 1
+}
+OUTPUT:0
+loop N over {1..HITS}{
+OUTPUT: OUTPUT + (CRITd(DICE)+(OFFHAND*(DAMAGEBONUS))+NORMCRITd(ENLARGE)+NORMCRITd(HEX)+(POISON*((1d20+ENEMYCON)=AC)))
+}
+result: OUTPUT
+}
+
+function: sneakdice RLEVEL {
+result: (1+RLEVEL/2)
+}
+
+
+function: sneak ATTACKS LEVEL RLEVEL {
+result: [sneak ATTACKS LEVEL RLEVEL 0]
+}
+
+function: csneak ATTACKS LEVEL RLEVEL {
+result: [sneak ATTACKS LEVEL RLEVEL 1]
+}
+
+function: sneak ATTACKS LEVEL RLEVEL CRIT {
+if CRIT >=1 {
+CDICE: 2
+HIT: CRITHITDICE
+} else {
+CDICE: 1
+HIT: 1
+}
+
+result: CDICEd([sneakdice RLEVEL]d6) * ((1@HITd(ATTACKSd20)+HITBONUS+[proficiency LEVEL])>= AC) 
+}
+
+
+
+
+function: supdice FLEVEL {
+OUTPUT: (4+((FLEVEL+1)/8))
+if MARTIALFEAT >=1{
+OUTPUT: OUTPUT + 1
+}
+result: OUTPUT
+}
+
+
+
+function: supdamage FLEVEL {
+result:(8+((FLEVEL-2)/8*2))
+}
+
+function: supd ATTEMPTS FLEVEL LEVEL{
+ATTACKS: ATTEMPTS
+if ATTEMPTS > [supdice FLEVEL]{
+ATTACKS: [supdice FLEVEL]
+}
+
+OUTPUT:0
+loop N over {1..ATTACKS}{
+OUTPUT: OUTPUT + 1d[supdamage FLEVEL] *((1@HId20+HITBONUS+[proficiency LEVEL])>= AC)
+}
+result: OUTPUT
+}
+
+function: csupd ATTEMPTS FLEVEL LEVEL{
+ATTACKS: ATTEMPTS
+if ATTEMPTS > [supdice FLEVEL]{
+ATTACKS: [supdice FLEVEL]
+}
+OUTPUT:0
+loop N over {1..ATTACKS}{
+OUTPUT: OUTPUT + 2d(1d[supdamage FLEVEL]) *((1@CRITHITDICEd20+HITBONUS+[proficiency LEVEL])>= AC)
+}
+result: OUTPUT
+}
+
+function: dsmite ATTEMPTS SPELLONE SPELLTWO LEVEL{
+\ALWAYS ASSUMING THAT WE CAN CAST ALL SPELLS WE NEED TO\
+OUTPUT:0
+loop N over {1..SPELLTWO }{
+OUTPUT: OUTPUT + 3d6 *((1@1d20+HITBONUS+[proficiency LEVEL])>= AC)
+}
+loop N over {1..SPELLONE }{
+OUTPUT: OUTPUT + 2d6 *((1@1d20+HITBONUS+[proficiency LEVEL])>= AC)
+}
+result: OUTPUT
+}
+
+function: cdsmite ATTEMPTS SPELLONE SPELLTWO LEVEL{
+\ALWAYS ASSUMING THAT WE CAN CAST ALL SPELLS WE NEED TO\
+OUTPUT:0
+loop N over {1..SPELLTWO }{
+OUTPUT: OUTPUT + 2d(3d6) *((1@CRITHITDICEd20+HITBONUS+[proficiency LEVEL])>= AC)
+}
+loop N over {1..SPELLONE }{
+OUTPUT: OUTPUT + 2d(2d6) *((1@CRITHITDICEd20+HITBONUS+[proficiency LEVEL])>= AC)
+}
+result: OUTPUT
+}
+
+\main  attack     action surge        offhand attack            sneak att       martial Dice        Action Surge \
+output [chit 1d10 3 20] + [chit 1d10 2 20] + [chit 1d6 2 20] +         [csneak 7 20 3] + [csupd 10 17 20] + [chit 1d10 3 20] named "level 20"
+output [chit 1d10 3 14] + [chit 1d10 2 14] + [chit 1d6 2 14] +         [csneak 7 14 3] + [csupd 7 11 14] named "level 14"
+output [ hit 1d6 3 14]  +                  + [ hit 1d6 1 14] +         [ sneak 4 14 3]                   named "level 14-norm"
+output [chit 1d10 2 13] + [chit 1d10 1 13] + [chit 1d6 2 13] +         [csneak 5 13 3] + [csupd 5 10 13] named "level 13"
+output [chit 1d10 2 11] + [chit 1d10 1 11] + [chit 1d6 2 11] +         [csneak 5 11 3] + [csupd 5 8 11]  named "level 11"
+output [chit 1d10 2 8]  + [chit 1d10 1 8]  + [chit 1d6 2 8]  +         [csneak 5 8 3]  + [csupd 5 5 8]   named "level 8"
+output [ hit 1d6 2 8]   +                    [ hit 1d6 1 8]  +         [ sneak 3 8 3]                    named "level 8-norm"
+output [chit 1d10 1 7]  + [chit 1d6 1 7]   + [chit 1d6 1 7]  +         [csneak 3 7 3]  + [csupd 3 4 7]   named "level 7[crossbows]"
+output [chit 1d6 1 6]   + [chit 1d6 1 6]   + [chit 1d6 1 6 offhand]  + [csneak 3 6 3]  + [csupd 3 3 6]   named "level 6[swords]"
+output [chit 1d6 1 5]   + [chit 1d6 1 5]   + [chit 1d6 1 5 offhand]  + [csneak 3 5 3]                    named "level 5[swords]"
+output [chit 1d6 1 4]   +                    [chit 1d6 1 4 offhand]  + [csneak 2 4 3]                    named "level 4[swords]"
+output [ hit 1d6 1 4]   +                    [ hit 1d6 1 4 offhand]  + [ sneak 2 4 3]                    named "level 4-norm[swords]"

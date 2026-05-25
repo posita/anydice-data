@@ -1,0 +1,23 @@
+set "explode depth" to 4
+
+function: wildhelper ROLL:n { result: ROLL - (ROLL=1) }
+
+function: wild DICE:d { result: [wildhelper [explode DICE]] }
+
+function: rollhelper WILD:n with DICE:n {
+ if WILD = 0 {
+  if DICE < 3 { result: 0 }
+  else { result: [lowest DICE-2 of (DICE-1)d6] }
+  }
+ else { result: WILD + (DICE-1)d6 }
+}
+
+function: roll DICE:n {
+ result: [rollhelper [wild 1d6] with DICE]
+}
+
+loop D over {1..12} {
+ loop P over {0..2} {
+  output [roll D] + P named "[D]D+[P]"
+ }
+}

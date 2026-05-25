@@ -1,0 +1,77 @@
+\ ******* number of dice and difficulty ******* \
+ND: 4
+DF: 2
+
+\ ******* Success Definitions ******* \
+CF: -2
+FF: -1
+MS: 0
+SS: 1
+CS: SS
+
+\ ******* count exploding pool helper functions  ******* \
+
+function: counttwo ROLL:n {
+ 
+ if ROLL = 6 { result: 2 }
+ else if ROLL >= 4 { result: 1 }
+ else { result: 0 }
+}
+
+function: explodingsuccess ROLL:n {
+ 
+ if ROLL = 6 { result: 1 + [explodingsuccess d6] }
+ else if ROLL >= 4 { result: 1 }
+ else { result: 0 }
+}
+
+function: explodingsucctwo ROLL:n {
+ if ROLL = 6 { result: 2 + [explodingsuccess d6] }
+ else if ROLL >= 4 { result: 1 }
+ else { result: 0 }
+}
+
+set "maximum function depth" to 24
+
+\ ******* build pool - count successes (4,5,6) ******* \
+
+POOLREG: [count {4,5,6} in (ND)d6]
+POOLEXP: (ND)d[explodingsuccess d6]
+POOLCTT: (ND)d[counttwo d6]
+POOLCTX: (ND)d[explodingsucctwo d6]
+
+\ ******* <-1 Failure, -1 to 1 Mixed Success, >1 Success ******* \
+
+function: checknew ROLL:n {
+  if      ROLL >= DF+2 { result: SS }
+  else if ROLL >  DF-2 { result: MS }
+  else                 { result: FF } 
+}
+
+\ ******* <DF Failure, =DF Mixed Success, >DF Success ******* \
+
+function: checkold ROLL:n {
+  if      ROLL >=  DF+2 { result: SS }
+  else if ROLL >=  DF+1 { result: MS }
+  else if ROLL  =  DF   { result: MS }
+  else                  { result: FF } 
+}
+
+\ ******* Band Outputs ******* \
+
+\output [checknew POOLREG] named "Within 1, 1x6, ---\
+output [checknew POOLEXP] named "Within 1, 1x6, EXP"
+output [checknew POOLCTT] named "Within 1, 2x6, ---"
+output [checknew POOLCTX] named "Within 1, 2x6, EXP" 
+
+\output [checkold POOLREG] named "Equal DF, 1x6, ---"\
+\output [checkold POOLEXP] named "Equal DF, 1x6, EXP"\
+output [checkold POOLCTT] named "Equal DF, 2x6, ---"
+output [checkold POOLCTX] named "Equal DF, 2x6, EXP"
+
+\ ******* Unformatted Outputs ******* 
+
+output POOLREG named "Count Successes on 4,5,6"
+output POOLCTT named "Count Successes on 4,5, 2 on 6"
+output POOLEXP named "Count Successes on 4,5,6, Explode 6's"
+output POOLCTX named "Count Successes on 4,5, 2 on 6, Explode 6's"\

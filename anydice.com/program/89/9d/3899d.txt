@@ -1,0 +1,92 @@
+D: d8
+DU: d10
+DD: d6
+W: 2
+B: 3
+A: 12
+AH: A + 2
+E: 8
+HH: 15
+BH: 20
+
+function: tt N:n M:n O:n {
+ DAM: 0
+ HOPE: (N >= M) * 10
+ TOT: N + M + B + O
+ if N = M {
+  TOT: TOT + N
+  HOPE: 10
+ }
+ DAM: (TOT >= E) + (TOT >= HH)
+ BEYOND: (TOT-BH+1)/5
+ if BEYOND < 0 {
+  result: DAM
+ }
+ result: BEYOND + DAM
+}
+function: tt adv N:n M:n O:n {
+ H: [sort {M, N, O}]
+ if (N = O) & (N*3 > M+N) {
+  result: [tt 2@H 2@H 0]
+ }
+
+ result: [tt 1@H 2@H 0]
+}
+
+function: tt adv anced HN:n HM:n FN:n FM:n {
+ H: [sort {HM, HN}]
+ F: [sort {FM, FN}]
+ loop N over H {
+  if (N = 1@F) & (N*3 > 1@H + 1@F){
+   result: [tt N 1@F 0]
+  }
+  if (N = 2@F) & (N*3 > 1@H + 1@F){
+   result: [tt N 2@F 0]
+  }
+ }
+ result: [tt 1@H 1@F 0]
+}
+
+function: tt hf adv anced HN:n HM:n FN:n FM:n {
+ H: [sort {HM, HN}]
+ F: [sort {FM, FN}]
+ loop N over H {
+  if (N = 1@F) & (N*3 > 1@H + 1@F){
+   result: 1
+  }
+  if (N = 2@F) & (N*3 > 1@H + 1@F){
+   result: 1
+  }
+ }
+ result: 1@H >= 1@F
+}
+function: tt disadv anced HN:n HM:n FN:n FM:n {
+ H: [sort {HM, HN}]
+ F: [sort {FM, FN}]
+ if (2@H = 0) {
+  result: [tt 1@H 2@F 0]
+ } 
+ result: [tt 2@H 1@F 0]
+}
+
+function: tt hf disadv anced HN:n HM:n FN:n FM:n {
+ H: [sort {HM, HN}]
+ F: [sort {FM, FN}]
+ if (2@H = 0) {
+  result: 1@H >= 2@F
+ } 
+ result: 2@H >= 1@F
+}
+
+output [tt D D 0] named "TT"
+output [tt hf adv anced D 0 D 0] named "TThf"
+output [tt adv anced D DD D 0] named "TT, hope step down adv"
+output [tt hf adv anced D DD D 0] named "TThf, hope step down adv"
+output [tt adv anced D 0 D DU] named "TT, fear step up adv"
+output [tt hf adv anced D 0 D DU] named "TThf, fear step up adv"
+output [tt disadv anced D DU D 0] named "TT, hope step up disadv"
+output [tt hf disadv anced D DU D 0] named "TThf, hope step up disadv"
+output [tt disadv anced D DD D 0] named "TT, hope step down disadv"
+output [tt hf disadv anced D DD D 0] named "TThf, hope step down disadv"
+output [tt disadv anced D 0 D DD] named "TT, fear step down disadv"
+output [tt hf disadv anced D 0 D DD] named "TThf, fear step down disadv"

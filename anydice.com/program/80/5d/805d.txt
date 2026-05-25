@@ -1,0 +1,18 @@
+\ This program calculates the hit probabilities for Homing Missiles with Guidance Chips and a Target Lock \
+
+function: ROLL:n with rerolls {
+  if ROLL > 2 { result: 4 }                                            \ 3 Hits or more \
+  if ROLL > 1 { result: 2 + [2d{0,0,0,0,1,1,1,1} 2 chipped rerolls] }  \ 2 Hits and 2 Blanks or Eyes \
+  if ROLL > 0 { result: 1 + [3d{0,0,0,0,1,1,1,1} 3 chipped rerolls] }  \ 1 Hits and 3 Blanks or Eyes \
+  result: [4d{0,0,0,0,1,1,1,1} 4 chipped rerolls]                      \ 0 Hits and 4 Blanks or Eyes \
+}
+
+function: ROLL:n S:n chipped rerolls {
+  if ROLL = S { result: S }  \ all dice rolled hits \
+  result: ROLL + 1           \ at least one die didn't hit \
+}
+
+\ This is where the actual dice are rolled for the first time. Each die is faced: 0,0,0,0,1,1,1,1 \
+\ 0 = Blank or Eye, 1 = Hit or Crit \
+
+output [4d{0,0,0,0,1,1,1,1} with rerolls]

@@ -1,0 +1,28 @@
+loop M over {-1..1} {
+function: compare YY:s {
+if (YY+M) >= 12 {result: 3}
+if (YY+M) >= 10 {result: 2}
+if (YY+M) >= 7 {result: 1}
+result: 0
+}
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+
+function: reroll highest of ROLL:s as REROLL:d {
+  REST: {2..#ROLL}@ROLL
+  result: REST + REROLL
+}
+
+output [compare 2d6] named "Modifier [M]"
+output [compare [reroll lowest of 2d6 as d6 if less than 7]] named "Com Perícia: Rerrola o valor mais baixo"
+output [compare {1,2}@3d6] named "Com vantagem"
+output [compare [reroll highest of 2d6 as d6]] named "Com Despreparo: Rerrola o valor mais alto"
+output [compare {2,3}@3d6] named "Com Desvantagem"
+}

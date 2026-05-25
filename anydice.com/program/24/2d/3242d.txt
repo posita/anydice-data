@@ -1,0 +1,84 @@
+function: attack ATTACK:d {
+  result: ATTACK
+}
+
+function: reroll R:n N:n D:d{ 
+  if R < N { result: D } else {result: R}
+}
+
+function: rollhit R:n M:n AC:n C:n {
+  ROLL: R + M
+  if R >= C { result: 2}
+  if ROLL >= AC { result:  1}
+  else { result: 0}
+}
+
+function: rolldamage H:n RE:n R:d M:n {
+  DAMAGE: 0
+  if H >= 1 {
+    if RE = 1 {DAMAGE: [reroll R 3 R]}
+    else {DAMAGE: [attack R]}
+    if H = 2 {DAMAGE: DAMAGE + DAMAGE + 1d6}
+    DAMAGE: DAMAGE + M
+  }
+  result: DAMAGE
+}
+
+function: gwm H:n RH:d MH:n AC:n C:n RD:d MD:n RE:n {
+  DAMAGE: 0
+  if H = 2{ 
+    HIT: [rollhit RH MH AC C]
+    DAMAGE: [rolldamage HIT RE RD MD]
+  }
+  result: DAMAGE
+}
+
+function: roll X:n RH:d MH:n AC:n C:n RD:d MD:n RE:n GW:n{
+  TOTAL: 0
+  BONUS: 1
+  loop N over {1..X} {
+    HIT: [rollhit RH MH AC C]
+    DAMAGE: [rolldamage HIT RE RD MD]
+    TOTAL: TOTAL + DAMAGE
+    if GW = 1 { if BONUS = 1{
+      DAMAGE: [gwm HIT RH MH AC C RD MD RE]
+      TOTAL: TOTAL + DAMAGE
+      BONUS: 0
+    }}
+  }
+  result: TOTAL
+}
+
+STRENGTH: 5
+RAGE: 2
+PROFF: 4
+
+HIT: 1@2d20
+MHIT: STRENGTH + PROFF
+MDAMAGE: STRENGTH + RAGE
+CRIT:19
+
+UNARMED: 1d8 + 1d6
+CLAWS: 1d6 + 1d6
+SWORD: 1d10 + 1d6
+
+GSWORD: 2d6
+GMHIT: 3
+GMDAMAGE: 16
+
+AC: 15
+EA: 1
+
+
+
+output [rollhit HIT MHIT AC CRIT] named "Roll Hit"
+output [rolldamage 1 0 UNARMED MDAMAGE] named "Roll Damage"
+output [rolldamage 2 0 UNARMED MDAMAGE] named "Roll Damage"
+output [roll 4 HIT MHIT+1 AC CRIT UNARMED MDAMAGE+1 EA 0] named "Barb2Monk5Fighter3"
+output [roll 2 HIT MHIT+1 AC CRIT 1d6 MDAMAGE+1 EA 0] + [roll 2 HIT MHIT AC CRIT SWORD MDAMAGE 0 0] named "SBarb2Monk5Fighter3"
+output [roll 2 HIT MHIT+1 AC CRIT UNARMED MDAMAGE+1 1 0]+[roll 2 HIT MHIT AC CRIT CLAWS MDAMAGE 0 0] named "Barb5Monk2Fighter3"
+output [roll 1 HIT MHIT+1 AC CRIT 1d6 MDAMAGE+1 0 0] + [roll 2 HIT MHIT AC CRIT CLAWS MDAMAGE 0 0]+[roll 1 HIT MHIT AC CRIT SWORD MDAMAGE 0 0] named "SBarb5Monk2Fighter3"
+output [roll 2 HIT GMHIT AC CRIT GSWORD GMDAMAGE 1 1] named "GSBarb2Monk5Fighter3"
+
+output [roll 6 HIT MHIT+1 AC CRIT UNARMED MDAMAGE+1 EA 0] named "ASBarb2Monk5Fighter3"
+output [roll 5 HIT MHIT+1 AC CRIT UNARMED MDAMAGE+1 0 0]+[roll 2 HIT MHIT AC CRIT CLAWS MDAMAGE 0 0] named "ASBarb5Monk2Fighter3"

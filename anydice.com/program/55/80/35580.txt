@@ -1,0 +1,54 @@
+function: vtmdie N:n {
+ if N < 6 { result: 0 }
+ if N < 10 { result: 1 }
+ result: -1
+}
+
+function: mod NUMBER:n of MOD:n {
+ if NUMBER>=MOD { result: NUMBER-(NUMBER/MOD)*MOD }
+ result: NUMBER
+}
+
+function: count this SHIT:d with CRITS:n {
+ result: (SHIT=1)+(SHIT=-1)+(2*CRITS)
+}
+
+ROLL_VTM: [vtmdie d10]
+
+\output 1dROLL_VTM named "1vd10"
+output 1d10 named "1d10"\
+
+ROLL_COUNT: 0
+SUCC_COUNT: 0
+FAIL_COUNT: 0
+TENS_COUNT: 0
+CRIT_COUNT: 0
+SCORE: 0
+
+loop N over {1..3} {
+ \SCORE: NdROLL_VTM
+ 
+ ROLL_COUNT: [count {1,-1} in SCORE]
+ FAIL_COUNT: [count 0 in SCORE]
+ TENS_COUNT: [count -1 in SCORE]
+ CRIT_COUNT: TENS_COUNT/2\
+
+ SCORE: Nd10
+
+ ROLL_COUNT: [count {6..10} in SCORE]
+ FAIL_COUNT: [count {1..5} in SCORE]
+ TENS_COUNT: [count 10 in SCORE]
+ CRIT_COUNT: TENS_COUNT/2
+
+ SCORE: Nd10
+ output [count {6..10} in SCORE] + ([count 10 in SCORE]/2)*2 named "umm[N]d10"
+
+\
+ output ROLL_COUNT named "# of successes rolled [N]d10"
+ output FAIL_COUNT named "Failures count [N]d10"
+ output TENS_COUNT named "10s count [N]d10"
+ output CRIT_COUNT named "Crit pairs count [N]d10"
+ output 0!=CRIT_COUNT named "Chances to crit at all [N]d10"
+ output SCORE named "Results for [N]d10"
+ output [count this SCORE with CRIT_COUNT] named "testing[N]d10s"\
+}

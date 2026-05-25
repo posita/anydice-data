@@ -1,0 +1,377 @@
+HIT: 5
+FUMBLE: 0
+
+function: path roll ROLL:s {
+  HITS:  0
+  FAILS: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  THREES: [count 3 in ROLL]
+  TWOS:   [count 2 in ROLL]
+  ONES:   [count 1 in ROLL]
+
+  result: [counthits SIXES FIVES FOURS THREES TWOS ONES FAILS]
+}
+
+function: counthits SIX:n FIVE:n FOUR:n THREE:n TWO:n ONE:n FAIL:n {
+  TOTAL: { FIVE, SIX } - FAIL
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: promote NUM:n SIX:n FIVE:n FOUR:n THREE:n TWO:n ONE:n FAIL:n {
+  TOTAL: { FIVE, SIX } - FAIL
+  if TOTAL >= 2 {
+    loop N over {1..NUM} {
+      if FOURS > 0 {
+        FOURS: FOURS - 1 
+        FIVES: FIVES + 1
+      }
+      else if THREES > 0 {
+        THREES: THREES - 1 
+        FOURS: FOURS + 1
+      }
+      else if TWOS > 0 {
+        TWOS: TWOS - 1 
+        THREES: THREES + 1 
+      }
+      else if ONES > 0 {
+        ONES: ONES - 1 
+        TWOS: TWOS + 1 
+      }
+    }
+  }
+}
+
+function: roll ROLL:s demote DEMOTE:n {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  THREES: [count 3 in ROLL]
+  TWOS:   [count 2 in ROLL]
+  ONES:   [count 1 in ROLL]
+  FAILS:  0
+
+  loop N over {1..DEMOTE} {
+    if SIXES > 0 { 
+      SIXES: SIXES - 1 
+      FIVES: FIVES + 1
+    }
+    else if FIVES > 0 {
+      FIVES: FIVES - 1
+      FOURS: FOURS + 1
+    }
+    else if FOURS > 0 {
+      FOURS: FOURS - 1 
+      THREES: THREES + 1
+    }
+    else if THREES > 0 {
+      THREES: THREES - 1 
+      TWOS: TWOS + 1
+    }
+    else if TWOS > 0 {
+      TWOS: TWOS - 1 
+      ONES: ONES + 1
+    }
+    else if ONES > 0 {
+      ONES: ONES - 1 
+      FAILS: FAILS + 1
+    }
+  }
+
+  loop N over {1..#ROLL} {
+    if N@ROLL >= HIT {
+      TOTAL: TOTAL + 1
+    }
+    if N@ROLL <= FUMBLE {
+      TOTAL: TOTAL - 1
+    }
+  }
+
+  TOTAL: { FIVES, SIXES } - FAILS
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: roll ROLL:s adv demote DEMOTE:n {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  THREES: [count 3 in ROLL]
+  TWOS:   [count 2 in ROLL]
+  ONES:   [count 1 in ROLL]
+  FAILS:  0
+
+  loop N over {1..DEMOTE} {
+    if SIXES > 0 { 
+      SIXES: SIXES - 1 
+      FIVES: FIVES + 1
+    }
+    else if FIVES > 0 {
+      FIVES: FIVES - 1
+      FOURS: FOURS + 1
+    }
+    else if FOURS > 0 {
+      FOURS: FOURS - 1 
+      THREES: THREES + 1
+    }
+    else if THREES > 0 {
+      THREES: THREES - 1 
+      TWOS: TWOS + 1
+    }
+    else if TWOS > 0 {
+      TWOS: TWOS - 1 
+      ONES: ONES + 1
+    }
+    else if ONES > 0 {
+      ONES: ONES - 1 
+      FAILS: FAILS + 1
+    }
+  }
+
+  loop N over {1..#ROLL} {
+    if N@ROLL >= HIT {
+      TOTAL: TOTAL + 1
+    }
+    if N@ROLL <= FUMBLE {
+      TOTAL: TOTAL - 1
+    }
+  }
+
+  TOTAL: { FOURS, FIVES, SIXES } - FAILS
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: roll ROLL:s promote PROMOTE:n {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  THREES: [count 3 in ROLL]
+  TWOS:   [count 2 in ROLL]
+  ONES:   [count 1 in ROLL]
+
+  loop N over {1..PROMOTE} {
+    if FOURS > 0 {
+      FOURS: FOURS - 1 
+      FIVES: FIVES + 1
+    }
+    else if THREES > 0 {
+      THREES: THREES - 1 
+      FOURS: FOURS + 1
+    }
+    else if TWOS > 0 {
+      TWOS: TWOS - 1 
+      THREES: THREES + 1 
+    }
+    else if ONES > 0 {
+      ONES: ONES - 1 
+      TWOS: TWOS + 1 
+    }
+  }
+
+  loop N over {1..#ROLL} {
+    if N@ROLL >= HIT {
+      TOTAL: TOTAL + 1
+    }
+    if N@ROLL <= FUMBLE {
+      TOTAL: TOTAL - 1
+    }
+  }
+
+  TOTAL: FIVES + SIXES
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: roll ROLL:s promote PROMOTE:n bold {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  THREES: [count 3 in ROLL]
+  TWOS:   [count 2 in ROLL]
+  ONES:   [count 1 in ROLL]
+
+  loop N over {1..PROMOTE} {
+    if ONES > 0 {
+      ONES: ONES - 1 
+      TWOS: TWOS + 1 
+    }
+    else if FOURS > 0 {
+      FOURS: FOURS - 1 
+      FIVES: FIVES + 1
+    }
+    else if THREES > 0 {
+      THREES: THREES - 1 
+      FOURS: FOURS + 1
+    }
+    else if TWOS > 0 {
+      TWOS: TWOS - 1 
+      THREES: THREES + 1 
+    }
+  }
+
+  loop N over {1..#ROLL} {
+    if N@ROLL >= HIT {
+      TOTAL: TOTAL + 1
+    }
+    if N@ROLL <= FUMBLE {
+      TOTAL: TOTAL - 1
+    }
+  }
+
+  TOTAL: FIVES + SIXES - ONES
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+
+function: roll ROLL:s bold {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  ONES:   [count 1 in ROLL]
+
+  TOTAL: FIVES + SIXES - ONES
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: roll ROLL:s adv {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+
+  TOTAL: FIVES + SIXES + FOURS
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: roll ROLL:s adv bold {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  ONES:   [count 1 in ROLL]
+
+  TOTAL: FIVES + SIXES + FOURS - ONES
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: roll ROLL:s disadv {
+  TOTAL:  [count 6 in ROLL]
+
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: roll ROLL:s disadv bold {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  ONES:   [count 1 in ROLL]
+
+  TOTAL: SIXES - ONES
+  if TOTAL < 0 { result: -1 }
+  if TOTAL = 0 { result: 0 }
+  if TOTAL = 1 { result: 1 }
+  result: 2
+}
+
+function: impact ROLL:s {
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  THREES: [count 3 in ROLL]
+  TWOS:   [count 2 in ROLL]
+  ONES:   [count 1 in ROLL]
+  HITS:   0
+
+  loop N over {1..2} {
+    if SIXES > 0 { 
+      SIXES: SIXES - 1 
+      HITS: HITS + 1
+    }
+    else if FIVES > 0 {
+      FIVES: FIVES - 1
+      HITS: HITS + 1
+    }
+    else if ONES > 0 {
+      ONES: ONES - 1 
+    }
+    else if TWOS > 0 {
+      TWOS: TWOS - 1 
+    }
+    else if THREES > 0 {
+      THREES: THREES - 1 
+    }
+    else if FOURS > 0 {
+      FOURS: FOURS - 1 
+    }
+  }
+
+  if SIXES > 0 { 
+    IMPACT: 6
+  }
+  else if FIVES > 0 {
+    IMPACT: 5
+  }
+  else if FOURS > 0 {
+    IMPACT: 4
+  }
+  else if THREES > 0 {
+    IMPACT: 3
+  }
+  else if TWOS > 0 {
+    IMPACT: 2
+  }
+  else if ONES > 0 {
+    IMPACT: 1
+  } 
+  else {
+    IMPACT : 0
+  }
+
+  if HITS >= 2 {
+    result: IMPACT
+  }
+  result: -1 * ( 4 - IMPACT )
+}
+
+loop X over {2..10} {
+  output [path roll Xd6] named "[X]d6 impact"
+}

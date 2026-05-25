@@ -1,0 +1,23 @@
+\ 0 is a miss, 1 is a weak hit, 2 is a strong hit \
+
+function: progress PROG:n {
+  result: 2d(PROG > d10)
+}
+
+function: shift ROLL:n SHIFT:n {
+  if ROLL <= SHIFT {
+     result: SHIFT +1
+  } else {
+    result: ROLL
+  }
+}
+
+function: action AROLL:n AMOD:n MOM:n SHIFT:n CHAL:n {
+  if MOM < 0 & AROLL = -MOM {AROLL: 0}
+  AROLL: [shift AROLL SHIFT]
+  result: 2d([highest of [lowest of AROLL + AMOD and CHAL] and MOM] > dCHAL)
+}
+
+loop BONUS over {-3..9} {
+    output [action 1d6 BONUS 0 0 12] named "1d6+[BONUS]"
+    }

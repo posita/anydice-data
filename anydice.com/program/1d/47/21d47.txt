@@ -1,0 +1,32 @@
+ROLL: [highest 3 of 4d6]
+
+function: roll N:n into S:s { if (N = 0) { result: S } else { result: [roll (N - 1) into {S, ROLL}] } }
+function: roll N:n { result: [roll N into {}] }
+
+function: index I:n of S:s {
+  loop V over S { if (I = 0) { result: V } else { I : I - 1 } }
+  result: -1000
+}
+
+function: A:n less than B:n { result: A < B }
+
+function: at least of ACTUAL:s {
+  ACTUAL: [sort ACTUAL]
+
+  LENGTH: 0
+  loop N over ACTUAL { LENGTH: LENGTH + 1 }
+
+  EXPECTED: [roll LENGTH]
+  EXPECTED: [sort EXPECTED]
+
+  SUM: 0
+  loop I over {1..LENGTH} {
+    E: [index I of EXPECTED]
+    A: [index I of ACTUAL]
+    LESS: [E less than A]
+    SUM: SUM + LESS
+  }
+  result: SUM
+}
+
+output [at least of {17, 16, 15, 15, 11, 10}] named "At Least"

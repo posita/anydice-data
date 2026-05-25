@@ -1,0 +1,35 @@
+RED: {0, 0, 0, 1, 1, 1}
+BLACK: {0, 1, 1, 1, 1, 2}
+WHITE: {1, 1, 2, 2, 3, 3}
+EVASIONDICE: 0
+DIFFICULTY: 0
+DANGER_PER_HIT: 0
+
+function: roundup D:n {
+  if (D < 0){
+    result: 0
+  }
+  result: D
+}
+
+function: armor A:d evasion E:n {
+  RESULT: 1d0
+  ROLL: d10 + E < DIFFICULTY
+  loop X over {1..EVASIONDICE}{
+    RESULT: RESULT + (ROLL * DANGER_PER_HIT)
+  }
+  RESULT: RESULT - A
+
+  RESULT: [roundup RESULT]
+
+  result: RESULT
+}
+
+\Attack Details\
+EVASIONDICE: 3
+DIFFICULTY: 10
+DANGER_PER_HIT: 3
+
+output [armor 1dRED evasion 0]
+output [armor 1dRED+1dBLACK evasion 0]
+output [armor 0 evasion 1]

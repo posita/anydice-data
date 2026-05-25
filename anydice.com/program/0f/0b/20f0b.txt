@@ -1,0 +1,124 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: turn ROLL:n vs CHANCE:n for ATTACK_YES:d vs ATTACK_NO:d {
+    if ROLL > CHANCE{
+          result: ATTACK_NO
+    }
+    result: ATTACK_YES
+}  
+
+function: save ROLL:n plus BONUS:n vs DC:n for DAMAGE:d save SAVE:d {
+    if ROLL + BONUS < DC {
+         result: DAMAGE
+    }
+    result: SAVE
+}
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+TARGET: 13
+
+DRUIDFIRST:[attack [highest 1 of 2d20] plus 5 vs TARGET for 1d8 + 6 crit 1d8 on 20]
+DRUIDNORM: [attack d20 plus 5 vs TARGET for 1d8 + 3  crit 1d8 on 20] + [attack [highest 1 of 2d20] plus 5 vs TARGET for 1d8 + 6 crit 1d8 on 20] 
+
+output DRUIDFIRST + DRUIDNORM + DRUIDNORM + DRUIDNORM named "druid w/ summon beast"
+
+PAMBASELINE: [attack d20 plus 5 vs TARGET for 1d6 + 5 crit 1d6 on 20] + [attack d20 plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20] 
+
+
+
+output PAMBASELINE + PAMBASELINE + PAMBASELINE + PAMBASELINE named "PAM/Dueling baseline"
+
+function: strategy TURNS:n turns ROLL:d{
+
+    NO_SURGE: 0
+    ALREADY_SURGE: 0
+
+    loop N over {1 .. TURNS}{
+        NO_SURGE: [multiattack d20 plus 5 vs TARGET 
+            hit 1d6 + 1d8 + 5 + [save ROLL plus 3 vs 13 
+                 for  [attack [highest 1 of 2d20] plus 5 vs TARGET for 1d6 + 5 crit 1d6 on 20]  + [attack [highest 1 of 2d20] plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20] + ALREADY_SURGE
+                 save [attack d20 plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20] + NO_SURGE ]
+            miss [attack d20 plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20] + NO_SURGE
+            crit 2d6 + 2d8 + 5 + [save ROLL plus 3 vs 13 
+                 for  [attack [highest 1 of 2d20] plus 5 vs TARGET for 1d6 + 5 crit 1d6 on 20]  + [attack [highest 1 of 2d20] plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20] + ALREADY_SURGE
+                 save [attack d20 plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20] + NO_SURGE ] on 20
+        ]
+        ALREADY_SURGE: ALREADY_SURGE + [multiattack d20 plus 5 vs TARGET 
+            hit 1d6 + 1d8 + 5 + [save ROLL plus 3 vs 13 
+                 for  [attack [highest 1 of 2d20] plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20]
+                 save [attack d20 plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20] ]
+            miss [attack d20 plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20]
+            crit 2d6 + 2d8 + 5 + [save ROLL plus 3 vs 13 
+                 for  [attack [highest 1 of 2d20] plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20]
+                 save [attack d20 plus 5 vs TARGET for 1d4 + 5 crit 1d4 on 20]] on 20
+        ]
+    }
+
+    result: NO_SURGE
+}
+
+
+output [strategy 4 turns d20] named "PAM/Dueling Battlemaster trip attacks"
+
+
+BARBBASELINE: [multiattack [highest 1 of 2d20] plus 0 vs TARGET 
+    hit 2d6 + 15
+    miss 0
+    crit 4d6 + 15 + [attack [highest 1 of 2d20] plus 0 vs TARGET for 2d6 + 15 crit 2d6 on 20] on 20] 
+
+output BARBBASELINE + BARBBASELINE + BARBBASELINE + BARBBASELINE named "GWM Raging/Reckless subclassless" 
+
+NORAGE: [multiattack [highest 1 of 2d20] plus 0 vs TARGET 
+    hit 2d6 + 13
+    miss 0
+    crit 4d6 + 13 + [attack [highest 1 of 2d20] plus 0 vs TARGET for 2d6 + 13 crit 2d6 on 20] on 20] 
+
+output NORAGE + NORAGE + NORAGE + NORAGE named "GWM Reckless rageless/subclassless" 
+
+
+ZEALOT: [multiattack [highest 1 of 2d20] plus 0 vs TARGET 
+    hit 3d6 + 16
+    miss 0
+    crit 6d6 + 16 + [attack [highest 1 of 2d20] plus 0 vs TARGET for 2d6 + 15 crit 2d6 on 20] on 20] 
+
+output ZEALOT + ZEALOT + ZEALOT + ZEALOT named "GWM Raging/Reckless Zealot"
+

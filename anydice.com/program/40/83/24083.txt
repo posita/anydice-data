@@ -1,0 +1,32 @@
+\adeline's waaacky damage-per-turn calculator!\
+CRIT:20           \critical range: default is 20\
+ADVANTAGE:0       \boolean: 0 if none, 1 if advantage\
+ATTACKCOUNT:1     \your number of attacks per turn\
+AC:10             \AC of target\
+ACHIGH:20         \0 by default; set to become upper bound of range\
+TOHIT:7           \your bonus to hit\
+function: init C{ \ -- ignore -- \
+DAMAGE:1d8+5      \your normal damage\
+CRITDAMAGE:2d8+5  \your crit damage\
+
+
+if C = 0 {result: DAMAGE}
+else {result: CRITDAMAGE}
+}
+function: roll MAX {
+result: 1@(ADVANTAGE+1)dMAX
+}
+function: attack N times against A {
+ACCUMULATOR: 0
+loop L over {1..N}{
+CC: (1@(ADVANTAGE+1)d20) >= CRIT
+HIT: ((1@(ADVANTAGE+1)d(CRIT-1))+TOHIT)>=A
+ACCUMULATOR:ACCUMULATOR+
+(HIT&!CC)*[init 0]+CC*[init 1]
+}
+result:ACCUMULATOR
+}
+if ACHIGH = 0 {output [attack ATTACKCOUNT times against AC] named "AC[AC]"}
+else{ loop ITER over {AC..ACHIGH} {
+output [attack ATTACKCOUNT times against ITER] named "AC[ITER]"
+}}

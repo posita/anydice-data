@@ -1,0 +1,152 @@
+function: stack N:n to SEQ:s {
+  NEW_SEQ: { SEQ, N }
+  result: NEW_SEQ
+}
+
+function: remove N:n from SEQ:s {
+  if SEQ = {} { result: {}}
+  NEW_SEQ: {}
+  FLAG: 0
+  loop I over { 1..#SEQ } {
+    if FLAG = 0 {
+      if N = I@SEQ { FLAG: 1 }
+      else { NEW_SEQ: [ stack I@SEQ to NEW_SEQ ]}
+    }
+    else { NEW_SEQ: [ stack I@SEQ to NEW_SEQ ]}
+  }
+  result: NEW_SEQ
+}
+
+function: fupool AD:s DD:s {
+
+  \ Eliminate matching pairs in the two opposed pools until no pair remain \
+  loop X over AD {
+    loop Y over DD {
+      if X = Y { result: [ fupool [ remove X from AD ] [ remove Y from DD ]]}
+    }
+  }
+
+  \ Get the result by comparing the two final pools \
+  result: [ comparefupools AD DD ]
+}
+
+function: comparefupools PARAM_AD:s PARAM_DD:s {
+  AD: PARAM_AD
+  DD: PARAM_DD
+
+  \ In those cases we don't need to examine the dice to know the result \
+  if #AD = 0 & #DD = 0 { result: 0 } 
+  if #AD = 1 & #DD = 0 { result: 5 }
+  if #AD = 0 & #DD = 1 { result: 2 }
+  if #AD = 0 & #DD >= 2 { result: 1 }
+  if #AD >= 2 & #DD = 0 { result: 6 }
+
+  if #AD = 1 & #DD = 1 {
+    if 1@AD > 1@DD { result: 4 }
+    else { result: 3 }
+  }
+  if #AD = 1 { AD: [ stack 0 to AD ]}
+  if #DD = 1 { DD: [ stack 0 to DD ]}
+
+  \ assert at this point DD and AD have at least 2 elements \
+  if !( #DD >= 2 & #AD >=2 ) { result: -2 }
+
+  if 2@AD > 1@DD { result: 6 }
+  if 2@DD > 1@AD { result: 1 }
+  if 1@AD > 1@DD & 2@AD < 1@DD { result: 4 }
+  if 1@DD > 1@AD & 2@DD < 1@AD { result: 3 }
+  result: -1
+}
+
+function: dicebucket PARAM_AD:s PARAM_DD:s {
+  AD: PARAM_AD
+  DD: PARAM_DD
+
+  \ In AnyDice, dice sequences are automatically sorted from highest to lowest die \
+  if 1@AD > 1@DD { result: [ mapdicebuckets  ( AD > 1@DD )]}
+  if 1@DD > 1@AD { result: [ mapdicebuckets -( DD > 1@AD )]}
+  
+  if 1@AD != 1@DD { result: -10 }
+  \ Now if highest die of first pool and highest die of second pool are equal, we must get rid of them \
+
+  \ Cases when one or both of the dice pools is going to be depleted \
+  if ( #AD = 1 ) & ( #DD = 1 ) { result: 0 }
+  if #DD = 1 { result: [ mapdicebuckets #AD - 1 ]}
+  if #AD = 1 { result: [ mapdicebuckets -( #DD - 1 )]}
+
+  \ Case when none of the two dice pools is going to be depleted \
+  NEW_AD: [ remove 1@AD from AD ] \ getting rid of the head of the sequence \
+  NEW_DD: [ remove 1@DD from DD ] \ same \
+  result: [ dicebucket NEW_AD NEW_DD ] \ and recurse \
+
+}
+
+function: mapdicebuckets N:n {
+  if N > 0 {
+    if N > 3 { result: 6 }
+    result: 3 + N
+  }
+  if N < 0 {
+    if N < -3 { result: 1 }
+    result: 4 + N
+  }
+  result: 0
+}
+
+function: vagrant D:s AD:s DD:s {
+  N_BONUS: AD >= 5
+  N_MALUS: DD >= 5
+  SCORE: D + N_BONUS - N_MALUS
+  if SCORE > 6 { SCORE: 6 }
+  if SCORE < 1 { SCORE: 1 }
+  result: SCORE
+}
+
+function: fubar D:s {
+  FIVE_BEST_DICE: {}
+  loop I over { 1..5 } {
+    FIVE_BEST_DICE: [ stack I@D to FIVE_BEST_DICE ]
+  }
+  result: ( FIVE_BEST_DICE >= 4 ) + 1
+}
+
+\ output [ fubar 5d6 ] named "fubar" \
+\ output [ fubar 6d6 ] named "fubar [+]" \
+\ output [ fubar 7d6 ] named "fubar [+][+]" \
+\ output [ fubar 8d6 ] named "fubar [+][+][+]" \
+
+\ output [ vagrant 1d6 0d6 0d6 ] named "vagrant" \
+\ output [ vagrant 1d6 1d6 1d6 ] named "vagrant [+][-]" \
+\ output [ vagrant 1d6 2d6 2d6 ] named "vagrant [+][+][-][-]" \
+\ output [ vagrant 1d6 1d6 0d6 ] named "vagrant [+]" \
+\ output [ vagrant 1d6 2d6 1d6 ] named "vagrant [+][+][-]" \
+\ output [ vagrant 1d6 2d6 0d6 ] named "vagrant [+][+]" \
+\ output [ vagrant 1d6 3d6 0d6 ] named "vagrant [+][+][+]" \
+
+output [ dicebucket 3d6 3d6 ] named "dicebucket"
+\ output [ dicebucket 3d10 3d10 ] named "dicebucket d10" \
+\ output [ dicebucket 4d6 3d6 ] named "dicebucket [+]" \
+\ output [ dicebucket 4d10 3d10 ] named "dicebucket d10 [+]" \
+\ output [ dicebucket 5d6 3d6 ] named "dicebucket [+][+]" \
+\ output [ dicebucket 6d6 3d6 ] named "dicebucket [+][+][+]" \
+\ output [ dicebucket 3d6 3d6 ] named "dicebucket" \
+\ output [ dicebucket 4d6 4d6 ] named "dicebucket [+][-]" \
+\ output [ dicebucket 5d6 5d6 ] named "dicebucket [+][+][-][-]" \
+\ output [ dicebucket 4d6 3d6 ] named "dicebucket [+]" \
+\ output [ dicebucket 5d6 4d6 ] named "dicebucket [+][+][-]" \
+
+\ output [ fupool 1d6 1d6 ] named "fupool" \
+\ output [ fupool 2d6 1d6 ] named "fupool [+]" \
+\ output [ fupool 3d6 1d6 ] named "fupool [+][+]" \
+\ output [ fupool 4d6 1d6 ] named "fupool [+][+][+]" \
+\ output [ fupool 1d6 1d6 ] named "fupool" \
+\ output [ fupool 2d6 2d6 ] named "fupool [+][-]" \
+\ output [ fupool 3d6 3d6 ] named "fupool [+][+][-][-]" \
+\ output [ fupool 2d6 1d6 ] named "fupool [+]" \
+\ output [ fupool 3d6 2d6 ] named "fupool [+][+][-]" \ 
+
+
+
+
+
+

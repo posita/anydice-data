@@ -1,0 +1,31 @@
+function: explode DIE:d {
+ MAX: [maximum of DIE]
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = MAX { result: N - 1 + [explode DIE helper] }
+ result: N
+}
+
+function: exploderoll D:s
+{
+ if (D = 6){result:[explode 1d6] + 5}
+ result:D
+}
+
+set "maximum function depth" to 4
+
+D:[explode 1d6]
+R:2dD
+N:0
+output R + N - R named "Regular"
+loop A over {1..4}
+{
+DICE:(2+A)d6
+X:[exploderoll 1@DICE]
+Y:[exploderoll 2@DICE]
+output (X+Y) - R named "Advantage +[A]"
+\output [highest 2 of (2+A)dD] + N - R named "Advantage [A]"\
+}
+\output [lowest of [highest of R + N - R and -1] and 1]\

@@ -1,0 +1,55 @@
+X: {1..5}
+FLAG: -10
+
+\ Performs rerolls when value is MAX, accumulating values \
+function: explode DIE:d {
+ MAX: [maximum of DIE]
+ result: [explode DIE helper] 
+}
+
+function: explode N:n helper {
+ if N = MAX { result: N + [explode DIE helper] }
+ if N = FLAG { result: 0 } \ Mask the flag value as 0 for explosion results \
+ result: N
+}
+
+\ Performs rerolls both when value is MAX and FLAG, accumulates only on MAX rerolls \
+function: imexplode DIE:d {
+ MAX: [maximum of DIE]
+ result: [imexplode DIE helper]
+}
+
+function: imexplode N:n helper {
+ if N = MAX { result: N + [imexplode DIE helper] }
+ if N = FLAG { result: 0 + [imexplode DIE helper] } \ Convert FLAG to 0 and reroll \
+ result: N
+}
+
+\ Counts the number of times a reroll occurs due to FLAG being rolled \
+function: count DIE:d {
+ result: [count DIE helper]
+}
+
+function: count N:n helper {
+ if N = FLAG { result: 1 + [count DIE helper] }
+ result: N
+}
+
+\ Count the number of rerolls due to rolling FLAG \
+Z: d{FLAG,0,0,0,0,0}
+loop N over X {
+ output Nd[count Z] named "num FLAG rerolls for d[N]"
+}
+
+
+A: d{FLAG,0,0,1,1,2}
+B: d{FLAG,0,0,0,1,2}
+C: d{FLAG,0,1,1,1,2}
+D: d{FLAG,0,0,1,1,3}
+loop N over X {
+\ output Nd[explode A] named "explode [N]d{0,0,0,1,1,2}" \
+ output Nd[imexplode A] named "im+explode [N]d{0,0,0,1,1,2}" 
+\ output Nd[imexplode B] named "im+explode [N]d{0,0,0,0,1,2}" \
+\ output Nd[imexplode C] named "im+explode [N]d{0,0,1,1,1,2}" \
+\ output Nd[imexplode D] named "im+explode [N]d{0,0,0,1,1,3}" \
+}

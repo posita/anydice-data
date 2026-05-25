@@ -1,0 +1,30 @@
+function: sqrthelper N:n guess R:n {
+ if [absolute ((N/R)-R)] <= 1 
+  {
+   if (N/R) > R
+   {
+    result: R
+   }
+   result: (N/R)
+  }
+ result: [sqrthelper N guess [absolute (((N/R)+(R))/2)]]
+}
+
+function: sqrt of N:n {
+ result: [sqrthelper N guess 2] 
+}
+
+function: sdie S:n success R:n reroll D:n T:n {
+ if D >= R { result: 1 + [sdie S success R reroll dT T]}
+ result: D >= S
+}
+
+PRESET: [sdie 4 success 6 reroll d6 6]
+
+loop N over {1..10} {
+ output [lowest of 6*[sqrt of N]+1 and NdPRESET+1d{-1,0,1}+1] named "[N] dice"
+}
+
+loop N over {1..10} {
+ output [lowest of 6*[sqrt of N]+1 and NdPRESET+1d{-1,0,1}+1+1d{-1,0}] named "[N] dice-"
+}

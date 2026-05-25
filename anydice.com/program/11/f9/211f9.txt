@@ -1,0 +1,64 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ 
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12,13,13,15,16,18,14,15,15,17,18,20,15,16,16,18,19,21}+2
+
+function: attacka {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+ATTACK: 9
+LVL:2
+SP: 4
+
+HITDAMAGE: 1d6 + d{0,0,0,1,1,1,1,1,2,2,2,3,3,4}
+CRITICALDAMAGE: ((1d6)*2)+ (1d{0,0,0,1,1,1,1,1,2,2,2,3,3,4}) +(1*1d{1,1,1,1,2,2,3})
+MISSDAMAGE: 0
+output [attacka] named "Acid"
+
+HITDAMAGE: LVLd4 + SP
+CRITICALDAMAGE: ((LVLd4 + SP)*2)
+MISSDAMAGE: 0
+output [attacka] named "Lance"
+
+HITDAMAGE: LVLd4 + SP
+CRITICALDAMAGE: ((LVLd4+SP)*2)+(LVLd4*d{1,1,1,1,2,2,3})
+MISSDAMAGE: 0
+output [attacka] named "Flame"
+
+HITDAMAGE: LVLd6 + SP
+CRITICALDAMAGE: ((LVLd6+SP)*2)
+MISSDAMAGE: 0
+output [attacka] named "Projectile"
+
+HITDAMAGE: LVLd4 + SP
+CRITICALDAMAGE: ((LVLd4+SP)*2)
+MISSDAMAGE: 0
+output [attacka] named "Frost"

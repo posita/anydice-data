@@ -1,0 +1,72 @@
+\AC		If GWM					Otherwise
+1-12		Shortbow (+1) and Help Brenda (GWM)	Shortbow (+1) and Help Anakis.
+13-16		Shortbow (+1) and Help Brenda (GWM)	TWF (Shortswords) and Help Anakis.
+17		TWF (Shortswords) and Help Anakis.	Shortbow (+1) and Help Anakis.
+18-27		Shortbow (+1) and Help Anakis.		TWF (Shortswords) and Help Anakis.
+28-(28+n)	Shortbow (+1) and Help Brenda (GWM)	Shortbow (+1) and Help Anakis.
+
+[Brenda uses GWM]
+If AC < 17 or AC > 27, then Shortbow (+1) and Help Brenda (GWM).
+If AC = 17, then TWF (Shortswords) and Help Anakis if Attack misses.
+If AC = {18...27}, then Shortbow (+1) and Help Anakis.
+
+[Brenda doesn't use GWM]
+If AC = {13...16} or {18...27}, then TWF (Shortswords) and Help Anakis if Attack misses.
+Otherwise, Shortbow (+1) and Help Anakis.\
+
+AC: 15
+PROFICIENCY: 3
+DEX: 4
+SNEAK: 3d6
+ANAKIS: 4+1
+
+function: shortbow ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK+DEX+1+2 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX +1 >= AC { result: d6+SNEAK+DEX+1+2 }
+ result: 0
+}
+
+function: oathbow ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d8+2dSNEAK+DEX+2+6d6 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d8+SNEAK+DEX+2+3d6 }
+ result: 0
+}
+
+function: longbow ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d8+2dSNEAK+DEX+2+2 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX+2 >= AC { result: d8+SNEAK+DEX+2+2 }
+ result: 0
+}
+
+function: shortswordtwf ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d6+SNEAK }
+ result: 0
+}
+
+function: anakis ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 4d{{1..2}, {3..6}:4}+ANAKIS+6d8 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ANAKIS >= AC { result: 2d{{1..2}, {3..6}:4}+ANAKIS}
+ result: 0
+}
+
+function: first A:n second B:n {
+  if A = 20 {result: 2d6+DEX+2dSNEAK+4d6 + [anakis [highest 1 of 2d20] vs AC]}
+  if A + DEX + PROFICIENCY >= AC & A != 1 {result: d6+DEX+SNEAK+2d6 + [anakis [highest 1 of 2d20] vs AC]}
+  result: [shortswordtwf d20 vs AC]+[anakis d20 vs AC]
+}
+
+output [shortbow d20 vs AC]+[anakis [highest 1 of 2d20] vs AC] named "shortbow (+1) + Help Anakis"
+
+output [shortbow [highest 1 of 2d20] vs AC]+[anakis d20 vs AC] named "Hide + shortbow (+1)"
+
+output [longbow d20 vs AC]+[anakis [highest 1 of 2d20] vs AC] named "longbow (+2) + Help Anakis"
+
+output [first d20 second d20] named "flame tongue shortsword + TWF (shortsword)/Help Anakis"
+
+output [oathbow [highest 1 of 2d20] vs AC]+[anakis [highest 1 of 2d20] vs AC] named "oathbow + Help Anakis"

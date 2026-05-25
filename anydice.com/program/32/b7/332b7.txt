@@ -1,0 +1,81 @@
+function: fighter ROLL:n vs AC{
+ if ROLL = 1 {result: 0}
+ if ROLL >= CC {result: CRIT}
+ if ROLL + MOD + P >= AC {result: DAMAGE}
+ result: 0
+}
+
+function: rogue ROLL:n and RR:n vs AC{
+ if ROLL = 1 {
+  if RR = 1 {result:0}
+  if RR = 20 {result: CRIT+CSA}
+  if RR + MOD + P >= AC {result: DAMAGE + SA}
+  result: 0
+ }
+ if ROLL = 20 {
+  if RR = 1 {result: CRIT+CSA}
+  if RR = 20 {result: CRIT+CSA+CRIT}
+  if RR + MOD + P >= AC {result: CRIT+CSA+DAMAGE}
+  result: CRIT+CSA
+ }
+ if ROLL + MOD + P >= AC {
+  if RR = 1 {result: DAMAGE+SA}
+  if RR = 20 {result: DAMAGE+SA+CRIT}
+  if RR + MOD + P >= AC {result: DAMAGE+SA+DAMAGE}
+  result: DAMAGE + SA
+ }
+ if ROLL + MOD + P < AC {
+  if RR = 1 {result: 0}
+  if RR = 20 {result: CRIT+CSA}
+  if RR + MOD + P >= AC {result: DAMAGE+SA}
+  result: 0
+ }
+}
+
+CC:19
+P:3
+MOD: 5+1
+AC: 8+P+MOD
+
+DAMAGE: 1d8+MOD+10
+CRIT: 2d8+MOD+10
+output 2d[fighter d20+2-5 vs AC] named "Fighter SS"
+
+
+DAMAGE: 1d6+MOD+10-1
+CRIT: 2d6+MOD+10-1
+output 3d[fighter d20+2-5-1 vs AC] named "Fighter SS+XBE"
+
+CC:20
+P:3
+MOD: 4+1
+AC: 8+P+MOD
+DAMAGE: 1d6 + MOD
+CRIT: 2d6 + MOD
+SA: 3d6
+CSA:6d6
+ADV: [highest 1 of 2d20]
+output [rogue d20 and d20 vs AC] named "Rogue XBE"
+output [rogue ADV and ADV vs AC] named "Rogue XBE ADV"
+
+
+CC:19
+DAMAGE: 1d8+MOD
+CRIT: 2d8+MOD
+output 2d[fighter d20+2 vs AC] named "Fighter Baseline"
+CC:20
+DAMAGE: 2d10
+CRIT: 4d10
+output [fighter d20 vs AC] named "Firebolt"
+
+function: po ROLL:n vs AC{
+ if ROLL = 1 {result: DAMAGE/2}
+ if ROLL >= CC {result: CRIT}
+ if ROLL + MOD + P >= AC {result: DAMAGE}
+ result: DAMAGE/2
+}
+
+
+DAMAGE: 2d10
+CRIT: 4d10
+output [po d20 vs AC] named "Evocation Firebolt"

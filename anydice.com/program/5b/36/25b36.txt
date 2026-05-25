@@ -1,0 +1,168 @@
+\---- CONSTANTS ----\
+FALSE: 0
+TRUE: 1
+
+DISADVANTAGE: -1
+FLAT_ROLL: 0
+ADVANTAGE: 1
+
+MISS: 0
+GLANCE: 1
+HIT: 2
+CRIT: 3
+
+NO_DAMAGE: 0
+HALF_DAMAGE: 1
+\-------------------\
+
+\---- SETTINGS -----\
+USE_GLANCE: TRUE
+DEFAULT_SPELL_SAVE_DAMAGE: NO_DAMAGE
+\-------------------\
+
+\---- FUNCTIONS ----\
+function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+
+function: DIE:d reroll FILTER:s {
+  result: [DIE replace FILTER with DIE]
+}
+
+function: DIE:d with ADVANTAGE_TYPE:n {
+  if ADVANTAGE_TYPE = ADVANTAGE {
+    result: [highest 1 of 2dDIE]
+  }
+  if ADVANTAGE_TYPE = DISADVANTAGE {
+    result: [lowest 1 of 2dDIE]
+  }
+  result: DIE
+}
+
+function: ROLL:n with BONUS:n hits AC:n {
+  if ROLL = 1 {
+    result: MISS
+  }
+  if ROLL = 20 {
+    if ROLL + BONUS > AC {
+      result: CRIT
+    }
+
+    result: HIT
+  }
+  if ROLL + BONUS >= AC {
+    if ((ROLL + BONUS) = AC) & (USE_GLANCE = TRUE) {
+      result: GLANCE
+    }
+    result: HIT
+  }
+
+  result: MISS
+}
+
+function: do DAMAGE:d with BONUS:n for RESULT:n {
+  if RESULT = CRIT {
+    result: [maximum of DAMAGE] + DAMAGE + BONUS
+  }
+  if RESULT = HIT {
+    result: DAMAGE + BONUS
+  }
+  if RESULT = GLANCE {
+    result: (DAMAGE + BONUS) / 2
+  }
+
+  result: 0
+}
+
+function: do DAMAGE:d for RESULT:n {
+  result: [do DAMAGE with +0 for RESULT]
+}
+
+function: BONUS:n hits AC:n with ADVANTAGE_TYPE:n {
+  result: [[d20 with ADVANTAGE_TYPE] with BONUS hits AC]
+}
+
+function: BONUS:n hits AC:n {
+  result: [BONUS hits AC with FLAT_ROLL]
+}
+
+function: ROLL:n with BONUS:n saves against DC:n does SUCCESS_DAMAGE_TYPE:n on save {
+  if ROLL + BONUS >= DC {
+    result: SUCCESS_DAMAGE_TYPE
+  }
+
+  result: HIT
+}
+
+function: BONUS:n saves against DC:n does SUCCESS_DAMAGE_TYPE:n on save with ADVANTAGE_TYPE:n {
+  result: [[d20 with ADVANTAGE_TYPE] with BONUS saves against DC does SUCCESS_DAMAGE_TYPE on save]
+}
+
+function: BONUS:n saves against DC:n with ADVANTAGE_TYPE:n {
+  result: [BONUS saves against DC does DEFAULT_SPELL_SAVE_DAMAGE on save with ADVANTAGE_TYPE]
+}
+
+function: BONUS:n saves against DC:n does SUCCESS_DAMAGE_TYPE:n on save {
+  result: [BONUS saves against DC does SUCCESS_DAMAGE_TYPE on save with FLAT_ROLL]
+}
+
+function: BONUS:n saves against DC:n {
+  result: [BONUS saves against DC does DEFAULT_SPELL_SAVE_DAMAGE on save]
+}
+\-------------------\
+
+function: misha RESULT:n AC:n IS_FIRST_ATTACK:n {
+  if RESULT > MISS { 
+
+    \ If we hit, we need to consider all damage sources: the bow, rain of thorns, and favored enemy. \
+
+    FAVORED_ENEMY: 1d4
+
+    \ Rain of thorns hits separately - this checks the monster's save, and calculates all possible damage results. \
+    RAIN_OF_THORNS: [do 1d10 for [+0 saves against 13 does HALF_DAMAGE on save]] 
+
+    if IS_FIRST_ATTACK = TRUE {
+  
+      \ If this is the first attack in the round, it does reduced damage but we can attack again. \
+      \ Figure the favored enemy on the first attack, not the second, because we already hit. \
+      \ NOTE - we have to figure the favored enemy with the attack, not separate, because it also gets double damage for critting and half for glancing. \
+
+      ATTACK_DAMAGE: [do (1d8 + FAVORED_ENEMY) with +5 for RESULT]
+      SECOND_ATTACK: [do 2d8 with +5 for [+9 hits AC]]
+    } else {
+
+      \ If this is the second attack, we don't need to go farther. There's only 2 attacks here. \
+      \ Damage is increased for the ambush feature in the second hit, and we need to factor in favored enemy because it hasn't damage yet. \
+
+      ATTACK_DAMAGE: [do (2d8 + FAVORED_ENEMY) with +5 for [+9 hits AC]]
+      SECOND_ATTACK: 0
+    }
+
+    result: ATTACK_DAMAGE + RAIN_OF_THORNS + SECOND_ATTACK
+  } 
+
+  if IS_FIRST_ATTACK = TRUE {
+    \ If we on the first attack, we get to try again for favored enemy and hail of thorns. \
+
+    result: [misha [+9 hits AC] AC 0]
+  }
+
+  \ Both attacks missed. How unfortunate... \
+  result: 0
+}
+
+AC: 17
+
+OWEN_DAMAGE: [do 5d6 for [+6 hits AC]]
+MISHA_FIRST_ROUND_DAMAGE: [misha [+9 hits AC with ADVANTAGE] AC TRUE]
+MISHA_DAMAGE: [do (1d8+1d4) for [+9 hits AC]]
+CARSON_DAMAGE: [do [1d12 with ADVANTAGE] with +6 for [+6 hits AC]]
+CARSON_SECOND_ROUND_DAMAGE: [do [1d12 with ADVANTAGE] with +6 for [+6 hits AC with ADVANTAGE]]
+
+FIRST_ROUND: OWEN_DAMAGE + MISHA_FIRST_ROUND_DAMAGE + CARSON_DAMAGE
+SECOND_ROUND: OWEN_DAMAGE + MISHA_DAMAGE + CARSON_SECOND_ROUND_DAMAGE
+
+output FIRST_ROUND named "First Round"
+output SECOND_ROUND named "Second Round"
+output FIRST_ROUND + SECOND_ROUND named "Expected Total"

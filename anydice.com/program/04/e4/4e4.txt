@@ -1,0 +1,23 @@
+set "maximum function depth" to 15
+
+function: conquer using UNITS:n units with roll of ATTACK:n on ATTACKDIE:d starting with TERRITORIESCAPTURED {
+  if UNITS < 1 {
+    result: TERRITORIESCAPTURED
+  }
+
+  if (UNITS+ATTACK) >= 3 {
+    UNITS: UNITS - [highest of 1 and (3-ATTACK)]
+    TOTALCAP: TERRITORIESCAPTURED + 1
+    result: [conquer using UNITS units with roll of ATTACKDIE on ATTACKDIE starting with TOTALCAP]
+  } else if (UNITS+ATTACK) = 2 {
+    result: TERRITORIESCAPTURED + 1
+  } else {
+    result: TERRITORIESCAPTURED
+  }
+}
+
+SMALLWORLDDIE: d{0,0,0,1,2,3}
+
+loop NUM over {3..10} {
+  output [conquer using NUM units with roll of SMALLWORLDDIE on SMALLWORLDDIE starting with 0] named "Chance to capture X territories with [NUM] berserking units"
+}

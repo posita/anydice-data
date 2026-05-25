@@ -1,0 +1,38 @@
+POOL:3
+MULTI:0
+
+function: rollandcount VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ if
+ COUNT = 0 {result: MULTI*9 + [highest 1 of POOLd{0..9}]}  
+ if 
+ COUNT > 0  { result: [helper] }
+ else 
+ {result: -13}
+}
+
+function: helper {
+POOL:POOL-COUNT
+MULTI:MULTI+COUNT 
+ if 
+ POOL=0  { result: MULTI*9 }
+ if 
+ POOL>0   {result: [rollandcount 9 in POOLd{0..9}] }
+ else 
+ {result: -14}
+}
+
+output [rollandcount 9 in POOL d{0..9}] named "9er raus"
+set "explode depth" to 3
+output [highest 1 of POOLd [explode d{0..9}]] named "höchster explodierender" 
+output [highest 1 of POOLd{0..9}] named "highest 1 of Pool"
+
+\
+output POOLd[explode d{0..9}] named "explodierten einzeln werden addiert"
+output d[explode POOL d{0..9}] named "explodiert bei maximun"
+\
+
+

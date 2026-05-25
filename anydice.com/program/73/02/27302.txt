@@ -1,0 +1,63 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MISSDAMAGE: 0
+MINCRIT: 20
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ else if ROLL >= MINCRIT { result: CRITICALHIT }
+ else if ROLL + ATTACK >= DEFENSE { result: HIT }
+ else { result: MISS }
+}
+
+function: single damage for RESULT:n {
+ if RESULT = CRITICALHIT { result: 2d ROLLDMG + FLATDMG }
+ else if RESULT = HIT { result: ROLLDMG + FLATDMG }
+ else { result: MISSDAMAGE }
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  D: D + [single damage for A]
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+function: attack with adv {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+function: N:n attacks with adv {
+ result: [damage for Nd[attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+MOD: 3
+PB: 2
+
+DEFENSE: d{11..16}
+
+\ -- Greatsword -- \
+ROLLDMG: 2d6
+
+ATTACK: MOD + PB
+FLATDMG: MOD
+output [1 attacks] named "Greatsword"
+output [1 attacks with adv] named "Adv+Greatsword"
+
+
+\ -- Greatsword + GWM -- \
+
+ATTACK: MOD + PB - 5
+FLATDMG: MOD + 10
+output [1 attacks] named "Greatsword+GWM"
+output [1 attacks with adv] named "Adv+Greatsword+GWM"

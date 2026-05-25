@@ -1,0 +1,158 @@
+CHARISMA: 3
+PROFICIENCY: 4
+BLASTS: 3
+AGONIZING: 1
+RAYS: 3
+AC: 18
+WEAPON: 4
+
+MODIFIER: CHARISMA + PROFICIENCY
+YES: 1
+NO: 0
+
+function: advantage roll A:n E:n {
+if A = YES & E = YES {
+result: [highest 1 of 3d20]
+}
+if A = YES & E = NO {
+result: [highest 1 of 2d20]
+}
+result: 1d20
+}
+
+function: blast damage X:n C:n H:n {
+if (X < AC - MODIFIER) & !(X = 20) & !(X = 19 & C = YES) {
+result: 0
+}
+if X = 20 | (X = 19 & C = YES) {
+TOTAL: 2d10
+if H = YES {
+TOTAL: TOTAL + 2d6
+}
+}
+else {
+TOTAL: 1d10
+if H = YES {
+TOTAL: TOTAL + 1d6
+}
+}
+if C = YES {
+TOTAL: TOTAL + PROFICIENCY
+}
+if AGONIZING = YES {
+TOTAL: TOTAL + CHARISMA
+}
+result: TOTAL
+}
+
+function: spirit damage X:n C:n H:n {
+if (X < AC - MODIFIER) & !(X = 20) & !(X = 19 & C = YES) {
+result: 0
+}
+if X = 20 | (X = 19 & C = YES) {
+TOTAL: (WEAPON / 2)d8 + (WEAPON / 2)d8 + CHARISMA
+if H = YES {
+TOTAL: TOTAL + 2d6
+}
+}
+else {
+TOTAL: (WEAPON / 2)d8 + CHARISMA
+if H = YES {
+TOTAL: TOTAL + 1d6
+}
+}
+if C = YES {
+TOTAL: TOTAL + PROFICIENCY
+}
+result: TOTAL
+}
+
+function: scorching damage X:n C:n H:n {
+if (X < AC - MODIFIER) & !(X = 20) & !(X = 19 & C = YES) {
+result: 0
+}
+if X = 20 | (X = 19 & C = YES) {
+TOTAL: 4d6
+if H = YES {
+TOTAL: TOTAL + 2d6
+}
+}
+else {
+TOTAL: 2d6
+if H = YES {
+TOTAL: TOTAL + 1d6
+}
+}
+if C = YES {
+TOTAL: TOTAL + PROFICIENCY
+}
+result: TOTAL
+}
+
+function: N:n blast H:n hex C:n curse A:n advantage E:n elvish {
+OUTPUT: 0
+loop X over {dN} {
+ROLL: [advantage roll A E]
+OUTPUT: OUTPUT + [blast damage ROLL C H]
+}
+result: OUTPUT
+}
+
+function: spirit H:n hex C:n curse A:n advantage E:n elvish {
+ROLL: [advantage roll A E]
+result: [spirit damage ROLL C H]
+}
+
+function: N:n scorching H:n hex C:n curse A:n advantage E:n elvish {
+OUTPUT: 0
+loop X over {dN} {
+ROLL: [advantage roll A E]
+OUTPUT: OUTPUT + [scorching damage ROLL C H]
+}
+result: OUTPUT
+}
+
+output [BLASTS blast NO hex NO curse NO advantage NO elvish] named "EB"
+output [BLASTS blast YES hex NO curse NO advantage NO elvish] named "EB + Hex"
+output [BLASTS blast NO hex YES curse NO advantage NO elvish] named "EB + Curse"
+output [BLASTS blast YES hex YES curse NO advantage NO elvish] named "EB + Hex + Curse"
+output [BLASTS blast NO hex NO curse YES advantage YES elvish] named "EB + Adv"
+output [BLASTS blast YES hex NO curse YES advantage YES elvish] named "EB + Hex + Adv"
+output [BLASTS blast NO hex YES curse YES advantage YES elvish] named "EB + Curse + Adv"
+output [BLASTS blast YES hex YES curse YES advantage YES elvish] named "EB + Hex + Curse + Adv"
+
+output [BLASTS blast NO hex NO curse NO advantage NO elvish]+[spirit NO hex NO curse NO advantage NO elvish] named "EB + SW"
+output [BLASTS blast YES hex NO curse NO advantage NO elvish]+[spirit YES hex NO curse NO advantage NO elvish] named "EB + SW + Hex"
+output [BLASTS blast NO hex YES curse NO advantage NO elvish]+[spirit NO hex YES curse NO advantage NO elvish] named "EB + SW + Curse"
+output [BLASTS blast YES hex YES curse NO advantage NO elvish]+[spirit YES hex YES curse NO advantage NO elvish] named "EB + SW + Hex + Curse"
+output [BLASTS blast NO hex NO curse YES advantage YES elvish]+[spirit NO hex NO curse YES advantage YES elvish] named "EB + SW + Adv"
+output [BLASTS blast YES hex NO curse YES advantage YES elvish]+[spirit YES hex NO curse YES advantage YES elvish] named "EB + SW + Hex + Adv"
+output [BLASTS blast NO hex YES curse YES advantage YES elvish]+[spirit NO hex YES curse YES advantage YES elvish] named "EB + SW + Curse + Adv"
+output [BLASTS blast YES hex YES curse YES advantage YES elvish]+[spirit YES hex YES curse YES advantage YES elvish] named "EB + SW + Hex + Curse + Adv"
+
+output [BLASTS*2 blast NO hex NO curse NO advantage NO elvish] named "EBx2"
+output [BLASTS*2 blast YES hex NO curse NO advantage NO elvish] named "EBx2 + Hex"
+output [BLASTS*2 blast NO hex YES curse NO advantage NO elvish] named "EBx2 + Curse"
+output [BLASTS*2 blast YES hex YES curse NO advantage NO elvish] named "EBx2 + Hex + Curse"
+output [BLASTS*2 blast NO hex NO curse YES advantage YES elvish] named "EBx2 + Adv"
+output [BLASTS*2 blast YES hex NO curse YES advantage YES elvish] named "EBx2 + Hex + Adv"
+output [BLASTS*2 blast NO hex YES curse YES advantage YES elvish] named "EBx2 + Curse + Adv"
+output [BLASTS*2 blast YES hex YES curse YES advantage YES elvish] named "EBx2 + Hex + Curse + Adv"
+
+output [RAYS scorching NO hex NO curse NO advantage NO elvish] named "SR"
+output [RAYS scorching YES hex NO curse NO advantage NO elvish] named "SR + Hex"
+output [RAYS scorching NO hex YES curse NO advantage NO elvish] named "SR + Curse"
+output [RAYS scorching YES hex YES curse NO advantage NO elvish] named "SR + Hex + Curse"
+output [RAYS scorching NO hex NO curse YES advantage YES elvish] named "SR + Adv"
+output [RAYS scorching YES hex NO curse YES advantage YES elvish] named "SR + Hex + Adv"
+output [RAYS scorching NO hex YES curse YES advantage YES elvish] named "SR + Curse + Adv"
+output [RAYS scorching YES hex YES curse YES advantage YES elvish] named "SR + Hex + Curse + Adv"
+
+output [BLASTS blast NO hex NO curse NO advantage NO elvish]+[RAYS scorching NO hex NO curse NO advantage NO elvish] named "EB + SR"
+output [BLASTS blast YES hex NO curse NO advantage NO elvish]+[RAYS scorching YES hex NO curse NO advantage NO elvish] named "EB + SR + Hex"
+output [BLASTS blast NO hex YES curse NO advantage NO elvish]+[RAYS scorching NO hex YES curse NO advantage NO elvish] named "EB + SR + Curse"
+output [BLASTS blast YES hex YES curse NO advantage NO elvish]+[RAYS scorching YES hex YES curse NO advantage NO elvish] named "EB + SR + Hex + Curse"
+output [BLASTS blast NO hex NO curse YES advantage YES elvish]+[RAYS scorching NO hex NO curse YES advantage YES elvish] named "EB + SR + Adv"
+output [BLASTS blast YES hex NO curse YES advantage YES elvish]+[RAYS scorching YES hex NO curse YES advantage YES elvish] named "EB + SR + Hex + Adv"
+output [BLASTS blast NO hex YES curse YES advantage YES elvish]+[RAYS scorching NO hex YES curse YES advantage YES elvish] named "EB + SR + Curse + Adv"
+output [BLASTS blast YES hex YES curse YES advantage YES elvish]+[RAYS scorching YES hex YES curse YES advantage YES elvish] named "EB + SR + Hex + Curse + Adv"

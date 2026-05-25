@@ -1,0 +1,22 @@
+TARGET: 5
+
+function: custom die N:n {
+  result: d{0:(TARGET-1), TARGET:(N-TARGET), N}
+}
+
+SIX: [custom die 6]
+TWELVE: [custom die 12]
+
+function: roll SIXES:s TWELVES:s angst P:n {
+  SUCCESSES: {SIXES, TWELVES} >= TARGET
+  B: [lowest of (TWELVES = 12) and P]
+  A: [lowest of (SIXES = 6) and P - B]
+  if A + B > 0 { 
+    SUCCESSES: SUCCESSES + [roll AdSIX BdTWELVE angst P - A - B]
+  }
+  result: SUCCESSES
+}
+
+loop P over {1..5} {
+  output [roll 5dSIX 5dTWELVE angst P] named "2d6, 2d12, angst [P]"
+}

@@ -1,0 +1,35 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL > AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+HIT_ROLL: [highest 1 of 3d20]
+HIT_MOD: 0
+AC: 8
+
+DMG: 3d6
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG crit 2d(DMG) on {19,20}] named "LP+RoA"
+
+DMG: 3d6 + 2d12 
+output 3d[roll HIT_ROLL plus HIT_MOD against AC damage DMG crit 2d(DMG) on {19,20}] named "LP+RoA + Tenser's Transformation"
+
+DMG: 1d10 + 2d12 
+output 3d[roll HIT_ROLL plus HIT_MOD against AC damage DMG crit 2d(DMG) on {20}] named "Longsword + Tenser's Transformation"
+
+DMG: 3d12 + 2d12 
+output 3d[roll HIT_ROLL plus HIT_MOD against AC damage DMG crit 2d(DMG) on {19,20}] named "SNP+RoA + Tenser's Transformation"

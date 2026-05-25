@@ -1,0 +1,62 @@
+GREEN:  4
+WHITE:  5
+BLUE:   4
+RED:    3
+CURSED: 3
+
+WHITE_POWER:{1,2,0:4}
+WHITE_PLUS:{1,0:5}
+WHITE_STAR:{1,0:5}
+RED_POWER:{3,4,5,0:3}
+RED_PLUS:{2,0:5}
+BLUE_POWER:{1,2,3,0:7}
+BLUE_PLUS:{1,1,1,2,0:6}
+BLUE_STAR:{1,0:9}
+GREEN_POWER:{1:6,2:2,3:2,0:10}
+GREEN_PLUS:{1,1,0:18}
+GREEN_STAR:{1,0:19}
+GREEN_WEAR:{1,0:19}
+GREEN_BOTCH:{1,0:19}
+GREEN_CRITICAL:{1,1,0:18}
+CURSED_POWER:{-1,-2,0:4}
+
+WHITE_ALL:{1,2,100,10000,0,0}
+RED_ALL:{3,4,5,200,0,0}
+BLUE_ALL:{1,2,3,0:7}
+
+function: green G:n white W:n blue B:n red R:n cursed C:n power{
+  result: G d GREEN_POWER + W d WHITE_POWER + R d RED_POWER + B d BLUE_POWER + C d CURSED_POWER
+}
+function: green G:n white W:n blue B:n red R:n cursed C:n plus{
+  result: G d GREEN_PLUS + W d WHITE_PLUS + R d RED_PLUS + B d BLUE_PLUS
+}
+function: green G:n white W:n blue B:n red R:n cursed C:n star{
+  result: G d GREEN_STAR + W d WHITE_STAR + B d BLUE_STAR
+}
+function: green G:n white W:n blue B:n red R:n cursed C:n critical{
+  result: G d GREEN_CRITICAL
+}
+function: green G:n white W:n blue B:n red R:n cursed C:n botch{
+  result: G d GREEN_BOTCH
+}
+function: green G:n white W:n blue B:n red R:n cursed C:n wear{
+  result: G d GREEN_WEAR
+}
+
+output [green GREEN white WHITE blue BLUE red RED cursed CURSED power] named "純 power"
+output [green GREEN white WHITE blue BLUE red RED cursed CURSED plus] named "純 plus"
+output [green GREEN white WHITE blue BLUE red RED cursed CURSED star] named "純 star"
+output [green GREEN white WHITE blue BLUE red RED cursed CURSED critical] named "爆擊量"
+output [green GREEN white WHITE blue BLUE red RED cursed CURSED botch] named "有沒有 botch"
+output [green GREEN white WHITE blue BLUE red RED cursed CURSED wear] named "wear 次數"
+
+function: first aid upgrade b scratches {
+  PLUS: [green 0 white 1 blue 1 red 0 cursed 0 plus]
+  result: [green 0 white 1 blue 1 red 0 cursed 0 power] + 2* (PLUS < 2 | PLUS > 2)
+}
+function: first aid upgrade b wound {
+  result: ([green 0 white 1 blue 1 red 0 cursed 0 plus] >= 2) + ([green 0 white 1 blue 1 red 0 cursed 0 star] >= 1)
+}
+
+output [first aid upgrade b scratches] named "補 scratches"
+output [first aid upgrade b wound] named "補 wound"

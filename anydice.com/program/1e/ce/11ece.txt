@@ -1,0 +1,35 @@
+AC: 19
+TOHIT: 5
+AUTOCRIT: 1
+
+function: hitroll ROLL:n {
+  if ROLL = 20 {
+    result: 2
+  }
+  result: ((ROLL + TOHIT) >= AC) * (1+AUTOCRIT)
+}
+
+function: advantage ROLL:n ROLLY:n {
+  FIRST: [hitroll ROLL]
+  SECOND: [hitroll ROLLY]
+  if FIRST > SECOND {
+    result: FIRST
+  }
+  result: SECOND
+}
+
+function: fanghit HIT:n {
+  if HIT = 2 {
+    result: 6d6 + 3
+  }
+  result: HIT*(3d6+3)
+}
+
+function: fangattack {
+  HIT: [advantage (d20) (d20)]
+  result: [fanghit HIT]
+}
+
+output 2d[fangattack] named "Single Fang"
+output 4d[fangattack] named "2 Fangs"
+output 6d[fangattack] named "3 Fangs"

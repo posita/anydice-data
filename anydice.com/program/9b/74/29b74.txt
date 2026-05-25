@@ -1,0 +1,36 @@
+TN: 15 \Target Number, including parry\
+MISERABLE: 0 \change to 1 if miserable\
+WEARY: 0 \change to 1 if weary\
+FAVORED: 0 \change to 1 if favored\
+ILLFAVORED: 0 \change to 1 if ill-favored\
+
+PASS: 1
+AUTOPASS: 1 \change to 2 if you want to see probability of autosuccess separately\
+FAIL: 0
+
+function: roll FEAT:n plus SUCCESS:n vs PT:n {
+    if MISERABLE = 1 {
+        if FEAT = 0 { result: FAIL }
+    }
+    if FEAT = 12 { result: AUTOPASS }
+    if FEAT+SUCCESS >= PT { result: PASS }
+    if FEAT+SUCCESS < PT { result: FAIL }
+    }
+
+if WEARY = 0 {
+loop N over {0..8} {
+    if ILLFAVORED = 1 & FAVORED = 0 {output [roll [lowest 1 of 2d{0,1,2,3,4,5,6,7,8,9,10,12}] plus Nd6 vs TN] named "ILL [N]"}
+    if FAVORED = 1 & ILLFAVORED = 0 {output [roll [highest 1 of 2d{0,1,2,3,4,5,6,7,8,9,10,12}] plus Nd6 vs TN] named "FAV [N]"}
+    if FAVORED+ILLFAVORED = {0,2} {output [roll d{0,1,2,3,4,5,6,7,8,9,10,12} plus Nd6 vs TN] named "N [N]"}
+    }
+}
+
+if WEARY = 1 {
+loop N over {0..8} {
+    if ILLFAVORED = 1 {output [roll [lowest 1 of 2d{0,1,2,3,4,5,6,7,8,9,10,12}] plus Nd{0,0,0,4,5,6} vs TN] named "ILL [N]"}
+    if FAVORED = 1 {output [roll [highest 1 of 2d{0,1,2,3,4,5,6,7,8,9,10,12}] plus Nd{0,0,0,4,5,6} vs TN] named "FAV [N]"}
+    if FAVORED+ILLFAVORED = 0 {output [roll d{0,1,2,3,4,5,6,7,8,9,10,12} plus Nd{0,0,0,4,5,6} vs TN] named "N [N]"}
+    }
+}
+
+

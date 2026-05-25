@@ -1,0 +1,89 @@
+
+function: attack A:n plus B:n vs C:n{if A=20{result:PCRIT} if A+B>=C{result:PHIT} if A+B<C{result:PMISS}} PCRIT:1001 PHIT:1000 PMISS:999
+
+function: damage A:n for B:n plus D:n{if A=PCRIT {result:([maximum of B])} if A=PHIT {result:B+D} if A=PMISS {result:0}}
+
+function: graze A:n for B:n plus D:n{if A=PCRIT {result:([maximum of B])} if A=PHIT {result:B+D} if A=PMISS {result:B}}
+
+function: opportunity A:n {if A=1 {result:2} if A=2 {result: 4} if A=3 {result: 0} if A=4 {result: 0} if A=5 {result:OPA} if A=6 {result:OPB}} 
+
+function: attackstakes A:n plus B:n plus C:n vs D:n {if A=20{result: ACRIT} if A+B+C>=D {result: AHIT} result: AMISS} AMISS:100 AHIT:200 ACRIT:300 
+
+function: stakes A:n plus B:n{
+if A+B=100 {result: MISS} 
+if A+B=102 {result: MISSCOMP} 
+if A+B=104 {result: MISSCOMP}
+if A+B=105 {result: MISSOP} 
+if A+B=106 {result: MISSOP} 
+
+if A+B=200 {result: HIT} 
+if A+B=202 {result: HITCOMP} 
+if A+B=204 {result: HITCOMP}
+if A+B=205 {result: HITOP} 
+if A+B=206 {result: HITOP}
+
+
+if A+B=300 {result: CRIT} 
+if A+B=302 {result: CRITCOMP} 
+if A+B=304 {result: CRITCOMP}
+if A+B=305 {result: CRITOP} 
+if A+B=306 {result: CRITOP}
+
+}
+
+MISS:400 MISSCOMP:401 MISSOP:402
+ 
+HIT:500 HITCOMP:501 HITOP:502 
+
+CRIT:600 CRITCOMP:601 CRITOP:602
+
+function: damagestakes A:n for B:n plus C:n {
+if A=CRIT {result:([maximum of B])+C} 
+if A=CRITOP {result:([maximum of B])+C} 
+if A=CRITCOMP {result:([maximum of B])+C} 
+
+if A=HITOP {result:([maximum of B])+C} 
+if A=HIT {result: B+C} 
+if A=HITCOMP {result: B+C} 
+
+if A=MISSOP {result:([maximum of B])} 
+if A=MISS {result:0} 
+if A=MISSCOMP {result:0}}
+
+function: grazestakes A:n for B:n plus C:n {
+if A=CRIT {result:([maximum of B])+C} 
+if A=CRITOP {result:([maximum of B])+C} 
+if A=CRITCOMP {result:([maximum of B])+C} 
+if A=HITOP {result:([maximum of B])+C} 
+
+if A=HIT {result: B+C} 
+if  A=HITCOMP {result: B+C} 
+
+if A=MISSOP {result:([maximum of B])} 
+
+if A=MISS {result:B} 
+if A=MISSCOMP {result:B}
+}
+
+DAMAGE:1d6
+MOD:5
+DEFENSE:14
+AR: [highest 1 of 1d20]
+
+OPA:0 OPB:0 
+XXXX: [opportunity 1d6]  
+XXX: [attackstakes AR plus XXXX plus 5 vs 14] 
+OPA:5 OPB:6 
+XX: [opportunity 1d6] 
+X: [stakes XXX plus XX]
+Y: [attack AR plus MOD vs DEFENSE]
+
+A: [grazestakes X for DAMAGE plus MOD] 
+B: [damagestakes X for DAMAGE plus MOD] 
+C: [graze Y for DAMAGE plus MOD] 
+D: [damage Y for DAMAGE plus MOD] 
+
+output A
+output B
+output C
+output D

@@ -1,0 +1,64 @@
+\Enemy Defense (STR/DEX/etc are saves, not attributes or mods)\
+
+AC: 17
+STR: 1
+DEX: 5
+CON: 1
+INT: 1
+WIS: 1
+CHA: 1
+
+\Helper Functions\
+
+function: attack level LVL stat STAT {
+    PROF: ((LVL + 3) / 4) + 1
+    result: ((STAT - 9) / 2) + PROF
+}
+
+function: dc level LVL stat STAT {
+    result: [attack level LVL stat STAT] + 8
+}
+
+function: save DC vs S for DAM {
+    X: 20 - (DC - S) + 1
+    result: 1d{0:X, 1:(20-X)} * DAM
+}
+
+function: savehalf DC vs S for DAM {
+    X: 20 - (DC - S) + 1
+    result: (1d{1:X, 2:(20-X)} * DAM) / 2
+}
+
+function: hit H vs AC for DAM {
+    result: ((1d20 + H) >= AC) * DAM
+}
+
+function: X rays of Y {
+    Z: 0
+    loop N over {1..X} {
+        Z: Z + Y
+    }
+    result: Z
+}
+
+\Calculations\
+
+\Level 1\
+output [hit [attack level 1 stat 17] vs AC for 1d10] named "Level 1 standard Firebolt (17 casting stat)"
+
+\Level 2\
+output [hit 6 vs AC for (1d8 + 4)] + [hit 6 vs AC for (2d6 + 4)] named "Moon Druid Brown Bear Multiattack"
+output [hit [attack level 2 stat 17] vs AC for (1d10 + 3)] named "Level 2 Eldritch Blast + Agonizing Blast (17 CHA)"
+
+\Level 5\
+output [save [dc level 5 stat 18] vs DEX for 2d6] named "Level 5 Artificer Acid Splash (18 INT)"
+
+\Level 6\
+output [savehalf [dc level 6 stat 18] vs WIS for 2d12] named "Level 6 Evocation Wizard (Potent Cantrip) Toll the Dead (18 INT)"
+
+\Level 11\
+output [3 rays of [hit [attack level 11 stat 19] vs AC for (1d10 + 4)]] named "Level 11 Eldritch Blast + Agonizing Blast (19 CHA)"
+
+\Level 12\
+output [savehalf [dc level 12 stat 20] vs DEX for 4d8] + [savehalf [dc level 12 stat 20] vs DEX for 3d8] named "Boomstiddle Shatter + Flamethrower"
+output [2 rays of [hit [attack level 12 stat 20] vs AC for 2d6]] + [hit [attack level 12 stat 20] vs AC for (2d6 + 1d8)] + [hit [attack level 12 stat 20] vs AC for 3d8] named "Boomstiddle Scorching Ray + Ballista"

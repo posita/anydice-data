@@ -1,0 +1,39 @@
+AC: 22
+
+function: attack DMG:n EXDMG:n ROLL:n ATKBONUS:n CONFIRM:n CRIT:n MULT:n BURST:n{
+  if(ROLL = 1){
+    result: 0
+  }
+  else if(ROLL >= CRIT){
+    result: [crit DMG EXDMG CONFIRM ATKBONUS CRIT MULT BURST]
+  }
+  else if(ROLL+ATKBONUS >= AC){
+    result: DMG+EXDMG
+  }
+  else{
+    result: 0
+  }
+}
+
+function: crit DMG:n EXDMG:n CONFIRM:n ATKBONUS:n CRIT:n MULT:n BURST:n{
+  if(CONFIRM = 1){
+    result: DMG+EXDMG
+  }
+  else if(CONFIRM+ATKBONUS >= AC) {
+    result: DMG*MULT + EXDMG + BURST
+  }
+  else{
+    result: DMG+EXDMG
+  }
+}
+
+
+function: critburst DMG:n BDMG:n ROLL:n CRIT:n MULT:n {
+  if ROLL >= CRIT { result: DMG*MULT + BDMG }
+  result: DMG
+}
+\              DMG   EXDMG  Roll AB Conf CR x Burst\
+output [attack 1d6+6 8+1d6 1d20 15 1d20 15 2 1d10] named "Rapier 1st"
+output [attack 1d6+4 8     1d20 14 1d20 17 2 0]    named "Shortsword 1st"
+output [attack 1d10+19 1d6 1d20 14 1d20 20 2 0]    named "Boomstick 1st"
+output [attack 1d8+20  0   1d20 15 1d20 20 2 0]    named "Morningstar 1st"

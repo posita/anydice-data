@@ -1,0 +1,91 @@
+\ From <https://anydice.com/articles/dnd4-attacks/> \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 4 + 3
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+MISSDAMAGE: 0
+QUARRY: d6
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: [maximum of QUARRY]
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: QUARRY
+ }
+ result: 0
+}
+
+ATTACK: 4 + 2
+HITDAMAGE: d8
+CRITICALDAMAGE: 8 + d8
+MISSDAMAGE: 0
+QUARRY: d6
+output [2 attacks] named "Scimitars"
+
+ATTACK: 4 + 3
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+output [2 attacks] named "Longswords"
+
+ATTACK: 4 + 2
+HITDAMAGE: d10
+CRITICALDAMAGE: 10
+output [2 attacks] named "Battleaxes / Longbow"

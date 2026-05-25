@@ -1,0 +1,43 @@
+function: crit SEQUENCE:s {
+ BONUSES: 0
+ loop P over {1..6} {
+  TCOUNT: 0
+  loop Q over {1..#SEQUENCE} {
+   TCOUNT: TCOUNT + (P = Q@SEQUENCE)
+  }
+  if TCOUNT >= 3 {
+   BONUSES: BONUSES + TCOUNT
+  }
+ }
+ result: SEQUENCE + BONUSESd6
+}
+
+function: wildcrit SEQUENCE:s {
+ FOUND: 0
+ loop Q over {1..#SEQUENCE} {
+  if Q@SEQUENCE = 1 {
+   if FOUND = 0 {
+    FOUND: 1
+   }
+   else {
+    result: 0
+   }
+  }
+ }
+ BONUSES: 0
+ loop P over {2..6} {
+  TCOUNT: 0
+  loop Q over {1..#SEQUENCE} {
+   TCOUNT: TCOUNT + (P = Q@SEQUENCE)
+  }
+  if TCOUNT >= 3 {
+   BONUSES: BONUSES + TCOUNT
+  }
+ }
+ result: SEQUENCE + BONUSESd6
+}
+
+POWER: 5
+output [crit POWERd6] named "basic"
+POWER: POWER + 1
+output [wildcrit POWERd6] named "wild"

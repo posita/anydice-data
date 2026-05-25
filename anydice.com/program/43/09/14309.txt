@@ -1,0 +1,36 @@
+function: mydice {
+  result: {-1, 0, 0, 1, 1, 2}
+}
+
+function: disadvantage N {
+  result: [lowest 3 of Nd[mydice]]
+}
+
+function: advantage N {
+  result: [highest 3 of Nd[mydice]]
+}
+
+function: adjustroll R:s {
+  if R < 0 {
+    result: 0
+  }
+  if R > 5 {
+    result: 5
+  }
+  result: R
+}
+
+function: myroll BONUS {
+  if BONUS < 0 {
+    result: [adjustroll [disadvantage 3-BONUS]]
+  }
+  result: [adjustroll [advantage 3+BONUS]]
+}
+
+loop I over {1..3} {
+  N: 3-I+1
+  output [myroll -N] named "success with malus [N]"
+}
+loop N over {0..3} {
+  output [myroll N] named "success with bonus [N]"
+}

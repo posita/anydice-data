@@ -1,0 +1,37 @@
+function: diceseq DICESEQ:s {
+result:[sort DICESEQ]
+}
+
+output {{d20,d20} >= 8}d{{1..2}, {3..6}:4} named "base"
+
+function: gwf {
+result: 2d{{1..2}, {3..6}:4}
+}
+
+function: savageone {
+result: [highest of [gwf] and [gwf]]
+}
+
+function: savagetwo DONE:n {
+if DONE <= 8 {
+result: [gwf] + [highest of DONE and [gwf]]
+}
+else {
+result: DONE + [highest of [gwf] and [gwf]]
+}
+}
+
+function: savageattacker DSEQ:s {
+DSEQSORT: [sort DSEQ]
+
+if 2@DSEQSORT >= 8 {
+result: [savagetwo [gwf]]
+}
+else if 1@DSEQSORT >= 8 {
+result: [savageone]
+}
+else {result: 0}
+}
+
+output [savageattacker 2d20] named "savage attacker"
+output 2@{d20:2}

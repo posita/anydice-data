@@ -1,0 +1,29 @@
+DICE_POOL:5 \* Maximum number of dice to be rolled *\
+EDGE_CHANCE:20
+
+function: evaluate ROLL:s EDGE:s{
+ EDGE_RESULT: EDGE >= EDGE_CHANCE
+ if EDGE_RESULT = 1 
+ { 
+   TENS: ROLL = 10
+   NINES: ROLL = 9
+   EIGHTS: ROLL = 8
+   SEVENS: ROLL = 7
+   REROLLS: TENS d10 >= 7
+   SUCCESSES: TENS + NINES + EIGHTS + SEVENS + REROLLS
+   result: SUCCESSES
+ }
+ else
+ {
+   TENS: ROLL = 10
+   NINES: ROLL = 9
+   EIGHTS: ROLL = 8
+   REROLLS: TENS d10 >=8
+   SUCCESSES: TENS + NINES + EIGHTS + REROLLS
+   result: SUCCESSES
+ }
+}
+
+loop DICE over {1..DICE_POOL} {
+ output [evaluate DICE d10 1d20] named "[DICE]d"
+}

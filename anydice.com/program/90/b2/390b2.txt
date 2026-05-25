@@ -1,0 +1,46 @@
+\*Input*\
+ATTACK_MOD: 15+2
+HITDAMAGE_DICE: 3d8+1d6
+HITDAMAGE_FIX: 15+2
+NUMBER_OF_ATTACK: 4
+CRITICAL_MINIMUM_ROLL: 20
+AC_TARGET: 25
+ADVANTAGE: 0
+\*Input*\
+
+function: advantage dice{
+ if ADVANTAGE = 0 {
+  result: 1d20
+ } else if ADVANTAGE > 0 {
+  result: [highest 1 of 2d20]
+ } else if ADVANTAGE < 0 {
+  result: [lowest 1 of 2d20]
+ }
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITICAL_MINIMUM_ROLL { result: CRITICALHIT }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+MISSDAMAGE: 0
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: 2dHITDAMAGE_DICE+HITDAMAGE_FIX
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE_DICE+HITDAMAGE_FIX
+ }
+ result: MISSDAMAGE
+}
+
+ADVANTAGE: 1
+loop N over {18..30}{
+ output NUMBER_OF_ATTACKd[damage for [attack [advantage dice] vs N]] named "AC [N]"
+}
+

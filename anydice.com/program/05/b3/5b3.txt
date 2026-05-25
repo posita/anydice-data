@@ -1,0 +1,23 @@
+\***Probability for one attack roll using Wild Die***\
+ATTACK:2 \*enter the # of dice in attack pool*\
+WILDDIE:1 \* Enter 1 if using wild die or 0 if not using wild die *\
+ARMOR:1  \*enter # of dice in defense pool*\
+DEFWILDDIE:1 \* Enter 1 if using a wild die on the defense roll or 0 otherwise*\
+
+if WILDDIE > 0 { ATTACK: ATTACK - WILDDIE}
+if DEFWILDDIE > 0 { ARMOR: ARMOR - DEFWILDDIE}
+
+function: evaluate attack ROLL:s WILD:s SOAK:s DEFWILD:s{
+ SUCCESSES: ROLL >= 5
+ WILDRESULT: WILD >= 4
+ DEFENSE: SOAK >= 5
+ DEFENSEWILD: DEFWILD >= 4
+ TOTALSUCCESSES: SUCCESSES + WILDRESULT
+ TOTALDEFENSE: DEFENSE + DEFENSEWILD
+ if TOTALSUCCESSES > TOTALDEFENSE { result: TOTALSUCCESSES - TOTALDEFENSE }
+ result: 0
+}
+
+loop DICE over {ATTACK} {
+ output [evaluate attack DICE d6 WILDDIE d6 ARMOR d6 DEFWILDDIE d6] named "[DICE]d"
+}

@@ -1,0 +1,43 @@
+INT: 16
+INT_HP: 1
+CANNONS: 1 \cannons per ship\
+
+S_COMPUTER: 0
+S_SHIELD: 0
+
+E_INT: 8
+E_INT_HP: 1
+E_CRU: 0
+E_CRE_HP: 2
+E_DRE: 0
+E_DRE_HP: 3
+E_CANNONS: 2 \cannons per ship\
+
+E_COMPUTER: 0
+E_SHIELD: 0
+
+S_MOD: S_COMPUTER - E_SHIELD
+E_MOD: E_COMPUTER - S_SHIELD
+
+function: cannon DICE {
+ HITS: 0
+ loop N over {dDICE} {
+  HITS: HITS + (d{-99,2,3,4,5,99} + S_MOD >= 6)
+ }
+ result: HITS
+}
+
+LIFE: INT * INT_HP
+E_LIFE: E_INT * E_INT_HP
+
+output {E_INT, INT} named "1 Enemy ships, 2 Friendly Ships"
+
+\Enemy is Attacker, damage carries over\
+loop N over {1..2}{
+ E_LIFE: E_LIFE - [cannon (LIFE / INT_HP)*CANNONS]*1
+ output E_LIFE / E_INT_HP named "Enemy ships left round [N]"
+
+ output [cannon (E_LIFE / E_INT_HP)]*1 named "enemy damage"
+ LIFE: LIFE - [cannon (E_LIFE / E_INT_HP)*E_CANNONS]*1
+ output LIFE / INT_HP named "Ships left round [N]"
+}

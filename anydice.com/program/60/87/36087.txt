@@ -1,0 +1,74 @@
+function: base D:d {
+ R: {}
+ S: [reverse [sort {D}]]
+ I: 1
+ loop N over {1..#S}{
+  I: I-1
+  if I = 0 {
+   R: {R, (N@S)/(#D)}
+   I: #D
+  }
+ }
+ result: R
+}
+
+function: check sub S:n vs C:n {
+ if S>=C {
+  result: 0+C
+ }
+ else {
+  result: 0-C
+ }
+}
+function: check S:d vs C:d success {
+ result: #Cd[highest of 0 and [check sub [highest 1 of S] vs d[base C]]]
+}
+function: inverse N:n {
+ result: 0-N
+}
+function: check S:d vs C:d fail {
+ result: #Cd[inverse [lowest of 0 and [check sub [highest 1 of S] vs d[base C]]]]
+}
+
+SD:1
+SM:0
+WD:1
+WM:0
+A:0
+W:12
+S:12
+
+loop A over {0,1,2,3,4} {
+ loop W over {6,8,12} {
+  loop S over {12,8,6} {
+   output [highest of 0 and [check SDd(dS+SM) vs WDd(dW+WM) success]-A]
+    named "W:[WD]d[W]+[WM] S:[SD]d[S]+[SM] A:[A]"
+   output [lowest of 1 and [highest of 0 and [check SDd(dS+SM) vs WDd(dW+WM) success]-A]]
+    named "hit"
+  }
+  output 0 named ""
+ }
+ loop W over {6,8,12} {
+  SX:SD+1
+  WX:WD
+  loop S over {12,8,6} {
+   output [highest of 0 and [check SXd(dS+SM) vs WXd(dW+WM) success]-A]
+    named "W:[WX]d[W]+[WM] S:[SX]d[S]+[SM] A:[A]"
+   output [lowest of 1 and [highest of 0 and [check SXd(dS+SM) vs WXd(dW+WM) success]-A]]
+    named "hit"
+  }
+  output 0 named ""
+ }
+ loop W over {6,8,12} {
+  SX:SD
+  WX:WD+1
+  loop S over {12,8,6} {
+   output [highest of 0 and [check SXd(dS+SM) vs WXd(dW+WM) success]-A]
+    named "W:[WX]d[W]+[WM] S:[SX]d[S]+[SM] A:[A]"
+   output [lowest of 1 and [highest of 0 and [check SXd(dS+SM) vs WXd(dW+WM) success]-A]]
+    named "hit"
+  }
+  output 0 named ""
+ }
+ output 0 named ""
+}

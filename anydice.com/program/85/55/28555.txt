@@ -1,0 +1,56 @@
+\Kingdom Death: Monster - Attack Probability\
+\https://anydice.com/program/28554\
+
+\Character Stats\
+SPD: 0
+STR: 4
+ACC: 1
+LCK: 0
+
+\Weapon Stats\
+WPN_SPD: 2
+WPN_ACC: 6
+WPN_STR: 2
+
+\Monster Stats\
+M_EVA: 0
+M_TGH: 10
+M_LCK: 0
+
+
+\*Hit Rolls*\
+MISS: 0
+HIT: 1
+PERFECT: 2
+
+\*Wound Rolls*\
+FAIL: 0
+WOUND: 1
+CRITICAL: 2
+
+function: attack ROLL:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 10 { result: PERFECT }
+ if (ROLL + ACC) >= (WPN_ACC + M_EVA) { result: HIT}
+ result: MISS
+}
+
+function: wound ROLL:n {
+ if ROLL = 1 { result: FAIL }
+ if (ROLL + LCK) >= (10 + M_LCK) { result: CRITICAL }
+ if (ROLL + WPN_STR + STR) >= M_TGH { result: WOUND }
+ result: FAIL
+}
+
+\Hit Count\
+D_HITS: (SPD+WPN_SPD)d[count {1,2} in [attack d10]]
+D_PERFECTS: (SPD+WPN_SPD)d[count {2} in [attack d10]]
+output D_HITS named "Hit Count Probability"
+output D_PERFECTS named "Perfect Hit Count Probability"
+
+\Wound Count\
+D_WOUNDS: (D_HITS)d[count {1,2} in [wound d10]]
+D_CRITS: (D_HITS)d[count {2} in [wound d10]]
+output D_WOUNDS named "Wound Count Probability"
+output D_CRITS named "Crit Count Probability"
+

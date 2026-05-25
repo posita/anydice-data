@@ -1,0 +1,90 @@
+\ Quarion's Five Storms at Level 18 \
+
+DEXMOD      : 7
+WISMOD      : 5
+
+PROF        : 0		\ No prof for Ki Foci \
+CA          : 0
+WEAPENH     : 4
+MISCHIT     : 11	\ half level + feats \
+ATTACK      : MISCHIT + WEAPENH + PROF + DEXMOD + CA
+
+W           : 1d8	\ W is actually base power dmg \
+MISCDMG     : 4		\ Ki Focus Enh bonus \
+PWRDMG      : 1dW + WEAPENH + MISCDMG
+FLURRYBONUS : 2		\ For using the Club \
+FLURRYDMG   : 2 + WISMOD + FLURRYBONUS
+FLURRYTAR   : 3		\ Max targets, becomes 9 at 21 \
+TARGETS     : {1..3}	\ Targets for this attack; {1..9} \
+
+DEFENSE     : 35	\ Defense of the target; add support for range \
+
+\ Constants \
+MISS        : 0
+HIT         : 1
+CRIT        : 2
+CRITRNG     : 20
+
+\ Counter variables \
+HASHIT      : 0
+DMGTOTAL    : 0
+FLURRYTOTAL : 0
+HITS        : 0
+MISSES      : 0
+CRITS       : 0
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Make an attack roll using the supplied       \
+\ Attack (ATT), Defense (DEF), and Roll (ROLL) \
+function: attack ATT ROLL:n vs DEF:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRNG {
+  if ROLL + ATT >= DEF { result: CRIT }
+  result: HIT
+ }
+ if ROLL + ATT >= DEF { result: HIT }
+
+ result: MISS
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Deal damage using method HITMODE             \
+function: deal HITMODE:n damage {
+ if HITMODE=0 {result: [deal miss damage]}
+ if HITMODE=1 {result: [deal hit damage]}
+ if HITMODE=2 {result: [deal crit damage]}
+ result: 99999
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Damage functions                             \
+function: deal miss damage {
+ MISSES: MISSES + 1
+ result: 0
+}
+
+function: deal hit damage {
+ HITS: HITS + 1
+ BONUS: 0
+ result: PWRDMG + BONUS
+}
+
+function: deal crit damage {
+ CRITS: CRITS + 1
+ BONUS: 4d6
+ result: [maximum of [deal hit damage]] + BONUS
+}
+
+loop N over TARGETS {
+ DMGTOTAL: DMGTOTAL + [deal [attack ATTACK 1d20 vs DEFENSE] damage]
+}
+
+loop N over TARGETS {
+ if HITS>0 {
+  if N<=FLURRYTAR {
+   FLURRYTOTAL: FLURRYTOTAL + FLURRYDMG
+  }
+ }
+}
+
+output DMGTOTAL named "Five Storms +[ATTACK] vs REF [DEFENSE] with [HITS] / [TARGETS] hits"

@@ -1,0 +1,81 @@
+B: 0
+BD: d{-99,2,2,2,1,1}
+BR: d{-99,2,3,4,5,6}
+BS: d{-99,1,0,0,0,1}
+
+R: 1
+RD: d{1,2,2,2,3,3}
+RR: d{0,0,0,0,0,0}
+RS: d{0,0,0,0,0,1}
+
+Y: 2
+YD: d{0,1,1,1,2,2}
+YR: d{1,1,2,0,0,0}
+YS: d{1,0,0,1,0,1}
+
+G: 3
+GD: d{1,0,0,1,1,1}
+GR: d{0,0,1,1,1,1}
+GS: d{0,1,1,0,1,1}
+
+function: cap A:n if neg {
+ if A < 0 { result: -1 }
+ result: A
+}
+
+function: resolve A:n with B:s {
+ loop P over {1..A} {
+  
+ }
+}
+
+function: damage A:s with B:s {
+ ROLL: 0
+ SURGE: 0
+ loop P over {1..#A} {
+  if P@A = B {
+   ROLL: ROLL + BD
+   SURGE: SURGE + BS
+  }
+  if P@A = R {
+   ROLL: ROLL + RD
+   SURGE: SURGE + RS
+  }
+  if P@A = Y {
+   ROLL: ROLL + YD
+   SURGE: SURGE + YS
+  }
+  if P@A = G {
+   ROLL: ROLL + GD
+   SURGE: SURGE + GS
+  }
+ }
+ result: [cap ROLL if neg]
+}
+
+function: range A:s {
+ ROLL: 0
+ loop P over {1..#A} {
+  if P@A = B { ROLL: ROLL + BR }
+  if P@A = R { ROLL: ROLL + RR }
+  if P@A = Y { ROLL: ROLL + YR }
+  if P@A = G { ROLL: ROLL + GR }
+ }
+ result: [cap ROLL if neg]
+}
+
+function: surge A:s {
+ ROLL: 0
+ loop P over {1..#A} {
+  if P@A = B { ROLL: ROLL + BS }
+  if P@A = R { ROLL: ROLL + RS }
+  if P@A = Y { ROLL: ROLL + YS }
+  if P@A = G { ROLL: ROLL + GS }
+ }
+ result: [cap ROLL if neg]
+}
+
+POOL: {B,Y,Y}
+output [damage POOL] named "Damage"
+output [range POOL] named "Range"
+output [surge POOL] named "Surge"

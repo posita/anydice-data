@@ -1,0 +1,28 @@
+DIE: 8
+SMALLDIE: 6
+TN: 6
+
+function: attcap CAP:n skillroll SEQ:s wound dice negate WOUNDS:s {
+  SUCC: 0
+  loop N over {1..CAP}{
+    SUCC: SUCC + (N@SEQ >= TN)
+  }
+  result: [highest of 0 and (SUCC - (WOUNDS >= TN))]
+}
+
+function: attcap CAP:n skillroll SEQ:s and SEQTWO:s {
+  result: [lowest of CAP and ((SEQ >= TN) + (SEQTWO >= TN))]
+}
+
+function: attcap CAP:n skillroll SEQ:s subtract ones capped by WOUNDS {
+  result: [highest of 0 and [lowest of CAP and ((SEQ >= TN) - [lowest of (SEQ = 1) and WOUNDS])]]
+}
+
+C: 4
+S: 4
+W: 2
+
+output [attcap C skillroll SdDIE wound dice negate WdDIE] named "Wound dice"
+output [attcap C skillroll (S-W)dDIE and WdSMALLDIE] named "Replaced with d6's"
+output [attcap C skillroll SdDIE subtract ones capped by W] named "Subtract ones"
+output [lowest of C and Sd(1dDIE >= SMALLDIE)] named "Capped, no wounds"

@@ -1,0 +1,399 @@
+\ Angry Wizard \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BIGATTACK: 5
+SMALLATTACK: 5
+BIGHITDAMAGE: 1d6 + 3
+BIGCRITICALDAMAGE: 2d6 + 3
+SMALLHITDAMAGE: 1d6
+SMALLCRITICALDAMAGE: 2d6 
+GRIFFONATTACK: 6
+GRIFFONDAMAGEBEAK: 1d8 + 4
+GRIFFONCRITICALDAMAGEBEAK: 2d8 + 4
+GRIFFONDAMAGECLAWS: 2d6 + 4 
+GRIFFONCRITICALDAMAGECLAWS: 4d6 + 4
+MISSDAMAGE: 0
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: griffon beak damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: GRIFFONCRITICALDAMAGEBEAK
+ }
+ if ATTACKRESULT = HIT {
+  result: GRIFFONDAMAGEBEAK
+ }
+ result: MISSDAMAGE
+}
+
+function: griffon claws damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: GRIFFONCRITICALDAMAGECLAWS
+ }
+ if ATTACKRESULT = HIT {
+  result: GRIFFONDAMAGECLAWS
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: griffon claws multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [griffon claws damage for [d20 vs AC GRIFFONATTACK]]
+  }
+  result: TOTAL
+}
+
+function: griffon beak multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]]
+  }
+  result: TOTAL
+}
+
+function: griffon claws multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]]
+  }
+  result: TOTAL
+}
+
+function: griffon beak multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [griffon beak damage for [d20 vs AC GRIFFONATTACK]]
+  }
+  result: TOTAL
+}
+
+\ Level 1-2 \
+
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 1-2 w/ short swords w/ find familiar vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 1-2 w/ short swords w/ find familiar vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 1-2 w/ short swords w/ find familiar vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 1-2 w/ short swords w/ find familiar vs AC[AC]"
+
+\ Level 3 \
+
+BIGHITDAMAGE: 2d8 + 3
+BIGCRITICALDAMAGE: 4d8 + 3
+AC:10
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 3 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 3 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 3 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 3 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+\ Level 4 \
+
+BIGATTACK: 6
+BIGHITDAMAGE: 2d8 + 4
+BIGCRITICALDAMAGE: 4d8 + 4
+AC:10
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 4 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 4 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 4 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "level 4 w/ short swords w/ find familiar w/shadow blade vs AC[AC]"
+
+\ Level 5 \
+
+BIGATTACK: 7
+BIGHITDAMAGE: 1d6 + 4
+BIGCRITICALDAMAGE: 2d6 + 4
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+\ Level 6 \
+
+BIGATTACK: 7
+BIGHITDAMAGE: 1d6 + 4
+BIGCRITICALDAMAGE: 2d6 + 4
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 1] named "level 6 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 1] named "level 6 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 1] named "level 6 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 1] named "level 6 w/ short swords w/ find familiar w/haste vs AC[AC]"
+
+\ Level 7-8 \
+
+BIGATTACK: 9
+BIGHITDAMAGE: 3d10 + 6
+BIGCRITICALDAMAGE: 6d10 + 6
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] named "level 7-8 w/ find familiar w/polymorph vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] named "level 7-8 w/ find familiar w/polymorph vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] named "level 7-8 w/ find familiar w/polymorph vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] named "level 7-8 w/ find familiar w/polymorph vs AC[AC]"
+
+
+\ Level 9-11 \
+
+BIGATTACK: 9
+SMALLATTACK: 8
+BIGHITDAMAGE: 1d6 + 5
+BIGCRITICALDAMAGE: 2d6 + 5
+SMALLHITDAMAGE: 1d4 + 4
+SMALLCRITICALDAMAGE: 2d4 + 4 
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] - 5 named "level 9-11 w/ find familiar w/animate objects vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] - 5 named "level 9-11 w/ find familiar w/animate objects vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] - 5 named "level 9-11 w/ find familiar w/animate objects vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] - 5 named "level 9-11 w/ find familiar w/animate objects vs AC[AC]"
+
+\ Level 12 \
+
+BIGATTACK: 9
+SMALLATTACK: 9
+BIGHITDAMAGE: 1d8 + 2d12 + 5
+BIGCRITICALDAMAGE: 2d8 + 4d12 + 5
+SMALLHITDAMAGE: 1d8 + 2d12
+SMALLCRITICALDAMAGE: 2d8 + 4d12 
+AC:10
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] named "level 12 w/tenser's transformation vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] named "level 12 w/tenser's transformation vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] named "level 12 w/tenser's transformation vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] named "level 12 w/tenser's transformation vs AC[AC]"
+
+\ Level 13 \
+
+BIGATTACK: 10
+SMALLATTACK: 10
+BIGHITDAMAGE: 1d8 + 2d12 + 5
+BIGCRITICALDAMAGE: 2d8 + 4d12 + 5
+SMALLHITDAMAGE: 1d8 + 2d12
+SMALLCRITICALDAMAGE: 2d8 + 4d12 
+AC:10
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 13 w/tenser's transformation w/simulacrum vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 13 w/tenser's transformation w/simulacrum vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 13 w/tenser's transformation w/simulacrum vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 13 w/tenser's transformation w/simulacrum vs AC[AC]"
+
+\ Level 14-15 \
+
+BIGATTACK: 10
+SMALLATTACK: 10
+BIGHITDAMAGE: 1d8 + 2d12 + 8
+BIGCRITICALDAMAGE: 2d8 + 4d12 + 8
+SMALLHITDAMAGE: 1d8 + 2d12 + 3
+SMALLCRITICALDAMAGE: 2d8 + 4d12 + 3 
+AC:10
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 14-15 w/tenser's transformation w/simulacrum w/song of victory vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 14-15 w/tenser's transformation w/simulacrum vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 14-15 w/tenser's transformation w/simulacrum vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 14-15 w/tenser's transformation w/simulacrum vs AC[AC]"
+
+\ Level 16 \
+
+BIGATTACK: 10
+SMALLATTACK: 10
+BIGHITDAMAGE: 1d8 + 2d12 + 9
+BIGCRITICALDAMAGE: 2d8 + 4d12 + 9
+SMALLHITDAMAGE: 1d8 + 2d12 + 4
+SMALLCRITICALDAMAGE: 2d8 + 4d12 + 4 
+AC:10
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 16 w/tenser's transformation w/simulacrum w/song of victory vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 16 w/tenser's transformation w/simulacrum w/song of victory vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 16 w/tenser's transformation w/simulacrum w/song of victory vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] named "level 16 w/tenser's transformation w/simulacrum w/song of victory vs AC[AC]"
+
+\ Level 17-18 \
+
+BIGATTACK: 11
+SMALLATTACK: 11
+BIGHITDAMAGE: 1d8 + 2d12 + 9
+BIGCRITICALDAMAGE: 2d8 + 4d12 + 9
+SMALLHITDAMAGE: 1d8 + 2d12 + 4
+SMALLCRITICALDAMAGE: 2d8 + 4d12 + 4 
+AC:10
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 17-18 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 17-18 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 17-18 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 17-18 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+\ Level 19 \
+
+BIGATTACK: 11
+SMALLATTACK: 11
+BIGHITDAMAGE: 1d8 + 2d12 + 10
+BIGCRITICALDAMAGE: 2d8 + 4d12 + 10
+SMALLHITDAMAGE: 1d8 + 2d12 + 5
+SMALLCRITICALDAMAGE: 2d8 + 4d12 + 5 
+AC:10
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 19 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 19 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 19 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 19 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+\ Level 20 \
+
+BIGATTACK: 11
+SMALLATTACK: 11
+BIGHITDAMAGE: 1d8 + 2d12 + 10
+BIGCRITICALDAMAGE: 2d8 + 4d12 + 10
+SMALLHITDAMAGE: 1d8 + 2d12 + 10
+SMALLCRITICALDAMAGE: 2d8 + 4d12 + 10
+AC:10
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 20 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 20 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 20 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 4] + [smallmultiattackadvantage 2] + [griffon claws multiattackadvantage 2] + [griffon beak multiattackadvantage 2] named "level 20 w/tenser's transformation w/simulacrum w/song of victory w/find greater steed(wish) vs AC[AC]"

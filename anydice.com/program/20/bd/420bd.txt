@@ -1,0 +1,48 @@
+function: roll X:n for target T:n{
+ if ((X<T) & (X!=20)) | ((X=20) & (X<T-10)) | (X=1 & X<T+10){
+  result: 0
+ }
+ else if ((T<=X & X<(T+10))&(X!=20)) | ((X=20) & (X<T)){
+  result: 1
+ }
+ else {
+  result: 2
+ }
+}
+
+function: triple a X for T:n {
+ result: [roll X for target T]+[roll X for target T+5]+[roll X for target T+10]
+}
+
+function: first a X for T:n{
+ result: [roll X for target T-1]+[roll X for target T+5]
+}
+function: second a X for T{
+ result: [roll X for target T]+[roll X for target T+5-1]
+}
+
+TT: 9 \this is the number you need to roll to hit\
+output [triple a 1d20 for TT] named "full attack"
+output [first a 1d20 for TT] named "boost the first"
+output [second a 1d20 for TT] named "boost the second"
+
+\debugging past this point\
+\output [roll 1d20 for target TT] named "Full Debug 1"
+output [roll 1d20 for target TT+5] named "Full Debug 2"
+output [roll 1d20 for target TT+10] named "Full Debug 3"\
+
+\AA: 1d20
+BB: TT+10
+function: test fail for A:n and B:n {
+ result: A*(((A<B) & (A!=20)) | ((A=20) & (A<B-10)) | (A=1 & B<A+10))
+}
+function: test hit for X:n and T:n {
+ result: X*((T<=X & X<(T+10))&(X!=20) | (X=20) & (X<T))
+}
+function: test crit for X:n and T:n {
+ result: X*(!(((X<T) & (X!=20)) | ((X=20) & (X<T-10)) | (X=1 & X<T+10)) & !((T<=X & X<(T+10))&(X!=20)| (X=20) & (X<T)))
+}
+
+output [test fail for AA and BB] named "Test Failure"
+output [test hit for AA and BB] named "Test Hit"
+output [test crit for AA and BB] named "Test Crit"\

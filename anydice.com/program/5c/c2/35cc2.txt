@@ -1,0 +1,43 @@
+DEV: 3
+ARMOR: 0
+BLUR: 0
+CR: 0
+BONUS: 0
+LO: 10 - DEV - ARMOR + BLUR
+HI: 10 + DEV + (2 * ARMOR)
+DIE: 1d20
+
+function: result D:n bonus B:n crit C:n {
+ DB: D + B
+ DR: (DB > LO) + (DB > HI)
+ if C = 1 | C = 3 {
+  DR: DR - (DB <= LO -10) + (DB > HI + 10)
+ }
+ if C = 2 | C = 3 {
+  DR: DR - (D <= 1 + CR) + (D >= 20 - CR)
+ }
+ if DR < -1 {DR: -1}
+ if DR > 3 {DR: 3}
+ result: DR
+}
+
+\
+loop N over {-5, -2, 0, 2, 5}{
+ output [result DIE bonus N crit 3] named "Bonus [N]"
+}
+\
+
+\
+loop N over {0..3}{
+ LO: 10 - DEV - N
+ HI: 10 + DEV + (2 * N)
+ output [result DIE bonus 0 crit 3] named "Armor [N]"
+}
+\
+
+loop N over {0, 4, 10}{
+ LO: 10 - DEV - 3 + N
+ HI: 10 + DEV + 6
+ output [result DIE bonus 0 crit 3] named "Blur [N]"
+}
+

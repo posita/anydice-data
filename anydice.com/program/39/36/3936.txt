@@ -1,0 +1,19 @@
+function: howmany DICE:s EXCLUDED:n TTL:n{
+if (EXCLUDED = 6) {result: 6}
+else {NEW:0
+loop VAR over {1..(6-EXCLUDED)}{
+if [DICE contains VAR] {NEW:NEW+1}
+}
+}
+NEWTTL:TTL-1
+NEWEXCLUDED:EXCLUDED+NEW
+if NEWTTL = 0 {result:NEWEXCLUDED}
+else {REMAINING:6-NEWEXCLUDED
+if (REMAINING>NEWTTL){result:-NEWTTL}
+else{
+result: [howmany REMAININGd6 NEWEXCLUDED NEWTTL]
+}
+}
+}
+
+output [howmany 6d6 0 3]

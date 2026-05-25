@@ -1,0 +1,54 @@
+function: gwfb DIE:d {
+  result: [reroll DIE as DIE if under 3]
+}
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL < LIMIT { result: DIE }
+  else { result: ROLL }
+}
+
+GWF: [gwfb d6]
+
+function: attack ROLL:n vs DEFENSE:n{
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+AC: 13
+MISSDAMAGE: 0
+
+CHA: 3
+PROF: 3
+
+ATTACK: CHA + PROF + 1
+HITDAMAGE: 2dGWF + 4
+CRITICALDAMAGE: 4dGWF + 4
+output [damage for [attack d20 vs AC]] named "[AC] One Maul"
+
+
+HITDAMAGE: 2dGWF + 4
+CRITICALDAMAGE: 4dGWF + 4
+output [damage for 2d[attack d20 vs AC]] named "[AC] Double Maul"
+
+ATTACK: CHA + PROF
+HITDAMAGE: 1d10 + 3
+CRITICALDAMAGE: 2d10 + 3
+output [damage for 2d[attack d20 vs AC]] named "[AC] Double Blast"
+

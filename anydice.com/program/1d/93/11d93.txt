@@ -1,0 +1,263 @@
+ATT: 4   \Number of Attacks\
+RDMG: 4  \Rage Damage\
+STR: 5   \STR mod\
+HITB: 11  \+ to Hit\
+AC: 15   \Targets AC\
+BCRIT: 4 \total dice on a crit\
+MERCRIT: 15 \merciless assault crit lower bound\
+FC: 80   \% chance for frenzy barb to get hit, in increments of 5, other increments are rounded down to an increment of 5\
+
+CRIT: 0
+DMG: 0
+
+function: Z:n Y:n reckless
+{
+L: 0
+   if Z > Y
+   {
+    L: Z
+   }
+    else
+   {
+    L: Y
+   }
+result: L
+}
+
+function: X:n attack
+{
+   if X >= 20
+   {
+    result: BCRITd8 + STR + RDMG
+   }
+    else if X + HITB >= AC
+   {
+    result: 1d8 + STR + RDMG
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: X:n mercattack
+{
+   if X >= MERCRIT
+   {
+    result: BCRITd8 + STR + RDMG
+   }
+    else if X + HITB >= AC
+   {
+    result: 1d8 + STR + RDMG
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: Z:n twinterrors
+{
+D: 0
+  if Z != 0 
+  {
+   X: [1d20 1d20 reckless]
+   D: D + [X attack]
+   X: [1d20 1d20 reckless]
+   D: D + [X attack]
+   result: D
+  }
+  else {result: 0}
+}
+
+function: Z:n twinterrorsmerc
+{
+D: 0
+  if Z != 0 
+  {
+   X: [1d20 1d20 reckless]
+   D: D + [X mercattack]
+   X: [1d20 1d20 reckless]
+   D: D + [X mercattack]
+   result: D
+  }
+  else {result: 0}
+}
+
+function: Z:n findcrit
+{
+   if Z >= 20
+   {
+    result: 1
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: Z:n findcritmerc
+{
+   if Z + STR >= 20
+   {
+    result: 1
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: resolvenormal
+{
+
+loop N over {1..ATT}
+{
+ X: [1d20 1d20 reckless]
+DMG: DMG + [X attack]
+CRIT: [X findcrit]
+}
+
+ X: [1d20 1d20 reckless]
+DMG: DMG + [CRIT twinterrors]
+
+result: DMG
+}
+
+function: resolvemerc
+{
+loop N over {1..ATT}
+{
+ X: [1d20 1d20 reckless]
+DMG: DMG + [X mercattack]
+CRIT: [X findcritmerc]
+}
+
+ X: [1d20 1d20 reckless]
+DMG: DMG + [CRIT twinterrorsmerc]
+
+result: DMG
+}
+
+function: frenzybarb
+{
+
+loop N over {1..3}
+{
+ X: [1d20 1d20 reckless]
+DMG: DMG + [X frenzybarbattack]
+CRIT: [X findcrit]
+}
+
+\DMG: DMG + [1d20 frenzybarbattack]\
+
+DMG: DMG + [1d20 frenzyrevenge]
+
+result: DMG
+}
+
+function: X:n frenzybarbattack
+{
+   if X >= 20
+   {
+    result: BCRITd12 + + STR + RDMG +10
+   }
+    else if X + HITB -5 >= AC
+   {
+    result: 1d12 + + STR + RDMG + 10
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+
+function: X:n frenzyrevenge
+{
+Y: (FC / 5)
+if X > 20 - Y {result: [1d20 frenzybarbattack]}
+else {result: 0}
+}
+
+function: X:n frenzyrevengecheck
+{
+Y: (FC / 5)
+if X > 20 - Y {result: 1}
+else {result: 0}
+}
+
+
+function: X:n mercattackcritcheck
+{
+   if X + RDMG >= 20
+   {
+    result: 1
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: Z:n twinterrorscritcheck
+{
+D: 0
+  if Z != 0 
+  {
+   X: [1d20 1d20 reckless]
+   D: D + [X findcrit]
+   X: [1d20 1d20 reckless]
+   D: D + [X findcrit]
+   result: D
+  }
+  else {result: 0}
+}
+
+function: Z:n twinterrorsmerccritcheck
+{
+D: 0
+  if Z != 0 
+  {
+   X: [1d20 1d20 reckless]
+   D: D + [X findcritmerc]
+   X: [1d20 1d20 reckless]
+   D: D + [X findcritmerc]
+   result: D
+  }
+  else {result: 0}
+}
+
+function: resolvecritcheckmerc
+{
+loop N over {1..ATT}
+{
+ X: [1d20 1d20 reckless]
+CRIT: CRIT + [X findcritmerc]
+}
+
+CRIT: CRIT + [CRIT twinterrorsmerccritcheck]
+
+result: CRIT
+}
+
+function: resolvecritchecknormal
+{
+
+loop N over {1..ATT}
+{
+ X: [1d20 1d20 reckless]
+CRIT: CRIT + [X findcrit]
+}
+
+CRIT: CRIT + [CRIT twinterrorscritcheck]
+
+result: CRIT
+}
+
+
+output [resolvecritcheckmerc]
+output [resolvecritchecknormal]
+output [resolvemerc]
+output [resolvenormal]
+output [frenzybarb]

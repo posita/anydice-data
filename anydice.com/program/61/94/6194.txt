@@ -1,0 +1,45 @@
+\ Your basic die for Fighting, Shooting, or Throwing. If your Fighting is 1d12+2, put 12. \
+FD: 12
+\ Your modifier to the FST die. For instance, if your Fighting is 1d12+2, but have a -3 wound penalty, put -1 here. \
+FM: 0
+\ The target's parry score. For Shooting and Throwing away from melee range, put 4. \
+PARRY: 8
+\ Your basic Strength die. For Shooting, put 0. \
+STR: 6
+\ The number of extra damage dice. \
+BND: 3
+\ The extra damage die value. \
+BDD: 6
+\ Any flat bonuses or penalties to damage. \
+BD: 0
+\ The target's Toughness. \
+TOUGH: 12
+
+\ Do not edit anything below this line. \
+if STR <= 0 {
+  DD: BNDd[explode dBDD]+BD
+} else {
+  DD: [explode 1dSTR]+BNDd[explode 1dBDD]+BD
+}
+
+AR: [highest of 0 and ([highest of [explode 1dFD] and [explode 1d6]]+FM-PARRY+4)/4]
+
+function: ar R:n {
+  if R <= 0 {
+    result: 0
+  } else {
+    result: [highest of 0 and (DD+(R-1)d[explode 1d6]-TOUGH+4)/4]
+  }
+}
+
+output AR named "Attack hits + raises"
+output [ar AR] named "Damage hits + raises"
+loop N over {AR} {
+  if N = 0 {
+  } else if N = 1 {
+    output [ar 1] named "Damage on basic hit"
+  } else {
+    NN: N - 1
+    output [ar N] named "Damage on hit with [NN] raises"
+  }
+}

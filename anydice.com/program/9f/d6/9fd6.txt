@@ -1,0 +1,102 @@
+function: combat ATKDEF:n ATKATK:n vs DEFDEF:n DEFATK:n {
+  O: (DEFDEF - ATKATK) <= 0
+  P: (ATKDEF - DEFATK) <= 0
+
+  if(O & P) {
+   result: 3
+  } else {
+   if(O) {
+    result: 1
+   } else {
+    if(P) {
+     result: 2
+    } else {
+     result: 0
+    }
+   }
+  }
+
+}
+
+function: ctwo ATKDEF:n ATKATK:n vs DEFDEF:n DEFATK:n {
+  O: (DEFDEF - ATKATK) <= 0
+  P: (ATKDEF - DEFATK) <= 0
+  Q: (DEFDEF - ATKATK) <= -4
+  R: (ATKDEF - DEFATK) <= -4
+
+  if(O & P) {
+   if(Q & R) {
+    result: 3
+   } else{if(Q) {
+    result: 1
+   } else{if(R) { 
+    result: 2
+   } else {
+    result: 3
+   }
+   }
+   }
+  } else {
+   if(O) {
+    result: 1
+   } else {
+    if(P) {
+     result: 2
+    } else {
+     result: 0
+    }
+   }
+  }
+
+}
+
+function: cthree ATKDEF:n ATKATK:n vs DEFDEF:n DEFATK:n {
+  O: (DEFDEF - ATKATK)
+  P: (ATKDEF - DEFATK)
+
+  if(O < 0 & P < 0) {
+   result: 3
+  } else {
+   if(P < 0 & O > P) {
+    result: 2
+   } else {
+    if(O < 0 & P > O) {
+     result: 1
+    }
+   }
+  }
+  result: 0
+
+}
+
+\   1  2  3  4  5  6\
+SA: {0, 1, 1, 2, 2, 3}  \ 3x 0-9; avg: 1.5 \
+MA: {0, 0, 1, 2, 3, 3}  \ 3x 0-9; avg: 1.5 \
+XA: {0, 0, 0, 3, 3, 3}  \ 3x 0-9; avg: 1.5 \
+
+\SA: {0, 1, 1, 2, 2, 3}\  \ 3x 0-9; avg: 1.5  \
+\MA: {0, 0, 2, 3, 3, 4}\  \ 3x 0-12; avg: 2.0 \
+\XA: {0, 0, 0, 4, 5, 4}\  \ 3x 0-18; avg: 2.5 \
+
+BB: {0, 0, 0, 1, 1, 1}  \ avg: 0.5 \
+BBB: {0, 0, 0, 0, 1, 2}  \ avg: 0.5 \
+BBW: {0, 1, 1, 1, 1, 1}  \ avg: 0.833 \
+BBBB: {0, 0, 0, 0, 0, 1}  \ avg: 0.166 \
+
+\loop N over {0..8} {\
+output [combat 3+3dBBW 2dSA+2dBB vs 3+4dBBW+1dBBBB 2dXA+1dBB] named "c1"
+output [ctwo 3+3dBBW 2dSA+2dBB vs 3+4dBBW+1dBBBB 2dXA+1dBB] named "c2"
+output [cthree 3+3dBBW 2dSA+2dBB vs 3+4dBBW+1dBBBB 2dXA+1dBB] named "c3"
+
+output [cthree 3+2dBBW 2dSA+1dBBBB vs 3+2dBBW+1dBBBB 1dSA+1dMA] named "c3"
+
+\output [combat 5dBBW 3dSA vs 5dBBW 3dSA] named "wins2"\
+
+\output 1dSA named "1dSA"\
+\output 1dMA named "1dMA"\
+\output 1dXA named "1dXA"\
+
+\output 3dMA named "3dMA"\
+\output 3dXA named "3dXA"\
+
+\output 12dBBW named "BBW"\

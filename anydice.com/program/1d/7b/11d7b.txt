@@ -1,0 +1,48 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n and HITMODIFIER {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE + HITMODIFIER
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDICE + HITMODIFIER
+ }
+ result: MISSDAMAGE
+}
+
+function: attack with HITMODIFIER {
+ result: [damage for [attack d20 vs DEFENSE] and HITMODIFIER]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 3
+DEFAULT_MODIFIER: 3
+MISSDAMAGE: 0
+
+HITDICE: d12
+CRITICALDAMAGE: 2d12
+
+output [attack with DEFAULT_MODIFIER] named "Greataxe"
+
+HITDICE: 2d6
+CRITICALDAMAGE: 3d6
+
+output [attack with DEFAULT_MODIFIER] named "Greatsword"
+
+HITDICE: d6
+CRITICALDAMAGE: 2d6
+
+output [attack with DEFAULT_MODIFIER] + [attack with 0] named "Dual-Wield Axe"
+output [attack with DEFAULT_MODIFIER] + [attack with DEFAULT_MODIFIER] named "Dual-Wield Axe (feat)"

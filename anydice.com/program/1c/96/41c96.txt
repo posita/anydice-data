@@ -1,0 +1,256 @@
+ADV:    [highest 1 of 2d20]
+DISADV: [lowest 1 of 2d20]
+ATK: 8
+AC: 16
+CR: 20
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {result: MISS}if ROLL >= CRIT_RANGE {result: CRIT}if ROLL + BONUS >= AC {result: HIT}result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n succes SUCCES:d fail FAIL:d{if ROLL + MOD >= DC {result: SUCCES}result: FAIL}
+function: save ROLL:n plus MOD:n vs DC:n for DMG:d{result: [save ROLL plus MOD vs DC succes 0 fail DMG]}
+
+function: halfsave ROLL:n plus MOD:n vs DC:n succes SUCCES:d fail FAIL:d{if ROLL + MOD >= DC {result: SUCCES}result: FAIL}
+function: halfsave ROLL:n plus MOD:n vs DC:n for DMG:d{result: [halfsave ROLL plus MOD vs DC succes DMG/2 fail DMG]}
+
+function: topple ROLL:n plus MOD:n vs DC:n succes SUCCES:d fail FAIL:d{if ROLL + MOD >= DC {result: SUCCES}result: FAIL}
+function: topple ROLL:n plus MOD:n vs DC:n{result: [topple ROLL plus MOD vs DC succes d20 fail ADV]}
+
+output 1d1 named "Attacks Low to High Damage"
+
+
+output
+[attack d20 plus ATK vs AC
+    hit d6+d4+5+[attack ADV plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR]
+                                           miss           [attack d20 plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR]
+                                           crit d6+2d4+11+[attack ADV plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR] on CR]
+    miss        [attack d20 plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR]
+                                           miss           [attack d20 plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR]
+                                           crit d6+2d4+11+[attack ADV plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR] on CR]
+    crit d6+2d4+11+[attack ADV plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC hit d6+d4+5+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR]
+                                           miss           [attack d20 plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR]
+                                           crit d6+2d4+11+[attack ADV plus ATK vs AC hit  d6+d4+5+  [attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     miss           [attack d20 plus ATK vs AC for 1d4+1d6+1 crit 4 on CR]
+                                                                                     crit d6+2d4+11+[attack ADV plus ATK vs AC for 1d4+1d6+1 crit 4 on CR] on CR] on CR]on CR]
+named "Haste Dual Wield Damage (TANK MODE)"
+
+
+
+
+
+output 
+ [attack ADV plus 8 vs 16 for 3d8+5 crit 3d8 on CR]
++[attack ADV plus 8 vs 16 for 3d8+5 crit 3d8 on CR]
+named "Shadow Blade Level 3"
+
+output 
+ [attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
++[attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
+named "Shadow Blade Level 3 + Conjure Minor Elementals"
+
+output 
+ [attack ADV plus 8 vs 16 for 3d8+29 crit 0 on CR]
++[attack ADV plus 8 vs 16 for 3d8+29 crit 0 on CR]
+named "Shadow Blade Level 3 + Hold Person"
+
+output 
+ [attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
++[attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
++[attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
+named "Shadow Blade Level 3 + Conjure Minor Elementals + Haste"
+
+output 
+ [attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
++[attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
++[attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
++[attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
++[attack ADV plus 8 vs 16 for 5d8+5 crit 5d8 on CR]
+named "Shadow Blade Level 3 + Conjure Minor Elementals + Haste + Action Surge"
+
+output
+[attack d20 plus ATK vs AC 
+    hit  2d6+5 +[attack d20 plus ATK vs AC hit  2d6+5
+                                           miss 5
+                                           crit 2d6+17 on CR]
+    miss 5     +[attack d20 plus ATK vs AC hit  2d6+5
+                                           miss 5
+                                           crit 2d6+17 on CR]
+    crit 2d6+17+[attack d20 plus ATK vs AC hit  2d6+5
+                                           miss 5
+                                           crit 2d6+17 on CR]on CR]
+named "2 x Bladed Maul Damage"
+
+output
+[attack d20 plus ATK+1 vs AC 
+    hit  2d6+6 +[attack d20 plus ATK+1 vs AC hit  2d6+6
+                                           miss 5
+                                           crit 2d6+18 on CR]
+    miss 5     +[attack d20 plus ATK+1 vs AC hit  2d6+6
+                                           miss 5
+                                           crit 2d6+18 on CR]
+    crit 2d6+18+[attack d20 plus ATK+1 vs AC hit  2d6+6
+                                           miss 5
+                                           crit 2d6+18 on CR]on CR]
+named "2 x Bladed Maul Damage+1"
+
+output
+ [attack d20 plus ATK-1 vs AC for 1d8+4 crit 8 on CR]
++[attack d20 plus ATK-1 vs AC for 1d8+4 crit 8 on CR]
++[attack d20 plus ATK-1 vs AC for 1d8+4 crit 8 on CR]
+named "Aila damage"
+
+output
+ [attack d20 plus ATK+1 vs AC for 1d6+6 crit 6  on CR]
++[attack d20 plus ATK+1 vs AC for 1d6+6 crit 6  on CR]
++[attack d20 plus ATK+1 vs AC for 1d4+1 crit 4  on CR]
+named "Norwyn Dual Wield Normal"
+
+output
+[attack d20 plus ATK+1 vs AC
+    hit  2d6+6
+    miss 5
+    crit 2d6+18 on 20]
+named "Bladed Maul+1"
+
+
+
+output
+ [attack d20 plus ATK+1 vs AC for 2d6+6 crit 6+d6 on CR]
+named "Infernal Falchion"
+
+output
+ [attack d20 plus ATK+1 vs AC for 1d6+6+1d4 crit 6+d4 on CR]
+named "Cold Iron +1"
+
+output
+ [save d20 plus 3 vs 16 for 1]
+
+named "Hit chance"
+
+
+output
+ [attack d20 plus 8 vs AC for d4+d6+5 crit 4+d6 on CR]
++[attack d20 plus 8 vs AC for d4+d6+5 crit 4+d6 on CR]
+named "Giant Rune Drain"
+
+output
+ [attack d20 plus ATK vs AC for d8+d6+4 crit 8+d6 on CR]
++[attack d20 plus ATK vs AC for d8+d6+4 crit 8+d6 on CR]
+named "Giant Warhammer & Shield"
+
+output
+[attack d20 plus ATK vs AC
+    hit  3d6+4+ [attack [topple d20 plus 5 vs 16] plus ATK vs AC for 3d6+4 crit 12+d6 on CR]
+    miss        [attack d20                       plus ATK vs AC for 3d6+4 crit 12+d6 on CR]
+    crit 4d6+16+[attack [topple d20 plus 5 vs 16] plus ATK vs AC for 3d6+4 crit 12+d6 on CR]on CR
+]named "Giant Maul"
+
+output
+ [attack ADV plus 8 vs AC for d4+d6+5 crit 4+d6 on CR]
++[attack ADV plus 8 vs AC for d4+d6+5 crit 4+d6 on CR]
+named "Giant Rune Drain LOW HP"
+
+output
+ [attack d20 plus ATK vs AC for d10+d6+4 crit 10+d6  on CR]
++[attack d20 plus ATK vs AC
+    hit  2d6+4 +[attack ADV plus ATK+1 vs AC for d4+d6+1 crit 4+d6 on CR]
+    miss        [attack d20 plus ATK+1 vs AC for d4+d6+1 crit 4+d6 on CR]
+    crit 3d6+10+[attack ADV plus ATK+1 vs AC for d4+d6+1 crit 4+d6 on CR]on CR
+]named "Giant Warhammer, Handaxe, Dagger"
+
+output
+ [attack d20 plus ATK vs AC hit 3d6+4 miss 4 crit 4d6+16 on CR]
++[attack d20 plus ATK vs AC hit 3d6+4 miss 4 crit 4d6+16 on CR]
+named "Giant Greatsword"
+
+output
+[attack d20 plus ATK vs AC
+    hit  2d6+4+ [attack ADV plus ATK vs AC hit  2d6+4+ [attack ADV plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]
+                                           miss        [attack d20 plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]
+                                           crit 3d6+10+[attack ADV plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]on CR]
+    miss        [attack d20 plus ATK vs AC hit  2d6+4+ [attack ADV plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]
+                                           miss        [attack d20 plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]
+                                           crit 3d6+10+[attack ADV plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]on CR]
+    crit 3d6+10+[attack d20 plus ATK vs AC hit  2d6+4+ [attack ADV plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]
+                                           miss        [attack d20 plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]
+                                           crit 3d6+10+[attack ADV plus ATK vs AC for d4+2d6+1 crit 4+2d6 on CR]on CR]on CR]
+named "Giant 2x Handaxe,1x Dagger(Poison)"
+
+output
+[attack d20 plus ATK vs AC 
+    hit  2d6+4+ [attack ADV plus ATK vs AC hit  2d6+4+ [attack ADV plus ATK vs AC for 2d6+4 crit 6+d6 on CR]
+                                           miss        [attack d20 plus ATK vs AC for 2d6+4 crit 6+d6 on CR]
+                                           crit 3d6+10+[attack ADV plus ATK vs AC for 2d6+4 crit 6+d6 on CR]on CR]
+    miss        [attack d20 plus ATK vs AC hit  2d6+4+ [attack ADV plus ATK vs AC for 2d6+4 crit 6+d6 on CR]
+                                           miss        [attack d20 plus ATK vs AC for 2d6+4 crit 6+d6 on CR]
+                                           crit 3d6+10+[attack ADV plus ATK vs AC for 2d6+4 crit 6+d6 on CR]on CR]
+    crit 3d6+10+[attack d20 plus ATK vs AC hit  2d6+4+ [attack ADV plus ATK vs AC for 2d6   crit 6+d6 on CR]
+                                           miss        [attack d20 plus ATK vs AC for 2d6   crit 6+d6 on CR]
+                                           crit 3d6+10+[attack ADV plus ATK vs AC for 2d6   crit 6+d6 on CR]on CR]on CR]
+named "Giant 3x Handaxe (BA)"
+
+output
+ [attack ADV plus ATK vs AC for d8+2d6+12 crit 0 on CR]
++[attack ADV plus ATK vs AC for d8+2d6+12 crit 0 on CR]
+named "Giant Warhammer HOLD PERSON"
+
+output
+ [attack ADV plus ATK   vs AC for 3d6+10   crit 0 on CR]
++[attack ADV plus ATK   vs AC for 3d6+10   crit 0 on CR]
++[attack ADV plus ATK+1 vs AC for d4+2d6+5 crit 0 on CR]
+named "Giant 2x Handaxe, 1x Dagger HOLD PERSON"
+
+output
+ [attack ADV plus ATK vs AC for 3d6+10 crit 0 on 20]
++[attack ADV plus ATK vs AC for 3d6+10 crit 0 on 20]
++[attack ADV plus ATK vs AC for 3d6+6  crit 0 on 20]
+named "Giant 3x Handaxe (BA) HOLD PERSON"
+
+output
+ [attack ADV plus ATK vs AC for 4d6+16 crit 0 on CR]
++[attack ADV plus ATK vs AC for 4d6+16 crit 0 on CR]
+named "Giant Maul HOLD PERSON"
+
+output
+ [attack ADV plus ATK vs AC hit  4d6+16 miss 4 crit 4d6+16 on 20]
++[attack ADV plus ATK vs AC hit  4d6+16 miss 4 crit 4d6+16 on 20]
+named "Giant Greatsword HOLD PERSON"
+
+output
+ [attack ADV plus ATK   vs AC for d10+2d6+14 crit 0 on 20]
++[attack ADV plus ATK   vs AC for 3d6+10     crit 0 on 20]
++[attack ADV plus ATK+1 vs AC for d4+2d6+5   crit 0 on 20]
+named "Giant Warhammer,Handaxe,Dagger HOLD PERSON"
+
+output
+ [attack ADV plus ATK vs AC for 3d6+10   crit 0 on CR]
++[attack ADV plus ATK vs AC for 3d6+10   crit 0 on CR]
++[attack ADV plus ATK vs AC for d4+4d6+5 crit 0 on CR]
+named "Giant 2x Handaxe, 1x Dagger (Poison) HOLD PERSON"
+
+output
+ [attack ADV plus ATK   vs AC for d10+2d6+14 crit 0 on CR]
++[attack ADV plus ATK   vs AC for 3d6+10     crit 0 on CR]
++[attack ADV plus ATK+1 vs AC for d4+4d6+5   crit 0 on CR]
+named "Giant Warhammer, Handaxe, Dagger, Poison"
+

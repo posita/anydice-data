@@ -1,0 +1,108 @@
+\
+Cyberpunk RED Combat Analysis Tool
+-----------------------------------------------------
+Input Values:
+ ATTR:   Attribute (REF for Shooting, DEX for Melee and Throwing)
+ SKILL:  Appropriate skill (Shoulder Arms, Melee Weapon, etc.)
+ MISC:   Catch-all to-hit bonus (Smartlink, Targeting Scope, etc.)
+         NOTE: Do not input Aimed Shot penalty, that is determined by the AIMED modifier
+               Do not include bonuses from Precision Attack, that is assigned with the PA modifier
+ ROF:    Rate of Fire
+         NOTE: ROF is automatically reduced to 1 for Aimed Shots
+ DAMAGE: Weapon Damage (e.g. 3d6)
+ MELEE:  Whether the attack is Melee or not. Boolean (0 for no, 1 for yes)
+ AUTO:   Input 0 for standard fire
+         Input the weapon's Autofire value to simulate an Autofire pattern
+         NOTE: Autofire overrides base weapon damage
+ AIMED:  Input 0 for a standard Body Shot
+         Input 1 for a Head Shot
+         Input 2 for a Leg/Held Item Shot
+         NOTE: Making an Aimed Shot disables Autofire simulation
+
+Combat Awareness:
+ RECOV:  Whether you are using Fumble Recovery or not. Boolean (0 for no, 1 for yes)
+ PA:     To-Hit bonus from Precision Attack
+ WEAK:   Number of points assigned to Spot Weakness
+
+Target Values:
+ DV:     Input value from Range Table. For a dodging target, input 5+DEX+Evasion
+         NOTE: Dodging simulations will be inaccurate because they use a flat value instead of modeling a die
+ SP:     Target's highest armour values, by location
+\
+
+\Input Values\
+ATTR: 8
+SKILL: 6
+MISC: 2
+ROF: 2
+DAMAGE: 3d6
+MELEE: 0
+AUTO: 0
+AIMED: 0
+
+\Combat Awareness\
+RECOV: 1
+PA: 0
+WEAK: 14
+
+\Target Values\
+DV: 13
+\Target SP\
+BODY: 0
+HEAD: 0
+
+\PROGRAM STARTS HERE\
+
+if MELEE {
+BODY: BODY-BODY/2
+HEAD: HEAD-HEAD/2}
+
+function: cyberdie ROLL:s {
+if ROLL = 1 {
+if RECOV {result: 1}
+else {result: 1-1d10}}
+else if ROLL = 10 {result: 10+1d10}
+else {result: ROLL}}
+
+function: expected damage ROLL:s DAM:s {
+HIT: ROLL + ATTR + SKILL + MISC + PA + PEN > DV
+HURT: DAM - SP > 0
+if HIT {WEAK: 0}
+if HIT & HURT {result: (DAM - SP)*MUL}
+else {result: 0} }
+
+function: attack PEN:n MUL:n SP:n {
+WOUNDS: [expected damage [cyberdie 1d10] DAMAGE+WEAK]
+HURT: {WOUNDS} > 0
+if HURT {
+WEAK: 0
+result: WOUNDS + [attack PEN MUL SP-1]
+}
+else {result: [attack PEN MUL SP]}}
+
+function: autofire ROLL:s {
+MUL: ROLL + ATTR + SKILL + MISC + PA - DV
+if MUL > AUTO {result: AUTO}
+else if MUL > 0 {result: MUL}
+else {result: 0}}
+
+if AIMED {
+set "maximum function depth" to 2
+if AIMED = 1{output [attack -8 2 HEAD] named "Expected Damage (Head)"}
+else{output [attack -8 1 BODY] named "Expected Damage (Aimed Body)"}
+}
+else if AUTO{
+HURT: 2d6*[autofire [cyberdie 1d10]] + WEAK - BODY
+
+function: autodamage WOUNDS:s {
+if WOUNDS > -1 {result: WOUNDS}
+else {result: 0} }
+
+output [autodamage HURT] named "Expected Damage (Autofire)"
+}
+else {
+set "maximum function depth" to (ROF + 1)
+output [attack 0 1 BODY] named "Expected Damage (Body)"
+}
+
+\Freedom's Flame\

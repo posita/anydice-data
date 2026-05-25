@@ -1,0 +1,52 @@
+
+AC: 16
+RESIST: 1 \"1" if no resistance, "2" if resistance\
+VULN: 1 \"1" if no vulnerabilities, "2" if vulnerable\
+
+BLESS: 0d4
+BASIC: 1d20 + BLESS
+ADV: [highest 1 of 2d20] + BLESS
+DIS: [lowest 1 of 2d20] + BLESS
+
+PROF: 4
+MOD: 3
+TOHIT: PROF + MOD
+
+RAGE: 0
+BRUTAL: 2 \1 brutal crtical die = "2", 2 brutal critical dice = "3", etc.\
+DMG: 1d6
+SWRD_DMG: 1d10
+RANGED_DMG: 1d6
+CRIT_DMG: 2 * (BRUTAL * DMG)
+CRIT_SWRD_DMG: 2 * (BRUTAL * SWRD_DMG)
+CRIT_RNGD_DMG: 2 * (BRUTAL * RANGED_DMG)
+CRIT_RANGE: 20
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+ATK: [attack ADV plus TOHIT vs AC for ((DMG + MOD + RAGE) * VULN)/RESIST crit ((CRIT_DMG + MOD + RAGE) * VULN)/RESIST on CRIT_RANGE]
+MULTIATK: ATK + [attack BASIC plus TOHIT vs AC for ((DMG + RAGE) * VULN)/RESIST crit ((CRIT_DMG + RAGE) * VULN)/RESIST on CRIT_RANGE]
+SWRD_ATK: [attack ADV plus TOHIT vs AC for ((SWRD_DMG + MOD + RAGE) * VULN)/RESIST crit ((CRIT_SWRD_DMG + MOD + RAGE) * VULN)/RESIST on CRIT_RANGE]
+RNGD_ATK: [attack ADV plus TOHIT vs AC for ((RANGED_DMG + MOD) * VULN)/RESIST crit ((CRIT_RNGD_DMG + MOD) * VULN)/RESIST on CRIT_RANGE]  
+
+output MULTIATK named "Melee Multiattack with two handaxes"
+output SWRD_ATK named "Basic Melee Attack with Longsword"
+output ATK named "Basic Melee Attack with Javelin"
+output RNGD_ATK named "Basic Ranged Attack with Javelin"
+
+output MULTIATK * 2 named "Melee Multiattack with two handaxes, two attacks per action"
+output SWRD_ATK * 2 named "Basic Melee Attack with Longsword, two attacks per action"
+output ATK * 2 named "Basic Melee Attack with Javelin, two attacks per action"
+output RNGD_ATK * 2 named "Basic Ranged Attack with Javelin, two attacks per action" 
+ 

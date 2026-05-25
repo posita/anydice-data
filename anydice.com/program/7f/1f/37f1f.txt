@@ -1,0 +1,66 @@
+DICEPOOL: {4,6,8,10,12,20}
+CURRENT : 1d4
+SEQ : {}
+RSEQ : {}
+
+
+function: append N:n to S:s length L:n {
+ if L = 0 {result: {N}
+ }
+ else{ 
+  if L= 1{
+   result: {1@S, N}
+  }
+  else{
+   result : {[append (L)@S to S length (L-1)],N}
+  }
+ } 
+}
+
+function: isexplode NUM:n{
+ MAXC : [maximum of CURRENT]
+ if MAXC >12 {
+  result :1d20
+ }
+ loop F over {1..#(DICEPOOL)}{
+    	if MAXC = F@DICEPOOL{
+     		if NUM > MAXC{
+       		 NUM : NUM - MAXC
+       		 MAXC : (F+1)@DICEPOOL
+     		}
+    	}
+ }
+ result : 1dMAXC
+}
+
+function: explodenth DIE:d {
+ MAX: [maximum of DIE]
+ result: [explodenth DIE helper]
+}
+
+function: explodenth N:n helper {
+if MAX != 20 {
+	loop F over {1..#(DICEPOOL)}{
+ 		if MAX = F@DICEPOOL{ 
+			B: (F+1)@DICEPOOL
+			
+		}
+	}
+}
+else { B : MAX }
+ if N = MAX {
+      result: N + [explodenth 1dB] 
+}
+ result: N
+}
+set "maximum function depth" to 8
+loop A over {1..4} {
+  MAXC : [maximum of CURRENT]
+  SEQ: [append MAXC to SEQ length #SEQ]
+  VALUE: [explodenth CURRENT]
+  output VALUE named "explode [A]"
+  CURRENT : [isexplode VALUE]
+}
+  MAXC : [maximum of CURRENT]
+  SEQ: [append MAXC to SEQ length #SEQ]
+ output SEQ named "sequence"

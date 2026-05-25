@@ -1,0 +1,24 @@
+\ THE ONE RING \
+\ 0 means failure, 1 means success, 2-4 means successes with 1-3 sixes on the d6 \
+
+function: tor SKILL:n FAT:n DIFF:n {
+  result: [torcheck [torskill SKILL FAT] DIFF]
+}
+
+function: torskill SKILL:n FAT:n {
+  if FAT = 1 {result: SKILLd{0:3,4,5,6}}
+  result: SKILLd6
+}
+
+function: torcheck ROLL:s DIFF:n {
+  TOTAL: (ROLL >= DIFF - 1d{1,2,3,4,5,6,7,8,9,10,0,DIFF})
+  TOTAL: TOTAL + TOTAL*[count 6 in ROLL]
+  result:  TOTAL
+}
+
+loop DIFFICULTY over {10..20} {
+  loop SKILL over {0..3} {
+    output [tor SKILL 0 DIFFICULTY] named "Diff. [DIFFICULTY] Skill [SKILL]"
+    if SKILL>0 {output [tor SKILL 1 DIFFICULTY] named "Diff. [DIFFICULTY] Skill [SKILL] fatigue"}
+  }
+}

@@ -1,0 +1,43 @@
+AC: 15  \ target AC \
+DEX: 3  \ dex modifier \
+PROF: 2  \ proficiency bonus \
+SA: 1d6  \ sneak attack dice \
+
+DAGGER: d4
+SHORTSWORD: d6
+RAPIER: d8
+
+AROLL: [highest 1 of 1d20]
+
+\ try to hit with a single weapon \
+function: attack A:n with W:d {
+  if A = 20 { N: 1 } else { N: 2 } \ critical hit \
+  if A + DEX + PROF >= AC { result: NdW + DEX + NdSA }  \ attack action hit \
+  result: 0  \ no hit \
+}
+
+\ try to hit exactly once with two-weapon fighting \
+function: attack AA:n with WA:d on miss AB:n with WB:d {
+  if AA = 20 { NA: 1 } else { NA: 2 } \ critical hit on attack \
+  if AB = 20 { NB: 1 } else { NB: 2 } \ critical hit on bonus attack \
+  if AA + DEX + PROF >= AC { result: NAdWA + DEX + NAdSA }  \ attack action hit \
+  if AB + DEX + PROF >= AC { result: NBdWB + NBdSA }  \ bonus action attack hit \
+  result: 0  \ no hit \
+}
+
+\ try to hit twice with two-weapon fighting\
+function: attack AA:n with WA:d and AB:n with WB:d {
+  AHIT: AA + DEX + PROF >= AC
+  BHIT: AB + DEX + PROF >= AC
+  if AA = 20 { NA: 1 } else { NA: 2 } \ critical hit on attack \
+  if AB = 20 { NB: 1 } else { NB: 2 } \ critical hit on bonus attack \
+  if AHIT & BHIT { result: NAdWA + DEX + NAdSA + NBdWB }  \ both hit \
+  if AHIT { result: NAdWA + DEX + NAdSA }  \ attack action hit \
+  if BHIT { result: NBdWB + NBdSA }  \ bonus action attack hit \
+  result: 0  \ no hit \
+}
+
+
+output [attack AROLL with RAPIER] named "Rapier"
+output [attack AROLL with SHORTSWORD on miss AROLL with DAGGER] named "Short sword/dagger (on miss)"
+output [attack AROLL with SHORTSWORD and AROLL with DAGGER] named "Shord sword/dagger (always)"

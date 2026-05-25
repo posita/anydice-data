@@ -1,0 +1,224 @@
+\ hardcaml \
+
+STR:     27   \Strength\
+CHA:     24   \Charisma\
+DEX:     20   \Dexterity\
+
+LVL:     12   \Player level\
+BONUS:   0    \Critical Strike Bonus\
+ASTAR:   1    \Astarion\
+
+BRACE:   1    \Brace\
+ATTACKS: 8    \# of Arrow-Damage Roots (Regular attacks are 1 ea, Slashing and Slaying Arrows are 2 ea)\
+SLASH:   1    \Slashing Flourish\
+SHARP:   1    \Sharpshooter\
+FIXCRIT: ATTACKS    \Fixed Crit #, for Luck of the Realms set to 1, guaranteed set to ATTACKS\
+
+COLOS:   1    \Colossus Slayer\
+DAMAGED: 0    \Target already damaged\
+ROGUE:   1    \Levels of Rogue\
+BARD:    6    \Levels of Bard\
+SNEAK:   1    \Enable sneak attack\
+SKUL:    1    \Stalker Gloves\
+
+PLUS:    0    \Weapon + Modifiers not listed\
+TITAN:   1    \Titanstring\
+RHAP:    1    \Rhapsody\
+PHALAR:  1    \Phalar Aluve\
+
+SYNERGY: 1    \Arcane Synergy\
+CONDUIT: 1    \Conduit Ring\
+GLOW:    0    \Callous Glow Ring\
+BROOD:   1    \Broodmother's Revenge\
+
+HEX:     1    \Hex\
+SPARK:   1    \Lightning Charges\
+ELEWEP:  1    \Elememtal Weapon\
+
+PSI:     1    \Psionic Overload\
+WET:     1    \Wet Vulnerability - 1 for OFF, 2 for ON\
+PS:      2    \Perilous Stakes - 1 for OFF, 2 for ON (disables WET)\
+
+\ THE DAMAGE TREE
+FIRST ATTACK
+	RHAPSODY +3
+	TITANSTRING +8
+	DEX MOD
+	ARCANE SYNERGY
+	SHARPSHOOTER
+	ASTARION
+	HEX
+	LIGHTNING CHARGE
+	ELEMENTAL WEAPON
+	BROOD AMULET
+	PSIONIC OVERLOAD
+	CONDUIT RING
+ 
+	PHALAR ALUVE
+		RHAPSODY +3
+		TITANSTRING +8
+		HEX
+		LIGHTNING CHARGE
+		PSIONIC OVERLOAD
+ 
+	COLOSSUS SLAYER
+		RHAPSODY +3
+		TITANSTRING +8
+		PSIONIC OVERLOAD
+		LIGHTNING CHARGE
+ 
+	SNEAK ATTACK
+		RHAPSODY +3
+		TITANSTRING +8
+		HEX
+		LIGHTNING CHARGE
+		PSIONIC OVERLOAD
+ 
+		SKULL DAGGERY
+			RHAPSODY +3
+			TITANSTRING +8			
+			HEX
+			LIGHTNING CHARGE
+			PSIONIC OVERLOAD
+ 
+			PHALAR ALUVE
+				RHAPSODY +3
+				TITANSTRING +8
+				HEX
+				LIGHTNING CHARGE
+				PSIONIC OVERLOAD
+ 
+ 
+		PHALAR ALUVE
+			RHAPSODY +3
+			TITANSTRING +8		 
+			HEX
+			LIGHTNING CHARGE
+			PSIONIC OVERLOAD
+ 
+SECOND ATTACK
+	RHAPSODY +3
+	TITANSTRING +8
+	DEX MOD
+	ARCANE SYNERGY
+	SHARPSHOOTER
+	ASTARION
+	HEX
+	LIGHTNING CHARGE
+	ELEMENTAL WEAPON
+	BROOD AMULET
+	PSIONIC OVERLOAD
+	CONDUIT RING
+ 
+	PHALAR ALUVE
+		RHAPSODY +3
+		TITANSTRING +8
+		HEX
+		LIGHTNING CHARGE
+		PSIONIC OVERLOAD
+\
+
+if PS > 1 { WET: 1 }
+
+function: crit D:n with B:n {
+   if D >= 20-B { result: 1 } else { result: 0 }
+}
+
+function: every D:n {
+   if D = 1 { result: 1 } else { result: 0 }
+}
+
+function: AB:n mod {
+   result: (AB - 10)/2
+}
+
+
+
+ADV: [highest 1 of 2d20]
+CRIT: [crit ADV with BONUS]      
+
+
+
+BARDI: 6+2*(BARD/5)
+SDICE: (ROGUE+1)/2
+PROF: 1+(LVL+3)/4
+
+
+
+if ATTACKS < 1 { ATTACKS: 1 }
+if FIXCRIT > ATTACKS { FIXCRIT: ATTACKS }
+
+
+
+RH:   RHAP        *3
+LC:   SPARK       *WET
+TS:   TITAN       *[STR mod]
+HX:   HEX         *(1+CRIT)   *[highest 1 of (BRACE+1)d6]
+PO:   PSI         *(1+CRIT)   *[highest 1 of (BRACE+1)d4]
+
+RIDE: RH + TS + HX + LC + PO
+
+ALU:  PHALAR   *((1+CRIT)*[highest 1 of (BRACE+1)d4] + RIDE)
+SD:   SKUL     *((1+CRIT)*[highest 1 of (BRACE+1)d4] + RIDE + ALU)
+SA:   SNEAK    *((1+CRIT)*SDICEd6 + SD + ALU)      \does not benefit from Brace\
+COL:  COLOS    *(((1+CRIT)*[highest 1 of (BRACE+1)d8]) + RIDE - HX)
+
+BASE: (1+CRIT) *[highest 1 of (BRACE+1)d8] + [DEX mod] + (ELEWEP + TITAN)
+SF:   SLASH    *((1+CRIT)d(BARDI))
+SYN:  SYNERGY  *[CHA mod]
+SH:   SHARP    *10
+COND: CONDUIT  *((1+CRIT)*[highest 1 of (BRACE+1)d4])
+ELE:  ELEWEP   *((1+CRIT)*[highest 1 of (BRACE+1)d4])
+BR:   BROOD    *((1+CRIT)*[highest 1 of (BRACE+1)d4])
+AST:  ASTAR    *((1+CRIT)*[highest 1 of (BRACE+1)d10])
+SING: SYN + SH + AST + ELE + BR + COND + SF             \single use riders\
+
+ATK:  BASE + SING + RIDE + ALU
+FST:  ATK + SA
+
+function: fixedcrit N:n {
+   CRIT: 1
+   HX:   HEX         *(1+CRIT)   *[highest 1 of (BRACE+1)d6]
+   PO:   PSI         *(1+CRIT)   *[highest 1 of (BRACE+1)d4]
+
+   RIDE: RH + TS + HX + LC + PO
+
+   ALU:  PHALAR   *((1+CRIT)*[highest 1 of (BRACE+1)d4] + RIDE)
+   SD:   SKUL     *((1+CRIT)*[highest 1 of (BRACE+1)d4] + RIDE + ALU)
+   SA:   SNEAK    *((1+CRIT)*SDICEd6 + SD + ALU)      \does not benefit from Brace\
+   
+   if DAMAGED | N > 1 {
+      COL:  COLOS    *(((1+CRIT)*[highest 1 of (BRACE+1)d8]) + RIDE - HX)
+   }
+
+   BASE: (1+CRIT) *[highest 1 of (BRACE+1)d8] + [DEX mod] + (ELEWEP + TITAN)
+   SF:   SLASH    *((1+CRIT)d(BARDI))
+   COND: CONDUIT  *((1+CRIT)*[highest 1 of (BRACE+1)d4])
+   ELE:  ELEWEP   *((1+CRIT)*[highest 1 of (BRACE+1)d4])
+   BR:   BROOD    *((1+CRIT)*[highest 1 of (BRACE+1)d4])
+   AST:  ASTAR    *((1+CRIT)*[highest 1 of (BRACE+1)d10])
+   SING: SYN + SH + AST + ELE + BR + COND    \non-branching riders\
+
+   ATK:  BASE + SING + RIDE + ALU
+   FST:  ATK + SA + DAMAGED*COL
+   
+   result: FST + (N-1)*ATK + ((N>1&!DAMAGED)|DAMAGED)*COL
+}
+
+if FIXCRIT > 0 {
+   output PS*[fixedcrit 1] named "First attack"
+} else {
+   output PS*(FST + DAMAGED*COL) named "First attack"
+}
+
+if !DAMAGED {
+   output PS*(ATK + COL) named "Next attack (Colossus Slayer, not including crit)"
+}
+output PS*ATK named "Subsequent attacks (not including crit)"
+
+if FIXCRIT > 0 {
+   output PS*[fixedcrit FIXCRIT] named "Fixed Crit damage"
+   output PS*([fixedcrit FIXCRIT] + (ATTACKS-FIXCRIT)*ATK + (!DAMAGED&(ATTACKS>1)&(FIXCRIT=1))*COL) named "Total DPR, Guaranteed Crits: [FIXCRIT]"
+} else {
+   output PS*(FST + (ATTACKS - 1)*ATK + ((!DAMAGED&(ATTACKS>1))|DAMAGED)*COL) named "Total DPR"
+}

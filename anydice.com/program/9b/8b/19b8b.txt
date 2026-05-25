@@ -1,0 +1,42 @@
+function: roll N:n {
+ result: N
+}
+
+function: reroll N:n {
+ if N <= 2 { result: 1d10 }
+ result: N
+}
+
+function: crit N:n {
+ if N >= 19 { result: 1d10 }
+ result: 0
+}
+
+function: hit N:n against AC:n {
+ result: N >= AC
+}
+
+function: attack ATK:n plus A_MOD:n for DMG:n plus D_MOD:n against AC:n {
+ ATK_A: [hit ATK+A_MOD against AC] * ([reroll DMG] + [crit ATK] + D_MOD)
+ ATK_B: [hit ATK+A_MOD against AC] * ([reroll DMG] + [crit ATK] + D_MOD)
+ result: ATK_A + ATK_B
+}
+
+AC: 20
+ATK: [roll 1d20]
+BI: [roll 1d8]
+DMG: [roll 1d10]
+GWMB: 10
+GWMM: 5
+
+output [attack ATK plus 9 for DMG plus 6 against 13] named "13AC 5STR"
+output [attack ATK plus 9 for DMG plus 6 against 15] named "15AC 5STR"
+output [attack ATK plus 9 for DMG plus 6 against 17] named "17AC 5STR"
+
+output [attack ATK plus 8 for DMG plus 5 against 13] named "13AC 4STR"
+output [attack ATK plus 8 for DMG plus 5 against 15] named "15AC 4STR"
+output [attack ATK plus 8 for DMG plus 5 against 17] named "17AC 4STR"
+
+output [attack ATK plus (8-GWMM) for DMG plus (5+GWMB) against 13] named "13AC 4STR+GWM"
+output [attack ATK plus (8-GWMM) for DMG plus (5+GWMB) against 15] named "15AC 4STR+GWM"
+output [attack ATK plus (8-GWMM) for DMG plus (5+GWMB) against 17] named "17AC 4STR+GWM"

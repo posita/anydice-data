@@ -1,0 +1,63 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+
+TARGET: 18
+
+output [multiattack d20 plus 1 vs TARGET 
+    hit 5d6 + 13 + [attack d20 plus 1 vs TARGET for 1d6 + 13 crit 1d6 on 20]
+    miss [attack d20 plus 1 vs TARGET for 5d6 + 13 crit 5d6 on 20]
+    crit 10d6 + 13 + [attack d20 plus 1 vs TARGET for 1d6 + 13 crit 1d6 on 20] on 20] named "CBE/SS, -5/+10 on both attacks"
+
+output [multiattack d20 plus 1 vs TARGET 
+    hit 5d6 + 13 + [attack d20 plus 1 vs TARGET for 1d6 + 13 crit 1d6 on 20]
+    miss [attack d20 plus 6 vs TARGET for 5d6 + 3 crit 5d6 on 20]
+    crit 10d6 + 13 + [attack d20 plus 1 vs TARGET for 1d6 + 13 crit 1d6 on 20] on 20] named "CBE/SS, -5/+10 on the first attack, and 2nd if first hits"
+
+output [multiattack d20 plus 6 vs TARGET 
+    hit 5d6 + 3 + [attack d20 plus 1 vs TARGET for 1d6 + 13 crit 1d6 on 20]
+    miss [attack d20 plus 6 vs TARGET for 5d6 + 3 crit 5d6 on 20]
+    crit 10d6 + 3 + [attack d20 plus 1 vs TARGET for 1d6 + 13 crit 1d6 on 20] on 20] named "CBE/SS, -5/+10 on 2nd attack if first hits"
+
+output [attack [highest 1 of 3d20] plus 7 vs TARGET for 1d8 + 4d6 + 4 crit 1d8 + 4d6 on 20] named "Elven Accuracy Longbow"

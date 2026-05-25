@@ -1,0 +1,49 @@
+CB: 4
+AC: 16
+
+function: roll DMGplus PRECISION:d if hit landed with DIEROLL:n plus ATKBONUS:n vs AC:n crit on CRIT:n confirm with CONFIRM:n {
+    if DIEROLL = 20 | (DIEROLL >= CRIT & DIEROLL+ATKBONUS >= AC) {
+        if (CONFIRM = 20 | (CONFIRM+ATKBONUS) >= AC) & CONFIRM > 1 { result: 2*DMG+ PRECISION }
+        result: DMG + PRECISION
+    } else  {
+        if DIEROLL+ATKBONUS >= AC & DIEROLL > 1 { result: DMG + PRECISION }
+        result: 0
+    }
+}
+
+function: full attack against AC:n with bonuses ATKBONUSES:s with damage DMGROLL:d plus PRECISION:d with unique damage UNIQUEDAMAGE:d crit on CRIT:n {
+    DAMAGE: 0
+    loop BONUS over ATKBONUSES{
+        DAMAGE: DAMAGE + [roll DMGROLL plus PRECISION if hit landed with 1d20 plus BONUS vs AC crit on CRIT confirm with 1d20]
+    }
+    result: DAMAGE
+}
+
+function: full attack against AC:n with bonuses ATKBONUSES:s with damage DMGROLL:d plus PRECISION:d crit on P {
+    result: [full attack against AC with bonuses ATKBONUSES with damage DMGROLL plus PRECISION with unique damage 0 crit on 20]
+}
+
+
+function: full attack against AC:n with bonuses ATKBONUSES:s with damage DMGROLL:d plus PRECISION:d {
+    result: [full attack against AC with bonuses ATKBONUSES with damage DMGROLL plus PRECISION crit on 20]
+}
+
+output 0 named "FA - Full Attack. St - Standard Action."
+output 0 named "TWF - Two Weapon Fighting. SA - Sneak Attack."
+output 0 named " TStrk - True Strike. SG - Shocking Grasp."
+output 0 named "Sc.Ray - Scorching Ray. PA - Power Attack."
+
+loop AC over {16, 20, 24, 28} {
+  output [full attack against AC with bonuses {10, 10, 5} with damage 1d6 plus 4d6+6 crit on 19] named "---Rogue TWF SA vs [AC]"
+  output [full attack against AC with bonuses {12, 7} with damage 1d6 plus 4d6+6 crit on 19] named "Rogue FA SA vs [AC]"
+  output [full attack against AC with bonuses {12} with damage 1d6 plus 4d6+6 crit on 19] named "St SA vs [AC]"
+  output [full attack against AC-10 with bonuses {10} with damage 4d6 plus 4d6] named "Sc.Ray SA vs [AC]" 
+  output [full attack against AC with bonuses {27} with damage 2d6+5d6+14+4 plus 0 crit on 19] named "TStrk Channel SG PA(7) vs [AC]" 
+  output [full attack against AC with bonuses {14} with damage 2d6+5d6+4 plus 0 crit on 19] named "Channel SG vs [AC]"
+  output [full attack against AC with bonuses {14, 9} with damage 2d6+7 plus 0 crit on 19] named "FA vs [AC]"
+  output [full attack against AC with bonuses {9, 4} with damage 2d6+7+10 plus 0 crit on 19] named "FA PA(5) vs [AC]"
+  output [full attack against AC with bonuses {14} with damage 2d6+5d6+4 plus 0 crit on 17] named "Channel S.Grasp vs [AC]"
+  output [full attack against AC with bonuses {14, 9} with damage 2d6+7 plus 0 crit on 17] named "FA vs [AC]"
+  output [full attack against AC with bonuses {9, 4} with damage 2d6+7+10 plus 0 crit on 17] named "FA PA(5) vs [AC]"
+  output [full attack against AC-10 with bonuses {12, 12} with damage 4d6 plus 0 crit on 20] named "Sc.Ray vs [AC]" 
+}

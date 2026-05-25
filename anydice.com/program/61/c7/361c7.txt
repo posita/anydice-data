@@ -1,0 +1,53 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+ADVANTAGE: [highest 1 of 2d20]
+DISADVANTAGE: [lowest 1 of 2d20]
+
+CHA: 3
+DEX: 3
+PB: 3
+WPN: 1d8
+WPN2: 1d4
+
+loop AC over {8..23} {
+output    [attack d20 plus CHA + PB vs AC
+    hit   WPN1 + CHA + [attack ADVANTAGE plus CHA + PB vs AC for WPN1 + CHA crit WPN1 + CHA on CRIT_RANGE]
+        + [attack ADVANTAGE plus CHA + PB vs AC for WPN2 crit WPN2 on CRIT_RANGE]
+    miss 0
+    crit  WPN1 + WPN1 + CHA
+        + [attack ADVANTAGE plus CHA + PB vs AC hit WPN1 + CHA + WPN1 miss 0 crit WPN1 on CRIT_RANGE]
+        + [attack ADVANTAGE plus CHA + PB vs AC hit WPN2 + CHA + WPN2 miss 0 crit WPN2 on CRIT_RANGE]
+    on CRIT_RANGE
+] named "Level 5 Warlock with Thirsting Blade dual wielding vs [AC] AC"
+}

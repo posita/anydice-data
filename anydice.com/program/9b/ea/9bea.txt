@@ -1,0 +1,33 @@
+function: P:n pos N:n neg R rerolls {
+ if R > 0 {
+  if P <= T {
+   if N < P {
+    result: [P pos d6 neg R - 1 rerolls]
+   }
+   result: [d6 pos N neg R - 1 rerolls]
+  }
+  if N <= T {
+   result: [P pos d6 neg R - 1 rerolls]
+  }
+ }
+ result: P - 7 + N
+ \ N - 7 reverses a d6.
+   Used for N because the function optimizes for highest rolls.
+   So P - N becomes P - (7 - N) = P - 7 + N. \
+}
+
+T: 3
+output [d6 pos d6 neg 4 rerolls]
+
+\ T is the threshold for rerolling.
+  Rerolls are used for dice that rolled at most T.
+  It is a heuristic. You want to use at least 3,
+  as that's the largest T below average.
+  AnyDice can deal with a T of 3 with up to 6 rerolls.
+  The same threshold is used for the negative die,
+  as if you want to maximize it too. The function compensates for this.
+  In practice, you'd used the reversed threshold for negative dice,
+  rerolling those that roll at least 7 - T.
+  
+  The function always uses the same T.
+  You would get slightly better results when limiting the last T to 3. \

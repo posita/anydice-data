@@ -1,0 +1,53 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Here are some examples: \
+output [19 vs 27 crit 20 2 dmg 2d6+12] named "First Bite"
+output [17 vs 27 crit 20 2 dmg 2d6+10] named "Second Bite"
+output [17 vs 27 crit 20 2 dmg 2d6+10] named "Third Bite"
+output [17 vs 27 crit 20 2 dmg 2d6+10] named "Fourth Bite"
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \

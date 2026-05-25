@@ -1,0 +1,79 @@
+\---- VARIABLES ----\
+
+MISS: 0
+HIT:  1
+CRIT_HIT: 2
+ATTACK:0
+/ BLADELOCK HITS /
+DOUBLE_CRIT: 4d6+14 + 4d6+14 + 4d6
+SINGLE_CRIT: 4d6+14 + 4d6
+ONE_CRIT_ONE_NORMAL: 4d6+14 + 2d6+14 + 3d6
+DOUBLE_HIT: 2d6+14 + 2d6+14 +2d6
+SINGLE_HIT: 2d6+14 + 1d6
+
+/BLASTLOCK HITS/
+
+DOUBLE_CRIT: 2d8+5 + 2d8 + 5
+SINGLE_CRIT: 2d8+5
+ONE_CRIT_ONE_NORMAL: 2d8+ 5 + 1d8+5 
+DOUBLE_HIT: 2d6+14 + 1d8+5 + 1d8+5
+SINGLE_HIT: 1d8+5
+
+\---- FUNCTIONS ----\
+
+\   Defines an Attack Roll   \
+
+function: attack ROLL:n vs DEFENSE:n crit on CRIT:n{
+   if ROLL = 0 | ROLL+ATTACK < DEFENSE {result:MISS}
+   if ROLL >= CRIT {result:CRIT_HIT}
+   result: HIT
+}
+
+\   Defines a bladelock roll \
+
+function: bladelock for FIRST_RESULT:n SECOND_RESULT:n{
+   if FIRST_RESULT = CRIT_HIT & SECOND_RESULT= CRIT_HIT{
+      result: DOUBLE_CRIT
+   }
+   if (FIRST_RESULT = CRIT_HIT & SECOND_RESULT = HIT) | (FIRST_RESULT = HIT & SECOND_RESULT = CRIT_HIT){
+      result: ONE_CRIT_ONE_NORMAL
+   }
+   if (FIRST_RESULT = MISS & SECOND_RESULT = CRIT_HIT) | (FIRST_RESULT = CRIT_HIT & SECOND_RESULT = MISS){
+      result: SINGLE_CRIT
+   }
+   if (FIRST_RESULT = HIT & SECOND_RESULT = HIT){
+      result: DOUBLE_HIT
+   }
+   if (FIRST_RESULT = HIT & SECOND_RESULT = MISS) | (FIRST_RESULT = MISS & SECOND_RESULT = HIT){
+      result: SINGLE_HIT
+   }
+   if (FIRST_RESULT = MISS & SECOND_RESULT = MISS){
+      result: 0
+   }
+}
+
+function: eldritch blast for FIRST_RESULT:n SECOND_RESULT:n{
+   if FIRST_RESULT = CRIT_HIT & SECOND_RESULT= CRIT_HIT{
+      result: DOUBLE_CRIT_BLAST
+   }
+   if (FIRST_RESULT = CRIT_HIT & SECOND_RESULT = HIT) | (FIRST_RESULT = HIT & SECOND_RESULT = CRIT_HIT){
+      result: ONE_CRIT_ONE_NORMAL_BLAST
+   }
+   if (FIRST_RESULT = MISS & SECOND_RESULT = CRIT_HIT) | (FIRST_RESULT = CRIT_HIT & SECOND_RESULT = MISS){
+      result: SINGLE_CRIT_BLAST
+   }
+   if (FIRST_RESULT = HIT & SECOND_RESULT = HIT){
+      result: DOUBLE_HIT_BLAST
+   }
+   if (FIRST_RESULT = HIT & SECOND_RESULT = MISS) | (FIRST_RESULT = MISS & SECOND_RESULT = HIT){
+      result: SINGLE_HIT_BLAST
+   }
+   if (FIRST_RESULT = MISS & SECOND_RESULT = MISS){
+      result: 0
+   }
+}
+
+\------ OUTPUT ------\
+output [bladelock for [attack 1d20 vs 10 crit on 19] [attack 1d20 vs 10 crit on 19]] named bladelock full
+
+output [eldritch blast for [attack 1d20 vs 10 crit on 20] [attack 1d20 vs 10 crit on 20]] + [eldritch blast for [attack 1d20 vs 10 crit on 20] [attack 1d20 vs 10 crit on 20]] named eldritch blast

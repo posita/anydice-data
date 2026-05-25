@@ -1,0 +1,36 @@
+
+function: replace OLD in SEQ:s with NEW {
+  NEWSEQ: {}
+  loop I over {1 .. #SEQ} {
+    if I@SEQ = OLD { NEWSEQ: {NEWSEQ, NEW} }
+    else {NEWSEQ: {NEWSEQ, I@SEQ} }
+  }
+  result: NEWSEQ
+}
+
+function: push REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+
+\ when specifying D: \
+\.  1 is a success \
+\.  0 a miss that can be rerolled \
+\  -1 a miss that can NOT be rerolled \
+
+D:{-1, 0:4, 1}
+D: {0:5, 1}
+B: [replace -1 in dD with 0]
+P: [replace -1 in [push {0} on dD to dD] with 0]
+
+loop N over {1..10}{
+  BASE: NdB
+  PUSH: NdP
+  output BASE named "[N]"
+  output BASE >= 1 named "[N] pass/fail"
+  output PUSH named "push [N]"
+  output PUSH >= 1 named "push pass/fail"
+}

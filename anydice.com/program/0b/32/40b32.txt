@@ -1,0 +1,52 @@
+set "maximum function depth" to 2
+ATTACK: 10
+DEFENCE: 10
+STRENGTH: 7
+ARMOUR: 10
+
+FIGHTBONUS: 0
+DAMAGEBONUS: 0
+
+
+function: frostgravehit BONUS:n {
+result: (1d20 + BONUS) - (1d20)
+}
+
+function: frostgravedamage HITRATE:n {
+  if(HITRATE >= 0) {
+    result: HITRATE + DAMAGEBONUS - ARMOUR 
+  } else {
+    result: 0
+  }
+}
+
+function: drn ATT:n vs DEF:n {
+  result: ([explode d6] + [explode d6] + ATT) - ([explode d6] + [explode d6] + DEF)
+
+}
+
+function: domdamage HITRATE:n {
+  if HITRATE > 0 {
+    result: ([explode d6] + [explode d6] + STRENGTH) - ([explode d6] + [explode d6] + ARMOUR)
+  } else {
+    result: 0
+  }
+}
+
+function: clip DMGRATE:n {
+  if  DMGRATE < 0 {
+    result: 0
+  } else {
+    result: DMGRATE
+  }
+}
+
+
+
+output [clip [domdamage [drn ATTACK vs DEFENCE]]] named "dominion damage curve"
+output [clip [frostgravedamage [frostgravehit FIGHTBONUS]]] named "frostgrave curve"
+
+
+
+
+

@@ -1,0 +1,23 @@
+function: roll TRAIT:s against DIFFICULTY:n specialty SPECIALTY:n {
+  if 1@TRAIT < DIFFICULTY {
+    if [count 1 in TRAIT] > 0 { result: -1 }
+    else { result: 0 }
+  }
+  SUCCESSES: 0
+  loop ROLL over TRAIT {
+    if ROLL < DIFFICULTY {
+      loop ROLL over [reverse TRAIT] {
+        if ROLL != 1 {
+          if SUCCESSES < 0 { result: 0 }
+          result: SUCCESSES
+        }
+        SUCCESSES: SUCCESSES - 1
+      }
+    }
+    if SPECIALTY & ROLL = 10 { SUCCESSES: SUCCESSES + 1 }
+    SUCCESSES: SUCCESSES + 1
+  }
+  result: SUCCESSES
+}
+
+output [roll 6d10 against 9 specialty 0] named "damage"

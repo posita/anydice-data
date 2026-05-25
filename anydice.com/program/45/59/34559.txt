@@ -1,0 +1,42 @@
+set "maximum function depth" to 7
+MISS:0
+HIT: 1
+CRIT: 2
+
+LASTFAIL: 7
+REROLLAT: 12
+
+function: DICE:d accd BONUS:n {
+ result: [DICE DICE accd BONUS helper]
+}
+
+function: ROLL:n REPEAT:d accd BONUS:n helper{
+ if ROLL + BONUS <= LASTFAIL {result: 0}
+ if ROLL < REROLLAT {result: 1}
+ result: 1 + [REPEAT REPEAT accd BONUS helper]
+}
+
+
+function: daccd ROLL:n SIZE:n {
+ if SIZE <= LASTFAIL {result: 0}
+ if ROLL >= REROLLAT {result: 1 + [daccd 1d(SIZE - 2) (SIZE - 2)]}
+ if ROLL > LASTFAIL {result: 1}
+ result: 0
+}
+
+function: ROLL:s rolls{
+ REROLLS: #ROLL - (ROLL = 1)
+ STAYS: {1..#ROLL -REROLLS}@ROLL
+ REROLLED: REROLLSdACCD
+ result: STAYS+REROLLED
+}
+
+DACCD: [daccd 1d12 12]
+ACCD: [1d12 accd 0]
+DNWD: [1d10 accd 0]
+
+loop DC over {1..7}{
+ loop DIE over {1..7}{
+  output DIEdACCD >= DC named "[DIE]v[DC]"
+ }
+}

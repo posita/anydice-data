@@ -1,0 +1,78 @@
+MIN_DMG: 1 MAX_DMG: 1 CRIT_CHANCE: 0 HIT_CHANCE: 0
+CRIT_BONUS: 0 ACC_BONUS: 0 DAM_BONUS: 0
+TARGET_DODGE: 0 TARGET_PROT: 0 TARGET_HP: 0
+DMG_DIE: 1
+
+
+PRISMATIC_FORCE:0  PRISMATIC_PRECISION:0  PRISMATIC_EYE:0  PRECISE_STRIKER:0  SLUGGER:0  NATURAL_SWING:0 CORVIDS_EYE: 0
+
+ANCESTORS_PEN:0 FORTUNATE_ARMLET:0 FOCUS_RING:0 LEGENDARY_BRACER:0 SUN_RING:0
+
+set "maximum function depth" to 20
+
+function: count DMG:n to HP:n hitpoints from COUNT:n {
+ if HP <= 0 {result: COUNT}
+ result: [count DMG_DIE to (HP - ROLL) hitpoints from (COUNT + 1)]
+}
+
+function: damage helper ROLL:n hp LEFT:n count COUNT:n {
+ if LEFT <= 0 {result: COUNT}
+ result: [damage helper DIE hp (LEFT - ROLL) count (COUNT + 1)]
+}
+
+function: round A:n over DIVISOR:n { result: (A + (DIVISOR / 2)) / DIVISOR }
+
+function: MND:n to MXD:n damage CC:n crit AC:n acc DODGE:n dodge PROT:n prot {
+ CRIT_CHANCE: CC + CRIT_BONUS
+ HIT_CHANCE: AC + ACC_BONUS + 5 - DODGE
+ MIN_DMG: MND * (100 + DAM_BONUS) * (100 - PROT) / 100
+ MAX_DMG: MXD * (100 + DAM_BONUS) * (100 - PROT) / 100
+ if HIT_CHANCE >= 100 {result: [check crit d100]}
+ if HIT_CHANCE <= 0 {result: 0}
+ result: [check hit d100]
+}
+
+function: check hit A:n {
+ if A >= HIT_CHANCE {result: [check crit d100]}
+ result: 0
+}
+
+function: check crit A:n {
+ if A >= CRIT_CHANCE {result: [round (MAX_DMIG * 3) over 200]}
+ result: [round d{MIN_DMG..MAX_DMG} over 100]
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+function: level five chop revenge REVENGE:n {
+ if (REVENGE = 5) { CRIT_BONUS: CRIT_BONUS + 11
+                    ACC_BONUS: ACC_BONUS + 15
+                    DAM_BONUS: DAM_BONUS +35 }
+ result: [13 to 26 damage (12 + CRIT_BONUS) crit TARGET_DODGE dodge TARGET_PROT prot]
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+NATURAL_SWING:1 PRECISE_STRIKE:1 SLUGGER:1
+
+if CORVIDS_EYE {ACC_BONUS: ACC_BONUS + 8}
+if NATURAL_SWING {ACC_BONUS: ACC_BONUS + 5}
+if PRISMATIC_EYE {ACC_BONUS: ACC_BONUS + 8}
+if PRISMATIC_FORCE {DAM_BONUS: DAM_BONUS + 15}
+if PRISMATIC_PRECISION {CRIT_BONUS: CRIT_BONUS + 4}
+if PRECISE_STRIKER {CRIT_BONUS: CRIT_BONUS + 5}
+if SLUGGER {DAM_BONUS: DAM_BONUS + 10}
+
+if ANCESTORS_PEN {DAM_BONUS:DAM_BONUS+10  CRIT_BONUS:CRIT_BONUS+8}
+if FORTUNATE_ARMLET {ACC_BONUS:ACC_BONUS+8 CRIT_BONUS:CRIT_BONUS+3}
+if FOCUS_RING {ACC_BONUS:ACC_BONUS+10 CRIT_BONUS:CRIT_BONUS+5}
+if LEGENDARY_BRACER {DAM_BONUS:DAM_BONUS+20}
+if SUN_RING {DAM_BONUS:DAM_BONUS+10 ACC_BONUS:ACC_BONUS+5}
+
+TARGET_HP: 32
+TARGET_DODGE: 24
+TARGET_PROT: 0
+
+DMG_DIE: [level five chop revenge 0]
+
+output DMG_DIE

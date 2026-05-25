@@ -1,0 +1,44 @@
+function: remove N:n from SEQUENCE:s {
+  RESULT:{}
+  REMOVED: 0
+  loop C over SEQUENCE {
+    if (REMOVED = 0) & (C=N) { REMOVED: 1 } else { RESULT: {RESULT,C} }
+  }
+  result: RESULT
+}
+
+function: draw from SEQUENCE:s with X:n and RESULT:s C:n more times{
+  if C = 0 {
+   result: RESULT
+  } else {
+    SEQUENCE: [remove X from SEQUENCE]
+    result: [draw from SEQUENCE with dSEQUENCE and {RESULT,X} C-1 more times]
+  }
+}
+
+function: draw from SEQUENCE:s with X:n and RESULT:s C:n times keeping KEEP:s {
+  if C = 0 {
+   result:  KEEP @ [sort RESULT]
+  } else {
+    SEQUENCE: [remove X from SEQUENCE]
+    result: [draw from SEQUENCE with dSEQUENCE and {RESULT,X} C-1 times keeping KEEP]
+  }
+}
+
+function: draw from SEQ:s N:n times keeping KEEP:s {
+   result: [draw from SEQ with dSEQ and {} N times keeping KEEP]
+}
+
+function: draw from SEQUENCE:s N:n times {
+  result: [draw from SEQUENCE with dSEQUENCE and {} N more times]
+}
+
+
+WOUND: {100: 6, 1: 6, 10: 6}
+
+output [draw from WOUND 2 times] named "2 card att"
+output [draw from WOUND 3 times] named "3 card att"
+
+output [draw from WOUND 3 times keeping {1, 2}] named "2 card boon"
+
+output #[draw from WOUND with dWOUND and {} 3 more times]

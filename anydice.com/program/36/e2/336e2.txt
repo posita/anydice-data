@@ -1,0 +1,55 @@
+\**** Damage calculator ****\
+
+function: bless N:n {
+ result:Nd4
+}
+
+function: attack MULTIATTACK:n times{
+ TOTAL: 0
+ INFUSEDDAMAGE: 0
+ loop N over {1..MULTIATTACK}{
+  DAMAGE: [attackroll d20 vs ENEMYAC with [bless BLESSDICE]]
+  INFUSEDDAMAGE: [infusedstrike DAMAGE]}
+  TOTAL: TOTAL + DAMAGE
+ }
+ result: TOTAL
+}
+
+function: infusedstrike DAMAGE:n {
+ INFUSEDDAMAGE: 1d6
+ if DAMAGE > 0 { result: INFUSEDDAMAGE }
+ result: 0
+}
+
+function: attackroll ROLL:n vs AC:n with BLESS:n{
+ if ROLL >= CRITROLL { result: DAMAGE + CRITDAMAGE } 
+ \if ROLL = 1 { result: 0 }\
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS+ BLESS >= AC { result: DAMAGE }
+ result: 1
+}
+
+function: dragonattackroll ROLL:n vs AC:n with BLESS:n{
+ if ROLL >= CRITROLL { result: DRAGONDAMAGE  + DRAGONCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DRAGONATTACKMOD + BLESS >= AC { result: DRAGONDAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: 100 \d{13..16}\
+
+CRITROLL: 200
+
+\-----\
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+BLESSDICE: 0
+DAMAGE: 1 \1d8 + 1d6 + ATTACKMOD + DMGBONUS\
+CRITDAMAGE: 0 \1d8 + 1d6\
+ATTACKAMOUNT: 2
+DRAGONATTACKMOD: 3
+DRAGONDAMAGE: 0 \1d6 + PROFICIENCY\
+DRAGONCRITDAMAGE: 0 \1d6\
+output [attack ATTACKAMOUNT times] + [dragonattackroll d20 vs ENEMYAC with [bless BLESSDICE]]named "R5 Mark"

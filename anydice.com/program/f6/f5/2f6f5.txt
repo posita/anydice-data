@@ -1,0 +1,132 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+function: abilitymod SCORE:n { result: (SCORE - 10) / 2 }
+function: if X:n reached MINIMUM:n then Y:s else Z:s { if X >= MINIMUM { result: Y } result: Z }
+function: if X:n reached MINIMUM:n then Y:s { result: [if X reached MINIMUM then Y else 0] }
+
+MYCRIT: d{20}
+USE_MAGIC: 0 \0 to not use magic items, else 1\
+loop ROGUE over [reverse {1..20}] {
+\CHARACTER\
+\Double Phantom - High Elf Rogue\
+\Class Level\ \ROGUE: 1\
+\ ASI @ 4,8,10,12,16,19 So, what to do? 
+  Elven Accuracy @4; Ritual Caster (wizard) @8; DEX+2 @10; Crossbow Expert @12; Sharpshooter @16; ?? @19 \
+LEVEL: ROGUE
+CAN_SNEAK: 1
+if ROGUE > 0 {CAN_SNEAK: 1} else {CAN_SNEAK: 0}
+if LEVEL >=17 { TIER: 4 } else {if LEVEL >= 11 {TIER: 3} else {if LEVEL >= 5 {TIER: 2} else {TIER: 1}}}
+DEX: 17
+ if ROGUE >= 10 { DEX: DEX + 2 }
+PROF: (LEVEL - 1) / 4 + 2
+SNEAK_ATTACK_DICE: (ROGUE - 1) / 2 + 1
+SNEAK_ATTACK: (SNEAK_ATTACK_DICE)d6
+
+\ Feats \
+ELVEN_ACCURACY: [ if ROGUE reached 4 then 1 else 0 ] DEX: DEX + ELVEN_ACCURACY
+ARCHERY: 0  \ Fighting Initiate (Archery) : 2 ? 0 \
+CROSSBOW_EXPERT_FEAT_LEVEL: 12
+SHARPSHOOTER: [ if ROGUE reached 16 then 1 else 0 ]  \ Sharpshooter : 1 ? 0 \
+
+\ Cantrip \
+BOOMING_BLADE_HIT: ((LEVEL + 1) / 6)d8
+BOOMING_BLADE_MOVE: (((LEVEL + 1) / 6) + 1)d8
+\ output [attack 19 plus 0 vs 1 for BOOMING_BLADE_MOVE crit 0 on MYCRIT] named "Booming Blade Movement @ level [LEVEL]" \
+
+\ Class Feature \
+\ MYCRIT: d{19,20} \ \  Champion Fighter's Improved Critical feature lowers range to 19 \
+ARCHERY: 0 \ Fighter feature \
+WAILS_FROM_THE_GRAVE: [if ROGUE reached 3 then 1]
+WAILS_DICE: (SNEAK_ATTACK_DICE + 1)/ 2
+WAILS_DMG_SECONDARY: (WAILS_FROM_THE_GRAVE * WAILS_DICE)d6
+WAILS_DMG_PRIMARY: [if ROGUE reached 17 then WAILS_DMG_SECONDARY] \ Death's Friend (TCE p.62), 17th-level Phantom feature \
+WAILS_DMG: WAILS_DMG_PRIMARY + WAILS_DMG_SECONDARY
+\ output [attack 19 plus 0 vs 1 for WAILS_DMG crit 0 on MYCRIT] named "Wails from the Grave Damage @ level [LEVEL]" \
+
+\ *** Magic Items *** \
+\Manual of Quickness of Action\ 
+if USE_MAGIC { DEX: DEX + [if ROGUE reached 16 then 2] }
+
+ADVANTAGE: [highest 1 of (2 + ELVEN_ACCURACY)d20] 
+DISADVANTAGE: [lowest 1 of 2d20]
+
+\ENEMY ARMOR CLASS RANGE - e.g., d{14..21}\
+ACL: 12 + ((ROGUE-1) * (22-12)/20)
+ACL: 8 + PROF + [abilitymod DEX]
+AC_DEVIATION: 1
+AC: d{(ACL-AC_DEVIATION)..(ACL+AC_DEVIATION)}
+
+DEXMOD: [abilitymod DEX]
+
+\Rapier\ DAMAGE: 1d8   MAGIC: [ if LEVEL reached 11 then 2 else [if LEVEL reached 5 then 1] ] * USE_MAGIC
+ABONUS: DEXMOD + PROF + MAGIC
+DBONUS: DEXMOD + MAGIC
+HITDMG: DAMAGE + DBONUS 
+CRITDMG: DAMAGE 
+\ output [attack d20 plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] named "Rapier @ level [LEVEL]" \
+
+HITDMG: DAMAGE + DBONUS + BOOMING_BLADE_HIT 
+CRITDMG: DAMAGE + BOOMING_BLADE_HIT 
+RAPIER_ATTACK: [attack ADVANTAGE plus ABONUS vs AC for HITDMG + WAILS_DMG + BOOMING_BLADE_MOVE crit CRITDMG on MYCRIT]
+\ output [attack ADVANTAGE plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+   named "Rapier Sneak w/ Booming Blade @ level [LEVEL]" \
+\ output RAPIER_ATTACK named "Rapier Sneak w/ BoomBlade & WftG v AC[ACL] @ level [LEVEL]" \
+\ output [attack ADVANTAGE plus ABONUS vs AC for HITDMG + WAILS_DMG + BOOMING_BLADE_MOVE crit CRITDMG on MYCRIT] 
+   named "Rapier Sneak w/ BoomBlade Both & WftG @ level [LEVEL]" \
+
+\Sneak Attack\
+DAMAGE: SNEAK_ATTACK
+HITDMG: DAMAGE
+CRITDMG: DAMAGE
+ROUND_SNEAK: [attack ADVANTAGE plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT]
+
+\Dagger, Mundane\ DAMAGE: 1d4   MAGIC: 0 * USE_MAGIC
+ABONUS: DEXMOD + PROF + MAGIC
+DBONUS: DEXMOD + MAGIC
+HITDMG: DAMAGE + DBONUS
+CRITDMG: DAMAGE
+\ output [attack ADVANTAGE plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] named "Dagger Sneak w/ ElvenAdv" \
+
+\Crossbow, Light\ DAMAGE: 1d8   MAGIC: [ if LEVEL reached 8 then 1 ] * USE_MAGIC
+ABONUS: DEXMOD + PROF + MAGIC + ARCHERY
+DBONUS: DEXMOD + MAGIC
+HITDMG: DAMAGE + DBONUS
+CRITDMG: DAMAGE
+\ output [attack 1d20 plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] named "Heavy Crossbow @ level [LEVEL]" \
+HITDMG: DAMAGE + DBONUS + WAILS_DMG_PRIMARY
+CRITDMG: DAMAGE
+\ output [attack ADVANTAGE plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT] 
+ named "Crossbow Sneak Attack @ level [LEVEL]" \
+\ output [attack ADVANTAGE plus ABONUS vs AC for HITDMG + WAILS_DMG crit CRITDMG on MYCRIT] 
+ named "Crossbow Sneak w/ WftG v AC[ACL] @ level [LEVEL]" \
+
+\Hand Crossbow\ DAMAGE: 1d6   MAGIC: [if LEVEL reached 5 then 1] * USE_MAGIC
+ABONUS: DEXMOD + PROF + MAGIC + ARCHERY + [ if SHARPSHOOTER reached 1 then -5 ]
+DBONUS: DEXMOD + MAGIC
+HITDMG: DAMAGE + DBONUS + [ if SHARPSHOOTER reached 1 then 10 ]
+CRITDMG: DAMAGE
+HANDCROSSBOW_ATTACK: [attack ADVANTAGE plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT]
+
+ if (ROGUE/2) <= ((ROGUE+1)/2) {
+  if CROSSBOW_EXPERT_FEAT_LEVEL & (ROGUE >= CROSSBOW_EXPERT_FEAT_LEVEL) { 
+   if SHARPSHOOTER > 0 {
+    output RAPIER_ATTACK+HANDCROSSBOW_ATTACK+ROUND_SNEAK named "T[TIER] Rapier+HandCrossbow SS +[DEXMOD]DEX v AC[ACL] @ level [LEVEL]"
+   } else {
+    output RAPIER_ATTACK+HANDCROSSBOW_ATTACK+ROUND_SNEAK named "T[TIER] Rapier+HandCrossbow +[DEXMOD]DEX v AC[ACL] @ level [LEVEL]"
+   }
+  } else {
+   if ELVEN_ACCURACY > 0 {
+    output RAPIER_ATTACK+ROUND_SNEAK named "T[TIER] Rapier EAdv +[DEXMOD]DEX v AC[ACL] @ level [LEVEL]"
+   } else {
+    output RAPIER_ATTACK+ROUND_SNEAK named "T[TIER] Rapier +[DEXMOD]DEX v AC[ACL] @ level [LEVEL]"
+   }
+  }
+ }
+}

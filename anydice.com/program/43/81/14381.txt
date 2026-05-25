@@ -1,0 +1,96 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BASEATTACK: 4 + 3 + 2 + 2
+BASEDAMAGE: 1d6 + 3 + 2
+BASECRITDAMAGE: 2d6 + 3 + 2
+BARDATTACK: BASEATTACK
+OBJECTATTACK: 8
+GRIFFONATTACK: 6
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+MISSDAMAGE: 0
+GRIFFONDAMAGEBEAK: 1d8 + 4
+GRIFFONCRITICALDAMAGEBEAK: 2d8 + 4
+GRIFFONDAMAGECLAWS: 2d6 + 4 
+GRIFFONCRITICALDAMAGECLAWS: 4d6 + 4
+OBJECTDAMAGE: 1d4 + 4
+AC: 15
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: griffon damage for ATTACKRESULTBEAK:n and ATTACKRESULTCLAWS:n {
+  TOTAL: 0
+  if ATTACKRESULTBEAK = CRITICALHIT {
+    TOTAL: TOTAL + GRIFFONCRITICALDAMAGEBEAK
+  }
+  if ATTACKRESULTBEAK = HIT {
+    TOTAL: TOTAL + GRIFFONDAMAGEBEAK
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  if ATTACKRESULTCLAWS = CRITICALHIT {
+    TOTAL: TOTAL + GRIFFONCRITICALDAMAGECLAWS
+  }
+  if ATTACKRESULTCLAWS = HIT {
+    TOTAL: TOTAL + GRIFFONDAMAGECLAWS
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  result: TOTAL
+}
+
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [d20 vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+\ Haste \
+
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] + [griffon damage for [d1 vs AC 0] and [d20 vs AC GRIFFONATTACK]] named "Level 11 hand xbow w/o SS w/ griff w/ haste vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 10
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] + [griffon damage for [d1 vs AC 0] and [d20 vs AC GRIFFONATTACK]] named "Level 11 hand xbow w/ SS w/ griff w/haste vs AC[AC]"
+
+\ Swift Quiver \
+
+BARDATTACK: BASEATTACK
+HITDAMAGE: 1d10 + 3 + 2
+CRITICALDAMAGE: 2d10 + 3 + 2
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 11 heavy xbow w/o SS w/ griff w/SQ vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: 1d10 + 3 + 2 + 10
+CRITICALDAMAGE: 2d10 + 3 + 2 + 10
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 11 heavy xbow w/ SS w/ griff w/SQ vs AC[AC]"
+
+\ Holy Weapon \
+
+BARDATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE + 2d8
+CRITICALDAMAGE: BASECRITDAMAGE + 4d8
+output [multiattack 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 11 hand xbow w/o SS w/ griff w/HW vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 2d8 + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 4d8 + 10
+output [multiattack 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 11 hand xbow w/ SS w/ griff w/HW vs AC[AC]"

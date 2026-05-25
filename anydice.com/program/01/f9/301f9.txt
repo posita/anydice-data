@@ -1,0 +1,29 @@
+loop AC over {11..27}{
+loop ADV over {1..2}{
+loop ASI over {1}{
+loop VAR over {1,2,3}{
+BD:0
+if ASI=1 {ST:5} else {ST:4}
+if ASI=1 {GWM:5} else {GWM:0}
+if ASI=1 {CM:6} else {CM:3}
+if ASI=1 {if ADV=2 {BD:1} else {BD:0}}
+PRF:6
+RAGE:3
+MW:3
+ATMOD: ST+PRF-GWM+MW
+DMG:RAGE+(GWM*2)+MW
+if VAR=1 {CRDM: (ST+DMG)} else {if VAR=2 {CRDM: 2*(ST+DMG)} else {CRDM: (CM*ST)+DMG}}
+
+function: switch S:n {
+ if S=1 {result:-1}
+ if S=20 {result:CMd12 + CRDM}
+ if S+ATMOD < AC {result: 0}
+ if S < 19 { result: d12+DMG+ST}
+ result: CMd12 + CRDM
+}
+
+output d[switch [highest 1 of (ADV+BD)d20]] named "v[VAR]_[ASI]_[AC]ac_[ADV]+[BD]dice_[ST]st_[PRF]prof_[GWM]GWM_crit[CM]"
+}
+}
+}
+}

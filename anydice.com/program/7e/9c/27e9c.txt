@@ -1,0 +1,67 @@
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\\\ Rough calc of ability score distribution when players are allowed to:  \\\
+\\\ 1. Roll for their ability scores with 4d6 drop lowest, assign any.     \\\
+\\\ 2. Choose to abandon their rolled array to use point buy instead.      \\\
+\\\ 3. Gain a number of extra points during point buy, equal to:           \\\
+\\\    bonus = party size - number of abandoned arrays party-wide.         \\\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+\\\ Parameters \\\
+\ Party size                                \
+\ Loses accuracy at some point after size 8 \
+P: 6
+\ Ability score generation die \
+S: 6d({1..3}@4d6)
+\ Approximate value of a point-buy array, as the sum of all scores. \
+\ Used as the base threshold to keep or abandon a rolled array.     \
+T: 71
+\ Set to 1 to see average scores, 0 to see full scores. \
+\ Averages tend to hide rare outcomes from view.        \
+AVG: 0
+
+
+\\\ NOTE ON THRESHOLD VALUE \\\
+\ This is not a good measurement of value equivalence between these sets.           \
+\ But it is the basis of the maths used below, so try to understand where it lacks. \
+\ Many players will take one 16 over buying any number of 15s. So, use a low value. \
+\ We can envision a player keeping one 18 and five 10's, for 68 total, for example. \
+\ The internet-consensus is around the value 70. So the "keep" threshold is 70 + 1. \
+
+
+\\\ Functions \\\
+\ Basic reroll \
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+\ Expectation of abandons \
+function: abandons expected from ROLL:d at size SIZE:n {
+  RES: SIZEd(ROLL < T + P/2)
+  \ Div by 2 because low arrays can still have high max scores. Very rough cut to the math.  \
+  \ An actual fix to the value discrepancy would be fairly involved. Have at it; I will not. \
+  if SIZE > 12 { CHECK: 6 } else { CHECK: SIZE }  \ check for AnyDice refusing to calculate weird things \
+  loop N over {1..CHECK} {
+    RES: SIZEd(ROLL < T + (P - RES)/2)
+  }
+  result: RES
+}
+
+
+\\\ Calculate some stuff \\\
+\ Expected number of abandons \
+A: [abandons expected from S at size P]
+\ Given that one has occurred \
+E: 1 + [abandons expected from S at size P-1]
+
+
+\\\ Resulting distributions \\\
+if AVG {
+  output  S /6                                  named "Average score from [S]"
+  output [S reroll {1..T-1 + P/2} as T + P-E]/6 named "Average score from [S], with abandons"
+  output  A                                     named "Number of abandons (worse than [T] + [P]/2)"
+} else {
+  output  S                                     named "Score total from [S]"
+  output [S reroll {1..T-1 + P/2} as T + P-E]   named "Score total from [S], with abandons"
+  output  A                                     named "Number of abandons (worse than [T] + [P]/2)"
+}

@@ -1,0 +1,18 @@
+TEST_DAMAGE: 4d8
+
+function: clamp A:n between MIN:n and MAX:n {
+ if A < MIN { result: MIN }
+ if A > MAX { result: MAX }
+ result: A
+}
+
+function: reduce DMG:n by DR_DIE:n sided die with mod DR_MOD:n {
+ result: (DMG * [clamp (dDR_DIE + DR_MOD) between 0 and DR_DIE]) / DR_DIE
+}
+
+output TEST_DAMAGE named "no reduction"
+output TEST_DAMAGE / 2 named "standard resistance"
+
+loop N over {-10..9} {
+ output [reduce TEST_DAMAGE by 10 sided die with mod N] named "d10 mod [N]"
+}

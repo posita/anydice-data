@@ -1,0 +1,119 @@
+\ -----------------------------
+ESTADOS
+-----------------------------\
+
+FALHA_FEAR: 0
+FALHA_HOPE: 1
+SUCESSO_FEAR: 2
+SUCESSO_HOPE: 3
+CRITICO: 4
+
+\ -----------------------------
+\ ATAQUE (DAGGERHEART)
+\ -----------------------------
+
+function: ataque ROLADA:n vs DEFESA:n{
+
+ \ 💥 CRÍTICO (doubles)
+ if HOPE = FEAR {result: CRITICO}
+
+ \ ✅ SUCESSO
+ if ROLADA + ATAQUE >= DEFESA{
+  if HOPE > FEAR {result: SUCESSO_HOPE}
+  result: SUCESSO_FEAR
+ }
+
+ \ ❌ FALHA
+ if HOPE > FEAR {result: FALHA_HOPE}
+ result: FALHA_FEAR
+}
+
+\ -----------------------------
+\ DANO
+\ -----------------------------
+
+function: dano do RESULTADOATAQUE:n{
+ if RESULTADOATAQUE = CRITICO{
+  result: DANOCRITICO
+ }
+ if RESULTADOATAQUE = SUCESSO_HOPE{
+  result: DANO
+ }
+ if RESULTADOATAQUE = SUCESSO_FEAR{
+  result: DANO
+ }
+ result: 0
+}
+
+\ -----------------------------
+\ CONTROLE (MESTRE)
+\ -----------------------------
+
+function: controle RESULTADO:n{
+ if RESULTADO = FALHA_FEAR {result: 1}
+ if RESULTADO = FALHA_HOPE {result: 1}
+ if RESULTADO = SUCESSO_FEAR {result: 1}
+ result: 0
+}
+
+\ -----------------------------
+\ FUNÇÕES PRINCIPAIS
+\ -----------------------------
+
+function: ataque completo {
+ result: [dano do [ataque ROLADA vs DEFESA]]
+}
+
+function: resultado {
+ result: [ataque ROLADA vs DEFESA]
+}
+
+function: controle mestre {
+ result: [controle [ataque ROLADA vs DEFESA]]
+}
+
+\ -----------------------------
+\ BASE DAGGERHEART
+\ -----------------------------
+
+HOPE: d12
+FEAR: d12
+ROLADA: HOPE + FEAR
+
+DEFESA: 18
+
+\ =========================================================
+\ PERSONAGEM 1
+\ =========================================================
+
+ATAQUE: 6
+DANO: 2d8 + 4
+DANOCRITICO: 4d8 + 4
+
+output [ataque completo] named "P1 - Dano"
+output [resultado] named "P1 - Resultado"
+output [controle mestre] named "P1 - Controle do Mestre"
+
+\ =========================================================
+\ PERSONAGEM 2
+\ =========================================================
+
+ATAQUE: 8
+DANO: 1d10 + (1d4)d4
+DANOCRITICO: 2d10 + (1d8)d4
+
+output [ataque completo] named "P2 - Dano"
+output [resultado] named "P2 - Resultado"
+output [controle mestre] named "P2 - Controle do Mestre"
+
+\ =========================================================
+\ PERSONAGEM 3
+\ =========================================================
+
+ATAQUE: 10
+DANO: 2d12 + 1d6 + 6
+DANOCRITICO: 4d12 + 2d6 + 6
+
+output [ataque completo] named "P3 - Dano"
+output [resultado] named "P3 - Resultado"
+output [controle mestre] named "P3 - Controle do Mestre"

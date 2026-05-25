@@ -1,0 +1,85 @@
+
+
+output 1d20+1d6+1 named "crit chance 1acc"
+
+
+\**** overkill heat calculator ****\
+function: overkill N:n {
+ if N = 1 { result: N + [overkill 1d3] }
+ result: 0
+}
+
+\**** Damage calculator ****\
+
+function: boons BOON:n {
+if BOON >= 1 {result: [highest 1 of BOONd6] }
+if BOON <= 0 {result: -[highest 1 of -BOONd6] }
+result: 0
+}
+
+function: attackroll ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: CRITDAMAGE }
+if ROLL + ATTACKMOD >= DEF { result: DAMAGE }
+result: RELIABLE
+}
+
+function: mimic ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: 10 }
+if ROLL + ATTACKMOD >= DEF { result: 10 }
+result: 0
+}
+
+function: oracle ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: [highest 1 of 2d3] }
+if ROLL + ATTACKMOD >= DEF { result: 1d3 }
+result: 0
+}
+
+function: smartgun ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: 4}
+if ROLL + ATTACKMOD >= DEF { result: 4 }
+result: 0
+}
+
+function: unraveler ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: [highest 2 of 4d6] }
+if ROLL + ATTACKMOD >= DEF { result: 2d6 }
+result: 2
+}
+
+function: nchmg ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: [highest 3 of 6d6]+4 }
+if ROLL + ATTACKMOD >= DEF { result: 3d6+4 }
+result: 0
+}
+
+function: autogun ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: 3 }
+if ROLL + ATTACKMOD >= DEF { result: 3 }
+result: 0
+}
+
+
+\use ".." to loop between a range\
+
+
+
+
+EVA: 8
+EDEF: 8
+AR: 1
+MAXDAMAGE: 0
+ATTACKMOD: 1
+
+
+ATKNO: 2
+DAMAGE: 3
+CRITDAMAGE: 3
+RELIABLE: 0
+output ATKNOd[attackroll 1d20+[boons 2] vs EDEF] named "Smartgun vs assault"
+
+ATKNO: 1
+DAMAGE: 3d6+3
+CRITDAMAGE: [highest 3 of 6d6]+3
+RELIABLE: 0
+output ATKNOd[attackroll 1d20+[boons 1] vs EVA] named "HMG vs assault"

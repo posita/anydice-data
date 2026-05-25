@@ -1,0 +1,107 @@
+LEVEL: 20
+AC: 18
+SAVEMOD: 4
+if LEVEL = 1 { SAVEDC: 13 MELEEMOD: 5 MAGICMOD: 5 CANTRIP: 1 MARTIAL: 4 DEXMOD: 3}
+if LEVEL = 2 { SAVEDC: 13 MELEEMOD: 5 MAGICMOD: 5 CANTRIP: 1 MARTIAL: 4 DEXMOD: 3}
+if LEVEL = 3 { SAVEDC: 13 MELEEMOD: 5 MAGICMOD: 5 CANTRIP: 1 MARTIAL: 4 DEXMOD: 3}
+if LEVEL = 4 { SAVEDC: 13 MELEEMOD: 6 MAGICMOD: 5 CANTRIP: 1 MARTIAL: 4 DEXMOD: 4}
+if LEVEL = 5 { SAVEDC: 14 MELEEMOD: 7 MAGICMOD: 6 CANTRIP: 2 MARTIAL: 6 DEXMOD: 4}
+if LEVEL = 6 { SAVEDC: 14 MELEEMOD: 7 MAGICMOD: 6 CANTRIP: 2 MARTIAL: 6 DEXMOD: 4}
+if LEVEL = 7 { SAVEDC: 14 MELEEMOD: 7 MAGICMOD: 6 CANTRIP: 2 MARTIAL: 6 DEXMOD: 4}
+if LEVEL = 8 { SAVEDC: 14 MELEEMOD: 8 MAGICMOD: 6 CANTRIP: 2 MARTIAL: 6 DEXMOD: 5}
+if LEVEL = 9 { SAVEDC: 16 MELEEMOD: 9 MAGICMOD: 8 CANTRIP: 2 MARTIAL: 6 DEXMOD: 5}
+if LEVEL = 10 { SAVEDC: 16 MELEEMOD: 9 MAGICMOD: 8 CANTRIP: 2 MARTIAL: 6 DEXMOD: 5}
+if LEVEL = 11 { SAVEDC: 16 MELEEMOD: 9 MAGICMOD: 8 CANTRIP: 3 MARTIAL: 8 DEXMOD: 5}
+if LEVEL = 12 { SAVEDC: 16 MELEEMOD: 9 MAGICMOD: 8 CANTRIP: 3 MARTIAL: 8 DEXMOD: 5}
+if LEVEL = 13 { SAVEDC: 17 MELEEMOD: 10 MAGICMOD: 9 CANTRIP: 3 MARTIAL: 8 DEXMOD: 5}
+if LEVEL = 14 { SAVEDC: 17 MELEEMOD: 10 MAGICMOD: 9 CANTRIP: 3 MARTIAL: 8 DEXMOD: 5}
+if LEVEL = 15 { SAVEDC: 17 MELEEMOD: 10 MAGICMOD: 9 CANTRIP: 3 MARTIAL: 8 DEXMOD: 5}
+if LEVEL = 16 { SAVEDC: 17 MELEEMOD: 10 MAGICMOD: 10 CANTRIP: 3 MARTIAL: 8 DEXMOD: 5}
+if LEVEL = 17 { SAVEDC: 18 MELEEMOD: 11 MAGICMOD: 11 CANTRIP: 4 MARTIAL: 10 DEXMOD: 5}
+if LEVEL = 18 { SAVEDC: 18 MELEEMOD: 11 MAGICMOD: 11 CANTRIP: 4 MARTIAL: 10 DEXMOD: 5}
+if LEVEL = 19 { SAVEDC: 18 MELEEMOD: 11 MAGICMOD: 11 CANTRIP: 4 MARTIAL: 10 DEXMOD: 5}
+if LEVEL = 20 { SAVEDC: 19 MELEEMOD: 11 MAGICMOD: 11 CANTRIP: 4 MARTIAL: 10 DEXMOD: 5}
+
+function: X:n quiversave {
+if X < SAVEDC {result: X + 10d10}
+result: 500
+}
+
+function: X:n firebolt {
+if X < AC {result: 0}
+if X = 20 + MAGICMOD {result: (2*CANTRIP)d10 }
+result: CANTRIPd10
+}
+
+function: X:n tolld {
+if X < SAVEDC {result: CANTRIPd12 }
+result: 0
+}
+
+
+function: X:n toll {
+if X < SAVEDC {result: CANTRIPd8 }
+result: 0
+}
+
+function: X:n qstaff {
+if X < AC {result: 0}
+if X = 20 + MELEEMOD {result: 2d([highest of 8 and MARTIAL]) + DEXMOD }
+result: 1d([highest of 8 and MARTIAL] + DEXMOD)
+}
+
+function: X:n unarmed {
+if X < AC {result: 0}
+if X = 20 + MELEEMOD {result: 2dMARTIAL + DEXMOD }
+result: 1dMARTIAL + DEXMOD
+}
+
+function: X:n boomingblademove {
+if X < AC {result: 0}
+if X = 20 + MAGICMOD {result: (2*CANTRIP)d8 + CANTRIPd8 }
+result: (2*CANTRIP)d8
+}
+
+function: X:n boomingbladestay {
+if X < AC {result: 0}
+if X = 20 + MAGICMOD {result: (2*CANTRIP)d8 }
+result: (CANTRIP)d8
+}
+
+function: X:n radiance{
+if X < SAVEDC {result: CANTRIPd6 }
+result: 0
+}
+
+function: X:n guidingbolt {
+if X < SAVEDC {result: CANTRIPd6 }
+result: 0
+}
+
+function: X:n inflictwounds {
+if X < AC {result: 0}
+if X = 20 + MAGICMOD {result: 6d10 }
+result: 3d10
+}
+
+function: X:n quiver {
+if X = 0 {result: 0}
+result: X + [d20 + SAVEMOD quiversave]
+}
+
+
+output [(1d20 + MAGICMOD) inflictwounds ] named "inflict wounds"
+output [(1d20 + MAGICMOD) firebolt ] named "firebolt"
+output [(1d20 + SAVEMOD) tolld] named "toll vs dmged"
+output [(1d20 + SAVEMOD) toll] named "toll vs fullHP"
+output [(1d20 + MELEEMOD) qstaff] + [(1d20 + MELEEMOD) qstaff] + [(1d20 + MELEEMOD) unarmed] named "one two punch"
+output [(1d20 + MELEEMOD) boomingblademove] named "booming blade target moves"
+output [(1d20 + MELEEMOD) boomingbladestay] named "booming blade target stays"
+output [(1d20 + SAVEMOD) radiance] + [(1d20 + SAVEMOD) radiance] + [(1d20 + SAVEMOD) radiance] named "word of radiance vs 3"
+output [(1d20 + MELEEMOD) qstaff] + [(1d20 + MELEEMOD) qstaff] + [(1d20 + MELEEMOD) unarmed] + [(1d20 + MELEEMOD) unarmed] named "flurry of blows"
+
+output [(([highest 1 of 2d20]) + MELEEMOD) qstaff] + [(([highest 1 of 2d20]) + MELEEMOD) qstaff] + [(([highest 1 of 2d20]) + MELEEMOD) unarmed] + [(([highest 1 of 2d20]) + MELEEMOD) unarmed] named "invisible flurry of blows"
+
+output [(([highest 1 of 2d20]) + MELEEMOD) boomingblademove]
+
+

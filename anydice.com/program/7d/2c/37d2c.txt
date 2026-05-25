@@ -1,0 +1,57 @@
+INT_MOD: 4
+PROF_BONUS: 3
+
+function: is prone by AC and STR {
+  result: 1d20 + INT_MOD + PROF_BONUS >= AC & 1d20+STR < 8 + INT_MOD + PROF_BONUS
+}
+
+function: apply adv by IS_PRONE:n {
+  if IS_PRONE {
+    result: [highest 1 of 2d20] + INT_MOD + PROF_BONUS
+  } else {
+    result: 1d20 + INT_MOD + PROF_BONUS
+  }
+}
+
+
+function: apply crit to DMG based on ATK:n and AC {
+  if ATK = 20 {
+    result: DMG + DMG + INT_MOD
+  } else if ATK >= AC{
+    result: DMG + INT_MOD
+  } else {
+    result: 0
+  }
+}
+
+\Player Level\
+LEVEL: 20
+
+\Zariel\
+\ENEMY_AC: 21\
+\ENEMY_STR: 8\
+
+\Vecna\
+ENEMY_AC: 18
+ENEMY_STR: 2
+
+
+CANTRIP_LEVEL: (LEVEL + 1 - (LEVEL + 1)/5)/5
+CASTER_LEVEL: [highest of LEVEL and 6] - 6 + [lowest of LEVEL and 6]/2
+SPELL_SLOT: 1 + CASTER_LEVEL/2
+SMITE_DAMAGE: 1d8 + SPELL_SLOTd8
+SHADOW_DAMAGE_ROLL: (2 + ([lowest of SPELL_SLOT and 8]-1)/2)/d8 + SMITE_DAMAGE
+BOOMING_DAMAGE_ROLL: SHADOW_DAMAGE_ROLL + 1d8 + (2*CANTRIP_LEVEL)d8
+SMALL_DAMAGE_ROLL: 1d8 + SMITE_DAMAGE
+
+PRONE: [is prone by ENEMY_AC and ENEMY_STR]
+
+ATTACK_ROLL: [apply adv by PRONE]
+BOOMING_ATTACK_ROLL: [apply adv by PRONE]
+
+
+output [apply crit to SHADOW_DAMAGE_ROLL based on ATTACK_ROLL and ENEMY_AC] + [apply crit to BOOMING_DAMAGE_ROLL based on BOOMING_ATTACK_ROLL and ENEMY_AC] named "with trip"
+
+output [apply crit to SMITE_DAMAGE based on 1d20 + INT_MOD + PROF_BONUS and ENEMY_AC] + [apply crit to SHADOW_DAMAGE_ROLL based on ATTACK_ROLL and ENEMY_AC] + [apply crit to BOOMING_DAMAGE_ROLL based on BOOMING_ATTACK_ROLL and ENEMY_AC] named "with trip-smite"
+
+output [apply crit to SHADOW_DAMAGE_ROLL based on 1d20 + INT_MOD + PROF_BONUS and ENEMY_AC] + [apply crit to BOOMING_DAMAGE_ROLL based on 1d20 + INT_MOD + PROF_BONUS and ENEMY_AC] + [apply crit to SMALL_DAMAGE_ROLL based on 1d20 + INT_MOD + PROF_BONUS and ENEMY_AC] named "with third smite"

@@ -1,0 +1,25 @@
+function: luckyroll N:d plus M:d {
+ LUCKDIESIZE: [highest of [maximum of N] and [maximum of M]]
+ result: [luckyrollhelper N plus M with LUCKDIESIZE luck]
+}
+
+function: luckyrollhelper N:n plus M:n with DIESIZE:n luck {
+ if (N = M) & (N != 1) {
+  result: N + M + [explode d(DIESIZE) on a N with DIESIZE die size]
+ }
+ result: N + M
+}
+
+function: explode ROLL:n on a TARGET:n with DIESIZE:n die size{
+ if ROLL = TARGET { result: TARGET + [explode d(DIESIZE) on a TARGET with DIESIZE die size] }
+ result: ROLL
+}
+
+function: damage DIE:n {
+  if DIE >= 16 { result: 4 }
+  if DIE >= 10 { result: 3 }
+  if DIE >= 7 { result: 2 }
+  if DIE >= 2 { result: 1 }
+  result: 0
+}
+output [damage[luckyroll d4 plus d4]]

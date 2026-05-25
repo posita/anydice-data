@@ -1,0 +1,88 @@
+\------------------------------------------------------------\
+\SCROLL TO THE BOTTOM, DON'T CHANGE ANYTHING BELOW UNTIL TOLD\
+\------------------------------------------------------------\
+
+I_BREAKS: 0
+I_HOPES: 0
+RED: {1000, 100, 1, 101, 101, 1002}
+BLACK: {1100, 101, 101, 1002, 102, 1202}
+WHITE: {1101, 1201, 301, 1102, 302, 1203}
+DOES: 1
+DOESNT: 0
+
+function: condense FACE:n usetokens T:n{
+  BREAKS: I_BREAKS
+  HOPES: I_HOPES
+  if FACE >= 1000 {
+    DOTS: FACE / 1000
+    if HOPES > 0 & T {
+      HOPES: HOPES - DOTS
+      FACE: FACE + DOTS
+      if HOPES < 0 {
+        FACE: FACE + HOPES
+      }
+    }
+    FACE: FACE - (1000 * DOTS)
+  }
+
+  if FACE >= 100 {
+    POTENTIALS: FACE / 100
+    if HOPES > 0 & T {
+      HOPES: HOPES - POTENTIALS
+      FACE: FACE + POTENTIALS
+      if HOPES < 0 {
+        FACE: FACE + HOPES
+      }
+    }
+    if BREAKS > 0 & T {
+      BREAKS: BREAKS - POTENTIALS
+      FACE: FACE + POTENTIALS
+      if BREAKS < 0 {
+        FACE: FACE + BREAKS
+      }
+    }
+    FACE: FACE - (100 * POTENTIALS)
+  }
+  result: FACE
+}
+
+function: rolls A:n plus B:n power P:d bonus Q:s tohit H:n usetokens T:n{
+  RESULT: 1d0
+  ROLL: d10 + B >= H
+  loop X over {1..A}{
+    if X=1 {
+      RESULT: RESULT + (ROLL * (P+Q))
+    }
+    else {
+      RESULT: RESULT + (ROLL * P)
+    }
+  }
+
+  RESULT: [condense RESULT usetokens T]
+  
+  result: RESULT
+
+}
+
+function: rolls A:n dice plus B:n to hit using P:d power dice per hit with a bonus Q:s dice against to hit H:n that T:n use tokens {
+  result: [rolls A plus B power P bonus Q tohit H usetokens T]
+}
+
+\------------------------------------------------------\
+\---The stuff below here is the stuff you can change---\
+\------------------------------------------------------\
+\ For Settings, I would recommend using the Graph view \
+\ and the At Least data type when comparing weapons    \
+\------------------------------------------------------\
+
+I_BREAKS: 3    \number of break tokens in the pool\
+I_HOPES: 0     \number of hope tokens in the pool\
+
+\verbose format\
+output [rolls 2 dice plus 0 to hit using 1dBLACK power dice per hit with a bonus 1dRED dice against to hit 8 that DOES use tokens] named "Jawbone Axe"
+output [rolls 1 dice plus 0 to hit using 2dBLACK power dice per hit with a bonus 1dRED dice against to hit 8 that DOES use tokens] named "Whalebone Bident"
+
+\shortened format\
+output [rolls 1 plus 0 power 2dBLACK bonus 1dRED tohit 8 usetokens DOES] named "Whalebone Bident"
+output [rolls 3 plus 3 power 1dRED bonus 1dRED tohit 8 usetokens DOES] named "Hekatomb"
+output [rolls 3 plus 3 power 1dRED bonus 1dRED tohit 8 usetokens DOESNT] named "Hekatomb - No Tokens"

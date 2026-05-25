@@ -1,0 +1,28 @@
+function: handcrossbow ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: HANDCROSSBOWCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: HANDCROSSBOW }
+ result: 0
+}
+
+function: handcrossbowsharpshooter ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: HANDCROSSBOWCRIT +10 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS -5 >= AC { result: HANDCROSSBOW +10 }
+ result: 0
+}
+
+HIGHENEMYAC: d{5..22}
+LOWENEMYAC: d{23..25}
+ATTACKMOD: 5+2
+DMGBONUS: 0
+PROFICIENCY: 4
+ACCBONUS: 2
+CRITROLL: 20
+ATTACKTIMES: 3
+
+HANDCROSSBOW: 1d6 + ATTACKMOD + DMGBONUS +d4
+HANDCROSSBOWCRIT: 2d6 + ATTACKMOD + DMGBONUS +2d4
+
+output ATTACKTIMESd[handcrossbowsharpshooter [highest 1 of 2d20] vs LOWENEMYAC]+d[handcrossbowsharpshooter d20 vs LOWENEMYAC] named "hand crossbow, sharpshooter vs AC<23"
+output ATTACKTIMESd[handcrossbow d20 vs HIGHENEMYAC]+d[handcrossbow d20 vs HIGHENEMYAC] named "hand crossbow vs AC>22"

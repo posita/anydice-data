@@ -1,0 +1,44 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+ATTACK: 11
+HITDAMAGE: [reroll {1,2} on d8] + 6 + 1 + d6 + 3 + d6 + 2
+CRITICALDAMAGE: [reroll {1,2} on d8] + 6 + 1 + d6 + 3 + d6 + 2 + 24 + 12 + 12
+MISSDAMAGE: 0
+output [damage for [attack [highest 1 of 2d20] vs d{10..20}]] named "1st Attack"
+
+
+ATTACK: 11
+HITDAMAGE: [reroll {1,2} on d8] + 6 + 1 + d6 + 3 + 2
+CRITICALDAMAGE: [reroll {1,2} on d8] + 6 + 1 + d6 + 3 + 2 + 24 + 12
+MISSDAMAGE: 0
+output [damage for [attack [highest 1 of 2d20] vs d{10..20}]] named "2+ Attacks"

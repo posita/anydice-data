@@ -1,0 +1,60 @@
+function: die with N:n sides {
+ result: dN
+}
+
+\change this shit to suit your needs\
+FIGHTSKILL: 4
+WEAPSKILL: 12
+STR: 25
+DEX: 12
+BASEDAM: 10
+STRWEIGHT: 8
+PLUSDAM: 0
+SLAYDAM: 0
+TARGETAC: 0
+MIGHT: 0
+VORPAL: 0
+FREEZING: 0
+FLAMING: 0
+HOLY: 0
+DRAGON: 0
+DRAINING: 0
+ELEC: 0
+
+
+
+\don't touch this shit\
+STAT: STR + (DEX - STR) * (10 - STRWEIGHT) / 20
+STRBONUS: 39
+if STAT > 11 {
+STRBONUS: 39 + (1d(STAT - 10) - 1) * 2
+}
+if STAT < 9 {
+STRBONUS: 39 - (1d(10 - STAT) - 1) * 3
+}
+POTENTIAL: BASEDAM * STRBONUS / 39
+
+
+DAMAGE: (d3 = 3) + [die with POTENTIAL + 2 sides] - 1
+
+DAMAGE: (DAMAGE * 2500 + d(WEAPSKILL * 100 + 2)) / 2500\
+DAMAGE: (DAMAGE * 3000 + d(FIGHTSKILL * 100 + 2)) / 3000\
+if MIGHT {
+DAMAGE: DAMAGE + d11
+}
+DAMAGE: DAMAGE + d(PLUSDAM + SLAYDAM + 2) - 1
+DAMAGE: DAMAGE - (d(TARGETAC + 2) - 1)
+if VORPAL  {
+DAMAGE: DAMAGE + 1 + ([die with DAMAGE + 1 sides] - 1)/3
+}
+if FLAMING | FREEZING | DRAINING  {
+DAMAGE: DAMAGE + 1 + ([die with DAMAGE + 1 sides] - 1)/2
+}
+if HOLY | DRAGON {
+DAMAGE: DAMAGE + 1 + ([die with 15*DAMAGE + 1 sides] - 1)/ 10
+}
+if ELEC {
+DAMAGE: DAMAGE + (9 + d16)*(d3=3)
+}
+
+output DAMAGE

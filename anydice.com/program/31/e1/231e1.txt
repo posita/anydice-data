@@ -1,0 +1,33 @@
+HIT: 1d20 \ Attack Die A \
+GHM: 9 \ Attack Modifier B \
+GCT: 20 \ Critical Flat Dice Threshold C \
+MAP: 3 \ Multiple Attack Penalty Pathfinder 2e Only. 0 for D&D \
+EAC: 16 \ Enemy AC \
+
+function: acc A:n B:n C:n D:n E:n G:n{
+ATTACKVALUE: A+B
+if G=2 {ATTACKVALUE: ((ATTACKVALUE-MAP)+ATTACKVALUE)/2}
+else if G=3 {ATTACKVALUE: ((ATTACKVALUE-MAP)+(ATTACKVALUE-(MAP*2)+ATTACKVALUE)/3)}
+if A=1 {H: 0}
+else if A>1 & A<C & ATTACKVALUE < EAC {H: 0}
+\ Pathfinder 2e Mod, uncomment below for Pathfinder \
+else if ATTACKVALUE>=EAC+10 {H: (D*2)+E}
+\ Pathfinder 2e Mod, uncomment above for Pathfinder \
+else if A>1 & A<C & ATTACKVALUE > EAC {H: D+E}
+else if A>=C {H: (D*2)+E}
+TOTAL: 0
+loop N over {1..G} {
+DAMAGE: [attack H]
+TOTAL: TOTAL + DAMAGE
+}
+if H=0 {result: 0} else {result: TOTAL}
+}
+function: attack ATTACK:d {
+result: ATTACK
+}
+function: gwf A:n B:n{
+if A < 3 {result: B} else {result: A}
+}
+\ Damage Die, Damage Mod, Number of Similar Attacks \
+
+output [acc HIT GHM GCT 1d12 5 3]

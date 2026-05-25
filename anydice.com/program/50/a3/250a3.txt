@@ -1,0 +1,26 @@
+DICE: 5
+MAXDEPTH: 5
+\Calculate successes for Iron Edda Reforged alongside likelihood of 1s\
+\MAXDEPTH is how many recursions of Exploding Dice are allowed\
+\With high pools, use lower depth (loss of precision, but less risk of timing out)\
+\With low pools, you can increase the depth\
+\All hail Catlike Coding!\
+
+function: explode hits on N:n plus X {
+ if N = 6 { result: [explode hits on d6 plus X + 1] }
+ if N = 5 { result: X + 1 }
+ result: X
+}
+
+function: parse hits on ROLL:s {
+ ONES: 0
+ HITS: 0
+ loop N over ROLL { HITS: HITS + N }
+ result: HITS
+}
+
+set "maximum function depth" to MAXDEPTH
+D: [explode hits on d6 plus 0]
+
+output [parse hits on DICEdD] named "Hits"
+output [count {1} in DICEd6] named "Ones"

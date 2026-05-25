@@ -1,0 +1,73 @@
+\
+ This function picks the H-th highest value of a sequence
+ (ordered highest to lowest).
+ If there is no such value, then the result is empty.
+\
+function: pick value H:n from S:s {
+ CURRENTH: 1
+ CURRENTVALUE: 1@S
+ loop P over {1..#S} {
+  if CURRENTVALUE != P@S {
+   CURRENTH: CURRENTH + 1
+   CURRENTVALUE: P@S
+  }
+  if CURRENTH = H { result: P@S }
+ }
+}
+
+\
+ This function wipes all sixes from a sequence.
+\
+function: scrub sixes from S:s {
+ RESULT: {}
+ loop P over {1..#S} {
+  if P@S != 6 { RESULT: {RESULT, P@S} }
+ }
+ result: RESULT
+}
+
+\
+ The final mechanic.
+ Roll 3d6, discard sixes, take 2nd highest value.
+ If there's no value, it's a toss-up between a 0 and a 6.
+\
+function: roll ROLL:s{
+ RESULT: [pick value 2 from [scrub sixes from ROLL]]
+ if #RESULT { result: RESULT }
+ result: d{0,6}
+}
+
+output [roll 3d6] named "the mechanic"
+\
+ As you can see, 5 isn't part of the result range.
+ It's the highest value allowed, but you always pick the 2nd highest.
+ The average is also less than 3.
+
+ If a symmetrical 0-6 range around an average of 3 suffices,
+ then you could use 2d4 - 2.
+\
+output 2d4-2 named "2d4 - 2"
+
+\
+ If you prefer the shape of "pick 2nd", you could use d8s and
+ subtract 1. In this case you would reroll if there isn't a 2nd value,
+ which has a 1.56% chance of occuring.
+\
+output [pick value 2 from 3d8] - 1 named "2nd value of 3d8 - 1"
+
+output [pick value 2 from 3d8]
+
+\
+ If you're stuck with d6s, then you could use them as coins
+ (even/odd or above/below 3 counts as 1, otherwise 0),
+ then roll six of them.
+ However, the distribtions becomes rather steep.
+\
+output 6d{0,1} named "6d6 as coins"
+
+\
+ Three fudge dice (those with '+', '-', and ' ') work too,
+ centered around 0, unless you add 3.
+ You can use d6s to represent them too (1-2: -1, 3-4: 0, 5-6: 1).
+\
+output 3d{-1..1} + 3 named "3dF + 3"

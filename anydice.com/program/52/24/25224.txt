@@ -1,0 +1,41 @@
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: 15
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+SMITE: 5d8
+MACE: 1d6
+GREATSWORD: [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6]
+
+ATTACKMOD: 3
+DMGBONUS: 4
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+DAMAGE: MACE + SMITE + ATTACKMOD + DMGBONUS
+CRITDAMAGE: MACE + MACE + SMITE + ATTACKMOD + DMGBONUS
+output [attackroll d20 vs ENEMYAC] named "Level 5 Divine Smite Mace"
+
+DAMAGE: GREATSWORD + SMITE + ATTACKMOD + DMGBONUS
+CRITDAMAGE: GREATSWORD + GREATSWORD + SMITE + ATTACKMOD + DMGBONUS
+output [attackroll d20 vs ENEMYAC] named "Level 5 Divine Smite GS with Great Weapon"
+
+ACCBONUS: -5
+DAMAGE: GREATSWORD + SMITE + ATTACKMOD + DMGBONUS +10
+CRITDAMAGE: GREATSWORD + GREATSWORD + SMITE + ATTACKMOD + DMGBONUS +10
+output [attackroll d20 vs ENEMYAC] named "Level 5 Divine Smite GS with Great Weapon and Weapon Master"
+

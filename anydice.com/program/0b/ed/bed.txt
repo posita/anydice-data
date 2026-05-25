@@ -1,0 +1,52 @@
+AC: 23
+
+function: kd D:n with KB {
+  if D + KB < 15 {
+    result: 1
+  } else if D + KB <= 25 {
+    result: 2
+  } else if D + KB <= 30 {
+    result: 3
+  } else if D + KB <= 35 {
+    result: 4
+  } else {
+    result: 5
+  }
+}
+
+KD: [kd d20 with +12]
+
+function: confirm R:n attack A damage D extra ED {
+  if (R = 20) + (R + A >= AC) {
+    result: ED + 2dD
+  } else {
+    result: D + ED
+  }
+}
+
+function: roll R:n attack A damage D extra ED {
+  if R = 20 {
+    result: [confirm R attack A damage D extra ED]
+  } else if R = 1 {
+    result: 0
+  } else if R + A >= AC {
+    result: D + ED
+  } else {
+    result: 0
+  }
+}
+
+function: attack A damage D extra ED kd KDR:n {
+  result: [roll d20 attack A+KDR damage D+KDR extra ED]
+}
+
+function: fullattack KDR:n {
+  result: 4d[attack +9 damage 1d8+7 extra 1d6 kd KDR] + [attack +4 damage 1d8+5 extra 1d6 kd KDR]
+}
+
+CLAW: [attack +9 damage 1d8+7 extra 1d6 kd KD]
+SLAM: [attack +4 damage 1d8+5 extra 1d6 kd KD]
+
+output CLAW named "claw damage"
+output SLAM named "slam damage"
+output [fullattack KD] named "total damage"

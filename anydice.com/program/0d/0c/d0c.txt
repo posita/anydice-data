@@ -1,0 +1,33 @@
+MISS: 0
+HIT: 1
+
+function: attack AROLL:n mat AMAT:n def ADEF:n {
+ if AROLL = 2 { result: MISS }
+ else 
+   {
+   if AROLL + AMAT >= ADEF { result: HIT }
+   else 
+   { result: MISS }
+ }
+}
+
+
+function: damage DDICE:n DPOW:n DARM:n for ATTACKS:s {
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = HIT { D: D + [highest of 0 and DDICEd6 + DPOW - DARM] }
+ }
+ result: D 
+}
+
+
+function: roll ATTACKS:n attdice ATDICE:n mat MAT:n pow POW:n dmgdice DMGDICE:n vs def DEF:n arm ARM:n
+{
+result: ATTACKSd[damage DMGDICE POW ARM for [attack ATDICEd6 mat MAT def DEF]]
+}
+
+
+output [roll 4 attdice 2 mat 6 pow 18 dmgdice 2 vs def 10 arm 22] 
+named "Buying extra attacks"
+output [roll 2 attdice 2 mat 6 pow 18 dmgdice 3 vs def 10 arm 22] 
+named "Boosting damage"

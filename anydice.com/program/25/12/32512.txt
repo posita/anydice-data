@@ -1,0 +1,54 @@
+\ hardcaml \
+
+LVL:        12
+INT:        20
+CHA:        10
+CRIT_BONUS: 3
+
+ADVAN:      1
+HITS:       6
+
+RHAP:       0
+MARKO:      0
+SPLSPK:     0
+MOURN:      1
+
+EVO:        1
+DRAC:       0
+ELE_AUG:    1
+PO_ROBE:    0
+GLOW:       0
+EX:         0
+
+VULN:       2
+PS:         0
+
+function: crit D:n with B:n {
+   if D >= 20-B { result: 1 } else { result: 0 }
+}
+
+function: notevery D:n {
+   if D >= 2 { result: 1 } else { result: 0 }
+}
+
+function: every D:n {
+   if D >= 2 { result: 0 } else { result: 1 }
+}
+
+function: AB:n mod {
+   result: (AB - 10)/2
+}
+
+ADV: [highest 1 of 2d20]
+CRIT: [crit 1d20 with CRIT_BONUS]
+if ADVAN { CRIT: [crit ADV with CRIT_BONUS] }
+PROF: 1+(LVL+3)/4
+CANT_SCALE: 1 + LVL/5
+
+RF_DICE: VULN*CANT_SCALEd8
+RF_FLAT: [INT mod]*(EVO + ELE_AUG) + (PO_ROBE)*[CHA mod] + 3*RHAP + 2*GLOW + MARKO*PROF
+
+RF_DAM: (PS+1) * (VULN*MOURN + [notevery d4]*VULN*SPLSPK + RF_DICE + (1+(VULN-1))*RF_FLAT + CRIT*RF_DICE) + [every d3]*VULN*SPLSPK*(1+d8)
+
+output RF_DAM named "Single Ray of Frost Damage"
+output RF_DAM*HITS named "[HITS] Ray of Frost(s) Damage"

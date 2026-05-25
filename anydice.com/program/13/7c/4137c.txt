@@ -1,0 +1,30 @@
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: 0}
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATTACKMOD >= AC { result: HIT }
+ result: 0
+}
+
+function: save ROLL:n vs DC:n {
+ if ROLL = 1 { result: FAIL}
+ if ROLL = 20 { result: SUCCESS }
+ if ROLL + SAVEMOD >= DC { result: SUCCESS}
+ result: FAIL
+}
+
+CRIT: 12d4+7
+HIT: 6d4+7
+ATTACKMOD: 5
+
+loop AC over {13,16,18} {
+output [attack d20 vs AC] named "1 ATK vs [AC]"
+output 3d[attack d20 vs AC] named "3 ATKs vs [AC]"
+}
+
+FAIL: 6d6
+SUCCESS: FAIL/2
+DC: 15
+
+loop SAVEMOD over {2,7,5} {
+output [save d20 + SAVEMOD vs DC] named "1 SAVE + [SAVEMOD] vs DC [DC]"
+}

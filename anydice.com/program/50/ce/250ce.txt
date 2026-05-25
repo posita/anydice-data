@@ -1,0 +1,38 @@
+function: best match in ROLL:s {
+  BEST: 0
+  loop V over ROLL {
+    BEST: [highest of BEST and V * (ROLL = V)]
+  }
+  result: BEST
+}
+
+function: best sequence in ROLL:s {
+  BEST: 0
+  HI: 1@ROLL
+  LO: 1@ROLL
+  loop V over ROLL {
+    if V < LO-1 { HI: V }
+    LO: V
+    BEST: [highest of BEST and {LO..HI}+0]
+  }
+  result: BEST
+}
+
+function: ctech ROLL:s {
+  result: [highest of [best match in ROLL] and [best sequence in ROLL]]
+}
+
+function: if COND:n then A else B {
+  if COND { result: A } else { result: B }
+}
+
+function: fill in DIE:d {
+  VALUES: [sort {DIE}]
+  MAX: 1@VALUES
+  MIN: #VALUES@VALUES
+  result: [if 10d{0,1:999} > 0 then DIE else d{MIN..MAX}]
+}
+
+loop N over {5,6} {
+  output [fill in [ctech Nd10]] named "CthulhuTech [N]d10"
+}

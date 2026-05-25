@@ -1,0 +1,45 @@
+
+
+MILITARY: 75
+
+PREV_SCORE: -1000
+
+loop RATING over {8..30} {
+RATING:RATING*5
+
+AMBUSH: d10-1
+RAID: d(50-5)+5-1
+PILLAGE: d(100-25)+25-1
+ASSAULT: d(200-50)+50-1
+SIEGE: d(500-100)+100-1
+
+TYPE: PILLAGE
+
+
+LUCK: d11+4
+
+ENEMY: TYPE*MILITARY
+ATTACK: LUCK*10*RATING
+
+
+\ estimations are bugged and just did start+end/2, but that's valid for inclusive/inclusive, when seededRand is inclusive/exclusive \
+ENEMY_AVG: (1@{ENEMY}+1@[reverse {ENEMY}]+MILITARY)/2 
+OUR_AVG: (1@{ATTACK}+1@[reverse {ATTACK}])/2
+
+
+if OUR_AVG > ENEMY_AVG {
+
+
+  SCORE: 1000-1000*ENEMY_AVG/OUR_AVG
+} else {
+ SCORE: -(1000-1000*OUR_AVG/ENEMY_AVG)
+}
+if PREV_SCORE > -1000 {
+loop X over {PREV_SCORE/10+1..SCORE/10} {
+output -1 named " "
+}
+}
+PREV_SCORE: SCORE
+V: SCORE/10
+output ATTACK>ENEMY named "[V]"
+}

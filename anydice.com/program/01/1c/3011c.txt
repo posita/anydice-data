@@ -1,0 +1,34 @@
+NONE: {0,0,0,0,0,0}
+MAIL: {0,0,4,4,4,4}
+PLATE: {3,5,5,5,5,5}
+ARMOR: PLATE
+
+function: thrustraw ROLL:s {
+  HIGH: {1@ROLL}
+  LOW: {#ROLL@ROLL}
+  result: [damage (HIGH -[armor LOW])]
+}
+function: damage N:n {
+  if N < 0 {
+    result: 0
+  } else {
+    result: N
+  }
+}
+function: normal {
+  result: [damage (1d6 - [armor 1d6])]
+}
+function: armor AD:n {
+  result: AD@ARMOR
+}
+function: precise {
+  result: [damage (1d6 - [armor [lowest 1 of 2d6]])]
+}
+function: thrust {
+  result: [thrustraw 2d6]
+}
+output [armor 1d6] named "Armor"
+output [normal] named "Normal"
+output [precise] named "Precise"
+output [thrust] named "Driving Thrust"
+output [highest 1 of 2d6] named "highest of 2d6"

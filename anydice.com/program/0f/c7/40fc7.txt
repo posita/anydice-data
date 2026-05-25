@@ -1,0 +1,37 @@
+function: ROLLS:s hitrate on HITSPAN:s{
+\ number of hit by dicepool size \
+result: [count HITSPAN in ROLLS]
+}
+
+
+function: ROLLS:s dont glitch {
+NB_ONE: [count 1 in ROLLS]
+result: (NB_ONE*2) < #ROLLS
+}
+
+
+function: glitchiness of ROLLS:s{
+\ 0 mean no glitch
+  1 mean  a glitch
+  2 mean  a critical glitch
+\
+if [ROLLS dont glitch] {result:0}
+else{
+    if [ROLLS hitrate on HITSPAN] > 0 
+         {result:1}
+    else {result:2}
+    }
+}
+
+Y:6
+HITSPAN:{5,6}
+
+loop X over {1..15}{
+\\
+output [glitchiness of XdY]
+named "[X]d[Y]"
+\
+output [XdY hitrate on HITSPAN]
+named "[X]d[Y]"
+\
+}

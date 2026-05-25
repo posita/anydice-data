@@ -1,0 +1,23 @@
+ECHIDNA_HP: 35
+ECHIDNA_AS: 18 - [highest of 15-9 and 0]
+ECHIDNA_LUCK: 6
+ECHIDNA_DEF: 8
+ECHIDNA_AVOID: ECHIDNA_AS*2 + ECHIDNA_LUCK
+
+function: autolevel G {result: (G - G/8 + (d65536-1)/(65535/(G/4)) + (d65536-37)/655)/100}
+function: autolevel from B by G level L hmb M {result: B + [autolevel (L-1)*G]}
+
+function: level X fighter str {result: [autolevel from 5 by 55 level X hmb 9]}
+function: level X fighter hand axe atk {result: [level X fighter str] + 7}
+
+function: level X fighter skill {result: [autolevel from 2 by 35 level X hmb 9]}
+function: level X fighter luck {result: [autolevel from 0 by 15 level X hmb 9]}
+function: level X fighter hand axe hit {result: [level X fighter skill]*2 + [level X fighter luck]/2 + 50}
+function: level X fighter displayed hit {result: [level X fighter hand axe hit] - ECHIDNA_AVOID}
+
+function: event that level X fighter actually hits {result: 2d((d65536-1)/655)/2 < [level X fighter displayed hit]}
+function: result of level X fighter attack {result: [event that level X fighter actually hits]*([level X fighter hand axe atk] - ECHIDNA_DEF)}
+
+TOTAL_DAMAGE: [result of level 17 fighter attack] + [result of level 15 fighter attack] + [result of level 15 fighter attack]
+output TOTAL_DAMAGE >= ECHIDNA_HP named "Event that Echidna dies"
+output TOTAL_DAMAGE named "Damage dealt to Echidna"

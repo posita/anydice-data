@@ -1,0 +1,88 @@
+\Instructions:\
+\This is designed to calculate and compare the expected damage per round of a monster or player to a single target.\
+\To use you'll want to modify the variables in the --Action-- Sections down below,\
+\You can make copies of this section to compare multiple sets of actions or the actions of multiple creatures\
+\Listed in the --Commented Action-- section are all of the modifiers you can edit and what they're for\
+\The important graphs to take note of are "Normal" to calculate the average damage per round (on the right)\
+\and "At Least" to calculate the likelyhood of hitting a particular threshold (Like one shotting a target.\
+\-----------------------Code-----------------------\
+function:rerX:n{if X<=LUCK {result:1d20} result:X}
+function:hit{if ADV=0 {result:[lowest 1 of 2d[rer1d20]]} result:[highest 1 of ADVd[rer1d20]]}
+function:atkATKR:nDMGR:d{ATOT:SMOD+PMOD+WMOD+AMOD DTOT:DMOD
+ NATCRIT:0 if ATKR=1{result:0} if ATKR=20{NATCRIT:1}
+ if (ATKR+ATOT>=AC+10)|((ATKR+ATOT>AC)&NATCRIT){result:2*(DMGR+DBON+DTOT+CMOD)}
+ if ATKR+ATOT>=AC{result:DMGR+DBON+DTOT}
+ result:0}
+function:rrN{if RR=0 {result:N} result: {{1..RR}:RR, {RR+1..N}:N+RR}}
+function:attack{TOT:[atk[hit]DNUMd[rrDDIE]] if ATKS>1{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>2{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]}
+ if ATKS>3{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>4{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>5{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]}
+ if ATKS>6{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>7{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>8{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]}
+ if ATKS>9{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>10{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>11{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} result:TOT}
+function:saveSAVR:nDMGR:d{DC:8+SMOD+PMOD+WMOD+AMOD
+ if SAVR=1{result:DMGR+DBON+DMOD}
+ if SAVR=20{if EVA=1{result:0} result: (DMGR+DBON+DMOD)/2}
+ if SAVR+SAVE>=DC{if EVA=1{result:0} result: (DMGR+DBON+DMOD)/2} result:DMGR+DBON+DMOD}
+function:cast{result:[save[hit] DNUMd[rrDDIE]]}
+function: if CONDITION:n then A else B {if CONDITION { result: A } else { result: B }}
+
+\-----------------------Commented Action-----------------------\
+SMOD:4 \Stat Modifier: Added to attack rolls and DCs\
+PMOD:5 \Proficiency bonus: Added to Attack rolls and DCs\
+WMOD:0 \Weapon Modifier: Added to Attack rolls and DCs\
+AMOD:0 \Attack Modifier: Added to Attack rolls\
+\For simplity you can set three of these to 0 and only set one to the total attack/save modifier\
+\The DC of a cast is 8 + all relevant modifiers\
+DMOD:0 \Damage Modifier: Added to all damage rolls\
+CMOD:0 \Crit Modifier: Added to the damage roll only on a crit, it's already doubling this is just in case there are abilities that deal extra damage on a crit\
+LUCK:0 \Allows a reroll of attack rolls once per die if less than or equal to this value (not sure if this is used for starfinder it's a dnd thing for halflings)\
+ADV:1  \Advantage. Rolls X dice and takes the highest, 2 for normal advantage (Does not accurately represent hero points as that's chosen after the fact.\
+RR:0   \Allows a reroll of damage dice once per die if less than or equal to this value\
+ATKS:1 \Number of attacks made with the action\
+DNUM:1 \Number of damage dice\
+DDIE:6 \Size of the damage dice\
+DBON:0 \Any aditional damage dice (Can add multiple together, for example (2d8+1d6)\
+AC:20  \AC of the target\
+SAVE:9 \Total save bonus of the target\
+EVA:0  \Leave at 0 if the damage of a spell or ability is halved on a successful save, set to 1 if it is reduced to 0\
+
+\ACTION A B and C should always be set to something (to avoid the value carrying over from the previous output\
+\[attack] represents attacks, [cast] represents a spell or ability that requires a save, \
+\Here I'm treating the first attack as normal\
+ACTIONA:[attack]
+\Not doing any damage for my second action\
+ACTIONB:0 
+\You can edit any of the modifiers in between turns to represent things like applied abilites or the penalty for multiple attacks\
+\Here I'm editing AMOD to represent the penalty to multiple attacks but adding the boost from my sonic pistol which adds a D8 to the damage\
+AMOD:-5 DBON:1d8
+ACTIONC:[attack]
+TOTAL:ACTIONA+ACTIONB+ACTIONC
+\output TOTAL named "Test"\
+\As a basis I've made turn A my typical turn (Buff,Boost,Shoot)\
+\And turn B the turn of one of the sterieids we faced if it just attacked 3 times.\
+\-----------------------Turn A-----------------------\
+SMOD:4 PMOD:5 WMOD:0 AMOD:0 DMOD:0 CMOD:0
+LUCK:0 ADV:1 RR:0
+ATKS:1 DNUM:1 DDIE:6 DBON:0
+AC:20 SAVE:9 EVA:0
+
+ACTIONA:0
+AMOD:1 DMOD:1
+ACTIONB:0
+DBON:1d8
+ACTIONC:[attack]
+TOTAL:ACTIONA+ACTIONB+ACTIONC
+output TOTAL named "Turn A"
+\-----------------------Turn B-----------------------\
+SMOD:0 PMOD:14 WMOD:0 AMOD:0 DMOD:6 CMOD:0
+LUCK:0 ADV:1 RR:0
+ATKS:1 DNUM:2 DDIE:8 DBON:0
+AC:20 SAVE:9 EVA:0
+
+ACTIONA:[attack]
+AMOD:-4
+ACTIONB:[attack]
+AMOD:-8
+ACTIONC:[attack]
+TOTAL:ACTIONA+ACTIONB+ACTIONC
+output TOTAL named "Turn B"
+\----------------------------------------------\

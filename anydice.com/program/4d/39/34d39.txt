@@ -1,0 +1,56 @@
+
+BET: 1500
+
+
+LEVEL: 16
+
+RELIABLE: {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11..20}
+SLEIGHT: 1dRELIABLE + 15
+ROLLA: 1dRELIABLE + 15
+ROLLB: 1dRELIABLE + 15
+ROLLC: 1dRELIABLE + 15
+
+function: tier LEVEL:n {
+  if LEVEL>=17 { result: 4 }
+  if LEVEL>=13 { result: 3 }
+  if LEVEL>=8 { result: 2 }
+  result: 1
+}
+
+function: dc LEVEL:n {
+  TIER: [tier LEVEL]
+  if TIER>=4 { result: 2d10+15 }
+  if TIER=3 { result: 2d10+10 }
+  if TIER=2 { result: 2d10+10 }
+  result: 2d10+5
+}
+
+function: sleight dc LEVEL:n {
+  SLEIGHTDC: 2
+  if LEVEL>=11 { SLEIGHTDC: 4 }
+  result: [dc LEVEL]+SLEIGHTDC
+}
+
+function: profit BET:n {
+  result: { -2*BET, -BET, 0, (BET*2)/2, (BET*2) }
+}
+
+SUCCESSES: (ROLLA > [dc LEVEL]) + (ROLLB > [dc LEVEL]) + (ROLLC > [dc LEVEL])
+PROFIT: [profit BET]
+
+function: roll gold DIE:n GOLD:s {
+  GOLDDIE: (DIE+1)@GOLD
+  result: GOLDDIE
+}
+output [roll gold SUCCESSES PROFIT] named "Casino"
+
+
+SUCCESSES: (SLEIGHT > [dc LEVEL]) * (1 + (ROLLA > [sleight dc LEVEL]) + (ROLLB > [sleight dc LEVEL]) + (ROLLC > [sleight dc LEVEL]))
+PROFIT: [profit BET]
+
+function: roll gold DIE:n GOLD:s {
+  GOLDDIE: (DIE+1)@GOLD
+  result: GOLDDIE
+}
+output [roll gold SUCCESSES PROFIT] named "Casino with Sleight of Hand"
+

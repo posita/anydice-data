@@ -1,0 +1,27 @@
+SIDES: 8
+NOOFDICE: 6
+RATING: 4
+
+
+set "maximum function depth" to 3
+
+function: explode ROLLEDVALUE:n {
+  if ROLLEDVALUE = SIDES {
+    TEMPB: dSIDES
+    NOOFSUCCESSES: NOOFSUCCESSES + (TEMPB >= RATING)
+    NOOFSUCCESSES: [explode TEMPB]   
+  }
+  result: NOOFSUCCESSES
+}
+
+loop M over {1..NOOFDICE}{
+  NOOFSUCCESSES: 0
+
+  loop N over {1..M}{
+    TEMP: dSIDES
+    NOOFSUCCESSES: NOOFSUCCESSES + (TEMP >= RATING)
+    NOOFSUCCESSES: [explode TEMP]
+  }
+
+  output NOOFSUCCESSES named "[M] dice rolled"
+}

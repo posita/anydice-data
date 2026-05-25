@@ -1,0 +1,42 @@
+output 1d20+4+[highest 1 of 2d6] named "attack 2 acc"
+output [highest 1 of 2d20]+4+[highest 1 of 2d6] named "attack 2 boons reroll"
+
+
+output 3+3+2d6 named "var blade toku"
+output [highest 3 of 6d6]+3+3 named "var blade toku crit"
+
+
+\**** Damage calculator ****\
+
+function: boons BOON:n {
+if BOON >= 1 {result: [highest 1 of BOONd6] }
+if BOON <= 0 {result: -[highest 1 of -BOONd6] }
+result: 0
+}
+
+function: attackroll ROLL:n vs DEF:n {
+if ROLL + ATTACKMOD >= 20 { result: CRITDAMAGE }
+if ROLL + ATTACKMOD >= DEF { result: DAMAGE }
+result: RELIABLE
+}
+
+
+\use ".." to loop between a range\
+ENEMYDEF: 19
+AR: 0
+MAXDAMAGE: 0
+
+
+ATTACKMOD: 5
+ATTACKTIMES: 1
+DAMAGE: 8d6+2
+CRITDAMAGE: 10d6+2
+RELIABLE: 0
+output ATTACKTIMESd[attackroll 1d20+[boons 3] vs ENEMYDEF] named "sgpal 7 w/ HA"
+
+
+ENEMYDEF: 14
+DAMAGE: 8d6+2
+CRITDAMAGE: 10d6+2
+RELIABLE: 0
+output ATTACKTIMESd[attackroll 1d20+[boons -2] vs ENEMYDEF] named "rog 7 w/ IB"

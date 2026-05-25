@@ -1,0 +1,33 @@
+
+MISS: 0
+NORMALHIT: 1
+FAILURE: -1
+
+ATTACK: 0
+
+function: blew up SAVE:n {
+  if SAVE = 1 { result: 1 }
+  result: 0
+}
+
+function: ROLL:n vs failed {
+ if ROLL = 1 { 
+   if {0..1} = 1 { result: FAILURE }
+   result: MISS
+ }
+ result: NORMALHIT
+}
+
+function: damage for ATTACKS:s beats HEALTH:s {
+ if [ATTACKS contains FAILURE] { result: -1 }
+
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = NORMALHIT { D: D + 1 }
+ }
+ if D >= HEALTH { result: 1 }
+ else { result: 0 }
+}
+loop M over {1..6} {
+  output [damage for Md[d6 vs failed] beats d3] named "[M] Fired!"
+}

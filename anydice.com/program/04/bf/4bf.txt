@@ -1,0 +1,424 @@
+SHOWHUGH: 1
+SHOWWRENN: 1
+SHOWARORA: 1
+SHOWBRANDIS: 1
+SHOWDEOMIN: 1
+
+SHOWATWILL: 0
+SHOWENCOUNTER: 0
+SHOWDAILY: 1
+
+SHOWCOMPARISONS: 1
+
+AREATARGETS: 3
+
+
+
+
+
+
+
+
+\ ******* Define some constants ******* \
+MISS: 0
+OFFHANDMISS: 1
+HIT: 2
+OFFHANDHIT: 3
+CRITICALHIT: 4
+OFFHANDCRIT: 5
+
+\ ******* Calculates if an attack is a miss, hit, or crit ******* \
+function: attack vs DEFENSE:n { result: [attack d20 vs DEFENSE] }
+function: attack ROLL:n vs DEFENSE:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRITRANGE {
+    if ROLL + ATTACKBONUS >= DEFENSE { result: CRITICALHIT }
+    result: HIT
+  }
+  if ROLL + ATTACKBONUS >= DEFENSE { result: HIT }
+  result: MISS
+}
+
+\ ******* Calculates if an offhand attack is a miss, hit, or crit ******* \
+function: offhand attack vs DEFENSE:n { result: [offhand attack d20 vs DEFENSE] }
+function: offhand attack ROLL:n vs DEFENSE:n {
+  if ROLL = 1 { result: OFFHANDMISS }
+  if ROLL >= CRITRANGEOFFHAND {
+    if ROLL + ATTACKBONUSOFFHAND >= DEFENSE { result: OFFHANDCRIT }
+    result: OFFHANDHIT
+  }
+  if ROLL + ATTACKBONUSOFFHAND >= DEFENSE { result: OFFHANDHIT }
+  result: OFFHANDMISS
+}
+
+\ ******* Calculates the damage for a sequence of attacks ******* \
+function: damage for ATTACKS:s {
+  D: 0
+  loop A over {1..#ATTACKS} {
+    if A@ATTACKS = CRITICALHIT { D: D + [maximum of ATTACKDAMAGE] + CRITDAMAGE }
+    else if A@ATTACKS = HIT { D: D + ATTACKDAMAGE }
+    else if A@ATTACKS = MISS { D: D + MISSDAMAGE }
+    else if A@ATTACKS = OFFHANDCRIT { D: D + [maximum of ATTACKDAMAGEOFFHAND] + CRITDAMAGEOFFHAND }
+    else if A@ATTACKS = OFFHANDHIT { D: D + ATTACKDAMAGEOFFHAND }
+    else if A@ATTACKS = OFFHANDMISS { D: D + MISSDAMAGEOFFHAND }
+    
+    \ This handles a "Learning" weapon which does more damage if the previous attack hit \
+    if USELEARNING = 1 {
+      if A > 1 {
+        if (A-1)@ATTACKS >= HIT {
+          D: D + LEARNINGDAMAGE
+        }
+      }
+    }
+  }
+  result: D + [extra damage for ATTACKS]
+}
+
+function: damage for two attacks vs DEFENSE { result: [two of two attack vs DEFENSE after [attack vs DEFENSE]] }
+function: damage for three attacks vs DEFENSE { result: [two of three attack vs DEFENSE after [attack vs DEFENSE]] }
+
+function: two of two attack vs DEFENSE after FIRSTATTACK:n {
+  ORIGINALATTACKBONUS: ATTACKBONUS
+  if FIRSTATTACK = MISS { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS) }
+  SECONDATTACK: [attack vs DEFENSE]
+  result: [damage for FIRSTATTACK and SECONDATTACK]
+}
+
+function: two of three attack vs DEFENSE after FIRSTATTACK:n {
+  ORIGINALATTACKBONUS: ATTACKBONUS
+  if FIRSTATTACK = MISS { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS) }
+  SECONDATTACK: [attack vs DEFENSE]
+  result: [three of three attack vs DEFENSE after FIRSTATTACK and SECONDATTACK]
+}
+
+function: three of three attack vs DEFENSE after FIRSTATTACK:n and SECONDATTACK:n {
+  if (SECONDATTACK >= HIT) { ATTACKBONUS: ORIGINALATTACKBONUS }
+  if (FIRSTATTACK = MISS) & (SECONDATTACK = MISS) { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS * [lowest of 2 and LEARNINGATTACKBONUSLIMIT]) }
+  else if (SECONDATTACK = MISS) { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS) }
+  THIRDATTACK: [attack vs DEFENSE]
+  result: [damage for FIRSTATTACK and SECONDATTACK and THIRDATTACK]
+}
+
+\ ******* A bunch of functions for dealing with damage from multiple attacks ******* \
+function: damage for A:n and B:n { result: [damage for {A,B}] }
+function: damage for A:n and B:n and C:n { result: [damage for {A,B,C}] }
+function: damage for A:n and B:n and C:n and D:n { result: [damage for {A,B,C,D}] }
+function: damage for A:n and B:n and C:n and D:n and E:n { result: [damage for {A,B,C,D,E}] }
+
+\ ******* Calculates the damage for a burst or blast attack ******* \
+function: area damage for ATTACKS:s {
+  HITS: 0
+  CRITS: 0
+  MISSES: 0
+  D: 0
+  loop A over {1..#ATTACKS} {
+    if A@ATTACKS = CRITICALHIT { CRITS: CRITS + 1 }
+    else if A@ATTACKS = HIT { HITS: HITS + 1 }
+    else if A@ATTACKS = MISS { MISSES: MISSES + 1 }
+  }
+  D: D + ATTACKDAMAGE * HITS
+  D: D + ([maximum of ATTACKDAMAGE] + CRITDAMAGE) * CRITS
+  D: D + (MISSDAMAGE) * MISSES
+  result: D + [extra damage for ATTACKS]
+}
+
+\ ******* Applies all sorts of extra damage that might be applied after all attacks are rolled (IE quarry) ******* \
+function: extra damage for ATTACKS:s {
+  D: 0
+  if USEQUARRY {
+    if (ATTACKS >= CRITICALHIT) >= 1 {
+      D: D + [maximum of QUARRYDAMAGE]
+    } else {
+      if (ATTACKS >= HIT) >= 1 { D: D + QUARRYDAMAGE }
+    }
+  }
+  
+  if USEONEHITBONUS {
+    if (ATTACKS >= HIT) >= 1 { D: D + ONEHITBONUSDAMAGE }
+  }
+  if USETWOHITBONUS {
+    if (ATTACKS >= HIT) >= 2 { D: D + TWOHITBONUSDAMAGE }
+  }
+  if USETHREEHITBONUS {
+    if (ATTACKS >= HIT) >= 3 { D: D + THREEHITBONUSDAMAGE }
+  }
+  result: D
+}
+
+\ ******* Convenience function so that we can use [w] notation ******* \
+function: w {result: WEAPONDAMAGE}
+function: wo {result: WEAPONDAMAGEOFFHAND}
+
+\ ******** DEFINE DEFAULTS ******** \
+ATTACKBONUS: 0
+ATTACKBONUSOFFHAND: 0
+ATTACKDAMAGE: 0
+ATTACKDAMAGEOFFHAND: 0
+CRITDAMAGE: 0
+CRITDAMAGEOFFHAND: 0
+CRITRANGE: 20
+CRITRANGEOFFHAND: 20
+MISSDAMAGE: 0
+MISSDAMAGEOFFHAND: 0
+USEONEHITBONUS: 0
+ONEHITBONUSDAMAGE: 0
+USETWOHITBONUS: 0
+TWOHITBONUSDAMAGE: 0
+USETHREEHITBONUS: 0
+THREEHITBONUSDAMAGE: 0
+USEQUARRY: 0
+QUARRYDAMAGE: 0
+USELEARNING: 0
+LEARNINGDAMAGE: 0
+LEARNINGATTACKBONUS: 0
+LEARNINGATTACKBONUSLIMIT: 0
+
+
+
+
+
+\ ******** Player-Specific Stuff ******* \
+MONSTERLEVEL: 18
+AC: MONSTERLEVEL + 14
+NAD: MONSTERLEVEL + 12
+
+
+if SHOWHUGH {
+  \ *** Hugh *** \
+  USEQUARRY: 1
+  QUARRYDAMAGE: 2d8
+  USELEARNING: 1
+  LEARNINGDAMAGE: 4
+  LEARNINGATTACKBONUS: 1
+  LEARNINGATTACKBONUSLIMIT: 3
+  
+  ATTACKBONUS: 23
+  WEAPONDAMAGE: 1d12
+  DAMAGEBONUS: 13
+  CRITRANGE: 20
+  CRITDAMAGE: 3d6
+
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d[w]+7
+    output [damage for two attacks vs AC] named "Hugh At-Will: Twin Strike"
+
+    ATTACKDAMAGE: 1d[w]+DAMAGEBONUS
+    output [damage for 1d[attack vs AC]] named "Hugh At-Will: Nimble Strike"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKDAMAGE: 1d[w]+DAMAGEBONUS
+    CRITRANGE: 18
+    output [damage for two attacks vs AC] named "Hugh Encounter: Biting Volley"
+    CRITRANGE: 20
+
+    ATTACKDAMAGE: 1d[w]+DAMAGEBONUS
+    USETWOHITBONUS: 1
+    TWOHITBONUSDAMAGE: 1d6
+    output [damage for three attacks vs AC] named "Hugh Encounter: Pounding Barrage"
+    USETWOHITBONUS: 0
+  }
+
+  if SHOWDAILY {
+    ATTACKDAMAGE: 1d[w]+DAMAGEBONUS
+    USETHREEHITBONUS: 1
+    THREEHITBONUSDAMAGE: 2d[w]
+    output [damage for three attacks vs AC] named "Hugh Daily: Confounding Arrows"
+    USETHREEHITBONUS: 0
+  }
+  
+  USEQUARRY: 0
+  USELEARNING: 0
+}
+
+if SHOWWRENN {
+  \ *** Wrenn *** \
+  CRITRANGE: 20
+
+  ATTACKBONUS: 20
+  DAMAGEBONUS: 19
+  CRITDAMAGE: 4d6+1d10
+  
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d8+DAMAGEBONUS+4
+    output [damage for 1d[attack vs NAD]] named "Wrenn At-Will: Lightning Strike"
+    
+    ATTACKDAMAGE: 1d8+DAMAGEBONUS
+    output [damage for AREATARGETSd[attack vs NAD]] named "Wrenn At-Will: Burning Spray vs [AREATARGETS] Targets"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKDAMAGE: 3d8+DAMAGEBONUS
+    output [damage for 3d[attack vs NAD]] named "Wrenn Encounter: Thunder Summons"
+  }
+  
+  if SHOWDAILY {
+    ATTACKDAMAGE: 3d8+DAMAGEBONUS
+    MISSDAMAGE: ATTACKDAMAGE / 2
+    output [damage for 1d[attack vs NAD]] named "Wrenn Daily: Reeling Torment"
+    MISSDAMAGE: 0
+
+    ATTACKDAMAGE: 2d6+DAMAGEBONUS
+    output [area damage for AREATARGETSd[attack vs NAD]] named "Wrenn Daily: Howling Tempest vs [AREATARGETS] Targets"
+  }
+}
+
+if SHOWARORA {
+  \ *** Arora *** \
+  BAB: 23
+  WEAPONDAMAGE: 1d{3..10}
+  DAMAGEBONUS: 12
+  CRITRANGE: 20
+  CRITDAMAGE: 3d6
+  
+  if SHOWATWILL {
+    ATTACKBONUS: BAB
+    ATTACKDAMAGE: 1d[w]+DAMAGEBONUS
+    output [damage for 1d[attack vs AC]] named "Arora At-Will: Enfeebling or Ardent Strike"
+    
+    if SHOWCOMPARISONS {
+      ATTACKDAMAGE: 2d[w]+DAMAGEBONUS
+      output [damage for 1d[attack vs AC]] named "Arora At-Will: Enfeebling or Ardent Strike Mordenkrad"
+    }
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKBONUS: BAB-2
+    ATTACKDAMAGE: 2d8+DAMAGEBONUS
+    output [area damage for AREATARGETSd[attack vs NAD]] named "Arora Encounter: Just Radiance vs [AREATARGETS] Targets"
+  }
+  
+  if SHOWDAILY {
+    ATTACKBONUS: BAB-2
+    ATTACKDAMAGE: 2d6+DAMAGEBONUS
+    output [damage for AREATARGETSd[attack vs NAD]] named "Arora Daily: Hallowed Circle vs [AREATARGETS] targets"
+    
+    ATTACKBONUS: BAB-2
+    ATTACKDAMAGE: 2d10+DAMAGEBONUS
+    output [damage for 3d[attack vs NAD]] named "Arora Daily: True Nemesis with 2 followup attacks"
+  }
+}
+
+if SHOWBRANDIS {
+  \ *** Brandis *** \
+  
+  BAB: 27
+  WEAPONDAMAGE: 1d12
+  DAMAGEBONUS: 16
+  CRITDAMAGE: 5d8+2d12
+  
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d[w]+DAMAGEBONUS
+    output [damage for 1d[attack vs AC]] named "Brandis At-Will: Footwork Lure"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKBONUS: BAB + 2
+    ATTACKDAMAGE: 2d[w]+DAMAGEBONUS
+    output [damage for 1d[attack vs AC]] named "Brandis Encounter: Masterstroke"
+    ATTACKBONUS: BAB
+    
+    if SHOWCOMPARISONS {
+      ATTACKBONUS: BAB + 2 - 2
+      ATTACKDAMAGE: 2d[w]+DAMAGEBONUS+6
+      output [damage for 1d[attack vs AC]] named "Brandis Encounter: Masterstroke Power Attack"
+      ATTACKBONUS: BAB
+    }
+    
+    ATTACKDAMAGE: 1d[w]+DAMAGEBONUS
+    output [damage for 3d[attack vs AC]] named "Brandis Encounter: Storm of Blows"
+    
+    if SHOWCOMPARISONS {
+      ATTACKBONUS: BAB-2
+      ATTACKDAMAGE: 1d[w]+DAMAGEBONUS+6
+      output [damage for 3d[attack vs AC]] named "Brandis Encounter: Storm of Blows Power Attack"
+      ATTACKBONUS: BAB
+    }
+  }
+  
+  if SHOWDAILY {
+    ATTACKDAMAGE: 3d[w]+DAMAGEBONUS
+    output [damage for 1d[attack vs AC]] named "Brandis Daily: Jackal Strike (Free Action)"
+  }  
+}
+
+if SHOWDEOMIN {
+  \ *** Deomin *** \
+  ATTACKBONUS: 23
+  WEAPONDAMAGE: 1d8
+  DAMAGEBONUS: 15
+  CRITDAMAGE: 4d8
+  MISSDAMAGE: 6
+  ATTACKBONUSOFFHAND: 22
+  WEAPONDAMAGEOFFHAND: 1d8
+  DAMAGEBONUSOFFHAND: 11
+  CRITRANGEOFFHAND: 19
+  CRITDAMAGEOFFHAND: d{10,10,10,10,10,10,10,10,20,20,20,20,30,30,40} \ This is a rough estimation of ongoing 10 damage \
+  MISSDAMAGEOFFHAND: 6
+  USEQUARRY: 1
+  QUARRYDAMAGE: 2d6
+  
+  function: deomin twin strike vs DEFENSE { result: [two of two deomin twin strike vs DEFENSE after [attack vs DEFENSE]] }
+  function: two of two deomin twin strike vs DEFENSE after FIRSTATTACK:n {
+    ORIGINALATTACKBONUS: ATTACKBONUS
+    if FIRSTATTACK = MISS { ATTACKBONUS: ORIGINALATTACKBONUS + (USELEARNING * LEARNINGATTACKBONUS) }
+    SECONDATTACK: [offhand attack vs DEFENSE]
+    result: [damage for FIRSTATTACK and SECONDATTACK]
+  }
+  
+  function: deomin blade cascade vs DEFENSE { result: [two of five deomin blade cascade vs DEFENSE after [attack vs DEFENSE]] }
+  function: two of five deomin blade cascade vs DEFENSE after FIRSTATTACK:n {
+    if FIRSTATTACK >= HIT {
+      SECONDATTACK: [offhand attack vs DEFENSE]
+      result: [three of five deomin blade cascade vs DEFENSE after FIRSTATTACK and SECONDATTACK]
+    }
+    result: [damage for FIRSTATTACK]
+  }
+  
+  function: three of five deomin blade cascade vs DEFENSE after FIRSTATTACK:n and SECONDATTACK:n {
+    if SECONDATTACK >= HIT {
+      THIRDATTACK: [attack vs DEFENSE]
+      result: [four of five deomin blade cascade vs DEFENSE after FIRSTATTACK and SECONDATTACK and THIRDATTACK]
+    }
+    result: [damage for FIRSTATTACK and SECONDATTACK]
+  }
+  
+  function: four of five deomin blade cascade vs DEFENSE after FIRSTATTACK:n and SECONDATTACK:n and THIRDATTACK:n {
+    if THIRDATTACK >= HIT {
+      FOURTHATTACK: [offhand attack vs DEFENSE]
+      result: [five of five deomin blade cascade vs DEFENSE after FIRSTATTACK and SECONDATTACK and THIRDATTACK and FOURTHATTACK]
+    }
+    result: [damage for FIRSTATTACK and SECONDATTACK and THIRDATTACK]
+  }
+  
+  function: five of five deomin blade cascade vs DEFENSE after FIRSTATTACK:n and SECONDATTACK:n and THIRDATTACK:n and FOURTHATTACK:n {
+    if FOURTHATTACK >= HIT {
+      FIFTHATTACK: [attack vs DEFENSE]
+      result: [damage for FIRSTATTACK and SECONDATTACK and THIRDATTACK and FOURTHATTACK and FIFTHATTACK]
+    }
+    result: [damage for FIRSTATTACK and SECONDATTACK and THIRDATTACK and FOURTHATTACK]
+  }
+  
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d[w]+9
+    ATTACKDAMAGEOFFHAND: 1d[wo]+5
+    output 12+[deomin twin strike vs AC] named "Deomin At-Will: Twin Strike"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKDAMAGE: 2d[w]+DAMAGEBONUS
+    output 12+[damage for [attack vs AC]] named "Deomin Encounter: Answer with Steel"
+  }
+  
+  if SHOWDAILY {
+    USEQUARRY: 1
+    ATTACKDAMAGE: 2d[w]+DAMAGEBONUS
+    ATTACKDAMAGEOFFHAND: 2d[wo]+DAMAGEBONUSOFFHAND
+    output 12+[deomin blade cascade vs AC] named "Deomin Daily: Blade Cascade"
+  }
+  
+  MISSDAMAGE: 0
+  MISSDAMAGEOFFHAND: 0
+  CRITRANGEOFFHAND: 20
+  USEQUARRY: 0
+}

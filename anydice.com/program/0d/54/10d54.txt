@@ -1,0 +1,39 @@
+function: test N:n and M:n against X:n with D:n mod P:n prof S:n dex A adv {
+   if(A){
+       if((N<= 1+P)&(M<1+P+S)){result:0}
+       else if (((N<=20+P+S) & (N>=18+P+S))|((M<=20+P+S) & (M>=18+P+S))){result:(2d6+D)}
+       else if ((N>=X)|(M>=X)){result:(d6+D)} 
+       else { result: 0}
+   }
+   else {
+       if(N<=1+P){result:0}
+       else if((N<=20+P+S) & (N>=18+P+S)){result:(2d6+D)}
+       else if(N>=X){ result:(d6+D)}
+       if(N<X){result:0}
+   }
+}
+
+AC: 15
+PROF: 3
+DEX: 3
+ATK: DEX + PROF + 2
+SS: 0
+NSS: 0
+ASS: 0
+ANSS: 0
+REP: 6
+NUM: 3
+
+loop N over {1..REP}{
+   loop M over {1..NUM}{
+       SS: SS + [test d20+3 and d20+3 against AC with DEX+10 mod PROF prof ATK-5 dex 0 adv]
+       NSS: NSS + [test d20+8 and d20+8 against AC with DEX mod PROF  prof  ATK dex 0 adv]
+       ASS: ASS + [test d20+3 and d20+3 against AC with DEX+10 mod PROF  prof  ATK-5 dex 1 adv]
+       ANSS: ANSS + [test d20+8 and d20+8 against AC with DEX mod PROF  prof ATK dex 1 adv]
+   }
+}
+
+output (SS/REP) named "Sharpshooter"
+output (NSS/REP) named "No Sharpshooter"
+output (ASS/REP) named "Adv. Sharpshooter"
+output (ANSS/REP) named "Adv. No Sharpshooter"

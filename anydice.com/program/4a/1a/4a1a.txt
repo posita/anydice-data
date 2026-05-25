@@ -1,0 +1,49 @@
+function: skilled A:s {
+ if ([A contains -1] | [A contains 0]) {
+  result: A+1
+ }
+ else {
+  result: A
+ }
+}
+function: expert A:s {
+ if ([A contains -1]) {
+  result: A+2
+ }
+ else if ([A contains 0]) {
+  result: A+1
+ }
+ else {
+  result: A
+ } 
+}
+function: master A:s {
+ V: [count -1 in A]
+ Z: (V>0) + ([count {-1,0} in A]>0)
+ V: V - (V>0)
+ result: A + Z + V + Vd{-1,0,1}
+}
+function: gmaster A:s {
+ V: [count -1 in A]
+ W: [count 0 in A]
+ Z: (V>0) + (V>0 | W>0)
+ W: W - (V=0 & W>0)
+ V: V - (V>0)
+ result: A + Z + V + Vd{-1,0,1} + Wd{0,0,1}
+} 
+function: divine A:s {
+ V: [count -1 in A]
+ W: [count 0 in A]
+ Z: (V>0) + (V>0 | W>0)
+ W: W - (V=0 & W>0)
+ V: V - (V>0)
+ result: A + Z + V + Vd{0,0,1} + Wd{0,1,1}
+} 
+
+ROLL: 3d{-1,0,1} 
+output ROLL named "Unskilled"
+output [skilled ROLL] named "Skilled"
+output [expert ROLL] named "Expert"
+output [master ROLL] named "Master"
+output [gmaster ROLL] named "Grand-Master"
+output [divine ROLL] named "Divine"

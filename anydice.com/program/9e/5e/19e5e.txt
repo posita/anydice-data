@@ -1,0 +1,88 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs EVASION:n {
+  if ROLL < EVASION {
+    result: MISS
+  }
+  if ROLL >= 20 {
+    result: CRITICALHIT
+  }
+  result: HIT
+}
+
+function: damage for ATTACKRESULT:n from HITDAMAGE:n and CRITDAMAGE:n{
+  if ATTACKRESULT = CRITICALHIT {
+    result: CRITDAMAGE
+  }
+  if ATTACKRESULT = HIT {
+    result: HITDAMAGE
+  }
+  result: 0
+}
+
+ORACLE: 2+1d20+2d6
+ORACLEHIT: 1d3
+ORACLECRIT: [highest 1 of 2d3]
+function: oracle vs EVASION:n {
+  result: [damage for [attack ORACLE vs EVASION] from ORACLEHIT and ORACLECRIT]
+}
+
+EVASION: 10
+
+\output [oracle vs EVASION] named "Single Oracle Strike"\
+
+FIRSTORACLE: 2+1d20+3d6
+FIRSTORACLEHIT: 1d3
+FIRSTORACLECRIT: [highest 1 of 2d3] + [highest 1 of 2d6]
+function: firstoracle vs EVASION:n {
+  result: [damage for [attack FIRSTORACLE vs EVASION] from FIRSTORACLEHIT and FIRSTORACLECRIT]
+}
+
+\output [firstoracle vs EVASION] named "First Oracle Strike"\
+
+function: skirmish vs EVASION:n {
+  result:  [firstoracle vs EVASION] + [oracle vs EVASION]
+}
+
+function: barrage vs EVASION:n {
+  result:  [skirmish vs EVASION] + [oracle vs EVASION] + [oracle vs EVASION]
+}
+
+\output [skirmish vs EVASION] named "Oracle Skirmish"\
+\output [barrage vs EVASION] named "Oracle Barrage"\
+
+ORACLE: 2+1d20+1d6
+FIRSTORACLE: 2+1d20+2d6
+
+\output [skirmish vs EVASION] named "Oracle Skirmish vs Soft Cover"\
+\output [barrage vs EVASION] named "Oracle Barrage vs Soft Cover"\
+
+
+ORACLE: 2+1d20
+FIRSTORACLE: 2+1d20+1d6
+
+\output [skirmish vs EVASION] named "Oracle Skirmish vs Hard Cover"\
+\output [barrage vs EVASION] named "Oracle Barrage vs Hard Cover"\
+
+ORACLE: 2+1d20+2d6
+FIRSTORACLE: 2+1d20+4d6
+FIRSTORACLEHIT: 1d3+2d6
+FIRSTORACLECRIT: [highest 1 of 2d3] + [highest 2 of 4d6] + [highest 1 of 2d6]
+
+\output [skirmish vs EVASION] named "Gunslinger Skirmish"\
+
+function: integratedweapon vs EVASION:n {
+  result:  [oracle vs EVASION]
+}
+
+FIRSTORACLE: 2+1d20+3d6
+FIRSTORACLEHIT: 1d3
+FIRSTORACLECRIT: [highest 1 of 2d3] + [highest 1 of 2d6]
+ORACLE: 2+1d20+2d6
+\output [skirmish vs EVASION] + [integratedweapon vs EVASION] named "Oracle Skirmish w/integrated"\
+\output [barrage vs EVASION] + [integratedweapon vs EVASION] named "Oracle Barrage w/integrated"\
+
+output ([attack FIRSTORACLE vs EVASION] > 0) + ([attack ORACLE vs EVASION] > 0)+ ([attack ORACLE vs EVASION] > 0)+ ([attack ORACLE vs EVASION] > 0) named "Chances to hit on Barrage"
+

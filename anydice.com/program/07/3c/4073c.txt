@@ -1,0 +1,227 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n fail FAIL:n success SUCCESS:n{
+if SAVE >= DC {result: SUCCESS}
+if SAVE < DC {result: FAIL}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n onhit ONHIT onmiss ONMISS{
+if ROLL = 20 {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n onhit ONHIT onmiss ONMISS{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n io IO{
+if ROLL = 20 {result: DICE + DICE + FLOAT + IO}
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+output [attack 1d20 plus 1 vs ac 10 for 1d12 plus 3
+    onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 2]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 1d4 plus 2]
+] named "Greataxe"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3
+    onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 2]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 2]
+] named "2 Haxe thr + Dag thr + US"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3
+    onhit [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 2]
+    onmiss [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 2]
+] named "3 Haxe thr + Dag thr + FoB"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 3] named "4 T1 Darkness + US"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 3] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 3] named "4 T1 Darkness + FoB"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 2] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 3] named "4 T2+ Haxe thr + Dag thr + US"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 2] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 3] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d6 plus 3] named "4 T2+ Haxe thr + Dag thr + FoB"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 4] named "5 T1 Darkness + US"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 4] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 4] named "5 T1 Darkness + FoB"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 2] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 4] named "5 T2+ Haxe thr + Dag thr + US"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 2] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 4] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 4] named "5 T2+ Haxe thr + Dag thr + FoB"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4] named "6 T1 Darkness + US"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4] named "6 T1 Darkness + FoB"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 2] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4] named "6 T2+ Jav thr + Haxe thr + Dag thr + US"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 2] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4] named "6 T2+ Jav thr + Haxe thr + Dag thr + FoB"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "8 T1 Darkness + US"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "8 T1 Darkness + FoB"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 2] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "8 T2+ Jav thr + Haxe thr + Dag thr + US"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 2] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "8 T2+ Jav thr + Haxe thr + Dag thr + FoB"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "11 T1 Darkness + US"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "11 T1 Darkness + FoB"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 2] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "11 T2+ Jav thr + Haxe thr + Dag thr + US"
+
+output [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 2] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4] named "11 T2+ Jav thr + Haxe thr + Dag thr + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] named "13 T1 Darkness + US"
+
+output [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] named "13 T1 Darkness + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 2 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] named "13 T2+ Jav thr + Haxe thr + Dag thr + US"
+
+output [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 6 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 2 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] + [attackcrit [highest 1 of 2d20] plus 0 vs ac 10 for 1d8 plus 4 crange 19] named "13 T2+ Jav thr + Haxe thr + Dag thr + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] named "14 T1 Darkness + US"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] named "14 T1 Darkness + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 2 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] named "14 T2+ Jav thr + Haxe thr + Dag thr + US"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 2 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 5 crange 19] named "14 T2+ Jav thr + Haxe thr + Dag thr + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "15 T1 Darkness + US"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "15 T1 Darkness + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 2 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "15 T2+ Jav thr + Haxe thr + Dag thr + US"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 2 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "15 T2+ Jav thr + Haxe thr + Dag thr + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "18 T1 Darkness + US"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "18 T1 Darkness + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "18 T2+ Jav thr + Haxe thr + Dag thr + US"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] named "18 T2+ Jav thr + Haxe thr + Dag thr + FoB"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+	onhit 0
+	onmiss 1d10+5
+] named "19 T1 Darkness + US Combat Prowess"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+	onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+		onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+			onhit 0
+			onmiss 1d10+5
+		]
+		onmiss 1d10+5 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+	]
+	onmiss 1d10+5 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+] named "19 T1 Darkness + FoB Combat Prowess"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19
+	onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19
+		onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19
+			onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+				onhit 0
+				onmiss 1d10+5
+			]
+			onmiss 1d10+7 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+		]
+		onmiss 1d10+7 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+	]
+	onmiss 1d10+7 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+]	named "19 T2+ Jav thr + Haxe thr + Dag thr + US Combat Prowess"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19
+	onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19
+		onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19
+			onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+				onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+					onhit [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19
+						onhit 0
+						onmiss 1d10+5
+					]
+					onmiss 1d10+5 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+				]
+				onmiss 1d10+5 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+			]
+			onmiss 1d10+7 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+		]
+		onmiss 1d10+7 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+	]
+	onmiss 1d10+7 + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19]
+]	named "19 T2+ Jav thr + Haxe thr + Dag thr + FoB Combat Prowess"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] named "19 T1 Darkness + US Irrisitable Offence"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] named "19 T1 Darkness + FoB Irrisitable Offence"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 2 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] named "19 T2+ Jav thr + Haxe thr + Dag thr + US Irrisitable Offence"
+
+output [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 2 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] + [attackcrit [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 5 crange 19 io 21] named "19 T2+ Jav thr + Haxe thr + Dag thr + FoB Irrisitable Offence"

@@ -1,0 +1,64 @@
+
+FULLSEQ : {0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5}
+
+
+
+function: roll A:n dice B:n bonus C:n {
+ SEQ: {0}
+ loop P over {C+2..B+C}{
+  SEQ: {SEQ, P@FULLSEQ}
+ }
+ result: Ad{SEQ}
+}
+
+
+function: roll carac A:n bonus B:n {
+ result: [roll 1 dice A bonus B]
+}
+
+function: roll A:n aspect bonus B:n {
+ result: [roll A dice 6 bonus B]
+}
+
+
+function: roll carac B:n and C:n aspect bonus D:n {
+ result: [roll carac B bonus D]+[roll C aspect bonus D]
+}
+
+function: roll bis carac B:n and C:n aspect bonus D:n {
+ result: [roll carac B bonus 0]+[roll C aspect bonus 0]+D
+}
+
+
+\
+loop C over {4,8,12} {
+  loop A over {0,2,4,6}{
+    loop B over {0,1,2,3,4}{
+
+ output [roll carac C and A aspect bonus B] named "carac d[C] + [A] aspect, bonus [B]"
+ output [roll bis carac C and A aspect bonus B] named "bis d[C] + [A] asp + [B]" 
+
+    }
+  }
+}
+\
+
+function: ins A:n under D:n {
+ result: A <= D
+}
+
+
+function: under D:n {
+ result: [ins d6 under D]
+}
+
+
+output [highest 3 of 3d[under 2]] named "3d < 2"
+output [highest 3 of 4d[under 2]] named "4d < 2"
+output [highest 3 of 3d[under 3]] named "3d < 3"
+output [highest 3 of 4d[under 3]] named "4d < 3"
+output [highest 3 of 3d[under 4]] named "3d < 4"
+output [highest 3 of 4d[under 4]] named "4d < 4"
+output [highest 3 of 3d[under 5]] named "3d < 5"
+output [highest 3 of 4d[under 5]] named "4d < 5"
+

@@ -1,0 +1,44 @@
+CRITICALMISS: 0
+MISS: 1
+HIT: 2
+CRITICALHIT: 3
+function: attack ROLL:n plus ATTACK vs DEFENSE:n {
+ if ROLL = 1 {
+  if ROLL + ATTACK < DEFENSE {result: CRITICALMISS}
+  if ROLL + ATTACK < DEFENSE + 10 {result: MISS}
+  result: HIT
+ }
+ if ROLL = 20 {
+  if ROLL + ATTACK < DEFENSE - 10 {result: MISS}
+  if ROLL + ATTACK < DEFENSE {result: HIT}
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK < DEFENSE - 10 {result: CRITICALMISS}
+ if ROLL + ATTACK < DEFENSE {result: MISS}
+ if ROLL + ATTACK < DEFENSE + 10 {result: HIT}
+ result: CRITICALHIT
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE + CRITICALDAMAGE + DEADLY
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ATTRIBUTE: 4
+STR: 4
+PROF: 4 + 1
+ITEM: 3
+PENALTY: 5
+STRIKING: 3
+HITDAMAGE: STRIKINGd8 + STR
+CRITICALDAMAGE: STRIKINGd8 + STR
+DEADLY: 0
+MISSDAMAGE: 0
+loop AC over {17} {
+ loop MODIFIER over {ATTRIBUTE + PROF + ITEM, ATTRIBUTE + PROF + ITEM - PENALTY, ATTRIBUTE + PROF + ITEM - PENALTY - PENALTY} {
+  output [damage for [attack d20 plus MODIFIER vs AC]] named "Attacking AC [AC] with a +[MODIFIER] attack modifier"
+ }
+}

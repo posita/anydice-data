@@ -1,0 +1,270 @@
+
+CRIT_THRESHOLD: 20
+HEX_CRIT_THRESHOLD: 19
+TARGET_AC: 17
+CRITICAL_DICE: 2
+BASE_DICE: 1
+DISADVANTAGE_ROLL: [lowest 1 of 2d20]
+ADVANTAGE_ROLL: [highest 1 of 2d20]
+ELVEN_ADVANTAGE_ROLL: [highest 1 of 3d20]
+ROLL: 1d20
+TARGET_SPELL_SAVE_BONUS: 4
+
+function: R:n basicattack{
+    if R >= CRIT_THRESHOLD {result: CRITICAL_DICE d DMG + DMG_MOD}
+    if (R + HIT_MOD) >= TARGET_AC {result: BASE_DICE d DMG + DMG_MOD}
+    if (R + HIT_MOD) < TARGET_AC {result: 0}
+}
+
+function: R:n secondattack{
+    if R >= CRIT_THRESHOLD {result: CRITICAL_DICE d SECOND_DMG + SECOND_DMG_MOD}
+    if (R + SECOND_HIT_MOD) >= TARGET_AC {result: BASE_DICE d SECOND_DMG + SECOND_DMG_MOD}
+    if (R + SECOND_HIT_MOD) < TARGET_AC {result: 0}
+}
+
+function: R:n hexattack{
+    if R >= HEX_CRIT_THRESHOLD {result: CRITICAL_DICE d DMG + DMG_MOD + 2d6}
+    if (R + HIT_MOD) >= TARGET_AC {result: BASE_DICE d DMG + DMG_MOD + 1d6}
+    if (R + HIT_MOD) < TARGET_AC {result: 0}
+}
+
+function: R:n spellattack{
+    if (R + TARGET_SPELL_SAVE_BONUS) < SPELL_DC {result: SPELL_DICE d SPELL_DMG_DIE}
+    if (R + TARGET_SPELL_SAVE_BONUS) >= SPELL_DC {result: (SPELL_DICE d SPELL_DMG_DIE)/2}
+}
+
+
+SPELL_DICE: 1
+SPELL_DMG_DIE: 8d6
+SPELL_DC: 17
+\output [ROLL spellattack] + [ROLL spellattack] + [ROLL spellattack] + [ROLL spellattack] named "lvl 3 fireball vs 4 targets"\
+
+
+
+HIT_MOD: 5 \char+3, prof+2\
+DMG: 1d10 
+DMG_MOD: 3 \char+3\
+\output [ROLL basicattack]  named "lvl 3 Wrlck Agblast"\
+
+
+
+HIT_MOD: 6 \char+3, prof+2, pact+1\
+DMG: 2d6
+DMG_MOD: 4 \char+3, pact+1\
+\output [ROLL basicattack] named "lvl 3 HB Wrlck GrSword"\
+
+
+\lvl 5
+* warlock has taken elven advantage
+\
+HIT_MOD: 7 \char+4, prof+3\
+DMG: 1d10
+DMG_MOD: 4 \char+4\
+output [ROLL basicattack] + [ROLL basicattack] named "lvl 5 Wrlck Agblast"
+
+
+HIT_MOD: 8 \char+4, prof+3, pact+1\
+DMG: 1d8 + 2d6  \GS , 1d8 from BB\
+DMG_MOD: 5 \char+4, pact+1\
+output [ROLL basicattack]  named "lvl 5 Wrlck BoomBld"
+
+HIT_MOD: 8 \char+4, prof+3, pact+1\
+DMG: 2d6
+DMG_MOD: 5 \char+4, pact+1\
+output [ROLL basicattack] + [ROLL basicattack] named "lvl 5 Wrlck GrSwrd"
+
+
+
+\Advantage attacks\
+
+
+HIT_MOD: 7 \char+4, prof+3\
+DMG: 1d10
+DMG_MOD: 4 \char+4\
+output [ELVEN_ADVANTAGE_ROLL basicattack] + [ELVEN_ADVANTAGE_ROLL basicattack] named "lvl 5 Wrlck ElvnAdv AgBlast"
+
+
+HIT_MOD: 8 \char+4, prof+3, pact weapon +1\
+DMG: 2d6
+DMG_MOD: 5 \char+4, pact weapon +1\
+output [ELVEN_ADVANTAGE_ROLL basicattack] + [ELVEN_ADVANTAGE_ROLL basicattack] named "lvl 5 HB ElvnAdv GrSwrd"
+
+
+
+HIT_MOD: 8 \char+4, prof+3, pact weapon +1\
+DMG: 2d6 + 2d8
+DMG_MOD: 5 \char+4, pact weapon +1\
+\output [ELVEN_ADVANTAGE_ROLL basicattack] + [ELVEN_ADVANTAGE_ROLL basicattack] named "lvl 5 HB ElvnAdv GrSwrd Smite"\
+
+
+
+
+HIT_MOD: 8
+DMG: 1d8
+DMG_MOD: 5
+\output [ELVEN_ADVANTAGE_ROLL basicattack] + [ELVEN_ADVANTAGE_ROLL basicattack] named "lvl5 HB ElvnAdv LngSwrd"\
+
+\Hexed\
+HIT_MOD: 8  \char+4, prof+3, pact weapon +1\
+DMG: 2d6
+DMG_MOD: 7 \char+4, pact weapon +1, hex+2\
+\output [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] named "lvl5 Wrlck ElvnAdv GrSword Hex"\
+
+HIT_MOD: 7 \char+4, prof+3\
+DMG: 1d10
+DMG_MOD: 6  \char+4, hex+2\
+\output [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] named "lvl5 Wrlck ElvnAdv AgBlast Hex"\
+
+
+HIT_MOD: 7 \dex+4, prof+3\
+DMG: 3d8 \SB 3d8\
+DMG_MOD: 3 
+\output [ROLL firstattack] + [ROLL firstattack] named "shadow blade lvl 5"\
+
+
+HIT_MOD: 5 \dex+2, prof+3\
+DMG: 4d8 \3d8 from ShadowBlade, 1d8 from BB\
+DMG_MOD: 2
+SECOND_HIT_MOD: 5
+SECOND_DMG: 3d8
+SECOND_DMG_MOD: 2
+\output [ADVANTAGE_ROLL basicattack] + [ADVANTAGE_ROLL secondattack]  named "lvl6 BldSngr Adv ShdwBlade(lvl3) BoomBld"\
+
+
+
+HIT_MOD: 7 \dex+3, prof+4\
+DMG: 5d8 \shadowblade 3d8, BoomingBlade 2d8\
+DMG_MOD: 3 \dex+3\
+
+
+SECOND_HIT_MOD: 7 \dex+3, prof+4\
+SECOND_DMG: 3d8 \shadowblade 3d8\
+SECOND_DMG_MOD: 3 \dex +3\
+\output [ADVANTAGE_ROLL basicattack] + [ADVANTAGE_ROLL secondattack]  named "lvl11 BldSngr Adv ShdwBladeP(lvl3) BoomBld"\
+
+
+HIT_MOD: 9 \char+5, prof+4\
+DMG: 1d10
+DMG_MOD: 6  \char+5\
+\output [ELVEN_ADVANTAGE_ROLL basicattack] + [ELVEN_ADVANTAGE_ROLL basicattack] + [ELVEN_ADVANTAGE_ROLL basicattack] named "lvl11 Wrlck ElvnAdv AgBlast"\
+
+
+HIT_MOD: 10 \char+5, prof+4, pact+1\
+DMG: 2d6
+DMG_MOD: 6  \char+5, pact+1\
+\output [ELVEN_ADVANTAGE_ROLL basicattack] + [ELVEN_ADVANTAGE_ROLL basicattack] named "lvl11 ElvnAdv GrSword"\
+
+HIT_MOD: 9 \char+5, prof + 4\
+DMG: 1d10
+DMG_MOD: 7  \char+5, hex+2\
+\output [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] named "lvl11 Wrlck ElvnAdv AgBlast Hex"\
+
+
+HIT_MOD: 10 \char+5, prof + 4, pact+1\
+DMG: 2d6
+DMG_MOD: 8  \char+5, hex+2, pact+1\
+\output [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] named "lvl11 Wrlck ElvnAdv GrSword Hex"\
+
+HIT_MOD: 10 \char+5, prof + 4, pact+1\
+DMG: 2d6
+DMG_MOD: 13  \char+5, hex+2, pact+1, lifedrinker+5\
+\output [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] named "lvl12 Wrlck ElvnAdv GrSword LifeDrnkr Hex"\
+
+
+
+
+HIT_MOD: 10 \char+5, prof + 4, pact+1\
+DMG: 2d6
+DMG_MOD: 11  \char+5,, pact+1, lifedrinker+5\
+\output [ROLL basicattack] + [ROLL basicattack] named "lvl2 Wrlck GrSword LifeDrinker"\
+
+
+
+\lvl 17\
+HIT_MOD: 11 \char+5, prof+6\
+DMG: 1d10
+DMG_MOD: 7 \char+5, hex+2\
+\output [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] + [ELVEN_ADVANTAGE_ROLL hexattack] named "lvl17 WrLck ElvnAdv AgBlast Hex"\
+
+
+
+
+HIT_MOD: 12 \char+5, prof + 6, pact+1\
+DMG: 2d6 + 3d8
+DMG_MOD: 6  \char+5\
+\output [ROLL basicattack] named "lvl17 Wrlck GrSword BoomBld"\
+
+
+
+HIT_MOD: 12 \char+5, prof + 6, pact+1\
+DMG: 2d6 + 3d8 \gs 2d6, BoomingBlade 3d8\
+DMG_MOD: 6  \char+5, pact+1\
+SECOND_HIT_MOD: 12 \char+5, prof+6, pact+1\
+SECOND_DMG: 2d6 \gs2d6\
+SECOND_DMG_MOD: 6 \char +5, pact+1\
+\output [ROLL basicattack] + [ROLL secondattack]  named "lvl17 Wrlck GrSword BoomBld extra attack"\
+
+HIT_MOD: 12 \char+5, prof + 6, pact+1\
+DMG: 2d6
+DMG_MOD: 6  \char+5, pact+1\
+\output [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] named "lvl17 Wrlck GrSword (3 attacks)"\
+
+
+Ideas
+
+* proposal to group, look outwards, what is calling, what is upcycling, big barn, 7 day windows 
+
+* Small rented house gathering, less than$ 150 per night, less than 40 people max
+
+* Nate and Brian's place
+
+* But what about performance, art, circus?!
+
+
+
+
+
+
+
+
+* Turn the silvered rapier with ruby hilt into a dancing rapier?
+
+* buy 2 short swords and a dagger
+
+* silvered mirror of Zhernon, obsidian scepter
+
+* misc: licorice root, a lodestone, three silver pins
+
+* 600 gold worth of fine ink and some paper
+
+* I study (haste (3), Tenser's Tansformation (5), Chain Lightning (6), hold monster (5)) That is 19 lvls which will take me 38 hours of study
+
+
+
+Xar - scimitar of speed (very rare), short sword of speed (very rare), dancing sword (very rare), moonblade (legendary), ioun stone (Varies)
+
+Bam - Cloak of Displacement, 
+
+nestor - dimensional shackles, ioun stone
+
+
+
+Rarity  Character Level Value
+Common  1st or higher 50-100 gp
+Uncommon  1st or higher 101-500 gp
+Rare  5th or higher 501 -5,000 gp
+Very rare 11th or higher  5,001 - 50,000 gp
+Legendary 17th or higher  50,001+ gp
+
+
+
+mirror of the past, dimensional shackles, 
+
+
+
+Level Time Cost Gold Cost
+Cantrip 1 day 15 gp
+1st 1 day 25 gp
+2nd 3 days  250 gp
+3rd 1 week  500 gp
+4th 2 weeks 2,500 gp

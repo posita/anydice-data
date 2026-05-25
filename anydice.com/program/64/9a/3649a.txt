@@ -1,0 +1,40 @@
+
+function : resolven DC:n IN:n INBOUNDS:s OUTBOUND:s
+{
+ INS : [sort INBOUNDS]
+ OUTS: [sort OUTBOUND]
+ P : (((IN-DC)>=10)*1) + (((IN-DC)>=0)*1) - (((IN-DC)<=(-10))*1)
+ P : P-(((#INS)@INS)=IN)*1
+ P : P+(((1)@INS)=IN)*1
+ result : 2@[sort {(#OUTS)@OUTS,P,(1)@OUTS}]
+}
+
+function : check DC:n
+{
+ result : [resolven DC 1d20 {1..20} {-1,2}]
+}
+
+function : attack EFFAC:n MAP:n SEQ:s
+{
+ P : 0
+ loop A over SEQ
+ {
+  MINUS : [lowest of A and 2] * MAP
+  P : P + [resolven (EFFAC-MINUS) 1d20 {1..20} {0,2}]
+ }
+ result : P
+}
+
+
+
+loop K over {0..2}
+{
+ loop D over {-10..30}
+ {
+
+  P : K + 1
+  output [attack D (-5) {0..K}] named "[P]x DC [D]"
+ }
+}
+
+\output 2^[resolven J 1d{1..20} {1,20} {-1,2}] named "DC [J]"\

@@ -1,0 +1,22 @@
+\ Savage Worlds Success Rate with Bennies \
+
+\ "A" is trait die, "B" is wild die, "MOD" is modifier, and "TN" is target number \
+
+A: [explode d4]
+B: [explode d6]
+MOD: 0
+TN: 4
+
+
+function: reroll ROLL:n as REROLL:d if under TARGET:n and take highest {
+  if ROLL >= TARGET {
+    result: ROLL  \ don't waste a benny if it's already a success \
+  } else {
+    result: [highest of ROLL and REROLL]
+  }
+}
+
+ROLL: [highest of A and B] + MOD
+output ROLL named "no reroll"
+output [reroll ROLL as ROLL if under TN and take highest] named "reroll if less than TN"
+output [highest of ROLL and ROLL] named "always reroll"

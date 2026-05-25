@@ -1,0 +1,36 @@
+AC: 15  \ target AC \
+DEX: 3  \ dex modifier \
+PROF: 2  \ proficiency bonus \
+SA: 1d6  \ sneak attack dice \
+
+\ try to hit with a single weapon \
+function: attack A:n using W:d {
+  if A + DEX + PROF >= AC { result: W + DEX + SA }  \ attack action hit \
+  result: 0  \ no hit \
+}
+
+\ try to hit exactly once with two-weapon fighting \
+function: attack AA:n using WA:d on miss AB:n using WB:d {
+  if AA + DEX + PROF >= AC { result: WA + DEX + SA }  \ attack action hit \
+  if AB + DEX + PROF >= AC { result: WB + SA }  \ bonus action attack hit \
+  result: 0  \ no hit \
+}
+
+\ try to hit twice with two-weapon fighting\
+function: attack AA:n using WA:d and AB:n using WB:d {
+  AHIT: AA + DEX + PROF >= AC
+  BHIT: AB + DEX + PROF >= AC
+  if AHIT & BHIT { result: WA + DEX + SA + WB }  \ both hit \
+  if AHIT { result: WA + DEX + SA }  \ attack action hit \
+  if BHIT { result: WB + SA }  \ bonus action attack hit \
+  result: 0  \ no hit \
+}
+
+
+DAGGER: d4
+SHORTSWORD: d6
+RAPIER: d8
+
+output [attack d20 using RAPIER]
+output [attack d20 using SHORTSWORD on miss d20 using DAGGER]
+output [attack d20 using SHORTSWORD and d20 using DAGGER]

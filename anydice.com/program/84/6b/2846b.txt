@@ -1,0 +1,82 @@
+function: X:n conditional{
+  if X = 1 {result: 0}
+  if X >= CRITRANGE {result: [1 damage conditional]}
+  else if X + MOD>= AC {result: [2 damage conditional]}
+  else {result: 0}
+}
+
+function: X:n damage conditional{
+if X = 1 {result: [1 roll]+DAMBON}
+if X = 2 {result: [2 roll]+DAMBON}
+}
+
+function: TIMES:n roll{
+  loop N over {1..TIMES}{
+    RESET: RESET+DAMAGE
+  }
+  result: RESET
+}
+
+function: attack{
+
+  if ADV = 0{
+    loop N over {1..ATKNUM}{
+      TOTAL:TOTAL+[d20+ATKBON conditional]
+    }
+  }
+  if ADV = 1{
+      loop N over {1..ATKNUM}{
+        TOTAL:TOTAL+[[highest 1 of 3d20]+ATKBON conditional]
+      }
+  } 
+  if ADV = 2{
+      loop N over {1..ATKNUM}{
+        TOTAL:TOTAL+[[highest 1 of 2d20]+ATKBON conditional]
+      }
+  }
+  if ADV = 3{
+      loop N over {1..ATKNUM-1}{
+        TOTAL:TOTAL+[[highest 1 of 3d20]+ATKBON conditional]
+      }
+      TOTAL:TOTAL+[d20+ATKBON conditional]
+  }
+  result:TOTAL
+}
+
+AC: 25
+
+
+RESET: 0
+TOTAL:0
+MOD: 14
+ATKBON:1d4
+CRITRANGE:20
+ADV: 0
+DAMAGE: 1d8+1d6+1d6+2d00
+DAMBON: 8
+ATKNUM:4
+output[attack] named "Sam"
+
+RESET: 0
+TOTAL:0
+MOD: 14
+ATKBON:1d4
+CRITRANGE:20
+ADV: 1
+DAMAGE: 1d8+1d6+1d6+2d10
+DAMBON: 8
+ATKNUM:4
+output[attack] named "ADV Sam"
+
+RESET: 0
+TOTAL:0
+MOD: 14
+ATKBON:1d4
+CRITRANGE:20
+ADV: 3
+DAMAGE: 1d8+1d6+1d6+2d10
+DAMBON: 8
+ATKNUM:5
+output[attack] named "ADV Sam EXTRA"
+
+

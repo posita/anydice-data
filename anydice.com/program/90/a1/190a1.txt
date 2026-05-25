@@ -1,0 +1,41 @@
+ATTRIBUTE: 5
+SKILL: 1
+LIMIT: 2
+KEPT: 3
+
+SQUARE_AT: 1
+TRIANGLE_AT: 2
+PYRAMID_AT: 3
+PENTAGON_AT: 4
+
+MIN_SUCCESSES: 4
+MIN_ROLL_FOR_SUCCESS: 4
+
+function: sides for SKILL_VALUE:n {
+    result: 4 + (SKILL_VALUE * 2)
+}
+
+function: skilldie for SKILL_VALUE and TARGETMOD {
+    result: ((d[sides for SKILL_VALUE])-TARGETMOD)/4
+}
+
+function: successes for DICE_KEPT and SKILL_VALUE with TARGET_MOD {
+    SIDES: [sides for SKILL_VALUE]
+      SEQ: DICE_KEPTdSIDES
+    COUNT: 0
+    loop N over {1..DICE_KEPT} {
+        DIE: dSIDES
+        COUNT: COUNT + ((DIE+TARGET_MOD)/4)
+    }
+    result: COUNT
+}
+
+loop KEPT over {1..5} { loop SKILL over {1..4} { loop MOD over {-2..2} {
+    output [successes for KEPT and SKILL with MOD] named "dice=[KEPT], skill=[SKILL], mod=[MOD]"
+}}}
+
+
+function: ones for DICE_KEPT and SKILL_VALUE {
+    SIDES: [sides for SKILL_VALUE]
+    result: [count 1 in DICE_KEPTdSIDES]
+}

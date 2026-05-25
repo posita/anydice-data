@@ -1,0 +1,48 @@
+\ Burning Wheel Dice with Support for Open-Ended Rolls and Rerolls \
+\   Created for RPG SE - http://rpg.stackexchange.com/a/31458/1421 \
+\ This program circumvents the usual way AnyDice handles dice.     \
+\ Instead, each die is a function.                                 \
+\ Usage:                                                           \
+\ [b X] will roll X black dice.                                    \
+\ [be X] will roll and explode X black dice.                       \
+\ [br X] will roll X black dice and reroll failures.               \
+\ Similarly, [g X] and [w X] and related functions exist for other \
+\ dice.                                                            \
+\ The dice can be added together, e.g. [br 3] + [wr 2]             \
+
+set "maximum function depth" to 7
+\do not set this below 4, as wrapper function count against the limit\
+
+function: roll ROLL:n threshold T {
+  if ROLL < T { result: 0 }
+  if ROLL >= T { result: 1 }
+}
+
+function: rollexploding ROLL:n threshold T{
+  if ROLL =6 {result: 1+[rollexploding 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: wrapper DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplode 1d6 threshold T]}
+    else {if E {RES:RES+[rollexploding 1d6 threshold T]}
+      else {if R {RES:RES+[rerollfailures 1d6 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+
+function: ge DICE:n{
+  result:[wrapper DICE threshold 4 explode 6 reroll 0]
+}
+
+output [ge 1]
+output [ge 2]
+output [ge 3]
+output [ge 4]
+output [ge 5]
+output [ge 6]

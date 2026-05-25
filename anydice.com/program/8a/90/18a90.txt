@@ -1,0 +1,37 @@
+FAILCRIT: -3
+FAILPEN: -2
+FAIL: -1
+FAILBON: 0
+PASSPEN: 1
+PASS: 2
+PASSBON: 3
+PASSCRIT: 4
+
+function: inflection T:n {
+  result: (T+2)/3
+}
+function: categorize R:s at T:n {
+  I: [inflection T]
+  S: 1@R + 2@R + 3@R
+
+  if 1@R = 3@R {
+    if 1@R < I { result: PASSCRIT }
+    else { result: FAILCRIT }
+  }
+  
+  if ( 1@R = 2@R | 3@R = 2@R ) {
+    if S < T {
+      if 2@R < I { result: PASSBON }
+      else { result: PASSPEN }
+    }
+    if 2@R < I { result: FAILBON }
+    else { result: FAILPEN }
+  }
+
+  if S < T { result: PASS }
+  else { result: FAIL }
+}
+
+loop TARGET over {0..28} {
+  output [categorize 3d{0..9} at TARGET] named "[TARGET]"
+}

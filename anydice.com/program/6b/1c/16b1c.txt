@@ -1,0 +1,17 @@
+function: reroll A:n if less than N:n{
+ if A < N { result: 1d6 }
+ result: A
+}
+
+SUCCESS: 0
+REROLLS: 1
+THRESHOLD: 3
+DICE: 4
+loop N over {1..DICE}{
+   ROLL: 1d6
+   loop M over {1..REROLLS}{
+      ROLL: [reroll ROLL if less than THRESHOLD]
+   }
+   SUCCESS: SUCCESS + [count{5,6} in ROLL] - [count{1,2} in ROLL]
+}
+output SUCCESS

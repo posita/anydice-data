@@ -1,0 +1,78 @@
+SHOWASSASSINATE: 0    \ Output the calculations for Tazyl's assassinate round \
+SHOWSUCCESSCHANCES: 0 \ Show the chance of success of rolling any TN using advantage, disadvantage, lucky \
+
+ATK:  1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:  +12    \ bonus to attack roll \
+AC:   17    \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:   20  \ minimum attack roll to crit \
+DMG_DICE:  2d6+1d6  \ damage dice rolled on successful hit \
+DMG_BONUS: 6 \ extra damage added on successful hit - not multiplied by crit \ 
+BONUS: 2d6+1d8  \ bonus damage on first hit \
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= 20 | ((ROLL + HIT >= AC) & (ROLL >= CRIT)) { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+
+function: multiattack N:n times {
+  result: [roll [attack ATK] to multiattack N times]
+}
+function: roll MULT:n DICE:d damage dice plus EXTRA:n {
+  if MULT <= 0 {
+    result: 0
+  }
+  result: (MULT d DICE) + EXTRA
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  result: [roll FIRSTHIT (DMG_DICE+BONUS) damage dice plus DMG_BONUS] + (N-1) d [roll [attack ATK] DMG_DICE damage dice plus DMG_BONUS]  
+}
+
+
+\ output [multiattack 1 times] named "multiattack"\ 
+
+BASEHIT: +12
+BASEDMG: 5+2+1
+NUM_ATTACKS: 4
+CRIT: 1
+ATK: 1@2d20
+BONUS: 2d6+1d8
+
+if SHOWSUCCESSCHANCES {
+ output 1@3d20 named "lucky" 
+ output 1@2d20 named "advantage" 
+ output 2@2d20 named "disadvantage" 
+}
+
+
+if SHOWASSASSINATE { 
+loop N over {19..19}{
+ AC: N
+ HIT: BASEHIT
+ DMG_BONUS: BASEDMG
+ NORMAL: [multiattack NUM_ATTACKS times]  
+ \ output [multiattack 1 times] named "AC [N]" \
+
+  output NORMAL named "Assassinate round, AC [N]" 
+
+ HIT: BASEHIT-5
+ DMG_BONUS: BASEDMG+10
+ SS: [multiattack NUM_ATTACKS times]
+  \ output SS named "Sharpshooter - AC [N]" \
+ output SS named "Assassinate w/Sharpshooter, AC [N]"
+
+ \ The following, viewed using "transposed data" will show for each AC the chance that sharpshooter will result in higher damage \
+ \ The "0" chance is the chance that not using sharpshooter yields more damage, \
+ \ The "1" chance is the chance using sharpshooter will yield more damage \
+ SSBETTER: SS>NORMAL
+ \ output SSBETTER named "AC [N]" \
+
+}
+
+}
+
+output 5d10

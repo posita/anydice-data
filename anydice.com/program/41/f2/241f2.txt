@@ -1,0 +1,100 @@
+\adeline's waaacky damage-per-turn calculator!\
+AC:12             \AC of target\
+ACHIGH:20         \20 by default; set to 0 to disable a range, or anything other than 0 to change it\
+
+CRIT:20           \critical range: default is 20\
+ADVANTAGE:1       \boolean: 0 if none, 1 if advantage\
+ATTACKCOUNT:1     \your number of attacks per turn\
+TOHIT:7           \your bonus to hit\
+function: init C A{ \ -- ignore -- \
+DAMAGE:2d6+7      \your normal damage\
+CRITDAMAGE:4d6+7  \your crit damage\
+FIRSTDAMAGE:0      \damage that only applies to one attack (eg. sneak attack)\
+FIRSTCRIT:0        \the crit version of FIRSTDAMAGE\
+RESVUL:-1           \1: resistance to attack, -1: vulnerability to attack\
+
+
+DIV:1 if RESVUL = 1 {DIV:2}
+MUL:1 if RESVUL = -1 {MUL:2}
+if C = 0 {result: ((DAMAGE+FIRSTDAMAGE*!(1-A))*MUL/DIV)}
+else {result: ((CRITDAMAGE+FIRSTCRIT*!(1-A))*MUL/DIV)}
+}
+
+
+DUEL:1 \set to 1 to have the two stats fight each other's AC\
+
+HP:43 \HP of P1: only used if DUEL is 1\
+BHP:67 \HP of P2: only used if DUEL is 1\
+BAC:15 \AC of player 1: only used if DUEL is 1\
+
+
+COMPARE:0 \set to 1 to compare the first stats vs all of those B-stats below this line\
+
+BCRIT:20           
+BADVANTAGE:1       
+BATTACKCOUNT:1       
+BTOHIT:6           
+function: init alt C A{ 
+BDAMAGE:2d12+4
+BCRITDAMAGE:4d12+4
+BFIRSTDAMAGE:0      
+BFIRSTCRIT:0      
+BRESVUL:1
+
+BDIV:1 if BRESVUL = 1 {BDIV:2}
+BMUL:1 if BRESVUL = -1 {BMUL:2}
+if C = 0 {result: ((BDAMAGE+BFIRSTDAMAGE*!(1-A))*BMUL/BDIV)}
+else {result: ((BCRITDAMAGE+BFIRSTCRIT*!(1-A))*BMUL/BDIV)}
+}
+
+function: A:n against B:n version C{
+result: (A|B)*[init B C]
+}
+function: A:n alt B:n version C{
+result: (A|B)*[init alt B C]
+}
+
+function: attack N times against A {
+ACCUMULATOR: 0
+loop L over {1..N}{
+CC: (1@(ADVANTAGE+1)d20) >= CRIT
+HIT: ((1@(ADVANTAGE+1)d(CRIT-1))+TOHIT)>=A
+ACCUMULATOR:ACCUMULATOR+[HIT against CC version L]
+}
+result:ACCUMULATOR
+}
+
+function: alt attack N times against A {
+ACCUMULATOR: 0
+loop L over {1..N}{
+CC: (1@(BADVANTAGE+1)d20) >= BCRIT
+HIT: ((1@(BADVANTAGE+1)d(BCRIT-1))+BTOHIT)>=A
+ACCUMULATOR:ACCUMULATOR+[HIT alt CC version L]
+}
+result:ACCUMULATOR
+}
+if DUEL = 0 {
+    if COMPARE = 0 {
+        if ACHIGH = 0 
+            {output [attack ATTACKCOUNT times against AC] named "AC[AC]"}
+        else{ 
+            loop ITER over {AC..ACHIGH} {
+            output [attack ATTACKCOUNT times against ITER] named "AC[ITER]"
+            }
+        }
+    }
+    else {
+        if ACHIGH = 0 
+        {output [attack ATTACKCOUNT times against AC]-[alt attack BATTACKCOUNT times against AC] named "vs. AC[AC] ((+ favours P1)"}
+        else{ 
+            loop ITER over {AC..ACHIGH} {
+                output [attack ATTACKCOUNT times against ITER]-[alt attack BATTACKCOUNT times against ITER] named "vs. AC[ITER] (+ favours P1)"
+            }
+        }
+    }    
+}
+else {
+    output [attack ATTACKCOUNT times against AC] named "PLAYER 1 DAMAGE VS AC[AC]"
+    output [alt attack BATTACKCOUNT times against BAC] named "PLAYER 2 DAMAGE VS AC[BAC]"
+    output [attack ATTACKCOUNT times against AC]-[alt attack BATTACKCOUNT times against BAC] named "DIFFERENCE IN STRENGTH (+ FAVOURS P1)"
+}

@@ -1,0 +1,59 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+  if [REROLL contains ROLL] {
+    result: REPLACEMENT
+  }
+  result: ROLL
+}
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+function: gwf DICE:d {
+  result: [reroll {1,2} on DICE]
+}
+
+
+output 
+[attack d20 plus 7 vs 15 
+  hit 1d[gwf d10]+4
+  miss 1d10
+  crit 2d[gwf d10]+4 on 20
+] named "Regular GWF Fighter"
+output 
+[attack [highest 1 of 3d20] plus 7 vs 15 
+  hit 1d[gwf d10]+4
+  miss 1d10
+  crit 2d[gwf d10]+4 on 20
+] named "Elven accuracy GWF Fighter"
+
+output 
+[attack 1d20 plus 8 vs 15 
+  hit 1d8 + 1d6 +4 + 3
+  miss 1d8
+  crit 2d8 + 2d6 +4 + 3 on 19
+] named "Hexlock Longbow"
+
+output 
+[attack [highest 1 of 2d20] plus 8 vs 15 
+  hit 1d8 + 1d6 +4 + 3
+  miss 1d8
+  crit 2d8 + 2d6 +4 + 3 on 19
+] named "Hexlock Longbow advantage"
+
+output 
+[attack [highest 1 of 3d20] plus 8 vs 15 
+  hit 1d8 + 1d6 +4 + 3
+  miss 1d8
+  crit 2d8 + 2d6 +4 + 3 on 19
+] named "Hexlock Longbow EA advantage"

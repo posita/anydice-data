@@ -1,0 +1,43 @@
+\Dexstrint's types of rolls\
+
+function: count multiples in DICE:d {
+ VALUE: 0
+ DONE: 0
+ loop N over {1..#{DICE}} {
+  MF: 1
+  if DONE != 1 {
+   loop M over {(N+1)..#{DICE}} {
+    output {N@DICE} named "N@DICE"
+    output {M@DICE} named "M@DICE"
+    if {N@DICE} = {M@DICE} {
+     MF: MF + 1
+     VALUE: VALUE + (N * MF)
+     DONE: 1
+    }
+   }
+  }
+  if {VALUE} = 0 {
+   VALUE: 1@DICE
+  }
+ }
+ result: VALUE
+}
+
+output 3d6 named "General"
+output [count multiples in 3d6] named "Speed"
+output [count {4, 5, 6} in 3d6] named "Power"
+output 3d{-1, 0, 1} named "Quality"
+
+loop N over {-7..-1} {
+ output 3d6 + N named "General [N]"
+ output [count multiples in 3d6] + N named "Speed [N]"
+ output [count {4, 5, 6} in 3d6] + N named "Power [N]"
+ output 3d{-1, 0, 1} + N named "Quality [N]"
+}
+
+loop N over {1..7} {
+ output 3d6 + N named "General +[N]"
+ output [count multiples in 3d6] + N named "Speed +[N]"
+ output [count {4, 5, 6} in 3d6] + N named "Power +[N]"
+ output 3d{-1, 0, 1} + N named "Quality +[N]"
+}

@@ -1,0 +1,19 @@
+DC: 15
+BONUS: 9
+BONUS_HEALING: 0
+
+function: HEAL:n treatwounds {
+  if HEAL = 1 | (HEAL + BONUS) <= (DC - 10) { result: -1d8 }
+  else if (HEAL + BONUS) > (DC - 10) & (HEAL + BONUS) < DC { result: 0 }
+  else if (HEAL + BONUS) >= DC & (HEAL + BONUS) < (DC + 10) { result: 2d8 + BONUS_HEALING }
+  else if (HEAL + BONUS) >= (DC + 10) | HEAL = 20 { result: 4d8 + BONUS_HEALING }
+}
+function: CHECKS:n continual {
+  TOTAL: 0
+  loop N over {1..CHECKS} {
+    HEALING: [d20 treatwounds]
+    TOTAL: TOTAL + HEALING
+  }
+  result: TOTAL
+}
+output [12 continual] named "treating wounds continually"

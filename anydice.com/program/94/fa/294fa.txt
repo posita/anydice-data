@@ -1,0 +1,119 @@
+function: attackroll BAB with ROLL:n vs AC:n {
+ if ROLL >= CRITROLL & ROLL + BAB + STRMOD >= AC 
+  {    
+    result: [critconfirm BAB with d20] 
+  } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + BAB + STRMOD >= AC | ROLL = 20 
+  { 
+    result: DAMAGE
+  }
+ result: 0
+}
+
+function: perroundroll BAB with ROLL:n vs AC:n {
+ if ROLL >= CRITROLL & ROLL + BAB + STRMOD >= AC 
+  {    
+    result: PERROUND 
+  } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + BAB + STRMOD >= AC | ROLL = 20 
+  { 
+    result: PERROUND
+  }
+ result: 0
+}
+
+function: multiattackroll {
+ FINALDAMAGE: 0
+ ONCEPERROUNDDAMAGE: 0
+ DAMAGENOTDEALT : 1
+ loop N over ATTACKS{ 
+   ONCEPERROUNDDAMAGE: [perroundroll N with d20 vs ENEMYAC]     
+   FINALDAMAGE: [attackroll N with d20 vs ENEMYAC] + FINALDAMAGE   
+  }
+  FINALDAMAGE: FINALDAMAGE + ONCEPERROUNDDAMAGE
+  result: FINALDAMAGE
+}
+
+function: critconfirm BAB with ROLL:n {
+ if ROLL = 1 { result: DAMAGE}
+ if ROLL + BAB + STRMOD >= AC | ROLL = 20 { result: CRITDAMAGE}
+ result: DAMAGE
+}
+
+\looped against enemy AC from 32-39\
+ENEMYAC: d{24..30}
+
+ATTACKS: {11,11,11,6}
+DMGBONUS: 6 + 6 + 1
+STRMOD: 5
+CRITROLL: 20
+PERROUND: 4d6 * 3 / 2  + 6
+DAMAGE: 3d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2
+CRITDAMAGE: 2d{DAMAGE} 
+output [multiattackroll] named "Brawl 7 Min prep/ Flurry, Shikigami 3, Energize Weapon, Challenge, Elemental Overflow, Power Attack(6), Conductive, Attuned Weapon(1), Weapon Focus, Empower"
+
+ATTACKS: {10,10,10,5}
+DMGBONUS: 6 + 6 + 1
+STRMOD: 5
+CRITROLL: 20
+PERROUND: 4d6 * 3 / 2  + 6
+DAMAGE: 1d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2 
+CRITDAMAGE: 2d{DAMAGE}
+output [multiattackroll] named "Brawl 7 Full Defense/ Flurry, Crane 3, Energize Weapon, Challenge, Elemental Overflow, Power Attack(6), Conductive, Attuned Weapon(1), Weapon Focus, Empower"
+
+ATTACKS: {20,22,22,22,17}
+DMGBONUS: 29
+STRMOD: 0
+CRITROLL: 19
+PERROUND: 5d6 * 3 / 2  + 6
+DAMAGE: 8d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2 + 2d6
+CRITDAMAGE: 2d{DAMAGE}
+output [multiattackroll] named "Brawl 7 Prep for DMG/ Flurry, Shikigami 3, Dedicated Adversary(2), Inspiring Courage(1), Attuned Weapon(2), Energize Weapon(2d6), Challenge(6), Power Attack(6), Elemental Ki, Elemental Overflow(2), Featherweight, Bane, Shaken(2), Conductive, Weapon Focus, Empower"
+
+ATTACKS: {15,15,15,10}
+DMGBONUS: 18
+STRMOD: 0
+CRITROLL: 19
+PERROUND: 5d6 * 3 / 2  + 6
+DAMAGE: 3d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2
+CRITDAMAGE: 2d{DAMAGE}
+output [multiattackroll] named "Brawl 7 DMG/ Flurry, Shikigami 3, Combat Style Master, Attuned Weapon(2), Energize Weapon(2d6), Elemental Ki, Power Attack(6), Elemental Overflow(2), Featherweight, Conductive, Weapon Focus, Empower"
+
+ATTACKS: {19,19,14}
+DMGBONUS: 20
+STRMOD: 0
+CRITROLL: 19
+PERROUND: 5d6 * 3 / 2  + 6
+DAMAGE: 1d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2
+CRITDAMAGE: 2d{DAMAGE}
+output [multiattackroll] named "Brawl 7 DMG/ Flurry, Shikigami 3, Dedicated Adversary, Attuned Weapon(2), Energize Weapon(2d6), Elemental Ki, Power Attack(6), Elemental Overflow(2), Featherweight, Conductive, Weapon Focus, Empower"
+
+ATTACKS: {19}
+DMGBONUS: 4 + 1
+STRMOD: 5
+CRITROLL: 19
+PERROUND: 4d6 * 3 / 2  + 6
+DAMAGE: 12d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2
+CRITDAMAGE: 24d6 + STRMOD + DMGBONUS
+output [multiattackroll] named "Sledge Brawl 7 / Vital Strike Focused Weapon Shikigami 3, Inspiring Courage(1), Vambraces of Overflowing Power(2), Attuned Weapon (1), Featherweight, Energize Weapon, Weapon Focus, Empower"
+
+ATTACKS: {20, 15, 10, 20, 20, 15, 20, 20, 20}
+DMGBONUS: 19
+STRMOD: 6
+CRITROLL: 20
+PERROUND: 20d6
+DAMAGE: 1d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2 + 2d6
+CRITDAMAGE: 2d{DAMAGE}
+output [multiattackroll] named "Fully Buffed Level 12 Medusa Pummeling Branch Charge Style"
+
+ATTACKS: {21, 16, 11, 21, 16, 20, 21, 21, 21, 20}
+DMGBONUS: 23
+STRMOD: 6
+CRITROLL: 20
+PERROUND: 5d6 * 3 / 2 - 4d6
+DAMAGE: 3d6 + STRMOD + DMGBONUS + 2d6 * 3 / 2 + 2d6
+CRITDAMAGE: 2d{DAMAGE}
+output [multiattackroll] named "Fully Buffed Level 12 Medusa Tripping Style"
+

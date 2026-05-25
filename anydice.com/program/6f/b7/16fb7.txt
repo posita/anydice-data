@@ -1,0 +1,31 @@
+AC: 18                         \ dummy enemy AC \
+
+A: [highest 1 of 2d20]         \ dice daan rolls \
+DBONUS: 3                      \ daan's to hit bonus \
+DDAMAGE: 1d12 + 18             \ daan's non crit damage \
+DCRITDAMAGE: 2d12 + 18         \ daan's crit damage \
+
+B: 1d20                        \ dice mees rolls \
+MBONUS: 8                      \ mees' to hit bonus \
+MDAMAGE: 1d8 + 8               \ mees'  non crit damage \
+MCRITDAMAGE: 10d8 + 8          \ mees' crit damage \
+CRITN: 19                      \ number mees crits on \
+
+function: daan ROLL:n {
+ if ROLL = 20 {
+  result: DCRITDAMAGE
+ } else {
+  result: ((ROLL + DBONUS) > AC) * (DDAMAGE)
+ }
+}
+
+function: mees ROLL:n {
+ if ROLL > (CRITN - 1) {
+  result: MCRITDAMAGE
+ } else {
+  result: ((ROLL + MBONUS) > AC) * (MDAMAGE)
+ }
+}
+
+output [daan A] named "daan"
+output [mees B] named "mees"

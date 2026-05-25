@@ -1,0 +1,42 @@
+function: basedice EX:n again N:n against DIF:n {
+ if N >= EX { result: 1 + [explosion d10 against DIF] }
+ if N >= DIF { result: 1 }
+ if {N = 1} & {DIF != 1} { result: -1 }
+ else {result: 0}
+}
+
+function: explosion N:n against DIF:n {
+ if {N = 1} & {DIF != 1} { result: -1 }
+ result: N >= DIF
+}
+
+function: cap N:n {
+ if N <= -1 { result: -1}
+ else {result: N}
+}
+
+DIE_SIZE: d10
+DIFFICULTY: 8
+EXPLODE_ON: 10
+FULLDIE: [basedice EXPLODE_ON again DIE_SIZE against DIFFICULTY ]
+ADVANTAGE: 1@2dFULLDIE
+DOUBLE_ADVANTAGE: 1@3dFULLDIE
+
+output 1dFULLDIE named "Full Die"
+output 1dADVANTAGE named "Best of Two"
+output 1dDOUBLE_ADVANTAGE named "Best of Three"
+
+ 
+
+\-- For checking different difficulties \ \
+ loop N over {1..10} {
+  output [basedice EXPLODE_ON again DIE_SIZE against N] named "Difficulty [N]" 
+}
+\
+
+
+\-- For checking different numbers of dice \ \
+loop N over {1..14} {
+ output [cap NdFULLDIE] named "[N]d10"
+}
+\

@@ -1,0 +1,73 @@
+TURN : 10
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+SHARPATK : -5
+DEX : 4
+PROFIENCY : 3
+ATTACK: DEX + PROFIENCY  + SHARPATK
+AC : 10
+
+SHARPHIT : 10
+SNEAK: 4d6
+HITDAMAGE: d8 + + SNEAK + SHARPHIT
+CRITICALDAMAGE: 2d8  + SNEAK + SNEAK + SHARPHIT
+MISSDAMAGE: 0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT 
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ACCUMULATOR : 0
+
+loop N over {1..10}{
+ ACCUMULATOR : ACCUMULATOR  + [damage for [attack [highest 1d20 of 1d20] vs AC]]
+}
+
+output ACCUMULATOR named "Roublard level 8 contre CA : [AC], chance de faire # degat pour [TURN] tours"
+\ output [damage for [attack [highest 1d20 of 1d20] vs AC]] named "[AC]" \
+
+\ guerrier 5 + roub 3 \
+
+TURN : 10
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+SHARPATK : -5
+DEX : 6
+PROFIENCY : 3
+ATTACK: DEX + PROFIENCY
+AC : 10
+
+SHARPHIT : 10
+SNEAK: 2d6
+HITDAMAGE: d8 + + SNEAK
+CRITICALDAMAGE: 2d8  + SNEAK + SNEAK
+MISSDAMAGE: 0
+
+ACCUMULATOR : 0
+
+ACCUMULATOR : ACCUMULATOR  + [damage for [attack 20 vs AC]]
+
+loop N over {2..10}{
+ ACCUMULATOR : ACCUMULATOR  + [damage for [attack 1d20 vs AC]] + [damage for [attack 1d20 vs AC]]
+}
+
+output ACCUMULATOR named "Roublard level 3 + Guerrier level 5 contre CA : [AC], chance de faire # degat pour [TURN] tours"

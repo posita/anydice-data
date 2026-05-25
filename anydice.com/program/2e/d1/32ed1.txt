@@ -1,0 +1,40 @@
+set "maximum function depth" to 3
+
+function: FACE:n recursive die helper {
+  if FACE >= 6 {
+    result: 1 + [d6 recursive die helper]
+  } else {
+    result: 0
+  }
+}
+
+function: DICE:s skill roll {
+  SIXES: 0
+  HIGHEST: 0
+  SECOND_HIGHEST: 0
+  loop D over DICE {
+    if D > HIGHEST {
+      SECOND_HIGHEST: HIGHEST
+      HIGHEST: D
+    } else if D > SECOND_HIGHEST {
+      SECOND_HIGHEST: D
+    }
+    
+    if D >= 6 {
+      SIXES: SIXES + 1
+    }
+  }
+
+  if SIXES >= #DICE {
+    result: 5 + SIXES + [d6 recursive die helper]
+  } else if SIXES >= 2 {
+    SIXES: SIXES - 1
+  }
+
+  result: SECOND_HIGHEST + SIXES
+}
+
+output [2d6 skill roll]
+output [3d6 skill roll]
+output [4d6 skill roll]
+output [5d6 skill roll]

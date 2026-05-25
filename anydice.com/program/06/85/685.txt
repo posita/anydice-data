@@ -1,0 +1,27 @@
+function: explodeh N:n { if N = 10 { result: N + [explodeh d10] } result: N } 
+function: explodel N:n { if N = 1 { result: N + [explodel d10] } result: N } 
+
+function: explode N:n { 
+ if N = 20 { result: N + [explodeh d10] } 
+ if N = 1 { result: N - [explodel d10] }
+ result: N } 
+
+function: minz NUM:n {
+  if NUM >= 0 { result: NUM} 
+  result: 0
+}
+
+function: getdamage DAMAGE CHECK:n {
+  if CHECK >= 0 { result: [minz DAMAGE + (CHECK/5)]} 
+  result: 0
+}
+
+
+loop STR over {-5..5} {
+   loop DEX over {-5..5} {
+   CHECK: ((([explode 2d10] + STR)/5) + DEX)
+   NEWD: ((([explode 2d10] + STR)/5) + STR)
+   output [getdamage NEWD CHECK]/5 > 0 named "[STR] damage at [DEX]"
+ }
+}
+

@@ -1,0 +1,110 @@
+MISS:0
+HIT:1
+CRITHIT:2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 20 - THREAT { result: CRITHIT }
+ if ROLL + ATTACK > DEFENSE { result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITHIT {
+  result: CRITDAM
+ }
+ if ATTACKRESULT = HIT {
+  result: DAM
+ }
+ result: MISSDAM
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: advattack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+\ DEFENSE: d{10..20} \
+
+loop DEFENSE over {10..25} {
+
+DEX: 3
+PROF: 3
+GUNTHREAT:1
+CHAMPIONTHREAT:0
+FOCUSTHREAT:4
+FOCUSATK:4
+FOCUSDAM:4
+MAXTHREAT:5
+
+
+\ ---------------shoot twice with adv-------------------\
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT 
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF
+DAM: 2d6 + DEX
+CRITDAM: 3d6 + DEX + 6
+MISSDAM: 0
+\output [advattack] + [advattack] named "Shoot Twice ADV vs AC [DEFENSE]"
+\
+
+\ --------------focus shot with advantage-------------\
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT+FOCUSTHREAT
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF + FOCUSATK
+DAM: 2d6 + DEX + FOCUSDAM
+CRITDAM: 3d6 + DEX + 6 + FOCUSDAM
+MISSDAM: 0
+\output [advattack] named "Focus Shot ADV vs AC [DEFENSE]"
+\
+
+\ --------------shoot twice------------------ \
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF
+DAM: 2d6 + DEX
+CRITDAM: 3d6 + DEX + 6
+MISSDAM: 0
+\output [attack] + [attack] named "Shoot Twice vs AC [DEFENSE]"
+\
+
+SHOOTTWICE:[attack] + [attack]
+ 
+\ -----------------focus shot----------------------\
+
+THREAT: 1+GUNTHREAT+CHAMPIONTHREAT+FOCUSTHREAT
+if THREAT>MAXTHREAT {
+ THREAT: MAXTHREAT
+}
+ATTACK: DEX + PROF + FOCUSATK
+DAM: 2d6 + DEX + FOCUSDAM
+CRITDAM: 3d6 + DEX + 6 + FOCUSDAM
+MISSDAM: 0
+\output [attack] named "Focus Shot vs AC [DEFENSE]"
+\
+
+FOCUSSHOT:[attack]
+
+output SHOOTTWICE - FOCUSSHOT named "vs AC [DEFENSE]"
+
+
+\
+loop AC over {5..25} {
+ output [attack d20 vs AC] named "[AC]"
+ output [attack d20 vs AC] named "[AC]"
+}
+\
+}
+\------------------------------------------------\

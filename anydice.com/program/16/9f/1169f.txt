@@ -1,0 +1,31 @@
+function: X:n with A:n S:n hit Z:n at C:n {
+  if X = 20 {
+    result: 2 * Z + S
+  }
+  if (X + A) >= C {
+    result: Z + S
+  }
+  result: 0
+}
+
+function: triroll X:n with A:n S:n below C at B:n {
+  if X < C {
+    result: [[highest of d20 and d20] with A S hit [highest of X and d12] at B] + [[highest of d20 and d20] with A S hit d12 at B]
+  }
+  result: [[highest of d20 and d20] with A S hit X at B] + [[highest of d20 and d20] with A S hit [highest of d12 and d12] at B]
+}
+
+REROLL: 7
+ATKMOD: 7
+STRMOD: 6
+AC: 16
+BEFOREATK: [[highest of d20 and d20] with ATKMOD STRMOD hit d12 at AC]
+BEFORE: 2 * BEFOREATK
+
+
+output BEFORE named "Before"
+
+output [triroll d12 with ATKMOD STRMOD below REROLL at AC] - BEFORE named "two attacks reroll once"
+
+PLUSATK: [[highest of d20 and d20] with (ATKMOD + 1) (STRMOD + 1) hit d12 at AC]
+output 2 * PLUSATK - BEFORE named "two attacks with +1"

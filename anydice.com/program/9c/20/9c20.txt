@@ -1,0 +1,102 @@
+function: singleshot SUC:n DICE:n DMG:n PEN:n DODGED:n MOD:n {
+ if SUC > 95 {result: 0}
+ if DODGED {result: 0}
+ if SUC <= (BS+RANGEBONUS+SIGHTBONUS+MOD) {result: [damage DICE DMG PEN]}
+ result: 0
+}
+
+function: semishot SUC:n DICE:n DMG:n PEN:n DODGED:n AMMO:n{
+ if SUC > 93 {result: 0}
+ SUCCESS: (BS+RANGEBONUS+SEMIBONUS)-SUC
+ if SUCCESS < 0 {result: 0}
+ if SUCCESS < 20 {if !DODGED {result: [damage DICE DMG PEN]}}
+ SUCCESS: (SUCCESS/20)-DODGED
+ if SUCCESS > AMMO {result: AMMOd[damage DICE DMG PEN]}
+ if SUCCESS > 0 {result: SUCCESSd[damage DICE DMG PEN]}
+ result: 0
+}
+
+function: autoshot SUC:n DICE:n DMG:n PEN:n DODGED:n AMMO:n{
+ if SUC > 93 {result: 0}
+ SUCCESS: (BS+RANGEBONUS+AUTOBONUS)-SUC
+ if SUCCESS < 0 {result: 0}
+ if SUCCESS < 10 {if !DODGED {result: [damage DICE DMG PEN]}}
+ SUCCESS: (SUCCESS/10)-DODGED
+ if SUCCESS > AMMO {result: AMMOd[damage DICE DMG PEN]}
+ if SUCCESS > 0 {result: SUCCESSd[damage DICE DMG PEN]}
+ result: 0
+}
+
+function: flamer AGTEST:n DICE:n DMG:n PEN:n {
+ if AGTEST > AG {result: [damage DICE DMG PEN]}
+ result: 0
+}
+
+function: shotgun SUC:n DICE:n DMG:n PEN:n DODGED:n{
+ if SUC > 95 {result: 0}
+ SUCCESS: (BS+RANGEBONUS+SEMIBONUS)-SUC
+ if SUCCESS < 0 {result: 0}
+ if SUCCESS < 20 {if !DODGED {result: [damage DICE DMG PEN]}}
+ SUCCESS: (SUCCESS/20)-DODGED
+ if SUCCESS > 0 {result: SUCCESSd[damage DICE DMG PEN]}
+ result: 0
+}
+
+function: deadshot SUC:n DICE:n DMG:n PEN:n DODGED:n MOD:n {
+ if SUC > 95 {result: 0}
+ if DODGED {result: 0}
+ DEADPEN: PEN + AR
+ if SUC <= (BS+RANGEBONUS+SIGHTBONUS-10+MOD) {result: [damage DICE DMG DEADPEN]}
+ result: 0
+}
+
+function: damage D:n V:n PEN:n {
+ ROLL: (Dd10 + V)- (TO +[positive (AR - PEN)])
+ result: [positive ROLL]
+}
+
+function: positive N:n {
+if N > 0 { result: N}
+result: 0
+}
+
+function: dodgesuccess AGTEST:n {
+ if AGTEST > DODGEV {result: 0}
+ SUCCESS: DODGEV - AGTEST
+ if SUCCESS < 10 {result: 1}
+ SUCCESS: SUCCESS/10
+ if SUCCESS > 0 {result: SUCCESS}
+ result: 0
+}
+
+\Standards\
+TEST: 1d100
+SEMIBONUS: 10
+AUTOBONUS: 20
+
+\Player\
+BS: 40
+SIGHTBONUS: 10
+RANGEBONUS: 30
+
+\Enemy\
+TO: 3
+AR: 5
+AG: 30
+AGTEST: 1d100
+DODGE: 0 \1 or 0\
+DODGEBONUS: 10 \0, 10, 20\
+if DODGE {DODGEV: AG + DODGEBONUS} else {DODGEV: AG/2}
+
+
+\output [autoshot TEST 1 2 0 [dodgesuccess AGTEST] 6] named "Autopistol 1d10+2 Pen0 full auto"\
+\output [singleshot TEST 1 4 2 [dodgesuccess AGTEST]] named "Handcannon 1d10+4 Pen2"\
+output [singleshot TEST 1 4 2 [dodgesuccess AGTEST] 20] named "Carnodon Aimed 1d10+4 Pen2"
+output [deadshot TEST 1 4 2 [dodgesuccess AGTEST] 20] named "Carnodon Aimed Deadshot 1d10+4 Pen2"
+\output [deadshot TEST 1 4 2 [dodgesuccess AGTEST]] named "Handcannon Deadshot 1d10+4 Pen2"\
+output [flamer AGTEST 1 4 2] named "Hand Flamer 1d10+4 Pen2"
+\output [flamer AGTEST 1 4 3] named "Flamer 1d10+4 Pen3"\
+output [shotgun TEST 1 4 0 [dodgesuccess AGTEST]] named "Shotgun 1d10+4 Pen0 point blank"
+output [autoshot TEST 1 3 0 [dodgesuccess AGTEST] 6] named "Hecuter 1d10+3 Pen0 full auto" 
+output [semishot TEST 1 5 4 [dodgesuccess AGTEST] 2] named "Bolter 1d10+5 pen4 semi"
+output [deadshot TEST 1 5 4 [dodgesuccess AGTEST] 10] named "Bolter Aimed Deadshot 1d10+5 Pen4"

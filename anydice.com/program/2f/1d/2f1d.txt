@@ -1,0 +1,30 @@
+function: sqrthelper N:n guess R:n {
+ if [absolute ((N/R)-R)] <= 1 
+  {
+   if (N/R) > R
+   {
+    result: R
+   }
+   result: (N/R)
+  }
+ result: [sqrthelper N guess [absolute (((N/R)+(R))/2)]]
+}
+
+function: sqrt of N:n {
+ result: [sqrthelper N guess 2] 
+}
+
+function: sdie S:n success R:n reroll D:n T:n {
+ if D >= R { result: 1 + [sdie S success R reroll dT T]}
+ result: D >= S
+}
+
+PRESET: [sdie 9 success 12 reroll d12 12]
+
+PRESETB: [sdie 11 success 13 reroll d12 12]
+
+loop S over {0..9} {
+ loop A over {1..5} {
+  output [lowest of 16 and SdPRESET+1d{-1..1}+1+AdPRESETB] named "Skill [S] Ability [A]"
+ }
+}

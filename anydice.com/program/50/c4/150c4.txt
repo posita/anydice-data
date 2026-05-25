@@ -1,0 +1,126 @@
+
+function: spam slot level {
+ OUTPUT: 0
+ if SORCERER = 2 {OUTPUT: 1}
+ if SORCERER = 3 {OUTPUT: 2}
+ if SORCERER >= 5 {OUTPUT: SORCERER - 2}
+ if OUTPUT > 5 {OUTPUT: 5}
+ result: OUTPUT
+}
+function: slot level {
+ result: (SORCERER + 1 + PALADIN/2) / 2
+}
+function: warlock slot level {
+ result: (WARLOCK + 1) / 2
+}
+function: cantrip level {
+ OUTPUT: 1
+ if TOTALLEVEL >= 5 {OUTPUT: 2}
+ if TOTALLEVEL >= 11 {OUTPUT: 3}
+ if TOTALLEVEL >= 17 {OUTPUT: 4}
+ result: OUTPUT
+}
+
+function: melee FIRST {
+ DAMAGE: CHARISMA + [weapon damage]
+ if PALADIN >= 2 {DAMAGE: DAMAGE + [smite]}
+ if WARLOCK*FIRST >= 5 {DAMAGE: DAMAGE + [eldritch smite]}
+ result: DAMAGE
+}
+
+function: smite {
+ OUTPUT: 0
+ SLOTLEVEL: [spam slot level]
+ if SLOTLEVEL > 4 {SLOTLEVEL: 4}
+ if SLOTLEVEL > 0 {OUTPUT: 1d8 + (SLOTLEVEL)d8}
+ result: OUTPUT
+}
+
+function: eldritch smite {
+ OUTPUT: 0
+ SLOTLEVEL: [warlock slot level]
+ if SLOTLEVEL > 5 {SLOTLEVEL: 5}
+ if SLOTLEVEL > 0 {OUTPUT: 1d8 + (SLOTLEVEL)d8}
+ result: OUTPUT
+}
+
+function: booming blade FIRST {
+ OUTPUT: [melee FIRST] + ([cantrip level]-1)d8
+ result: OUTPUT
+}
+
+function: weapon damage {
+ OUTPUT: WEAPONDAMAGE + HEX + HEXBLADE
+ if WARLOCK >= 12 {OUTPUT: OUTPUT + CHARISMA}
+ result: OUTPUT
+}
+
+function: attack action FIRST {
+ DAMAGE: [melee FIRST]
+ if WARLOCK >= 5 {DAMAGE: DAMAGE + [melee 0]}
+
+ 
+ result: DAMAGE
+}
+
+function: proficiency {
+ OUTPUT: 2
+ if TOTALLEVEL >= 5 {OUTPUT: 3}
+ if TOTALLEVEL >= 9 {OUTPUT: 4}
+ if TOTALLEVEL >= 13 {OUTPUT: 5}
+ if TOTALLEVEL >= 17 {OUTPUT: 6}
+ result: OUTPUT
+}
+
+function: eldritch blast {
+ result: [cantrip level]*(1d10 + CHARISMA + [on hit effects])
+}
+
+function: on hit effects {
+ OUTPUT: HEX
+ if [spam slot level] >= 3 {OUTPUT: BESTOWCURSE}
+ if [spam slot level] >= 5 {OUTPUT: HEX + BESTOWCURSE}
+ result: OUTPUT + HEXBLADE
+}
+
+function: action surge {
+ OUTPUT: 0
+ if FIGHTER >= 2 {OUTPUT: [attack action 0]}
+ result: OUTPUT
+}
+
+
+TOTALLEVEL: 20
+WARLOCK: 11
+PALADIN: 2
+FIGHTER: 0
+SORCERER: TOTALLEVEL - WARLOCK - PALADIN- FIGHTER
+
+
+WEAPONDAMAGE: 1d8
+CHARISMA: 5
+HEX: 1d6
+BESTOWCURSE: 1d8
+HEXBLADE: [proficiency]
+
+output [attack action 1] + [eldritch blast] named "Extra Attack (Eldritch Smite)+ Quicken Eldritch Blast - Hex, Hexblade, Bestow Curse - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [attack action 1] + [booming blade 0] named "Extra Attack (Eldritch Smite)+ Qicken Booming Blade - Hex, Hexblade, Bestow Curse - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [booming blade 1] + [booming blade 0] named "Booming Blade (Eldritch Smite)+ Qicken Booming Blade - Hex, Hexblade, Bestow Curse - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [booming blade 1] + [eldritch blast] named "Booming Blade (Eldritch Smite)+ Qicken Eldritch Blast - Hex, Hexblade, Bestow Curse - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+
+HEX: 0
+BESTOWCURSE: 0
+HEXBLADE: 0
+
+output [attack action 1] + [eldritch blast] named "Extra Attack (Eldritch Smite)+ Quicken Eldritch Blast - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [attack action 1] + [booming blade 0] named "Extra Attack (Eldritch Smite)+ Quicken Booming Blade - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [booming blade 1] + [booming blade 0] named "Booming Blade (Eldritch Smite)+ Quicken Booming Blade - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [booming blade 1] + [eldritch blast] named "Booming Blade (Eldritch Smite)+ Quicken Eldritch Blast - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+
+output [attack action 1] named "Extra Attack (Eldritch Smite) - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [attack action 0] named "Extra Attack (No Eldritch Smite) - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+
+output [booming blade 1] named "Booming Blade (Eldritch Smite) - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+output [booming blade 0] named "Booming Blade (No Eldritch Smite) - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"
+
+output [eldritch blast] named "Eldritch Blast - no prep - Warlock [WARLOCK] / Sorcerer [SORCERER] / Paladin [PALADIN] / Fighter [FIGHTER]"

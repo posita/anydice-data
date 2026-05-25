@@ -1,0 +1,42 @@
+function: remove SUBSEQ:s from SEQ:s {
+  SEQ: [sort SEQ]
+  SUBSEQ: [sort SUBSEQ]
+  REST: {}
+  J: 1
+  loop I over {1..#SEQ} {
+    if J <= #SUBSEQ & I@SEQ = J@SUBSEQ { 
+      if (I!=#SEQ & (I+1)@SEQ != J@SUBSEQ) { J: J + 1 } 
+    }
+    else { REST: {REST, I@SEQ} }
+  }
+  result: REST
+}
+
+
+output [count {1} in d{1,4,5,6}] named "A reference to verify the rest of the series work properly" 
+
+
+function: kk with N:n and NN:n {
+ if (N>HAB & NN>HAB) {
+      result: [count {1..HAB} in d6]
+    } else {
+      if (N<=HAB) {
+        if (NN<=HAB) {
+          result: [count {1..HAB} in d[remove NN from [remove N from {d6}]]]
+        } else {
+          result: [count {1..HAB} in d[remove N from {d6}]]
+        }
+      } else {
+        if (NN<=HAB) {
+          result: [count {1..HAB} in d[remove NN from {d6}]]
+        }
+      }
+    }
+}
+
+loop HAB over {d6} {
+ output [count {1..HAB} in d6] named "FROM 1 TO [HAB] in d6, removing nothing"
+ N: d6
+ NN: d6
+ output [kk with N and NN] named "(1..[HAB]) in d6, 'removing' 2 dice"
+}

@@ -1,0 +1,72 @@
+function: hitroll N:n plus H:n vs AC:n {
+if N = 20 {
+result: 2
+}
+if N = 1 {
+result: 0
+}
+if N + H < AC {
+result: 0
+}
+if N + H >= AC {
+result: 1
+}
+}
+
+function: dmgroll RES:n base HIT_D:d crit CRIT_D:d plus FLAT_D:n{
+if RES = 2 {
+result:CRIT_D + FLAT_D
+}
+if RES = 1 {
+result:HIT_D + FLAT_D
+}
+else{
+result:0
+}
+}
+
+\ Basic stuff \
+ABL_MOD:5
+WEP_MOD:3
+PROF_MOD:6
+
+WEP_DICE: 1d8
+
+\ Random Special Stuff \
+DIVINE_FURY: 1d6 + 9
+
+\ Bonus Flat Damage (not doubled by critical \
+RAGE: 4
+BNS_FLAT: RAGE
+
+\ Bonus Dice Damage (doubled by critical) \
+BLINDING_SMITE:3d8
+HOLY_WEAPON: 2d8
+ENLARGE: 1d4
+\Temporarily have disabled bonus dice and just added a blinding smite onto the end\
+BNS_DICE: ENLARGE + HOLY_WEAPON
+
+
+\ Critical Dice (dice only triggered by a critical \
+BRUTAL_CRITICAL:3d8
+CRIT_DICE: BRUTAL_CRITICAL
+
+\ Summing all core stuff \
+FLAT_DMG: WEP_MOD + ABL_MOD + BNS_FLAT
+DICE_DMG: WEP_DICE + BNS_DICE
+
+HIT_MOD: ABL_MOD + WEP_MOD + PROF_MOD
+
+\output HIT_ROLL\
+
+TARGET_AC: 22
+
+HIT_ROLL:[hitroll 1d20 plus 16 vs TARGET_AC]
+
+BNS_DICE: 0
+DICE_DMG: WEP_DICE + BNS_DICE
+output [dmgroll HIT_ROLL base (2d10 + 2d4 + 1) crit ((2d12+2d4+1)*2+1d12+4) plus 0] named "Assassin Rifle Aim Crit"
+output [dmgroll HIT_ROLL base (2d6 + 2d4) crit (2d6 + 2d4)*2 plus 0] named "Pistol Aim"
+output [dmgroll HIT_ROLL base (2d8 + 2d4) crit (2d8 + 2d4)*2 plus 0] named "Rifle Aim"
+\output [dmgroll HIT_ROLL base (2d6 + 4d4) crit (2d6 + 4d4)*2 plus 0]+[dmgroll [hitroll 1d20 plus 11 vs 22] base (2d6 + 2d4) crit (2d6 + 2d4)*2 plus 0] named "Sonic Rifle Aim Crit"\
+\output [dmgroll HIT_ROLL base (2d6) crit (2d6)*2 plus 0]+[dmgroll [hitroll 1d20 plus 11 vs 24] base (2d6 + 2d4) crit (2d6 + 2d4)*2 plus 0]+[dmgroll [hitroll 1d20 plus 6 vs 24] base (2d6) crit (2d6)*2 plus 0] named "Pistol Spam"\

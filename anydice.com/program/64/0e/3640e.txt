@@ -1,0 +1,40 @@
+function: interpret A:n B:n C:n {
+  if A >= C {
+    result: 2
+  }
+  if A >= B {
+    result: 1
+  }
+  result: 0
+}
+
+function: dungeon world BONUS:n {
+  ROLL: 2d6 + BONUS
+  result: [interpret ROLL 7 10]
+}
+
+function: dragon world BONUS:n {
+  ROLL: 1d20 + BONUS
+  result: [interpret ROLL 10 18]
+}
+
+function: compare ORIG:n NEW:n {
+  result: [absolute ORIG-NEW]
+}
+
+
+PAIRS: {-1, -2, 0, 0, 1, 3, 2, 5, 3, 7}
+loop I over {1..#PAIRS/2}{
+  FIRST: (2*I-1)@PAIRS
+  SECOND: (2*I)@PAIRS
+
+  DUNGEON: [dungeon world FIRST]
+  DRAGON: [dragon world SECOND]
+
+  output DUNGEON named "Dungeon World [FIRST]"
+  output DRAGON named "Dragon World [SECOND]"
+
+  output [compare DUNGEON DRAGON] named "Dungeon World [FIRST] vs Dragon World [SECOND]"
+
+  output 1
+}

@@ -1,0 +1,69 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013
+last updated 2016-08-05 \
+
+\ output [ATTACKS vs AC crit CRIT_RANGE CRIT_MULTIPLIER CRIT_EXTRA_DAMAGE dmg DAMAGE EXTRA_DAMAGE] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+CRIT_RANGE is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+CRIT_MULTIPLIER is your critical multiplier (e.g. 2)
+CRIT_EXTRA_DAMAGE is extra damage dice on a critical hit (e.g. 1d10 for flaming burst) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA_DAMAGE is extra damage dice that doesn't get multiplied on a critical hit (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit CRIT_RANGE:n CRIT_MULTIPLIER:n CRIT_EXTRA_DAMAGE:d dmg DAMAGE:d EXTRA_DAMAGE:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 1d20 plus ATTACK ac AC crit CRIT_RANGE CRIT_MULTIPLIER CRIT_EXTRA_DAMAGE dmg DAMAGE EXTRA_DAMAGE]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit CRIT_RANGE:n CRIT_MULTIPLIER:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit CRIT_RANGE CRIT_MULTIPLIER 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit CRIT_RANGE:n CRIT_MULTIPLIER:n CRIT_EXTRA_DAMAGE:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit CRIT_RANGE CRIT_MULTIPLIER CRIT_EXTRA_DAMAGE dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit CRIT_RANGE:n CRIT_MULTIPLIER:n dmg DAMAGE:d EXTRA_DAMAGE:d{
+  result: [ATTACKS vs AC crit CRIT_RANGE CRIT_MULTIPLIER 0 dmg DAMAGE EXTRA_DAMAGE]
+}
+function: ROLL:n CRIT_ROLL:n plus ATTACK:n ac AC:n crit CRIT_RANGE:n CRIT_MULTIPLIER:n CRIT_EXTRA_DAMAGE:d dmg DAMAGE:d EXTRA_DAMAGE:d {
+  HIT: 0
+  THREAT: 0 
+  if (ROLL = 1) { \automatic miss\
+  } else if (ROLL = 20) { \automatic hit\
+    HIT: 1
+    THREAT: 1
+  } else if (ROLL + ATTACK < AC) { \missed\
+  } else { \hit\
+    HIT: 1
+    if (ROLL >= CRIT_RANGE) { 
+      THREAT: 1
+    }
+  }
+  if (!HIT) { result: 0 }
+  if (THREAT & (CRIT_ROLL + ATTACK >= AC | CRIT_ROLL = 20) & CRIT_ROLL != 1) {
+    result: [crit CRIT_MULTIPLIER DAMAGE] + EXTRA_DAMAGE + [crit CRIT_MULTIPLIER-1 CRIT_EXTRA_DAMAGE] 
+  }
+  result: DAMAGE + EXTRA_DAMAGE
+}
+function: crit CRIT_MULTIPLIER:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..CRIT_MULTIPLIER} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+ATTACK: 0
+AC: 0
+\ Here are some examples: \
+output [ATTACK vs AC crit 17 2 dmg 4d6+8] named "4d6+8 17-20/x2"
+output [ATTACK vs AC crit 19 2 dmg 4d6+8] named "4d6+8 19-20/x2"
+output [ATTACK vs AC crit 20 3 dmg 4d6+8] named "4d6+8 20/x3"
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \

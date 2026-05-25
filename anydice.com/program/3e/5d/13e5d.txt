@@ -1,0 +1,103 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+STAFFATTACK: 5 + 5 + 3
+STAFFHITDAMAGE: 1d8 + 5 + 3
+STAFFCRITICALDAMAGE: 2d8 + 5 + 3
+STAFFHITDAMAGEPOMMEL: 1d4 + 5 + 3 
+STAFFCRITICALDAMAGEPOMMEL: 2d4 + 5 + 3
+MISSDAMAGE: 0
+AC: 20
+
+function: rolling ROLL:n to hit vs ac of DEFENSE:n with attack of ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for staff main ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: STAFFCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: STAFFHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for staff pommel ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: STAFFCRITICALDAMAGEPOMMEL
+ }
+ if ATTACKRESULT = HIT {
+  result: STAFFHITDAMAGEPOMMEL
+ }
+ result: MISSDAMAGE
+}
+
+function: staff damage for ATTACKRESULTMAIN:n and ATTACKRESULTPOMMEL:n {
+  TOTAL: 0
+  if ATTACKRESULTMAIN = CRITICALHIT {
+    TOTAL: TOTAL + STAFFCRITICALDAMAGE
+  }
+  if ATTACKRESULTMAIN = HIT {
+    TOTAL: TOTAL + STAFFHITDAMAGE
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  if ATTACKRESULTPOMMEL = CRITICALHIT {
+    TOTAL: TOTAL + STAFFCRITICALDAMAGEPOMMEL
+  }
+  if ATTACKRESULTPOMMEL = HIT {
+    TOTAL: TOTAL + STAFFHITDAMAGEPOMMEL
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  result: TOTAL
+}
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for staff main [rolling d20 to hit vs ac of AC with attack of STAFFATTACK]]
+  }
+  result: TOTAL
+}
+
+function: pommelattack {
+  result: [damage for staff pommel [rolling d20 to hit vs ac of AC with attack of STAFFATTACK]]
+}
+
+function: multiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for staff main [rolling [highest 1 of 3d20] to hit vs ac of AC with attack of STAFFATTACK]]
+  }
+  result: TOTAL
+}
+
+function: pommelattackdoubleadvantage {
+  result: [damage for staff pommel [rolling [highest 1 of 3d20] to hit vs ac of AC with attack of STAFFATTACK]]
+}
+
+output [multiattackdoubleadvantage 2] + [pommelattackdoubleadvantage] named "3 attacks w/o smite, GWM, hex, or HB curse vs AC [AC]"
+
+function: rolling ROLL:n to hit vs ac of DEFENSE:n with attack of ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL >= 19 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+STAFFATTACK: 5 + 5 + 3 - 5
+STAFFHITDAMAGE: 1d8 + 4d6 + 3d8 + 5 + 3 + 10 + 6
+STAFFCRITICALDAMAGE: 2d8 + 8d6 + 6d8 + 5 + 3 + 10 + 6
+STAFFHITDAMAGEPOMMEL: 1d4 + 4d6 + 5 + 3 + 10 + 6
+STAFFCRITICALDAMAGEPOMMEL: 2d4 + 8d6 + 5 + 3 + 10 + 6
+output [multiattackdoubleadvantage 2] + [pommelattackdoubleadvantage] named "3 attacks w/ smite or GWM, hex, with HB curse vs AC [AC]"
+
+STAFFATTACK: 5 + 5 + 3 - 5
+STAFFHITDAMAGE: 1d8 + 3d6 + 3d8 + 2d12 + 5 + 3 + 10 + 6
+STAFFCRITICALDAMAGE: 2d8 + 6d6 + 6d8 + 4d12 + 5 + 3 + 10 + 6
+STAFFHITDAMAGEPOMMEL: 1d4 + 3d6 + 2d12 + 5 + 3 + 10 + 6
+STAFFCRITICALDAMAGEPOMMEL: 2d4 + 6d6 + 4d12 + 5 + 3 + 10 + 6
+output [multiattackdoubleadvantage 2] + [pommelattackdoubleadvantage] named "3 attacks w/ smite or GWM, TT, and HB curse vs AC [AC]"

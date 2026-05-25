@@ -1,0 +1,42 @@
+function: rend N:n {
+ if N = 6 { result: 6 + d3 }
+ result:N
+}
+
+function: hit DICE:n BS:n TL:n {
+ BSRR: 0
+ if BS > 5 {
+  BSRR: BS-5
+  BS: 5
+ }
+ if TL = 1 {
+  BSRR: BS
+ }
+ if DICE >= 7-BS {
+  result: 1
+ }
+ else {
+  if BSRR > 0 {
+   result: [hit d6 BSRR TL]
+  }
+ }
+ result: 0
+}
+
+function: penetrate HIT:n S:n N:n REND:n {
+ if HIT = 1 {
+  if REND = 1 {
+   result: S+[rend d6]
+  }
+  result: S+N d6
+ }
+ result: 0
+}
+
+
+set "maximum function depth" to 4
+
+output [penetrate [hit d6 8 0] 0 4 0] named "Vindicare"
+output [penetrate [hit d6 4 0] 8 2 0] named "Meltagun"
+output [penetrate [hit d6 4 0] 7 1 1] named "Psycannon"
+output [penetrate [hit d6 4 1] 8 1 0] named "TL Autocannon"

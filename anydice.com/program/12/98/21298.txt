@@ -1,0 +1,1221 @@
+function: save  RESULT:n {
+ if NOSAVE = 1 { result: 1 }
+ if RESULT >= ARMOR{
+   if VULNERABLE = 1 { 
+     VULNERABLE: 0
+     result: [save d6] 
+   }
+   result: 0
+ }
+ result: 1
+}
+
+function: hit RESULT:n {
+ if RESULT >= TOHIT {
+   if WEAKEN = 1{ 
+    WEAKEN: 0
+    result: [hit d6]
+   }
+   if RESULT = 6 {
+     if PRECISION = 1 {
+        if CRITBLOW = 1 {result: 1 + [save d6] }
+        result: 1
+     }
+     if CRITBLOW  = 1 { result: [save d6] + [save d6] }
+   }
+   result: [save d6]
+ }
+ if REROLL = 1 {
+   REROLL : 0
+   result: [hit d6]
+ }
+ result: 0
+}
+
+function: moral DICEONE:n and DICETWO:n damage DAMAGE:d{
+  if DICEONE+DICETWO-MORALMALUS >= MORAL {
+    if PANIKED = 1 {
+      PANIKED: 0
+      if DICEONE >= 4 {
+        if DICETWO >= 4 {
+          if DAMAGE = 1 {
+            result: [moral d6 and d6 damage d3]
+          }
+          result: [moral d6 and d6 damage DAMAGE]
+        }
+
+        if DAMAGE = 1 {
+          result: [moral d6 and DICETWO damage d3]
+        }
+          result: [moral d6 and DICETWO damage DAMAGE]
+      }
+      if DICETWO >= 4 {
+        if DAMAGE = 1 {
+          result: [moral d6 and DICEONE damage d3]
+        }
+        result: [moral d6 and DICEONE damage DAMAGE]
+      }
+      if DAMAGE = 1 {
+        result: [moral DICEONE and DICETWO damage d3]
+      }
+    }
+    result: 0
+  }
+  if PANIKED = 1 {
+    PANIKED: 0
+    if DAMAGE = 1 {
+      result: [moral d6 and DICETWO damage d3]
+    }
+  }
+  result : DAMAGE + MORALWOUND
+}
+
+function: takemoral WOUND:n {
+   if WOUND >=1 {
+      result: WOUND + [moral d6 and d6 damage d3]
+   }
+   result: 0 
+}
+
+function: attack {
+   WOUND: DICEd[hit d6] + BONUSHITd[save d6]
+   result : [takemoral WOUND]
+}
+
+function: doattack {
+  TOHIT : TOHIT - TOHITMALUS
+  if TOHIT > 6 {TOHIT: 6}
+  if TOHIT < 2 {TOHIT: 2}
+  DICE: DICE+ BONUSDICE
+  if REAR= 1 {
+     ARMORMALUS: ARMORMALUS + 2
+     MORALMALUS: MORALMALUS + 2
+  }
+  else {
+    if FLANK = 1 {
+       ARMORMALUS: ARMORMALUS + 1
+       MORALMALUS: MORALMALUS + 1
+    }
+  }
+  ARMOR: ARMOR + ARMORMALUS
+  if ARMOR > 6 {ARMOR: 6}
+  if ARMOR < 2 {ARMOR: 2}
+  if CHARGE = 1 {
+     if DISORDERLY = 0 {
+       REROLL : 1
+     }
+  }
+  result: [attack]
+}
+
+function: hassurvive WOUND:n health WOUNDTOTAL:n{
+    result: WOUND < WOUNDTOTAL
+}
+
+function: survival {
+  VAR : [hassurvive [doattack] health TOTALWOUND]
+  CHARGE: 0
+  loop N over {2..10}{
+    TOTALWOUND: TOTALWOUND + REGEN
+    VAR : VAR + [hassurvive Nd[doattack] health TOTALWOUND]
+  }
+  result: VAR 
+} 
+
+function: survival against ATTACKER:d{
+  VAR : [hassurvive 1dATTACKER health TOTALWOUND]
+  loop N over {2..10}{
+    TOTALWOUND: TOTALWOUND + REGEN
+    VAR : VAR + [hassurvive NdATTACKER health TOTALWOUND]
+  }
+  result: VAR 
+} 
+
+function: survival against ATTACKER:d charging CHARGEATT:d {
+  VAR : [hassurvive 1dCHARGEATT health TOTALWOUND]
+  loop N over {2..10}{
+    TOTALWOUND: TOTALWOUND + REGEN
+    VAR : VAR + [hassurvive 1dCHARGEATT+(N-1)dATTACKER health TOTALWOUND]
+  }
+  result: VAR 
+} 
+
+function: survival against ATTACKER:d charging CHARGEATT:d volley VOLLEY:d{
+  VAR : [hassurvive 1dCHARGEATT+1dVOLLEY health TOTALWOUND]
+  loop N over {2..10}{
+    TOTALWOUND: TOTALWOUND + REGEN
+    VAR : VAR + [hassurvive 1dCHARGEATT+1dVOLLEY+(N-1)dATTACKER health TOTALWOUND]
+  }
+  result: VAR 
+} 
+
+\FF related function\
+function: thenn{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: charging thenn{
+  CHARGE: 1
+  result: [thenn]
+}
+
+function: survive thenn{
+  CHARGE: 0
+  result: [survival against [thenn]]
+}
+
+function: survive charging thenn{
+  CHARGE: 0
+  result: [survival against [thenn] charging [charging thenn]]
+}
+
+function: cavedweller{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     TOHIT: 3
+     DICE: 7
+  }
+  if RANK = 1{
+     TOHIT: 2
+     DICE: 8
+  }
+  result: [doattack]
+} 
+
+function: charging cavedweller{
+  CHARGE: 1
+  result: [cavedweller]
+}
+
+function: survive cavedweller{
+  CHARGE: 0
+  result: [survival against [cavedweller]]
+}
+
+function: survive charging cavedweller{
+  CHARGE: 0
+  result: [survival against [cavedweller] charging [charging cavedweller]]
+}
+
+function: folowerofbonnes{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: charging folowerofbonnes{
+  CHARGE: 1
+  result: [folowerofbonnes]
+}
+
+function: survive folowerofbonnes{
+  CHARGE: 0
+  result: [survival against [folowerofbonnes]]
+}
+
+function: survive charging folowerofbonnes{
+  CHARGE: 0
+  result: [survival against [folowerofbonnes] charging [charging folowerofbonnes]]
+}
+
+function: spearwifes{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  if CHARGE = 1{
+     BONUSHIT: BONUSHIT + RANK
+  }
+  result: [doattack]
+} 
+
+function: charging spearwifes{
+  CHARGE: 1
+  result: [spearwifes]
+}
+
+function: spearwifesspeartoss{
+  TOHIT: 4
+  DICE: 4
+  CHARGE: 0
+  result: [doattack]
+} 
+
+function: survive spearwifes{
+  CHARGE: 0
+  result: [survival against [spearwifes]]
+}
+
+function: survive charging spearwifes{
+  CHARGE: 0
+  result: [survival against [spearwifes] charging [charging spearwifes] volley [spearwifesspeartoss]]
+}
+
+function: raider{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: charging raider{
+  CHARGE: 1
+  result: [raider]
+}
+
+function: survive raider{
+  CHARGE: 0
+  result: [survival against [raider ]]
+}
+
+function: survive charging spearwifes{
+  CHARGE: 0
+  result: [survival against [raider] charging [charging raider]]
+}
+
+\Stark related function\
+function: swornsword{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  if USINGORDER = 1 {
+    CRITBLOW: 1
+    ARMORMALUS: ARMORMALUS + 1
+  }
+  result: [doattack]
+} 
+
+function: charging swornsword{
+  CHARGE: 1
+  result: [swornsword]
+}
+
+function: survive swornsword{
+  CHARGE: 0
+  result: [survival against [swornsword]]
+}
+
+function: survive charging spearwifes{
+  CHARGE: 0
+  result: [survival against [swornsword] charging [charging swornsword]]
+}
+
+function: greataxes{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     MORALWOUND: MORALWOUND + 1
+     DICE: 6
+  }
+  if RANK = 1{
+     MORALWOUND: MORALWOUND + 2
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: charging greataxes{
+  CHARGE: 1
+  result: [greataxes]
+}
+
+function: survive greataxes{
+  CHARGE: 0
+  result: [survival against [greataxes]]
+}
+
+function: survive charging greataxes{
+  CHARGE: 0
+  result: [survival against [greataxes] charging [charging greataxes]]
+}
+
+function: berserker{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+    TOHIT: 3
+    DICE: 8
+  }
+  if RANK = 1{
+    TOHIT: 2
+    DICE: 9
+  }
+  result: [doattack]
+} 
+
+function: charging berserker{
+  CHARGE: 1
+  result: [berserker]
+}
+
+function: survive berserker{
+  CHARGE: 0
+  result: [survival against [berserker]]
+}
+
+function: survive charging berserker{
+  CHARGE: 0
+  result: [survival against [berserker] charging [charging berserker]]
+}
+
+function: greywind {
+  TOHIT: 3
+  DICE: 4
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: charging greywind{
+  CHARGE: 1
+  result: [greywind]
+}
+
+function: survive greywind{
+  CHARGE: 0
+  result: [survival against [greywind]]
+}
+
+function: survive charging greywind{
+  CHARGE: 0
+  result: [survival against [greywind] charging [charging greywind]]
+}
+
+\Lannister related function\
+
+function: haleberdier{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: charging haleberdier{
+  CHARGE: 1
+  result: [haleberdier]
+}
+
+function: survive haleberdier{
+  CHARGE: 0
+  result: [survival against [haleberdier]]
+}
+
+function: survive charging haleberdier{
+  CHARGE: 0
+  result: [survival against [haleberdier] charging [charging haleberdier]]
+}
+
+function: guardsmen{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: charging guardsmen{
+  CHARGE: 1
+  result: [guardsmen]
+}
+
+function: survive guardsmen{
+  CHARGE: 0
+  result: [survival against [guardsmen]]
+}
+
+function: survive charging guardsmen{
+  CHARGE: 0
+  result: [survival against [guardsmen] charging [charging guardsmen]]
+}
+
+function: pyromancer{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 7
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  NOSAVE: 1
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: charging pyromancer{
+  CHARGE: 1
+  result: [pyromancer]
+}
+
+function: survive pyromancer{
+  CHARGE: 0
+  result: [survival against [pyromancer]]
+}
+
+function: survive charging pyromancer{
+  CHARGE: 0
+  result: [survival against [pyromancer] charging [charging pyromancer]]
+}
+
+function: poorfellow{
+  TOHIT: 5
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  if USINGORDER = 1 {
+    PRECISION: 1
+    REROLL: 1
+  }
+  result: [doattack]
+} 
+
+function: charging poorfellow{
+  CHARGE: 1
+  result: [poorfellow]
+}
+
+function: survive poorfellow{
+  CHARGE: 0
+  result: [survival against [poorfellow]]
+}
+
+function: survive charging poorfellow{
+  CHARGE: 0
+  result: [survival against [poorfellow] charging [charging poorfellow]]
+}
+
+\Neutral related function\
+function: flayedmen{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  if CHARGE = 1{
+     CRITBLOW: 1
+  }
+  MORALMALUS: MORALMALUS + 3
+  MORALWOUND: MORALWOUND + 1
+  result: [doattack]
+} 
+
+function: charging flayedmen{
+  CHARGE: 1
+  result: [flayedmen]
+}
+
+function: survive flayedmen{
+  CHARGE: 0
+  result: [survival against [flayedmen]]
+}
+
+function: survive charging flayedmen{
+  CHARGE: 0
+  result: [survival against [flayedmen] charging [charging flayedmen]]
+}
+
+function: blackguard{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: charging blackguard{
+  CHARGE: 1
+  result: [blackguard]
+}
+
+function: survive blackguard{
+  CHARGE: 0
+  result: [survival against [blackguard]]
+}
+
+function: survive charging blackguard{
+  CHARGE: 0
+  result: [survival against [blackguard] charging [charging blackguard]]
+}
+
+function: cutthroat{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: charging cutthroat{
+  CHARGE: 1
+  result: [cutthroat]
+}
+
+function: survive cutthroat{
+  CHARGE: 0
+  result: [survival against [cutthroat]]
+}
+
+function: survive charging cutthroat{
+  CHARGE: 0
+  result: [survival against [cutthroat] charging [charging cutthroat]]
+}
+
+function: bastardgirls{
+  TOHIT: 3
+  DICE: 6
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: charging bastardgirls{
+  CHARGE: 1
+  result: [bastardgirls]
+}
+
+function: survive bastardgirls{
+  CHARGE: 0
+  result: [survival against [bastardgirls]]
+}
+
+function: bastardgirlsbow{
+  TOHIT: 3
+  DICE: 4
+  CHARGE: 0
+  result: [doattack]
+} 
+
+function: survive charging bastardgirls{
+  CHARGE: 0
+  result: [survival against [bastardgirls] charging [charging bastardgirls] volley [bastardgirlsbow]]
+}
+
+function: skirmisher{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: charging skirmisher{
+  CHARGE: 1
+  result: [skirmisher]
+}
+
+function: survive skirmisher{
+  CHARGE: 0
+  result: [survival against [skirmisher]]
+}
+
+function: survive charging skirmisher{
+  CHARGE: 0
+  result: [survival against [skirmisher] charging [charging skirmisher]]
+}
+
+function: zorse{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  if FLANK = 1 {
+     DICE: DICE + 1
+     CRITBLOW: 1
+  }
+  if REAR= 1 {
+     DICE: DICE + 1
+     CRITBLOW: 1
+  }
+  REAR: 0
+  result: [doattack]
+} 
+
+function: charging zorse{
+  CHARGE: 1
+  result: [zorse]
+}
+
+function: survive zorse{
+  CHARGE: 0
+  result: [survival against [zorse]]
+}
+
+function: survive charging zorse{
+  CHARGE: 0
+  result: [survival against [zorse] charging [charging zorse]]
+}
+
+\Targ related function\
+function: veterans{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  result: [doattack]
+} 
+
+function: charging veterans{
+  CHARGE: 1
+  result: [veterans]
+}
+
+function: survive veterans{
+  CHARGE: 0
+  result: [survival against [veterans]]
+}
+
+function: veteransbow{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  CHARGE: 0
+  result: [doattack]
+} 
+
+
+function: survive charging veterans{
+  CHARGE: 0
+  result: [survival against [veterans] charging [charging veterans] volley [veteransbow]]
+}
+
+function: screamer{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  if CHARGE = 1 {
+     VULNERABLE : 1
+  }
+  result: [doattack]
+} 
+
+function: charging screamer{
+  CHARGE: 1
+  result: [screamer]
+}
+
+function: survive screamer{
+  CHARGE: 0
+  result: [survival against [screamer]]
+}
+
+function: survive charging screamer{
+  CHARGE: 0
+  result: [survival against [screamer] charging [charging screamer]]
+}
+
+function: outrider{
+  TOHIT: 4
+  DICE: 5
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: charging outrider{
+  CHARGE: 1
+  result: [outrider]
+}
+
+function: survive outrider{
+  CHARGE: 0
+  result: [survival against [outrider]]
+}
+
+function: survive charging outrider{
+  CHARGE: 0
+  result: [survival against [outrider] charging [charging outrider]]
+}
+
+function: outriderbow{
+  TOHIT: 4
+  DICE: 5
+  if RANK = 1{
+     DICE: 4
+  }
+  CHARGE: 0
+  result: [doattack]
+} 
+
+function: survive outriderbow{
+  CHARGE: 0
+  result: [survival against [outriderbow]]
+}
+
+function: hrakkars{
+  TOHIT: 3
+  DICE: 6
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: charging hrakkars{
+  CHARGE: 1
+  result: [hrakkars]
+}
+
+function: survive hrakkars{
+  CHARGE: 0
+  result: [survival against [hrakkars]]
+}
+
+function: survive charging hrakkars{
+  CHARGE: 0
+  result: [survival against [hrakkars] charging [charging hrakkars]]
+}
+
+function: jorah{
+  TOHIT: 3
+  DICE: 2
+  result: [doattack]
+} 
+
+function: charging jorah{
+  CHARGE: 1
+  result: [jorah]
+}
+
+function: survive jorah{
+  CHARGE: 0
+  result: [survival against [jorah]]
+}
+
+function: survive charging jorah{
+  CHARGE: 0
+  result: [survival against [jorah] charging [charging jorah]]
+}
+
+\NW related function\
+function: swornbrother {
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  if USINGORDER = 1 {
+    REROLL: 1
+    VULNERABLE: 1
+  }
+  result: [doattack]
+} 
+
+function: charging swornbrother {
+  CHARGE: 1
+  result: [swornbrother ]
+}
+
+function: oldswornbrother {
+  TOHIT: 3
+  DICE: 8
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  CRITBLOW: 1
+  result: [doattack]
+} 
+
+function: charging oldswornbrother{
+  CHARGE: 1
+  result: [oldswornbrother]
+}
+
+function: survive swornbrother {
+  CHARGE: 0
+  result: [survival against [swornbrother ]]
+}
+
+function: survive charging swornbrother {
+  CHARGE: 0
+  result: [survival against [swornbrother ] charging [charging swornbrother ]]
+}
+
+\Baratheon related function\
+function: sentinel{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: charging sentinel{
+  CHARGE: 1
+  result: [sentinel]
+}
+
+function: survive sentinel{
+  CHARGE: 0
+  result: [survival against [sentinel]]
+}
+
+function: survive charging sentinel{
+  CHARGE: 0
+  result: [survival against [sentinel] charging [charging sentinel]]
+}
+
+function: stagknight{
+  TOHIT: 3
+  DICE: 7
+  if ROUND >= 2{
+     CRITBLOW: 1
+  }
+  if ROUND >= 3{
+     MORALMALUS: MORALMALUS + 2
+  }
+  if ROUND >= 4{
+     ARMORMALUS: ARMORMALUS + 1
+  }
+  if ROUND >= 5{
+     BONUSHIT: RANK
+  }
+  result: [doattack]
+} 
+
+function: charging stagknight{
+  CHARGE: 1
+  result: [stagknight]
+}
+
+function: survive stagknight{
+  CHARGE: 0
+  result: [survival against [stagknight]]
+}
+
+function: survive charging stagknight{
+  CHARGE: 0
+  result: [survival against [stagknight] charging [charging stagknight]]
+}
+
+\Greyjoy related function\
+function: reaver{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+
+  if PILLAGETOCKEN = 1{
+     TOHIT: 3
+  }
+  if PILLAGETOCKEN >= 2{
+     TOHIT: 2
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: charging reaver{
+  CHARGE: 1
+  result: [reaver]
+}
+
+function: survive reaver{
+  CHARGE: 0
+  result: [survival against [reaver]]
+}
+
+function: survive charging reaver{
+  CHARGE: 0
+  result: [survival against [reaver] charging [charging reaver]]
+}
+
+function: reaper{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+
+  if PILLAGETOCKEN = 1{
+     MORALWOUND: MORALWOUND + 1
+  }
+  if PILLAGETOCKEN >= 2{
+     MORALWOUND: MORALWOUND + 2
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: charging reaper{
+  CHARGE: 1
+  result: [reaper]
+}
+
+function: survive reaper{
+  CHARGE: 0
+  result: [survival against [reaper]]
+}
+
+function: survive charging reaper{
+  CHARGE: 0
+  result: [survival against [reaper] charging [charging reaper]]
+}
+
+function: ironbornbowmen{
+  TOHIT: 4
+  DICE: 5
+  if RANK = 2{
+     DICE: 4
+  }
+  if RANK = 1{
+     DICE: 3
+  }
+  result: [doattack]
+} 
+
+function: charging ironbornbowmen{
+  CHARGE: 1
+  result: [ironbornbowmen]
+}
+
+function: survive ironbornbowmen{
+  CHARGE: 0
+  result: [survival against [ironbornbowmen]]
+}
+
+function: survive charging ironbornbowmen{
+  CHARGE: 0
+  result: [survival against [ironbornbowmen] charging [charging ironbornbowmen]]
+}
+
+function: ironbornbowmenbow{
+  TOHIT: 4
+  DICE: 6
+  if FLANK = 1{
+     REROLL: 1
+  }
+  if REAR = 1{
+     REROLL: 1
+  }
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: survive ironbornbowmenbow{
+  CHARGE: 0
+  result: [survival against [ironbornbowmenbow]]
+}
+
+function: ironmakers{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  CRITBLOW: 1
+  result: [doattack]
+} 
+
+function: charging ironmakers{
+  CHARGE: 1
+  result: [ironmakers]
+}
+
+function: survive ironmakers{
+  CHARGE: 0
+  result: [survival against [ironmakers]]
+}
+
+function: survive charging ironmakers{
+  CHARGE: 0
+  result: [survival against [ironmakers] charging [charging ironmakers]]
+}
+
+
+\start to input after this\
+\Start of variable declaration\
+\NB: All must be declared but you can make them vary between function calls\
+
+\ATTACKER STATS nb those will be overwrite if calling a unit related function\
+TOHIT: 4
+DICE: 7
+
+\target stats\
+ARMOR: 4 
+MORAL: 7
+
+\Common Situational bonus-malus some might be overwriten by unit function\
+CHARGE: 0
+DISORDERLY: 0
+WEAKEN: 0
+PANIKED : 0
+VULNERABLE : 0
+REROLL: 0
+CRITBLOW: 0
+PRECISION: 0
+RANK: 3
+NOSAVE: 0
+FLANK: 0
+REAR: 0
+
+\Other bonus-malus if case need be it will addition with unit bonus malus if calling a unit related function\
+\attachement effect should be set here\
+BONUSDICE: 0
+BONUSHIT: 0
+TOHITMALUS: 0
+ARMORMALUS: 0 
+MORALMALUS: 0
+MORALWOUND: 0
+USINGORDER: 1
+ROUND : 1
+PILLAGETOCKEN : 0
+REGEN: 0
+TOTALWOUND: 12
+\End of variable declaration\
+
+\
+This is how you set a variable value :
+VARIABLE: VALUE_INTENDED
+
+Variable available : 
+TOHIT, DICE, ARMOR, MORAL, CHARGE, DISORDERLY, WEAKEN, PANIKED, VULNERABLE, REROLL, CRITBLOW, PRECISION, RANK, NOSAVE, FLANK, REAR
+
+Following variable are intended add attachment to existing unit simulate flanc attack...
+BONUSDICE, BONUSHIT, TOHITMALUS, ARMORMALUS, MORALMALUS, MORALWOUND, USINGORDER, ROUND, PILLAGETOCKEN
+
+This is a sample to how you declare attack : 
+output [NAME_OF_THE_ATTACK] named "OUTPUT_NAME"
+
+NB: You can combine several attack into one output for instance: 
+output [spearwifes]+[spearwifesspeartoss] named "Spearwifes charging volley"
+
+Available attacks :
+doattack => attack using variable as define at the moment of the execution
+survival chance up to X => replace X by the number of attack max, compute the chance of a unit to survive up to X attack (use default parameter same as doattack)
+
+Free Folk related : 
+spearwifes, spearwifesspeartoss, cavedweller, thenn, folowerofbonnes, raider
+
+Stark related :
+swornsword, greataxes, berserker, greywind
+
+Lannister related :
+haleberdier, guardsmen, pyromancer, poorfellow
+
+Neutral related :
+flayedmen, blackguard, cutthroat, bastardgirls, bastardgirlsbow, skirmisher, zorse
+
+Targ related :
+veterans, veteransbow, screamer, outrider, outriderbow, hrakkars, jorah
+
+NW related :
+swornbrother 
+
+Baratheon related : 
+stagknight, sentinel
+
+Greyjoy related : 
+ironmakers, ironbornbowmenbow, ironbornbowmen, reaper, reaver
+
+Survival funciton:
+you can use [survive (name of the attacker)] to see the % chance of the defending unit to survive X attack
+exemple [survive reaver]
+
+there is also [survive charging reaver] for an attacker charging on the first attack (using volley if available)
+
+\
+
+\start putting your script here\
+ARMOR: 4 
+MORAL: 7
+USINGORDER: 1
+output [swornbrother] named "New"
+output [charging oldswornbrother] named "Old charging"
+output [oldswornbrother] named "Old"
+
+\end of your script\
+

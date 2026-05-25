@@ -1,0 +1,92 @@
+function: reroll REROLL:s on COUNT:n of DICE:d {
+  RET: 0
+  loop I over {1..COUNT} {
+    RET: RET + [reroll REROLL on DICE to DICE]
+  }
+  result: RET
+}
+
+function: reroll REROLL:s on DICE:d {
+  result: [reroll REROLL on DICE to DICE]
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+  if [REROLL contains ROLL] {
+    result: REPLACEMENT
+  }
+  result: ROLL
+}
+
+function: crit TOHIT:n with COUNT:n of DICE:d on CRIT_RANGE:n{
+	result: [crit TOHIT with COUNT of DICE on CRIT_RANGE add DICE]
+}
+
+function: crit TOHIT:n with COUNT:n of DICE:d on CRIT_RANGE:n add CRIT_DAMAGE:n{
+	RET: 0
+	if TOHIT >= CRIT_RANGE {
+		COUNT: COUNT+1
+		RET: RET + CRIT_DAMAGE
+	}
+	loop I over {1..COUNT} {
+		RET: RET + DICE
+	}
+	
+	result: RET
+}
+
+\Not full parity. crit damage assumed in one, extra assumed in other\
+function: check NUM:n vs AC:n with COUNT:n of DICE:d on CRIT_RANGE:n plus BONUS:n {
+	result: [check d20 vs AC against NUM with COUNT of DICE crit CRIT_RANGE add 0 plus BONUS extra 1]
+}
+
+function: check NUM:n vs AC:n with COUNT:n of DICE:d on CRIT_RANGE:n add CRIT_DAMAGE:d plus BONUS:n {
+	result: [check d20 vs AC against NUM with COUNT of DICE crit CRIT_RANGE add CRIT_DAMAGE plus BONUS extra COUNT]
+}
+
+function: check TOHIT:n vs AC:n against NUM:n with COUNT:n of DICE:d crit CRIT_RANGE:n add CRIT_DAMAGE:n plus BONUS:n extra EXTRA:n {
+	RET: 0
+	ROLLED_EXTRA: 0
+	
+	loop I over {1..NUM} {
+	if TOHIT >= AC {
+		if TOHIT >= CRIT_RANGE & ROLLED_EXTRA < EXTRA{
+			ROLLED_EXTRA: ROLLED_EXTRA + 1
+			RET: RET + CRIT_DAMAGE
+			}
+			
+			RET: RET + [crit TOHIT with COUNT of DICE on CRIT_RANGE add CRIT_DAMAGE] + BONUS
+		}
+	}
+	
+	result: RET
+}
+
+\output [reroll {1,2} on 1d10] named "2H LS with Great Weapon Fighting"\
+\output 1d8+2 named "1H LS With Duelist"\
+\output [reroll {1,2} on d12] named "GA with GWF"\
+\output [reroll {1,2} on 2 of d6] named "GS with GWF"\
+
+STR_MOD: 7
+FLAT_MOD: 2
+POISON: 1d10
+FIRE: 1d6
+HUNTER: 1d6
+ALL_DAMAGE: STR_MOD+FLAT_MOD+POISON+FIRE+HUNTER
+GREAT_WEAPON_DAMAGE: ALL_DAMAGE+10
+ALL_POLEARM: GREAT_WEAPON_DAMAGE+6 \Hellbeard Halberd\
+CRIT: 18
+\Everyone has Savage Attacker\
+ONE_H_DAMAGE: [highest 1 of 1d8]
+ONE_H_CRIT_ADD: 7 \Vicious Battleaxe\
+POLEARM_DAMAGE_GWF_SA: [reroll {1,2} on [highest 1 of 2d10]]
+GREAT_SWORD_GWF_SA: [reroll {1,2} on [highest 1 of 2d6]]
+GREAT_AXE_GWF_SA: [reroll {1,2} on [highest 1 of 2d12]]
+AC: 0
+
+\output [check 3 vs AC with 1 of ONE_H_DAMAGE on CRIT add ONE_H_CRIT_ADD plus ALL_DAMAGE] named "Dual Wield x3"\
+output [check 4 vs AC with 1 of ONE_H_DAMAGE on CRIT add ONE_H_CRIT_ADD plus ALL_DAMAGE] named "Dual Wield x4"
+output [check 5 vs AC with 1 of ONE_H_DAMAGE on CRIT add ONE_H_CRIT_ADD plus ALL_DAMAGE] named "Dual Wield x5"
+output [check 3 vs AC with 1 of POLEARM_DAMAGE_GWF_SA on CRIT plus ALL_POLEARM] named "Halberd+GWF"
+output [check 3 vs AC with 1 of POLEARM_DAMAGE_GWF_SA on CRIT plus ALL_POLEARM]+[check d20 vs AC against 1 with 1 of d4 crit CRIT add 0 plus ALL_POLEARM extra 0] named "Halberd+PAM+GWF"
+output [check 3 vs AC with 2 of GREAT_SWORD_GWF_SA on CRIT plus ALL_POLEARM] named "Greatsword+GWF"
+output [check 3 vs AC with 1 of GREAT_AXE_GWF_SA on CRIT plus ALL_POLEARM] named "Greataxe+GWF"

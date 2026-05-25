@@ -1,0 +1,109 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MAGICMISS: 3
+
+function: magic ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MAGICMISS
+}
+
+function: magic save ROLL:n plus SAVE:n vs DC:n {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 {
+  result: MISS
+ }
+ if ROLL + SAVE >= DC
+ {
+  result: MAGICMISS
+ }
+ result: HIT
+}
+
+function: save ROLL:n plus SAVE:n vs DC:n {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 {
+  result: MISS
+ }
+ if ROLL + SAVE >= DC
+ {
+  result: MISS
+ }
+ result: HIT
+}
+
+function: attack ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for REGROLL:n when ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: REGROLL + REGROLL
+ }
+ if ATTACKRESULT = HIT {
+  result: REGROLL
+ }
+ if ATTACKRESULT = MAGICMISS {
+  result: REGROLL/2
+ }
+ result: 0
+}
+
+function: multiattack with NUM:n attacks using DIE:d plus MOD:n with CHANCE:n to hit{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE + MOD when [attack 1d20 plus CHANCE vs 15]]
+ }
+ result: RESULT
+}
+
+
+function: area magic hit NUM:n targets using DIE:d with CHANCE:n against DC:n{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE when [magic save 1d20 plus CHANCE vs DC]]
+ }
+ result: RESULT
+}
+
+function: area effect hit NUM:n targets using DIE:d with CHANCE:n against DC:n{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE when [save 1d20 plus CHANCE vs DC]]
+ }
+ result: RESULT
+}
+
+output [multiattack with 2 attacks using 1d8 plus 5 with 5 to hit] named "Tank"
+output [multiattack with 3 attacks using 1d10 plus 5 with 5 to hit] named "Damage Tank"
+output [multiattack with 3 attacks using [highest 1 of 2d12] plus 4 with 4 to hit] named "Marauder"
+output [multiattack with 4 attacks using 1d10 plus 5 with 3 to hit] named "Dual Wielder (big weapon)"
+output [multiattack with 3 attacks using 1d10 plus 8 with 5 to hit] named "Duelist"
+output [multiattack with 3 attacks using 1d10 plus 8 with 3 to hit] named "Backstabber"
+output [damage for 3d12 when [save 1d20 plus 0 vs 10]] named "Unstable Concoction"
+output [area effect hit 3 targets using 3d12 with 0 against 10] named "AOE Unstable conc"
+output [damage for 5d12 when [attack 1d20 plus 3 vs 15]] named "Damage Alchemist"
+output [area effect hit 3 targets using 3d6 with 0 against 10] named "Alchemy Area denial"
+output [area magic hit 3 targets using 5d8 with 0 against 5] named "AOE Mage"
+output [damage for 5d10 when [magic 1d20 plus 3 vs 15]] named "AOE Mage single"
+output [damage for 5d4+15 when [magic 1d20 plus 3 vs 15]] named "Consistent Basic"
+output [damage for 7d4+18 when [magic 1d20 plus 3 vs 15]] named "Consistent Touch"
+output [area magic hit 3 targets using 5d4+9 with 0 against 5] named "Consistent AOE Radius"
+output [area magic hit 3 targets using 3d4+15 with 0 against 5] named "Consistent AOE Other"
+
+set "explode depth" to 10
+
+output [area magic hit 3 targets using 7d[explode 1d6] with 0 against 5] named "AOE Nuke"
+output [damage for 10d[explode 1d6] when [magic 1d20 plus 3 vs 15]] named "Explode Nuke"
+output [damage for 13d[explode 1d6] when [magic 1d20 plus 3 vs 15]] named "Explode Nuke Touch"

@@ -1,0 +1,223 @@
+\ Moon Druid \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+DRUIDATTACK: 5
+BIGHITDAMAGE: 1d8 + 3
+BIGCRITICALDAMAGE: 2d8 + 3
+RAPTORHIT: 5
+RAPTORSMALLDAMAGE: 1d6 + 3
+RAPTORSMALLCRIT: 2d6 + 3
+RAPTORBIGDAMAGE: 1d8 + 3
+RAPTORBIGCRIT: 2d8 + 3
+MISSDAMAGE: 0
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: RAPTORSMALLCRIT
+ }
+ if ATTACKRESULT = HIT {
+  result: RAPTORSMALLDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for raptor big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: RAPTORBIGCRIT
+ }
+ if ATTACKRESULT = HIT {
+  result: RAPTORBIGDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for raptor small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC DRUIDATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC DRUIDATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC DRUIDATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC DRUIDATTACK]]
+  }
+  result: TOTAL
+}
+
+
+function: raptorbigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for raptor big [[highest 1 of 2d20] vs AC RAPTORHIT]]
+  }
+  result: TOTAL
+}
+
+function: raptorsmallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for raptor small [[highest 1 of 2d20] vs AC RAPTORHIT]]
+  }
+  result: TOTAL
+}
+
+\ Level 1 \
+output [bigmultiattack 1] named "level 1 w/ sheilagh vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 1 w/ sheilagh vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 1 w/ sheilagh vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 1 w/ sheilagh vs AC[AC]"
+
+\ Level 2 \
+
+DRUIDATTACK: 5
+BIGHITDAMAGE: 2d6 + 4
+SMALLHITDAMAGE: 1d8 + 4
+BIGCRITICALDAMAGE: 4d6 + 4
+SMALLCRITICALDAMAGE: 2d8 + 4
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 2 w/ Brown Bear vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 2 w/ Brown Bear vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 2 w/ Brown Bear vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 2 w/ Brown Bear vs AC[AC]"
+
+\ Level 3-4 \
+
+DRUIDATTACK: 5
+BIGHITDAMAGE: 2d6 + 4
+SMALLHITDAMAGE: 1d8 + 4
+BIGCRITICALDAMAGE: 4d6 + 4
+SMALLCRITICALDAMAGE: 2d8 + 4
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] + 2d8 named "level 3-4 w/ Brown Bear vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] + 2d8 named "level 3-4 w/ Brown Bear vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] + 2d8 named "level 3-4 w/ Brown Bear vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] + 2d8 named "level 3-4 w/ Brown Bear vs AC[AC]"
+
+\ Level 5 \
+
+DRUIDATTACK: 5
+BIGHITDAMAGE: 2d6 + 4
+SMALLHITDAMAGE: 1d8 + 4
+BIGCRITICALDAMAGE: 4d6 + 4
+SMALLCRITICALDAMAGE: 2d8 + 4
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 5 w/ Brown Bear w/ conjure raptors vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 5 w/ Brown Bear w/ conjure raptors vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 5 w/ Brown Bear w/ conjure raptors vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 5 w/ Brown Bear w/ conjure raptors vs AC[AC]"
+
+\ Level 6-8 \
+
+DRUIDATTACK: 7
+BIGHITDAMAGE: 2d6 + 5
+SMALLHITDAMAGE: 1d8 + 5
+BIGCRITICALDAMAGE: 4d6 + 5
+SMALLCRITICALDAMAGE: 2d8 + 5
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 6-8 w/ Cave Bear w/ conjure raptors vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 6-8 w/ Cave Bear w/ conjure raptors vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 6-8 w/ Cave Bear w/ conjure raptors vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 6-8 w/ Cave Bear w/ conjure raptors vs AC[AC]"
+
+
+\ Level 9 \
+
+DRUIDATTACK: 4
+BIGHITDAMAGE: 3d10 + 2
+SMALLHITDAMAGE: 1d8 + 2
+BIGCRITICALDAMAGE: 6d10 + 2
+SMALLCRITICALDAMAGE: 2d8 + 2
+AC:10
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 2] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 9 w/ Giant Scorpion  w/ conjure raptors vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 2] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 9 w/ Giant Scorpion  w/ conjure raptors vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 2] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 9 w/ Giant Scorpion  w/ conjure raptors vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 2] + [raptorbigmultiattackadvantage 8] + [raptorsmallmultiattackadvantage 8] named "level 9 w/ Giant Scorpion  w/ conjure raptors vs AC[AC]"

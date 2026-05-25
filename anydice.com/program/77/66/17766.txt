@@ -1,0 +1,44 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+TAILCRITICALDAMAGE:8d6+4
+TAILDAMAGE:4d6+4
+SPEARCRITICALDAMAGE:4d8+2d6+4
+SPEARDAMAGE: 2d8+1d6+4
+ATTACK: 7
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: tail damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: TAILCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: TAILDAMAGE
+ }
+ result: 0
+}
+
+function: spear damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SPEARCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SPEARDAMAGE
+ }
+ result: 0
+}
+
+TOTALDAMAGE: [tail damage for [attack d20 vs 22]]
+TOTALDAMAGE: TOTALDAMAGE + [tail damage for [attack [highest 1 of 2d20] vs 0]]
+TOTALDAMAGE: TOTALDAMAGE + [spear damage for [attack [highest 1 of 2d20] vs 22]]
+output TOTALDAMAGE

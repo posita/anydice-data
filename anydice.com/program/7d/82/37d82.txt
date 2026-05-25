@@ -1,0 +1,62 @@
+HIT: 5
+FUMBLE: 0
+
+function: roll ROLL:s demote DEMOTE:n {
+  TOTAL: 0
+
+  SIXES:  [count 6 in ROLL]
+  FIVES:  [count 5 in ROLL]
+  FOURS:  [count 4 in ROLL]
+  THREES: [count 3 in ROLL]
+  TWOS:   [count 2 in ROLL]
+  ONES:   [count 1 in ROLL]
+  FAILS:  0
+
+  loop N over {1..DEMOTE} {
+    if SIXES > 0 { 
+      SIXES: SIXES - 1 
+      FIVES: FIVES + 1
+    }
+    else if FIVES > 0 {
+      FIVES: FIVES - 1
+      FOURS: FOURS + 1
+    }
+    else if FOURS > 0 {
+      FOURS: FOURS - 1 
+      THREES: THREES + 1
+    }
+    else if THREES > 0 {
+      THREES: THREES - 1 
+      TWOS: TWOS + 1
+    }
+    else if TWOS > 0 {
+      TWOS: TWOS - 1 
+      ONES: ONES + 1
+    }
+    else if ONES > 0 {
+      ONES: ONES - 1 
+      FAILS: FAILS + 1
+    }
+  }
+
+  loop N over {1..#ROLL} {
+    if N@ROLL >= HIT {
+      TOTAL: TOTAL + 1
+    }
+    if N@ROLL <= FUMBLE {
+      TOTAL: TOTAL - 1
+    }
+  }
+
+  TOTAL: { FIVES, SIXES } - FAILS
+  if TOTAL < 0 { result: -1 }
+  if TOTAL < 2 { result: 0 }
+  if TOTAL < 4 { result: 1 }
+  result: 2
+}
+
+loop X over {2..8} {
+  loop Z over {0..5} {
+      output [roll Xd6 demote Z] named "[X]d6 demote [Z]"
+  }
+}

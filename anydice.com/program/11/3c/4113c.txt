@@ -1,0 +1,83 @@
+BAG_NORMAL: d{
+  1,
+  0,0,
+  -1,-1,-1
+  -2,-2,
+  -3,
+  -4,
+  -1,-1, \ Skull \
+  -2,-2, \ Cultist \
+  -2,-2, \ Tablet \
+  -3,-3, \ Elder Thing \
+  -999,  \ Auto-fail \
+  999    \ Auto-success \ 
+}
+
+BAG_HARD: d{
+  0,0,0,
+  -1,-1,
+  -2,-2,
+  -3,-3,
+  -4,
+  -3,-3, \ Skull \
+  -2,-2, \ Cultist \
+  -2,-2, \ Tablet \
+  -3,-3, \ Elder Thing \
+  -999,  \ Auto-fail \
+  999    \ Elder Sign \ 
+}
+
+function: test STAT:n with BONUS:n SKILL:n vs TARGET:n via BAG:d {
+  TOTAL_BONUS: STAT + BONUS + SKILL
+
+  result: [helper BAG TOTAL_BONUS TARGET]
+}
+
+function: helper A:n AA:n B:n {
+  if A = 999 {
+    result: 1
+  } else if A = -999 {
+    result: 0
+  } else if A + AA - B >= 0{
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+function: succeed by test STAT:n with BONUS:n SKILL:n vs TARGET:n via BAG:d {
+  TOTAL_BONUS: STAT + BONUS + SKILL
+
+  result: [amount BAG TOTAL_BONUS TARGET]
+}
+
+function: amount A:n AA:n B:n {
+  if A = 999 {
+    result: AA - B
+  } else if A = -999 {
+    result: 0 - B
+  } else {
+    result: A + AA - B
+  }
+}
+
+function: evenodds NR:n {
+  HALF: NR / 2
+  if HALF * 2 != NR {
+    result: NR-1
+  } else {
+    result: NR
+  }
+}
+
+STAT: 5
+BONUS: 1
+SKILL: 4
+TARGET: 3
+output [test STAT with BONUS SKILL vs TARGET via BAG_NORMAL] named "Success (Normal)"
+output [succeed by test STAT with BONUS SKILL vs TARGET via BAG_NORMAL] named "Success by (Normal)"
+output [evenodds [succeed by test STAT with BONUS SKILL vs TARGET via BAG_NORMAL]]/2 named "Additional Clues (Normal)"
+output [evenodds [succeed by test STAT with BONUS+2 SKILL vs TARGET via BAG_NORMAL]]/2 named "Additional Clues (Normal+Higher Ed)"
+output [test STAT with BONUS SKILL vs TARGET via BAG_NORMAL] named "Success (Hard)"
+output [succeed by test STAT with BONUS SKILL vs TARGET via BAG_HARD] named "Success by (Hard)"
+output [evenodds [succeed by test STAT with BONUS SKILL vs TARGET via BAG_NORMAL]]/2 named "Additional Clues (Hard)"

@@ -1,0 +1,89 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+\attack simulates the average damage of an attack in D&D 5e\
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+\attackcrange accommodates for edge cases with the customization of hit damage effects, miss effects, critical hit damage effects, and expanded critical hit range\
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+\reroll replaces the result of a given DIE (any die) with a given minimum (MIN) if the result is lower than the given minimum\
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+\lucky simulates using the Lucky feat on an attack roll. LUCKY always picks the highest die.\
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+\ANYDICE D&D 5e DPR CALCULATOR\
+\READ ME\
+\DPR in D&D 5e is usually calculated with a 60% chance to hit. this is known as bounded accuracy. this is because enemy AC increases as player attack modifiers increase, making a 60% chance to hit common at almost all levels of play. however, with magic items or class features that increase your attack roll result, such as a +1 Rod of the Pact Keeper or Archery Fighting Style, one can reach 65% and 70% respectively in ideal environments where enemy AC has not been increased by the DM to counter your high accuracy\
+\the word output triggers output and can be used multiple times for multiple different outputs\
+\functions such as attack must be enclosed in brackets [] to work. a function can be used within another function\
+\output will display combined die results as a value (column 1) and the percent chance to get combined die results as a value (column 2 and bar graph)\
+\the attack function can be used to calculate DPR as shown below in EXAMPLE attack\
+
+
+\EXAMPLE attack: output [attack 1d20 plus 1 vs ac 10 for 1d10+1d6 plus 0] named "Eldritch Blast Warlock Level 1"\
+\the attack function is called with an attack roll die (1d20), an attack roll modifier (plus 1), an enemy AC (vs ac 10), damage (for 1d10+1d6), and damage modifier (plus 0)\
+\the 0 damage row displays the percent chance to miss\
+
+\EXAMPLE expanded crit range attack: output [attackcrange 1d20 plus 1 vs ac 10 hit 1d8 miss 0 crit 2d8 crange 19]\
+\the attackcrange function is called with an attack roll die (1d20), an attack roll modifier (plus 1), an enemy AC (vs ac 10), hit damage (1d8), miss damage (0), crit damage (2d8), and critical hit range (19)\
+\the 0 damage row displays the percent chance to miss\
+
+\EXAMPLE reroll 1: [reroll 1d12 as 1d12 if less than 3]\
+\the reroll function is called with any die (1d12), a "reroll" die OR result (1d12), and minimum value (3)\
+\this example simulates using the Great Weapon Fighting fighting style on a greatsword's damage roll.\
+
+\EXAMPLE reroll 2: [reroll 1d20 as 10 if less than 10]\
+\the reroll function is called with any die (1d20), a "reroll" die OR result (1d20), and minimum value (10)\
+\this example simulates using clockwork soul sorcerer's level 10 feature Trance of Order\
+
+\EXAMPLE lucky: output [attack [lucky 1d20 1d20] plus 1 vs ac 10 for 1d10+1d6 plus 0] named "EB 1"\
+\if a DPR calculation must accommodate the Lucky feat, replace the attack roll die with [lucky 1d20 1d20]\
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 5] named "Lvl 1"
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] named "Lvl 1 Adv"
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 6] + [attack 1d20 plus 1 vs ac 10 for 1d4 plus 6] named "Lvl 4"
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6] named "Lvl 4 Adv"
+
+output ([attack 1d20 plus 1 vs ac 10 for 1d6 plus 6] * 2) + [attack 1d20 plus 1 vs ac 10 for 1d4 plus 6] named "Lvl 5"
+output ([attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 6] * 2) + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 6] named "Lvl 5 Adv"
+
+output ([attack 1d20 plus 1 vs ac 10 for 1d6 plus 8] * 2) + [attack 1d20 plus 1 vs ac 10 for 1d4 plus 8] named "Lvl 7"
+output ([attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 8] * 2) + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 8] named "Lvl 7 Adv"
+
+output ([attack 1d20 plus 1 vs ac 10 for 1d6 plus 9] * 2) + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9] named "Lvl 9"
+output ([attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 9] * 2) + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 9] named "Lvl 9 Adv"
+
+output ([attack 1d20 plus 1 vs ac 10 for 1d6 plus 10] * 2) + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 10] named "Lvl 12"
+output ([attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 10] * 2) + [attack 1d20 plus 1 vs ac 10 for 1d4+1d10 plus 10] named "Lvl 12 Adv"

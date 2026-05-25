@@ -1,0 +1,185 @@
+
+\Ragnar GWF dice\
+DS: d{d6,d6,3,4,5,6}
+DE: d{d8,d8,3,4,5,6,7,8}
+DT: d{d10,d10,3,4,5,6,7,8,9,10}
+
+\Ragnar attack bonuses\
+P: 1d10
+B: 1d4
+AB: 10
+ABP: AB+P
+ABB: AB+B
+ABPB: AB+P+B
+ABGWM: AB-5
+ABGWMP: ABP-5
+ABGWMB: ABB-5
+ABGWMPB: ABPB-5
+
+\Ragnar damage\
+SD: DT
+MAXSD: 10
+TF: DS+DS+6
+TFM: TF+DT
+TFGWM: TF+10
+TFGWMM: TFM+10
+TFHW:TF+DE+DE
+TFHWM: TFHW+DT
+TFHWGWM: TFHW+10
+TFHWGWMM: TFHWGWM+DT
+
+\Dragon stats\
+AC: 18 \testing with 18 to compare with Rag\
+DEX: 2 \testing with 2 to compare with Rag\
+
+function: value X:n {
+  result: X
+}
+
+
+function: genatk ROLL:n AB:n DMGR DMGB {
+  ATTACK: ROLL + AB
+  \crit\
+  if ROLL = 20 {
+    result: 2*DMGR+DMGB
+  }
+  \normal hit\
+  if ATTACK >= AC {
+    result: DMGR+DMGB
+  }
+  result: 0
+}
+
+
+
+
+
+function: bm ROLL:n AB:n PREC:n DMGR DMGB {
+
+  ATTACK: ROLL + AB
+  MISSBY: AC - ATTACK
+
+  \ critical hit \
+  if ROLL = 20 {
+    result: 2*(DMGR+SD) + DMGB
+  }
+
+  \ normal hit \
+  if ATTACK >= AC {
+    result: DMGR + SD + DMGB
+  }
+
+  \ precision attack only if success possible\
+  if MISSBY <= MAXSD {
+    if ATTACK + PREC >= AC {
+      result: DMGR + DMGB
+    }
+  }
+
+  result: 0
+}
+
+function: savespell SAVE:n SAVEDC:n DMG:n {
+   if SAVE < SAVEDC {
+      result: DMG
+   }
+   
+   result: DMG/2
+}
+
+function: seekingspell ROLL:n REROLL:n AB:n DMG:n DMGB:n{
+
+  ATTACK: ROLL + AB
+  SEEK: REROLL + AB
+
+  \ critical hit \
+  if ROLL = 20 {
+    result: 2*DMG + DMGB
+  }
+
+  \ normal hit \
+  if ATTACK >= AC {
+    result: DMG + DMGB
+  }
+
+  \ critical hit \
+  if REROLL = 20 {
+    result: 2*DMG + DMGB
+  }
+
+  if SEEK >= AC {
+    result: DMG + DMGB
+  }
+
+
+  result: 0
+}
+
+
+
+function: iscrit R:n {
+  if R = 20 { result: 1 }
+  result: 0
+}
+
+function: gwmbonusattack AS:n DMG:n CI:n CII:n CIII:n CIV:n {
+
+  if AS = 1 {
+    if (CI + CII + CIII + CIV) > 0 { result: DMG }
+  }
+
+  if AS = 0 {
+    if (CI + CII) > 0 { result: DMG }
+  }
+
+  result: [genatk 1d20 8 1d8 4]
+}
+
+\output [gwmbonusattack 1 5 [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]]\
+
+output [seekingspell 1d20 1d20 8 6d8 4] named "4th level chromatic orb"
+output [seekingspell [highest of 1d20 and 1d20] [highest of 1d20 and 1d20] 8 6d8 4] named "4th level chromatic orb ADV"
+output [genatk 1d20 8 1d6 9] + [genatk 1d20 8 1d6 9] + [savespell 1d20+DEX 16 2d6] named "summon draconic spirit damage"
+output [genatk [highest of 1d20 and 1d20] 8 1d6 9] + [genatk [highest of 1d20 and 1d20] 8 1d6 9] + [savespell 1d20+DEX 16 2d6] named "summon draconic spirit damage ADV"
+
+output [savespell 1d20+DEX 16 8d6] named "flamestrike/fireball"
+output [savespell 1d20+DEX 16 4d8] named "HW end bonus action"
+output [genatk 1d20 8 8d6 0] named "5th level guiding bolt"
+output [genatk [highest of 1d20 and 1d20] 8 8d6 0] named "5th level guiding bolt ADV"
+output [genatk 1d20 8 7d6 0] named "4th level guiding bolt"
+output [genatk [highest of 1d20 and 1d20] 8 7d6 0] named "4th level guiding bolt ADV"
+output [genatk 1d20 8 1d8 3] named "2nd level spirtual weapon"
+output [genatk [highest of 1d20 and 1d20] 8 1d8 3] named "2nd level spirtual weapon ADV"
+
+
+
+\output [bm 1d20 AB 1d10 TF] named "Battlemaster attack"\
+\output [bm 1d20 ABGWM 1d10 TFGWM] named "Battlemaster attack + GWM"\
+\output [bm 1d20 ABGWM 1d10 TFHWGWM] named "Battlemaster attack + HW + GWM"\
+\output [bm 1d20 ABGWMB 1d10 TFGWM] named "Battlemaster attack + bless + GWM"\
+\output [bm 1d20 ABGWMB 1d10 TFHWGWM] named "Battlemaster attack + bless + HW + GWM"\
+
+
+\factor in crit for SC\
+output [genatk 1d20 8 1d10 8] + [genatk 1d20 8 1d10 8] named "summon celestial damage"
+output [genatk [highest of 1d20 and 1d20] 8 1d10 8] + [genatk [highest of 1d20 and 1d20] 8 1d10 8] named "summon celestial damage ADV"
+
+output ([bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16]+[bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] + [gwmbonusattack 0 [bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]])-([bm 1d20 ABGWMB 1d10 DS+DS 16]+[bm 1d20 ABGWMB 1d10 DS+DS 16] + [gwmbonusattack 0 [bm 1d20 ABGWMB 1d10 DS+DS 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]]) named "2x bless attack HW delta TF + GWM + M"
+
+output ([bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] + [gwmbonusattack 0 [bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]])-([bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16] + [gwmbonusattack 0 [bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]]) named "2x bless ADV attack HW delta TF + GWM + M"
+
+
+output ([bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] + [bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16]+[bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16]+[bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] + [gwmbonusattack 1 [bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]])-([bm 1d20 ABGWMB 1d10 DS+DS 16]+[bm 1d20 ABGWMB 1d10 DS+DS 16]+[bm 1d20 ABGWMB 1d10 DS+DS 16]+[bm 1d20 ABGWMB 1d10 DS+DS 16] + [gwmbonusattack 1 [bm 1d20 ABGWMB 1d10 DS+DS 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]]) named "4x bless attack attack HW delta TF + GWM + M"
+
+output ([bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] + [bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] + [gwmbonusattack 1 [bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]])-([bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16] + [gwmbonusattack 1 [bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]]) named "4x bless ADV attack attack HW delta TF + GWM + M"
+
+output ([bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] + [bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16]+[bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16]+[bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] + [gwmbonusattack 1 [bm 1d20 ABGWMB 1d10 DS+DS+DE+DE 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]]) named "Rag round 1"
+
+output ([bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] + [bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16]+[bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] + [gwmbonusattack 1 [bm [highest of 1d20 and 1d20] ABGWMB 1d10 DS+DS+DE+DE 16] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20] [iscrit 1d20]]) named "Rag round 1 ADV"
+
+
+
+
+
+
+

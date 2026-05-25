@@ -1,0 +1,18 @@
+function: test ROLL:s when TARGET:n {
+  if ROLL + 0 != TARGET { result: -1 }
+  result: 1@ROLL = 3@ROLL | 2@ROLL = 4@ROLL
+}
+function: reroll ROLL:n as REROLL:d if negative {
+  if ROLL < 0 { result: REROLL }
+  result: ROLL
+}
+function: reroll ROLL:d if negative {
+  loop I over {1 .. 20} {
+    ROLL: [reroll ROLL as ROLL if negative]
+  }
+  result: ROLL
+}
+F: {-1,0,+1}
+loop TARGET over {-4..+4} {
+  output [reroll [test 4dF when TARGET] if negative] named "chance of triple when 4dF = [TARGET]"
+}

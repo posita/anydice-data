@@ -1,0 +1,33 @@
+function: maximum of DIE:d {
+ result: 1@[reverse {DIE}]
+}
+
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: durability of DIE:d {
+  MAX: [maximum of DIE]
+  DURABILITY: 1
+  LOOPEND: MAX * 2
+  loop N over {1..LOOPEND} {
+    DURABILITY: DURABILITY + [if DIE <= DURABILITY then 1 else 0]
+    if DURABILITY = MAX {
+      result: N
+    }
+  }
+}
+
+\output [durability of 1d4]\
+DIE: 1d4
+MAX: [maximum of DIE]
+DURABILITY: 1
+LOOPEND: MAX * 2
+
+loop N over {1..LOOPEND} {
+  output DURABILITY
+  output DIE
+  \DURABILITY: [if (DIE <= DURABILITY) then 1 else 0]\
+
+  if DURABILITY = MAX { output N }
+}

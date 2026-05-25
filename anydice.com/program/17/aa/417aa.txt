@@ -1,0 +1,28 @@
+set "explode depth" to 10
+
+RANGE: 40
+DIE: d12
+DIEMAX: [maximum of DIE]
+DIEMID: DIEMAX / 2 + 1
+
+DLUCK: d{0,0,0,0,0,1}
+DTIE: d{0..1}
+DZFIVE: d{0..5}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: extend N:n {
+  if N = DIEMAX { result: N + [explode DZFIVE] }
+  result: N
+}
+
+output [clamp d6+[explode DZFIVE]-d6-[explode DZFIVE]-DTIE between -RANGE and RANGE] named "d6+L vs"
+output [clamp [extend DIE]-[extend DIE]-DTIE between -RANGE and RANGE] named "x12 vs"
+output [clamp [extend [highest 1 of 4d12]]-[extend [highest 1 of 4d12]]-DTIE between -RANGE and RANGE] named "4/x12 vs"
+
+output [clamp [highest 1 of 4d6]+[explode DZFIVE]-[highest 1 of 4d6]-[explode DZFIVE]-DTIE between -RANGE and RANGE] named "(4/d6)+L"
+

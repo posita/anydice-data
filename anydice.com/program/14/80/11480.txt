@@ -1,0 +1,24 @@
+MISS: 0
+HIT: d6+5    \resepective damages\
+CRITICALHIT: 2d6+5
+ACRANGE: {9..18} \Range of AC you want to see it tested against (increase computations)\
+ATTACK: 5 + 3 \attack mod\
+ATTACKS: 3 \Number of attacks\
+\the d20 in the fourth bottom line can be changed to [highest 1 of 2d20] for advantage; similarly, other change to how you hit can be made there\
+
+\defining the function of an attack | expanded crit range or drastic change to how the attacks themselves work\
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 18 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\outer loop produces a curve for different ACs. Inner loop makes it calculate the requested number of attacks.\
+loop AC over ACRANGE {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL+[attack d20 vs AC]
+ }
+ output TOTAL named "[AC]"
+}

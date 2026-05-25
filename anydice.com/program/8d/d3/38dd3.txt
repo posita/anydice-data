@@ -1,0 +1,265 @@
+\ Exploding Dice \
+\ Adventures Beyond 0.3.0 \
+
+\ All Dice Behavior \
+set "maximum function depth" to 4
+function: roll ROLL:n threshold T{
+  if ROLL >=T {result: 1}
+  if ROLL =1 {result:0}
+  result: 0
+}
+
+\ D4 Behavior \
+function: rollexplodingfour ROLL:n threshold T{
+  if ROLL =4 {result: 1+[rollexplodingfour 1d4 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailuresfour ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d4 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplodefour ROLL: n threshold T {
+  if ROLL < T {result: [rollexplodingfour 1d4 threshold T]}
+  result: [rollexplodingfour ROLL threshold T]
+}
+
+function: wrapperfour DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplodefour 1d4 threshold T]}
+    else {if E {RES:RES+[rollexplodingfour 1d4 threshold T]}
+      else {if R {RES:RES+[rerollfailuresfour 1d4 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+
+function: four DICE:n{
+  result:[wrapperfour DICE threshold 2 explode 0 reroll 0]
+}
+function: explodefour DICE:n{
+  result:[wrapperfour DICE threshold 2 explode 1 reroll 0]
+}
+function: rerollfour DICE:n{
+  result:[wrapperfour DICE threshold 2 explode 0 reroll 1]
+}
+function: explodereroll DICE:n{
+  result:[wrapperfour DICE threshold 4 explode 1 reroll 1]
+}
+
+\ D6 Behavior \ 
+function: rollexplodesix ROLL:n threshold T{
+  if ROLL =T {result: 1+[rollexplodesix 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailuressix ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplodesix ROLL: n threshold T {
+  if ROLL < T {result: [rollexplodingsix 1d6 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: wrappersix DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplodesix 1d6 threshold T]}
+    else {if E {RES:RES+[rollexplodesix 1d6 threshold T]}
+      else {if R {RES:RES+[rerollfailuressix 1d6 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+function: six DICE:n{
+  result:[wrappersix DICE threshold 2 explode 0 reroll 0]
+}
+function: explodesix DICE:n{
+  result:[wrappersix DICE threshold 2 explode 1 reroll 0]
+}
+function: rerollsix DICE:n{
+  result:[wrappersix DICE threshold 2 explode 0 reroll 1]
+}
+function: explodererollsix DICE:n{
+  result:[wrappersix DICE threshold 2 explode 1 reroll 1]
+}
+
+\ D8 Behavior \ 
+function: rollexplodeeight ROLL:n threshold T{
+  if ROLL =T {result: 1+[rollexplodeeight 1d8 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailureseight ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d8 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplodeeight ROLL: n threshold T {
+  if ROLL < T {result: [rollexplodingeight 1d8 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: wrappereight DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplodeeight 1d8 threshold T]}
+    else {if E {RES:RES+[rollexplodeeight 1d8 threshold T]}
+      else {if R {RES:RES+[rerollfailureseight 1d8 threshold T]}
+        else {RES:RES+[roll 1d8 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+function: eight DICE:n{
+  result:[wrappereight DICE threshold 2 explode 0 reroll 0]
+}
+function: explodeeight DICE:n{
+  result:[wrappereight DICE threshold 2 explode 1 reroll 0]
+}
+function: rerolleight DICE:n{
+  result:[wrappereight DICE threshold 2 explode 0 reroll 1]
+}
+function: explodererolleight DICE:n{
+  result:[wrappereight DICE threshold 2 explode 1 reroll 1]
+}
+
+\ D10 Behavior \ 
+function: rollexplodeten ROLL:n threshold T{
+  if ROLL =T {result: 1+[rollexplodeten 1d10 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailuresten ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d10 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplodeten ROLL: n threshold T {
+  if ROLL < T {result: [rollexplodingten 1d10 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: wrapperten DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplodeten 1d10 threshold T]}
+    else {if E {RES:RES+[rollexplodeten 1d10 threshold T]}
+      else {if R {RES:RES+[rerollfailuresten 1d10 threshold T]}
+        else {RES:RES+[roll 1d10 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+function: ten DICE:n{
+  result:[wrapperten DICE threshold 2 explode 0 reroll 0]
+}
+function: explodeten DICE:n{
+  result:[wrapperten DICE threshold 2 explode 1 reroll 0]
+}
+function: rerollten DICE:n{
+  result:[wrapperten DICE threshold 2 explode 0 reroll 1]
+}
+function: explodererollten DICE:n{
+  result:[wrapperten DICE threshold 2 explode 1 reroll 1]
+}
+
+\ D12 Behavior \ 
+function: rollexplodetwelve ROLL:n threshold T{
+  if ROLL =T {result: 1+[rollexplodetwelve 1d12 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailurestwelve ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d12 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplodetwelve ROLL: n threshold T {
+  if ROLL < T {result: [rollexplodingtwelve 1d12 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: wrappertwelve DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplodetwelve 1d12 threshold T]}
+    else {if E {RES:RES+[rollexplodetwelve 1d12 threshold T]}
+      else {if R {RES:RES+[rerollfailurestwelve 1d12 threshold T]}
+        else {RES:RES+[roll 1d12 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+function: twelve DICE:n{
+  result:[wrappertwelve DICE threshold 2 explode 0 reroll 0]
+}
+function: explodetwelve DICE:n{
+  result:[wrappertwelve DICE threshold 2 explode 1 reroll 0]
+}
+function: rerolltwelve DICE:n{
+  result:[wrappertwelve DICE threshold 2 explode 0 reroll 1]
+}
+function: explodererolltwelve DICE:n{
+  result:[wrappertwelve DICE threshold 2 explode 1 reroll 1]
+}
+
+\ D20 Behavior \ 
+function: rollexplodetwenty ROLL:n threshold T{
+  if ROLL =T {result: 1+[rollexplodetwenty 1d20 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailurestwenty ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d20 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplodetwenty ROLL: n threshold T {
+  if ROLL < T {result: [rollexplodingtwenty 1d20 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: wrappertwenty DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplodetwenty 1d20 threshold T]}
+    else {if E {RES:RES+[rollexplodetwenty 1d20 threshold T]}
+      else {if R {RES:RES+[rerollfailurestwenty 1d20 threshold T]}
+        else {RES:RES+[roll 1d20 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+function: twenty DICE:n{
+  result:[wrappertwenty DICE threshold 2 explode 0 reroll 0]
+}
+function: explodetwenty DICE:n{
+  result:[wrappertwenty DICE threshold 2 explode 1 reroll 0]
+}
+function: rerolltwenty DICE:n{
+  result:[wrappertwenty DICE threshold 2 explode 0 reroll 1]
+}
+function: explodererolltwenty DICE:n{
+  result:[wrappertwenty DICE threshold 2 explode 1 reroll 1]
+}
+
+\ Outputs \
+output [explodefour 5] named "5e4"
+output [explodesix 5] named "5e6"
+output [explodeeight 5] named "5e8"
+output [explodeten 5] named "5e10"
+output [explodetwelve 5] named "5e12"
+output [explodetwenty 5] named "5e20"

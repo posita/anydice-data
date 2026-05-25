@@ -1,0 +1,59 @@
+LEVEL:20
+MOD:5
+DIE:d6
+
+LVL:LEVEL-1
+LVLONE:[maximum of DIE]+MOD
+
+function: hpdie DIE:d {result: DIE}
+
+function: X:n hpdie {
+if X = 1 {result: DIE}
+result: X
+}
+
+output (([maximum of DIE]/2+1)+MOD)*LVL+LVLONE named "Base"
+
+function: onedie X:n Y:d {
+TOTAL: 0
+loop N over {1..X} {
+HP: [hpdie Y]+MOD
+TOTAL:TOTAL+HP
+}
+result: TOTAL+LVLONE
+}
+
+output [onedie LVL DIE] named "1[DIE]"
+
+function: onediererollone X:n Y:d {
+TOTAL: 0
+loop N over {1..X} {
+HP: [Y hpdie]
+TOTAL:TOTAL+HP+MOD
+}
+result: TOTAL+LVLONE
+}
+
+output [onediererollone LVL DIE] named "1[DIE] reroll any 1"
+
+function: onedieorbase X:n Y:d {
+TOTAL: 0
+loop N over {1..X} {
+HP: [highest of [hpdie Y] and ([maximum of DIE]/2+1)]+MOD
+TOTAL:TOTAL+HP
+}
+result: TOTAL+LVLONE
+}
+
+output [onedieorbase LVL DIE] named "Highest of 1[DIE] and base"
+
+function: twodie X:n Y:d {
+TOTAL: 0
+loop N over {1..X} {
+HP: [highest of [hpdie Y] and [hpdie Y]]+MOD
+TOTAL:TOTAL+HP
+}
+result: TOTAL+LVLONE
+}
+
+output [twodie LVL DIE] named "Highest of 2[DIE]"

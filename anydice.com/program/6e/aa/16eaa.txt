@@ -1,0 +1,53 @@
+\____Weapon______\
+HITS: 5
+DAMAGE: 1
+PENETRATION: 0
+\____Attacker____\
+ACCURACY: 0
+\____Defender____\
+EVASION: 0
+ARMOR: 0
+\____Modifiers___\
+MOD: 0
+
+
+
+\ Calculations Below \
+
+DEFENSE: 50
+
+ARMOR: ARMOR - PENETRATION
+if ARMOR < 0{
+  ARMOR: 0
+}
+
+DEFENSE: DEFENSE - ACCURACY - MOD
+DEFENSE: DEFENSE + EVASION + ARMOR
+
+
+function: calc wounds from NUM:n and DMG:n{
+  WOUNDS: 0
+  DIE: d{0..99}
+
+  loop N over {1..NUM} {
+    WOUNDS: WOUNDS + [DIE check with DMG]
+  }
+
+  result: WOUNDS
+}
+
+function: RESULT:n check with DMG:n {
+  SUCCESSES: 0
+
+  if RESULT  >= DEFENSE {
+    SUCCESSES: DMG
+  }
+
+  result: SUCCESSES
+}
+
+output [calc wounds from HITS and DAMAGE] named "Wounds"
+
+HITCHANCE: (100 - DEFENSE)
+
+output HITCHANCE named "Hit Chance"

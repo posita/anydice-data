@@ -1,0 +1,69 @@
+ATK:  1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+ATK_DIS: 2@2d20
+HIT:    +8  \ bonus to attack roll \
+SS_HIT: -5  \ Sharpshooter bonus to attack roll \
+\AC:      8   target AC: attack hits if ATK + HIT >= AC \
+CRIT:   20  \ minimum attack roll to crit \
+DMG:   2d10 \ damage rolled on successful hit \
+SS_BONUS: +10 \ Sharpshooter damage bonus \
+
+function: attack ROLL:n plus BONUS:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT + BONUS >= AC
+}
+
+function: multiattack N:n times {
+  result: [roll ATK plus HIT N times for DMG plus 0]
+}
+
+
+function: automultiattack N:n times {
+  result: [roll ATK_DIS plus HIT N*2 times for DMG plus 0]
+}
+
+
+function: ssmultiattack N:n times {
+  result: [roll ATK plus SS_HIT N times for DMG plus SS_BONUS]
+}
+
+
+function: ssautomultiattack N:n times {
+  result: [roll ATK_DIS plus SS_HIT N*2 times for DMG plus SS_BONUS]
+}
+
+function: roll TH:d plus B:n N:n times for D:d plus B:n{
+  if N <= 0 {
+    result: 0
+  }
+  DAMAGE: 0
+  loop I over {1..N} 
+  {
+    T: [attack TH plus B]
+    if T = 2{ DAMAGE: DAMAGE +  2 * D + B }
+    else if T = 1{ DAMAGE: DAMAGE +  1 * D + B }
+    else { DAMAGE: DAMAGE }
+  }
+   result: DAMAGE
+}
+
+function: normalize N:n{
+\ if N <= 0{
+   result: 1d190
+  }
+ else if N = 10{
+   result: 1d180+10
+}
+ else{
+  result: N
+}\
+result:N
+}
+
+loop AC over {16} {
+output [normalize[multiattack 2 times]] named "Multiattack vs AC:[AC]"
+output [normalize[automultiattack 2 times]] named "Auto-Multiattack vs AC:[AC]"
+output [normalize[ssmultiattack 2 times]] named "Sharpshooter Multiattack vs AC:[AC]"
+output [normalize[ssautomultiattack 2 times]] named "Auto Sharpshooter Multiattack vs AC:[AC]"
+}

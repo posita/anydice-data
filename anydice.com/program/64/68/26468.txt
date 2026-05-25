@@ -1,0 +1,58 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: DICE:s reroll one {
+ if #DICE@DICE < 3 {
+  result: {1..(#DICE-1)}@DICE+d6
+ }
+ result: DICE
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..18}
+
+ATTACK: 4 + 3
+HITDAMAGE: 2d6+4
+CRITICALDAMAGE: 4d6+4
+MISSDAMAGE: 0
+output [6 attacks] named "Maul"
+
+HITDAMAGE: [2d6 reroll one]+4
+CRITICALDAMAGE: [4d6 reroll one]+4
+MISSDAMAGE: 0
+output [6 attacks] named "Maul w/ GWF"

@@ -1,0 +1,42 @@
+BASE_DICE: 4
+PRECISION: 4
+DIE_MODIFIER: 0
+EXTRA_DIE: 0
+BASE_DAMAGE: 2
+EXTRA_DAMAGE: 1
+BOSS_LVL: 4
+
+DIE_START: DIE_MODIFIER+1
+MODIFIED_DIE: d{DIE_START..5, 6:DIE_START}
+
+function: count successes N:n {
+ if N>=PRECISION {
+  if N=6 {
+   result: 1000 + EXTRA_DIEd[count successes MODIFIED_DIE]
+  }
+  else {
+   result: 1
+  }
+ }
+ result: 0
+}
+set "maximum function depth" to 2
+
+function : damage N:n {
+ SIXES: N/1000
+ SUCCESSES: SIXES + N - SIXES*1000
+ DMG: SIXES*EXTRA_DAMAGE + BASE_DAMAGE
+ result: SUCCESSES*(DMG-1)
+}
+
+DICE_WITH_REROLL_SUCCESSES: [damage [count successes MODIFIED_DIE]]
+
+
+
+BD: BASE_DICE
+BDMG: BASE_DAMAGE
+DM: DIE_MODIFIER
+ED: EXTRA_DIE
+EDMG: EXTRA_DAMAGE
+BL: BOSS_LVL
+output BASE_DICE d DICE_WITH_REROLL_SUCCESSES named "dégâts sur une abomination avec [BD] dés [PRECISION]+, [BDMG] dégâts, +[DM] au résultat du dé, sur un six +[ED] dés et +[EDMG] dégâts"

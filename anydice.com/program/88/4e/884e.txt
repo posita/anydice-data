@@ -1,0 +1,51 @@
+\ counts number of pairs, 3-of-a-kind, 4-of-a-kind, etc. in a sequence \
+\ includes superior hands in results; e.g. 3-of-a-kind can count as a pair, 4-of-a-kind can count as TWO pairs, etc. \
+\ AMOUNT: elements in a set (e.g. 2 to look for pairs, 3 to look for 3-of-a-kind, etc.) \
+\ VALUES: the numbers that can legally be part of a set \
+\ DICE: the sequence to search \
+function: AMOUNT:n of a kind from VALUES:s in DICE:s {
+    SETS: 0
+    loop I over VALUES {
+        SETS: SETS + ([count I in DICE] / AMOUNT)
+    }
+    result: SETS
+}
+
+function: full house SEQ:s {
+  result: ([3 of a kind from {1..6}in SEQ] >= 1) & ([2 of a kind from {1..6}in SEQ] >=2)
+}
+
+function: match COUNT:n SEQ:s {
+  result: [COUNT of a kind from {1..6} in SEQ]
+}
+
+function: match COUNT:n using HAND:n and RIVER:s {
+  A: {HAND, 1@RIVER, 2@RIVER, 3@RIVER}
+  B: {HAND, 1@RIVER, 2@RIVER, 4@RIVER}
+  C: {HAND, 1@RIVER, 2@RIVER, 5@RIVER}
+  D: {HAND, 1@RIVER, 3@RIVER, 4@RIVER}
+  E: {HAND, 1@RIVER, 3@RIVER, 5@RIVER}
+  F: {HAND, 1@RIVER, 4@RIVER, 5@RIVER}
+  G: {HAND, 2@RIVER, 3@RIVER, 4@RIVER}
+  H: {HAND, 2@RIVER, 3@RIVER, 5@RIVER}
+  I: {HAND, 2@RIVER, 4@RIVER, 5@RIVER}
+  J: {HAND, 3@RIVER, 4@RIVER, 5@RIVER}
+  result: 1@[sort {[match COUNT A], [match COUNT B], [match COUNT C], [match COUNT D], [match COUNT E], [match COUNT F], [match COUNT G], [match COUNT H], [match COUNT I], [match COUNT J]}]
+}
+
+function: full house using HAND:n and RIVER:s {
+  A: {HAND, 1@RIVER, 2@RIVER, 3@RIVER}
+  B: {HAND, 1@RIVER, 2@RIVER, 4@RIVER}
+  C: {HAND, 1@RIVER, 2@RIVER, 5@RIVER}
+  D: {HAND, 1@RIVER, 3@RIVER, 4@RIVER}
+  E: {HAND, 1@RIVER, 3@RIVER, 5@RIVER}
+  F: {HAND, 1@RIVER, 4@RIVER, 5@RIVER}
+  G: {HAND, 2@RIVER, 3@RIVER, 4@RIVER}
+  H: {HAND, 2@RIVER, 3@RIVER, 5@RIVER}
+  I: {HAND, 2@RIVER, 4@RIVER, 5@RIVER}
+  J: {HAND, 3@RIVER, 4@RIVER, 5@RIVER}
+  result: 1@[sort {[full house A], [full house B], [full house C], [full house D], [full house E], [full house F], [full house G], [full house H], [full house I], [full house J]}]
+}
+
+
+output [match 2 using 2d6 and 5d6] named "pairs (or higher)"

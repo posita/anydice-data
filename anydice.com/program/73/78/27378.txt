@@ -1,0 +1,110 @@
+function: pb L {
+  if L < 5 {
+    result: 2
+  } else if L < 9 {
+    result: 3
+  } else if L < 13 {
+    result: 4
+  } else if L < 17 {
+    result: 5
+  } else {
+    result: 6
+  }
+}
+
+function: spelldc MOD lvl L {
+  result: 8 + [pb L] + MOD
+}
+
+function: attack bonus B lvl L {
+  result: B + [pb L]
+}
+
+function: attack ATK_DICE:n plus ATK_MOD lvl L for DMG_DICE plus DMG_MOD on crit DMG_CRIT vs AC {
+  if ATK_DICE = 1 {
+    result: 0
+  } else if ATK_DICE = 20 {
+    result: (2d(DMG_DICE))+DMG_MOD+DMG_CRIT
+  } else {
+    result: ((ATK_DICE+[attack bonus ATK_MOD lvl L])>=AC)*(DMG_DICE+DMG_MOD)
+  }
+}
+
+function: attack ATK_MOD lvl L for DMG_DICE plus DMG_MOD on crit DMG_CRIT vs AC {
+  result: [attack d20 plus ATK_MOD lvl L for DMG_DICE plus DMG_MOD on crit DMG_CRIT vs AC]
+}
+
+function: attack ATK_MOD lvl L for DMG_DICE plus DMG_MOD vs AC {
+  result: [attack ATK_MOD lvl L for DMG_DICE plus DMG_MOD on crit 0 vs AC]
+}
+
+function: advantaged ATK_MOD lvl L for DMG_DICE plus DMG_MOD on crit DMG_CRIT vs AC {
+  result: [attack 1@2d20 plus ATK_MOD lvl L for DMG_DICE plus DMG_MOD on crit DMG_CRIT vs AC]
+}
+
+function: advantaged ATK_MOD lvl L for DMG_DICE plus DMG_MOD vs AC {
+  result: [advantaged ATK_MOD lvl L for DMG_DICE plus DMG_MOD on crit 0 vs AC]
+}
+
+function: cantrip DMG save SAVE plus SAVE_MOD vs DC {
+  result: ((SAVE+SAVE_MOD)<=DC)*DMG
+}
+
+function: cantrip DMG save SAVE_MOD vs DC {
+  result: [cantrip DMG save d20 plus SAVE_MOD vs DC]
+}
+
+function: once DIE to DAMAGE:n {
+  if DAMAGE > 0 {
+    result: DIE + DAMAGE
+  } else {
+    result: DAMAGE 
+  }
+}
+
+AC: 18
+
+WEAPON: d6
+ATTACK: 5+1
+MELEE: 5+2+1
+
+WEAPONB: d8
+ATTACKB: 5+1
+MELEEB: 5+2+1
+
+WEAPONC: 1d6
+ATTACKC: 5+1
+MELEEC: 5+1
+
+PLVL: 15
+
+output 3d[attack 5 lvl PLVL for 1d10+1d6 plus 5 vs AC] named "baseline (15)"
+
+output 3d[attack ATTACKB lvl PLVL for WEAPONB plus MELEEB vs AC] named "multiattack (15)"
+output [once 8d6 to [attack ATTACKC lvl PLVL for WEAPONC plus MELEEC vs AC]] named "heavy hit (15)"
+
+output [once 1d6 to 2d[attack ATTACK lvl PLVL for WEAPON plus MELEE vs AC]]+[attack ATTACK lvl PLVL for 1d4 plus MELEE vs AC] named "fey+pam (15)"
+output 2d[attack ATTACK lvl PLVL for WEAPON+d6 plus MELEE vs AC]+[attack ATTACK lvl PLVL for 1d4 plus MELEE vs AC] named "fey+pam (15) vs 2+"
+
+output [once 2d8 to 2d[attack ATTACK lvl PLVL for WEAPON plus MELEE vs AC]] named "planar vs 1-2"
+output [once 2d8 to 3d[attack ATTACK lvl PLVL for WEAPON plus MELEE vs AC]] named "planar vs 3+"
+
+output [once 2d8 to [attack ATTACK lvl PLVL for WEAPON plus MELEE vs AC]] named "booming (15)"
+output [once 2d8+3d8 to [attack ATTACK lvl PLVL for WEAPON plus MELEE vs AC]] named "booming+ (15)"
+output [once 2d8+2d8+4 to [attack ATTACK lvl PLVL for WEAPON plus MELEE vs AC]] named "green flame (15) vs 2+"
+
+output 3d[attack ATTACKB lvl 17 for WEAPONB plus MELEEB vs AC] named "multiattack (17)"
+output [once 9d6 to [attack ATTACKC lvl 17 for WEAPONC plus MELEEC vs AC]] named "heavy hit (17)"
+
+output [once 2d8 to 2d[attack ATTACK lvl 17 for WEAPON plus MELEE vs AC]] named "planar (17) vs 1-2"
+output [once 2d8 to 3d[attack ATTACK lvl 17 for WEAPON plus MELEE vs AC]] named "planar (17) vs 3+"
+
+output [once 2d8 to 2d[advantaged ATTACK lvl 17 for WEAPON plus MELEE+d6 vs AC]] named "planar+guardian (17) vs 1-2"
+output [once 2d8 to 3d[advantaged ATTACK lvl 17 for WEAPON plus MELEE+d6 vs AC]] named "planar+guardian (17) vs 3+"
+
+output [once 3d8 to [attack ATTACK lvl 17 for WEAPON plus MELEE vs AC]] named "booming (17)"
+output [once 3d8+4d8 to [attack ATTACK lvl 17 for WEAPON plus MELEE vs AC]] named "booming+ (17)"
+output [once 3d8+3d8+4 to [attack ATTACK lvl 17 for WEAPON plus MELEE vs AC]] named "green flame (17) vs 2+"
+
+output 4d[attack ATTACKB lvl 20 for WEAPONB plus MELEEB vs AC] named "multiattack (20)"
+output [once 10d6 to [attack ATTACKC lvl 17 for WEAPONC plus MELEEC vs AC]] named "heavy hit (20)"

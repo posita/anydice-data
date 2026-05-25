@@ -1,0 +1,45 @@
+LIMIT: 0
+
+function: outcome WHITE:s versus BLACK:s {
+  T: 0
+  R: 0
+  C: 0
+  Z: 0
+
+  loop W over WHITE {  
+    if W = 1 { T: T + 2 }
+    if W = 2 { T: T + 1 }
+    if W = 3 { C: C + 1 }
+    if W = 4 { C: C + 1
+               R: R + 1
+             }
+    if W = 5 { Z: 0 }
+    if W = 6 { Z: 0 }
+  }
+
+  loop K over BLACK {  
+    if K = 1 { R: R + 2 }
+    if K = 2 { R: R + 1 }
+    if K = 3 { Z: 0 }
+    if W = 4 { Z: 0 }
+    if K = 5 { C: C + 1 }
+    if K = 6 { C: C + 1
+               T: T + 1
+             }
+  }
+
+  CONVERSIONS: [lowest of C and LIMIT]   \ Conversion of Cs to Ts to represent bonuses \
+  T: T + CONVERSIONS
+  C: C - CONVERSIONS
+
+  \ Sorting outcomes \
+  if T > R { result: 100 }
+  if R > T { result: -100 }
+  if T = R { result: 0 }
+
+  result: -909090 \ Default result \
+}
+
+loop X over {1..1} {  
+  output [outcome Xd6 versus 1d6] named "Rolling [X] WHITE against 1 BLACK"
+}

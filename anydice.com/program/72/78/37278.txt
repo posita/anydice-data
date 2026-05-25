@@ -1,0 +1,32 @@
+ION: 1d{2,2,3}
+HAND: 1d{2,2..4}
+DICE: 1d{2,2..4}+3d{5,5,5,5,5..12}
+FLAT: 6
+TOHIT: 6+3+1
+IONCRIT: 2
+HANDCRIT: 3
+ENEMYAC: 18
+ENEMYSAVE: 5
+ROLL: [highest 1 of 3d20]
+
+function: advantage SET:d {
+ result: [highest 1 of 2d(SET)]
+}
+
+function: deal ATTACK:d plus FLAT:n against AC:n with CHECK:n plus MOD:n and CRIT:n {
+ if CHECK>=(20-CRIT) {
+  result: [advantage 2d(ATTACK)]+FLAT
+ } if (CHECK+MOD)>=AC {
+  result: [advantage ATTACK]+FLAT
+ } else {
+  result: 0
+ }
+}
+
+
+output [advantage ION+DICE]+FLAT named "Ion Hit"
+output [advantage HAND+DICE]+FLAT named "Hand Hit"
+output [advantage 2d(ION+DICE)]+FLAT named "Ion Crit"
+output [advantage 2d(HAND+DICE)]+FLAT named "Hand Crit"
+output [deal ION+DICE plus FLAT against ENEMYAC with ROLL plus TOHIT and IONCRIT] named "Ion Attack"
+output [deal HAND+DICE plus FLAT against ENEMYAC with ROLL plus TOHIT and HANDCRIT] named "Hand Attack"

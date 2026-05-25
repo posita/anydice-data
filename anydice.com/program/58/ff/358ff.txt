@@ -1,0 +1,31 @@
+function: if CONDITION: n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: getHitsFor I  U{
+ result: [if I = 1 then 2 else [if I <= U then 1 else 0]] 
+}
+
+function: hits with X dice Z target Y rerolls CR cr{
+ HITS: 0
+ Y: Y - 1
+
+ loop N over {1..#X}{
+  ISHIT: N@X <= Z
+  HITS: HITS + [if N@X = 1 then 1 else 0]
+  HITS: HITS + [if N@X <= Z then 1 else 0]
+ }
+
+ if HITS < CR{
+  HITS: HITS - [if Y >= 1 then [getHitsFor 1@X Z] else 0]
+  HITS: HITS + [if Y >= 1 then [hits with 1d20 dice Z target Y rerolls CR cr] else 0]
+ }
+
+ result: HITS
+}
+
+output [hits with 2d20 dice 10 target 1 rerolls 1 cr] named "One roll"
+output [hits with 2d20 dice 10 target 2 rerolls 1 cr] named "Two roll"
+output [hits with 2d20 dice 10 target 3 rerolls 1 cr] named "Three roll"
+output [hits with 2d20 dice 10 target 4 rerolls 1 cr] named "Four roll"
+

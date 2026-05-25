@@ -1,0 +1,97 @@
+function: explode VALUE:n {
+  if VALUE = 10 {result: 10 + 1d10}
+  if VALUE = 1 {result: 1 - 1d10}
+  result: VALUE
+}
+
+function: average of DIE:d {
+  MIN: 1@{DIE}
+  R: {}
+  loop P over {1..#{DIE}} {
+    R: {P@{DIE}, R}
+  }
+  MAX: 1@{R}
+
+  result: ((MAX + MIN) / 2)
+}
+
+function: IN:n floor VALUE:n {
+ if IN < VALUE {result: VALUE}
+ result: IN
+}
+
+function: IN:n ceiling VALUE:n {
+ if IN > VALUE {result: VALUE}
+ result: IN
+}
+
+function: IN:n lift VALUE:n {
+ if IN > 0 {result: VALUE}
+ result: 0
+}
+
+function: IN:n roof VALUE:n to CUT:n {
+ if IN < CUT {result: [IN ceiling VALUE]}
+ result: 0
+}
+
+
+function: attack DICE:n die DIE:n at BASE:n against ARMOR:n at RANGE:n auto AUTO:n headshot WEAK:n crit CRIT:n {
+  DAMAGE: DICE d DIE
+  if (WEAK = YES) {BONUS: (BASE - 8)} else {BONUS: BASE}
+  ATTACK: [explode 1d10] + BONUS
+  BOTTOMBAND: [(ATTACK - RANGE) floor 0]
+  if (CRIT = NO) {HITMOD: [BOTTOMBAND ceiling (AUTO + 1)]} else {HITMOD: [BOTTOMBAND roof (AUTO + 1) to 5]}
+  THROUGH: [(HITMOD * (DAMAGE - ARMOR)) floor 0]
+  CRITTHROUGH_A: 0
+  if (CRIT = YES) {
+    CRITMOD_A: [[(ATTACK - (RANGE + 6)) lift (AUTO + 1)] roof (AUTO + 1) to 11]
+    CRITDAMAGE_A: ([highest (DICE - 1) of DAMAGE] + 10)
+    CRITTHROUGH_A: [(CRITMOD_A * (CRITDAMAGE_A - ARMOR)) floor 0]
+  }
+
+  CRITTHROUGH_B: 0
+  if (CRIT = YES) {
+    CRITMOD_B: [(ATTACK - (RANGE + 6)) lift (AUTO + 1)]
+    CRITDAMAGE_B: ([highest (DICE - 2) of DAMAGE] + 6)
+    CRITTHROUGH_B: [(CRITMOD_B * (CRITDAMAGE_B - ARMOR)) floor 0]
+  }
+
+  TOTAL: THROUGH + CRITTHROUGH_A + CRITTHROUGH_B
+  if (WEAK = YES) {AMP: (TOTAL * 2)} else {AMP: TOTAL}
+  result: AMP
+}
+
+
+NO: 0
+YES: 1
+AUTOSMG: 2 \these are intentionally 1 less than the modifiers in the book, it works out in the sim\
+AUTOAR: 3
+AUTOEXOTIC: 4
+
+A: 11 \target armor sp\
+R: 13 \range dc 13 is optimal range, 15>17 etc\
+AR: 17 \range dc for autofire\
+B: 14 \attacker skill base + any bonuses - any penalties\
+
+output [attack 5 die 6 at B against A at R auto NO headshot NO crit NO] named "ar no crit"
+output [attack 5 die 6 at B against A at R auto NO headshot NO crit YES] named "ar crit"
+
+output [attack 6 die 6 at B against A at R auto NO headshot NO crit NO] named "grenade no crit"
+output [attack 8 die 6 at B against A at R auto NO headshot NO crit NO] named "rocket no crit"
+
+output [attack 5 die 6 at B against A at R auto NO headshot YES crit NO] named "ar headshot no crit"
+output [attack 5 die 6 at B against A at R auto NO headshot YES crit YES] named "ar headshot crit"
+
+output [attack 2 die 6 at B against A at AR auto YES headshot NO crit NO] named "ar autofire no crit"
+output [attack 2 die 6 at B against A at AR auto YES headshot NO crit YES] named "ar autofire crit"
+
+
+\
+output [5d6 - A floor 0] named "ar normal conditions"
+output ([5d6 - A floor 0] * 2) named "ar headshot"
+output [([highest 4 of 5d6] + 6) - A floor 0] named "ar hit + 6"
+output [([highest 3 of 5d6] + 12) - A floor 0] named "ar hit + 12"
+output [6d6 - A floor 0]
+output [8d6 - A floor 0]
+\

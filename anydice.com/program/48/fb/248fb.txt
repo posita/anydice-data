@@ -1,0 +1,95 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Here are some examples: \
+\output [9 vs 17 crit 19 2 dmg 2d6+13] named "greatsword"\
+\output [15 vs 17 crit 19 2 1d10 dmg 3d6+20 1d6] named "flaming burst greatsword raging bull strength enlarged"\
+\output [{10,10} vs 17 crit 20 2 dmg 1d6+10] named "2 claw attacks"\
+\output [6 vs 17 crit 20 2 dmg 1d6+1 1d6] named "javelin sneak attack"\
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+\ LVL 20 \
+EAC: 44                        \ Enemy AC \
+EDR: 5                         \ Enemy DR \
+BAB: 0                         \ Base Attack Bonus \
+SIZE: 0                        \ Size: 1 = Medium \
+STRB: 0                        \ Misc Strength Bonuses \
+STR: 0                         \ Base Strength \
+HITB: 0                        \ Misc To-Hit Bonuses \
+DAMB: 0                        \ Misc Damage Bonus \
+MAGIC: 0                       \ Magic Weapon \
+PAQ: 0
+PA: 0                          \ Power Attack (calculates based off of the penalty to hit) \
+PREC: 0                        \ Precision Damage / Not Multiplied \
+
+\ SAMAEL \
+BAB: 20                        \ Base Attack Bonus \
+SIZE: 1                        \ Size: 1 = Medium \
+STRB: 0                        \ Misc Strength Bonuses \
+STR: 10                        \ Base Strength = 30 \
+HITB: 9+4                      \ Misc To-Hit Bonuses \
+DAMB: 40+4                     \ Misc Damage Bonus \
+MAGIC: 5                       \ Magic Weapon \
+MAGIO: 3                       \ Magic on other weapons \
+PAQ: 1
+PA: PAQ*6                      \ Power Attack (calculates based off of the penalty to hit) \
+PREC: 1d6
+PRECO: 1d6
+
+FATKB: BAB + STR + HITB + MAGIC - PA          \ Attack Roll \
+FATKBO: BAB + STR + HITB + MAGIO - PA         \ Attack Roll (other) \
+FDMG: 1d10 + STR + DAMB + MAGIC + (PA*2)      \ Main Hand Damage \
+FDMGN: 1d6 + (STR/2) + DAMB + MAGIO + PA      \ Natural Attacks (offhand) \
+FDMGS: 1d4 + (STR/2) + DAMB + MAGIC + PA      \ Shield Bash \
+
+output [FATKB vs EAC crit 19 2 dmg FDMG PREC-EDR] named "Samael (Standard Action)"
+output [{FATKB,FATKB} vs EAC crit 19 2 dmg FDMG PREC-EDR] named "Samael (Standard Action + Swift)"
+output [{FATKB,FATKB-5,FATKB-10,FATKB-15,(PAQ*(FATKB))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKBO-5} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack)"
+output [{FATKB,FATKB-5,FATKB-10,FATKB-15,(PAQ*(FATKB))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKBO-5,FATKBO-5,FATKBO-5} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack w/ Wings)"
+output [{FATKB,FATKB-5,FATKB-10,FATKB-15,(PAQ*(FATKB))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKBO-2,FATKBO-2,FATKBO-2} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack w/ Multiattack)"
+output [{FATKB-2,FATKB-7,FATKB-12,FATKB-17,(PAQ*(FATKB-2))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKBO-2,FATKBO-5} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack w/ TWF)"
+output [{FATKB-2,FATKB-7,FATKB-12,FATKB-17,(PAQ*(FATKB-2))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKBO-2,FATKBO-7,FATKBO-12,FATKBO-5} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack w/ GTWF)"
+output [{FATKB-2,FATKB-7,FATKB-12,FATKB-17,(PAQ*(FATKB-2))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKBO-2,FATKBO-2,FATKBO-2,FATKBO-2} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack w/ Multiattack & TWF)"
+output [{FATKB-2,FATKB-7,FATKB-12,FATKB-17,(PAQ*(FATKB-2))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKBO-2,FATKBO-7,FATKBO-12,FATKBO-2,FATKBO-2,FATKBO-2} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack w/ Multiattack & GTWF)"
+output [{FATKB-2,FATKB-7,FATKB-12,FATKB-17,(PAQ*(FATKB-2))} vs EAC crit 19 2 dmg FDMG PREC-EDR]+[{FATKB,FATKB-5,FATKB-10} vs EAC crit 20 2 dmg FDMGS PREC-EDR]+[{FATKBO-5} vs EAC crit 20 2 dmg FDMGN PREC-EDR] named "Samael (Full Attack w/ Shield Master)"

@@ -1,0 +1,49 @@
+function: gwfcheck REROLL_RANGE:s on ROLL_OUTCOME:n to ROLL_AGAIN:d {
+    if [REROLL_RANGE contains ROLL_OUTCOME] { 
+        result: ROLL_AGAIN }
+    else {result: ROLL_OUTCOME}
+}
+
+function: gwf on DMG_ROLL:d {
+    result: [gwfcheck {1,2} on DMG_ROLL to DMG_ROLL]
+}
+
+function: totaldmg ATK_ROLL:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ATK_ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    result: DMG
+}
+
+
+
+ATK_ROLL: [highest 1 of 2d20]
+CRIT_RANGE: 20
+CRIT_MULTIPLIER: 0
+
+GREATSWORD_DMG: 2d6
+GREATSWORD_CRIT_DMG: CRIT_MULTIPLIERd6
+GREATSWORD_GWF_DMG: 2d[gwf on 1d6]
+GREATSWORD_GWF_CRIT_DMG: [gwf on CRIT_MULTIPLIERd6]
+GREATSWORD_DMG_SA: [highest 1 of 2dGREATSWORD_GWF_DMG]
+GREATSWORD_CRIT_DMG_SA: [highest 1 of 2dGREATSWORD_GWF_CRIT_DMG]
+
+GREATAXE_DMG: 1d12
+GREATAXE_CRIT_DMG: CRIT_MULTIPLIERd12
+GREATAXE_GWF_DMG: 1d[gwf on 1d12]
+GREATAXE_GWF_CRIT_DMG: [gwf on CRIT_MULTIPLIERd12]
+GREATAXE_DMG_SA: [highest 1 of 2dGREATAXE_GWF_DMG]
+GREATAXE_CRIT_DMG_SA: [highest 1 of 2dGREATAXE_GWF_CRIT_DMG]
+
+output [totaldmg 1d20 for GREATSWORD_DMG crit GREATSWORD_CRIT_DMG on CRIT_RANGE] named "Greatsword (2d6) Damage"
+output [totaldmg 1d20 for GREATSWORD_GWF_DMG crit GREATSWORD_GWF_CRIT_DMG on CRIT_RANGE] named "Greatsword (2d6) GWF Damage"
+
+\THIS IS BROKEN!!!!!!!!!!! WHY????????????\
+output [totaldmg ATK_ROLL for GREATSWORD_GWF_DMG crit GREATSWORD_GWF_CRIT_DMG on CRIT_RANGE] named "Greatsword (2d6) GWF Damage with Advantage"
+
+output [totaldmg ATK_ROLL for GREATSWORD_DMG_SA crit GREATSWORD_CRIT_DMG_SA on CRIT_RANGE] named "Greatsword (2d6) GWF Damage with Advantage + Savage Attacker"
+
+output [totaldmg 1d20 for GREATAXE_DMG crit GREATAXE_CRIT_DMG on CRIT_RANGE] named "Greataxe (1d12) Damage"
+output [totaldmg 1d20 for GREATAXE_GWF_DMG crit GREATAXE_GWF_CRIT_DMG on CRIT_RANGE] named "Greataxe (1d12) GWF Damage"
+output [totaldmg ATK_ROLL for GREATAXE_GWF_DMG crit GREATAXE_GWF_CRIT_DMG on CRIT_RANGE] named "Greataxe (1d12) GWF Damage with Advantage"
+output [totaldmg ATK_ROLL for GREATAXE_DMG_SA crit GREATAXE_CRIT_DMG_SA on CRIT_RANGE] named "Greataxe (1d12) GWF Damage with Advantage + Savage Attacker"

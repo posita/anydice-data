@@ -1,0 +1,181 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+} 
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+function: gwm BONUS_ACTION:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d {
+
+    NO_CRIT: BONUS_ACTION
+    ALREADY_CRIT: 0
+    
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+} 
+
+function: gwm BONUS_ACTION:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT_DMG:d on CRIT_RANGE:d {
+
+    NO_CRIT: BONUS_ACTION
+    ALREADY_CRIT: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        NO_CRIT: [attack ROLL plus BONUS vs AC 
+            hit  DMG + NO_CRIT
+            miss NO_CRIT
+            crit DMG + CRIT_DMG + ATTACK + ALREADY_CRIT on CRIT_RANGE
+        ]
+        ALREADY_CRIT: ATTACK + ALREADY_CRIT
+    }
+
+    result: NO_CRIT
+}
+
+ADVANTAGE: [highest 1 of 2d20]
+
+DISADVANTAGE: [lowest 1 of 2d20]
+
+ELFADVANTAGE: [highest 1 of 3d20]
+
+output
+[attack d20 plus 2 + 3 vs 13 for 1d6 + 3 crit 1d6 on 20] +
+[attack d20 plus 2 + 3 vs 13 for 1d6 + 3 crit 1d6 on 20]
+named "Two-weapon fighting"
+
+output
+[attack d20 plus 2 + 3 vs 13 for 1d8 + 3 + 2 crit 1d8 on 20]
+named "Dueling"
+
+output
+[attack d20 plus 2 + 3 + 2 vs 13 for 1d10 + 3 crit 1d10 on 20]
+named "Archery"
+
+output
+[attack d20 plus 2 + 3 vs 13 for 2d[gwf d6] + 3 crit 2d[gwf d6] on 20]
+named "Great-weapon fighting"
+
+output
+[gwm 0 attacks 1 roll ADVANTAGE plus 6 vs 16 for 2d6 + 6 crit 8d6 on 19]
+named "Hexblade Curse lv 4 GWM"
+
+output
+[attack [highest 1 of 2d20] plus 1  vs 16 for 2d6 + 16 crit 8d6 on 19] 
+named "Hexblade Curse lv 4 GWM minus attack + damage"
+
+output
+[attack [highest 1 of 2d20] plus 6  vs 16 for 2d6 + 6 crit 8d6 on 19] 
+named "Hexblade Curse lv 4 GWM flat"
+
+output
+[attack [highest 1 of 3d20] plus 2 + 5  vs 16 for 2d6 + 7 crit 8d6 on 19] 
+named "Hexblade Curse lv 4 EA"
+
+output
+[gwm 0 attacks 2 roll ADVANTAGE plus 7 vs 16 for 2d6 + 7 crit 8d6 on 19]
+named "Hexblade Curse lv 5 GWM"
+
+output
+[attack [highest 1 of 2d20] plus 2  vs 16 for 2d6 + 17 crit 8d6 on 19] 
+named "Hexblade Curse lv 5 GWM minus attack + damage"
+
+output
+[attack [highest 1 of 2d20] plus 7  vs 16 for 2d6 + 7 crit 8d6 on 19] 
+named "Hexblade Curse lv 5 GWM flat"
+
+
+output
+[attack [highest 1 of 3d20] plus 3 + 5  vs 16 for 2d6 + 8 crit 8d6 on 19] +
+[attack [highest 1 of 3d20] plus 3 + 5  vs 16 for 2d6 + 8 crit 8d6 on 19]
+named "Hexblade Curse lv 5 EA"
+
+output
+[gwm 0 attacks 2 roll ADVANTAGE plus 7 vs 16 for 2d6 + 7 crit 2d6 on 20]
+named "Hexblade Curse lv 5 GWM (no psuedo smite)"
+
+output
+[attack [highest 1 of 3d20] plus 3 + 5  vs 16 for 2d6 + 8 crit 2d6 on 19] +
+[attack [highest 1 of 3d20] plus 3 + 5  vs 16 for 2d6 + 8 crit 2d6 on 19]
+named "Hexblade Curse lv 5 EA (no psuedo smite)"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 8 vs 16 for 2d6 + 8 crit 12d6 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Sword Smite"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 8 vs 16 for 2d6 + 8 crit 10d8 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Eldritch Smite"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 8 vs 16 for 2d6 + 8 crit 12d6 + 10d8 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Eldritch + Sword Smite"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 9 vs 16 for 2d6 + 9 crit 12d6 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Sword Smite and IPW"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 9 vs 16 for 2d6 + 9 crit 10d8 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Eldritch Smite and IPW"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 9 vs 16 for 2d6 + 9 crit 12d6 + 10d8 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Eldritch + Sword Smite and IPW"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 9 vs 16 for 2d6 + 9 crit 2d6 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Spent Smites"
+
+output
+[gwm 0 attacks 2 roll [highest 1 of 3d20] plus 9 vs 16 for 2d6 + 9 crit 2d6 on 19] 
+named "Hexblade Curse lv 8 EA + GWM Spent Smites and IPW"
+
+output
+[attack [highest 1 of 3d20] plus 7  vs 16 for 1d10 + 7 crit 1d10 on 19] +
+[attack [highest 1 of 3d20] plus 7  vs 16 for 1d10 + 7 crit 1d10 on 19] 
+named "Hexblade Blast with Elven Accuracy, Darkness Lvl 5"
+
+output
+[attack [highest 1 of 1d20] plus 7  vs 16 for 1d10 + 7 + 1d6 crit 1d10 + 1d6 on 19] +
+[attack [highest 1 of 1d20] plus 7  vs 16 for 1d10 + 7 + 1d6 crit 1d10 + 1d6 on 19] 
+named "Hexblade Blast with Hex Lvl 5"
+
+output
+[attack [highest 2 of 1d20] plus 6  vs 16 for 1d10 + 6 crit 1d10 + 8d8 on 19] +
+[attack [highest 2 of 1d20] plus 6  vs 16 for 1d10 + 6 crit 1d10 + 8d8 on 19] +
+[attack [highest 2 of 1d20] plus 6  vs 16 for 1d4 + 6 crit 1d10 + 8d8 on 19]
+named "Hexblade Polearm Lvl 5 spike"
+
+output
+[attack [highest 2 of 1d20] plus 6  vs 16 for 1d10 + 4 crit 1d10 on 20] +
+[attack [highest 2 of 1d20] plus 6  vs 16 for 1d10 + 4 crit 1d10 on 20] +
+[attack [highest 2 of 1d20] plus 6  vs 16 for 1d10 + 4 crit 1d10 on 20]
+named "Hexblade Polearm Lvl 5 Regular"

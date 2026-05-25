@@ -1,0 +1,44 @@
+function: attack ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + SPELLMOD + ACCBONUS >= AC { result: ATKDAMAGE }
+ result: 0
+}
+
+function: save ROLL:n vs SAVE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL + SAVEBONUS + OTHERBONUS >= SAVEDC { result: SAVEDAMAGE }
+ result: SAVEDAMAGE/2
+}
+
+function: savenodmg ROLL:n vs SAVE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL + SAVEBONUS + OTHERBONUS >= SAVEDC { result: SAVEDAMAGE }
+ result: 0
+}
+
+ENEMYAC: d{9..19}
+
+SPELLMOD: 5
+
+PROFICIENCY: 3
+CRITROLL: 20
+ATTACKTIMES: 1
+DMGBONUS: 0
+ACCBONUS: 0
+EXTRADMGDICE: 0
+
+ATKDAMAGE: 2d10 + DMGBONUS + EXTRADMGDICE
+CRITDAMAGE: 2d10 + DMGBONUS + 2dEXTRADMGDICE
+
+output ATTACKTIMESd[attack d20 vs ENEMYAC] named "Spell Attack"
+
+SAVEBONUS: 2
+OTHERBONUS: 0
+ENEMYSAVE: d20 + SAVEBONUS + OTHERBONUS
+SAVEDC: 8 + PROFICIENCY + SPELLMOD
+
+SAVEDAMAGE: 2d12
+
+output [save ENEMYSAVE vs SAVEDC] named "Save Spell, half on save"
+output [savenodmg ENEMYSAVE vs SAVEDC] named "Save Spell, zero on save"

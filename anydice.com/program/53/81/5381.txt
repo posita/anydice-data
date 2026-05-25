@@ -1,0 +1,91 @@
+set "explode depth" to 5
+set "maximum function depth" to 8
+
+function: poolplode DIE:d TN:n EN:n {
+ result: [poolplode helper DIE]
+}
+
+function: poolplode helper RES:n {
+ if RES >= EN { result: 1 + [poolplode helper DIE] }
+ if RES >= TN { result: 1 }
+ result: 0
+}
+function: pairplode DIE:d TAR:n {
+ result: [pairplode helper DIE]
+} \ main function to get the DIE... wait... this wasn't necessary \
+
+function: pairplode helper SEQ:s {
+ SUCS: (SEQ >= TAR)
+ if SUCS > 0 {
+   if (1@SEQ = (SUCS)@SEQ) { result: SUCS + SUCSd[poolplode 1d6 4 6] }
+ }
+ result: SUCS
+}
+
+
+
+
+function: pairplode with botches SEQ:s TAR:n DIFF:n {
+ SUCS: (SEQ >= TAR)
+ if SUCS > 0 {
+   if (1@SEQ = (SUCS)@SEQ) { result: (SUCS + SUCSd[poolplode 1d6 4 6]) >= DIFF }
+ }
+ if (SEQ = 1) > SUCS {
+  if SUCS < DIFF { result: -1}
+ }
+ result: (SUCS >= DIFF)
+}
+
+function: vertwo pairplode with botches SEQ:s TAR:n DIFF:n {
+ SUCS: (SEQ >= TAR)
+
+ if SUCS > 0 {
+   if (1@SEQ = (SUCS)@SEQ) { result: (SUCS + SUCSd[poolplode 1d6 4 6]) >= DIFF }
+ }
+ if SUCS < DIFF {
+  if (SEQ = 1) > SUCS { result: -1}
+  if (SEQ = 2) > SUCS { result: -1}
+  \if (SEQ = 3) > SUCS { result: -1}\
+ }
+ result: (SUCS >= DIFF)
+}
+
+\ ######################### \
+\ ######################### \
+\ ######################### \
+
+function: verthree pairplode with botches SEQ:s TAR:n DIFF:n {
+ SUCS: (SEQ >= TAR)
+ FAIL: (#SEQ - SUCS)
+ BOTCH: (SEQ = 1)
+ if (SUCS < DIFF) & (BOTCH > SUCS) & ((SUCS+1)@SEQ = 1) { result: -2}
+ if (SUCS < DIFF) & (BOTCH > SUCS)  { result: -1}
+
+
+ if SUCS > 0 {
+   if (1@SEQ = (SUCS)@SEQ) { result: (SUCS + SUCSd[poolplode 1d6 4 6]) >= DIFF }
+ }
+
+ result: (SUCS >= DIFF)
+}
+
+
+
+
+
+ND: 3
+
+ \output [pairplode with botches NDd6 4 1d6] named "v1"\
+
+\loop N over {1..8}{
+ output [pairplode with botches NDd6 4 N] named "v1 [N]"
+}\
+
+
+loop N over {1..6}{
+ output [verthree pairplode with botches NDd6 4 N] named "[ND]d >=[N]"
+}
+
+\loop N over {1..6}{
+ output [verthree pairplode with botches Nd6 4 1d6] named "[ND]d >=[N]"
+}\

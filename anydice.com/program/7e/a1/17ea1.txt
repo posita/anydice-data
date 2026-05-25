@@ -1,0 +1,49 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MODIFIER: 4
+DAMAGE:1d8+1d6+MODIFIER
+CRITICALDAMAGE:2d8+2d6+MODIFIER
+STALKERDAMAGE:2d8+1d6+MODIFIER
+STALKERCRITICALDAMAGE:4d8+2d6+MODIFIER
+ATTACK: 5 + MODIFIER
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: DAMAGE
+ }
+ result: 0
+}
+
+function: stalker damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: STALKERCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: STALKERDAMAGE
+ }
+ result: 0
+}
+
+TOTALDAMAGE: 0
+loop N over {1..4} {
+  TOTALDAMAGE: TOTALDAMAGE + [damage for [attack d20 vs 20]]
+}
+loop N over {1..2} {
+  TOTALDAMAGE: TOTALDAMAGE + [stalker damage for [attack d20+1d8 vs 20]]
+}
+output TOTALDAMAGE

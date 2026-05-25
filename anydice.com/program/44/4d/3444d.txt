@@ -1,0 +1,46 @@
+function: roll ACC:n ATT:n DOG:n DEF:n {
+RES: [count {ACC..6} in ATTd6] - [count {DOG..6} in DEFd6]
+result: RES
+}
+function: hitchecknormal SUC:n DAM:n CRI:n {
+  if (SUC >= 0) {
+     RES: DAM+(SUC*CRI)
+  }  else {
+     RES: 0
+  }
+result: RES
+}
+function: hitcheckap SUC:n DAM:n CRI:n {
+  if (SUC >= 0) {
+     RES: (DAM+(SUC*CRI))/2
+  }  else {
+     RES: 0
+  }
+result: RES
+}
+function: hitcheckhe SUC:n DAM:n CRI:n {
+  RES: DAM+(SUC*CRI)
+if (RES < 0) {
+     RES: 0
+  }  
+  result: RES
+}
+function: normal DAM:n CRI:n ACC:n DOG:n ATT:n DEF:n {
+ROL: [roll ACC ATT DOG DEF]
+RES: [hitchecknormal ROL DAM CRI]
+result: RES
+}
+function: he DAM:n CRI:n ACC:n DOG:n ATT:n DEF:n {
+ROL: [roll ACC ATT DOG DEF]
+RES: [hitcheckhe ROL DAM CRI]
+result: RES
+}
+function: ap DAM:n CRI:n ACC:n DOG:n ATT:n DEF:n {
+ROL: [roll ACC ATT DOG DEF]
+RES: [hitcheckap ROL DAM CRI]
+result: RES
+}
+
+output [normal 5 2 4 4 10 10] named "raingun 1"
+output [he 5 2 4 4 10 10] named "raingun he 1"
+output [ap 5 2 4 4 10 10] named "raingun ap 1"

@@ -1,0 +1,52 @@
+function: attack D:n plus B:n vs AC:n {
+    if D = 20 { result: 2 }
+    else if D+B >= AC { result: 1 }
+    else { result: 0 }
+}
+
+function: damage DD:n plus B:n if HIT:n {
+    if HIT = 2 { result: (DD*2)+B }
+    else if HIT = 1 { result: DD+B }
+    else { result: 0}
+}
+
+\ Attack Config: Normal or Advantage or Disadvantage \
+function: attconfig {
+    \ Normal: 1d20 \
+    \ Advantage: [highest 1 of 2d20] \
+    \ Disadvantage: [lowest 1 of 2d20] \
+
+    result: [highest 1 of 2d20]
+}
+
+\ Main Function: Attack for each AC from 5 to 30 \
+loop AC over {5..30} {
+    TOTAL_EG: 0 \ Total Damage with Earth Gauntlets \
+    TOTAL_UA: 0 \ Total Damage with Unarmed Attacks \
+
+    \ Earth Gauntlets w Extra Attack \
+    loop NOA over {1..2} {
+        HIT: [ attack [attconfig] plus 11 vs AC ]
+        TOTAL_EG: TOTAL_EG+[ damage 20 plus 9 if HIT ]
+    }
+    \ Offhand Earth Gauntlet Attack \
+    HIT: [ attack [attconfig] plus 11 vs AC ]
+    TOTAL_EG: TOTAL_EG+[ damage 20 plus 4 if HIT ]
+
+    \ Unarmed Rage Claw w Extra Attack \
+    loop NOA over {1..3} {
+        HIT: [ attack [attconfig] plus 9 vs AC ]
+        TOTAL_UA: TOTAL_UA+[ damage 2d8 plus 7 if HIT ]
+    }
+    \ Offhand Unarmed Rage Claw Attack \
+    HIT: [ attack [attconfig] plus 9 vs AC ]
+    TOTAL_UA: TOTAL_UA+[ damage 2d8 plus 2 if HIT ]
+
+    \ Boots of the Harpy \
+    HIT: [ attack [attconfig] plus 9 vs AC ]
+    TOTAL_EG: TOTAL_EG+[ damage 1d8+2d4 plus 7 if HIT ]
+    TOTAL_UA: TOTAL_UA+[ damage 1d8+2d4 plus 7 if HIT ]
+
+    output TOTAL_EG named "E[AC]"
+    output TOTAL_UA named "U[AC]"
+}

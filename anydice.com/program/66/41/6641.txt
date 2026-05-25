@@ -1,0 +1,24 @@
+ATTACKER: { \strength\ 4, \effectiveness\ 3, \initiative\ 2 }
+DEFENDER: { \strength\ 5, \effectiveness\ 3, \initiative\ 2 }
+TURNS: 3
+
+\ we do our own recursion limiting \
+set "maximum function depth" to 99
+
+function: combat between S_ATT:n E_ATT:n and S_DEF:n E_DEF:n for LIMIT:n steps {
+  if S_ATT <= 0 { result: -1 }
+  if S_DEF <= 0 { result: +1 }
+  if LIMIT <= 0 { result: 0 }
+  S_NEW: S_DEF - ( S_ATT d {1:E_ATT, 0:(6-E_ATT)} )
+  \ reverse the roles for the next half-turn, negate result: \
+  result: -[combat between S_NEW E_DEF and S_ATT E_ATT for LIMIT-1 steps]
+}
+
+if (3@ATTACKER >= 3@DEFENDER) {
+  output [combat between 1@ATTACKER 2@ATTACKER and 1@DEFENDER 2@DEFENDER for 2*TURNS steps]
+    named "-1 = defender wins, 0 = tie, +1 = attacker wins"
+} else {
+  \ defender goes first, but we still want +1 to mean victory for the attacker \
+  output -[combat between 1@DEFENDER 2@DEFENDER and 1@ATTACKER 2@ATTACKER for 2*TURNS steps]
+    named "-1 = defender wins, 0 = tie, +1 = attacker wins"
+}

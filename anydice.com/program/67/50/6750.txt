@@ -1,0 +1,71 @@
+\ *** THE CRAWL MELEE DAMAGE CHEAT SHEET *** \
+\ yeah thanks bloax now get on with it \
+
+\ For best code reading experience, scroll down by moving the text cursor down. Seriously. \
+\ Output depends on what you write after the "output" at the very end of this mess (defaults to "output FINALDAM"), \
+\ So for example "output FINALDAM" would output the frequencies of a certain amount of damage occuring - \
+\ after applying stat bonus to base damage, then applying weapon and fighting skill bonuses, \
+\ and then applying the slaying bonus to the results of those. Oh and speaking of "what to write"; \
+\ --- CHEAT-SHEET FOR USEFUL THINGS TO OUTPUT:  --- \
+\ STATDAM (basedam * statbonus), STATMULTIPLIER (statbonus in percent), \
+\ DAMAGEDONE (1d(STATDAM)), \
+\ WEAPDAM (DAMAGEDONE * weaponskillbonus), WEAPMULTIPLIER (weaponskillbonus in percent) \
+\ FIGHTDAM (WEAPDAM * fightingbonus), FIGHTMULTIPLIER (fightingbonus in percent) \
+\ FINALDAM (FIGHTDAM + slaying) \
+\ *** END OF CHEAT-SHEET *** \
+
+BASEDAM: 22 \ Base damage of the weapon \
+STR: 20 \ >implying you want to look up the str-weight for every weapon \
+SKILL: 27 \ Weapon skill \
+FIGHTING: 10 \ Fighting skill \
+SLAYING: 5 \ Total slaying from all sources \
+
+\ --- int attack::player_stat_modify_damage(int damage) --- \
+if STR < 9 { STRMOD: 39 - ((1d(9 - STR)-1) * 3) } else { STRMOD: 39 + ((1d(STR-11)-1) * 2) }
+STATDAM: (BASEDAM * STRMOD) / 39
+STATMULTIPLIER: (100 * STRMOD) / 39
+
+\ *** damage = STATDAM; return damage; (output STATDAM to see the results) *** \
+
+\ --- POTENTIAL DAMAGE 1d(base*stats) --- \
+
+function: damageroll DAM:n
+{
+result: 1dDAM
+}
+
+DAMAGEDONE: [damageroll STATDAM]
+
+\ ***   damage_done = random2(potential_damage+1);   *** \
+
+
+\ --- int attack::player_apply_weapon_skill(int damage) --- \
+
+function: weaponskill DAMAGE:n WEAPSKILL:n
+{
+result: (DAMAGE * (2500 + 1d(WEAPSKILL*100))) / 2500
+}
+
+WEAPDAM: [weaponskill DAMAGEDONE SKILL]
+WEAPMULTIPLIER: [weaponskill 100 SKILL]
+
+\ ***  return damage; ("output WEAPDAM" for the output of "player_apply_weapon_skill(damage_done)" )  *** \
+\ **** ("output WEAPMULTIPLIER" for the effect of weapon skill in percent.) \
+
+
+\ --- int attack::player_apply_fighting_skill(int damage, bool aux) (ignore the aux) --- \
+function: fightingskill DAMAGE:n FIGHTSKILL:n
+{
+result: (DAMAGE * (3000 + 1d(FIGHTSKILL*100))) / 3000
+}
+
+FIGHTDAM: [fightingskill WEAPDAM FIGHTING]
+FIGHTMULTIPLIER: [fightingskill 100 FIGHTING]
+
+\ *** return damage; ("output FIGHTDAM" for the output of damage_done = player_apply_fighting_skill(damage_done, false); *** \
+\ **** ("output FIGHTMULTIPLIER" for the effect of fighting skill in percent.) **** \
+
+\ --- Apply slaying bonuses --- \
+if SLAYING > -1 { FINALDAM: FIGHTDAM+(1d(1+SLAYING)-1) } else { FINALDAM: FIGHTDAM-(1d(1-SLAYING)-1) }
+
+output FINALDAM

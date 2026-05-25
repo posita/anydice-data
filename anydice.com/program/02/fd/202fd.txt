@@ -1,0 +1,23 @@
+function: OLD:n reroll as NEW:d if below MIN:n {
+  if OLD < MIN { result: NEW }
+  else { result: OLD }
+}
+
+HD: 4  \ size of hit die, used for rolling and calculating average \
+
+\ Strategy A: always reroll all dice if current HP is below average \
+HP: HD
+loop LEVEL over {2..20} {
+  AVG: HD + (LEVEL-2)*(1+HD)/2
+  HP: 1dHD + [HP reroll as HD + (LEVEL-2)dHD if below AVG]
+}
+output HP named "level 20, strategy A"
+
+\ Strategy B \
+HP: HD
+loop LEVEL over {2..20} {
+  AVG: HD + (LEVEL-2)*(1+HD)/2
+  HP: 1dHD + [HP reroll as HD + (LEVEL-2)dHD if below [lowest of (LEVEL-1)*HD and AVG + (20-LEVEL)]]
+}
+output HP named "level 20, strategy B"
+

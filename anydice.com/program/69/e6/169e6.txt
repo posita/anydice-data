@@ -1,0 +1,79 @@
+\This calculates the damage curve for one person shooting at another given their skill, range/speed penalty, weapon damage, recoil, weapon wounding, armor worn, weapon accuracy, and weapon AP\
+
+\The initial values are for someone with skill 14 firing an aimed 5 round burst from an M4 with APHC rounds at someone who is wearing an assault vest with trauma plates who is standing 7 yards away\
+
+SKILL: 14
+RANGE: 3
+
+DAMAGE: (4d6+2)
+ARMORPEN: 2
+RCL: 2
+\WOUNDINGMOD of 0 is actually 0.5 for small piercing weapons.\
+WOUNDINGMOD: 1
+ACC: 4
+ROF: 5
+
+ARMOR: 35
+
+
+
+
+
+function: rofmod {
+  if ROF < 5 {result: 0}
+  if ROF < 9 {result: 1}
+  if ROF < 13 {result: 2}
+  if ROF < 17 {result: 3}
+  if ROF < 25 {result: 4}
+  if ROF < 50 {result: 5}
+  if ROF < 100 {result: 6}
+}
+
+TOHIT: (SKILL - RANGE + ACC + [rofmod] - 3d6)
+DAA: DAMAGE - (ARMOR/ARMORPEN)
+
+function: numberofhits X:n {
+  if X < 0 {
+    result: 0
+  }
+  if X = 0 {
+    result: 1
+  }
+  if X > 0 {
+    if (X / RCL) < (ROF) {
+      result: 1 + (X / RCL)
+    }
+    result: ROF
+  }
+  result: 0
+}
+
+function: daa DAMAGEROLL:n {
+    if DAMAGEROLL < 0 {
+        result: 0
+    }
+    result: DAMAGEROLL
+}
+
+function: damagedealt{
+  if WOUNDINGMOD = 0 {
+    result: ([daa DAA] / 2)
+  }
+  result: ([daa DAA] * WOUNDINGMOD)
+}
+
+function: multiplier A:n B:n {
+  result: A*B
+}
+
+function: damage {
+  result: [multiplier [numberofhits TOHIT] [damagedealt]]
+}
+
+output TOHIT named "To Hit (Margin of Success/Failure)"
+output [numberofhits TOHIT] named "Number of Hits"
+output DAA named "Damage that Penetrates Armor"
+output [daa DAA] named "Real Damage Total (No Negatives)"
+output [damagedealt] named "Damage Dealt after Wounding"
+
+output [damage] named "Final Result"

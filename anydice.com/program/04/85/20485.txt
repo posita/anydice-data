@@ -1,0 +1,189 @@
+function: damage REPORT:n from SHOTS:n shots hitting on HITS:n up pm HACC:n rr RRH:n dakka on DAKKA:n up wounding on WOUNDS:n up pm WACC:n rr RRW:n with ap AP:n doing MORTALN:n mortal wounds instead INSTEAD:n on MORTAL:n up against SAVE:n up save INVULN:n up invuln NOPAIN:n up fnp dealing DAMAGE:d damage to MODELW:n w models {
+ HIT: 0
+ WOUND: 0
+ FAIL: 0
+ DAMAGED: 0
+
+ HACCURACY: (HITS-HACC)
+ if HITS = 0 {
+  HITTING: {1..20}
+  HMISS: -1
+  RRHIT:{-1}
+ }
+ else {
+  if HACCURACY < 2 {
+   HITTING: {2..20}
+   HMISS: 1
+  }
+  else {
+   HITTING: {HACCURACY..20}
+   HMISS: HACCURACY-1
+  }
+  RRHIT: {0}
+  if RRH = 1 {
+   RRHIT: {1}
+  }
+  if RRH = 2 {
+   if HACC < 0 {
+    RRHIT: {1..HITS-1}
+   }
+   else {
+    RRHIT: {1..HMISS}
+   }
+  }
+ }
+
+ WACCURACY: (WOUNDS-WACC)
+ if WACCURACY < 2 {
+  WOUNDING: {2..20}
+  WMISS: 1
+ }
+ else {
+  WOUNDING: {WACCURACY..20}
+  WMISS: WACCURACY-1
+ }
+ RRWOUND: {0}
+ if RRW = 1 {
+  RRWOUND: {1}
+ }
+ if RRW = 2 {
+  if WACC < 0 {
+   RRWOUND: {1..WOUNDS-1}
+  }
+  else {
+   RRWOUND: {1..WMISS}
+  }
+ }
+
+ INVULNBETTER: (INVULN <= SAVE-AP)
+ if INVULNBETTER = 1 {
+  SAVEFAIL: INVULN-1
+ }
+ else {
+  SAVEFAIL: SAVE-AP-1
+ }
+
+
+ FAILING: {1..SAVEFAIL}
+ PAINFAIL: NOPAIN-1
+ PAINSUCCESS: 6 - PAINFAIL
+ PAINFUL: {1..PAINFAIL}
+ PAINDICE: {{1}:PAINFAIL,{0}:PAINSUCCESS}
+ 
+ DEAD: 0
+ SPILLOVER: 0
+ DAKKAS: 0
+
+if INSTEAD = 0 {
+ loop P over {1..SHOTS} {
+  HROLL: 1d6
+  \creates a set of 0's and 1's where 1's are misses, then multiplies by the set of reroll hits\
+  HITNOW: ([HITTING contains HROLL] < 1)*((([HITTING contains HROLL])*([RRHIT contains d{1..HMISS}]))<1)
+  HIT: HITNOW < 1
+
+\creating dakka hits where a hit is 2 to represent the original hit and the dakka hit, and a miss is a 1 so as to still include the original hit\
+  if DAKKA < 7 {
+   HITPLUS: HIT*([{DAKKA..6} contains HROLL]*[{DAKKA..6} contains d{HACCURACY..6}]+1)
+  }
+  else {
+   HITPLUS: HIT
+  }
+
+  WROLL: 1d6
+  WOUNDNOW: ([WOUNDING contains WROLL] < 1)*((([WOUNDING contains WROLL])*([RRWOUND contains d{1..WMISS}]))<1)
+  WOUND: WOUNDNOW < 1
+  FAIL: ([FAILING contains 1d6])
+  
+  FELT: (HITPLUS*WOUND*FAIL*DAMAGE)dPAINDICE + SPILLOVER
+  CAPPEDREGDAM: [lowest of dFELT and MODELW]
+
+  MW: ([{(MORTAL-WACC)..20} contains WROLL])
+  
+  SPILLOVER: [highest of d(dCAPPEDREGDAM + dMW*MORTALN - MODELW) and 0]
+
+  \number dead updated to include: dead from only regular damage, dead from combine regular + mortal, dead from spillover\ 
+  DEAD: DEAD + ((dCAPPEDREGDAM+dSPILLOVER)/MODELW)
+
+  \tallying total damage for reporting that as well\
+  DAMAGEROLL: DAMAGE + 0
+  PAIN: ([count PAINFUL in DAMAGEROLLd6])
+  
+  DAMAGED: DAMAGED + HITPLUS*WOUND*FAIL*dPAINDICE*dDAMAGE + HIT*MW*MORTALN*dPAINDICE
+ }
+}
+
+else {
+ loop P over {1..SHOTS} {
+  HROLL: 1d6
+  \creates a set of 0's and 1's where 1's are misses, then multiplies by the set of reroll hits\
+  HITNOW: ([HITTING contains HROLL] < 1)*((([HITTING contains HROLL])*([RRHIT contains d{1..HMISS}]))<1)
+  HIT: HITNOW < 1
+
+\creating dakka hits where a hit is 2 to represent the original hit and the dakka hit, and a miss is a 1 so as to still include the original hit\
+  if DAKKA < 7 {
+   HITPLUS: HIT*([{DAKKA..6} contains HROLL]*[{DAKKA..6} contains d{HACCURACY..6}]+1)
+  }
+  else {
+   HITPLUS: HIT
+  }
+
+  WROLL: 1d6
+  WOUNDNOW: ([WOUNDING contains WROLL] < 1)*((([WOUNDING contains WROLL])*([RRWOUND contains d{1..WMISS}]))<1)
+  WOUND: WOUNDNOW < 1
+  FAIL: ([FAILING contains 1d6])
+  
+  FELT: (HITPLUS*WOUND*FAIL*DAMAGE)dPAINDICE + SPILLOVER
+  CAPPEDREGDAM: [lowest of dFELT and MODELW]
+
+  MWSUCCESS: 6-(MORTAL-1)
+  MWFAIL: (MORTAL -1)
+  NOMW: {{0}:MWSUCCESS,{1}:MWFAIL}*1
+  MW: {{1}:MWSUCCESS,{0}:MWFAIL}*1
+
+  TOTALD: d{CAPPEDREGDAM:NOMW,MORTALN:MW}
+
+  SPILLOVER: [highest of d(dTOTALD - MODELW) and 0]
+
+  \number dead updated to include: dead from only regular damage, dead from combine regular + mortal, dead from spillover\ 
+  DEAD: DEAD + (TOTALD/MODELW)
+
+  \tallying total damage for reporting that as well\
+  DAMAGEROLL: DAMAGE + 0
+  PAIN: ([count PAINFUL in DAMAGEROLLd6])
+  
+  
+  DAMAGED: DAMAGED + HITPLUS*WOUND*FAIL*dPAINDICE*dDAMAGE + HIT*MW*MORTALN*dPAINDICE
+ }
+}
+
+if REPORT = 0 {
+ result: DEAD
+}
+if REPORT = 1 {
+ result: DAMAGED
+}
+}
+
+\INSTRUCTIONS:\
+\write a line of output that contains one function for each weapon in the squad\
+\shots can be entered as either a set number or as XdZ\
+\for attacks that automatically hit, such as flamers, use 0 as the value for "hitting on," "pm" and "rr"\
+\include the negative sign on the AP of the attack\
+\put in an invuln of 7 or higher to indicate no invulnerable or no fnp\
+\put in 0 after rr to indicate no rerolls, 1 for reroll 1's, 2 for reroll misses\
+\put in 9+ for mw if there are no mw from the attack, need higher number because of possible bonuses to-wound\
+\note: this code does properly account for rerolls before bonuses\
+\pm is for bonuses(positive) or penalties(negative) that happen to the dice before the rerolls\
+\instead is binary, 1 or 0, for if the mortal wounds are instead(1) of the regular damage or in addition to(0). One option must be selected. If no MW can be done, use 0.\
+\number after damage is binary for reporting damage or reporting dead models\
+
+\added *dPAINDICE to the Mortal Wounds contribution to DAMAGED now that FNP can be made against MW all the time\
+
+\in addition to MWs is working, instead MWs is still broken\
+
+output ([damage 1 from 3d6 shots hitting on 5 up pm 0 rr 2 dakka on 5 up wounding on 4 up pm 1 rr 0 with ap -2 doing 0 mortal wounds instead 0 on 9 up against 2 up save 4 up invuln 5 up fnp dealing 1 damage to 18 w models]+
+ [damage 1 from 3 shots hitting on 5 up pm 0 rr 2 dakka on 5 up wounding on 3 up pm 1 rr 0 with ap -4 doing 0 mortal wounds instead 0 on 9 up against 2 up save 4 up invuln 5 up fnp dealing 5 damage to 18 w models]+
+ [damage 1 from 4d3 shots hitting on 5 up pm 0 rr 2 dakka on 5 up wounding on 2 up pm 0 rr 0 with ap -4 doing 0 mortal wounds instead 0 on 9 up against 2 up save 4 up invuln 5 up fnp dealing d3+2 damage to 18 w models]+
+ [damage 1 from d6 shots hitting on 5 up pm 0 rr 2 dakka on 5 up wounding on 4 up pm 1 rr 0 with ap -4 doing 0 mortal wounds instead 0 on 9 up against 2 up save 4 up invuln 5 up fnp dealing d{1,1,2,3,4,5} damage to 18 w models]+
+ [damage 1 from 9d6 shots hitting on 5 up pm 0 rr 2 dakka on 5 up wounding on 5 up pm 1 rr 0 with ap -2 doing 0 mortal wounds instead 0 on 9 up against 2 up save 4 up invuln 5 up fnp dealing 1 damage to 18 w models]+
+ [damage 1 from 15 shots hitting on 5 up pm 0 rr 2 dakka on 5 up wounding on 5 up pm 1 rr 0 with ap 0 doing 0 mortal wounds instead 0 on 9 up against 2 up save 4 up invuln 5 up fnp dealing 1 damage to 18 w models]) named " DAKKA DAKKA DAKKA  Visions in the Smoke Kustom Stompa vs. Morty"

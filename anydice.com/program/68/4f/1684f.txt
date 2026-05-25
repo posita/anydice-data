@@ -1,0 +1,46 @@
+RUSHATTACKS: 4
+STDATTACKS: 3 
+AC: 18
+WEAPON: 2d8
+EXTRA: 2d6
+DEX: 4
+DUELING: 2
+CHARGECRITDMG: 12d6
+
+function: A:d elvenaccuracy{
+ result: [highest 1 of A]
+}
+function: W:d E:d attackdamage{
+ result: W+DEX+DUELING+E
+}
+function: W:d E:d attackcrit{
+ DAMAGE: DAMAGE+W+W+DEX+DUELING+E+E
+ result: DAMAGE
+}
+function: X:n E:d attack{
+ DAMAGE: 0
+ if X = 20{
+   DAMAGE: [WEAPON E attackcrit] 
+  }
+  else {
+   if X+8 > AC{
+    DAMAGE: [WEAPON E attackdamage]
+   }
+   else{
+    DAMAGE: 0
+   }
+  }
+  result: DAMAGE
+}
+function: A:n E:d multiattack{
+ TOTAL: 0
+ loop N over {1..A}{
+  DAMAGE: [[3d20 elvenaccuracy] E attack]
+  TOTAL: TOTAL + DAMAGE
+ }
+ result: TOTAL + CHARGECRITDMG
+}
+
+
+output [RUSHATTACKS EXTRA multiattack] named "Rush Attack"
+output [STDATTACKS 0 multiattack] named "Standard Attack"

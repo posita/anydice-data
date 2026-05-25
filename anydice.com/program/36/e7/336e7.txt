@@ -1,0 +1,67 @@
+\**** Drake Warden Peace Cleric Damage calculator ****\
+
+BOND:1
+
+function: bless N:n {
+ result: Nd4
+}
+
+function: attack MULTIATTACK:n times{
+ TOTAL: 0
+ loop N over {1..MULTIATTACK}{
+  DAMAGE: [attackroll d20 vs ENEMYAC with [bless BLESSDICE] and [bond 0]]
+  TOTAL: TOTAL + DAMAGE
+ }
+ result: [infuseddamage TOTAL]
+}
+
+function: infuseddamage DAMAGE:n{
+ INFUSEDDAMAGE: 1d6
+ if DAMAGE > 0 { result: DAMAGE + INFUSEDDAMAGE}
+ result: DAMAGE
+}
+
+function: attackroll ROLL:n vs AC:n with BLESS:n and BOND:n{
+ if ROLL >= CRITROLL { result: DAMAGE + CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS + BLESS >= AC { result: DAMAGE }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS + BLESS + BOND >= AC { result: [bonddamage]}
+ result: 0
+}
+
+function: dragonattackroll ROLL:n vs AC:n with BLESS:n{
+ if ROLL >= CRITROLL { result: DRAGONDAMAGE  + DRAGONCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DRAGONATTACKMOD + BLESS >= AC { result: DRAGONDAMAGE }
+ result: 0
+}
+
+function: bonddamage {
+ result: BOND
+} 
+ 
+
+function: bond N:n{
+ result: Nd4 
+}
+
+\looped against enemy AC from 13-16\
+ENEMYAC: d{13..16}
+
+CRITROLL: 20
+
+
+\-----\
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+BLESSDICE: 1
+BONDDICE: 1
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 1d8
+ATTACKAMOUNT: 2
+DRAGONATTACKMOD: 3
+DRAGONDAMAGE: 1d6 + PROFICIENCY
+DRAGONCRITDAMAGE: 1d6
+output [attack ATTACKAMOUNT times] + [dragonattackroll d20 vs ENEMYAC with [bless BLESSDICE + BONDDICE]]named "Ranger 5 / Cleric 1 with Bless and Emboldening Bond"

@@ -1,0 +1,43 @@
+\Rogue 1.4.8 random monster generator\
+\There are two used, level monsters and roaming monsters\
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+function: lowest of A:n and B:n {
+ if A < B { result: A }
+ result: B
+}
+function: remove VALUES:s from ROLL:s {
+  if [count VALUES in ROLL] {
+    result: d{}
+  }
+  result: ROLL
+}
+function: constrain monster roll ROLL:s using REROLL:s {
+  OUT: ROLL
+  if ROLL < 1 {
+    OUT: REROLL
+  } else if ROLL > 26 {
+    OUT: REROLL + 21
+  }
+  result: OUT
+}
+function: get roll for native monsters on floor FLOOR:n {
+  ROLL: FLOOR + d{0..4} + d{0..5} - 5
+  REROLL: d{0..4} + 1
+  CONSTRAINED: [constrain monster roll ROLL using REROLL]
+  OUT: [remove {2,9,13,20} from CONSTRAINED]
+\native: "K BHISOR LCA NYTWFP GMXVJD"\
+\native: "00000000011111111112222222"\
+\native: "12345678901234567890123456"\
+
+\roaming only changes above to 10,14,18,23,26 and\
+\roaming: "KEBHISORZ CAQ YTW PUGM VJ "\
+  result: OUT
+}
+loop I over {1..26}{
+  output [get roll for native monsters on floor I] named "Floor [I]"
+}
+
+

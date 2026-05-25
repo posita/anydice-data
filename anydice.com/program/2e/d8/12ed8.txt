@@ -1,0 +1,108 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BARDATTACK: 5 + 6 + 2 + 6
+GRIFFONATTACK: 6
+HITDAMAGE: 1d6 + 5 + 6
+CRITICALDAMAGE: 2d6 + 5 + 6
+MISSDAMAGE: 0
+GRIFFONDAMAGEBEAK: 1d8 + 4
+GRIFFONCRITICALDAMAGEBEAK: 2d8 + 4
+GRIFFONDAMAGECLAWS: 2d6 + 4 
+GRIFFONCRITICALDAMAGECLAWS: 4d6 + 4
+AC: 25
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: griffon damage for ATTACKRESULTBEAK:n and ATTACKRESULTCLAWS:n {
+  TOTAL: 0
+  if ATTACKRESULTBEAK = CRITICALHIT {
+    TOTAL: TOTAL + GRIFFONCRITICALDAMAGEBEAK
+  }
+  if ATTACKRESULTBEAK = HIT {
+    TOTAL: TOTAL + GRIFFONDAMAGEBEAK
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  if ATTACKRESULTCLAWS = CRITICALHIT {
+    TOTAL: TOTAL + GRIFFONCRITICALDAMAGECLAWS
+  }
+  if ATTACKRESULTCLAWS = HIT {
+    TOTAL: TOTAL + GRIFFONDAMAGECLAWS
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  result: TOTAL
+}
+
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [d20 vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 2d20] vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] + [griffon damage for [d1 vs AC 0] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/o SS w/ griff w/ haste vs AC[AC]"
+
+BARDATTACK: 5 + 6 + 2 + 6 - 5
+HITDAMAGE: 1d6 + 5 + 6 + 10
+CRITICALDAMAGE: 2d6 + 5 + 6 + 10
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] + [griffon damage for [d1 vs AC 0] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/ SS w/ griff w/haste vs AC[AC]"
+
+BARDATTACK: 5 + 6 + 2 + 6
+HITDAMAGE: 1d10 + 5 + 6
+CRITICALDAMAGE: 2d10 + 5 + 6
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/o SS w/ griff w/SQ vs AC[AC]"
+
+BARDATTACK: 5 + 6 + 2 + 6 - 5
+HITDAMAGE: 1d10 + 5 + 6 + 10
+CRITICALDAMAGE: 2d10 + 5 + 6 + 10
+output [multiattack 4] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/ SS w/ griff w/SQ vs AC[AC]"
+
+BARDATTACK: 5 + 6 + 2 + 6
+HITDAMAGE: 1d6 + 2d8 + 5 + 6
+CRITICALDAMAGE: 2d6 + 4d8 + 5 + 6
+output [multiattack 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/o SS w/ griff w/HW vs AC[AC]"
+
+BARDATTACK: 5 + 5 + 2 - 5
+HITDAMAGE: 1d6 + 2d8 + 5 + 6 + 10
+CRITICALDAMAGE: 2d6 + 4d8 + 5 + 6 + 10
+output [multiattack 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/ SS w/ griff w/HW vs AC[AC]"
+
+BARDATTACK: 5 + 6 + 2 + 6
+HITDAMAGE: 1d6 + 2d12 + 5 + 6
+CRITICALDAMAGE: 2d6 + 4d12 + 5 + 6
+output [multiattackadvantage 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/o SS w/ griff w/TT vs AC[AC]"
+
+BARDATTACK: 5 + 6 + 2 + 6 - 5
+HITDAMAGE: 1d6 + 2d12 + 5 + 6 + 10
+CRITICALDAMAGE: 2d6 + 4d12 + 5 + 6 + 10
+output [multiattackadvantage 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/ SS w/ griff w/TT vs AC[AC]"
+
+BARDATTACK: 5 + 6 + 2 + 6 - 5
+HITDAMAGE: 1d6 + 2d12 + 5 + 6 + 10
+CRITICALDAMAGE: 2d6 + 4d12 + 5 + 6 + 10
+output [multiattackadvantage 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] + [multiattackadvantage 3] + [griffon damage for [d20 vs AC GRIFFONATTACK] and [d20 vs AC GRIFFONATTACK]] named "Level 20 hand xbow w/ SS w/ griff w/TT w/sim vs AC[AC]"

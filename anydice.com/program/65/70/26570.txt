@@ -1,0 +1,24 @@
+
+function: prescot DICE:s{
+  result: [count {4,5,6} in DICE ] 
+}
+function: prescop A:s vs B:s{
+  W: [count {2} in A ]
+  X: [count {2} in B ]
+  if W = X {result: 0}
+  if W > X {result: 1}
+  result: -1
+}
+function: blades ROLL:s {
+ if 1@ROLL = 6 {
+  result: 2 + (2@ROLL = 6)
+ }
+ result: 1@ROLL >= 4
+}
+
+loop P over {1..7}{
+  N: P-1
+  output [prescop Pd2 vs Nd2] named "prescop [P]"
+  if P = 0 {output [prescot [lowest 1 of 2d6]] named "prescot 0"}else{output [prescot Pd6] named "prescot [P]"}
+  \if R = 0 {output [blades [lowest 1 of 2d6]] named "blades 0"}else{output [blades Rd6] named "blades [R]"}\
+}

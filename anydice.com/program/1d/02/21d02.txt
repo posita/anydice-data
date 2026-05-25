@@ -1,0 +1,62 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 19 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: attackadv {
+ result: [damage for [attack 1@2d20 vs DEFENSE]]
+}
+
+DEFENSE: d{10..25}
+
+PB: 6
+CHA: 5
+DEX: 3
+PW: 3
+LD: 5
+
+ATTACK: PB + CHA + PW
+HITDAMAGE: d8 + ATTACK + LD
+CRITICALDAMAGE: 2d8+ATTACK+LD
+MISSDAMAGE: 0
+output [attackadv] named "Pact Weapon"
+
+ATTACK: PB+DEX
+HITDAMAGE: 4d8+ATTACK
+CRITICALDAMAGE: 8d8+ATTACK
+output [attackadv] named "Shadowblade"
+
+ATTACK: PB + PW + CHA
+HITDAMAGE: 1d8 + ATTACK + LD + 6d8
+CRITICALDAMAGE: 2d8 + ATTACK + LD + 12d8
+output [attackadv] named "Pact Smite"
+
+ATTACK: PB + PW + CHA
+HITDAMAGE: 1d8 + ATTACK + 7d8 + LD + PB
+CRITICALDAMAGE: 2d8 + ATTACK + 10d8 + LD + PB
+output [attackadv] named "Pact Boom"
+
+ATTACK: PB + PW + CHA
+HITDAMAGE: 1d8 + ATTACK + 7d8 + LD +6d8 + PB
+CRITICALDAMAGE: 2d8 + ATTACK + 10d8 + LD +12d8 + PB 
+output [attackadv] named "Pact Boom Smite"

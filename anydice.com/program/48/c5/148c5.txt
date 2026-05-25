@@ -1,0 +1,37 @@
+AC: {10..20}
+ADVANTAGE: 0
+
+function: attack DMG:d crit CRIT_DMG:d penalty PENALTY:n rider RIDER:n stat STAT:n prof PROFICIENCY:n roll ROLL:n{
+    MODIFIER: (STAT-10)/2
+    DMG_WITH_BONUS: DMG + MODIFIER + RIDER
+	
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        result: DMG_WITH_BONUS + CRIT_DMG
+    }
+    if ROLL + MODIFIER + PROFICIENCY - PENALTY >= AC {
+        result: DMG_WITH_BONUS
+    }
+    result: 0
+}
+
+function: beastmode DMG:d plus DMG_BONUS:n with to hit TOHIT:n {
+    if(ADVANTAGE) { 
+        ROLL: [highest 1 of 2d20]
+    }
+    if(!ADVANTAGE) { 
+        ROLL: 1d20
+    }
+ 
+    ADVATAGE:1
+    result: [attack DMG crit DMG penalty 0 rider 0 stat 10+2*DMG_BONUS prof TOHIT-DMG_BONUS roll 1d20]
+}
+
+output
+[beastmode 1d6 plus 1 with to hit 2]
+named "Mastiffs"
+output
+[beastmode 1d6 plus 1 with to hit 2]
+named "Mastiffs w/advantage"

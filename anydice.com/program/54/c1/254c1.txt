@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 18 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ATTACK: 5 + 4 + 2
+HITDAMAGE: [reroll {1,2} on [highest of [explode d12]and[explode d12]]] + 7 
+CRITICALDAMAGE: [reroll {1,2} on [highest of [explode d12]and[explode d12]]] + [reroll {1,2} on [highest of [explode d12]and[explode d12]]] + 31
+MISSDAMAGE: 0
+loop AC over {8..30} {
+ output [damage for [attack1 d20 vs AC]] named "[AC]"
+}

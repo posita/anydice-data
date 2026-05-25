@@ -1,0 +1,27 @@
+CHA_MOD: 4
+PROF_MOD: 3
+
+function: ROLL:n with ATTACKBONUS:n for NUM:n x DAMAGE damage vs DEFENSE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL = 20 {
+  result: (NUM*2) d DAMAGE
+ }
+ result: (ROLL + ATTACKBONUS >= DEFENSE) * (NUM d DAMAGE)
+}
+
+function: SAVE vs ROLL:n with DEX:n for NUM:n x DAMAGE damage {
+  if ROLL = 1 { result: (NUM d DAMAGE) }
+  if ROLL = 20 | ROLL + DEX >=  SAVE { result: ((NUM d DAMAGE) / 2) }
+  result: (NUM d DAMAGE)
+}
+
+function: cast level LEVEL:n scorching ray at one target with ac ARMOR_CLASS:n {
+  result: 4d[d20 with (CHA_MOD + PROF_MOD) for 2 x d6 damage vs ARMOR_CLASS]
+}
+
+
+loop SAVEDC over {15..19} {
+  loop DEXSAVE over {4..16} {
+    output [SAVEDC vs d20 with DEXSAVE for 8 x d6 damage] named "Fireball Save DC [SAVEDC] vs [DEXSAVE]" 
+  }
+}

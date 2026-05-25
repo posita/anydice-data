@@ -1,0 +1,17 @@
+function: X or zero {
+  if X < 0 { result: 0 }
+  result: X
+}
+
+function: skill SKILL:s fate FATE:s vs TARGET:n ignore IGNORED_BOTCHES:n {
+  SUCCESSES: (FATE = 6) + (SKILL >= TARGET)
+  BOTCHES: [count 2 in FATE] + [count 1 in FATE] + [count 1 in SKILL]
+  R: [(BOTCHES - IGNORED_BOTCHES) or zero]
+  result: (SUCCESSES - R)
+}
+
+loop TARGET over {4, 6, 8} {
+  loop ATTR over {1..5} {
+    output [skill (ATTR d10) fate ((5 - ATTR) d6) vs TARGET ignore 1] > 0 named "[ATTR] vs [TARGET]"
+  }
+}

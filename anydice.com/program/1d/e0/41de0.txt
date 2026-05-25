@@ -1,0 +1,148 @@
+\LOCATIONS\
+MISS: 0
+LA: 1
+LL: 2
+LT: 3
+CT: 4
+RT: 5
+RL: 6
+RA: 7
+HD: 8
+
+\ARCS\
+LEFT: -1
+CENTER: 0
+RIGHT: 1
+
+function: ROLL:n hit center {
+  if ROLL <= 6 { \2-6\
+    if ROLL <= 4 { \2-4\
+      if ROLL <= 3 { \2,3\
+        if ROLL = 2 {
+          result: CT
+        } else {
+          result: RA
+        }
+      } else { \4\
+        result: RA
+      }
+    } else { \5,6\
+      if ROLL = 5 {
+        result: RL
+      } else {
+        result: RT
+      }
+    }
+  } else { \7-12\
+    if ROLL <= 9 { \7-9\
+      if ROLL <= 8 { \7,8\
+        if ROLL = 7 {
+          result: CT
+        } else {
+          result: LT
+        }
+      } else { \9\
+        result: LL
+      }
+    } else { \10-12\
+      if ROLL <= 11 { \10,11\
+        if ROLL = 10 {
+          result: LA
+        } else {
+          result: LA
+        }
+      } else { \12\
+        result: HD
+      }
+    }
+  }
+}
+
+function: ROLL:n hit left {
+  if ROLL <= 6 { \2-6\
+    if ROLL <= 4 { \2-4\
+      if ROLL <= 3 { \2,3\
+        if ROLL = 2 {
+          result: LT
+        } else {
+          result: LL
+        }
+      } else { \4\
+        result: LA
+      }
+    } else { \5,6\
+      if ROLL = 5 {
+        result: LA
+      } else {
+        result: LL
+      }
+    }
+  } else { \7-12\
+    if ROLL <= 9 { \7-9\
+      if ROLL <= 8 { \7,8\
+        if ROLL = 7 {
+          result: LT
+        } else {
+          result: CT
+        }
+      } else { \9\
+        result: RT
+      }
+    } else { \10-12\
+      if ROLL <= 11 { \10,11\
+        if ROLL = 10 {
+          result: RA
+        } else {
+          result: RL
+        }
+      } else { \12\
+        result: HD
+      }
+    }
+  }
+}
+
+function: LOCATION:n partial cover {
+  if (LOCATION = RL | LOCATION = LL) {
+    result: MISS
+  } else {
+    result: LOCATION
+  }
+}
+
+function: fire ROLL:n against GATOR:n in ARC:n {
+  if ROLL >= GATOR {
+    if ARC = CENTER {
+      result: [2d6 hit center]
+    } else {
+      if ARC = LEFT {
+        result: [2d6 hit left]
+      } else { \RIGHT\
+        result: -1 \Not implemented\
+      }
+    }
+  } else {
+    result: MISS
+  }
+}
+
+function: LOCATION:n hit or miss {
+  if LOCATION != MISS {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+\output [2d6 hit center] named "Center"\
+\output [2d6 hit left] named "Left"\
+\output [[2d6 hit center] partial cover] named "Center partial cover"\
+\output [[2d6 hit left] partial cover] named "Left partial cover"\
+
+loop BASE_GATOR over {4..12} {
+COVER_GATOR: BASE_GATOR + 1
+\output [fire 2d6 against BASE_GATOR in CENTER] named "GATOR [BASE_GATOR] center arc"\
+output [[[fire 2d6 against COVER_GATOR in CENTER] partial cover] hit or miss] named "GATOR [COVER_GATOR] center arc partial cover"
+\output [fire 2d6 against BASE_GATOR+1 in LEFT] named "GATOR [BASE_GATOR] left arc"\
+output [[[fire 2d6 against COVER_GATOR in LEFT] partial cover] hit or miss] named "GATOR [COVER_GATOR] left arc partial cover"
+}

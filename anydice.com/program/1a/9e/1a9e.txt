@@ -1,0 +1,64 @@
+PARRY: 4
+TOUGHNESS: 8
+NN: 6
+
+ATTACK: [highest of [explode d6] and [explode d10]]
+DAMAGE: [explode d6] + [explode d6] + [explode d6]
+
+
+ATTACKS: [highest of [explode d6] and [explode d10]]
+DAMAGES: [explode d4]
+
+
+
+function: param A:n of B:n {
+if A < B { result: 0 } 
+if A < B+4 { result: 1 }
+result: 2
+}
+
+function: params D:n of B:n of C:n of Y:n of Z:n{
+A: 0
+if C = 1 { A: D }
+if C = 2 { A: D + Y }
+
+
+if A < B { result: Z } 
+if A < B+4  { if Z > 8 { result: 10} 
+result: Z+1 }
+if A < B+8  { if Z > 8 { result: 10} 
+result: Z+1 }
+if A < B+12 { if Z > 7 { result: 10} 
+result: Z+2 }
+if A < B+16 { if Z > 6 { result: 10} 
+result: Z+3 }
+if A < B+20 { if Z > 5 { result: 10} 
+result: Z+4 }
+if A < B+24 { if Z > 4 { result: 10} 
+result: Z+5 }
+if A < B+28 { if Z > 3 { result: 10} 
+result: Z+6 }
+if A < B+32 { if Z > 2 { result: 10} 
+result: Z+7 }
+if A < B+36 { if Z > 1 { result: 10} 
+result: Z+8 }
+if A < B+36 { if Z > 0 { result: 10} 
+result: Z+9 }
+result: 10
+}
+RAISES: [explode d6]
+
+X: [param ATTACK of PARRY]
+Y: [params DAMAGE of TOUGHNESS of X of RAISES of -1]
+
+output X named "1 Вероятность попасть"
+output Y named "1 Наносимые раны"
+
+ZZ: -1
+X: [param ATTACKS of PARRY]
+loop N over {1..NN}{
+ZZ: [params DAMAGES of TOUGHNESS of X of RAISES of ZZ]
+}
+
+output X named "2 Вероятность попасть"
+output ZZ named "2 Наносимые раны"

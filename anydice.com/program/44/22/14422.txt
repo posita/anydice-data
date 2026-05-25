@@ -1,0 +1,75 @@
+A: -10 \Power\
+B: 0 \Tactics\
+C: -10 \Logistics\
+D: 10 \Number of units\
+
+
+
+function: final count cost A:n B:n C:n{
+COST:0
+if A=0{A:1 
+COST:COST+1}
+if B=0{B:1
+COST:COST+1}
+X:A+B
+if X=0{
+if C=0 {C:1
+COST:COST+1}
+result:COST} 
+else{ result:  COST}}
+
+function: final count A:n B:n C:n{
+if A=0{A:1}
+if B=0{B:1}
+X:A+B
+if X=0{
+if C=0 {C:1}
+result:C} 
+else{ result: X}}
+
+
+function: final count casualties A:n B:n C:n N:n{
+U: N
+U: [round casualties A U]
+U: [round casualties B U]
+AA: [simp A]
+BA: [simp B]
+if AA=0{AA:1}
+if BA=0{BA:1}
+X:AA+BA
+if X=0{result: [round casualties C U]} 
+else{ result: U}}
+
+function: minus A:n {
+if A<1{A:A-1}
+result: A} 
+
+function: simp A:n {
+if A>0{A:1}
+if A<0{A:-1}
+result: A} 
+
+function: round casualties A:n U:n {
+if A>3{result: U}
+if A=3{result: U-(U*5)/100}
+if A=2{result: U-(U*10)/100}
+if A=1{result: U-(U*15)/100}
+if A=0{result: U-(U*25)/100}
+if A=-1{result: U-(U*25)/100}
+if A=-2{result: U-(U*30)/100}
+if A=-3{result: U-(U*50)/100}
+if A<-3{result: U-(U*75)/100}
+} 
+
+
+\output ([minus ((1d100+A+49)/50-1)] +[minus ((1d100+B+49)/50-1)] +[minus ((1d100+C+49)/50-1)]) \
+
+ROLL: 1d[simp ([minus ((1d100+A+49)/50-1)] +[minus ((1d100+B+49)/50-1)] +[minus ((1d100+C+49)/50-1)])] 
+NATROLL: ([minus ((1d100+A+49)/50-1)] +[minus ((1d100+B+49)/50-1)] +[minus ((1d100+C+49)/50-1)])
+
+output [final count ROLL ROLL ROLL]   named "win combat? (1 is narrow, 2 is decisive)" 
+output [final count cost ROLL ROLL ROLL] named "how high a price" 
+output D - [final count casualties NATROLL NATROLL NATROLL D] named "Number of casualties"
+\ output [round casualties NATROLL D] \
+
+\ output ((1d100+D+50)/50-1)+((1d100+E+50)/50-1) -2 \

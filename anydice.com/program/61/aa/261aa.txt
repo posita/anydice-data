@@ -1,0 +1,84 @@
+\
+\\ 6 Piece Polyhedral Dice Pool 
+\
+
+
+\ Variables \
+DICE: {4,6,8,10,10,12}
+FOUR: d{0,0,0,2}
+SIX: d{0,0,0,1,1,2}
+EIGHT: d{0,0,0,1,1,1,1,2}
+TEN: d{0,0,0,1,1,1,1,1,1,2}
+TWELVE: d{0,0,0,1,1,1,1,1,1,1,1,2}
+LFOUR: d{0,0,0,1}
+LSIX: d{0,0,0,1,1,1}
+LEIGHT: d{0,0,0,1,1,1,1,1}
+LTEN: d{0,0,0,1,1,1,1,1,1,1}
+LTWELVE: d{0,0,0,1,1,1,1,1,1,1,1,1}
+REROLL: 0
+
+\ Function for rolling all the dice \
+function: check NUM:n reroll RE:n {
+
+  TOTAL: 0
+  loop N over {1..NUM} {
+      RESULT: [reroll {0..RE} on d(N@DICE) to d(N@DICE)]
+      if (N=6) { TOTAL: TOTAL+1}
+      TOTAL: TOTAL + ( RESULT > 3)
+  }
+
+  result: TOTAL
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+set "maximum function depth" to 6
+function: final four ROLL:n {
+    if ROLL = 2{result: 1+[final six SIX]}
+    result: ROLL
+}
+function: final six ROLL:n {
+    if ROLL = 2{result: 1+[final eight EIGHT]}
+    result: ROLL
+}
+function: final eight ROLL:n {
+    if ROLL = 2{result: 1+[final ten TEN]}
+    result: ROLL
+}
+function: final ten ROLL:n {
+    if ROLL = 2{result: 1+[final tentwo TEN]}
+    result: ROLL
+}
+
+function: final tentwo ROLL:n {
+    if ROLL = 2{result: 1+LTWELVE}
+    result: ROLL
+}
+
+
+output [final four FOUR] named "4"
+output [final six SIX] + LFOUR named "6"
+output [final eight EIGHT] + LSIX + LFOUR named "8"
+output [final ten TEN] + LEIGHT + LSIX + LFOUR named "10"
+output [final tentwo TEN] + LTEN + LEIGHT + LSIX + LFOUR named "10-2"
+output LTWELVE + LTEN + LTEN + LEIGHT + LSIX + LFOUR named "12"
+
+
+
+\ Loops to test a variety of combinations 
+loop N over {1..#DICE} {
+  loop M over {0..REROLL}{
+    if M = 0 {
+      output [check N reroll M] named "[N] No Rerolls"
+    }
+    else{
+     output [check N reroll M] named "[N] Reroll [M]s and lower"
+    }
+  }
+}
+\

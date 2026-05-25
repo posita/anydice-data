@@ -1,0 +1,117 @@
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: precise SUP:n attack ROLL:n vs AC:n for DMG:d {
+    if ROLL + SUP >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:s use USE:d pass PASS:d {
+    if ROLL = 1 {
+        result: PASS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG + 2dSUP + USE
+    }
+    if [PRECISE_RANGE contains (ROLL + BONUS)] {
+        result: [precise SUP attack ROLL + BONUS vs AC for DMG] + USE
+    }
+    if ROLL + BONUS >= AC {
+        if SUP_DICE >= ATTACKS {
+            result: DMG + SUP + USE
+        }
+        result: DMG + PASS
+    }
+
+    result: PASS
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d {
+    if ATTACKS = 0 {
+        result: 0
+    }
+    if SUP_DICE = 0 {
+        result: ATTACKSd[attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+    }
+    USE:  [battlemaster SUP_DICE - 1 superiority SUP precise PRECISE_RANGE attacks ATTACKS-1 roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+    PASS: [battlemaster SUP_DICE     superiority SUP precise PRECISE_RANGE attacks ATTACKS-1 roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+    result : [battlemaster SUP_DICE superiority SUP precise PRECISE_RANGE attacks ATTACKS roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use USE pass PASS]
+}
+
+output
+4d[attack [highest 1 of 2d20] plus 3 + 3 + 2 - 5 vs 15 for 1d8 + 3 + 10 crit 1d8 on 20] named "[5] Samurai advantage sharpshooter"
+
+output
+[battlemaster 4 superiority d8 precise {15-8 .. 15-1} attacks 4 roll d20 plus 3 + 3 + 2 - 5 vs 15 for 1d8 + 3 + 10 crit 1d8 on 20] named "[5] Battlemaster sharpshooter"
+
+output
+[battlemaster 4 superiority d8 precise {15-8 .. 15-1} attacks 4 roll d20 plus 3 + 4 + 2 - 5 vs 15 for 1d8 + 4 + 10 crit 1d8 on 20] named "[5] Battlemaster sharpshooter (vhuman)"
+
+output
+4d[attack [highest 1 of 3d20] plus 3 + 4 + 2 - 5 vs 15 for 1d8 + 4 + 10 crit 1d8 on 20] named "[6] Samurai advantage elven accuracy sharpshooter"
+
+output
+[battlemaster 4 superiority d8 precise {15-8 .. 15-1} attacks 4 roll d20 plus 3 + 4 + 2 - 5 vs 15 for 1d8 + 4 + 10 crit 1d8 on 20] named "[6] Battlemaster sharpshooter"
+
+output
+[battlemaster 4 superiority d8 precise {15-8 .. 15-1} attacks 4 roll d20 plus 3 + 5 + 2 - 5 vs 15 for 1d8 + 5 + 10 crit 1d8 on 20] named "[6] Battlemaster sharpshooter (vhuman)"
+
+
+output
+[battlemaster 5 superiority d8 precise {15-8 .. 15-1} attacks 4 roll d20 plus 3 + 4 + 2 - 5 vs 15 for 1d8 + 4 + 10 crit 1d8 on 20] named "[7] Battlemaster sharpshooter"
+
+output
+[battlemaster 5 superiority d8 precise {15-8 .. 15-1} attacks 4 roll d20 plus 3 + 5 + 2 - 5 vs 15 for 1d8 + 5 + 10 crit 1d8 on 20] named "[7] Battlemaster sharpshooter (vhuman)"
+
+output
+4d[attack [highest 1 of 3d20] plus 3 + 5 + 2 - 5 vs 16 for 1d8 + 5 + 10 crit 1d8 on 20] named "[8] Samurai advantage elven accuracy sharpshooter"
+
+output
+[battlemaster 5 superiority d8 precise {16-8 .. 16-1} attacks 4 roll d20 plus 3 + 5 + 2 - 5 vs 16 for 1d8 + 5 + 10 crit 1d8 on 20] named "[8] Battlemaster sharpshooter"
+
+
+output
+[attack d20 plus 4 + 5 + 2 - 5 vs 17 for 1d8 + 5 + 10 crit 1d8 on 20] +
+4d[attack [highest 1 of 3d20] plus 4 + 5 + 2 - 5 vs 17 for 1d8 + 5 + 10 crit 1d8 on 20] named "[10] Samurai advantage elven accuracy sharpshooter"
+
+output
+[battlemaster 5 superiority d10 precise {17-10 .. 17-1} attacks 4 roll d20 plus 4 + 5 + 2 - 5 vs 17 for 1d8 + 5 + 10 crit 1d8 on 20] named "[10] Battlemaster sharpshooter"
+
+
+output
+[attack d20 plus 4 + 5 + 2 - 5 vs 17 for 1d8 + 5 + 10 crit 1d8 on 20] +
+6d[attack [highest 1 of 3d20] plus 4 + 5 + 2 - 5 vs 17 for 1d8 + 5 + 10 crit 1d8 on 20] named "[11] Samurai advantage elven accuracy sharpshooter"
+
+
+output
+[battlemaster 5 superiority d10 precise {17-10 .. 17-1} attacks 6 roll d20 plus 4 + 5 + 2 - 5 vs 17 for 1d8 + 5 + 10 crit 1d8 on 20] named "[11] Battlemaster sharpshooter"
+
+

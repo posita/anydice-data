@@ -1,0 +1,56 @@
+function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+
+function: DIE:d reroll FILTER:s {
+  result: [DIE replace FILTER with DIE]
+}
+
+function: kind DIE:d {
+  result: [DIE reroll 1@{DIE}]
+}
+
+function: heavenly DIE:d {
+  MAX: [maximum of DIE]
+  HALF: MAX / 2
+  result: [DIE reroll {1@{DIE}..HALF}]
+}
+
+function: cruel DIE:d {
+  result: [DIE reroll [maximum of DIE]]
+}
+
+function: deadly DIE:d {
+  MAX: [maximum of DIE]
+  HALF: MAX / 2
+  result: [DIE reroll {(HALF + 1)..MAX}]
+}
+
+function: DIE:d keep K:n {
+  result: [highest K of DIE]
+}
+
+function: DIE:d lose L:n {
+  result: [lowest (#(DIE)-L) of DIE]
+}
+
+function: DIE:d keep lowest N:n {
+  result: [lowest N of DIE]
+}
+
+function: DIE:d keep highest N:n {
+  result: [highest N of DIE]
+}
+
+WR: [5d[deadly d4] keep lowest 3]+4
+W: 3d[cruel d4]+4
+A: 3d4+4
+S: 3d[kind d4]+4
+SR: [5d[heavenly d4] keep highest 3]+4
+
+output WR named "Weaker"
+output W named "Weak"
+output A named "Average"
+output S named "Strong"
+output SR named "Stronger"

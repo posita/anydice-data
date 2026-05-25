@@ -1,0 +1,28 @@
+set "explode depth" to 3
+
+function: roll POOL:n {
+  result: [count {5,6} in POOLd6]
+}
+
+function: roll POOL:n get THRES:n{
+  result: [count {5,6} in POOLd6] >= THRES
+}
+
+
+
+function: attack roll BASE:n with XSTEP:n and YSTEP:n spend KARMAA:n and KARMAB:n and KARMAC:n{
+  X: [success ([roll XSTEP] + KARMABd[explode d6]) against MD]
+  Y: [success ([roll YSTEP] + KARMACd[explode d6]) against MD]
+  ATTACK_STEP: BASE + 2 * (X + Y)
+  result: [roll ATTACK_STEP] + KARMAAd[explode d6]
+}
+
+function: damage roll BASE:n and ZSTEP:n spend KARMAD:n and KARMAZ:n{
+  Z: [success ([roll ZSTEP]  + KARMAZd[explode d6]) against MD]
+  ATT: [highest of 0 and [success [attack roll ATTBASE with MYSTAIM and ANTBLO spend ATTKARMA and MAKARMA and ABKARMA] against PD]-1]
+  DAMAGE_STEP: BASE + 2 * (Z + ATT) + KARMADd[explode d6]
+  result: [roll DAMAGE_STEP]
+}
+
+output [roll 6]
+output [roll 6 get 2]

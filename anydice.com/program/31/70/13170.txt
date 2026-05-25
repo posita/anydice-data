@@ -1,0 +1,44 @@
+TARGET_DC: {10}
+
+CON: 2
+
+CON_ROLL: {CON}
+ADV_ROLL: [highest 1 of 2d20]
+
+
+MISS: 0
+HIT: 1
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{TARGET_DC}
+
+
+ATTACK: CON_ROLL
+HITDAMAGE: 0
+MISSDAMAGE: 1
+output [attack] named "Normal Rolls"
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2dADV_ROLL] vs DEFENSE]]
+}
+
+ATTACK: CON_ROLL
+HITDAMAGE: 0
+MISSDAMAGE: 1
+output [attack] named "Adv Rolls"

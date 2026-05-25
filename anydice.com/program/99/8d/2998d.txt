@@ -1,0 +1,25 @@
+function: stress DIE:d MOD:n BOTCH:n{
+ MAX: [maximum of DIE]
+ result: [stress DIE helper]
+}
+
+function: botch N:n helper {
+ if N = 0 { result: MOD }
+ result: -N * 10 + 10
+}
+
+function: stress N:n helper {
+ if N = 10 {
+  result: [botch [count MAX in (BOTCH)d(MAX)] helper]
+}
+ if N = 1 { result: 2 * [stressrecursion DIE helper] + MOD }
+ result: N + MOD
+}
+
+function: stressrecursion N:n helper {
+ if N = 1 { result: 2 * [stressrecursion DIE helper] }
+ result: N
+}
+
+set "maximum function depth" to 10
+output [stress d10 5 2]

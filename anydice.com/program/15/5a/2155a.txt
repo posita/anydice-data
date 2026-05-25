@@ -1,0 +1,80 @@
+function: hits ROLL:n plus BONUS:n vs AC:n on CRIT_RANGE:n {
+    if ROLL = 1 { result: 0}
+    if ROLL >= CRIT_RANGE { result: 1 }
+    if ROLL + BONUS >= AC { result: 1 }
+    result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1           { result: 0 }
+    if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG }
+    if ROLL + BONUS >= AC { result: DMG }
+    result: 0
+}
+
+function: lucky ROLL:n with LUCK:d  {
+    if ROLL = 1 { result: LUCK }
+    result: ROLL
+}
+
+AC: 12 \ enemy AC \
+WS: 0  \ enemy wisdom save bonus \
+DS: 0  \ enemy dexterity save bonus \
+SS: 0  \ enemy strength save bonus \
+DC: 14 \ spell DC \
+HIT: 6
+WDD: 1d8  \ main weapon damage dice \
+MAD: 1d4  \ martial arts die \
+DDB: 3   \ damage bonus (from DEX) \
+WDB: 3   \ damage bonus (from WIS) \
+
+function: luckyhits {
+    result: [hits [lucky d20 with d20] plus HIT vs AC on 20]
+}
+
+function: luckyattack DMG:d crit CRIT_DMG:d {
+    result: [attack [lucky d20 with d20] plus HIT vs AC for DMG crit CRIT_DMG on 20]
+}
+
+function: harm DMG:n {
+    if DMG > 0 { result: DMG + MAD+WDB }
+    result: DMG
+}
+
+function: adder AD:n {
+  if AD > 0 { result: AD + (1d20+SS < 15) * 3d6 }
+  result: 0
+}
+
+AD: [adder [luckyattack 1d6 crit 1d6]]
+WD: [luckyattack WDD+DDB crit WDD] \ main weapon damage\
+WH: [luckyhits]                    \ weapon hits \
+PD: [luckyattack MAD+DDB crit MAD] \ punch damage \
+PH: [luckyhits]                    \ punch hits \
+
+output PD + PD named "punch + punch, 0 ki"
+output WD + PD named "staff + kick, 0 ki"
+output AD + PD named "adder + kick, 0 ki"
+output [harm PD] named "punch + harm, <1 ki"
+output WD + [harm PD] named "staff + harm kick, <1 ki"
+output AD + [harm PD] named "adder + harm kick, <1 ki"
+output [harm PD + PD] named "punch + punch + harm, <1 ki"
+output PD + PD + PD named "punch + flurry, 1 ki"
+output WD + PD + PD named "staff + flurry, 1 ki"
+output AD + PD + PD named "adder + flurry, 1 ki"
+output WD + [harm PD + PD] named "staff + flurry + harm, <2 ki"
+output AD + [harm PD + PD] named "adder + flurry + harm, <2 ki"
+output [harm PD + PD + PD] named "punch + flurry + harm, <2 ki"
+
+output [harm PD] / PH named "punch + harm per ki"
+output (WD + [harm PD]) / PH named "staff + harm kick per ki"
+output [harm PD + PD] / (PH | PH) named "punch + punch + harm per ki"
+output (PD + PD + PD) / (PH | PH | PH) named "punch + flurry per ki"
+output (WD + [harm PD + PD]) / ((PH | PH) + 1) named "staff + flurry + harm per ki"
+output (AD + [harm PD + PD]) / ((PH | PH) + 1) named "adder + flurry + harm per ki"
+output [harm PD + PD + PD] / ((PH | PH | PH) + 1) named "punch + flurry + harm per ki"
+
+output [luckyattack 1d4+5 crit 1d4] named "sling"
+output [luckyattack 1d6+5 crit 1d6] named "shortbow"
+output (d20 + WS < DC) * 2d12 named "toll"
+output (d20 + DS < DC) * 2d8 named "flame"

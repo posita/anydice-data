@@ -1,0 +1,317 @@
+\ Echo \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BIGATTACK: 5
+SMALLATTACK: 5
+BIGHITDAMAGE: 1d6 + 3
+BIGCRITICALDAMAGE: 2d6 + 3
+SMALLHITDAMAGE: 1d6
+SMALLCRITICALDAMAGE: 2d6 
+MISSDAMAGE: 0
+AC: 10
+WEAPONDIE: 2d6
+EWEAPONDIE: 1d6
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+function:  ecrit ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL = 19 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+\ EXTRA CRIT \
+function: bigmultiattackecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [ecrit d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantageecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [ecrit [highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+function: smallmultiattackecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [ecrit d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantageecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [ecrit [highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+\ END OF EXTRA CRIT \
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+\ ECHO KNIGHT \
+
+\ Fighter 5 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 5
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 5
+
+AC:10
+output [bigmultiattack 6] named "Fighter5 w/ WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattack 6] named "Fighter5 w/ WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattack 6] named "Fighter5 w/ WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattack 6] named "Fighter5 w/ WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 4 Warlock 1 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 8
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 8
+AC:10
+output [bigmultiattackecrit 4] named "Fighter4 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), noExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackecrit 4] named "Fighter4 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), noExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackecrit 4] named "Fighter4 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), noExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackecrit 4] named "Fighter4 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), noExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+
+\ Fighter 5 Berserker 2 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 7
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE +5
+
+AC:10
+output [bigmultiattackadvantage 6] named "Fighter5 Berserker2 w/ noRage, RecklessAttack(adv), WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackadvantage 6] named "Fighter5 Berserker2 w/ noRage, RecklessAttack(adv), WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackadvantage 6] named "Fighter5 Berserker2 w/ noRage, RecklessAttack(adv), WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackadvantage 6] named "Fighter5 Berserker2 w/ noRage, RecklessAttack(adv), WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Warlock 1 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 8
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 8
+AC:10
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Druid 2 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 5
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 5
+AC:10
+output [bigmultiattack 6] named "Fighter5 Druid2 w/ Spores, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattack 6] named "Fighter5 Druid2 w/ Spores, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattack 6] named "Fighter5 Druid2 w/ Spores, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattack 6] named "Fighter5 Druid2 w/ Spores, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Ranger 3 \
+BIGATTACK: 7
+SMALLATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 5
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 5
+SMALLHITDAMAGE: WEAPONDIE + 1d8 + 5
+SMALLCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d8 + 5
+AC:10
+output [bigmultiattack 6] + [smallmultiattack 2] named "Fighter5 Ranger3 w/ GloomAttack, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattack 6] + [smallmultiattack 2] named "Fighter5 Ranger3 w/ GloomAttack, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattack 6] + [smallmultiattack 2] named "Fighter5 Ranger3 w/ GloomAttack, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattack 6] + [smallmultiattack 2] named "Fighter5 Ranger3 w/ GloomAttack, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+
+output [bigmultiattack 0] named "zero"
+
+\ Fighter 5 Warlock 1 Barbarian 2 \
+BIGATTACK: 8
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 9
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 9
+AC:10
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, GWEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Warlock 1 Druid 2 \
+BIGATTACK: 8
+BIGHITDAMAGE: WEAPONDIE + 2d6 + 9
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 4d6 + 9
+AC:10
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 Druid 2 w/ Spores, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 Druid 2 w/ Spores, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 Druid 2 w/ Spores, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 Druid 2 w/ Spores, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Warlock 1 Ranger 3 \
+BIGATTACK: 8
+SMALLATTACK: 8
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 9
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 9
+SMALLHITDAMAGE: WEAPONDIE + 1d6 + 1d8 + 9
+SMALLCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 2d8 + 9
+AC:10
+output [bigmultiattackecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Ranger3 w/ GloomAttack, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Ranger3 w/ GloomAttack, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Ranger3 w/ GloomAttack, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Ranger3 w/ GloomAttack, HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+output [bigmultiattack 0] named "zero"
+
+\ Fighter 5 Warlock 1 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 8
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 8
+AC:10
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackecrit 6] named "Fighter5 Warlock1 w/ HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Warlock 1 Barbarian 2 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 8
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 8
+AC:10
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackadvantageecrit 6] named "Fighter5 Warlock1 Barbarian2 w/ noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Warlock 1 Barbarian 2 Ranger 3 \
+BIGATTACK: 8
+SMALLATTACK: 8
+BIGHITDAMAGE: WEAPONDIE + 1d6 + 9
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 9
+SMALLHITDAMAGE: WEAPONDIE + 1d6 + 1d8 + 9
+SMALLCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 2d6 + 2d8 + 9
+AC:10
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 w/ GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 w/ GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 w/ GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 w/ GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+
+\ Fighter 5 Warlock 1 Barbarian 2 Ranger 3 Druid 2 \
+BIGATTACK: 8
+SMALLATTACK: 8
+BIGHITDAMAGE: WEAPONDIE + 2d6 + 9
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 4d6 + 9
+SMALLHITDAMAGE: WEAPONDIE + 2d6 + 1d8 + 9
+SMALLCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 4d6 + 2d8 + 9
+AC:10
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 Druid 2 w/ Spores, GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:15
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 Druid 2 w/ Spores, GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:20
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 Druid 2 w/ Spores, GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"
+AC:25
+output [bigmultiattackadvantageecrit 6] + [smallmultiattackecrit 2] named "Fighter5 Warlock1 Barbarian2 Ranger3 Druid 2 w/ Spores, GloomAttack, noRage, RecklessAttack(adv), HexSpell, HexBladeCurse, WEAPONDIE([WEAPONDIE]), ExtraAttack, EchoAttack, Surge vs AC[AC]"

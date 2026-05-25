@@ -1,0 +1,65 @@
+function: reroll R:n under N:n {
+  if R = 20 { result: 32 } 
+  if R = 1  { result: -10 } 
+  if R < N  { result: d{2..19} + M } else { result: R }
+}
+
+function: ave AVE:s mod M:n abil AM:n {
+  \ we assume that AVE always has exactly two dice \
+  HI: 1@AVE
+  LO: 2@AVE
+  \ handle the special cases first \
+  if HI = 20 & LO != 20 { result: [reroll LO under 11] } \ Nat 20 = "Luck" \
+  if HI = 20 & LO = 20  { result: 32 }   \ double 20 = "special crit" \
+  if HI + LO = 20       { result: 31 }   \ 20 sum (mirror pair) = crit success \
+  if HI = 1 & LO = 1    { result: -12 }   \ double 1 = "special fumble" \
+  if HI = 20 & LO = 1   { result: -13 }   \ 20 & 1 = something special \
+  if HI + LO = 21       { result: -11 }    \ 21 sum = crit failure \
+  if HI = LO            { result: 0 }   \ equal pair = something special \
+\  if LO = 20 & HI != 20 { result: [reroll HI under 11] } \
+  \ Now compare the rolls \
+  if [absolute HI - 10 - AM ] < [absolute LO - 10 - AM ] { result: HI + M } else { result: LO + M }
+}
+
+output [ave 2d20 mod 11 abil 5] named "Average"
+
+function: norm NORM:n mod M:n {
+  if NORM = 20 { result: 31 } \Critical Hit\
+  if NORM = 1  { result: -10 } \Critical Miss\
+  if NORM != 0 { result: NORM + M } else { result: NORM }
+}
+
+output [norm 1d20 mod 11] named "Normal d20 Roll"
+
+function: adv ADV:s {
+  \ we assume that ADV always has exactly two dice \
+  LO: 1@ADV
+  HI: 2@ADV
+  \ handle the special cases first \
+  if LO = 10 & HI = 10 { result: -1 } \ double 10 = "crit success/fail" \
+  if LO + HI = 20      { result: 21 } \ mirror pair = crit success \
+  if LO = HI           { result:  0 } \ equal pair = crit failure \ 
+  \ at this point, we know there's no equal or mirror pair \
+  if LO > HI { result: LO } else { result: HI }
+}
+
+output [adv 2d20] named "Advantage"
+
+output [highest 1 of 2d20] named "Normal Advantage"
+
+
+function: dis DIS:s {
+  \ we assume that DIS always has exactly two dice \
+  LO: 1@DIS
+  HI: 2@DIS
+  \ handle the special cases first \
+  if LO = 10 & HI = 10 { result: -1 } \ double 10 = "crit success/fail" \
+  if LO + HI = 20      { result: 21 } \ mirror pair = crit success \
+  if LO = HI           { result:  0 } \ equal pair = crit failure \ 
+  \ at this point, we know there's no equal or mirror pair \
+  if LO < HI { result: LO } else { result: HI }
+}
+
+output [dis 2d20] named "Disadvantage"
+
+output [lowest 1 of 2d20] named "Regular Disadvantage"

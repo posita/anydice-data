@@ -1,0 +1,54 @@
+function: H dice { 
+ result: [count {5,6} in Hd6]
+}
+
+function: A vs B {
+ result: [A dice] - [B dice]
+}
+
+function: L lead A assault D {
+ if D = 0 { A: (A + 1) / 2 }
+ result: [(A+L) dice] >= [(D+1) dice] &
+         [(A+L) dice] > 0 &
+         [(D+1) dice] < A
+}
+
+function: L lead A pirate B {
+ result: (A = [B dice] + 1 & [(1+L) dice] > 0) |
+         (A > [B dice] + 1 & [(2+L) dice] > 0)
+}
+
+function: A reform B break ties T modifier M {
+ if T = 1 {
+  result: [highest 1 of Ad6] + M >= [highest 1 of Bd6]
+ }
+ else {
+  result: [highest 1 of Ad6] + M > [highest 1 of Bd6]
+ }
+}
+
+function: A debate B committed C {
+ C: 2 - C
+ result: ([(A+3) dice] - [(B+C) dice]) > B
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+\[hbr] lead [besieging units excl. calvary] assault [defender dice]\
+output [0 lead 1 assault 1] named "Assault"
+
+\[hbr] lead [corsairs] pirate [defender dice]\
+output [1 lead 2 pirate 4] named "Piracy"
+
+\[attacker dice] reform [defender dice] break ties [yes: 1, no: 0] modifier [1 or -1]\
+output [1 reform 3 break ties 1 modifier 1] named "(Counter-)reformation"
+
+\[attacker rating] debate [defender rating] committed [yes: 1, no: 0]\
+output [4 debate 2 committed 1] named "Disgrace/Burn at stake"
+
+\[attacker dice] vs [defender dice]\
+output [2 vs 2] named "Battle"
+
+loop N over {1..14}{
+output [count {5,6} in Nd6] named "[N] dice"
+}

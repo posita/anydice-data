@@ -1,0 +1,51 @@
+AC: 18                \Enemy AC\
+CRITRANGE: 20         \Crits on X to 20\
+
+HIT: 8                \Hit Bonus\
+ATR: 4                \Attribute Bonus\
+FLAT: 2               \Dueling Bonus\
+FLATDMG: ATR+FLAT     \Total Flat Damage\
+
+set "maximum function depth" to 999
+
+\Attack Miss, Hit, Crit\
+function: attack with ROLL:n and MOD:n{ 
+ if ROLL <=1 {result: 0}
+ if ROLL >= CRITRANGE {result: 2}
+ result: ROLL+HIT+MOD >= AC
+}
+
+\Setup Function\
+function: multiattack using D:d plus MOD:n N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst and I INIT initial damage{ 
+ result: [roll [attack with D and MOD] to multiattack using D plus MOD N times with a W weapon and C charges and B bonus and BURST burst and I INIT initial damage]
+}
+
+\Recursive Multiattack Function\
+function: roll HIT:n to multiattack using D:d plus MOD N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst and I INIT initial damage{
+
+ if N <= 0 {
+   result: 0
+ }
+ 
+ DAMAGE: HIT d (W + B) + (1-(0^HIT))*FLATDMG
+
+ if C > 0{
+  if HIT > 1 {
+   C: C-1
+   DAMAGE: DAMAGE + HIT d BURST
+  }
+ }
+ if I > 0{
+  if HIT > 0 {
+   I: I-1
+   DAMAGE: DAMAGE + HIT d INIT
+  }
+ }
+ result:  DAMAGE + [roll [attack with D and MOD] to multiattack using D plus MOD N-1 times with a W weapon and C charges and B bonus and BURST burst and I INIT initial damage]
+ 
+}
+
+\OUTPUTS\
+\Max 10 Attacks\
+output [multiattack using [highest 1 of 3d20] plus 0 5 times with a 2d8 weapon and 1 charges and 0 bonus and 6d6 burst and 0 0 initial damage] named "Umbrilim Shadow Blade"
+output [multiattack using [highest 1 of 1d20] plus 2 2 times with a 1d8 weapon and 0 charges and 2d8 bonus and 6d6 burst and 0 0 initial damage] named "Cameron Nightmare"

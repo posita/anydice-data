@@ -1,0 +1,59 @@
+\
+Shadowrun Fifth Edition
+To Hit Chance and 
+Damage Probability Calculator
+By Insaniac99, modified from code by Slippery_Chicken
+\
+
+\ Attacker Diepool \   A: 20
+\Weapon Damage Value\  V: 13
+\Weapon Limit\        AL: 7
+
+\ Defender Diepool \   D: 20
+\ Defender Limit \    DL: 16
+\ Defender's Body \   DB: 5
+\ Defender's Armor\   DA: 5
+
+function: shadowrunfive DICE:s{
+   COUNT: 0
+ loop P over {1..6} {
+  COUNT: COUNT + (P@{5,6} = DICE)
+ }
+ result: COUNT
+}
+
+function: limit DICE:s by LIMIT:n{
+   COUNT: 0
+ loop P over {1..6} {
+  COUNT: COUNT + (P@{5,6} = DICE)
+ }
+ if COUNT > LIMIT {result: LIMIT}
+ result: COUNT
+}
+
+function: calculatedamage DAMAGE:n plus NETHITS:s {
+ if NETHITS < 1 { result: 0 }
+ result: DAMAGE + NETHITS
+}
+
+function: resistdamage DAMAGE:s minus SOAK:s {
+ if DAMAGE < 1 { result: 0 }
+ if (DAMAGE - SOAK) < 1 {result: 0}
+ result: DAMAGE - SOAK
+}
+
+\Attacker's Roll Result\ AR: [limit Ad6 by AL]
+\Defender's Roll Result\ DR: [limit Dd6 by DL]
+\Attacker Net Hits\       X: AR - DR
+\Damage to Soak \        SD: [calculatedamage V plus X]
+\Soak Roll Result \      SR: [shadowrunfive DBd6]+ [shadowrunfive DAd6]
+\unsoaked damage \       US: [resistdamage SD minus SR]
+
+output AR  named "Attacker's Hits Rolled"
+output [shadowrunfive Ad6] >AL named "Percent of rolls over limit (1=over, 0=under)"
+output DR  named "Defender's Hits Rolled"
+output X>0 named "Attacker's chance to hit"
+output X   named "Attacker's net hits"
+output SD  named "Damage before Soak Roll"
+output SR  named "Hits on soak test"
+output US  named "Damage after Soak Roll"

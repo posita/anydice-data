@@ -1,0 +1,60 @@
+function: explode N:n for CARD:s until COUNT:n {
+ if COUNT=0 { result: 0 }
+ if N=6 { result: N@CARD + [explode d6 for CARD until COUNT-1] }
+ result: N@CARD
+}
+
+WHITE: {0,0,1,1,2,2}
+WHITE: [explode d6 for WHITE until 3]
+YELLOW: {0,0,1,2,3,3}
+YELLOW: [explode d6 for YELLOW until 3] 
+RED: {0,0,2,3,3,4}
+RED: [explode d6 for RED until 3]
+BLACK: {0,0,3,3,4,5}
+BLACK: [explode d6 for BLACK until 3]
+
+set "position order" to "lowest first"
+CAP: 18
+function: W:s X:s Y:s Z:s with misses {
+ CARDS: {W,X,Y,Z}
+ if ([count 0 in CARDS] >= 2) { result: 0 }
+ result: [CARDS capped at CAP]
+}
+function: X:s Y:s Z:s with misses {
+ CARDS: {X,Y,Z}
+ if ([count 0 in CARDS] >= 2) { result: 0 }
+ result: [CARDS capped at CAP]
+}function: Y:s Z:s with misses {
+ CARDS: {Y,Z}
+ if ([count 0 in CARDS] >= 2) { result: 0 }
+ result: [CARDS capped at CAP]
+}
+function: CARDS:s with misses {
+ if ([count 0 in CARDS] >= 2) { result: 0 }
+ result: [CARDS capped at CAP]
+}
+function: BLACKS:s REDS:s YELLOWS:s WHITES:s with misses and reroll {
+ if (BLACKS = 0) { REROLL: 1dBLACK }
+ else if (REDS = 0) { REROLL: 1dRED }
+ else if (YELLOWS = 0) { REROLL: 1dYELLOW }
+ else if (WHITES = 0) { REROLL: 1dWHITE }
+ else { REROLL: 0 }
+ result: [BLACKS REDS YELLOWS WHITES REROLL with misses]
+}
+function: BLACKS:s REDS:s YELLOWS:s WHITES:s REROLL:n with misses {
+ CARDS: {BLACKS,REDS,YELLOWS,WHITES,REROLL}
+ if ([count 0 in CARDS] >= 3) { result: 0 }
+ result: [CARDS capped at CAP]
+}
+function: N:n capped at MAX:n {
+ if N > MAX { result: MAX }
+ result: N
+}
+
+output [{} {} 1dYELLOW 3dWHITE with misses]
+output [{} {} 1dYELLOW 4dWHITE with misses]
+output [{} {} 1dYELLOW 4dWHITE with misses and reroll]
+output [{} {} 4dYELLOW {} with misses]
+output [{} {} 4dYELLOW 1dWHITE with misses]
+output [{} {} 4dYELLOW 1dWHITE with misses and reroll]
+output [{} {} 4dYELLOW {} with misses and reroll]

@@ -1,0 +1,68 @@
+function: save  R:n again N:n sundering S:n vulnerable V:n{
+ if R = 6{ 
+   if V = 1 {
+     result: [save R again d6 sundering S vulnerable 0] 
+   }
+   result: 0 
+ }
+ if N - S >= R {
+   result: 0
+ }
+ result: 1
+}
+
+function: attaque R:n again N:n charge C:n critblow B:n sundering S:n armor A:n weaken W:n vulnerable V:n {
+ if N >= R {
+   if W = 1{
+     result: [attaque R again d6 charge 0 critblow B sundering S armor A weaken 0 vulnerable V]
+   }
+   if B = 1 {
+     if N = 6 {
+        result: [save A again d6 sundering S vulnerable V] + [save A again d6 sundering S vulnerable V]
+     }
+   }
+   result: [save A again d6 sundering S vulnerable V]
+ }
+ if C = 1 {
+    result: [attaque R again d6 charge 0 critblow B sundering S armor A weaken W vulnerable V]
+ }
+ result: 0
+}
+
+function: moral R:n again N:n and M:n vicious V:n paniked P:n damage D:n addition A:n {
+ if M+N >= R-V {
+  if P = 1 {
+    if N >= 4 {
+       if M >= 4 {
+         if D = 1 {
+            result: [moral R again d6 and d6 vicious V paniked 0 damage d3 addition A]
+         }
+         result: [moral R again d6 and d6 vicious V paniked 0 damage D addition A]
+       }
+
+       if D = 1 {
+         result: [moral R again d6 and M vicious V paniked 0 damage d3 addition A]
+       }
+       result: [moral R again d6 and M vicious V paniked 0 damage D addition A]
+    }
+    if M >= 4 {
+       if D = 1 {
+         result: [moral R again N and d6 vicious V paniked 0 damage d3 addition A]
+       }
+       result: [moral R again N and d6 vicious V paniked 0 damage D addition A]
+    }
+    if D = 1 {
+       result: [moral R again N and M vicious V paniked 0 damage d3 addition A]
+    }
+  }
+ }
+ if M+N >= R-V {
+     result: 0
+ }
+ result : D + A
+}
+
+output 10d[attaque 3 again d6 charge 1 critblow 0 sundering 1 armor 5 weaken 1 vulnerable 1]+ 1d[moral 8 again d6 and d6 vicious 0 paniked 1 damage d3 addition 1] named "Zerker brutal charge"
+
+
+

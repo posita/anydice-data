@@ -1,0 +1,75 @@
+VALUES: 1        \ show top BASE_DICE values \
+BASE_DICE: 4     \ max 4 highest \
+MAX_DICE: 10
+EACH_DIE: d6-1 
+RANGE:    MAX_DICE - BASE_DICE
+
+loop MOD_DICE over {-RANGE..RANGE}
+{
+  NUM_DICE:  BASE_DICE + [absolute MOD_DICE]
+  ROLL_DICE: (NUM_DICE)d{EACH_DIE}
+
+
+  if VALUES
+    {
+    if MOD_DICE < 0 \ negative -- keep lowest \
+      {
+      set "position order" to "lowest first"
+      if BASE_DICE = 4
+        {
+        output {1,2}@ROLL_DICE named "4d[MOD_DICE]: Lowest Pair"
+        output {2,3}@ROLL_DICE named "4d[MOD_DICE]: Middle Pair"
+        output {3,4}@ROLL_DICE named "4d[MOD_DICE]: Highest Pair"
+        }
+      if BASE_DICE = 3
+        {
+        output (BASE_DICE-2)@ROLL_DICE named "3d[MOD_DICE]: Lowest Die"
+        output (BASE_DICE-1)@ROLL_DICE named "3d[MOD_DICE]: Middle Die"
+        output (BASE_DICE-0)@ROLL_DICE named "3d[MOD_DICE]: Highest Die"
+        }
+      if BASE_DICE = 2
+        {
+        output (BASE_DICE-1)@ROLL_DICE named "2d[MOD_DICE]: Lower Die"
+        output (BASE_DICE-0)@ROLL_DICE named "2d[MOD_DICE]: Higher Die"
+        }
+      if BASE_DICE = 1
+        {
+        output (BASE_DICE)@ROLL_DICE named "1D[MOD_DICE] The Die"
+        }
+      }
+    else            \ positive -- keep highest \
+      {
+      set "position order" to "highest first"
+      if BASE_DICE = 4
+        {
+        output {3,4}@ROLL_DICE named "4d+[MOD_DICE] Lowest Pair"
+        output {2,3}@ROLL_DICE named "4d+[MOD_DICE] Middle Pair"
+        output {1,2}@ROLL_DICE named "4d+[MOD_DICE] Highest Pair"
+        }
+      if BASE_DICE = 3
+        {
+        output {3}@ROLL_DICE named "3d+[MOD_DICE] Lowest Die"
+        output {2}@ROLL_DICE named "3d+[MOD_DICE] Middle Die"
+        output {1}@ROLL_DICE named "3d+[MOD_DICE] Highest Die"
+        }
+      if BASE_DICE = 2
+        {
+        output {2}@ROLL_DICE named "2d+[MOD_DICE] Lower Die"
+        output {1}@ROLL_DICE named "2d+[MOD_DICE] Higher Die"
+        }
+      if BASE_DICE = 1
+        {
+        output {1}@ROLL_DICE named "1d+[MOD_DICE] The Die"
+        }
+      }
+    }
+
+  if MOD_DICE < 0
+    {
+    output [ lowest BASE_DICE of ROLL_DICE] named "[BASE_DICE]d[MOD_DICE]: SUM"
+    }
+  else
+    {
+    output [highest BASE_DICE of ROLL_DICE] named "[BASE_DICE]d+[MOD_DICE]: SUM"
+    }    
+}

@@ -1,0 +1,82 @@
+CHA: 5
+LIFE_DRINKER: 0
+RADIANT_SOUL: CHA
+STR: 3
+
+LEVEL: 10
+
+DIVINE_FAVOR_ACTIVE: 1
+
+function: prof {
+ if LEVEL >= 17 {
+  result: 6
+ } else if LEVEL >= 13 {
+  result: 5
+ } else if LEVEL >= 9 {
+  result: 4
+ } else if LEVEL >= 5 {
+  result: 3
+ } else {
+  result: 2
+ }
+}
+
+function: attack {
+ result: (1d10+1+STR+LIFE_DRINKER+[prof])
+}
+function: divinefavor {
+ result: (1d4)
+}
+
+function: blast {
+ if LEVEL >= 17 {
+  X: 4
+ } else if LEVEL >= 11 {
+  X: 3
+ } else if LEVEL >= 5 {
+  X: 2
+ } else {
+  X: 1
+ }
+ result: Xd(1d10)
+}
+function: ablast {
+ if LEVEL >= 17 {
+  X: 4
+ } else if LEVEL >= 11 {
+  X: 3
+ } else if LEVEL >= 5 {
+  X: 2
+ } else {
+  X: 1
+ }
+ result: Xd(1d10+CHA)
+}
+
+if(DIVINE_FAVOR_ACTIVE = 2)
+{
+output 2d([attack] + [divinefavor]) + RADIANT_SOUL + 5d8 + 4d8 named "the nuke. requires BOTH lvl 4 warlock spell slots, and a lvl 1 paladin slot"
+}
+else 
+{
+if(DIVINE_FAVOR_ACTIVE = 0)
+{
+output ([attack]+2d8) + RADIANT_SOUL named "green-flame blade single-target"
+output ([attack]+2d8) + (2d8+CHA) + RADIANT_SOUL named "green-flame blade multi-target"
+output ([attack]) named "single melee attack"
+output 2d[attack] named "thirsting blade attack action"
+output ([attack]+2d8) named "booming blade failed"
+output ([attack]+2d8) + 3d8 named "booming blade success"
+} else if(DIVINE_FAVOR_ACTIVE = 1) {
+output ([attack]+[divinefavor]+2d8) + RADIANT_SOUL named "green-flame blade single-target (divine favor)"
+output ([attack]+[divinefavor]+2d8) + (2d8+CHA) + RADIANT_SOUL named "green-flame blade multi-target (divine favor)"
+output ([attack] + [divinefavor]) + RADIANT_SOUL named "single melee attack (divine favor)"
+output 2d([attack] + [divinefavor]) + RADIANT_SOUL named "thirsting blade attack action (divine favor)"
+output ([attack]+[divinefavor]+2d8) + RADIANT_SOUL named "booming blade failed (divine favor)"
+output ([attack]+[divinefavor]+2d8) + 3d8 + RADIANT_SOUL named "booming blade success (divine favor)"
+}
+
+output [blast] named "elditch blast"
+output [ablast] named "agonizing elditch blast"
+output 3d8+RADIANT_SOUL named "sacred flame"
+}

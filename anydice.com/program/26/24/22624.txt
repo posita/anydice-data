@@ -1,0 +1,69 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+ENEMYAC: d{17..21}
+
+ATTACKMOD: 7
+PROFICIENCY: 6
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGEBONUS: 1
+ACCBONUS: 1
+
+function: attack ROLL:n plus ATK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = CRITROLL {
+  result: CRITICALHIT
+ }
+ if ROLL + ATK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: simple ROLL:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = CRITROLL {
+  result: CRITICALHIT
+ }
+ result: HIT 
+}
+
+function: damage for ATTACKRESULT:n with normal DMG:n or crit CRIT:n  {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRIT 
+ }
+ if ATTACKRESULT = HIT {
+  result: DMG
+ }
+ result: 0
+}
+
+
+RAGE: 2
+HEX: 1d6
+SMITE: 4d8 
+
+
+
+ATTACK_ROLL: [attack d20 plus ATTACKMOD vs ENEMYAC]
+ADV_ATTACK_ROLL: [attack [highest 1 of 2d20] plus ATTACKMOD vs ENEMYAC]
+
+WEAPON: 1d8
+ELEMENTS_MAIN: WEAPON + 1d8 + 1d6
+ASSAULT_MAIN: WEAPON + 1d6
+
+NORMAL_STRIKE: [damage for ATTACK_ROLL with normal (WEAPON + ATTACKMOD) or crit (2dWEAPON + ATTACKMOD)]
+
+ELEMENTS_CANTRIP: [damage for ATTACK_ROLL with normal (ELEMENTS_MAIN + ATTACKMOD) or crit (2dELEMENTS_MAIN + ATTACKMOD)]
+
+ASSAULT: [damage for ATTACK_ROLL with normal (ASSAULT_MAIN + ATTACKMOD) or crit (2dASSAULT_MAIN + ATTACKMOD)]
+
+DECEPTION: [damage for ADV_ATTACK_ROLL with normal (WEAPON+ ATTACKMOD) or crit (2dWEAPON + ATTACKMOD)]
+
+
+output ELEMENTS_CANTRIP + NORMAL_STRIKE named "Elements - Blade Magic"
+output ASSAULT + NORMAL_STRIKE named "Assault"
+
+
+output DECEPTION + NORMAL_STRIKE named "Deception"

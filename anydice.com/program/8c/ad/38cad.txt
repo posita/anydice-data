@@ -1,0 +1,227 @@
+INT_MOD: 5
+PROF_BONUS: 6
+set "maximum function depth" to 15
+
+function: is prone by AC and STR {
+  result: 1d20 + INT_MOD + PROF_BONUS >= AC & 1d20+STR < 8 + INT_MOD + PROF_BONUS
+}
+
+function: apply adv by IS_PRONE:n {
+  if IS_PRONE {
+    result: [highest 1 of 2d20]
+  } else {
+    result: 1d20
+  }
+}
+
+function: crit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK = 20 {
+    result: DMG + DMG + ADD
+  } else if ATK + BONUS >= AC{
+    result: DMG + ADD
+  } else {
+    result: 0
+  }
+}
+
+function: champcrit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK >= 18 {
+    result: DMG + DMG + ADD
+  } else if ATK + BONUS >= AC{
+    result: DMG + ADD
+  } else {
+    result: 0
+  }
+}
+
+function: sharpcrit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK = 20 {
+    result: DMG + DMG + ADD + 1d6 + 10
+  } else if ATK + BONUS - 5>= AC{
+    result: DMG + ADD + 10
+  } else {
+    result: 0
+  }
+}
+
+function: save DAMAGE by ROLL:n with BONUS against DC {
+  if ROLL + BONUS >= DC {
+    result: 0
+  } else {
+    result: DAMAGE
+  }
+}
+
+function: add PER_TURN per turn to COUNT DAMAGE_ROLL with CONST:s by ADV_COUNT and BONUS and AC {
+  TOTAL: 0
+  USED: 0
+  loop N over {1..COUNT}{
+    if N <= ADV_COUNT {
+      ATK: [highest 1 of 2d20]
+    } else {
+      ATK: 1d20
+    }
+    if USED {
+      TOTAL: TOTAL + [crit (DAMAGE_ROLL) with N@CONST by ATK and BONUS and AC]
+    } else {
+      NEW: TOTAL + [crit (DAMAGE_ROLL + PER_TURN) with N@CONST by ATK and BONUS and AC]
+      if {NEW} >= {TOTAL} {
+        USED: 1
+      }
+      TOTAL: NEW
+    }
+  }
+  result: TOTAL
+}
+
+function: champadd PER_TURN per turn to COUNT DAMAGE_ROLL with CONST by ADV_COUNT and BONUS and AC {
+  TOTAL: 0
+  USED: 0
+  loop N over {1..COUNT}{
+    if N <= ADV_COUNT {
+      ATK: [highest 1 of 2d20]
+    } else {
+      ATK: 1d20
+    }
+    if USED {
+      TOTAL: TOTAL + [champcrit (DAMAGE_ROLL) with CONST by ATK and BONUS and AC]
+    } else {
+      NEW: TOTAL + [champcrit (DAMAGE_ROLL + PER_TURN) with CONST by ATK and BONUS and AC]
+      if {NEW} >= {TOTAL} {
+        USED: 1
+      }
+      TOTAL: NEW
+    }
+  }
+  result: TOTAL
+}
+
+function: sharpadd PER_TURN per turn to COUNT DAMAGE_ROLL with CONST:s by ADV_COUNT and BONUS and AC {
+  TOTAL: 0
+  USED: 0
+  loop N over {1..COUNT}{
+    if N <= ADV_COUNT {
+      ATK: [highest 1 of 2d20]
+    } else {
+      ATK: 1d20
+    }
+    if USED {
+      TOTAL: TOTAL + [sharpcrit (DAMAGE_ROLL) with N@CONST by ATK and BONUS and AC]
+    } else {
+      NEW: TOTAL + [sharpcrit (DAMAGE_ROLL + PER_TURN) with N@CONST by ATK and BONUS and AC]
+      if {NEW} >= {TOTAL} {
+        USED: 1
+      }
+      TOTAL: NEW
+    }
+  }
+  result: TOTAL
+}
+
+function: smite at SLEVEL {
+  result: 1d8 + SLEVELd8
+}
+
+function: guiding bolt at SLEVEL {
+  result: 3d6 + SLEVELd6
+}
+
+function: repeat ROLL times TIMES {
+  TOTAL: 0
+  loop N over {1..TIMES} {
+    TOTAL: TOTAL + ROLL
+  }
+  result: TOTAL
+}
+
+function: repeat ROLL until MOD beats DC {
+  TOTAL: 0
+  ENDED: 0
+  loop N over {1..5} {
+    if {1d20 + MOD} >= DC {
+      ENDED: 1
+    }
+    if !ENDED {
+      TOTAL: TOTAL + ROLL
+    }
+  }
+  result: TOTAL
+}
+
+function: reroll ROLL:n as DICE under LIMIT {
+  if ROLL <= LIMIT {
+    result: DICE
+  }
+  result: ROLL
+}
+
+MAX: 1850
+MIN: 250
+function: bound VALUE {
+  result: [highest of [lowest of VALUE and MAX] and MIN]
+}
+
+\Player Level\
+LEVEL: 20
+
+\Zariel\
+\ENEMY_AC: 21\
+\ENEMY_STR: 8\
+
+\Vecna\
+ENEMY_AC: 18
+ENEMY_STR: 2
+
+CANTRIP_LEVEL: (LEVEL + 1 - (LEVEL + 1)/5)/5
+CASTER_LEVEL: [highest of LEVEL and 6] - 6 + [lowest of LEVEL and 6]/2
+SPELL_SLOT: 1 + CASTER_LEVEL/2
+SHADOW_DAMAGE_ROLL: (2 + ([lowest of SPELL_SLOT and 8]-1)/2)d8
+BOOMING_DAMAGE_ROLL: SHADOW_DAMAGE_ROLL + 1d8 + (2*CANTRIP_LEVEL)d8
+
+PRONE: [is prone by ENEMY_AC and ENEMY_STR]
+
+BONUS: INT_MOD + PROF_BONUS
+SAVE_DC: 8 + BONUS
+
+
+
+output [bound [repeat
+  [crit SHADOW_DAMAGE_ROLL + [smite at 4] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 4] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] times 4] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 4] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 3] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 3] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 3] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 2] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 2] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 2] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] +
+  [crit SHADOW_DAMAGE_ROLL + [smite at 1] with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC] + [crit BOOMING_DAMAGE_ROLL with INT_MOD*2 by [apply adv by PRONE ] and BONUS and ENEMY_AC]] named "Duel Scholar (10 turns)"
+
+output [bound  [repeat
+  [repeat [crit 1d10 + 1d6 with 3*INT_MOD by 1d20 and BONUS and ENEMY_AC] times 4] + \Action, Hungry metamagic\
+  [repeat [crit 1d10 + 1d6 with 2*INT_MOD by 1d20 and BONUS and ENEMY_AC] times 4] \Bonus action, Quickened metamagic\
+ times 9] +
+  10d4 + 10d6 + 100 + \Magic Missile, L8, hungry\
+  9d4 + 9d6 + 54 \Magic Missile, L7, quickened\
+] named "Magnificent Blastard (MM + EB) (10 turns)"
+
+output [bound 
+    [crit [guiding bolt at 9] + 1d6 + 1d10 with 10 by [highest 1 of 2d20] and BONUS + 2 and ENEMY_AC] + \1\
+    [crit [guiding bolt at 8] + 1d6 + 1d10 with 10 by [highest 1 of 2d20] and BONUS + 2 and ENEMY_AC] + \2\
+    [crit [guiding bolt at 7] + 1d6 + 1d10 with 10 by [highest 1 of 2d20] and BONUS + 2 and ENEMY_AC] + \3\
+    [repeat [crit [guiding bolt at 6] + 1d6 + 1d10 with 10 by [highest 1 of 2d20] and BONUS + 2 and ENEMY_AC] times 2] + \4, 5\
+    [repeat [crit [guiding bolt at 5] + 1d6 + 1d10 with 10 by [highest 1 of 2d20] and BONUS + 2 and ENEMY_AC] times 3] + \6, 7, 8\
+    [repeat [crit [guiding bolt at 4] + 1d6 + 1d10 with 10 by [highest 1 of 2d20] and BONUS + 2 and ENEMY_AC] times 2] + \9, 10\
+  [repeat
+    [crit 2d8 + 1d6 + 1d10 with INT_MOD + 1 by [highest 1 of 2d20] and BONUS + 2 and ENEMY_AC]
+  times 10]] named "Ellie Upcasting (uses Ring Strike)"
+
+output [bound [repeat
+  [champcrit [reroll 1d6 as 1d6 under 2] + [reroll 1d6 as 1d6 under 2] with INT_MOD by 1d20 and BONUS and ENEMY_AC] times 48]] \(10 turns + 2 Action surges) * 4 attacks per action\
+named "Champion Fighter Naive Build (10 turns with 2 AS)"
+
+\output [bound [repeat [add (1d8 + 1d4) per turn to 4 (1d8 + 1d6) with INT_MOD by 0 and BONUS and ENEMY_AC] times 10] + LEVEL] named "Astral Shifter with Hex, 10 turns"\
+
+output [bound [repeat [sharpadd 1d10 per turn to 6 2d6 + 2d4 with INT_MOD + 3 by 5 and BONUS + 1 and ENEMY_AC] times 2] \Action Surge\
++ [repeat [sharpadd 1d10 per turn to 3 2d6 + 2d4 with INT_MOD + 3 by 2 and BONUS + 1 and ENEMY_AC] times 8] \Resources exhausted?\ 
++ [repeat 2d6 + [repeat 2d6 until ENEMY_STR beats SAVE_DC - 1] times 2] \Plus the two fire runes, save DC is -1 because it's CON\
+] named "Runic Tosser (10 turns with 2 AS and 2 Fire Runes)"
+
+output [bound [repeat [crit [reroll 1d10 as 1d10 under 2] + [reroll 1d4 as 1d4 under 2] + [reroll 1d4 as 1d4 under 2] with INT_MOD * 3 + 1 by 1d20 and BONUS + 3 and ENEMY_AC] times 22]] named "Frostblade without hexblade curse, GWF"

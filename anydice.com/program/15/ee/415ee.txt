@@ -1,0 +1,27 @@
+\ Empowered Spell Calculator \
+
+NUM_DICE: 2
+DIE_SIZE: 6    \ Damage = 2d6 \
+CHA_MOD:  0    \ +0 Charisma  \
+
+
+
+DAMAGE: NUM_DICEdDIE_SIZE
+TOTAL_DAMAGE: 0
+
+function: reroll R:n {
+  if R > DIE_SIZE/2 { result: R }
+  result: 1dDIE_SIZE
+}
+
+loop X over {1..NUM_DICE} {
+  if X < NUM_DICE - CHA_MOD {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + X @ DAMAGE
+  }
+  else {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + [reroll X @ DAMAGE]
+  }
+}
+
+output NUM_DICEdDIE_SIZE named "Normal Damage"
+output TOTAL_DAMAGE named "Empowered Spell"

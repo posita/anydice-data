@@ -1,0 +1,97 @@
+function : dice map PLUS:n vs AC:n
+{
+ CUTOFF : AC - PLUS - 1
+ MISS : [lowest of [highest of 1 and CUTOFF] and 19]
+ result : 1d{0:MISS,1:(19-MISS),2}
+}
+
+function : save map PLUS:n vs DC:n
+{
+ CUTOFF : DC - PLUS - 1
+ MISS : [lowest of [highest of 1 and CUTOFF] and 19]
+ result : 1d{2:MISS,1:(19-MISS),1}
+}
+
+function : attack MAP:s with DICE:d DPLUS:n
+{
+ O : 0
+ if MAP > 0
+ {
+  O : DPLUS + MAPdDICE
+ }
+ result : O
+}
+
+function : save MAP:s with DAMAGE:d
+{
+ result : (MAP * DAMAGE)/2
+}
+
+function : hp HP:s MHP:s vs DAMAGE:s
+{
+ if HP < 0
+ {
+  if (DAMAGE > 0)
+  {
+   result : [highest of -3 and HP - 0]
+  }
+  else
+  {
+   result : HP
+  }
+ }
+ else
+ {
+  if DAMAGE < HP + MHP
+  {
+   result : [highest of 0 and HP - DAMAGE]
+  }
+  else
+  {
+   result : -3
+  }
+ }
+}
+
+function : attack APLUS:n with DAMAGE:d DPLUS:n vs AC:n
+{
+ result : [attack [dice map APLUS vs AC] with DAMAGE DPLUS]
+}
+
+function : minotaur vs HP AC:n STR:n 
+{
+ MAP : [dice map 6 vs AC]
+ 
+}
+
+function : minotaur calc vs HP:n AC:n hits TIMES:n
+{
+ MAP : [dice map 6 vs AC]
+ 
+ DAMAGE : [attack MAP with 4d8 2]
+ loop N over {2..TIMES}
+ {
+  DAMAGE : DAMAGE + [attack MAP with 2d12 2]
+ }
+ result : DAMAGE
+}
+
+HP : {27,18,17,25}
+AC : {16,10,14,15}
+STR : {5,5,1,5}
+
+
+loop J over {1..#AC}
+{
+ A : J@AC
+ S : J@STR
+ MAP : [dice map 6 vs A]
+ Q : [minotaur calc vs J@HP A hits 2] > J@HP
+ output Q named "Player [J] attack 1"
+ 
+}
+
+
+
+
+

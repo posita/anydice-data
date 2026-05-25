@@ -1,0 +1,389 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]] named "Half Orc Zealot 20 GWM+PAM+FS:GWF+Piercer Pike "
+
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]]+[attack 1d20 plus 3-5 vs ac 10 hit 1d[reroll 1d10 as 1d10 if less than 3]+17 miss 0 crit 7d[reroll 1d10 as 1d10 if less than 3]+17] named "Half Orc Zealot 20 GWM+PAM+FS:GWF+Piercer Pike PAM reaction"
+
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+hit 1d[reroll 1d12 as 1d12 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+crit 6d[reroll 1d12 as 1d12 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]] named "Half Orc Zealot 20 GWM+PAM+FS:GWF+Piercer Pike Greataxe switch"
+
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+hit 1d[reroll 1d12 as 1d12 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]
+crit 6d[reroll 1d12 as 1d12 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10]]]+[attack 1d20 plus 3-5 vs ac 10 hit 1d[reroll 1d10 as 1d10 if less than 3]+17 miss 0 crit 7d[reroll 1d10 as 1d10 if less than 3]+17] named "Half Orc Zealot 20 GWM+PAM+FS:GWF+Piercer Pike PAM reaction Greataxe switch"
+
+output [attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+	crange 19]
+miss [attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+	crange 19]
+crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+17+4+10+[attackcrange [highest 1 of 2d20] plus 3-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+17+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+17+4+10
+		crange 19]
+	crange 19]
+crange 19] named "Half Orc Zealot 15 Forge 1 Champion 4 GWM+PAM+FS:GWF+Piercer Pike "
+
+output [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+	crange 19]
+miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+	crange 19]
+crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+	crange 19]
+crange 19] named "Half Orc Zealot 15 Forge 1 Champion 4 GWM+PAM+FS:GWF+Piercer Pike "
+
+output [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+	crange 19]
+miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+	crange 19]
+crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+    hit 1d[reroll 1d10 as 1d10 if less than 3]+1d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    miss [attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+    crit 7d[reroll 1d10 as 1d10 if less than 3]+2d6+16+4+10+[attackcrange [highest 1 of 2d20] plus 1-5+1 vs ac 10
+        hit 1d[reroll 1d4 as 1d4 if less than 3]+1d6+16+4+10
+        miss 0
+        crit 6d[reroll 1d4 as 1d4 if less than 3]+2d6+16+4+10
+		crange 19]
+	crange 19]
+crange 19]
++[attackcrange 1d20 plus 1-5+1 vs ac 10 
+hit 1d[reroll 1d10 as 1d10 if less than 3]+16 
+miss 0 
+crit 7d[reroll 1d10 as 1d10 if less than 3]+16
+crange 19] named "Half Orc Zealot 15 Forge 1 Champion 4 GWM+PAM+FS:GWF+Piercer Pike PAM reaction"

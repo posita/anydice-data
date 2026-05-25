@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/docs/">
+		<meta property="og:type" content="website">
+		<meta property="og:title" content="Functions, AnyDice Documentation">
+		<meta property="og:description" content="Documentation for AnyDice, the online dice probability calculator.">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Functions, AnyDice Documentation</title>
+		<link href="../docs.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"headline": "Functions, AnyDice Documentation",
+			"description": "Documentation for AnyDice, the online dice probability calculator.",
+			"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/documentation/", "name": "Documentation" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Documentation</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1 itemprop="name headline">Functions</h1>
+				</header>
+				
+				<p>AnyDice allows you to define functions, which you can then invoke using any values you like. The name of a function can consist of any amount of
+lowercase words	and variables. You invoke a function by writing its name between brackets, replacing the variables in its name with whatever you
+want it to operate on.
+<p>
+Inside the block of a function, you can define its result at any time. Whenever a function's result is defined, its execution is finished. If you do
+not define the result of a function then it will be the empty die.
+
+<pre>function: add A to B {
+ result: A + B
+}
+
+output [add 1 to 2] named "3"
+output [add d4 to 1] named "d4 + 1"
+output [add d4 to d6] named "d4 + d6"</pre>
+
+The variables that are defined inside a function only exist while that function is being invoked. If a variable with the same name already existed,
+then its old value will become available again after the function invocation is finished.
+<p>
+It is not possible to provide output or to configure AnyDice while inside a function.
+
+<h3>Parameter types</h3>
+
+The variables inside a function's name are the parameters it operates on. It is possible to constrain these parameters to a specific type. You do this
+by following a variable with a colon, then a character indicating its type. Use <code>n</code> for numbers, <code>d</code> for dice, and <code>s</code>
+for sequences. The behavior	of a function depends on what type of value it expects and what type of value it actually receives.
+
+<dl>
+	<dt>Expecting a number</dt>
+	<dd>If a sequence is provided, then the sequence will be summed. If a die is provided, then the function will be invoked for all numbers on
+	the die – or the sums of a collection of dice – and the result will be a new die.</dd>
+	<dt>Expecting a die</dt>
+	<dd>If a number is provided, then it will be converted to a die that can roll only that number. If a sequence is provided, then the sequence will
+	be summed and treated the same as a number.</dd>
+	<dt>Expecting a sequence</dt>
+	<dd>If a number is provided, then it will be converted to a sequence containing only that number. If dice are provided, then the function will
+	be invoked for all possible sequences that can be made by rolling those dice. In that case the result will be a new die.</dd>
+</dl>
+
+<pre>function: double A:n if above B:n {
+ if A > B { result: A + A }
+ result: A
+}
+
+output [double d6 if above 3] named "1, 2, 3, 8, 10, 12"
+
+function: ROLL:s count fives and above and subtract ones {
+ result: (ROLL >= 5) - (ROLL = 1)
+}
+
+output [3d6 count fives and above and subtract ones] named "-3 .. 3"</pre>
+
+While it is possible to assign a value to a variable used as a parameter, you should not do so yourself.
+
+<h3>Recursion</h3>
+
+It is possible to invoke a function inside another function. It is even possible to invoke a function inside itself. Theoretically, it is possible to
+make a function invoke itself indefinitely. However, AnyDice is only able to support a limited number of nested function calls. Whenever this limit is
+exceeded, the invoked function's result will automatically be the empty die and a warning will be issued.
+<p>
+If you want to, you can adjust the maximum nesting level – called the maximum function depth – to any number you want. However, this might cause
+AnyDice to fail as it tries to claim more machine resources that it is allowed to.
+
+<pre>function: depth { result: 1 + [depth] }
+
+output [depth] named "default maximum function depth"
+
+set "maximum function depth" to 5
+output [depth] named "custom maximum function depth"</pre>
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+	</body>
+</html>

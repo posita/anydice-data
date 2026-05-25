@@ -1,0 +1,101 @@
+function: produceflame ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: PRODUCEFLAMECRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: PRODUCEFLAME }
+ result: 0
+}
+
+function: quarterstaff ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: QUARTERSTAFFCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + 2 + ACCBONUS >= AC { result: QUARTERSTAFF }
+ result: 0
+}
+
+function: poisonspray ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: 0 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: POISONSPRAY }
+}
+
+function: thunderwave ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: THUNDERWAVE/2 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: THUNDERWAVE }
+}
+
+function: thunderwavetwo ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: THUNDERWAVETWO/2 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: THUNDERWAVETWO }
+}
+
+function: thunderwavethree ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: THUNDERWAVETHREE/2 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: THUNDERWAVETHREE }
+}
+
+function: flamingsphere ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: FLAMINGSPHERE/2 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: FLAMINGSPHERE }
+}
+
+function: flamingspherethree ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: FLAMINGSPHERETHREE/2 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: FLAMINGSPHERETHREE }
+}
+
+function: moonbeam ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: MOONBEAM/2 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: MOONBEAM }
+}
+
+function: moonbeamthree ROLL:n vs DC:n {
+ if ROLL < ENEMYSAVE { result: MOONBEAMTHREE/2 }
+ if ROLL + ENEMYSAVE >= SAVEDC { result: MOONBEAMTHREE }
+}
+
+ENEMYAC: d{10..15}
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+
+SAVEDC: 8+3+4
+ENEMYSAVE: {0..5}
+ENEMIESAFFECTED: 1
+
+PRODUCEFLAME: 2d8
+PRODUCEFLAMECRIT: 4d8
+
+QUARTERSTAFF: 1d6 + 2
+QUARTERSTAFFCRIT: 2d6 + 2
+
+POISONSPRAY: 2d12
+
+THUNDERWAVE: 2d8
+THUNDERWAVETWO: 3d8
+THUNDERWAVETHREE: 4d8
+
+FLAMINGSPHERE: 2d6
+FLAMINGSPHERETHREE: 3d6
+
+MOONBEAM: 2d10
+MOONBEAMTHREE: 3d10
+
+output ENEMIESAFFECTED*d[thunderwavethree d20 vs SAVEDC] named "3rd level thunderwave (2-9 creatures)"
+output ENEMIESAFFECTED*d[moonbeamthree d20 vs SAVEDC] named "3rd level moonbeam (2-32 creatures)"
+output ENEMIESAFFECTED*d[flamingspherethree d20 vs SAVEDC] named "3rd level flaming sphere (2-9 creatures)"
+
+output ENEMIESAFFECTED*d[thunderwavetwo d20 vs SAVEDC] named "2nd level thunderwave (2-9 creatures)"
+output ENEMIESAFFECTED*d[moonbeam d20 vs SAVEDC] named "2nd level moonbeam (2-32 creatures)"
+output ENEMIESAFFECTED*d[flamingsphere d20 vs SAVEDC] named "2nd level flaming sphere (2-9 creatures)"
+output ENEMIESAFFECTED*2d4 named "2nd level spike growth (2-12 creatures)"
+
+output ENEMIESAFFECTED*d[thunderwave d20 vs SAVEDC] named "1st level thunderwave (2-9 creatures)"
+
+output d[poisonspray d20 vs SAVEDC] named "poison spray"
+output d[produceflame d20 vs ENEMYAC] named "produce flame"
+output d[produceflame [lowest 1 of 2d20] vs ENEMYAC] named "produce flame in melee"
+output d[quarterstaff d20 vs ENEMYAC] named "quarterstaff"
+
+output 1d8 + 4 named "1st level cure wounds"
+output 1d4 + 4 named "1st level healing word"

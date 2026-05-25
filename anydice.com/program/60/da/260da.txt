@@ -1,0 +1,64 @@
+DICETOROLL: 5
+TRAINING: 5
+
+set "maximum function depth" to 5
+
+function: roll ROLL:n {
+ result: ROLL >= TRAINING
+}
+
+function: rollexploding ROLL:n {
+ if ROLL = 6 {result: 1 + [rollexploding 1d6]}
+ result: [roll ROLL]
+}
+
+function: rerollones ROLL:n {
+ if ROLL = 1 {result: 0 + [rerollones 1d6]}
+ result: [roll ROLL]
+}
+
+function: rerollall RESULT:n under TARGET:n else FALLBACK:n {
+ if RESULT <= TARGET {
+  result: FALLBACK
+ }
+ else {
+  result: RESULT
+ }
+}
+
+function: normal DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [roll 1d6]
+ }
+ result: RES
+}
+
+function: vigor DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [rollexploding 1d6]
+ }
+ result: RES
+}
+
+function: instinct DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [rerollones 1d6]
+ }
+ result: RES
+}
+
+function: focus DICE:n {
+ FIRSTROLL: [normal DICE]
+ SECONDROLL: [normal DICE]
+ result: [rerollall FIRSTROLL under (DICE * (7 - TRAINING) / 6) else SECONDROLL]
+}
+
+
+output [normal DICETOROLL] named "[DICETOROLL] Normal dice against [TRAINING]+"
+output [vigor DICETOROLL] named "[DICETOROLL] Vigor dice against [TRAINING]+"
+output [instinct DICETOROLL] named "[DICETOROLL] Instinct dice against [TRAINING]+"
+output [focus DICETOROLL] named "[DICETOROLL] Focus dice against [TRAINING]+"
+

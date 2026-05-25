@@ -1,0 +1,37 @@
+oneroll <- function(D) {
+  return(sample(D,1));
+}
+advantage <- function() {
+  return(max(oneroll(20), oneroll(20)));
+}
+disadvantage <- function() {
+  return(min(oneroll(20), oneroll(20)));
+}
+
+NUM_SIMS <- 100000;
+
+advs <- rep(0,NUM_SIMS);
+for (n in 1:NUM_SIMS)
+  advs[n] <- advantage();  
+
+disadvs <- rep(0,NUM_SIMS);
+for (n in 1:NUM_SIMS)
+  disadvs[n] <- disadvantage();  
+
+print("", quote=FALSE);
+print("CCDF (Pr[result >= k])",quote=FALSE);
+print(sprintf("%2s  %6s  %6s  %6s", "k", "disadv", "normal", "advant"),
+      quote=FALSE);
+
+cumulative_disadv <- 0;
+cumulative_norm <- 0;
+cumulative_adv <- 0;
+
+for (k in 20:1) {
+  cumulative_disadv <- cumulative_disadv + sum(disadvs == k) / NUM_SIMS;
+  cumulative_norm <- cumulative_norm + 0.05;
+  cumulative_adv <- cumulative_adv + sum(advs == k) / NUM_SIMS;
+  print(sprintf("%2d  %6.3f  %6.3f  %6.3f",    
+                k,
+                cumulative_disadv, cumulative_norm, cumulative_adv),
+        quote=FALSE);

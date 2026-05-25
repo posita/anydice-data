@@ -1,0 +1,46 @@
+\ Attribute Modifier \
+ATTRIB: 4
+\ d20 required to hit\
+TOHIT: 11
+\ Great Weapon Fighting \
+GWF: 1
+\ Two Weapon Fighting using GWF rules. \
+TWF: 1
+\ On hit \
+ONHIT: 1
+\ On Hit damage \
+ONHITDAM: d6
+
+function: X:n gwf{
+if GWF = 1 {
+if X >=3 {result: X}
+result: 1d6 }
+result: X
+}
+
+function: X:n twf{
+if TWF = 1 {
+if X >=3 {result: X}
+result: 1d6 }
+result: X
+}
+
+function: X:n gw{
+if X = 20 {result: [d6 gwf] + [d6 gwf] + [d6 gwf] + [d6 gwf] + ATTRIB + ONHITDAM}
+if X >= TOHIT {result: [d6 gwf] + [d6 gwf] + ATTRIB + ONHITDAM}
+result: 0
+}
+output [d20 gw]+[d20 gw] named "Two Great Weapon attacks"
+
+function: X:n twf{
+if X = 20 {result: [d6 twf] + [d6 twf] + ATTRIB + ONHITDAM}
+if X >= TOHIT {result: [d6 twf] + ATTRIB + ONHITDAM}
+result: 0
+}
+
+function: X:n twfoff{
+if X = 20 {result: [d6 twf] + [d6 twf] + ONHITDAM}
+if X >= TOHIT {result: [d6 twf] + ONHITDAM}
+result: 0
+}
+output [d20 twf]+[d20 twf]+[d20 twfoff] named "Two Two Weapon Fighting + Bonus Action attacks"

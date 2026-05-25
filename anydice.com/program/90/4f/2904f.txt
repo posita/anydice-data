@@ -1,0 +1,44 @@
+MISS: 0
+HIT: 1
+CRITHIT: 2
+
+function: attack ROLL:n with BONUS:n vs DEFENCE:n {
+  if ROLL = 1 {
+    result: MISS
+  }
+  if ROLL + BONUS >= DEFENCE {
+    if ROLL = 20 {
+      result: CRITHIT
+    }
+    result: HIT
+  }
+  result: MISS
+}
+
+function: damage ROLL:d with BONUS:n of RESULT:n {
+  if RESULT = MISS {
+    result: 0
+  }
+  if RESULT = HIT {
+    result: ROLL + BONUS
+  }
+  if RESULT = CRITHIT {
+    result: [maximum of ROLL] + ROLL + BONUS
+  }
+}
+
+ATTACKBONUS: 5
+DAMAGEROLLS: 1d8
+DAMAGEBONUS: 3
+
+loop AC over {0..30}{
+  output [damage DAMAGEROLLS with DAMAGEBONUS of [attack [lowest 1 of 2d20] with ATTACKBONUS vs AC]] named "AC[AC]"
+}
+
+loop AC over {0..30}{
+  output [damage DAMAGEROLLS with DAMAGEBONUS of [attack d20 with ATTACKBONUS vs AC]] named "AC[AC]"
+}
+
+loop AC over {0..30}{
+  output [damage DAMAGEROLLS with DAMAGEBONUS of [attack [highest 1 of 2d20] with ATTACKBONUS vs AC]] named "AC[AC]"
+}

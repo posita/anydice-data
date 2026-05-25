@@ -1,0 +1,63 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+SNEAKATTACK: 3d6
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + HITDAMAGE + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains HIT] {
+  result: SNEAKATTACK
+ }
+else if [ATTACKRESULTS contains CRITICALHIT] {
+ result: SNEAKATTACK + SNEAKATTACK
+}
+result: 0
+}
+
+ATTACK: 7
+HITDAMAGE: 1d6 + 4
+CRITICALDAMAGE: 1d6
+MISSDAMAGE: 0
+
+DEFENSE: d{1}
+output [1 attacks] named "2 AA VS D14-25"
+
+

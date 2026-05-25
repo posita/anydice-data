@@ -1,0 +1,26 @@
+function: roll S:n successes after K:n on DIE:d in N:n rolls {
+  if S <= 0 { result: 1 }
+  if N <= 0 { result: 0 } 
+  result: [
+   if DIE >= [dc after K successes]
+   then [roll S-1 successes after K+1 on DIE in N-1 rolls]
+   else [roll S successes after K on DIE in N-1 rolls]
+  ]
+}
+
+function: if COND:n then A else B {
+  if COND { result: A } else { result: B }
+} 
+
+set "maximum function depth" to 20
+
+X: 10
+loop Y over {1,3,5} {
+  function: dc after K:n successes {
+    result: X + Y*K
+  }
+
+  loop M over {0..+3} {
+    output [roll 3 successes after 0 on d20+M in 10 rolls] named "DC = [X] + [Y]*successes, mod = [M]"
+  }
+}

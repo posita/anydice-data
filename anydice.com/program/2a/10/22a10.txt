@@ -1,0 +1,123 @@
+\https://anydice.com/program/22a0f\
+
+\*********************************\
+\*********** SETTINGS ************\
+\*********************************\
+
+\** ENEMY **\
+
+\ Enemy attack bonus. Ignores critical hits and misses. \
+ATK: 7
+\ Damage of enemy's most powerful attack. This will be blocked by Interception if it hits \
+ATK_A_DMG: 2d8+5
+\ Number of primary attacks the enemy makes per turn. If greater than 1, the first one that hits will be blocked \
+ATK_A_COUNT: 1
+\ Damage of enemy's secondary attack. Unaffected by Interception \
+ATK_B_DMG: 1d10+5
+\ Number of secondary attacks the enemy makes per turn \
+ATK_B_COUNT: 1
+
+\** ALLIES **\
+
+\ AC of the ally within 5ft of Mindartis and range of enemy \
+ALLY_AC: 16
+\ AC of Mindartis \
+SELF_AC: 20
+
+\ Current hit points of ally. Optional, used to calculate survival chance \
+ALLY_HP: 12
+\ Concentration save bonus for Mindartis. Optional, used to calculate concentration break chance. Assumes DC10 for simplicity \
+SELF_CON: 2
+
+\ Interception fighting style \
+BLOCK: 1d10+3
+\ Weave's Ward \
+WARD: 4d6
+
+\*********************************\
+\************* MATHS *************\
+\*********************************\
+
+HIT_ALLY: 1d20+ATK>=ALLY_AC
+\ Number of times ATK_A hits the ally. If this is greater than 0, 1 attack will be blocked by Interception \
+ATK_A_ALLY_HITS: ATK_A_COUNTdHIT_ALLY
+\ Damage of ATK1 through Interception. Blocking cannot reduce damage below 0. If all instances of ATK_A miss, this will be 0 \
+ATK_A_ALLY_BLOCK_DMG: [lowest of 1 and ATK_A_ALLY_HITS] * [highest of ATK_A_DMG-BLOCK and 0]
+\ Instances of ATK_A that hit, and are not blocked by Interception. One less than total number of hits, since Interception works once. Cannot be negative \
+ATK_A_ALLY_UNBLOCKED_HITS: [highest of 0 and ATK_A_ALLY_HITS-1]
+\ Damage from hits of ATK_A that are not blocked by Interception \
+ATK_A_ALLY_UNBLOCKED_DMG: ATK_A_ALLY_UNBLOCKED_HITSdATK_A_DMG
+\ Damage of each ATK_A on the ally. Ignores Interception \
+ATK_A_ALLY: HIT_ALLY*ATK_A_DMG
+\ Damage of each ATK_B on the ally \
+ATK_B_ALLY: HIT_ALLY*ATK_B_DMG
+
+HIT_SELF: 1d20+ATK>=SELF_AC
+ATK_A_SELF: HIT_SELF*ATK_A_DMG
+ATK_B_SELF: HIT_SELF*ATK_B_DMG
+
+HIT_DODGE: [lowest 1 of 2d20]+ATK>=SELF_AC
+ATK_A_DODGE: HIT_DODGE*ATK_A_DMG
+ATK_B_DODGE: HIT_DODGE*ATK_B_DMG
+
+\ Chance of failing a concentration save at DC10. \
+CONC_FAIL: 1d20 + SELF_CON < 10
+
+\*********************************\
+\********* OUTPUT MATHS **********\
+\*********************************\
+
+\ All attacks made against ally. \
+TOTAL_VS_ALLY: ATK_A_COUNTdATK_A_ALLY + ATK_B_COUNTdATK_B_ALLY
+\ All attacks made against ally. One primary attack is blocked by Interception, if possible. Ward absorbs the rest \
+TOTAL_VS_WARD: [highest of 0 and ATK_A_ALLY_BLOCK_DMG + ATK_A_ALLY_UNBLOCKED_DMG + ATK_B_COUNTdATK_B_ALLY - WARD]
+\ All attacks against Mindartis \
+TOTAL_VS_SELF: ATK_A_COUNTdATK_A_SELF + ATK_B_COUNTdATK_B_SELF
+\ As above, but dodging \
+TOTAL_VS_DODGE: ATK_A_COUNTdATK_A_DODGE + ATK_B_COUNTdATK_B_DODGE
+
+BASE_SURVIVE: TOTAL_VS_ALLY < ALLY_HP
+WARD_SURVIVE: TOTAL_VS_WARD < ALLY_HP
+
+HITS_VS_SELF: (ATK_A_COUNT+ATK_B_COUNT)dHIT_SELF
+HITS_VS_DODGE: (ATK_A_COUNT+ATK_B_COUNT)dHIT_DODGE
+
+CONC_BREAK_SELF: [lowest of 1 and HITS_VS_SELFdCONC_FAIL]
+CONC_BREAK_DODGE: [lowest of 1 and HITS_VS_DODGEdCONC_FAIL]
+
+\*********************************\
+\************ OUTPUT *************\
+\*********************************\
+
+\ To maximise damage, they attack the easiest target. \
+output TOTAL_VS_ALLY named "Ordinary DPR"
+
+\ If they try to break through the Ward. Assuming one instance of strongest attack is blocked by Interception, and Ward absorbs the rest. If strongest attack misses, Interception is not calculated. Total cannot go below 0 \
+output TOTAL_VS_WARD named "DPR through Ward"
+
+\ Attacking Mindartis instead of trying to break Ward \
+output TOTAL_VS_SELF named "DPR vs Mindartis"
+\ As above, but Mindartis takes the dodge action so attacks have disadvantage \
+output TOTAL_VS_DODGE named "DPR vs dodging Mindartis"
+
+output BASE_SURVIVE named "Ordinary Survival Chance"
+output WARD_SURVIVE named "Warded Survival Chance"
+
+\ Chance of concentration breaking each turn if enemies choose to attack Mindartis. Assumes DC10 for simplicity. \
+output CONC_BREAK_SELF named "Concentration break probability"
+output CONC_BREAK_DODGE named "Concentration break probability whilst dodging"
+
+\*********************************\
+\************ NOTES **************\
+\*********************************\
+\*
+This assumes a fairly simple enemy, that makes a number of strong primary attacks followed by a number of weak secondary attacks.
+- It assumes Mindartis manages to block a primary attack with Interception. This is optimal play, and will make the output higher than the true value.
+- If all the primary attacks miss, the program will not use Interception on a secondary attack, whereas Mindartis would. This will make the output higher than the true value.
+- The program ignores critical hits. This will make the output higher than the true value.
+- The program ignores critical misses. Critical misses only matter if 1+ATK>=ALLY_AC, so this is unlikely to make a difference.
+
+The concentration calculations assume DC10 for simplicity.
+
+Very roughly, Interception is about 8.5, Weave's Ward is about 14, so I should block around 22.5 damage. This will be reduced as some Interception may be wasted, so I expect the difference in the DPR averages to be about 20. If it isn't, something went wrong.
+*\

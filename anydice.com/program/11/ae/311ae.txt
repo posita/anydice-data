@@ -1,0 +1,83 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+\ halves damage on save\
+function: cast ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:CRIT}
+ if ROLL = 20{
+  result:HIT
+ }
+ if ROLL+SAV>=DC{result:HIT}
+ result: CRIT
+}
+\ nulls damage on save, no halves \
+function: locast ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:CRIT}
+ if ROLL = 20{
+  result:MISS
+ }
+ if ROLL+SAV>=DC{result:MISS}
+ result:CRIT
+}
+\evasion rules, halves damage on fail save\
+function: evasion ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:HIT}
+ if ROLL = 20{
+  result:MISS
+ }
+ if ROLL+SAV>=DC{result:MISS}
+ result:HIT
+}
+\standard hit indicator\
+function: attack ROLL:n sum ACC:s vs AC:s{
+ if ROLL = 1{result: MISS}
+ if ROLL = 20{
+  result:CRIT
+ }
+ if ROLL+ACC >= AC{result:HIT}
+ result: MISS
+}
+MISSDAMAGE: 0
+\damage vs AC\
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+\damage vs saves\
+function: magic for MR:n{
+ if MR = CRIT{
+  result: SPELL
+ }
+ if MR = HIT{
+  result: SPELL/2
+ }
+ result: MISSDAMAGE
+}
+\chance with crit success and fail rules\
+function: chance ROLL:n sum MOD:s vs DC:s{
+ if ROLL = 1{result:0}
+ if ROLL = 20{
+  result: 1
+ }
+ if ROLL + MOD >= DC{result: 1}
+ result: 0
+}
+\ standard check with no crit \
+function: lochance ROLL:n sum MOD:s vs DC:s{
+ if ROLL + MOD >= DC{result: 1}
+ result: 0
+}
+\damage vs AC\
+HITDAMAGE: 3d8+d{3..5}
+CRITICALDAMAGE: 6d8+d{3..5}
+\ spell is damage used for damage vs saves \
+SPELL: 8d6
+output [chance d20 sum 0 vs 20] named "no d6"
+loop X over {1..10}{
+ output [chance d20 sum Xd6 vs 20] named "[X]d6"
+}

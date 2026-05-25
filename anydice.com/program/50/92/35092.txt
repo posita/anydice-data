@@ -1,0 +1,125 @@
+\ =============    ATTACK   ============ \
+
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+function: twist DE:n DIE:d {
+  if DE <= 1 {
+    result: 1@{DIE}
+  } 
+  if DE = 2 {
+    result: [lowest of DIE and DIE]
+  }
+  if DE = 3 {
+    result: [highest of DIE and DIE]
+  }
+  if DE >= 4 {
+    result: 1@[reverse {DIE}]
+  }
+}
+
+function: ttf DIE:d {
+  result: (DIE-1)/5+1
+}
+
+\ ====================================== \
+
+\ ==============   SAVES   ============= \
+
+function: save ROLL:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    if ROLL >= DC {
+        result: S_DMG
+    }
+    if ROLL < DC {
+        result: F_DMG
+    }
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for half {
+    result: [save ROLL vs DC-MOD for F_DMG damage or F_DMG/2 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for none {
+    result: [save ROLL vs DC-MOD for F_DMG damage or 0 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success with crit fail on CRITS:s for CRIT_DMG:d {
+  if [CRITS contains ROLL] {
+    result: CRIT_DMG
+  } 
+
+  result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+} 
+
+\ ====================================== \
+
+
+HIT_ROLL: [highest 1 of 3d20]
+HIT_MOD: 0
+AC: 8
+
+F_DMG: 7
+
+DMG: 3d6
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}] named "LP+RoA"
+
+DMG: 4d8
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}] named "DBA"
+
+DMG: 3d6+2d8
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}] named "LP+RoA+CS"
+
+DMG: 3d6+2d8+4d8
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}] named "LP+RoA+uCS"
+
+DMG: [twist [ttf d20+5] 3d6+2d8+4d8]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}] named "LP+RoA+uCS, A-Twisted"
+
+DMG: [twist [ttf [highest 1 of 2d20]+5] 3d6+2d8+4d8]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}] named "LP+RoA+uCS, LA-Twisted"
+
+DMG: [twist [ttf d20+5] 3d6+2d8+4d8]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "LP+RoA+uCS, A-Twisted, C-on-H"
+
+DMG: [twist [ttf [highest 1 of 2d20]+5] 3d6+2d8+4d8]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "LP+RoA+uCS, LA-Twisted, C-on-H"
+
+DMG: [twist [ttf d20+5] 3d6+2d8+4d8+8d4]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "LP+RoA+uCS+uCB, A-Twisted, C-on-H"
+
+DMG: [twist [ttf [highest 1 of 2d20]+5] 3d6+2d8+4d8+8d4]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "LP+RoA+uCS+uCB, LA-Twisted, C-on-H"
+
+DMG: [twist [ttf d20+5] 3d6+2d8+4d8+8d4+12d6]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "LP+RoA+uCS+uCB+PWP, A-Twisted, C-on-H"
+
+DMG: [twist [ttf [highest 1 of 2d20]+5] 3d6+2d8+4d8+8d4+12d6]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "LP+RoA+uCS+uCB+PWP, LA-Twisted, C-on-H"
+
+
+DMG: [twist [ttf [highest 1 of 2d20]+5] 3d6+6d10+8d4+12d6]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "LP+RoA+uIW+uCB+PWP, LA-Twisted, C-on-H"
+
+DMG: [twist [ttf [highest 1 of 2d20]+5] 4d12+2d8+4d8+8d4+12d6]
+output [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {1..20}] named "AMR+RoA+uCS+uCB+PWP, LA-Twisted, C-on-H"

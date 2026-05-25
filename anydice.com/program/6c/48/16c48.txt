@@ -1,0 +1,48 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack roll ROLL:n  {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ else { result: HIT }
+}
+
+function: damage with ATTACKRESULT:n and damage dice A:n B:n C:n with crit CRIT:n{
+  if ATTACKRESULT = MISS {
+    result: 0
+  }
+
+  DAMAGE: A + B + C
+  if ATTACKRESULT = CRITICALHIT {
+    DAMAGE: DAMAGE + CRIT
+  }
+  
+  result: DAMAGE
+}
+
+DEIGHT: d8
+DSIX: d6
+CHAOS_BOLT_CRIT: 2d8 + d6
+
+FIRST_BOLT: [damage with [attack roll d20] and damage dice 1d8 1d8 1d6 with crit CHAOS_BOLT_CRIT]
+SECOND_BOLT: [damage with [attack roll d20] and damage dice 1d8 1d8 1d6 with crit CHAOS_BOLT_CRIT]
+
+function: castchaosbolt with X:n and Y:n {
+  if X = Y {
+    result: FIRST_BOLT + SECOND_BOLT
+  }
+  else {
+    result: FIRST_BOLT
+  }
+}
+
+DEIGHT_THREE: d8
+CHROMATIC_ORB_CRIT: 3d8
+
+function: castchromaticorb {
+  result: [damage with [attack roll d20] and damage dice 1d8 1d8 1d8 with crit CHROMATIC_ORB_CRIT]
+}
+
+output [castchaosbolt with 1d8 and 1d8] named "chaos bolt"
+output [castchromaticorb] named "chromatic orb"

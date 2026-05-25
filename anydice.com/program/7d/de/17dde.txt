@@ -1,0 +1,31 @@
+set "maximum function depth" to 5
+
+function: succ VALUE:n {
+ if VALUE <= 0 { result: -1 }
+  else if VALUE < 9 { result: 0 }
+  else if VALUE < 12 { result: 1 }
+  else { result: (VALUE/5) }
+}
+
+function: larp pool of POOL:n with R:n again N:n going DIR:n {
+ VALUE: POOL
+ if N = 1 {
+  if DIR = 1 {
+   result: VALUE - 5
+  } else if DIR <= 0 {
+   result: VALUE - 5 + [larp pool of 0 with R again d10 going -1]
+  }
+ } else if N >= R {
+  if DIR = -1 {
+   result: VALUE + 10
+  } else if DIR >= 0 {
+   result: VALUE + 10 + [larp pool of 0 with R again d10 going 1]
+  }
+ } else {
+  result: VALUE + N
+ }
+}
+
+loop N over {1..10} {
+ output [highest of 0 and [lowest of 10 and[succ [larp pool of N with 10 again d10 going 0]]]] named "Pool of [N]"
+}

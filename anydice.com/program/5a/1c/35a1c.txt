@@ -1,0 +1,81 @@
+Q: d{0..3}
+Z: d{0,0..2}
+\
+Roll:     {3,3,3,3,2,2,1,1,1,1,1,0}
+Reversed: {0,1,1,1,1,1,2,2,3,3,3,3}
+\
+
+
+function: count pairing TARGET:n in SEQUENCE:s {
+ REVERSED: [reverse SEQUENCE]
+ SIZEMAX: #REVERSED
+ SIZEMIN: 1
+ COUNT: 0
+ loop M over {1..#SEQUENCE} {
+  END: 0
+  COUNT: COUNT + (M@SEQUENCE>=TARGET)
+  \if (M@SEQUENCE >= TARGET) { COUNT: COUNT + 1 }\
+
+  if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) {
+    loop N over {(SIZEMIN)..(SIZEMAX-M)} {
+       if (END=0) {
+         if ((M@SEQUENCE + N@REVERSED) >= TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: N+1
+         }
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+
+function: bis count pairing TARGET:n in SEQUENCE:s {
+ SIZEMAX: #SEQUENCE
+ SIZEMIN: 1
+ COUNT: 0
+ loop M over {1..#SEQUENCE} {
+  END: 0
+
+  COUNT: COUNT + (M@SEQUENCE>=TARGET)
+  \if (M@SEQUENCE >= TARGET) { COUNT: COUNT + 1 }\
+
+  if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) {
+    loop N over {(SIZEMIN)..(SIZEMAX-M)} {
+       if (END=0) {
+         if ((M@SEQUENCE + (SIZEMAX-N+1)@SEQUENCE) >= TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: N+1
+         }
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+
+function: exact pairing SEQUENCE:s on TARGET:n {
+ COUNT: 0
+ TEMP: {}
+ loop M over {1..#SEQUENCE} {
+    if (M@SEQUENCE >= TARGET) { COUNT: COUNT + 1 }
+    if (M@SEQUENCE < TARGET) & (M@SEQUENCE > 0) & (M@SEQUENCE >= ((TARGET-1)/2)) { TEMP: {TEMP, M@SEQUENCE} }   \Remove 0s & Non-Pairable from the roll.\
+ }
+ loop N over {1..#TEMP} {
+    
+ }
+ result: TEMP
+}
+
+T: 6
+POOL: 15
+\output POOLdZ
+output [exact pairing POOLdQ on T] named "exact pairing [POOL]d4 TEST"\
+output [count pairing T in POOLdQ] named "count pairing [POOL]d4 TEST"
+output [bis count pairing T in POOLdQ] named "bis count pairing [POOL]d4 TEST"
+
+

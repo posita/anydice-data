@@ -1,0 +1,38 @@
+CD_BASE:    12
+MOD_TESTE:  4
+MOD_LESAO: -5
+MOD_MORTE: -15
+
+function: morte con CON:n n TIMES:n {
+  X: 3  \ -1: moribundo com lesão, 0: morto, 1: vivo com lesão, 2: vivo sem lesão, 3: moribundo \
+  loop I over {1..TIMES} {
+    X: [morte d20 aux X]
+  }
+  result: [morte res X]
+}
+
+function: morte D:n aux XN:n {
+  CD: CD_BASE+MOD_TESTE*(I-1)
+  DN: D+CON
+  if XN != 3 & XN != -1 { result: XN }        \ não está mais moribundo \
+  else if DN >= CD | D = 20 {                 \ sucesso                 \
+    if XN = -1 { result: 1 }                  \ vivo com lesão          \
+    else       { result: 2 }                  \ vivo sem lesão          \
+  }
+  else if DN <= (CD+MOD_MORTE) { result:  0 } \ morto                   \
+  else if DN <= (CD+MOD_LESAO) { result: -1 } \ moribundo com lesão     \
+  else                         { result: XN } \ moribundo               \
+}
+
+function: morte res XN:n {
+  if XN < 0 { result: 3  }
+  else      { result: XN }
+}
+
+loop N over {1..5} {
+  output [morte con 2 n N] named "[N] testes de morte (+2 Con, 0: morto, 1: vivo com lesão, 2: vivo sem lesão, 3: moribundo)"
+}
+
+loop N over {1..5} {
+  output [morte con 4 n N] named "[N] testes de morte (+4 Con, 0: morto, 1: vivo com lesão, 2: vivo sem lesão, 3: moribundo)"
+}

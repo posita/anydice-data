@@ -1,0 +1,132 @@
+\**** Damage calculator ****\
+
+function: damage CONF:n {
+ if CONF = 0 {result: 0}
+ if CONF = 1 {result: ATTDAMA+ADDDAMAGE} 
+ if CONF = 2 {result: ATTDAMA+ADDDAMAGE+ATTDAMA}
+ if CONF = 3 {result: ATTDAMA+ADDDAMAGE+[maximum of ATTDAMA]}
+}
+
+
+function: attackroll stats ROLL:n vs AC:n critconfig CRITCONF:n{
+ if ROLL>= CRITROLL {
+  if CRITCONF>=AC {
+   result:3}
+  else{
+   result:2}
+  }
+ if ROLL+ADDHIT >= AC {
+  result: 1}
+ else{result:0}
+}
+
+function: attackroll stats disadvantage ROLL:n vs AC:n critconfig CRITCONF:n{
+ if ROLL>= CRITROLL {
+  if CRITCONF>=AC {
+   result:3}
+  else{
+   result:2}
+  }
+ if ROLL+ADDHIT >= AC {
+  result: 1}
+ else{result:0}
+}
+
+function: attackroll stats advantage ROLL:n vs AC:n critconfig CRITCONF:n{
+ if ROLL>= CRITROLL {
+  if CRITCONF>=AC {
+   result:3}
+  else{
+   result:2}
+  }
+ if ROLL+ADDHIT >= AC {
+  result: 1}
+ else{result:0}
+}
+
+
+
+function: attackroll ROLL:n vs AC:n advantage ADV:n advantageindex ADIN:n{
+ \VAL: [advantage ADV]\
+ if ADIN=1{
+  if ROLL>ADV{
+   if ROLL>= CRITROLL {result:1d20+ROLL*100+ADV*10000}
+   if ROLL+ADDHIT >= AC { result: ROLL+ADDHIT+ADV*1000}
+  }
+  else{
+   if ADV>= CRITROLL {result:1d20+ADV*100+ROLL*10000}
+   if ADV+ADDHIT >= AC { result: ADV+ADDHIT+ROLL*1000}
+  }
+ }
+ if ADIN=-1{
+  if ROLL<ADV{
+   if ROLL>= CRITROLL {result:1d20+ROLL*100+ADV*10000}
+   if ROLL+ADDHIT >= AC { result: ROLL+ADDHIT+ADV*1000}
+  }
+  else{
+   if ADV>= CRITROLL {result:1d20+ADV*100+ROLL*10000}
+   if ADV+ADDHIT >= AC { result: ADV+ADDHIT+ROLL*10000}
+  }
+ }
+ else{
+  if ROLL>= CRITROLL {result:1d20+ROLL*1000}
+  if ROLL+ADDHIT >= AC { result: ROLL+ADDHIT }
+ }
+}
+
+
+\looped against enemy AC from 15-20\
+\ENEMYAC: d{15..20}\
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+ADDDAMAGE: DMGBONUS+ATTACKMOD
+ADDHIT:ATTACKMOD+PROFICIENCY+ACCBONUS
+CRITROLL: 20
+F:0
+S:0
+E:0
+TH:1
+TO:0
+
+ATTDAMA: Fd4+Sd6+Ed8+THd10+TOd12
+
+AD:1
+
+loop ENEMYAC over {7..30}{
+ output [attackroll stats d20 vs ENEMYAC critconfig d20] named "hit crit vs [ENEMYAC]"
+}
+
+loop ENEMYAC over {7..30}{
+ output [attackroll stats advantage [highest 1 of 2d20] vs ENEMYAC critconfig d20] named "adv hit crit vs [ENEMYAC]"
+}
+
+loop ENEMYAC over {7..30}{
+ output [attackroll stats disadvantage [lowest 1 of 2d20] vs ENEMYAC critconfig d20] named "dis hit crit vs [ENEMYAC]"
+}
+
+
+loop CRITIND over {0..3}{
+ output [damage CRITIND] named "Damage [CRITIND]"
+}
+
+
+loop ENEMYAC over {7..30}{
+ output [damage[attackroll stats d20 vs ENEMYAC critconfig d20]] named "hit damage on [ENEMYAC] AC"
+}
+
+loop ENEMYAC over {7..30}{
+ output [damage[attackroll stats advantage [highest 1 of 2d20] vs ENEMYAC critconfig d20]] named "hit damage adv on [ENEMYAC] AC"
+}
+
+loop ENEMYAC over {7..30}{
+ output [damage[attackroll stats disadvantage [lowest 1 of 2d20] vs ENEMYAC critconfig d20]] named "hit damage dis on [ENEMYAC] AC"
+}
+
+
+loop ENEMYAC over {7..30}{
+ output [attackroll d20 vs ENEMYAC advantage d20 advantageindex AD] named "attack roll vs [ENEMYAC]"
+}
+

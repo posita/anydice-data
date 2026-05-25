@@ -1,0 +1,27 @@
+\**** Damage calculator normal Vs GWM ****\
+\Maximum AC = attack bonus - damage/2 + 16\
+
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: DAMAGE + DAMAGE + DAMBONUS} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE +DAMBONUS}
+ result: 0
+}
+
+ATTACKMOD: 3
+PROFICIENCY: 5
+CRITROLL: 20
+ATTACKTIMES: 1
+DAMAGE: 1d10+1d8
+
+loop ENEMYAC over {13..20} {
+  ACCBONUS: 3+ 1
+  DAMBONUS: 3+ ATTACKMOD + 1
+  output ATTACKTIMESd[attackroll [highest 1 of 1d20] vs ENEMYAC] named "Att +1 vs [ENEMYAC]"
+
+  ACCBONUS: 3+ -5
+  DAMBONUS: 3+ ATTACKMOD +10
+  output ATTACKTIMESd[attackroll [highest 1 of 1d20] vs ENEMYAC] named "GWMAtt vs [ENEMYAC]"
+}
+

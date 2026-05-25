@@ -1,0 +1,54 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+      if ROLL = 1           { result: 0 }
+      if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG }
+      if ROLL + BONUS >= AC { result: DMG }
+      result: 0
+}
+
+function: max A:n B:n {
+  if A > B { result: A }
+  result: B
+}
+
+function: advantaged DIE:d {
+  result: [max DIE DIE]
+}
+
+function: sharp ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+      result: [attack ROLL plus BONUS -5 vs AC for DMG +10 crit CRIT_DMG on CRIT_RANGE]
+}
+
+function: reroll A:n B:n T:n DIE:d {
+  if A < T { result: [max DIE B] }
+  if B < T { result: [max A DIE] }
+  result: [max A B]
+}
+
+function: elven DIE:d T:n {
+  result: [reroll DIE DIE T DIE]
+}
+
+WD: 2d8
+B: 3
+H: 9
+AC: 19
+SA: 5d6
+MDS: 4d8
+
+EADVMDSSA: [attack [elven d20 11] plus H vs AC for WD+B+SA+MDS crit WD+SA+MDS on 20]
+SSADVMDSSA: [sharp [advantaged d20] plus H vs AC for WD+B+SA+MDS crit WD+SA+MDS on 20]
+ADVMDSSA: [attack [advantaged d20] plus H vs AC for WD+B+SA+MDS crit WD+SA+MDS on 20]
+ADVMDS: [attack [advantaged d20] plus H vs AC for WD+B+MDS crit WD+MDS on 20]
+MDSSA: [attack d20 plus H vs AC for WD+B+SA+MDS crit WD+SA+MDS on 20]
+MDS: [attack d20 plus H vs AC for WD+B+MDS crit WD+MDS on 20]
+ADVSA: [attack [advantaged d20] plus H vs AC for WD+B+SA crit WD+SA on 20]
+SA: [attack d20 plus H vs AC for WD+B+SA crit WD+SA on 20]
+ADVBABYHIT: [attack [advantaged d20] plus H vs AC for WD+B crit WD on 20]
+BABYHIT: [attack d20 plus H vs AC for WD+B crit WD on 20]
+
+output EADVMDSSA+ADVMDS named "ELVEN DOUBLE MAX DIVINE SMITE SNEAK ATTACK DOUBLE ADVAN RAPIER"
+output SSADVMDSSA+ADVMDS named "SHARP DOUBLE MAX DIVINE SMITE SNEAK ATTACK DOUBLE ADVAN RAPIER"
+output ADVMDSSA+ADVMDS named "DOUBLE MAX DIVINE SMITE SNEAK ATTACK DOUBLE ADVAN RAPIER"
+output MDSSA+MDS named "DOUBLE MAX DIVINE SMITE SNEAK ATTACK RAPIER"
+output ADVSA+ADVBABYHIT named "ADVAN SNEAK ATTACK SEQUENCE"
+output SA+BABYHIT named "NORMAL SNEAK ATTACK SEQUENCE"

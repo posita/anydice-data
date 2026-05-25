@@ -1,0 +1,33 @@
+\  0 = Fail \
+\  1 = Fail with Advantage \
+\  2 = Fail with Threat \
+\ 10 = Success \
+\ 11 = Success with Advantage \
+\ 12 = Success with Threat \
+
+function: adv WEAL:n NEUTRAL:n THREAT:n {
+  if WEAL >= NEUTRAL & WEAL > THREAT {
+    result: 1 \ Weal has priority over Neutral \
+  }
+  else if THREAT >= NEUTRAL & THREAT > WEAL {
+    result: 2 \ Threat has priority over Neutral \
+  }
+  else if WEAL = THREAT {
+    result: 0 \ Regardless of neutral, this will be a neutral roll \
+  }
+  else if NEUTRAL > WEAL & NEUTRAL > THREAT { 
+    result: 0 \ Should always be true here \
+  }
+  result: 255 \ Set to 255 to detect errors in the above section \
+}
+function: success WEAL:n NEUTRAL:n THREAT:n MOD:s TN:s {
+  result: ((WEAL+NEUTRAL+THREAT+MOD > TN) * 10) + [adv WEAL NEUTRAL THREAT]
+}
+
+loop TN over {10,12,14,16,18,20}{ \ 8=Very Easy 10=Easy, 12=Average, 14=Difficult, 16=Very Difficult, 18=Formidable, 20=Near Impossible \
+  loop MOD over {0..8}{ \ -3 is untrained, 0 is trained without any characteristic modifiers, +8 is about the maximum available \
+    loop N over {0,4,6,8,10}{
+      output [success 1d8 1d6 1dN MOD TN] named "Action 1d8+1d6+1d[N]+[MOD] vs [TN]"
+    }
+  }
+}

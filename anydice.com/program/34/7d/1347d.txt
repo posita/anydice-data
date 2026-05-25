@@ -1,0 +1,108 @@
+\---- How to use ----\
+\Adjust the variables below (MOD, DIE, NUMDIE, MIN, CRIT) to change calculation & click "Calculate" below the textbox\
+\--------------------------------------------------------------------------------------------------------------------\
+\EXAMPLE, DO NOT EDIT:                                                                                               \
+\For Great Weapon Fighter with a Greatsword you would use the following:                                             \
+\MOD: [Strength modifier]                                                                                            \
+\DIE: 6      (Greatsword damage: 2d[6])                                                                              \
+\NUMDIE: 2   (Greatsword damage: [2]d6)                                                                              \
+\MIN: 2      (Default for GWF is reroll 1s and 2s)                                                               \
+\CRIT: 20    (Default crit value of fighter)                                                                   \
+\--------------------------------------------------------------------------------------------------------------------\
+
+\VARIABLES - Edit these to change output!                           \
+\-------------------------------------------------------------------\
+MOD:0     \This is the damage modifier. I.E. Strength modifier, etc.\
+DIE:6     \Die size. I.E. DIE:6 for d6                              \
+NUMDIE:5  \Number of damage dice. I.E. NUMDIE:2 for Greatsword/Maul \
+MIN:2     \Lower limit for Great Weapon Fighter. Default of 2       \
+CRIT: 10  \Minimum roll for a crit. Default 20                      \
+DIETWO:12     
+NUMDIETWO:1  
+MINTWO:2        
+DIETHREE:12     
+NUMDIETHREE:3  
+MINTHREE:0   
+DIET:6 
+NUMDIET:2  
+MINT:2                             
+\-------------------------------------------------------------------\
+
+\Don't touch the code below, this is where the magic happens!\
+\It's been documented for others to understand functionality \
+\------------------------------------------------------------\
+
+\Description -----------------------------------------------------------------------------------\
+\This function returns the re-rolled value of the die if it is lower or equal to the lower limit\
+\Variables -------------------------------------------------------------------------------------\
+\A = Initial input value. I.E. 1 to 6 for d6                                                    \
+\B = Lower reroll limit. I.E. 2 for Great Weapon Fighter                                        \
+\C = Dice value. I.E. 6 for d6                                                                  \
+\-----------------------------------------------------------------------------------------------\
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+\Description ---------------------------------------------\
+\This function simulates the Great Weapon Master feat     \
+\Variables -----------------------------------------------\
+\A = Dice value I.E. A=6 for 1d6                          \
+\B = Number of damage dice I.E. B = 2 for Greatsword (2d6)\
+\C = Lower limit for reroll. Default 2                    \
+\---------------------------------------------------------\
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+\Description ---------------------------------------------\
+\This function returns 2 if the user crits                \
+\Variables -----------------------------------------------\
+\A = Dice roll. Default 1 to 20 (1d20)                    \
+\B = Minimum critical roll. Default 20                    \
+\---------------------------------------------------------\
+
+function: getcrit A:n B:n { 
+ if A >= 20{ 
+  result:2 
+ }
+ else { 
+  result:1 
+ } 
+}
+
+function: savagereroll A:n B:n { 
+ if A >= B { 
+  result:A 
+ }
+ else { 
+  result:B 
+ } 
+}
+
+MUL:[getcrit 1d20 CRIT]
+SAVTDS: [savagereroll 2d6 2d6]
+SAVODT: [savagereroll ([greatweaponmaster DIETWO NUMDIETWO MINTWO]) ([greatweaponmaster DIETWO NUMDIETWO MINTWO])]
+SGWMTDS: [savagereroll ([greatweaponmaster DIET NUMDIET MINT]) ([greatweaponmaster DIET NUMDIET MINT])]
+
+output (MUL *1d12) named "1d12"
+output (MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MOD  named "great weapon master 1d12"
+output (MUL *[highest 1 of 2d12]) named  "savage attack 1d12"
+output (MUL * SAVODT) named  "savage great weapon master attack 1d12"
+
+output (MUL *2d6) named "2d6"
+output (MUL * SAVTDS) named  "savage attack 2d6"
+output (MUL * [greatweaponmaster DIET NUMDIET MINT]) + MOD named "great weapon master 2d6"
+output (MUL * SGWMTDS) named  "savage great weapon master attack 2d6"
+
+
+\output (MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD \
+\output (MUL * [greatweaponmaster DIETHREE NUMDIETHREE MINTHREE]) + MOD \

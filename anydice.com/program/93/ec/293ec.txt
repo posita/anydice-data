@@ -1,0 +1,95 @@
+function: wound S:n T:n{
+  if T*2<=S{
+    result: 2
+  }
+  if T<S{
+    result:3
+  } 
+  if T=S{
+    result:4
+  }
+  if T>S{
+    result:5
+  }
+  if T>S*2{
+    result:6
+  }
+}
+function: warhammerattack WS:n HR:n S:n T:n WB:n WR:n AP:n SV:n{
+  W: [wound S T]
+  H: [highest of [lowest of (1d6)/WS and 1] and HR*[lowest of (1d6)/WS and 1]]
+  W: [highest of [lowest of (1d6+WB)/W and 1] and WR*[lowest of (1d6+WB)/WR and 1]]
+  SS: [absolute [lowest of ([highest of 1d6-AP and 0])/SV and 1]-1]
+  result: H*W*SS
+}
+function: attack WS:n HR:n S:n T:n WB:n WR:n AP:n SV:n I:n IV:n{
+  result: [highest of [warhammerattack WS HR S T WB WR AP SV] - I*[lowest of 1d6/IV and 1] and 0]
+}
+function: attacks ws WS:n  hit reroll HR:n str S:n tough T:n wound bonus WB:n wound reroll WR:n ap AP:n sv SV:n extra save I:n check IV:n attacks A:n{
+  D: 0
+  loop N over {1..20}{
+    if N<=A {
+      D: D + [attack WS HR S T WB WR AP SV I IV]
+    }
+  }
+  result: D
+}
+function: bonus A:n{
+  D: 0
+  loop N over {1..20}{
+    if N<=A {
+      D: D+1d6/6
+    }
+  }
+  result: D
+}
+function: manifest warp charge WC:n test bonus TB:n deny the witch DW:n deny bonus DB:n free deny AP:n free deny check DC:n  {
+  W: 2d6+TB
+  D: (2d6+DB)
+  A: 1d6
+  R: [highest of ([lowest of W/WC and 1] - DW*[highest of [lowest of ((W-D)*(-1)) and 1] and 0] - AP*[lowest of A/DC and 1]) and 0]
+  result: R
+}
+function: ignore mortal on C:n D:n {
+  result: D-[lowest of 1d6/C and 1]-D/2*[lowest of 1d6/C and 1]-D/3*[lowest of 1d6/C and 1]
+}
+
+ATTACKSTATS:0
+
+WS: 2
+HITREROLL: 0
+S:10
+T:6
+WOUNDROLLBONUS: 0
+WOUNDREROLL: 0
+AP: 0
+SAVE: 4
+IGNOREWOUNDS: 1
+IGNOREWOUNDSCHECK: 5
+ATTACKS: 4
+DAMAGE: 1d6
+
+PSYCHPHASESTATS: 0
+
+WARPCHARGE: 7
+TESTMODS: 2
+DENYTHEWITCH: 1
+DENYMODS: 1
+FREEDENY: 0 
+FREEDENYCHECK: 1
+
+
+
+ROLLATTACK: DAMAGE*[attacks ws WS  hit reroll HITREROLL str S tough T wound bonus WOUNDROLLBONUS wound reroll WOUNDREROLL ap AP sv SAVE extra save IGNOREWOUNDS check IGNOREWOUNDSCHECK attacks ATTACKS]
+MANIFEST: [manifest warp charge WARPCHARGE test bonus TESTMODS deny the witch DENYTHEWITCH deny bonus DENYMODS free deny FREEDENY free deny check FREEDENYCHECK ]
+
+function: eyes dc DC:n bonus B:n{
+  R:0
+  F:1
+  loop N over {1..100}{
+    F: F-F*[lowest of [absolute [lowest of (1d20+B)/DC) and 1]-1] and 0]
+  }
+  result: R
+}
+output [eyes dc 12 bonus 8]
+

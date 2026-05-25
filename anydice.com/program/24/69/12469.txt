@@ -1,0 +1,50 @@
+                                                \****************************************************************************\
+EAC: 17                                         \ Enemy AC                                                                   \
+GHM: 10                                         \ Global Hit Modifier                                                        \
+GCT: 20                                         \ Global Crit Threshold                                                      \
+HIT: 1d20                                       \ Hit Dice (Don't Change)                                                    \
+                                                \****************************************************************************\
+function: acc A:n B:n C:n D:n E:n F:n G:n I:n{          \ Begin ACC function                                                         \
+if A=1 {H: 0}                              \ if 1d20 equals 1, miss                                                     \
+else if A>1 & A<C & A+B < EAC {H: 0}       \ if 1d20 plus attack mod is less than enemy AC, miss                        \
+else if A>1 & A<C & A+B > EAC {H: D+E+F}   \ if 1d20 != 20 & added attack dice is more than enemy AC, calculate damage  \
+else if A>=C {H: D*2+E+F}
+  TOTAL: 0
+  loop N over {1..G} {
+    if I>=1 {J: ((N*3)-3)} else {J: 0}
+    DAMAGE: [attack H]
+    TOTAL: TOTAL + DAMAGE + J
+  }
+  if H=0 {result: 0} else {result: TOTAL}
+                                                \ if 1d20 equals 20, double dice and add damage modifiers.                   \
+}                                               \ End ACC function                                                           \
+                                                \****************************************************************************\
+
+                                                \***********************\
+function: gwf A:n B:n{                          \ Great Weapon Fighting \
+   if A < 3 {result: B} else {result: A}        \ Great Weapon Fighting \
+}                                               \ Great Weapon Fighting \
+                                                \***********************\
+
+function: attack ATTACK:d {
+  result: ATTACK
+}
+
+function: multiattackds X:n Y:n {
+  TOTAL: 0 
+  loop N over {1..X} {
+    H: ((N*3)-3)
+    if G>=8 {G:8}
+    DAMAGE: [attack Y]
+    TOTAL: TOTAL + DAMAGE + H
+  }
+  if Y=0 {result: 0} else {result: TOTAL}
+}
+
+
+\***********************************************************************************************************\
+\                              Example: output [acc HIT GHM GCT 1d6 5 0 3 1]                                \
+\ Fuction | Hit Die | Hit Mod | Crit Req | DMG Dice | DMG Mod | ETC DMG | NUM OF ATTACKS | DOBOR SWORD (0/1)\
+\***********************************************************************************************************\
+
+output [acc HIT GHM GCT 2d6 5 0 3 1]

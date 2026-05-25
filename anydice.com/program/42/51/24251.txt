@@ -1,0 +1,102 @@
+\ alteration based on my SR mod \
+
+ATT: 61
+ATTCRIT: 7
+DEF: 10
+DEFCRIT: 1
+FUM: 99
+
+function: attacker A:n vs defender B:n {
+  \ if attacker succeeds attacking\
+  if A <= ATT{
+    \ and defender succeeds defending\
+    if B <= DEF {
+      \ if the attacker crits and the defender defends \
+      if A <= ATTCRIT {
+        \ if the defender crits \
+        if B <= DEFCRIT { result: -1 }
+        \ or the defender doesn't crit \
+        else { result: -2 }
+      \ the attacker doesn't crit, and the defender defends \
+      } else {
+        \ if the defender crits \
+        if B <= DEFCRIT { result: 0 }
+        \ or the defender doesn't crit \
+        else { result: -1 }
+      }
+    \ the defender fails to defend \
+    } else {
+       if A <= ATTCRIT {
+         \ if the defender fumbles \
+         if B >= FUM { result: -4 }
+         \ or the defender doesn't fumble but still fails \
+         else { result: -3 }
+       }
+       else {
+         \ if the defender fumbles \
+         if B >= FUM { result: -3 }
+         \ or the defender doesn't fumble but still fails \
+         else { result: -2 }
+       }
+    }
+  }
+  \ if attacker fails to attack \ 
+  else {
+    \ defender must defend or it all goes to 0 \
+    if B <= DEF {
+      \ if defender crits \
+      if B <= DEFCRIT {
+        \ attacker fumbles \
+        if A >= FUM { result: +2 }
+        else { result: +1 }
+      }
+      \ defender didn't crit \
+      else {
+        \ attacker fumbles\
+        if A >= FUM { result: +1 }
+        else { result: 0 }
+      }
+    }
+    \ both failed \
+    \ made this well out of normal range \
+    \ so it would spike nicely in the graph \
+    else { result: -1 }
+  }
+}
+
+output [attacker d100 vs defender d100] named "force 1"
+
+ATT: 61
+ATTCRIT: 7
+DEF: 20
+DEFCRIT: 2
+
+output [attacker d100 vs defender d100] named "force 2"
+
+ATT: 61
+ATTCRIT: 7
+DEF: 30
+DEFCRIT: 3
+
+output [attacker d100 vs defender d100] named "force 3"
+
+ATT: 61
+ATTCRIT: 7
+DEF: 40
+DEFCRIT: 4
+
+output [attacker d100 vs defender d100] named "force 4"
+
+ATT: 61
+ATTCRIT: 7
+DEF: 50
+DEFCRIT: 5
+
+output [attacker d100 vs defender d100] named "force 5"
+
+ATT: 61
+ATTCRIT: 7
+DEF: 60
+DEFCRIT: 6
+
+output [attacker d100 vs defender d100] named "force 6"

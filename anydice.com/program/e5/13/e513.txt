@@ -1,0 +1,35 @@
+ATK:  1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+HIT:    +0  \ bonus to attack roll \
+AC:      8  \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:   20  \ minimum attack roll to crit \
+DMG:   1d4  \ damage rolled on successful hit \
+BONUS: 1d6  \ bonus damage on first hit \
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+
+\ DON'T USE THIS CODE! It's very slow for high N; use http://anydice.com/program/e50f instead! \
+function: multiattack N:n times {
+  result: [roll ATK to multiattack N times]
+}
+function: roll ROLL:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  FIRSTHIT: [attack ROLL]
+  if FIRSTHIT > 0 {
+    DAMAGE: FIRSTHIT d (DMG + BONUS)
+    loop I over {2..N} {
+      DAMAGE: DAMAGE + [attack ATK] d DMG
+    }
+    result: DAMAGE
+  } else {
+    result: [roll ATK to multiattack N-1 times]
+  }
+}
+
+output [multiattack 3 times]

@@ -1,0 +1,37 @@
+function : pf attack FAILPT:n
+{
+ CRIT : (11-FAILPT > 0) * (11 - FAILPT)
+ HIT  : (21-FAILPT > 0) * (21 - FAILPT)
+ CFAIL: (FAILPT > 9) * (FAILPT - 9)
+ FAIL : 20 - HIT - CFAIL
+ result : 1d{2:CRIT,1:(HIT - CRIT),0:FAIL,0:CFAIL}
+}
+
+function : test dice res FAILPT:n IN:n
+{
+ R : (((IN - 10) > FAILPT)*1) + ((IN > FAILPT) * 1) + (((IN+10) <= FAILPT) * -1)
+ R : R + ((IN = 20) * 1) + ((IN = 1) * -1)
+ R : R + (R > 2) * (2 - R)
+ R : R + (R < 0) * (0 - R)
+ result : R
+}
+
+function : save res DC:n
+{
+ CRIT     : (10 - DC) * (DC < 10) + (DC + 8) * (DC < -8) + (DC < 21)*1
+ SUCC     : ((20 - DC) * (DC < 20) + (DC - 2) * (DC < 2)) + (DC < 10) * (-10 + DC) + (DC < -8) * (-DC - 8) + (30 > DC) * (DC > 20) * 1 + (DC < - 8) * 1
+ FAIL     : (DC - 2) * (DC > 2) + (DC > 11) * (11 - DC) + (DC > 20) * (20 - DC) + (DC > 29) * (DC - 29) + (DC > 29)*1 + (DC >= -8) * (DC < 2) * 1
+ CRITFAIL : (DC > 11) * (DC - 11) + (DC > 29) * (29 - DC) + (DC > 1) * 1
+ result : 1d{4:CRITFAIL,2:FAIL,1:SUCC,0:CRIT}
+}
+
+function : save duration DC:n
+{
+ SUCC : 1 + (20 - DC) * (DC < 20) + (DC-2) * (DC < 2)
+ FAIL : 20 - SUCC
+ result : 1d{1:FAIL,0:SUCC}
+}
+loop D over {-10..40}
+{
+ output [save res D] named "[D]"
+}

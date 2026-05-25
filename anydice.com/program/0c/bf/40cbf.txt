@@ -1,0 +1,51 @@
+\ CONFIGURATION \
+POOL: 10
+DIFFICULTY: 6
+
+\ 1. DICE DEFINITIONS \
+
+\ A die that only tracks if you rolled a '1'. \
+\ 1 face = 1 (yes), 9 faces = 0 (no). \
+ONES_DIE: d{1, 0:9}
+
+\ A die that tracks successes on non-1 results. \
+\ Faces 2..(Diff-1) = 0 successes. \
+\ Faces Diff..10 = 1 success. \
+REST_DIE: d{0:(DIFFICULTY - 2), 1:(11 - DIFFICULTY)}
+
+
+\ 2. RESOLVER FUNCTIONS (The Logic Fix) \
+\ By asking for NATURAL:n (a number), we force AnyDice to \
+\ iterate through every possible result of the dice roll. \
+
+function: resolve standard NATURAL:n ONES:n {
+ NET: NATURAL - ONES
+ if NET > 0 { result: NET }
+ if ONES > 0 { result: -1 } \ Botch: Net <= 0 and 1s present \
+ result: 0
+}
+
+function: resolve variant NATURAL:n ONES:n {
+ if NATURAL > 0 { result: NATURAL }
+ if ONES > 0 { result: -1 } \ Botch: Natural 0 and 1s present \
+ result: 0
+}
+
+
+\ 3. CALCULATOR (The Setup) \
+\ This first loop determines how many 1s were rolled. \
+function: calculate ONES:n mode MODE:n {
+ REMAINDER: POOL - ONES
+ 
+ \ We create the distribution of successes for the remaining dice... \
+ NATURAL_DIST: REMAINDER d REST_DIE
+ 
+ \ ...and pass it to the resolver to handle the 'if' logic. \
+ if MODE = 1 { result: [resolve standard NATURAL_DIST ONES] }
+ if MODE = 2 { result: [resolve variant NATURAL_DIST ONES] }
+}
+
+
+\ 4. OUTPUT \
+output [calculate POOL d ONES_DIE mode 1] named "Standard (1s subtract)"
+output [calculate POOL d ONES_DIE mode 2] named "Variant (1s do not subtract)"

@@ -1,0 +1,119 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+FAIL: 0
+SAVE: 1
+FSAVE: 2
+
+
+\Your Stats\
+ATTACK: 0
+DC: 0
+
+
+\Range of Enemy ACs and Profiencies\
+DEFENSE: d{13..25}
+PROF: d{0..16}
+
+
+\Attack Roll Functions (DON'T TOUCH)\
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+
+
+
+
+
+\Spell Save Functions (DON'T TOUCH)\
+function: spell ROLL:n and PROF:n {
+ if ROLL + PROF >= DC{ 
+  if PASSNOD = 1 { result: FSAVE}  
+   result: SAVE 
+ }
+ result: FAIL
+}
+
+function: spell damage for SPELLRESULT:n {
+ if SPELLRESULT = FAIL{
+  result: SPELLDAMAGE
+ }
+ if SPELLRESULT = SAVE{
+  result: (SPELLDAMAGE / 2)
+ }
+ if SPELLRESULT = FSAVE{
+ result: MISSDAMAGE
+ }
+}
+
+function: spellattack {
+ result: [spell damage for [spell d20 and PROF]]
+}
+
+
+
+
+\Nat's Spell Stats\
+ATTACK: 11
+DC: 19
+
+\Base damage\
+
+SPELLDAMAGE: 4d10
+MISSDAMAGE: 0
+PASSNOD: 1
+ACTION_A: {1..3}d[spellattack ]
+output ACTION_A named "Sickening Radiance"
+
+HITDAMAGE: d10 + 5
+CRITICALDAMAGE: HITDAMAGE + 15
+MISSDAMAGE: 0
+ACTION_B: 3d[attack]
+output ACTION_B named "Eldritch Blast"
+
+HITDAMAGE: 2d6 + 9
+CRITICALDAMAGE: HITDAMAGE + 21
+MISSDAMAGE: 0
+ACTION_C: 3d[attack]
+output ACTION_C named "Hurl Flame"
+
+output ACTION_A + ACTION_B named "SR + EB3"
+output ACTION_A + ACTION_B + ACTION_C named "All combined"
+
+
+
+
+
+\Brig's Stats\
+\
+ATTACK: 6
+
+HITDAMAGE: [highest 1 of 2d8] + 4
+CRITICALDAMAGE: HITDAMAGE + 12
+MISSDAMAGE: 0
+output 1d[attack] named "Refined Longsword"
+
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: HITDAMAGE + 12
+MISSDAMAGE: 0
+output 1d[attack] named "Longsword"
+\

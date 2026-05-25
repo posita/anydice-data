@@ -1,0 +1,30 @@
+PROF: +2
+ENEMY_AC: 15
+ATTACK_MOD: 2
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: HIT }
+ if ROLL + ATTACK_MOD + PROF >= ENEMY_AC { result: HIT }
+ result: MISS
+}
+
+HITDAMAGE: 1d8 + 3 + 12
+CRITICALDAMAGE: 2 * HITDAMAGE
+MISSDAMAGE: 0
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+loop AC over {10, 20, 30} {
+ output [damage for [attack d20 vs AC]] named "AC [AC]"
+}

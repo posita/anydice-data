@@ -1,0 +1,31 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n by _HITDMG:n _CRITDMG:n _MISSDMG:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: _CRITDMG
+ }
+ if ATTACKRESULT = HIT {
+  result: _HITDMG
+ }
+ result: _MISSDMG
+}
+
+function: fullattack _BONUS:n vs _AC:n with _HITDMG:n _CRITDMG:n _MISSDMG:n adv _ADV:n {
+
+ if _ADV = 1 { CHECKAT: [attack [highest 1 of 2d20] _BONUS vs _AC] }
+ if _ADV = 0 { CHECKAT: [attack d20 _BONUS vs _AC] }
+ if _ADV = -1 { CHECKAT: [attack [lowest 1 of 2d20] _BONUS vs _AC] }
+
+ result: [damage for CHECKAT by _HITDMG _CRITDMG _MISSDMG]
+}
+
+output [fullattack 5 vs 15 with 1d12+3 2d12+3 0 adv 0]

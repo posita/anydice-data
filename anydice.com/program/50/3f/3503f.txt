@@ -1,0 +1,40 @@
+output 0 named "Add Pairing (x++ -> Pair>=x) Possibilities to Successes"
+D_SIX: d{0..5}
+D_TROIS: d{0..2}
+D_DEUX: d{0..1}
+D_TROIS_SPE: d{1,1,1,2,2,3}
+D_QUATRE_SPE: d{0,1,1,2,2,3}
+
+function: count with pair and overflow TARGETS:s in SEQUENCE:s {
+ REVERSED: [reverse SEQUENCE]
+ TARGETS: [sort TARGETS]
+ SIZEMAX: #REVERSED
+ SIZEMIN: 1
+ COUNT: [count TARGETS in SEQUENCE]
+ loop N over {1..#SEQUENCE} {
+  OVERFLOW: 0
+  if N@SEQUENCE < #TARGETS@TARGETS  {
+    loop Q over {(SIZEMIN)..(SIZEMAX-N)} {
+       if (OVERFLOW=0) & ((N@SEQUENCE + Q@REVERSED) >= #TARGETS@TARGETS) {
+         COUNT: COUNT + 1
+         OVERFLOW: 1
+         SIZEMIN: Q+1
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+function: count with pair and exact TARGETS:s in SEQUENCE:s {
+}
+
+TEST: {5,4,4,3,3,3,2,1,1,0}
+T: {4,5}
+
+output [count with pair and overflow T in TEST] named "Test 3++ on 10d6"
+
+output [count T in 12dD_SIX] named "3+ on 12d6"
+output [count with pair and overflow T in 12dD_SIX] named "3++ on 12d6"
+
+

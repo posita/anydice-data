@@ -1,0 +1,46 @@
+\ From <https://anydice.com/articles/dnd4-attacks/> \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 5 + 2 + 2
+HITDAMAGE: d10
+CRITICALDAMAGE: 10
+MISSDAMAGE: 0
+output [attack] named "Battleaxe"
+
+ATTACK: 5 + 2 + 2
+HITDAMAGE: d8
+CRITICALDAMAGE: 8 + d8
+output [attack] named "Scimitar"
+
+ATTACK: 5 + 3 + 2
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+output [attack] named "Longsword"

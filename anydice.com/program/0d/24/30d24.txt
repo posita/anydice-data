@@ -1,0 +1,84 @@
+set "explode depth" to 6
+
+function: beta SIZE THIS:n EXPL RAW FIXED {
+  if THIS <= EXPL {
+    result: [explode d(SIZE)]
+  } else if THIS - EXPL <= RAW {
+    result: d(SIZE)
+  } else {
+    result: d{FIXED} \d{(THIS - (EXPL + RAW))*FIXED}\
+  }
+}
+
+function: alpha SIZE:n raises RAISES:n up to EXPL:n RAW:n then FIXED:n {
+    TOT:0
+    loop THIS over {1..RAISES} {
+      TOT: TOT + [beta SIZE THIS EXPL RAW FIXED]
+    }
+    result: TOT
+}
+
+function: mine ROLL:n dmg WEAPON:d str STR:d up to EXPL:n RAW:n then FIXED:n extra XEXPL:n XRAW:n {
+    if ROLL >= 0 {
+      XTOT: 0
+      loop N over {1..XEXPL} {
+        XTOT: XTOT + [explode d6]
+      }
+      if EXPL > 0 {
+        result: [explode WEAPON] + [explode STR] + XTOT + XRAW d6 + [alpha 6 raises (ROLL)/4 up to EXPL RAW then FIXED]
+      }
+      result: WEAPON + STR + XTOT + XRAW d6 + [alpha 6 raises (ROLL)/4 up to EXPL RAW then FIXED]
+    }
+    result: 0
+}
+
+function: ifscores M:n T:n {
+  if M >= T {
+    result: (M-T)/4 \0 means shaken\
+  }
+}
+
+function: ifhits M:n T:n {
+  if M >= T {
+    result: (M-T)/4 \0 means shaken\
+  } else if M > 0 {
+    result: -1 \means hit but soaked\
+  }
+}
+
+function: all M:n T:n {
+  if M >= T {
+    result: (M-T)/4 \0 means shaken\
+  } else if M > 0 {
+    result: -1 \means hit but soaked\
+  }
+  result: -2 \means didn't hit\
+}
+
+function: wounds ROLL:n dmg WEAPON:d str STR:d tough TOUGH:n up to EXPL:n RAW:n then FIXED:n extra XEXPL:n XRAW:n {
+    result: [ifscores [mine ROLL dmg WEAPON str STR up to EXPL RAW then FIXED extra XEXPL XRAW] TOUGH]
+}
+
+function: wildhit FIGHTING:d vs PARRY:n {
+    result: [highest of [explode FIGHTING] and [explode d6]] - PARRY
+}
+
+function: hit FIGHTING:d vs PARRY:n {
+    result: [explode FIGHTING] - PARRY
+}
+
+F: 8
+M: 0
+P: 5
+W: 6
+S: 6
+T: 5
+
+output [wounds [hit (d(F)+M) vs P] dmg d(W) str d(S) tough T up to 1 0 then 0 extra 0 0] named "RaW"
+
+output [wounds [hit (d(F)+M) vs P] dmg d(W) str d(S) tough T up to 0 100 then 0 extra 0 0] named "Zadmar"
+
+output [wounds [hit (d(F)+M) vs P] dmg d(W) str d(S) tough T up to 0 2 then 2 extra 0 0] named "cap2 then 2"
+
+output [wounds [hit (d(F)+M) vs P] dmg d(W) str d(S) tough T up to 0 2 then 0 extra 0 0] named "cap2 then 0"
+

@@ -1,0 +1,51 @@
+\You can modify these\
+AC: 12
+PROFBONUS: 4
+MAGICAL: 0
+ABMOD: 5 + MAGICAL
+DICENUM: 2
+DICESIZE: 6
+BARB: 0
+VANTAGE: 0
+EXTRADAMAGE: 0
+MODIFIER: 0
+\You should not modify anything below\
+ATTACK: ABMOD + PROFBONUS
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+HITDAMAGE: DICENUMdDICESIZE + ABMOD + EXTRADAMAGE
+MISSDAMAGE: 0
+CRITDAMAGE: (2*DICENUM + BARB)dDICESIZE + ABMOD + EXTRADAMAGE
+
+function: roll TWENTY:n{
+if VANTAGE = 1{
+result: 1@2d20
+}else if VANTAGE = 2{
+result: 2@2d20
+}else {result: 1d20} 
+}
+
+function: attack ROLLRESULT:n vs DEFENSE:n { 
+if ROLLRESULT = 1{result: MISS}
+if ROLLRESULT = 20{
+result: CRITICALHIT
+}
+if ROLLRESULT + ATTACK >= DEFENSE{result: HIT}
+result: MISS
+}
+
+function: damage for ATTACKRESULT:n{
+if ATTACKRESULT = HIT{
+result: HITDAMAGE
+}
+if ATTACKRESULT = CRITICALHIT{
+result: CRITDAMAGE
+}
+result: MISSDAMAGE
+}
+
+output [damage for [attack [roll d20]+MODIFIER vs AC]] named "Attack"
+output [attack [roll d20]+MODIFIER vs AC] named "Attack Roll"
+output [roll d20]+MODIFIER named "Roll"
+output [highest 3 of 4d6] named "Ability Score Roller"

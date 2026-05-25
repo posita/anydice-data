@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+function: cast save ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:SPELL}
+ if ROLL+SAV >= DC{
+  if ROLL = 20{result:SPELL/2}
+  result:SPELL/2
+ }
+ result:SPELL
+}
+function: evasion ROLL:n sum SAV:s vs DC:s{
+ if ROLL = 1{result:SPELL/2}
+ if ROLL+SAV >= DC{
+  if ROLL = 20{result:0}
+  result:0
+ }
+ result:SPELL/2
+}
+function: attack ROLL:n sum ACC:s vs AC:s{
+ if ROLL = 1{result: MISS}
+ if ROLL = 20{
+  if ROLL + ACC >= AC{result:CRIT}
+  result: HIT
+ }
+ if ROLL+ACC >= AC{result:HIT}
+ result: MISS
+}
+MISSDAMAGE: 0
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+HITDAMAGE: \damage sequence goes here\
+CRITICALDAMAGE: \crit damage\

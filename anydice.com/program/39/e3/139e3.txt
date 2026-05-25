@@ -1,0 +1,55 @@
+ATMOD: 5
+TOHIT: 8
+
+
+LOO: 0 
+ACA: -5
+ACB: 20    \ if you want to loop \
+ADV: 1
+NOR: 1
+GWM: 1
+PERC: 0
+
+if ADV{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+DIETWO: [highest 1 of 2d20]
+GS: 2d{{3..6}:4, {1..2}}
+X: ( TOHIT+   [highest 1 of 2d20] >= AC )
+
+output X *(GS+ATMOD +(DIETWO=20)*GS) named "adv [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}
+
+if GWM{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+DIETWO: [highest 1 of 2d20]
+GS: 2d{{3..6}:4, {1..2}}
+X: ( TOHIT-5+   [highest 1 of 2d20] >= AC )
+
+output X *(GS+ATMOD+10 +(DIETWO=20)*GS) named "adv GWM [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}}
+}
+
+\ normal \
+
+if NOR{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+DIEONE: 1d20
+GS: 2d{{3..6}:4, {1..2}}
+X:( TOHIT  +1d20 >= AC )
+
+output X *(GS+ATMOD +(DIEONE=20)*GS) named "[AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}
+
+if GWM{
+loop AC over {ACA..(ACB*LOO+ACA*!LOO)}{
+DIEONE: 1d20
+GS: 2d{{3..6}:4, {1..2}}
+X:( TOHIT-5  +1d20 >= AC )
+
+output X *(GS+ATMOD+10 +(DIEONE=20)*GS) named "GWM [AC]AC:"
+if PERC{output X*PERC named "hits (%)"}
+}}
+}

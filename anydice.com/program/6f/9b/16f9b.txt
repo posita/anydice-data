@@ -1,0 +1,40 @@
+function: norerolls F:n S:n {
+   result: F+S
+}
+
+function: rerollboth R:n under N:n {
+   if R < N { result: 2d6 } else {result: R}
+}
+
+function: rerollone F:n S:n under N:n {
+   if F+S < N {
+      if F<4 { result: 1d6+S } else if S<4{result: 1d6+F}
+   } else {result: F+S}
+}
+
+function: combo F:n S:n under N:n{
+   if F+S < N{
+      if F<4 & S<4{
+        result: 2d6
+      }
+      else if F<4{ 
+        result: 1d6+S 
+      }
+      else if S<4{
+        result: 1d6+F
+      }
+   }
+   else {result: F+S}
+}
+
+output [norerolls 1d6 1d6] named "no rerolls"
+output [count {9..12} in [norerolls 1d6 1d6]] named "total chance to roll 9+ without rerolls"
+
+output [rerollboth 2d6 under 9] named "reroll both if the total is not 9 or more"
+output [count {9..12} in [rerollboth 2d6 under 9]] named "total chance to roll 9+ when rerolling both dice"
+
+output [rerollone 1d6 1d6 under 9] named "reroll one dice if it's 3 or less"
+output [count {9..12} in [rerollone 1d6 1d6 under 9]] named "total chance to roll 9+ when rerolling one dice if it's 3 or less"
+
+output [combo 1d6 1d6 under 9] named "reroll every 3 or less"
+output [count {9..12} in [combo 1d6 1d6 under 9]] named "total chance to roll 9+ when rerolling every 3 or less"

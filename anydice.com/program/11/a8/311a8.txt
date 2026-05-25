@@ -1,0 +1,45 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 7 
+HITDAMAGE: d4 + 14
+CRITICALDAMAGE: 2d4 + 14
+MISSDAMAGE: 0
+output [attack] named "crossbow sharpshooter"
+
+ATTACK: 9 
+HITDAMAGE: d6 + 7
+CRITICALDAMAGE: 2d6 + 7
+output [attack] named "+3 Mace"
+
+ATTACK: 7 
+HITDAMAGE: 1d10+4
+CRITICALDAMAGE: 2d10+4
+output [attack]*2 named "Blast"

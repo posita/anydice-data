@@ -1,0 +1,59 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: HIT + CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n { 
+   result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit CRIT_DMG on CRIT_RANGE] }
+
+DEX: 3
+PROF: 2
+BONUS: 0
+MONSTER_AC: 16
+WEAP: 1d6
+HEX: 1d6
+ATTACK_HAND_CROSSBOW:             [attack d20 plus PROF + DEX vs MONSTER_AC for WEAP + DEX crit WEAP on 20]
+ATTACK_HAND_CROSSBOW_ADV:         [attack [highest 1 of 2d20] plus PROF + DEX vs MONSTER_AC for WEAP + DEX crit WEAP on 20]
+ATTACK_HAND_CROSSBOW_HEX:         [attack d20 plus PROF + DEX vs MONSTER_AC for WEAP + DEX + HEX crit WEAP + HEX on 20]
+ATTACK_HAND_CROSSBOW_HEX_ADV:     [attack [highest 1 of 2d20] plus PROF + DEX vs MONSTER_AC for WEAP + DEX + HEX crit WEAP + HEX on 20]
+ATTACK_HAND_CROSSBOW_SNEAK:       [attack 1d20 plus PROF + DEX vs MONSTER_AC for WEAP + DEX + 2d6 crit WEAP + 2d6 on 20]
+ATTACK_HAND_CROSSBOW_SNEAK_ADV:   [attack [highest 1 of 2d20] plus PROF + DEX vs MONSTER_AC for WEAP + DEX + 2d6 crit WEAP + 2d6 on 20]
+ATTACK_HAND_CROSSBOW_SNEAK_ELEV:  [attack 1d20 plus PROF + DEX vs MONSTER_AC for WEAP + DEX + 6d6 crit WEAP + 6d6 on 20]
+ATTACK_HAND_CROSSBOW_SNEAK_ADV_ELEV:  [attack [highest 1 of 2d20] plus PROF + DEX vs MONSTER_AC for WEAP + DEX + 5d6 crit WEAP + 5d6 on 20]
+
+
+output [attack d20 plus DEX vs MONSTER_AC 
+  hit ATTACK_HAND_CROSSBOW_HEX_ADV
+  miss ATTACK_HAND_CROSSBOW_HEX
+  crit 0 on 20] 
+named "Net & Crossbow Expert w/ Hex"
+
+output ATTACK_HAND_CROSSBOW_HEX + ATTACK_HAND_CROSSBOW_HEX
+named "2x Crossbow Expert w/ Hex"
+
+output ATTACK_HAND_CROSSBOW_HEX_ADV + ATTACK_HAND_CROSSBOW_HEX_ADV
+named "2x Crossbow Expert w/ Hex Adv. (netted)"
+
+output [attack d20 plus DEX vs MONSTER_AC 
+  hit  ATTACK_HAND_CROSSBOW_SNEAK_ADV 
+  miss ATTACK_HAND_CROSSBOW_SNEAK
+  crit 0 on 20] 
+named "Net & Crossbow Expert, Rogue"
+
+output [attack d20 plus DEX + PROF vs MONSTER_AC 
+  hit  WEAP + 3d6 + DEX + ATTACK_HAND_CROSSBOW_ADV
+  miss ATTACK_HAND_CROSSBOW_SNEAK_ADV
+  crit WEAP + 3d6 on 20]
+named "2x Crossbow Expert, Rogue"
+
+output ATTACK_HAND_CROSSBOW_HEX_ADV + ATTACK_HAND_CROSSBOW_HEX_ADV + ATTACK_HAND_CROSSBOW_HEX_ADV
+named "3x Crossbow Expert w/ Hex Adv. (netted)"
+
+output [attack d20 plus DEX + 4 vs MONSTER_AC 
+  hit  WEAP + 5d6 + DEX + ATTACK_HAND_CROSSBOW_ADV
+  miss ATTACK_HAND_CROSSBOW_SNEAK_ADV_ELEV
+  crit WEAP + 5d6 on 20]
+named "2x Crossbow Expert, Rogue 9"
+

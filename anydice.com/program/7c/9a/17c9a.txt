@@ -1,0 +1,53 @@
+\function: floor A:n div B:n {  **DOESN'T WORK!**
+  if B!=0 {
+    if (A*B)>=0 {result: A/B}
+    result: -(-A/B)
+  }
+  result: -999
+}
+\
+
+\ kludge bonus calculator \
+function: bonuscalc A:n {
+ if A = 3 { result: -4}
+ if A = {4, 5} { result: -3 }
+ if A = {6, 7} { result: -2 }
+ if A = {8, 9} { result: -1 }
+ if A = {10, 11} { result: 0 }
+ if A = {12, 13} { result: 1 }
+ if A = {14, 15} { result: 2 }
+ if A = {16, 17} { result: 3 }
+ if A = 18 { result: 4 }
+ result: {}
+}
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL}
+  result: ROLL
+}
+
+X: [highest 3 of 4d6]
+ROLL: [X reroll {3..7} as d{}]
+BONUS: [bonuscalc ROLL]
+ABILITIES: 6dROLL
+BONI: 6dBONUS
+MINBONUS: 2
+REROLLBONI: [BONI reroll {-6..(MINBONUS-1)} as d{}]
+
+\ Distribution of 6 ability scores, highest to lowest \
+\
+loop P over {1..6} {
+ output P@ABILITIES named "Ability [P]"
+}
+\
+
+\output BONUS named "Single Roll Bonus" \
+
+\ Distribution of 6 bonuses, highest to lowest \
+\
+loop P over {1..6} {
+ output P@BONI named "Bonus [P]"
+}
+\
+output BONI named "Total Bonus"
+output REROLLBONI named "Total Bonus Reroll Under [MINBONUS]"

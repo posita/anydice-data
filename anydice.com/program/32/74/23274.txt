@@ -1,0 +1,36 @@
+\----------------------------------------------------------------------\
+\             --- ~~~~~ === L'ANNEAU UNIQUE === ~~~~~ ---             \
+\----------------------------------------------------------------------\
+\ Résultats  : -1  signifie un échec\
+\               0+ signifie un simple succès\
+\               1  signifie un succès spécial (un 6 sur les dés de maitrise)\
+\               2  signifie un succès extraordinaire(deux 6 sur les dés de maitrise)\
+\               3  signifie un succès légendaire(deux 6 sur les dés de maitrise)\
+\----------------------------------------------------------------------\
+
+
+function: tor skill SKILL:n fatigue FATIGUE:n difficulty DIFF:n {
+\ A _The One Ring rpg_ skill check
+  Call it like : 
+  output [tor skill SKILL fatigue NO difficulty DIFFICULTY] named "Seuil de réussite 14 compétence 2, no fatigue"
+\
+  if FATIGUE = 0 { SKD: SKILLd6} else {SKD:SKILLd{0:3,4,5,6} }
+  result: (1d{1..10,0,DIFF}+SKD >= DIFF)*([count 6 in SKD]+1) -1
+}
+
+YES: 1
+NO: 0
+
+
+loop DIFFICULTY over {14..20} {
+  loop SKILL over {0..3} {
+    if SKILL=0 {
+      output [tor skill SKILL fatigue NO difficulty DIFFICULTY] named "--- Seuil de réussite [DIFFICULTY] ---"
+    }
+    else {
+      output [tor skill SKILL fatigue NO difficulty DIFFICULTY] named "Seuil de réussite [DIFFICULTY] compétence [SKILL]"
+      output [tor skill SKILL fatigue YES difficulty DIFFICULTY] named "Seuil de réussite [DIFFICULTY] compétence[SKILL], fatigue"
+    }
+  }
+}
+    

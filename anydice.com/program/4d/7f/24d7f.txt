@@ -1,0 +1,89 @@
+\RESULTS\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\FUNCTIONS\
+
+function: attack ROLL:n using WEAPON:s vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_MIN {
+  result: CRITICALHIT
+  \result: HIT\
+ }
+ if ROLL + 1@WEAPON + 3@WEAPON + 2@WEAPON >= DEFENSE { 
+  result: HIT
+ }
+ result: MISS
+}
+
+function: damage for ATTACK_RESULT:n using WEAPON:s {
+ if ATTACK_RESULT = CRITICALHIT {
+  result: 2dDAMAGE_DICE + 1@WEAPON + 2@WEAPON
+ }
+ if ATTACK_RESULT = HIT {
+  result: 1dDAMAGE_DICE + 1@WEAPON + 2@WEAPON
+ }
+ result: 0
+}
+
+function: average damage for ROLL:n using WEAPON:s vs DEFENSE:n {
+ result: [damage for [attack ROLL using WEAPON vs DEFENSE] using WEAPON]
+}
+
+function: finesse {
+ if DEXTERITY > STRENGTH {
+  result: DEXTERITY
+ }
+ result: STRENGTH
+}
+
+
+\Character\
+CRIT_MIN: 20
+STRENGTH: 3
+DEXTERITY: -1
+PROFICIENCY: 5
+DEFENSE: d{13..25}
+
+\Weapons\
+MAGIC_GLAIVE: {STRENGTH, 1, PROFICIENCY}
+DAMAGE_DICE: 1d10+1d8
+\output [average damage for 1d20 using MAGIC_GLAIVE vs DEFENSE] named "Glaive +1"\
+
+GLAIVE: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 1d10+1d8
+\output [average damage for 1d20 using GLAIVE vs DEFENSE] named "Glaive"\
+
+LONGBOW: {DEXTERITY, 0, PROFICIENCY}
+DAMAGE_DICE: 1d8
+\output [average damage for 1d20 using LONGBOW vs DEFENSE] named "Longbow"\
+
+GREATAXE: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 1d12+1d8
+\output [average damage for 1d20 using GREATAXE vs DEFENSE] named "Greataxe"\
+
+GREATSWORD: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 2d6+1d8
+\output [average damage for 1d20 using GREATSWORD vs DEFENSE] named "Greatsword"\
+
+RAPIER: {[finesse], 0, PROFICIENCY}
+DAMAGE_DICE: 1d8+1d8
+\output [average damage for 1d20 using RAPIER vs DEFENSE] named "Rapier"\
+
+\Combos\
+MAGIC_GLAIVE: {STRENGTH, 1, PROFICIENCY}
+DAMAGE_DICE: 1d10+1d8
+output [average damage for 1d20 using MAGIC_GLAIVE vs DEFENSE] + [average damage for 1d20 using MAGIC_GLAIVE vs DEFENSE] named "Attack Action"
+
+
+
+
+
+
+
+
+
+
+
+

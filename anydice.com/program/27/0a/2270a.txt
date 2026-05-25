@@ -1,0 +1,53 @@
+
+function: removebotches ORIGINAL_ROLL:s {
+  ONE_IDX: -1
+  loop I over {1..#ORIGINAL_ROLL} {
+    if 1 = I@ORIGINAL_ROLL {
+      ONE_IDX: I
+    }
+  }
+
+  if ONE_IDX >= 0 & 1@ORIGINAL_ROLL = 1 {
+    result: -1
+  }
+  if #ORIGINAL_ROLL = 0 {
+    result: {}
+  }
+  if ONE_IDX >= 0 {
+    BOTCH_REMOVED_SEQ: {}
+    REMOVED_ONE: 0
+    REMOVED_HIGHEST: 0
+    HIGHEST: 1@ORIGINAL_ROLL
+    if HIGHEST = 1 {
+      result: -1
+    }
+    loop I over {1..#ORIGINAL_ROLL} {
+      if I@ORIGINAL_ROLL = 1 {
+        if REMOVED_ONE = 1 {
+          BOTCH_REMOVED_SEQ: {BOTCH_REMOVED_SEQ, I@ORIGINAL_ROLL}
+        }
+        else {
+          REMOVED_ONE: 1
+        }
+      }
+      if I@ORIGINAL_ROLL = HIGHEST {
+        if REMOVED_HIGHEST = 1 | HIGHEST = 1 {
+          BOTCH_REMOVED_SEQ: {BOTCH_REMOVED_SEQ, I@ORIGINAL_ROLL}
+        }
+        else {
+          REMOVED_HIGHEST: 1
+        }
+      }
+    }
+    
+    result: [removebotches [sort BOTCH_REMOVED_SEQ]]
+  }
+  else {
+    result: ORIGINAL_ROLL
+  }
+}
+
+loop N over {-1..3} {
+  POOL: 2 + N
+  output [removebotches POOLd6] named "[N]"
+}

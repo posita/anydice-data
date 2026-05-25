@@ -1,0 +1,66 @@
+\ DW Red Dice. Example: [5r4]: roll 5d6, 4 and 5 is 1 hit, 6 is 2 hits and a reroll \
+function: N:n red H:n {
+  if H <= 1 {result: Nd [explode d{1,1,1,1,1,2}]}
+  if H  = 2 {result: Nd [explode d{0,1,1,1,1,2}]}
+  if H  = 3 {result: Nd [explode d{0,0,1,1,1,2}]}
+  if H  = 4 {result: Nd [explode d{0,0,0,1,1,2}]}
+  if H  = 5 {result: Nd [explode d{0,0,0,0,1,2}]}
+  if H >= 6 {result: Nd [explode d{0,0,0,0,0,2}]}
+}
+
+
+\ DW Blue Dice. Example: [5b4]: roll 5d6, 4 and 5 is 1 hit, 6 is 2 hits\
+function: N:n blue H:n {
+  if H <= 1 {result: Nd{1,1,1,1,1,2}}
+  if H  = 2 {result: Nd{0,1,1,1,1,2}}
+  if H  = 3 {result: Nd{0,0,1,1,1,2}}
+  if H  = 4 {result: Nd{0,0,0,1,1,2}}
+  if H  = 5 {result: Nd{0,0,0,0,1,2}}
+  if H >= 6 {result: Nd{0,0,0,0,0,2}}
+}
+
+function: N:n mine {
+  result: Nd [explode d{0,0,0,2,2,2}]
+}
+
+function: N:n cshield H:n {
+  SHIELD: [NredH]
+  result: SHIELD+[reroll[lowest 1 of SHIELD] red H ]
+}
+
+function: reroll N:n red H:n  {
+  if N = 0 { result: [1redH] }
+  result: 0 
+}
+
+
+function: N:n cblueshield H:n {
+  SHIELD: [NblueH]
+  result: SHIELD+[reroll[lowest 1 of SHIELD] blue H ]
+}
+
+function: reroll N:n blueH:n  {
+  if N = 0 { result: [1blueH] }
+  result: 0 
+}
+
+function: N:n tfts after AA:n aa {
+  result: N - [AAblue4]/2
+}
+
+\ simple trim function \
+function: D:d between L:n and H:n {
+  result: [lowest of H and [highest of D and L]]
+}
+
+function: ATK:n against dr DR:n cr CR:n {
+  if ATK >= 2*CR {result:4}
+  if ATK >= CR {result:2}
+  if ATK >= DR {result:1}
+  result:0
+}
+
+ 
+output 1d([[11red4] against dr 4 cr 6]) named "Plato shot 1"
+output 2d([[6red4] against dr 4 cr 6]) named "Plato shot 2"
+output 3d([[5red4] against dr 4 cr 6]) named "Plato shot 3"

@@ -1,0 +1,50 @@
+\to-hit calculation\
+function: hit F:n H:n I:n J:n{
+ if H>F { result:0 }
+ else { if J<=I { result:0 }
+ else { result:1 }
+ }
+}
+
+WPNROLL: 3d6
+DEFROLL: 3d6
+
+\Damage vs DR calculation\
+\A= DAM, B= DR, C= Pen, D= Wounding E= Follow up\
+function: damage A:n B:n C:n D:n E:n{
+ if C=0 { B: B*2 C: 1}
+ if C=1000 {B: 0}
+ if D=0 { X: (A - B / C) / 2}
+ else {X: (A - B / C) * D}
+ if X < 1 {
+  if E < B {result: 0}
+  else {result: E*[hit WPN WPNROLL DEF DEFROLL]}
+ }
+ else {result: (X+E)*[hit WPN WPNROLL DEF DEFROLL]}
+}
+
+\CALCULATIONS ABOVE -- INPUTS BELOW\
+
+\Weapon Skill VS Active Defence\
+\WPN= weapon skill\
+\DEF= enemy active defence (negates attack)\
+\DR= enemy DR against attack\
+
+WPN: 18
+DEF: 0
+DR: 12
+
+\DAM= Damage dice\
+\PEN= Armor penetration\
+\WOUND= wounding modifier\
+\FOLLOW= Any follow up attacks\
+\Follow up attacks don’t work right if the follow up has armor pen\
+\AnyDice doesn't do decimals, so use fractions\
+\If target has Injury Tolerance, change WOUND to match\
+
+\Broadsword Thrust\
+DAM: 5d6+1
+PEN: 1
+WOUND: 3/2
+FOLLOW: 1
+output [damage DAM DR PEN WOUND FOLLOW] named "Big Gun!"

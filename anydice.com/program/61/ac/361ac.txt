@@ -1,0 +1,36 @@
+Q: {0..3}
+
+\ probas for a double/triple/n-ple \
+\loop N over {2..8} { output Nd{0,0,0,1}}
+loop N over {2..8} { output Nd{1000,100,10,1}} \
+
+function: find sets in ROLL:s {
+  COUNTS: {}
+  SETS: {}
+  loop N over {1..#ROLL} {
+    COUNTS: {COUNTS, N = ROLL}
+  }
+  result: COUNTS
+}
+
+\Use only the best Multi-Dices Set, Sum the Power & Area of the Set, then multiply it by the Lethality\
+function: extra damages from ROLL:s with lethality L:n {
+  COUNT: 0
+  D: 1
+
+  loop N over {1..#ROLL} {
+    if (N@ROLL = (N+1)@ROLL) {
+      COUNT: COUNT+1
+    }
+    if ((N@ROLL != (N+1)@ROLL) | (N+1=#ROLL)) & (COUNT>0) {
+      D: D + (N@ROLL+COUNT)
+      result: L*D
+    }
+  }
+  result: L*D
+}
+
+POOL: 10
+output [extra damages from POOLdQ with lethality 4] named "test from [POOL]d4"
+output POOLd{0,0,0,1} named "Simulate the probas to get a n-ple (1 double or 1 triple or 1 n-ple"
+output [count 3 in POOLdQ]

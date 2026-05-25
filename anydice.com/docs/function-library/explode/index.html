@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/docs/">
+		<meta property="og:type" content="website">
+		<meta property="og:title" content="Explode, AnyDice Documentation">
+		<meta property="og:description" content="Documentation for AnyDice, the online dice probability calculator.">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Explode, AnyDice Documentation</title>
+		<link href="../../docs.css" rel="stylesheet">
+		<link rel="manifest" href="../../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"headline": "Explode, AnyDice Documentation",
+			"description": "Documentation for AnyDice, the online dice probability calculator.",
+			"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/documentation/", "name": "Documentation" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../../index.html">AnyDice</a></li>
+					<li><a href="../../index.html">Documentation</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1 itemprop="name headline">explode <code>DIE</code></h1>
+				</header>
+				
+				<p>This function yields the exploded version of the <code>DIE</code>. Exploding a die means that you keep rolling it as long as you roll its maximum
+possible value. The final result will be the sum of all the rolled values. For example, with one exploding d6 you could roll 6 + 6 + 6 + 4 for a total of 22.
+<p>
+Note that a dice collection will be treated as a single die. So
+<code>[explode 2d6]</code> will only explode when a total of <code>12</code> is rolled, in which case another <code>2d6</code> is rolled
+and added to the result. If you want the two d6 to explode independently, you can use <code>2d[explode d6]</code>.
+<p>
+It is theoretically possible to keep rolling the maximum value forever, although the chance of doing so is infinitely small. If AnyDice were to
+calculate this, it would take forever to complete. To prevent this from happening, AnyDice will only calculate a few extra rolls. A consequence
+of this is that the calculated odds will not be perfect. By default AnyDice explodes at most twice, which is a reasonable default, but you can set this
+to any positive amount you like.
+
+<h3>Examples</h3>
+<pre>output [explode d6]
+output [explode 2d6]
+output 2d [explode d6]
+
+set "explode depth" to 1
+output [explode d6]
+
+set "explode depth" to 10
+output [explode d6]</pre>
+
+Note that the highest number listed in these outputs will actually never be rolled, because in reality the die would be rolled again. So it can be
+taken to mean "any possible result above this value".
+
+<h3>Do it yourself</h3>
+
+If the <code>maximum function depth</code> is set to <code>10</code> (the default), this function will work the same as the predefined
+<code>explode</code> function with <code>explode depth</code> set to <code>8</code>. This assumes you're not calling the function from inside
+another function.
+
+<pre>function: explode DIE:d {
+ MAX: [maximum of DIE]
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = MAX { result: N + [explode DIE helper] }
+ result: N
+}</pre>
+
+<h3>Variant explosions</h3>
+
+If you want to keep rolling based on other criteria than the maximum possible value, you'll have to create your own function.
+Here is an example for exploding a d6 whenever the result is larger than 3.
+
+<pre>function: explode N:n {
+ if N > 3 { result: N + [explode d6] }
+ result: N
+}
+
+set "maximum function depth" to 5
+output [explode d6]</pre>
+
+Because in this case the maximum function depth was set to 5, the explode function will roll at most five dice in a row. By default, the maximum depth is 10.
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+	</body>
+</html>

@@ -1,0 +1,49 @@
+RED : {200, 101, 101, 100, 001, 000}
+BLACK : {202, 201, 200, 101, 101, 001}
+WHITE : {302, 203, 201, 103, 102, 101}
+
+function: A:n mod B:n { result: A - (A / B) * B }
+function: power DATA:n { result: DATA / 100 }
+function: potential DATA:n { result: [DATA mod 100] }
+function: count DATA:n with P:n break { result: [power DATA] + [lowest of [potential DATA] and P] }
+
+function: power with R:n red B:n black W:n white and P:n break {
+    result: [count (RdRED + BdBLACK + WdWHITE) with P break]
+}
+
+function: armor with R:n red B:n black W:n white {
+    result: [(RdRED + BdBLACK + WdWHITE) mod 100]
+}
+
+function: tohit T:n with N:n dice and P:n opening {
+    result: Nd{0:(T-P), 1:(10-T+P)}
+}
+
+\Titan 属性表\
+BASICRED: 1        \基础红色骰\
+BASICBLACK: 0      \基础黑色骰\
+BASICWHITE: 0      \基础白色骰\
+PERHITRED: 1       \武器每命中红色骰\
+PERHITBLACK: 0     \武器每命中黑色骰\
+PERHITWHITE: 0     \武器每命中白色骰\
+WEAPONDICECOUNT: 3 \武器D10命中骰数量\
+WEAPONHIT: 1       \武器命中奖励值\
+TOHIT: 7           \Primordial ToHit属性值\
+
+function: dicecount with H:n hit basic A:n perhit B:n { if H = 0 { result: 0 } result: A + H * B }
+function: powerall with P:n opening and B:n break {
+    HITCOUNT: [tohit TOHIT with WEAPONDICECOUNT dice and (P + WEAPONHIT) opening]
+    REDCOUNT: [dicecount with HITCOUNT hit basic BASICRED perhit PERHITRED]
+    BLACKCOUNT: [dicecount with HITCOUNT hit basic BASICBLACK perhit PERHITBLACK]
+    WHITECOUNT: [dicecount with HITCOUNT hit basic BASICWHITE perhit PERHITWHITE]
+    result: [power with REDCOUNT red BLACKCOUNT black WHITECOUNT white and B break]
+}
+
+\Power分布：3个红色Power骰，1个黑色Power骰，Kratos Pool中有1个Break Token\
+output [power with 4 red 0 black 0 white and 2 break] named "Power Roll"
+\Armor分布：使用1个红色骰\
+output [armor with 1 red 0 black 0 white] named "Armor Roll"
+\Hit Count分布：Primordial的ToHit值为7，使用3个D10命中骰，Kratos Pool中有1个Opening Token(或者武器命中修正)\
+output [tohit 7 with 3 dice and 1 opening] named "Hit Roll"
+\攻击整体Power分布：不使用Reroll的情况下，使用上方Titan属性表中的属性，Kratos Pool中有1个Opening(或者武器命中修正)和2个Break Token\
+output [powerall with 1 opening and 2 break] named "Attack Power"

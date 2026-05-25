@@ -1,0 +1,56 @@
+\ for D&D 5e \
+function: attack N:n plus B:n dmg D:d  plus DB:n vs AC:n crit C:n smite S:d{
+ if N >= C {result: 2dD + dS + DB}
+ if N + B >= AC {result: dD + DB}
+ result: 0
+}
+
+
+\ for eclipse phase \
+function: flipflop A:n B:n {
+ if A > B {result: B*10 + A}
+result: A*10 + B
+}
+function: flipflop A:n B:n vs T:n{
+ R: A *10 + B
+ if R > T{ if B < A {R: B*10 + A}}
+ if R <= T {
+  if A = B {result: 2}
+  if R > 66 {result: 1}
+  if R > 33 {result: 1}
+  result: 1
+ } else {
+  if A = B {result: -2}
+  if R < 33{result: -1}
+  if R < 66 {result: -1}
+  result: -1
+ }
+}
+
+\ for Legends of the Fifth Empire \
+
+\ Flip a card from the top of the deck \
+function: card N:n{
+ if N > 10 {result: 10 + [card 1d13]}
+result: N
+}
+
+\ set thresholds for types of success \
+\ Mixed success | success | critical success \
+function: thresh N:n A:n B:n C:n{
+ if N >=C {result: 3}
+ if N >=B {result:2}
+ if N >=A {result:1}
+result: 0
+}
+\ helper function for averaging over cards in hand \
+function: N:n of S:s {
+result: N@S
+}
+
+set "maximum function depth" to 5
+
+loop B over {0..10}{
+AVG:0
+output [thresh [1d4 of 4d10]  + [card 1d13] + B 13 18 28] named "[B]"
+}

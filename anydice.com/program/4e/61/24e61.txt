@@ -1,0 +1,48 @@
+function: attack D:n plus B:n vs AC:n {
+    if D = 20 { result: 2 }
+    else if D+B >= AC { result: 1 }
+    else { result: 0 }
+}
+
+function: damage DD:n plus B:n if HIT:n {
+    if HIT = 2 { result: (DD*2)+B }
+    else if HIT = 1 { result: DD+B }
+    else { result: 0}
+}
+
+\ Attack Config: Normal or Advantage or Disadvantage \
+function: attconfig {
+    \ Normal: 1d20 \
+    \ Advantage: [highest 1 of 2d20] \
+    \ Disadvantage: [lowest 1 of 2d20] \
+
+    result: 1d20
+}
+
+\ Main Function: Attack for each AC from 5 to 20 (Level 5) \
+loop AC over {5..20} {
+    TOTAL_GKT: 0 \ Total Damage with Katana + GFB \
+    TOTAL_SB: 0 \ Total Damage with Shadow Blade \
+    TOTAL_GSB: 0 \ Total Damage with Shadow Blade + GFB \
+
+    \ Main Action (Attack w GFB + War Master's Stroke) \
+    loop NOA over {1..2} {
+        HIT: [ attack [attconfig] plus 11 vs AC ]
+        TOTAL_GKT: TOTAL_GKT+[ damage 2d8 plus 3 if HIT ]
+        TOTAL_SB: TOTAL_SB+[ damage 3d8 plus 3 if HIT ]
+        TOTAL_GSB: TOTAL_GSB+[ damage 4d8 plus 3 if HIT ]
+    }
+    
+    \ Main Action Extra Attack \
+    HIT: [ attack [attconfig] plus 6 vs AC ]
+    TOTAL_GKT: TOTAL_GKT+[ damage 1d8 plus 3 if HIT ]
+    TOTAL_SB: TOTAL_SB+[ damage 1d8 plus 3 if HIT ]
+    TOTAL_GSB: TOTAL_GSB+[ damage 1d8 plus 3 if HIT ]
+
+
+    output TOTAL_GKT named "GKT:[AC]"
+    output TOTAL_SB named "SB:[AC]"
+    output TOTAL_GSB named "GSB:[AC]"
+}
+
+

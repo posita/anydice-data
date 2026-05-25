@@ -1,0 +1,32 @@
+set "maximum function depth" to 4
+
+CRIT: {6, 8, 10, 12}
+
+function: VALUE:n is SEQUENCE:s {
+ loop P over {1..#SEQUENCE} {
+  if P@SEQUENCE = VALUE {result: 1}
+ }
+ result: 0
+}
+
+function: wrapper A:n {
+ result: [critcount 1dA A]
+}
+
+function: critcount DIE:n MAX:n {
+  COUNT: 0
+
+  if DIE = MAX {
+    COUNT: COUNT + [wrapper MAX]
+  }
+  if [DIE is CRIT] {
+    COUNT: COUNT + 1
+  }
+  result: COUNT
+}
+
+output (d[critcount d6 6] + d[critcount d4 4]) >= 2 named "[4] [6]"
+output d[critcount d6 6] >= 2 named "[6]"
+loop N over {6, 8, 10, 12}{
+  output 2d[critcount dN N] >= 2 named "[N] [N]"
+}

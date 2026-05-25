@@ -1,0 +1,51 @@
+YES: 1
+NO: 0
+
+function: gwf X:n as Y:d { if X = {1, 2} { result: Y } else { result: X } }
+function: gwf X:d { result: [gwf X as X] }
+
+\-------------------- Set variables below ------------------------\
+\-----------------------------------------------------------------\
+\ Notes:                                                          \
+\ - Xd[gwf dY] = Great Weapon Fighting with an XdY weapon         \
+\ - GWM/SS = Great Weapon Master/Sharpshooter                     \
+
+ATTACKS:               1
+ENEMY_AC:              14
+
+ABILITY_MODIFIER:      3
+PROFICIENCY_BONUS:     2
+MISC_ATTACK_BONUS:     0
+
+ADVANTAGE:             NO
+ELVEN_ACCURACY:        NO
+MIN_TO_CRIT:           20
+GWM_OR_SS:             NO
+
+CRITTABLE_DAMAGE:      2d[gwf d6]
+UNCRITTABLE_DAMAGE:    0
+
+ONCE_PER_TURN_DAMAGE:  0
+
+
+\---------------- Code is below -----------------\
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+TOTAL: 0
+
+NAT: [highest 1 of (1 + ADVANTAGE + ADVANTAGE*ELVEN_ACCURACY)d20]
+ATK: NAT + ABILITY_MODIFIER + PROFICIENCY_BONUS + MISC_ATTACK_BONUS - (5 * GWM_OR_SS)
+
+output ATK >= ENEMY_AC named "Hit Chance"
+
+DMG: (1 + (NAT >= MIN_TO_CRIT)) * (CRITTABLE_DAMAGE) + ABILITY_MODIFIER + UNCRITTABLE_DAMAGE + (10 * GWM_OR_SS)
+
+TOTAL: ATTACKS * (DMG * (ATK >= ENEMY_AC))
+
+TOTAL: TOTAL + ONCE_PER_TURN_DAMAGE * ([lowest 1 of (ATTACKS)d(ATK)] >= ENEMY_AC) * (1 + (NAT >= MIN_TO_CRIT))
+
+output TOTAL named "Average Damage per Turn"

@@ -1,0 +1,101 @@
+Q: d{0..3}      \Custom D4 Dice\
+D: d{1,1,2,3}   \Custom Dice for Damages in Anydice\
+
+
+function: window crop SEQUENCE:n {                  \ limit the display range between [-1;100] \
+ MIN: 0
+ MAX: 100
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+
+function: roll hits HITS:n { result: HITS dQ }       \ roll Hits Roll \
+
+function: compare X:n and Y:n {          \ Find nbr of dices for Saves Roll from comparison table using -1/0/+1 \
+ if(X > Y){ result: 1 }
+ if(X < Y){ result: -1 }
+ result: 0 }
+function: compare doubled X:n and Y:n {   \ Find nbr of dices for Saves Roll from comparison table using -1/0/+1 \
+ if(X > 2*Y){ result: -1 }
+ if(X < Y/2){ result: 1 }            \ !warning! in AnyDice its rounded down ! \
+ result: 0 }
+
+function: saves dices from HITSROLL:s using ATT:s and DEF:s {     \find nbr of dices used to roll the saves\
+ SOURCES: [compare 4@DEF and 6@ATT]               \ Compare Def_SizeUnit vs Att_SizeUnit \
+ WEIGHT: [compare doubled 1@DEF and 2@DEF]        \ Compare Def_Body vs Def_Spirit \
+ result: (#HITSROLL)+SOURCES+WEIGHT }
+
+function: roll saves SAVES:n { result: SAVES dQ }    \ roll Saves Roll \
+
+function: unsaved hits from HITSROLL:s and SAVESROLL:s {                 \ get Unsaved Hits \
+ result: HITSROLL-SAVESROLL }
+
+function: saves bonus using ATT_V:n and DEF_V:n {    \ find the save modifier = Attacks Velocity - Defender Velocity \
+ result: [window crop DEF_V-ATT_V] }
+
+function: apply modifiers HITSMOD:n and SAVESMOD:n to SEQ:s {          \ apply All Modifiers \
+ result: SEQ + HITSMOD - SAVESMOD }
+
+function: roll damages DAMAGES:n { result: DAMAGES dQ }       \ roll Damages Roll \
+
+
+function: do combat up to step NBR:n with ATT:s and DEF:s {
+ S_UN: [roll hits 1@ATT]
+ S_DEUX: S_UN + (2@ATT)
+ S_TROIS: [saves dices from S_UN using ATT and DEF]
+ S_QUATRE: [roll saves S_TROIS]
+ S_CINQ: S_QUATRE + [saves bonus using 3@ATT and 3@DEF]
+ S_SIX: [unsaved hits from S_DEUX and S_CINQ]
+ S_SEPT: [apply modifiers 0 and 0 to S_SIX]
+ S_HUIT: S_SEPT*([roll damages 4@ATT]+(5@ATT))
+ if(NBR=1){result: S_UN}                          \roll Attacks\
+ if(NBR=2){result: S_DEUX}                        \add Attacks Bonus from Statlines\
+ if(NBR=3){result: S_TROIS}                       \find Saves\
+ if(NBR=4){result: S_QUATRE}                      \roll Saves\
+ if(NBR=5){result: S_CINQ}                        \add Saves Bonus from Statlines\
+ if(NBR=6){result: [window crop S_SIX]}           \get the Unsaved Hits (limited from 0 to 100)\
+ if(NBR=7){result: [window crop S_SEPT]}          \apply statlines bonuses\
+ if(NBR=8){result: [window crop S_HUIT]}          \add bonus Damages\
+ result: 0
+}
+
+
+
+\Callidus Assassin with Phase sword VS Great Unclean One\
+ATT_STATS: {2, -1, 10, 3, 2, 1}
+DEF_STATS: {80, 39, 5, 1}
+
+\output [do combat up to step 1 with ATT_STATS and DEF_STATS] named "roll hits"
+output [do combat up to step 2 with ATT_STATS and DEF_STATS] named "find save"             output POOLd(dQ>=3)
+output [do combat up to step 3 with ATT_STATS and DEF_STATS] named "roll save"
+output [do combat up to step 4 with ATT_STATS and DEF_STATS] named "get unsaved hits"
+output [do combat up to step 5 with ATT_STATS and DEF_STATS] named "get final hits modified"
+output [do combat up to step 6 with ATT_STATS and DEF_STATS] named "get final damages"\
+
+\ATT_STATS: {ATTACKS_POOL, ATTACKS_BONUS, ATT_VELOCITY, ATT_LETHALITY, ATT_LETHALITY_BONUS, ATT_UNITSIZE}
+DEF_STATS: {DEF_BODY, DEF_SPIRIT, DEF_VELOCITY, DEF_UNITSIZE}\
+
+\************************* TESTS AREA ****************************************\
+\Callidus Assassin with Exitus Rifle or Phase sword\
+ATT_R_CA: {1, 0, 30, 0, 20, 1}           ATT_M_CA: {2, -1, 10, 3, 2, 1}
+DEF_CA: {15, 31, 10, 1}
+\Great Unclean One with Putrid vomit or Doomsday bell \
+ATT_R_GUO: {10, 7, 5, 2, -2, 1}           ATT_M_GUO: {7, 5, 5, 4, -1, 1}
+DEF_GUO: {80, 39, 5, 1}
+\Intercessor Squad x10 with Bolt rifle or Close combat weapon \
+ATT_R_IS: {6, 5, 15, 2, 1, 10}            ATT_M_IS: {4, -1, 9, 2, 1, 10}
+DEF_IS: {50, 50, 9, 10}
+
+
+STEP: 8
+\output [do combat up to step STEP with ATT_R_GUO and DEF_GUO] named "Great Unclean One with Putrid vomit VS Great Unclean One"
+output [do combat up to step STEP with ATT_R_GUO and DEF_CA] named "Great Unclean One with Putrid vomit VS Callidus Assassin"
+output [do combat up to step STEP with ATT_M_CA and DEF_GUO] named "Callidus Assassin with Phase sword VS Great Unclean One"
+output [do combat up to step STEP with ATT_M_CA and DEF_CA] named "Callidus Assassin with Phase sword VS Callidus Assassin"
+output [do combat up to step STEP with ATT_R_CA and DEF_GUO] named "Callidus Assassin with Exitus Rifle VS Great Unclean One"
+output [do combat up to step STEP with ATT_R_CA and DEF_CA] named "Callidus Assassin with Exitus Rifle VS Callidus Assassin"\
+
+output [do combat up to step STEP with ATT_R_GUO and DEF_IS] named "Great Unclean One with Putrid vomit VS Intercessor Squad"
+output [do combat up to step STEP with ATT_R_IS and DEF_GUO] named "Intercessor Squad with Bolt rifle VS Great Unclean One"
+

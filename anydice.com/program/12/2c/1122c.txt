@@ -1,0 +1,123 @@
+J: {8,9,5,3,1}
+S: {8,9,5,4,1}
+A: {}
+R: {}
+
+function: maybe X {result: d{X,X,X,X,0}}
+
+MATCH_ONE: [maybe d2  ] \NXT Championship Last Man Standing Match: Tommaso Ciampa (c) vs. Johnny Gargano\
+MATCH_TWO: [maybe d2+2] \NXT Women’s Championship Match: Shayna Baszler (c) vs. Kairi Sane\
+MATCH_THREE: [maybe d2+4] \NXT Tag Team Championship Match: Undisputed ERA (c) vs. Moustache Mountain\
+MATCH_FOUR: [maybe d2+6] \NXT North American Championship Match: Adam Cole vs. Ricochet\
+MATCH_FIVE: [maybe d2+8] \EC3 vs. Velveteen Dream\
+
+function: tie between A:n and B:n winning over C:n and D:n {
+  result: [tie between A and B and B winning over [highest of C and D]]
+}
+
+function: tie between A:n and B:n and C:n winning over D:n {
+  if A = B {
+    if A = C {
+      if A > D {
+        result: 1
+      }
+      else {result: 0}
+    }
+    else {result: 0}
+  }
+  else {result: 0}
+}
+
+function: tie between A:n and B:n and C:n and D:n {
+  if A = B {
+    if A = C {
+      if A = D {
+        result: 1
+      }
+      else {result: 0}
+    }
+    else {result: 0}
+  }
+  else {result: 0}
+}
+
+
+R_SCORE: 1
+S_SCORE: 2
+A_SCORE: 3
+J_SCORE: 4
+
+R_WIN: 5
+S_WIN: 6
+A_WIN: 7
+J_WIN: 8
+
+RS_WIN: 9
+RA_WIN: 10
+RJ_WIN: 11
+SA_WIN: 12
+SJ_WIN: 13
+AJ_WIN: 14
+
+RSA_WIN: 15
+RSJ_WIN: 16
+RAJ_WIN: 17
+SAJ_WIN: 18
+
+RSAJ_WIN: 16
+
+function: calculate PROPERTY {result: [PROPERTY with results MATCH_ONE MATCH_TWO MATCH_THREE MATCH_FOUR MATCH_FIVE]}
+
+function: PROPERTY:n with results ONE:n TWO:n THREE:n FOUR:n FIVE:n{
+  
+
+  RSCORE: [R contains ONE]+[R contains TWO]+[R contains THREE]+[R contains FOUR]+[R contains FIVE]
+  SSCORE: [S contains ONE]+[S contains TWO]+[S contains THREE]+[S contains FOUR]+[S contains FIVE]
+  ASCORE: [A contains ONE]+[A contains TWO]+[A contains THREE]+[A contains FOUR]+[A contains FIVE]
+  JSCORE: [J contains ONE]+[J contains TWO]+[J contains THREE]+[J contains FOUR]+[J contains FIVE]
+
+
+  if PROPERTY = R_SCORE {result: RSCORE}
+  else if PROPERTY = S_SCORE {result: SSCORE}
+  else if PROPERTY = A_SCORE {result: ASCORE}
+  else if PROPERTY = J_SCORE {result: JSCORE}
+  else if PROPERTY = R_WIN {result: RSCORE>[highest of SSCORE and [highest of ASCORE and JSCORE]]}
+  else if PROPERTY = S_WIN {result: SSCORE>[highest of RSCORE and [highest of ASCORE and JSCORE]]}
+  else if PROPERTY = A_WIN {result: ASCORE>[highest of SSCORE and [highest of RSCORE and JSCORE]]}
+  else if PROPERTY = J_WIN {result: JSCORE>[highest of SSCORE and [highest of ASCORE and RSCORE]]}
+  else if PROPERTY = RS_WIN {result: [tie between RSCORE and SSCORE winning over ASCORE and JSCORE]}
+  else if PROPERTY = RA_WIN {result: [tie between RSCORE and ASCORE winning over SSCORE and JSCORE]}
+  else if PROPERTY = RJ_WIN {result: [tie between RSCORE and JSCORE winning over ASCORE and SSCORE]}
+  else if PROPERTY = SJ_WIN {result: [tie between SSCORE and JSCORE winning over RSCORE and ASCORE]}
+  else if PROPERTY = SA_WIN {result: [tie between ASCORE and SSCORE winning over RSCORE and JSCORE]}
+  else if PROPERTY = AJ_WIN {result: [tie between ASCORE and JSCORE winning over RSCORE and SSCORE]}
+  else if PROPERTY = RSA_WIN {result: [tie between RSCORE and SSCORE and ASCORE winning over JSCORE]}
+  else if PROPERTY = RSJ_WIN {result: [tie between RSCORE and SSCORE and JSCORE winning over ASCORE]}
+  else if PROPERTY = RAJ_WIN {result: [tie between RSCORE and ASCORE and JSCORE winning over SSCORE]}
+  else if PROPERTY = SAJ_WIN {result: [tie between SSCORE and ASCORE and JSCORE winning over RSCORE]}
+  else if PROPERTY = RSAJ_WIN {result: [tie between RSCORE and SSCORE and ASCORE and JSCORE]}
+}
+
+output [calculate R_SCORE] named "Ross's score"
+output [calculate S_SCORE] named "Sam's score"
+output [calculate A_SCORE] named "Adam's score"
+output [calculate J_SCORE] named "Jack's score"
+
+output [calculate R_WIN] named "Ross wins"
+output [calculate S_WIN] named "Sam wins"
+output [calculate A_WIN] named "Adam wins"
+output [calculate J_WIN] named "Jack wins"
+
+output [calculate RS_WIN] named "Ross and Sam win"
+output [calculate RA_WIN] named "Ross and Adam win"
+output [calculate RJ_WIN] named "Ross and Jack win"
+output [calculate SJ_WIN] named "Sam and Jack win"
+output [calculate SA_WIN] named "Sam and Adam win"
+output [calculate AJ_WIN] named "Adam and Jack win"
+
+output [calculate RSA_WIN] named "Ross, Sam and Adam win"
+output [calculate RSJ_WIN] named "Ross, Sam and Jack win"
+output [calculate RAJ_WIN] named "Ross, Adam and Jack win"
+output [calculate SAJ_WIN] named "Sam, Adam and Jack win"
+
+output [calculate RSAJ_WIN] named "4-way tie"

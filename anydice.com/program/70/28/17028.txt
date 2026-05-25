@@ -1,0 +1,28 @@
+ELDRITCH_BLAST_DMG:0
+POISON_SPRAY_DMG:0
+PCCHA:5                                                            \modifier\
+PCPROF:5
+PCDC:8+PCCHA+PCPROF
+NPCWISSAVE:2
+NPCARMORCLASS:17
+function: does A:n hit B for C:n {
+ if A >= B {
+  result: C
+ }
+ else {
+  result: 0
+ }
+}
+function: does A:n fail dc B for C:n {
+ if A < B {
+  result: C
+ }
+ else {
+  result: C/2
+ }
+}
+loop N over {1..3}{
+ ELDRITCH_BLAST_DMG: ELDRITCH_BLAST_DMG+[does d20+PCCHA+PCPROF hit NPCARMORCLASS for d10+5]
+}
+POISON_SPRAY_DMG: [does d20+NPCWISSAVE fail dc PCDC for 3d12]
+output (ELDRITCH_BLAST_DMG) >= (POISON_SPRAY_DMG) named "Boolean: Eldritch Blast does more damage than Poison Spray"

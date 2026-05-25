@@ -1,0 +1,132 @@
+DEX: 3
+PROF: 3
+DC: 14
+HP: 24
+SNEAK: 3
+SHORT: 6
+RAPIER: 8
+ENEMYCON: 0
+KILL: 29
+
+function: attack with A:n at B damage and C sneak dice {
+ X: 0
+ if A > DC { X: 1dB + Cd6 + DEX }
+ if A = (20 + DEX + PROF) { X: X + B }
+ result: X
+}
+
+function: attack offhand with A:n at B damage {
+ X: 0
+ if A > DC { X: 1dB }
+ if A = (20 + DEX + PROF) { X: X + B }
+ result: X
+}
+
+function: hit with adv A {
+ X: 1d20
+ if A = 1 { X: [highest of X and 1d20] }
+ result: X + DEX + PROF
+}
+
+function: dual short swords {
+ result: [attack with [hit with adv 0] at RAPIER damage and SNEAK sneak dice] + [attack offhand with [hit with adv 0] at SHORT damage]
+}
+
+function: rapier  {
+ result: [attack with [hit with adv 0] at SHORT damage and SNEAK sneak dice]
+}
+
+function: dual short swords adv {
+ result: [attack with [hit with adv 1] at SHORT damage and SNEAK sneak dice] + [attack offhand with [hit with adv 1] at SHORT damage]
+}
+
+function: rapier adv {
+ result: [attack with [hit with adv 1] at RAPIER damage and SNEAK sneak dice]
+}
+
+function: surprise A:n B C {
+ if A > DC { result: B + C }
+ result: B
+}
+
+function: dual short swords surprise {
+ X: [hit with adv 1]
+ Y: [hit with adv 1]
+ Z: [attack with X at SHORT damage and SNEAK sneak dice] + [attack offhand with Y at SHORT damage]
+ Z: [surprise X Z SHORT]
+ Z: [surprise Y Z SHORT]
+ result: Z
+}
+
+function: rapier surprise {
+ X: [hit with adv 1]
+ Y: [attack with X at RAPIER damage and SNEAK sneak dice]
+ result: [surprise X Y RAPIER]
+}
+
+function: poison A:n B {
+ if A < 10 { result: B + 1d4 }
+ result: B
+}
+
+function: dual short swords poison {
+ X: [hit with adv 0]
+ Y: [hit with adv 0]
+ A: 1d20 + ENEMYCON
+ B: 1d20 + ENEMYCON
+ Z: [attack with X at SHORT damage and SNEAK sneak dice] + [attack offhand with Y at SHORT damage]
+ Z: [poison A Z]
+ Z: [poison B Z]
+ result: Z
+}
+
+function: rapier poison {
+ X: [hit with adv 0]
+ Y: 1d20 + ENEMYCON
+ Z: [attack with X at RAPIER damage and SNEAK sneak dice]
+ result: [poison Y Z]
+}
+
+function: dual short swords poison and surprise {
+ X: [hit with adv 1]
+ Y: [hit with adv 1]
+ A: 1d20 + ENEMYCON
+ B: 1d20 + ENEMYCON
+ Z: [attack with X at SHORT damage and SNEAK sneak dice] + [attack offhand with Y at SHORT damage]
+ Z: [poison A Z]
+ Z: [poison B Z]
+ Z: [surprise X Z SHORT]
+ Z: [surprise Y Z SHORT]
+ result: Z
+}
+
+function: rapier poison and surprise {
+ X: [hit with adv 1]
+ Y: 1d20 + ENEMYCON
+ Z: [attack with X at RAPIER damage and SNEAK sneak dice]
+ Z: [surprise X Z RAPIER]
+ result: [poison Y Z]
+}
+
+function: successful sneak kill dual swords A:n B {
+ if A >= B { result: A }
+ result: -1
+}
+
+function: successful sneak kill bow A:n B {
+ if (A >= B | A = 0) { result: A }
+ result: -1
+}
+
+output [dual short swords] named "Dual Short Swords @ DC [DC]"
+output [rapier] named "Rapier/Longbow @ DC [DC]"
+output [dual short swords adv] named "Dual Short Swords with advantage @ DC [DC]"
+output [rapier adv] named "Rapier/Longbow with advantage @ DC [DC]"
+output [dual short swords surprise] named "Dual Short Swords Surprise @ DC [DC]"
+output [rapier surprise] named "Rapier/Longbow Surprise @ DC [DC]"
+output [dual short swords poison] named "Dual Short Swords poison @ DC [DC] and Enemy Con Bonus [ENEMYCON]"
+output [rapier poison] named "Rapier/Longbow poison @ DC [DC] and Enemy Con Bonus [ENEMYCON]"
+output [dual short swords poison and surprise] named "Dual Short Swords poison and surprise @ DC [DC] and Enemy Con Bonus [ENEMYCON]"
+output [rapier poison and surprise] named "Rapier/Longbow poison and surprise @ DC [DC] and Enemy Con Bonus [ENEMYCON]"
+output [successful sneak kill dual swords [dual short swords poison and surprise] KILL] named "successful sneak kill dual swords @ DC [DC] and damge [KILL] and Enemy Con Bonus [ENEMYCON]"
+output [successful sneak kill bow [rapier poison and surprise] KILL] named "successful sneak kill bow @ DC [DC] and damge [KILL] and Enemy Con Bonus [ENEMYCON]"

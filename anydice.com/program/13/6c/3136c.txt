@@ -1,0 +1,69 @@
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+function: adv A:n to B:n {
+  if A > B { result: A }
+  result: B
+}
+
+
+ROLL: [1d6 reroll {1,2} as 1d6]
+ROLLTWO: [1d6 reroll {1,2} as 1d6]
+ROLLTOTONE: ROLL+ROLLTWO
+\output ROLLTOTONE named "single"\
+
+ROLL: [1d6 reroll {1,2} as 1d6]
+ROLLTWO: [1d6 reroll {1,2} as 1d6]
+ROLLTOTTWO: ROLL+ROLLTWO
+SAVAGE: [adv ROLLTOTONE to ROLLTOTTWO]
+\output SAVAGE named "savage"\
+
+output ROLLTOTONE+ROLLTOTTWO named "double"
+
+ROLL: [1d6 reroll {1,2} as 1d6]
+ROLLTWO: [1d6 reroll {1,2} as 1d6]
+ROLLTOTTHREE: ROLL+ROLLTWO
+output SAVAGE+ROLLTOTTHREE named "one and savage"
+
+
+function: compare FIRST:n to AVERAGE:n {
+
+if FIRST >= AVERAGE {
+  FIR: [1d6 reroll {1,2} as 1d6]
+  FIRTWO: [1d6 reroll {1,2} as 1d6]
+  FIRTOT: FIR+FIRTWO
+
+  SEC: [1d6 reroll {1,2} as 1d6]
+  SECTWO: [1d6 reroll {1,2} as 1d6]
+  SECTOT: SEC+SECTWO
+
+  SAVAGE: [adv FIRTOT to SECTOT]
+
+  result: FIRST+SAVAGE
+
+} else {
+  FIR: [1d6 reroll {1,2} as 1d6]
+  FIRTWO: [1d6 reroll {1,2} as 1d6]
+  FIRTOT: FIR+FIRTWO
+
+  SAVAGE: [adv FIRST to FIRTOT]
+
+  SEC: [1d6 reroll {1,2} as 1d6]
+  SECTWO: [1d6 reroll {1,2} as 1d6]
+  SECTOT: SEC+SECTWO
+
+  result: SAVAGE+SECTOT
+}
+}
+
+
+
+\output [compare ROLLTOTONE to 5] named "optimized5"\
+\output [compare ROLLTOTONE to 6] named "optimized6"\
+output [compare ROLLTOTONE to 7] named "optimized7"
+output [compare ROLLTOTONE to 8] named "optimized8"
+output [compare ROLLTOTONE to 9] named "optimized9"
+\output [compare ROLLTOTONE to 10] named "optimized10"\
+\output [compare ROLLTOTONE to 11] named "optimized11"\

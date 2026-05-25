@@ -1,0 +1,69 @@
+\ Holy Tank \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BASEATTACK: 2 + 3
+BASEDAMAGE: 1d10
+BASECRITDAMAGE: 2d10
+BASESGHITDAMAGE: 3d8
+BASESGMISSDAMAGE: 3d8/2
+SORCATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+SGHITDAMAGE: BASESGHITDAMAGE
+SGMISSDAMAGE: BASESGMISSDAMAGE
+MISSDAMAGE: 0
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+
+\ Damage functions \
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+\ Multi attacks \
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [d20 vs AC SORCATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 2d20] vs AC SORCATTACK]]
+  }
+  result: TOTAL
+}
+
+\ Level 1 - 3 \
+
+output [multiattack 1] named "level 1-4 w/ Fire Bolt vs AC[AC]"
+
+AC:15
+output [multiattack 1] named "level 1-4 w/ Fire Bolt vs AC[AC]"
+
+AC:20
+output [multiattack 1] named "level 1-4 w/ Fire Bolt vs AC[AC]"
+
+AC:25
+output [multiattack 1] named "level 1-40 w/ Fire Bolt vs AC[AC]"

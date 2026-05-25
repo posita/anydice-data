@@ -1,0 +1,34 @@
+function: pentastar S:s { \ get the maximum pip from the roll of six sided dice and if it is a six then add one to the result for each additional six \
+ SIXES: S=6 \note this doesn't set S to 6 but compares each number in the sequence S to 6 and returns 0 or 1 for false and true. Then since that sequence of 1's and 0
+s is stored in a number variable (SIXES) it is summed into a single number. Thus the count of all sixes.\
+ if SIXES>0{
+  result: 5+SIXES
+ }
+ else {
+  result: 1@[sort S]
+ }
+}
+
+function: pentastar DICE:s penalty PDICE:s { \ like a regular pentastar roll but a number of penalty dice are also rolled with it. Any matches between regular and penalty dice are removed as pairs from the roll and only the remaining regular dice are considered for the pentastar roll \
+ PIPS:{}
+ loop PIP over {1..6}{ \ first compare ones to penalty ones, then twos... \
+  COUNT:[count PIP in DICE]-[count PIP in PDICE]
+  PIPS: {PIPS, PIP:COUNT} \ collect remaining regular dice after penalty cancellations here in this array. PIP:COUNT makes sure to add that many of that pip to the array. \
+ }
+ \ if length of PIPS is 0 then set it to contain a 0 instead of being a null. This is for graph display purposes, otherwise the 0 result would not appear on the graph. \
+ if #PIPS=0{
+  result: 0
+ }else{
+  \ this may appear that we are rolling the pips into the pentastar function but it's not a roll at all. \
+  \ Instead of giving it a Xd6 set of dice and all their possibile sequences, we are instead giving it just one sequence, \
+  \ the sequence that we just penalty cancelled, a sequence passed in as one of the many possible rolls from the Xd6 passed into THIS function. \
+  result: [pentastar PIPS]
+ }
+}
+
+loop D over {3}{
+ output [pentastar Dd6] named "PentaStar [D]d6"
+ loop P over {1..4}{
+  output [pentastar Dd6 penalty Pd6] named "PentaStar [D]d6 w/ penalty [P]d6"
+ }
+}

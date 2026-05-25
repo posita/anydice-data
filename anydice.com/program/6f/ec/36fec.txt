@@ -1,0 +1,107 @@
+TRAIT: 1d10    \ this is your trait roll, high traits show as 1d12+3 or such \
+CHOICES: 1     \ this is the number of power improvements you're going for.  I.e., just duration = 1 choice,
+                 duration + range = 2 choices, duration + range + Improved Effect = 3 choices \
+CASTBOOST: +2  \ this is how much you're going to boost each cast roll (2 PPE/ISP per +1, to a max of +2) ; 
+                 it's assumed you'll do the same boost every round \
+CASTMOD: +1    \ If you're casting an especially cheap spell and it has a + to the cast roll 
+                 (such as from restrictions like 'self only'), add the + here \
+MOD: -2        \ This is how many mods you're suffering.  E.g., 2 steps of duration imposes 
+                 a -1 to your rolls.  Add on 2 steps of range, and you get another -1 for a total of -2 \
+IE: 0          \ Set to the number of Improved Effect bonus +2 effects to your final casting roll that 
+                 you're going for, set it to 0 if none; if you're stacking improved effects, your odds
+                 of success drop quickly, but you improve your odds of a raise at the end (naturally);
+                 make sure to adjust MOD accordingly (0 for 1 +2 effect, -1 for 2 +2 effects, etc) \
+REROLL: 0      \ Rerolling every round, or not at all (1 or 0) \
+
+\ === should not need to change anything below this line == \
+
+ROUNDS: 3+(CHOICES-1)      \ Leave this alone - modify round count based on # of choices \
+SUCCS: 4+(2*(CHOICES-1))       \ Leave this alone - modify success target based on # of choices \
+NETMOD: MOD+CASTMOD+CASTBOOST   \ this is just consolidating all the bonuses into one \
+CASTBOOSTCOST: CASTBOOST*2*ROUNDS      \ this is computing the cost of your cast boost, for display purposes only \
+WILD: 1d6      \ Wild die are always 1d6 (or are they?) \
+IEMOD: IE*2
+
+CRITFAIL: -(ROUNDS*SUCCS)   \ To make critical fails cause an overall failure, they basically deduct enough to make it impossible for subsequent rolls to succeed \
+SUCCESS: 1      \ Count successes as 1 \
+RAISE: 2        \ Count raises as 2 \
+FAIL: 0         \ Count failures as 0 \
+set "position order" to "lowest first"    \ this isn't technically necessary, but it's used for finding the lowest value of a range of die rolls using 1@ \
+
+\
+   ===================
+   Ritscore takes your bonus die (WILD) and your die roll (TRAIT),
+   and applies the modifier MOD as appropriate.
+   It also identifies critical failures.
+   ===================
+\
+function: ritscore BON:s and ROLL:s with MOD:s {
+ if ROLL = 1@{TRAIT} & BON = 1@{WILD} { result: CRITFAIL }
+ result: [highest of [score BON+MOD] and [score ROLL+MOD]]
+}
+
+\
+   ===================
+   tryritual is just a front-end to ritscore, called different ways based on whether
+   Improved Effect is in play (which adds +2 to to the final roll, for raise determinations)
+   ===================
+\
+function: tryritual ROUND:n rounds SUC:n successes with mod MOD:n and die DIE:d {
+   if IE = 0 {
+      result: ROUNDd [ritscore [explode WILD] and [explode DIE] with MOD]
+   } else {
+      \ When doing improved effect, roll the first ROUND-1 rolls normally, but the last one, add double the IE levels (+2, +4, +6, etc) \
+      result: {ROUND-1}d [ritscore [explode WILD] and [explode DIE] with MOD] + [ritscore [explode WILD] and [explode DIE] with MOD+(IE*2)]
+   }
+}
+
+\ 
+   ===================
+   score -- set the series to 0 for results <4, 1 for results 4 or higher, and 2 for results 8 or higher
+   ===================
+\
+function: score N:n {
+ result: (N >= 4) + (N >= 8)
+}
+
+
+\  == terse output
+   output 3d [ritscore [explode WILD] and [explode TRAIT] with NETMOD+IEMOD] named "Final (of [ROUNDS] rounds) test (1=succ, 2=raise) (IE is on)"
+   output [tryritual ROUNDS rounds SUCCS successes with mod NETMOD+IEMOD and die TRAIT] named "Overall successes (targeting [SUCCS] successes)"
+   output [tryritual ROUNDS rounds SUCCS successes with mod NETMOD+IEMOD and die TRAIT] >= SUCCS named "Overall successes (targeting [SUCCS] successes)"
+   === \
+
+\  =============== verbose output =============== \
+\ define some sequences using english, for easier reading later \
+ONEROUND: [ritscore [explode WILD] and [explode TRAIT] with NETMOD]
+ONEROUNDWITHIE: [ritscore [explode WILD] and [explode TRAIT] with NETMOD+IEMOD]
+FULLTRY:  [tryritual ROUNDS rounds SUCCS successes with mod NETMOD and die TRAIT]
+FULLTRYWITHIE:  [tryritual ROUNDS rounds SUCCS successes with mod NETMOD+IEMOD and die TRAIT]
+
+if IE = 0 {
+   \ output block for no Improved Effect in play \
+   output {} named "Improved Effect(IE) is <font size=+1 color=red>OFF</font>, TRAIT:[TRAIT], ROUNDS:[ROUNDS], SUCCS:[SUCCS], sinking [CASTBOOSTCOST] ISP/PPE for +[CASTBOOST] + additional castmod of [CASTMOD] + effect modifier [MOD] == [NETMOD], rerolls ([REROLL])"
+} else {
+   \ output block for when Improved Effect is happening (final round is different) \
+    output {} named "Improved Effect(IE) is <font size=+1 color=green>ON</font>(+[IEMOD] to final roll), TRAIT:[TRAIT], ROUNDS:[ROUNDS], SUCCS:[SUCCS], sinking [CASTBOOSTCOST] ISP/PPE for +[CASTBOOST] + additional castmod of [CASTMOD] + effect modifier [MOD] == [NETMOD], rerolls ([REROLL])"
+}
+
+if REROLL = 1 {
+      output [highest of FULLTRY and FULLTRY] >= SUCCS named "Overall result 0=failure, 1=success"
+      output [lowest of FULLTRY and FULLTRY] <= -SUCCS named "Crit fail chance"
+      if IE = 0 { output [highest of ONEROUND and ONEROUND] named "Final (of [ROUNDS] rounds) test (1=succ, 2=raise) (IE is off)" }
+      else { output [highest of ONEROUNDWITHIE and ONEROUNDWITHIE] named "Final (of [ROUNDS] rounds) test (1=succ, 2=raise) (IE is on)" }
+} else { 
+      output FULLTRY >= SUCCS named "Overall result 0=failure, 1=success"
+      output FULLTRY <= -SUCCS named "Crit fail chance"
+      if IE = 0 { output ONEROUND named "Final (of [ROUNDS] rounds) test (1=succ, 2=raise) (IE is off)" }
+      else { output ONEROUNDWITHIE named "Final (of [ROUNDS] rounds) test (1=succ, 2=raise) (IE is on)"  }
+}
+\===============================================================\
+\  this section was offered up by Jasper, the creator of AllDice
+N: d12+1
+SUCCESS_SIX: [score [explode d6]+NETMOD]
+SUCCESS_N: [score [explode N]+NETMOD]
+TEST: [highest of SUCCESS_SIX and SUCCESS_N]
+output 3dTEST >= 4
+\

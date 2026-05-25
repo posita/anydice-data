@@ -1,0 +1,31 @@
+function: ROLL:n vs AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= THREAT & ROLL + ATTACK >= AC {
+  result: [threat d20]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: DAMAGE }
+ result: 0
+}
+
+function: threat ROLL:n {
+ if ROLL > 1 & ROLL + ATTACK >= AC | ROLL = 20 {
+  result: CRITICAL d DAMAGE
+ }
+ result: DAMAGE
+}
+
+\ use either a fixed AC value or an AC range like d{14..20} for average performance \
+AC: 20
+STRENGTH: 3
+BAB: 3
+BASEATTACK: BAB + STRENGTH
+BASEDAMAGE: 2d6 + STRENGTH * 3 / 2
+THREAT: 19
+CRITICAL: 2
+
+\ show damage potential for all possible Power Attack options \
+loop PA over {0..BAB} {
+ ATTACK: BASEATTACK - PA
+ DAMAGE: BASEDAMAGE + PA * 2
+ output [d20 vs AC] named "Greatsword PA [PA]"
+}

@@ -1,0 +1,49 @@
+\reroll a given roll if the result is a given number\
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+\check if a given roll passes a given dc\
+function: pass ROLL:n dc DC:n{
+  if ROLL >= DC {result: 1}
+  result: 0
+}
+\roll 1d20 and reroll if not a 20\
+function: trytwenty ROLL:n{
+  if ROLL=20{result:20}
+  result: 1d20
+}
+\d&d attack roll sequence with varying to hit bonus, ac, crit threshold, damage, crit damage\
+function: attack ROLL:n bonus BONUS:n crits CRIT:n ac AC:n dmg DMG:d critdamage DMGCRIT:d {
+  if ROLL >= CRIT {result: DMGCRIT}
+  else if ROLL <= 1 {result: 0}
+  else if (ROLL + BONUS) >= AC {result: DMG}
+  result: 0
+}
+\d&d firearm attack roll sequence with varying to hit bonus, ac, crit threshold, misfire score, damage, crit damage\
+function: attack ROLL:n bonus BONUS:n crits CRIT:n misfire MISFIRE:n ac AC:n dmg DMG:d critdamage DMGCRIT:d {
+  if ROLL >= CRIT {result: DMGCRIT}
+  else if ROLL <= MISFIRE {result: 0}
+  else if (ROLL + BONUS) >= AC {result: DMG}
+  result: 0
+}
+\D&D ATTACK\
+\output [attack 1d20 bonus 3 crits 20 ac 16 dmg 1d10+14 critdamage 2d10+14]\
+\D&D FIREARM ATTACK WITH AND WITHOUT SHARPSHOOTER\
+output [attack [highest 1 of 3d20] bonus 3 crits 20 misfire 2 ac 16 dmg 1d10+14 critdamage 2d10+14]
+output [attack [highest 1 of 3d20] bonus 8 crits 20 misfire 2 ac 16 dmg 1d10+4 critdamage 2d10+4]
+\D&D FIREARM ATTACK WITH LUCKY AVOIDING MISFIRE, WITH AND WITHOUT SHARPSHOOTER\
+\output [attack [[lowest 1 of 2d20] reroll {1,2} as 1d20] bonus 3 crits 20 misfire 2 ac 16 dmg 1d10+14 critdamage 2d10+14]
+output [attack [[lowest 1 of 2d20] reroll {1,2} as 1d20] bonus 8 crits 20 misfire 2 ac 16 dmg 1d10+4 critdamage 2d10+4]\
+\D&D LIKELIHOOD OF MISFIRE\
+\output [pass [highest 1 of 3d20] dc 3]
+output [pass 1d20 dc 3]
+output [pass [1d20 reroll {1,2} as 1d20] dc 3]
+output [pass [[lowest 1 of 2d20] reroll {1,2} as 1d20] dc 3]\
+\D&D ROLLS PASSING DCS GUIDANCE vs ENHANCE ABILITY\
+\output [pass 1d20+7+1d4 dc 20]
+output [pass [highest 1 of 2d20]+7 dc 20]\
+
+
+
+

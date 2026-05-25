@@ -1,0 +1,29 @@
+ATTACKER: { \strength\ 1, \effectiveness\ 1, \initiative\ 1 }
+DEFENDER: { \strength\ 1, \effectiveness\ 1, \initiative\ 1 }
+
+function: STRENGTH:n EFFECTIVENESS:n battleroll {
+  result: STRENGTH d {1:EFFECTIVENESS, 0:(6-EFFECTIVENESS)}
+}
+
+function: combat between ATTACKER:s and DEFENDER:s {
+  S_ATT: 1@ATTACKER
+  E_ATT: 2@ATTACKER
+  I_ATT: 3@ATTACKER
+  S_DEF: 1@DEFENDER
+  E_DEF: 2@DEFENDER
+  I_DEF: 3@DEFENDER
+  loop N over {1..3} {
+    if S_ATT > 0 & S_DEF > 0 {
+      if I_ATT < I_DEF {
+        S_DEF: S_DEF - [S_ATT E_ATT battleroll]
+        if S_DEF > 0 { S_ATT: S_ATT - [S_DEF E_DEF battleroll] }
+      } else {
+        S_ATT: S_ATT - [S_DEF E_DEF battleroll]
+        if S_ATT > 0 { S_DEF: S_DEF - [S_ATT E_ATT battleroll] }
+      }
+    }
+  }
+  result: (S_ATT > 0) - (S_DEF > 0)
+}
+
+output [combat between ATTACKER and DEFENDER]

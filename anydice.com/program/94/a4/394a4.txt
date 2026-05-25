@@ -1,0 +1,68 @@
+\ damage against freddy fazbear \
+
+DUELCRIT: 5*10 + 2*4 + 2*6 + 4
+CRIT: 3*10 + 2*4 + 2*6 + 4
+DUELHIT: 2*10 + 1*4 + 1*6 + 4
+HIT: 1*10 + 1*4 + 1*6 + 4
+GRAZE: 1*8
+MISS: 0
+
+EXTRA_DUELCRIT: 5*10 + 2*8 + 2*4 + 2*6 + 4
+EXTRA_CRIT: 3*10 + 2*8 + 2*4 + 2*6 + 4
+EXTRA_DUELHIT: 2*10 + 1*8 + 1*4 + 1*6 + 4
+EXTRA_HIT: 1*10 + 1*8 + 1*4 + 1*6 + 4
+EXTRA_GRAZE: 1*8
+EXTRA_MISS: 0
+
+function: attack ROLLS:s plus BONUS:n against AC:n {
+    HIGHEST: (1 @ ROLLS)
+    ATK: HIGHEST + BONUS
+    if HIGHEST >= 19{ \ crit \
+        result: CRIT
+    }
+    else {
+        if ATK >= AC {
+            result: HIT
+        }
+        else {
+            if ATK > (AC - 10) { result: GRAZE }
+            else {
+                result: MISS
+            }
+        }
+    }
+}
+
+function: extra attack ROLLS:s plus BONUS:n against AC:n {
+    HIGHEST: (1 @ ROLLS)
+    ATK: HIGHEST + BONUS
+    if HIGHEST >= 19{ \ crit \
+        if ATK >= (AC + 5){ result: EXTRA_DUELCRIT }
+        else { result: EXTRA_CRIT }
+    }
+    else {
+        if ATK >= AC {
+            if ATK >= (AC+5) { result: EXTRA_DUELHIT }
+            else { result: EXTRA_HIT }
+        }
+        else {
+            if ATK > (AC - 10) { result: EXTRA_GRAZE }
+            else {
+                result: EXTRA_MISS
+            }
+        }
+    }
+}
+
+loop AC over {15..40} {
+    output [attack 3d20 plus 9 against AC] + [extra attack 3d20 plus 9 against AC] named "[AC]"
+}
+
+output 150
+
+\ output DUELCRIT named "duelcrit ref" \
+\ output CRIT named "crit ref" \
+\ output DUELHIT named "duelhit ref" \
+\ output HIT named "hit ref" \
+\ output GRAZE named "graze ref" \
+\ output MISS named "miss ref" \

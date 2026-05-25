@@ -1,0 +1,96 @@
+\ Burning Wheel Dice with Support for Open-Ended Rolls and Rerolls \
+\   Created for RPG SE - http://rpg.stackexchange.com/a/31458/1421 \
+\ This program circumvents the usual way AnyDice handles dice.     \
+\ Instead, each die is a function.                                 \
+\ Usage:                                                           \
+\ [b X] will roll X black dice.                                    \
+\ [be X] will roll and explode X black dice.                       \
+\ [br X] will roll X black dice and reroll failures.               \
+\ Similarly, [g X] and [w X] and related functions exist for other \
+\ dice.                                                            \
+\ The dice can be added together, e.g. [br 3] + [wr 2]             \
+
+set "maximum function depth" to 7 
+\do not set this below 4, as wrapper function count against the limit\
+
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T{
+  if ROLL =6 {result: 1+[rollexploding 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailures ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplode ROLL: n threshold T {
+  if ROLL < T {result: [rollexploding 1d6 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: wrapper DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplode 1d6 threshold T]}
+    else {if E {RES:RES+[rollexploding 1d6 threshold T]}
+      else {if R {RES:RES+[rerollfailures 1d6 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+
+function: b DICE:n{
+  result:[wrapper DICE threshold 4 explode 0 reroll 0]
+}
+function: be DICE:n{
+  result:[wrapper DICE threshold 4 explode 1 reroll 0]
+}
+function: br DICE:n{
+  result:[wrapper DICE threshold 4 explode 0 reroll 1]
+}
+function: bre DICE:n{
+  result:[wrapper DICE threshold 4 explode 1 reroll 1]
+}
+
+function: g DICE:n{
+  result:[wrapper DICE threshold 3 explode 0 reroll 0]
+}
+function: ge DICE:n{
+  result:[wrapper DICE threshold 3 explode 1 reroll 0]
+}
+function: gr DICE:n{
+  result:[wrapper DICE threshold 3 explode 0 reroll 1]
+}
+function: gre DICE:n{
+  result:[wrapper DICE threshold 3 explode 1 reroll 1]
+}
+
+function: w DICE:n{
+  result:[wrapper DICE threshold 2 explode 0 reroll 0]
+}
+function: we DICE:n{
+  result:[wrapper DICE threshold 2 explode 1 reroll 0]
+}
+function: wr DICE:n{
+  result:[wrapper DICE threshold 2 explode 0 reroll 1]
+}
+function: wre DICE:n{
+  result:[wrapper DICE threshold 2 explode 1 reroll 1]
+}
+
+output [be 2] named "2d6"
+output [be 3] named "3d6"
+output [be 4] named "4d6"
+output [be 5] named "5d6"
+output [be 6] named "6d6"
+output [be 7] named "7d6"
+output [be 8] named "8d6"
+output [be 9] named "9d6"
+output [be 10] named "10d6"

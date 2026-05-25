@@ -1,0 +1,21 @@
+function: howmany DICE:s EXCLUDED:n TTL:n{
+if (EXCLUDED = 6) {result: 6}
+else {NEW:0
+loop VAR over {1..(6-EXCLUDED)}{
+if [DICE contains VAR] {NEW:NEW+1}
+}
+}
+NEWTTL:TTL-1
+NEWEXCLUDED:EXCLUDED+NEW
+if NEWTTL = 0 {result:NEWEXCLUDED}
+else {REMAINING:6-NEWEXCLUDED
+result: [howmany REMAININGd6 NEWEXCLUDED NEWTTL]
+}
+}
+
+output [howmany 6d6 0 1] named "transitions from 0 successes"
+output [howmany 5d6 1 1] named "transitions from 1 success"
+output [howmany 4d6 2 1] named "transitions from 2 successes"
+output [howmany 3d6 3 1] named "transitions from 3 successes"
+output [howmany 2d6 4 1] named "transitions from 4 successes"
+output [howmany 1d6 5 1] named "transitions from 5 successes"

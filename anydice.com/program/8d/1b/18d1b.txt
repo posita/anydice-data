@@ -1,0 +1,30 @@
+ATH: -1       \ Athletics Modifier \
+ACR: +0       \ Acrobatics Modifier \
+CON: +2 + 1d6 \ Constitution Modifier + Largest Hit Dice \
+ATK: +2       \ Weapon Attack Modifier \
+\ Preferred three rolls from list above \
+ROLLS: {ATK, CON, ACR}
+
+\ ** EDIT VALUES ABOVE THIS LINE ** \
+
+DC: 5 + 2d10 \ Target DC \
+
+WINA: 1d20 + 1@ROLLS > DC \ Check 1 \
+WINB: 1d20 + 2@ROLLS > DC \ Check 2 \
+WINC: 1d20 + 3@ROLLS > DC \ Check 3 \
+
+function: highest of A:n and B:n and C:n {
+ if A > B {
+  if A > C { result: A }
+  result: C
+ }
+ if B > C {
+  result: B
+ }
+ result: C
+}
+
+output WINA * WINB * WINC named "150 gp (3 success)"
+output [highest of WINA * WINB and WINB * WINC and WINA * WINC] named "75 gp (2 success)"
+output [highest of WINA and WINB and WINC] named "25 gp (1 success)"
+output 1 - [highest of WINA and WINB and WINC] named "Injury (no success)"

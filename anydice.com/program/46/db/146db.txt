@@ -1,0 +1,33 @@
+\Text between slashes are comments\
+
+\This function handles all the success calculations\
+function: countsuccesses X:s{
+  SUCCESSES: 0
+  loop I over {1..#X}{ \Look at each die\
+    MATCH: -1 \Starts at -1, because our algorithm will always see a die equal to itself\
+    if I@X = 6{ \Count success if a 6\
+      SUCCESSES: SUCCESSES + 1
+    }
+    else { \Otherwise, compare\
+      loop J over {1..#X}{ \Now we compare to each other die\
+        if I@X = J@X{ \If dice match, increase match count\
+          MATCH: MATCH + 1
+        }
+      }
+      if MATCH >= 1{ \Increase success if current die matches another die\
+        SUCCESSES: SUCCESSES + 1
+      }
+    }
+  }
+  result: SUCCESSES
+}
+
+\Change the test roll to verify my function gives the desired number of successes\
+TESTROLL: {6,6,2,2}
+output [countsuccesses TESTROLL] named "Successes for specific roll"
+
+\The following displays all probability distributions for rolling any number of dice up to MAXDICE\
+MAXDICE: 4
+loop N over {1..MAXDICE}{
+  output [countsuccesses Nd6] named "Success probabilities for [N] dice"
+}

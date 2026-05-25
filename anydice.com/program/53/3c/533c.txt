@@ -1,0 +1,25 @@
+MELEE: {0,0,1,1,1,2}
+RANGE: {0,0,0,1,1,2}
+DEFENSE: {0,0,0,0,1,2}
+
+UPPERBOUND: 15
+MAXEXPLODECOMBO: 1
+set "maximum function depth" to 10
+
+SINGLECRIT: 1
+DOUBLECRIT: 2
+
+function: POOL:n DIE:s with up to REROLLS:n rerolls and CRITMULTIPLIER:n {
+  if CRITMULTIPLIER < 1 { CRITMULTIPLIER: 1 }
+  result: [lowest of UPPERBOUND and [reroll up to REROLLS misses for (POOL d DIE) DIE and (CRITMULTIPLIER - 1) crits in MAXEXPLODECOMBO chain]]
+}
+
+function: reroll up to R:n misses for ROLL:s DIE:s and CRITMULTIPLIER:n crits in CRITCHAIN:n chain{
+  MISSES: ROLL = 0
+  HITS: ROLL > 0
+  CRITS: ROLL > 1
+  result: HITS + (CRITS * CRITMULTIPLIER) + [reroll up to [highest of (R - MISSES) and 0] misses for (([highest of [lowest of MISSES and R] and 0] + CRITS * (CRITCHAIN>0))d DIE) DIE and CRITMULTIPLIER crits in (CRITCHAIN - 1) chain]
+}
+
+output [1 MELEE with up to 0 rerolls and SINGLECRIT] named "1dMELEE"
+output [1 MELEE with up to 1 rerolls and SINGLECRIT] named "1dMELEE, 1 reroll"

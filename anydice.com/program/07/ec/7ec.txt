@@ -1,0 +1,37 @@
+\ adjust threat \
+
+THREAT: 15
+
+\ set confirm bonus from Power Critical feat \
+
+CRITICALCONFIRM: 4
+
+\ use transposed graph \
+
+\ leave rest as is \
+MISS: 0
+NORMALHIT: 1
+CRITICALHIT: 2
+
+ATTACK: 0
+
+function: ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= AC {
+  result: [threat d20]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK + CRITICALCONFIRM >= AC | ROLL = 20 {
+  result: CRITICALHIT
+ }
+ result: NORMALHIT
+}
+
+loop AC over {2..20} {
+ output [d20 vs AC] named "[AC]"
+}

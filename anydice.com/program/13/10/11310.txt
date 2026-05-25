@@ -1,0 +1,48 @@
+D: 16
+E: 7
+R: 6
+DB: 3
+LA: 6
+LB: 6
+XMAX: 20
+
+function: push helper D:n {
+ if D=6 {result: 1 + [push helper 1d6]}
+ if D=5 {result: 1}
+ result: 0
+}
+
+function: push D:n {
+ T: 0
+ loop N over {1..D}{
+  T: T + [push helper 1d6]
+ }
+ result: T
+}
+
+function: push opposed D limit L bonus B against R {
+ NH: [highest of 0 and [push D] - Rd{0,0,1}]
+ D: [net hits NH bonus B]
+ result: D
+}
+
+function: reroll opposed D limit L bonus B against R {
+ NH: [highest of 0 and [lowest of Dd{0,0,1,0,0,1,1,1,1} and L] - Rd{0,0,1}]
+ D: [net hits NH bonus B]
+ result: D
+}
+
+function: opposed D limit L bonus B against R {
+ NH: [highest of 0 and [lowest of Dd{0,0,1} and L] - Rd{0,0,1}]
+ D: [net hits NH bonus B]
+ result: D
+}
+
+function: net hits NH:n bonus B {
+ if NH > 0 {result: NH+B}
+ result: NH
+}
+
+output [lowest of XMAX and [opposed D limit LA bonus DB against R] + [opposed D limit LB bonus DB against R]] named "No edge"
+output [lowest of XMAX and [opposed D limit LA bonus DB against R] + [reroll opposed D limit LB bonus DB against R]] named "Reroll"
+output [lowest of XMAX and [opposed D limit LA bonus DB against R] + [push opposed D limit LB bonus DB against R]] named "Push"

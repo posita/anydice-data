@@ -1,0 +1,88 @@
+ARMORCLASS: 18
+PROF: 4
+DEX: 4
+ATTBONUS: PROF + DEX
+SNEAKATTACK: 2d6
+MANEUVERDAMAGE: 1d8
+SNEAKCHECK: 0
+MANEUVERS: 2
+GLOOMSTALKER: 1d8
+CRITHRESHOLD: 20
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG + CRIT_DMG
+    }
+    result: 0
+}
+
+function: autocritattack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG + CRIT_DMG
+    }
+    result: 0
+}
+
+function: elvenaccuracy {
+result: [highest 1 of 3d20]
+}
+
+function: maneuverattack {
+BONUSDICE: GLOOMSTALKER
+if SNEAKCHECK != 0 {
+      SNEAKCHECK: 0
+      BONUSDICE: BONUSDICE + SNEAKATTACK
+    }
+if MANEUVERS != 0 {
+      MANEUVERS: MANEUVERS - 1
+      BONUSDICE: BONUSDICE + MANEUVERDAMAGE
+    }
+result: [attack [elvenaccuracy] plus ATTBONUS vs ARMORCLASS for (1d8 + BONUSDICE + 4) crit (1d8 + BONUSDICE) on CRITHRESHOLD]
+}
+
+function: championattack {
+BONUSDICE: GLOOMSTALKER
+if SNEAKCHECK != 0 {
+      SNEAKCHECK: 0
+      BONUSDICE: BONUSDICE + SNEAKATTACK
+    }
+result: [attack [elvenaccuracy] plus ATTBONUS vs ARMORCLASS for (1d8 + BONUSDICE + 4) crit (1d8 + BONUSDICE) on CRITHRESHOLD]
+}
+
+function: multibm X:n {
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [maneuverattack]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+function: multichamp X:n {
+  CRITHRESHOLD: CRITHRESHOLD - 1
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [championattack]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+
+output [
+multibm 1
+] named "battlemaster"
+
+output [
+multichamp 1
+] named "champion"
+

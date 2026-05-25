@@ -1,0 +1,37 @@
+
+function: grading ROLL:s {
+ if {1,2,3}@ROLL > 9 {
+  result: 2 + ({1,2,3}@ROLL > 14)
+ }
+ result: 1
+}
+
+function: challengelevel L:n N:n{
+ J: 0
+ NEX: L
+ JEX: 0
+ if N<3{
+  J: 3-N
+  NEX:0
+  if L=1{
+   NEX: 1
+  }
+  if L>1{
+   NEX:N
+   if L>N{
+    JEX:L-N
+   }
+  }
+ }
+ 
+ ROLLSIX: (N+NEX)d6
+ ROLLTHREE: (J+JEX)d3
+ 
+ result: [grading{(NEX+1)..(NEX+4-#ROLLTHREE)}@ROLLSIX+{1..#ROLLTHREE}@ROLLTHREE]
+}
+
+loop I over {0,1,2,3} {
+ loop J over {1..10} {
+  output [challengelevel I J] named "level [I] dice [J]"
+ }
+}

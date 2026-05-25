@@ -1,0 +1,54 @@
+AC: 18
+CRITRANGE: 20
+
+HIT: 8
+
+DEX: 0
+DUELING: 0
+FLATDMG: DEX+DUELING
+
+set "maximum function depth" to 999
+
+function: attack with ROLL:n {
+ if ROLL <=1 {result: 0}
+ if ROLL >=CRITRANGE {result: 2}
+ result: ROLL+HIT >= AC
+}
+
+function: multiattack using D:d N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst{
+ result: [roll [attack with D] to multiattack using D N times with a W weapon and C charges and B bonus and BURST burst]
+}
+function: simpleroll HIT:n with a W:d weapon and B:d bonus{
+ result: HIT d (W + B) + (1-(0^HIT))*FLATDMG
+}
+
+function: roll HIT:n to multiattack using D:d N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst{
+
+ if N <= 0 {
+   result: 0
+ }
+ 
+ DAMAGE: HIT d (W + B) + (1-(0^HIT))*FLATDMG
+
+ if C > 0{
+  if HIT > 1 {
+   C: C-1
+   DAMAGE: DAMAGE + HIT d BURST
+  }
+ }
+ if C=0{
+   loop I over {2..N}{
+    DAMAGE: DAMAGE + [simpleroll [attack with D] with a W weapon and B bonus]
+   }
+  result: DAMAGE 
+ }
+ result:  DAMAGE + [roll [attack with D] to multiattack using D N-1 times with a W weapon and C charges and B bonus and BURST burst]
+ 
+}
+
+
+\Max 10 Attacks\
+output [multiattack using [highest 1 of 3d20] 3 times with a 2d8 weapon and 3 charges and 0 bonus and 0 burst]
+output [multiattack using [highest 1 of 3d20] 3 times with a 2d8 weapon and 2 charges and 0 bonus and 0 burst]
+output [multiattack using [highest 1 of 3d20] 3 times with a 2d8 weapon and 1 charges and 0 bonus and 0 burst]
+output [multiattack using [highest 1 of 3d20] 3 times with a 2d8 weapon and 0 charges and 0 bonus and 0 burst]

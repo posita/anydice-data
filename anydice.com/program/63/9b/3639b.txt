@@ -1,0 +1,185 @@
+AC:  17
+DEX: 5
+WIS: 4
+PROFICIENCY: 4
+
+\ Pre-combat Buffs \
+OBLIVION: d4
+BLESS: d4
+
+\ Permanent buffs \
+ENHANCEMENT: 3
+ARCHERY: 2
+
+\ Penalties \
+PENALTY_SHARPSHOOTER: -5
+PENALTY_GWM: -5
+
+\ Ranger \
+HUNTERS_MARK: d6
+
+\ Rogue \
+SNEAK_ATTACK: 2d6
+
+\ Other \
+BANE: 3d6
+ACID: 2d6
+DIVINE_FURY: 1d6
+SHARPSHOOTER: 10
+GWM: 10
+ENSNARING_STRIKE: d8
+DREAD_AMBUSHER: d8
+RAGE: 2
+
+function: attack AC:n ac roll ROLL:n plus BONUS:n for DAMAGE:d and EXTRA_DAMAGE:d {
+  TO_HIT: ROLL + BONUS
+
+  if (ROLL = 1 | TO_HIT < AC) {
+    result: 0
+  } else if (ROLL = 20) {
+    result: DAMAGE + DAMAGE + EXTRA_DAMAGE
+  } else {
+    result: DAMAGE + EXTRA_DAMAGE
+  }
+}
+
+function: barbarian AC:n ac roll ROLL:n plus BONUS:n for DAMAGE:d and EXTRA_DAMAGE:d {
+  TO_HIT: ROLL + BONUS
+
+  if (ROLL = 1 | TO_HIT < AC) {
+    result: 0
+  } else if (ROLL = 20) {
+    result: DAMAGE + DAMAGE + DAMAGE + EXTRA_DAMAGE
+  } else {
+    result: DAMAGE + EXTRA_DAMAGE
+  }
+}
+
+function: poison for DAMAGE:d roll SAVE:n fail on DC:n {
+  if (SAVE= 20) {
+    result: 0
+  } else if (SAVE< DC) {
+    result: DAMAGE
+  }
+}
+
+output
+  [attack AC ac
+    roll [highest 1 of 2d20] plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8 + BANE + DREAD_AMBUSHER + ENSNARING_STRIKE
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ] +
+  [attack AC ac
+    roll [highest 1 of 2d20] plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8 + BANE
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ] +
+  [attack AC ac
+    roll [highest 1 of 2d20] plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8 + BANE
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ]
+named "The Crow (Alpha Strike)"
+
+output
+  [attack AC ac
+    roll d20 plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8 + DREAD_AMBUSHER + ENSNARING_STRIKE
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ] +
+  [attack AC ac
+    roll d20 plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ] +
+  [attack AC ac
+    roll d20 plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ]
+named "The Crow (Turn 1)"
+
+output
+  [attack AC ac
+    roll d20 plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8 + ENSNARING_STRIKE
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ] +
+  [attack AC ac
+    roll d20 plus DEX + PROFICIENCY + ARCHERY + ENHANCEMENT - PENALTY_SHARPSHOOTER
+    for d8
+    and DEX + ENHANCEMENT + SHARPSHOOTER
+  ]
+named "The Crow (Turn 2+)"
+
+STR: 6
+ENHANCEMENT: 2
+output
+  [barbarian AC ac
+    roll [highest 1 of 2d20] plus STR + PROFICIENCY + ENHANCEMENT
+    for 2d6 + DIVINE_FURY + ACID
+    and STR + ENHANCEMENT + RAGE + 4
+  ] +
+  [barbarian AC ac
+    roll [highest 1 of 2d20] plus STR + PROFICIENCY + ENHANCEMENT
+    for 2d6 + DIVINE_FURY + ACID
+    and STR + ENHANCEMENT + RAGE + 4
+  ]
+named "Kloye"
+
+STR: 6
+ENHANCEMENT: 2
+output
+  [barbarian AC ac
+    roll [highest 1 of 2d20] plus STR + PROFICIENCY + ENHANCEMENT - PENALTY_GWM
+    for 2d6 + DIVINE_FURY + ACID
+    and STR + ENHANCEMENT + GWM + RAGE + 4
+  ] +
+  [barbarian AC ac
+    roll [highest 1 of 2d20] plus STR + PROFICIENCY + ENHANCEMENT - PENALTY_GWM
+    for 2d6 + DIVINE_FURY + ACID
+    and STR + ENHANCEMENT + GWM + RAGE + 4
+  ]
+named "Kloye (GWM)"
+
+STR: 4
+PROFICIENCY: 2
+output
+  [attack AC ac
+    roll d20 plus STR + PROFICIENCY
+    for 2d8
+    and STR
+  ]
+named "Haloumi (Giant Constrictor Snake: Constrict)"
+
+STR: 4
+PROFICIENCY: 1
+output
+  [attack AC ac
+    roll d20 plus STR + PROFICIENCY
+    for d8
+    and STR
+  ] +
+  [attack AC ac
+    roll d20 plus STR + PROFICIENCY
+    for 2d6
+    and STR
+  ]
+named "Haloumi (Brown Bear: Multiattack)"
+
+STR: 2
+PROFICIENCY: 2
+output
+  [attack AC ac
+    roll d20 plus STR + PROFICIENCY
+    for d8
+    and STR
+  ] +
+  [attack AC ac
+    roll d20 plus STR + PROFICIENCY
+    for d10
+    and STR
+  ] +
+  [poison for 4d10 roll d20+6 fail on 12]
+named "Haloumi (Giant Scorpion: Multiattack)"
+

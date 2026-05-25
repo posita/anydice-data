@@ -1,0 +1,31 @@
+GRIT: +3
+ACCURACY: 1
+DIFFICULTY: 0
+DAMAGEDICE: 2
+DAMAGESIDES: 6
+DAMAGEBONUS: 0
+EVASION: 12
+ARMOR: 1
+RELIABLE: 0
+
+A: ACCURACY - DIFFICULTY
+if A < 0 {
+  AD: -[highest 1 of (-A)d6]
+} else {
+  AD: [highest 1 of Ad6]
+}
+
+DR: DAMAGEDICEdDAMAGESIDES + DAMAGEBONUS - ARMOR
+CR: [highest DAMAGEDICE of (2*DAMAGEDICE)dDAMAGESIDES] + DAMAGEBONUS - ARMOR
+
+function: damage AR:n {
+  if AR < EVASION {
+    result: 0
+  } else if AR < 20 {
+    result: DR
+  } else {
+    result: CR
+  }
+}
+
+output [highest of RELIABLE and [damage (d20 + AD + GRIT)]] named "Damage"

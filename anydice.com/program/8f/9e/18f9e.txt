@@ -1,0 +1,32 @@
+function: success DIE:d {
+ THRESHOLD: [maximum of DIE]
+ result: [success DIE helper]
+}
+
+function: success N:n helper {
+ if N = 1 { result: 0 }
+ if N < 4 { result: 1 }
+ if N < THRESHOLD { result: 2 }
+ result: 2 + [success DIE helper]
+}
+
+function: luck D:d {
+ LUCK: [maximum of D]
+ result: [luck D helper]
+}
+
+function: luck L:n helper {
+ if L = 1 { result: -1 }
+ if L = LUCK { result: 1 }
+ result: 0
+}
+
+function: roll LEVEL:n {
+ L: 0
+ loop X over {1..LEVEL} {
+  L: L + 1 + [luck d6]
+ }
+ result: L + [success d6] + [luck d6]
+}
+
+output [roll 5] named "Skill + Luck"

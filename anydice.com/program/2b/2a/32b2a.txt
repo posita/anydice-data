@@ -1,0 +1,87 @@
+function: tirofuzildecaca ROLL:n {
+ if ROLL >= DANTECRITRANGE {
+  result: DANTECRIT
+ }
+ if ROLL < DANTECRITRANGE {
+  result: DANTEDMG
+ }
+}
+
+function: motosserrada ROLL:n {
+ if ROLL >= GLEISINCRITRANGE {
+  result: GLEISINCRIT + 5
+}
+ if ROLL < GLEISINCRITRANGE {
+  result: GLEISINDMG + 5
+ }
+}
+
+function: socao ROLL:n {
+ if ROLL >= CAIROCRITRANGE {
+  result: CAIROCRIT + 5
+}
+ if ROLL < CAIROCRITRANGE {
+  result: CAIRODMG + 5
+ }
+}
+
+function: acerto ROLL:n to DEF and ACC{
+ if ROLL = 20 {
+  result: 1
+ }
+ if ROLL+ACC>= DEF {
+  result: 1
+ }
+ result: 0
+}
+
+function: ataquenumbicho ROLL:n plus PROF:n vs DEF:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+ if ROLL = 1 {
+  result: 0
+ }
+ if ROLL >= CRIT_RANGE {
+  if ROLL = 20 | ROLL+PROF >= DEF {
+   result: CRIT_DMG
+  }
+ }
+ if ROLL + PROF >= DEF {
+   result: DMG
+ }
+ result: 0
+}
+
+CAIRODMG: 5d6
+CAIROCRIT: 9d6
+CAIROCRITRANGE: 18
+
+GLEISINDMG: [explode 5d{2,3,4,5,6}]
+GLEISINCRIT: [explode 10d{2,3,4,5,6}]
+GLEISINCRITRANGE: 19
+
+DANTEDMG: 3d8 + 2d6 + 2
+DANTECRIT: 9d8 + 2d6 + 2
+DANTECRITRANGE: 19
+
+
+DEFCAIRO: 21
+DEFCAIROESQUIV: 26
+DEFGLEISIN: 16
+DEFGLEISINESQUIV: 16
+DEFDANTE: 17
+DEFDANTEESQUIV: 22
+
+
+PROF: 5
+
+CAIROATT: [highest 1 of 4d20]
+GLEISINATT: [highest 1 of 3d20]
+DANTEATT: [highest 1 of 2d20]
+output [tirofuzildecaca DANTEATT] named "dante fuzil"
+output [socao CAIROATT] named "cairo soco"
+output [motosserrada GLEISINATT] named "gleisin motosserrada"
+output [ataquenumbicho CAIROATT plus PROF vs 21 for CAIRODMG crit CAIROCRIT on CAIROCRITRANGE] named "cairo vs anarquico"
+output [ataquenumbicho DANTEATT plus PROF vs 21 for DANTEDMG crit DANTECRIT on DANTECRITRANGE] named "dante vs anarquico"
+output [ataquenumbicho GLEISINATT plus PROF vs 21 for GLEISINDMG crit GLEISINCRIT on GLEISINCRITRANGE] named "dante vs anarquico"
+output [acerto DANTEATT to DEFCAIROESQUIV and PROF] named "acerto dante"
+output [acerto CAIROATT to 25 and PROF] named "acerto cairo"
+output [acerto GLEISINATT to DEFCAIROESQUIV and PROF] named "acerto gleisin"

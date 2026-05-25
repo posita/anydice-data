@@ -1,0 +1,40 @@
+LV: 1
+AC: 10
+
+ATK: 1 + (LV >= 5)
+FATK: ATK + (LV >= 11)
+
+function: double A:n if B:n above C:n {
+ if B >= C { result: A + A }
+ result: A
+}
+function: hit with B:n{
+ result: (1d20+B >= AC)
+}
+
+function: martial {
+ if LV >= 17 { result: 1d10 }
+ if LV >= 9 { result: 1d8 }
+ result: 1d6
+}
+function: mark {
+ if LV = 20 { result: 1d20 }
+ if LV >= 17 { result: 1d12 }
+ if LV >= 13 { result: 1d10 }
+ if LV >= 9 { result: 1d8 }
+ if LV >= 5 { result: 1d6 }
+ result: 1d4
+}
+MR: [mark]
+
+F: 1d6 + 5 + 2
+M: 1d[martial] + 5
+R: 1d4 + 5 + (LV/2 + 1)d6
+
+output (FATKd[hit with 0])*(F) named "Fighter"
+output ((2*FATK)d[hit with 0])*(F) named "Action Surge"
+output ATKd[hit with 0]*(M) named "Monk"
+output (ATK + 1)d[hit with 0]*(M) named "Ki"
+output ((1+[hit with 0]+[hit with 0])/2)*(R) named "Rogue"
+output (((1+[hit with 0]+[hit with 0])/2)*(R))*2 named "Assassin"
+output [hit with MR]*[double (1d8 + 5 + MR) if LV above 5] named "Ranger"

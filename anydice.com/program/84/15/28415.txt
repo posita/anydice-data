@@ -1,0 +1,42 @@
+function: getChalDices A:n {
+ if A > 5 {result:A-5}
+ else {result:0}
+}
+
+function expectedValueOfMods M:n{
+ if M = -1 {result:-900}
+ if M = 0 {result:50}
+ if M = 1 {result:200}
+ if M = 2 {result:800}
+ if M = 3 {result:1200}
+ if M = 4 {result:1800}
+}
+
+ATTACHCOST:500
+MAXMODSLOT:4
+MODCOST:100
+
+INVESTMENT: ATTACHCOST + MAXMODSLOT*MODCOST
+
+A:4
+E:1
+B:2  
+BASEDIFF:3
+C:0
+MODINSTALLED:0
+DISASTERS:0
+
+loop I over {1..MAXMODSLOT}{
+  D:BASEDIFF+MODINSTALLED
+  C:[getChalDices D]
+  D:D-C
+  SUCCESS:(Ad{0,0,0,0,1,1,1,2} + Ed{0,1,1,2,2,0,1,1,1,0,0,1} + Bd{0,0,0,0,1,1})
+  FAILURES:(Dd{0,0,0,0,0,1,1,2} + Cd{0,1,1,2,2,0,0,1,1,0,0,100})
+  DISASTERS: DISASTERS + (FAILURES/100) 
+  RES: SUCCESS - FAILURES >0          
+  MODINSTALLED:MODINSTALLED+RES
+}
+RESULT: (MODINSTALLED * (1-DISASTERS)) - DISASTERS 
+output RESULT
+output INVESTMENT + [expectedValueOfMods RESULT]    named "expectedvalue"
+

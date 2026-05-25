@@ -1,0 +1,38 @@
+ARMOR_CLASS: 11
+ATTACK_BONUS: 11
+
+function: apply crit fail by ROLL:n {
+  if ROLL = 1 {
+    result: -10
+  } else {
+    result: ROLL
+  }
+}
+
+function: apply does it hit by ROLL:n {
+  if ROLL = 1 | ROLL + ATTACK_BONUS < ARMOR_CLASS {
+    result: 0
+  } else if ROLL = 20 {
+    result: 2
+  } else {
+    result: 1
+  }
+}
+
+function: apply BOLT_ROLL:n by AC {
+  if BOLT_ROLL > AC {
+    result: [apply crit fail by [highest 1 of 2d20]]
+  } else {
+    result: [apply crit fail by 1d20]
+  }
+}
+
+function: roll THIS N:n times {
+  if N = 0 {
+    result:0
+  } else {
+    result: THIS + [roll THIS N-1 times]
+  }
+}
+
+output [roll (2d8 + 6 + 1d6 + 1d20 + 4) [apply does it hit by [apply 1d20 + ATTACK_BONUS by ARMOR_CLASS]] times]

@@ -1,0 +1,46 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+NORMAL: d20
+ADVANTAGE: [highest 1 of 2d20]
+DISADVANTAGE: [lowest 1 of 2d20]
+
+function: attack ROLL:n BONUS:n vs AC:n{
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + BONUS>= AC { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + BONUS>= AC { result: HIT }
+ result: MISS
+}
+
+function: damage ROLL:n CRITROLL:n BONUS:n for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITROLL + BONUS
+ }
+ if ATTACKRESULT = HIT {
+  result: ROLL + BONUS
+ }
+ result: 0
+}
+
+AC: 14
+
+output
+  [damage d10 2d10 4 for [attack NORMAL 10 vs AC]]
++ [damage d10 2d10 4 for [attack NORMAL 10 vs AC]]
++ [damage d10 2d10 4 for [attack NORMAL 10 vs AC]]
+
++ [damage 4d6 8d6 4 for [attack NORMAL 7 vs AC]]
++ [damage d6 2d6 4 for [attack NORMAL 7 vs AC]]
+
++ [damage (d12+d6) (2d12+2d6) 8 for [attack ADVANTAGE 6 vs AC]]
++ [damage d12 2d12 5 for [attack ADVANTAGE 6 vs AC]]
+
++ [damage d8 2d8 6 for [attack NORMAL 6 vs AC]]
++ [damage d8 2d8 6 for [attack NORMAL 6 vs AC]]
+
++ 5d4 + 5
+
+named "Party Damage"

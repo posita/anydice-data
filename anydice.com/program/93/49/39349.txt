@@ -1,0 +1,252 @@
+output d20 + 8 >= 15
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+ATTACK: 5 + 3
+output [attack d20 vs 15]
+
+ATTACK: 5 + 3
+loop AC over {5..30} {
+ output [attack d20 vs AC] named "[AC]"
+}
+
+ATTACK: 5 + 3
+output [attack d20 vs d{5..30}]
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 5 + 3
+HITDAMAGE: d10 + 4
+CRITICALDAMAGE: 14
+MISSDAMAGE: 0
+loop AC over {10, 20, 30} {
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}
+
+output [damage for [attack d20 vs d{10..30}]]
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 5 + 2
+HITDAMAGE: d10 + 4
+CRITICALDAMAGE: 14
+MISSDAMAGE: 0
+output [attack] named "Battleaxe"
+
+ATTACK: 5 + 2
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 12 + d8
+output [attack] named "Scimitar"
+
+ATTACK: 5 + 3
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 12
+output [attack] named "Longsword"
+
+ATTACK: 5 + 2 + 2
+HITDAMAGE: d10
+CRITICALDAMAGE: 10
+MISSDAMAGE: 0
+output [attack] named "Battleaxe"
+
+ATTACK: 5 + 2 + 2
+HITDAMAGE: d8
+CRITICALDAMAGE: 8 + d8
+output [attack] named "Scimitar"
+
+ATTACK: 5 + 3 + 2
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+output [attack] named "Longsword"
+
+ATTACK: 5 + 2
+HITDAMAGE: d10 + 4
+CRITICALDAMAGE: 14
+MISSDAMAGE: 2
+output [attack] named "Battleaxe"
+
+ATTACK: 5 + 2
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 12 + d8
+output [attack] named "Scimitar"
+
+ATTACK: 5 + 3
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 12
+output [attack] named "Longsword"
+
+ATTACK: 4 + 3
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+MISSDAMAGE: 0
+output [attack] named "One Attack"
+output 2d[attack] named "Twin Strike"
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+ATTACK: 4 + 3
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+MISSDAMAGE: 0
+QUARRY: d6
+
+output [2 attacks] named "Twin Strike, no Quarry"
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: [maximum of QUARRY]
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: QUARRY
+ }
+ result: 0
+}
+
+output [2 attacks] named "Twin Strike, with Quarry"
+
+ATTACK: 4 + 2
+HITDAMAGE: d8
+CRITICALDAMAGE: 8 + d8
+MISSDAMAGE: 0
+QUARRY: d6
+output [2 attacks] named "Scimitars"
+
+ATTACK: 4 + 3
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+output [2 attacks] named "Longswords"
+
+ATTACK: 4 + 2
+HITDAMAGE: d10
+CRITICALDAMAGE: 10
+output [2 attacks] named "Battleaxes / Longbow"
+
+ATTACK: 4 + 2 + 1
+HITDAMAGE: d10
+CRITICALDAMAGE: 10
+MISSDAMAGE: 0
+QUARRY: d6
+output [2 attacks] named "Weapon Expertise"
+
+ATTACK: 4 + 2
+HITDAMAGE: d10 + 1
+CRITICALDAMAGE: 11
+output [2 attacks] named "Weapon Focus"
+
+ATTACK: 4 + 2
+HITDAMAGE: d10
+CRITICALDAMAGE: 10
+QUARRY: d8
+output [2 attacks] named "Lethal Hunter"
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  D: [maximum of QUARRY]
+ }
+ else if [ATTACKRESULTS contains HIT] {
+  D: QUARRY
+ }
+ else {
+  D: 0
+ }
+ if ![ATTACKRESULTS contains MISS] {
+  if 3@ATTACKRESULTS = CRITICALHIT {
+   result: D + 20
+  }
+  result: D + 2d10
+ }
+ result: D
+}
+
+ATTACK: 4 + 2
+HITDAMAGE: d10
+CRITICALDAMAGE: 10
+MISSDAMAGE: 0
+QUARRY: d6
+output [3 attacks] named "Confounding Arrows"
+
+loop X over {1,3,9,11,33,99} {
+ Y: (X + 99) / X
+ Z: X - 1
+ output XdY - Z named "[X]d[Y] - [Z]"
+}
+
+N: 19
+loop X over {1..N - 1} {
+ if ((N - 1) / X) * X = N - 1 {
+  Y: (X + N - 1) / X
+  Z: X - 1
+  output XdY - Z named "[X]d[Y] - [Z]"
+ }
+}
+
+
+M: 3
+N: 18
+loop X over {1..N - M} {
+ if ((N - M) / X) * X = N - M {
+  Y: (X + N - M) / X
+  Z: X - M
+  if Z > 0 {
+   output XdY - Z named "[X]d[Y] - [Z]"
+  }
+  else {
+   Z: -Z
+   output XdY + Z named "[X]d[Y] + [Z]"
+  }
+ }
+}
+
+output [highest 3 of 4d6] named "d6s"
+output [highest 5 of 7d4] - 2 named "d4s"
+output [highest 15 of 20d2] - 12 named "d2s"

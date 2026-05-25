@@ -1,0 +1,38 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for REGROLL:n when ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: REGROLL + REGROLL
+ }
+ if ATTACKRESULT = HIT {
+  result: REGROLL
+ }
+ result: 0
+}
+
+function: multiattack with NUM:n attacks using DIE:d plus MOD:n with CHANCE:n to hit{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE + MOD when [attack 1d20 plus CHANCE vs 15]]
+ }
+ result: RESULT
+}
+output [multiattack with 2 attacks using 1d10 plus 5 with 5 to hit] named "Tank"
+output [multiattack with 3 attacks using [highest 1 of 2d12] plus 3 with 5 to hit] named "Marauder"
+output [multiattack with 6 attacks using 1d8 plus 3 with 3 to hit] named "Dual Wielder"
+output [multiattack with 3 attacks using 1d10 plus 8 with 3 to hit] named "Duelist"
+output [multiattack with 3 attacks using 1d10 plus 8 with 3 to hit] named "Backstabber"
+output [damage for 5d6*3 when [attack 1d20 plus 3 vs 15]] named "AOE Mage"
+output [damage for 6d8 when [attack 1d20 plus 8 vs 15]] named "Nuke Mage"

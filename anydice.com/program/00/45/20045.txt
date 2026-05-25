@@ -1,0 +1,71 @@
+function: armor DAMAGE:s less ARMOR:s {
+  if (DAMAGE - ARMOR) < 0 {result: 0}
+  result: (DAMAGE - ARMOR)
+}
+
+function: double DICE:d less ARMOR:s {
+  D: [armor DICE less ARMOR]
+  P: D = 0
+  M: P*ARMOR + (1-P)*(ARMOR-1)
+  result: D + [armor DICE less M]
+}
+
+function: crit DICE:s {
+  result: (([count 6 in DICE] > 1) * 5)
+}
+
+\armor table:
+ tech bonus: +1
+ leathers: 4 20eb
+ kevlar: 7 (final concealable?) 50eb
+ light armorjack: 11 (final no penalty) 100eb
+ med armorjack: 12 (-2 penalty) 100eb
+ heavy armorjack: 13 (-2 penalty) 500eb
+ flak: 15 (-4 penalty) 500eb
+ metalgear: 18 (-4 penalty) 5000eb
+\
+
+S: 0
+
+A: 11
+
+H: (A+1)/2
+L: A/2
+if (H>L) {R:H} else {R:L}
+
+\guns\
+
+output [armor (2d6 + S) less A] named "med pistol or smg"
+output [armor (3d6 + S) less A] named "heavy smg"
+output [double (3d6 + S) less A] named "heavy pistol"
+output [armor (4d6 + S) less A] named "very heavy pistol"
+output [armor (2d6 + S)*2 less A] named "autofire pass by 2"
+output [armor (5d6 + S) less A] named "ar or shotgun"
+output [armor (6d6 + S) less A] named "grenade"
+output [armor (2d6 + S)*3 less A] named "autofire pass by 3, smg max"
+output [armor (8d6 + S) less A] named "rocket"
+output [armor (2d6 + S)*4 less A] named "autofire pass by 4, ar max"
+output [double (5d6 + S) less A] named "exotic rof2 shotgun"
+output [double (6d6 + S) less A] named "exotic grenade launcher"
+output [armor (2d6 + S)*5 less A] named "autofire pass by 5, exotic max"
+
+\melee\
+
+output [double (1d6 + S) less A] named "brawling bod <5 no cyber"
+output [double (2d6 + S) less A] named "brawling cyberarm minimum or bod 4>>7"
+output [double (3d6 + S) less A] named "brawling bod 6>>11"
+output [double (4d6 + S) less A] named "brawling bod 11+"
+output [double (1d6 + S) less R] named "light wep or MA bod <5"
+output [double (2d6 + S) less R] named "med wep or MA bod 4>>7"
+output [double (3d6 + S) less R] named "heavy wep or MA bod 6>>11"
+output [armor (4d6 + S) less R] named "very heavy wep"
+output [double (4d6 + S) less R] named "MA bod 11+"
+
+\crit stuff\
+
+output [crit 2d6] named "expected crit damage from 2d6 attacks (including all autofire)"
+output [crit 3d6] named "expected crit damage from 3d6 attacks"
+output [crit 4d6] named "expected crit damage from 4d6 attacks"
+output [crit 5d6] named "expected crit damage from 5d6 attacks"
+output [crit 6d6] named "expected crit damage from 6d6 attacks"
+output [crit 8d6] named "expected crit damage from 8d6 attacks"

@@ -1,0 +1,79 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+ADVANTAGE: [highest 1 of 3d20]
+
+DISADVANTAGE: [lowest 1 of 2d20]
+
+function: gwm BONUS_ACTION:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT_DMG:d on CRIT_RANGE:d {
+
+    NO_CRIT: BONUS_ACTION
+    ALREADY_CRIT: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        NO_CRIT: [attack ROLL plus BONUS vs AC 
+            hit  DMG + NO_CRIT
+            miss NO_CRIT
+            crit DMG + CRIT_DMG + ATTACK + ALREADY_CRIT on CRIT_RANGE
+        ]
+        ALREADY_CRIT: ATTACK + ALREADY_CRIT
+    }
+
+    result: NO_CRIT
+}
+
+
+
+output
+[gwm 0 attacks 2 roll ADVANTAGE plus 4 + 3 + 1 - 5 vs 15 for [gwf d10] + 5 crit [gwf d10] on 20] named "[Hexblade 5, Paladin 4] Elven Advantage, GWM, GWF Hexadin"
+
+output
+[gwm 0 attacks 2 roll ADVANTAGE plus 4 + 3 + 1 - 5 vs 15 for [gwf d4] + 5 crit [gwf d4] on 20] named "[Hexblade 5, Paladin 4] Elven Advantage, PAM Attack, GWF Hexadin"
+
+output
+[gwm [attack [highest 1 of 3d20] d20 plus 4 + 3 - 5 vs 15 for [gwf d4] + 3 crit [gwf d4] on 20] attacks 2 roll d20 plus 6 vs 15 for [gwf d10] + 3 crit [gwf d10] on 19] named "[5] Polearm master GWM Hexblade AC 15"
+
+output
+4d[attack [highest 1 of 3d20] plus 3 + 4 + 2 - 5 vs 16 for 1d8 + 4 + 10 crit 1d8 on 20] named "[6] Elven accuracy sharpshooter AC 16 enemy"

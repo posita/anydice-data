@@ -1,0 +1,65 @@
+\Helper Functions\
+
+function: check X:n crit on C:s miss on M:s for DMG:d plus MOD:n {
+    \Process crit before miss, since crit auto-hits\
+    if [C contains X] { result: DMG + DMG + MOD }
+    \Process miss\
+    if [M contains X] { result: 0 }
+    result: DMG + MOD
+}
+
+function: hit H:n for DMG:d plus MOD:n crit C:s {
+    HIT: 20 - (AC - H) + 1
+    M: {1..(20 - HIT)}
+    result: [check d20 crit on C miss on M for DMG plus MOD]
+}
+
+function: hit H:n for DMG:d plus MOD:n {
+    result: [hit H for DMG plus MOD crit {20}]
+}
+
+function: hit H:n for DMG:d {
+    result: [hit H for DMG plus 0 crit {20}]
+}
+
+function: save vs DC:n for DMG:d {
+    X: 20 - (DC - SAVE) + 1
+    result: 1d{0:X, 1:(20-X)} * DMG
+}
+
+function: savehalf DC:n for DMG:d {
+    X: 20 - (DC - SAVE) + 1
+    result: (1d{1:X, 2:(20-X)} * DMG) / 2
+}
+
+function: reroll S:s of D:d {
+    CNT: #D
+    MAX: [maximum of D] / CNT
+    RES: 0
+    loop N over {1..CNT} {
+        RES: RES + 1d{{(#S + 1)..MAX}:(MAX + #S), S:(#S)}
+    }
+    result: RES
+}
+
+function: X times Y {
+    Z: 0
+    loop N over {1..X} {
+        Z: Z + Y
+    }
+    result: Z
+}
+
+\Calculations\
+
+\Level 12\
+AC: 17
+SAVE: 5
+output [3 times [hit (4 \PROF\ + 5 \CHA\) for (1d10) plus (5 \CHA\)]] named "EB + AB spam (baseline)"
+output [2 times [hit (4 \PROF\ + 5 \STR\) for [reroll {1..2} of 1d10+1d8] plus (5 \STR\ + 3 \CHA\)]] + [hit (4 \PROF\ + 5 \STR\) for [reroll {1..2} of 1d4+1d8] plus (5 \STR\ + 3 \CHA\)] named "Oathbreaker Paladin w/ PAM (Glaive), GWF, 20 STR (15+racial+ASI) and 16 CHA (15+ASI)"
+output [2 times [hit (4 \PROF\ + 5 \STR\) for (1d6+1d8) plus (5 \STR\ + 3 \CHA\ + 2 \Dueling\)]] + [hit (4 \PROF\ + 5 \STR\) for (1d4+1d8) plus (5 \STR\ + 3 \CHA\ + 2 \Dueling\)] named "Oathbreaker Paladin w/ PAM (Quarterstaff), Dueling, 20 STR (15+racial+ASI) and 16 CHA (15+ASI)"
+output [2 times [hit (4 \PROF\ + 5 \CHA\) for (1d10) plus (5 \CHA\ + 5 \CHA\)]] + [hit (4 \PROF\ + 5 \CHA\) for (1d4) plus (5 \CHA\ + 5 \CHA\)] named "Hexblade Warlock w/ PAM (Glaive) and 20 CHA (15+racial+ASI) - no Hex"
+output [2 times [hit (4 \PROF\ + 5 \CHA\) for (1d10+1d6) plus (5 \CHA\ + 5 \CHA\)]] + [hit (4 \PROF\ + 5 \CHA\) for (1d4+1d6) plus (5 \CHA\ + 5 \CHA\)] named "Hexblade Warlock w/ PAM (Glaive) and 20 CHA (15+racial+ASI) w/ Hex cast"
+output [2 times [hit (4 \PROF\ + 5 \CHA\) for (1d6) plus (5 \CHA\ + 5 \CHA\ + 2 \Dueling\)]] + [hit (4 \PROF\ + 5 \CHA\) for (1d4) plus (5 \CHA\ + 5 \CHA\ + 2 \Dueling\)] named "V.Human Hexblade Warlock w/ PAM (Quarterstaff), Dueling Fighting Style (Fighting Initiate), and 20 CHA (15+racial+ASI) - no Hex"
+output [2 times [hit (4 \PROF\ + 5 \CHA\) for (1d6+1d6) plus (5 \CHA\ + 5 \CHA\ + 2 \Dueling\)]] + [hit (4 \PROF\ + 5 \CHA\) for (1d4+1d6) plus (5 \CHA\ + 5 \CHA\ + 2 \Dueling\)] named "V.Human Hexblade Warlock w/ PAM (Quarterstaff), Dueling Fighting Style (Fighting Initiate), and 20 CHA (15+racial+ASI) w/ Hex cast"
+output [2 times [hit (4 \PROF\ + 5 \CHA\) for (1d6+1d8) plus (5 \CHA\ + 5 \CHA\ + 2 \Dueling\)]] + [hit (4 \PROF\ + 5 \CHA\) for (1d4+1d8) plus (5 \CHA\ + 5 \CHA\ + 2 \Dueling\)] named "V.Human Oathbreaker Paladin 11 / Hexblade Warlock 1 w/ PAM (Quarterstaff), Dueling, and 20 CHA (15+racial+ASI)"

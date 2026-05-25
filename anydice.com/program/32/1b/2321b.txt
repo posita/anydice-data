@@ -1,0 +1,32 @@
+\
+ Blades in the Dark                              | Ironsworn        | BladeSworn
+ --                                              | --               | -1: Disaster strikes
+ 0: Things go bad.                               | 0: Miss          |  0: Miss and things go bad.
+ 1: Success, but with undesired consequences.    | 1: Weak Hit      |  1: Weak success, with undesired consequences.
+ 2: Clean success.                               | 2: Strong Hit    |  2: A strong, clean success.
+ 3: Critical success!                            | --               |  3: A critical success, things go better than expected.
+\
+
+function: bladesworn ROLL:s to X:n and Y:n {
+  HITS: 0
+  if 1@ROLL > X {
+   HITS: 1 
+  }
+  if 1@ROLL > Y {
+   HITS: HITS+1
+  }
+  if 1@ROLL = MAX & 1@ROLL > X & 1@ROLL > Y {
+   HITS: 2 + (2@ROLL = MAX)
+  }
+  if 1@ROLL = 1 {
+   HITS: -1
+  }
+  result: HITS
+}
+
+MAX: 6
+OPP: 4
+output [bladesworn 2@2dMAX to 1dOPP and 1d20] named "0d[MAX] v. d[OPP]"
+loop P over {1..5} {
+ output [bladesworn PdMAX to 1dOPP and 1d20] named "[P]d[MAX] v. d[OPP]"
+}

@@ -1,0 +1,47 @@
+function: ROLL:n vs AC:n {
+
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: [threat ROLL]
+ }
+ result: 0
+}
+function: threat ROLL:n {
+ if ROLL >= THREAT {
+  result: CRITICAL d DAMAGE + STRENGTH
+ }
+ result: DAMAGE
+}
+function: ROLL:n crit {
+ if ROLL = 20 {
+  result: 1
+ }
+ result: 0
+}
+function: ROLL:n hit {
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: 1
+ }
+ result: 0
+}
+function: ROLL:n HIT:n save {
+ if ROLL >= (HIT / 2) & ROLL >= 10 {
+  result: 0
+ }
+ result: 1
+}
+
+AC: 22
+STRENGTH: 3
+ATTACK: 5 + STRENGTH
+ROUND: 2
+ATTACKS: 3
+ENEMIES: 4
+DAMAGE: 2d8
+THREAT: 20
+CRITICAL: 2
+DISROLL: 2@2d20
+SAVEMOD: 7
+output (ROUND*ATTACKS*ENEMIES)d[DISROLL crit] named "crit hits"
+output (ROUND*ATTACKS*ENEMIES)d[DISROLL hit] named "hits"
+output [(1d20 + SAVEMOD) (DAMAGE + STRENGTH) save]*((ROUND*ATTACKS*ENEMIES)d[DISROLL hit]) + [(1d20 + SAVEMOD) (2d DAMAGE + STRENGTH) save] * (ROUND*ATTACKS*ENEMIES)d[DISROLL crit] named "lose cons"
+output (ROUND*ATTACKS*ENEMIES)d[DISROLL vs AC] named "dmg"

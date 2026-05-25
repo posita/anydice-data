@@ -1,0 +1,59 @@
+\ Dexterity Modifier (for DEX=20) \
+DEX: +5
+\ Proficiency Bonus \
+PRO: +5
+\ Weapon bonus \
+FENTHRASBONUS: +3
+SENTINELBONUS: +1 \ not sure if SS is +1 or +2 \
+
+\ To hit vs target AC \
+FENTHRASATK: 1d20 + FENTHRASBONUS + DEX + PRO
+SENTINELATK: 1d20 + SENTINELBONUS + DEX + PRO 
+
+\ Damage \
+FENTHRASDMG: 1d8 + 1d4 + FENTHRASBONUS + DEX
+SENTINELDMG: 1d8       + SENTINELBONUS + DEX
+
+\ Hunters Mark Damage \
+HUNTERSMARK: 1d6
+
+\ output FENTHRASATK named "Fenthras To-Hit" \
+\ output SENTINELATK named "Sentinel To-Hit" \
+\ output FENTHRASDMG named "Fenthras Damage" \
+\ output SENTINELDMG named "Sentinel Damage" \
+
+\
+[From http://criticalrole.wikia.com/wiki/Longbow_of_the_Sky_Sentinel]
+
+Once per long rest, the wielder can use a Storm Arrow, which splits 
+the next arrow fired from the bow into three separate arrows. 
+Each arrow that hits deals an extra 1d6 Lightning damage.
+\
+function: stormarrow AC:n {
+  SUM: 0
+  loop N over {1..3} {
+    SUM: SUM + [attack 1 AC SENTINELATK SENTINELDMG+1d6]
+  }
+  result: SUM
+}
+
+function: attack NUM:n AC:n ATK:n DMG:d {
+  SUM: 0
+  loop N over {1..NUM} {
+    if ATK >= AC {
+      SUM: SUM + DMG
+    }
+  }
+  result: SUM
+}
+
+TARGETAC: 23
+\ loop TARGETAC over {15,20,25,30} { \
+
+NUM: 4
+output [attack NUM TARGETAC FENTHRASATK FENTHRASDMG] named "[NUM]*Fenthras Damage vs AC=[TARGETAC]"
+\ output [attack NUM TARGETAC SENTINELATK SENTINELDMG] named "[NUM]*Sentinel (no Storm Arrow) Damage vs AC=[TARGETAC]" \
+output [stormarrow TARGETAC]+[attack NUM-1 TARGETAC SENTINELATK SENTINELDMG] named "[NUM]*Sky Sentinel Damage vs AC=[TARGETAC]"
+
+
+

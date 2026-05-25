@@ -1,0 +1,125 @@
+function: roll DIE:n against SKILL:n skill {
+   EFFECT: 0
+   if DIE = 20 { EFFECT: -1 }
+   else {if DIE <= SKILL {EFFECT: 1}
+         if DIE <= (SKILL+1)/2 {EFFECT: 2}
+         if DIE <= (SKILL+4)/5 {EFFECT: 3}
+         if DIE <= (SKILL+19)/20 {EFFECT: 4}
+   }
+   result: EFFECT
+}
+
+
+function: roll ATTACKER:n vs DEFENDER:n using ADIE:n and DDIE:n {
+   ATTACK: 0
+   if ADIE = 20 { ATTACK: -100 }
+   else {if ADIE <= ATTACKER {ATTACK: 1}
+         if ADIE <= (ATTACKER+1)/2 {ATTACK: 2}
+         if ADIE <= (ATTACKER+4)/5 {ATTACK: 3}
+         if ADIE <= (ATTACKER+19)/20 {ATTACK: 4}
+   }
+   DEFENCE: 0
+   if DDIE = 20 { DEFENCE: -100 }
+   else {if DDIE <= DEFENDER {DEFENCE: 1}
+         if DDIE <= (DEFENDER+1)/2 {DEFENCE: 2}
+         if DDIE <= (DEFENDER+4)/5 {DEFENCE: 3}
+         if DDIE <= (DEFENDER+19)/20 {DEFENCE: 4}
+   }
+   SCORE: ATTACK-DEFENCE
+   if ATTACK = 1000 {
+      if DEFENCE < 1000 {SCORE: 1000}
+   }
+   else if DEFENCE = 1000 {
+      if ATTACK < 1000 {SCORE: -1000}
+   }
+   else if ATTACK = -100 {
+      if DEFENCE > -100 {SCORE: -100}
+   }
+   else if DEFENCE = -100 {
+      if ATTACK > -100 {SCORE: 100}
+   }
+   result: SCORE
+}
+
+function: special ATTACKER:n vs DEFENDER:n using ADIE:n and DDIE:n {
+   ATTACK: 0
+   if ADIE = 20 { ATTACK: 0 }
+   else {if ADIE <= ATTACKER {ATTACK: 1}
+         if ADIE <= (ATTACKER+1)/2 {ATTACK: 2}
+         if ADIE <= (ATTACKER+4)/5 {ATTACK: 3}
+         if ADIE <= (ATTACKER+19)/20 {ATTACK: 4}
+   }
+   DEFENCE: 0
+   if DDIE = 20 { DEFENCE: 0 }
+   else {if DDIE <= DEFENDER {DEFENCE: 1}
+         if DDIE <= (DEFENDER+1)/2 {DEFENCE: 2}
+         if DDIE <= (DEFENDER+4)/5 {DEFENCE: 3}
+         if DDIE <= (DEFENDER+19)/20 {DEFENCE: 4}
+   }
+   SCORE: ATTACK-DEFENCE
+   result: SCORE
+}
+function: roll ATTACKER:n vs DEFENDER:n {
+   A: [roll 1d20 against ATTACKER skill]
+   D: [roll 1d20 against DEFENDER skill]
+
+ 
+
+
+   result: A-D
+}
+
+
+function: alt ATTACKER:n vs DEFENDER:n using ADIE:n and DDIE:n {
+   ATTACK: 0
+   if ADIE = 20 { ATTACK: -10 }
+   else {if ADIE <= ATTACKER {ATTACK: 1}
+         if ADIE <= (ATTACKER+1)/2 {ATTACK: 2}
+         if ADIE <= (ATTACKER+4)/5 {ATTACK: 3}
+         if ADIE <= (ATTACKER+19)/20 {ATTACK: 4}
+   }
+   DEFENCE: 0
+   if DDIE = 20 { DEFENCE: -10 }
+   else {if DDIE <= DEFENDER {DEFENCE: 1}
+         if DDIE <= (DEFENDER+1)/2 {DEFENCE: 2}
+         if DDIE <= (DEFENDER+4)/5 {DEFENCE: 3}
+         if DDIE <= (DEFENDER+19)/20 {DEFENCE: 4}
+   }
+   
+   SCORE: 0
+   if ATTACK = -10 {
+      if DEFENCE = -10 {SCORE: 0}
+      else {SCORE: -10} 
+   }
+   else if DEFENCE = -10 {SCORE:10}
+   else if ATTACK > DEFENCE {SCORE: ATTACK}
+   else if DEFENCE > ATTACK {SCORE: -DEFENCE}
+   result: SCORE
+}
+
+function: special DIE:n {
+    if DIE = 20 {result:100}
+    result: DIE
+
+}
+A: 25
+D: 10
+
+function: dw otherkind ONE:n TWO:n THREE:n FOUR:n {
+   SORTED: [sort {ONE, TWO, THREE, FOUR}]
+   result: {1,2}@ SORTED 
+}
+
+function: get dice SIZE:n {
+    result: SIZE@{d4,d6,d8,d10,d12}
+}
+
+DIESIZES: {0,d4,d6,d8,d10,d12}
+
+ONE: d4
+TWO: d6
+THREE: d8
+FOUR: 0
+
+output [get dice 2]
+output [dw otherkind ONE TWO THREE FOUR]

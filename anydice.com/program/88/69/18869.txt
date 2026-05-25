@@ -1,0 +1,53 @@
+\ THIS PROGRAM: https://anydice.com/program/CHANGED \
+ ZED: {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2} \ 0-skill die sequence; see DIE key \
+ ZN: 4		\ 0-skill die success fraction numerator; for named "" \
+ ZD: 20		\ 0-skill die denominator = die type/faces; for named "" \
+ DIE: {0,0,0,0,0,0,0,1,1,2} \ die sequence: 0=failure, 1=success, 2=explode \
+ DN: 3		\ die success fraction numerator; for named "" \
+ DD: 10		\ …denominator = total die faces; for named "" \
+ BZ: 0		\ bonus=none (probably should be hard-coded below…) \
+ BA: 1		\ bonus=1 \
+ BB: 2		\ bonus=2 \
+ BC: 3		\ bonus=3 \
+ BD: 0		\* ext.bonus skill3to6=bonus1to4; SET TO 1, PA=3; SET TO 0 TO DISABLE \
+ PS: 4		\* start of bonus level (P=the loop, number of dice rolled) \
+ PA: -1		\* skill=3, MUST SET PS=3; SET TO {not P} TO DISABLE BONUS@SKILL3 \
+ BPA: BA+BD	\ skill4 fix for named "" if BD=1 \
+ BPB: BB+BD	\ skill5 fix for named "" if BD=1 \
+ BPC: BC+BD	\ skill6 fix for named "" if BD=1 \
+ MAX: 6		\* maximum function depth: ?@d6, 6@d8, ?@d10, ?@d12 - FIX LATER \
+
+\ SKILL0 DIE \
+  function: explode S:s {
+    if S = 2 { result: 1 + [explode dZED] }
+    result: S
+  }
+  output [explode dZED] named "EX([ZN]:[ZD])=skill0"
+
+\ SKILL1..6 DICE \
+  function: explode N:n {
+    if N = 2 { result: 1 + [explode dDIE] }
+    result: N
+  }
+loop P over {1..8} {
+  set "maximum function depth" to MAX
+  if P < PS {
+    output [explode dZED]+BZ+Pd[explode dDIE] named "skill0+[P]EX([DN]:[DD])+[BZ]"
+  }
+\ THE BONUS LEVELS: \
+  if P = PA {
+    output [explode dZED]+BA+Pd[explode dDIE] named "skill0+[P]EX([DN]:[DD])+[BA]"
+  }
+  if P = 4 {
+    output [explode dZED]+BA+BD+Pd[explode dDIE] named "skill0+[P]EX([DN]:[DD])+[BPA]"
+  }
+  if P = 5 {
+    output [explode dZED]+BB+BD+Pd[explode dDIE] named "skill0+[P]EX([DN]:[DD])+[BPB]"
+  }
+  if P = 6 {
+    output [explode dZED]+BC+BD+Pd[explode dDIE] named "skill0+[P]EX([DN]:[DD])+[BPC]"
+  }
+  if P > 6 {
+    output [explode dZED]+BC+BD+Pd[explode dDIE] named "Bonus Dice: skill0+[P]EX([DN]:[DD])+[BPC]"
+  }
+} \ close P loop \

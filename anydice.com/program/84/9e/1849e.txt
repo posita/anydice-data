@@ -1,0 +1,79 @@
+function: token roll between A:n and B:n {
+  if B < A {
+    result: [token roll between B and A]
+  }
+  AB: B-A
+  R: ABd{0,1}
+  result: R+A
+}
+
+function: roll between A:n and B:n {
+  if B < A {
+    result: [roll between B and A]
+  }
+  AB: B-A
+  R: ABd{0,1}
+  result: R+A
+}
+
+function: dist N:n to M:n {
+  if M < N {
+    result: [dist M to N]
+  }
+  result: M-N
+}
+
+function: squeeze helper RA:n and RB:n towards N:n {
+  DA: [dist RA to N]
+  DB: [dist RB to N]
+  if DA > DB {
+    result: RB
+  } else {
+    result: RA
+  }
+}
+
+function: squeeze towards N:n {
+  RA: d{0..90}+10
+  RB: d{0..90}+10
+
+  result: [squeeze helper RA and RB towards N]
+}
+
+function: squeeze N:n helper between A:n and B:n towards M:n with I:n and J:n {
+  DI: [dist I to M]
+  DJ: [dist J to M]
+  if N = 0 {
+    if DI > DJ {
+      result: J
+    } else {
+      result: I
+    }
+  } else {
+  }
+}
+
+function: squeeze N:n between A:n and B:n towards M:n {
+  if A > B {
+    result: [squeeze N between B and A towards M]
+  }
+  if M < A | M > B {
+    result: -1
+  }
+  result: [squeeze N helper between A and B towards M with ((B-A)d{0,1}+A) and ((B-A)d{0,1}+A)]
+}
+
+output [token roll between 10 and 100]
+output d{0..90}+10
+output 2d{0..45}+10
+output 3d{0..30}+10
+output 5d{0..18}+10
+output 6d{0..15}+10
+output 9d{0..10}+10
+output 10d{0..9}+10
+output 15d{0..6}+10
+output 18d{0..5}+10
+output 30d{0..3}+10
+output 45d{0..2}+10
+output 90d{0..1}+10
+output [squeeze towards 55]

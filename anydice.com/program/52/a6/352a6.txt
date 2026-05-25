@@ -1,0 +1,83 @@
+\------------------------------------------------------------\
+\SCROLL TO THE BOTTOM, DON'T CHANGE ANYTHING BELOW UNTIL TOLD\
+\------------------------------------------------------------\
+
+I_BREAKS: 0
+I_HOPES: 0
+RED: {1000, 100, 1, 101, 101, 1002}
+BLACK: {1100, 101, 101, 1002, 102, 1202}
+WHITE: {1101, 1201, 301, 1102, 302, 1203}
+DOES: 1
+DOESNT: 0
+
+function: condense FACE:n usetokens T:n{
+  BREAKS: I_BREAKS
+  HOPES: I_HOPES
+  if FACE >= 1000 {
+    DOTS: FACE / 1000
+    if HOPES > 0 & T {
+      HOPES: HOPES - DOTS
+      FACE: FACE + DOTS
+      if HOPES < 0 {
+        FACE: FACE + HOPES
+      }
+    }
+    FACE: FACE - (1000 * DOTS)
+  }
+
+  if FACE >= 100 {
+    POTENTIALS: FACE / 100
+    if HOPES > 0 & T {
+      TOKENSUSED: [lowest of HOPES and POTENTIALS]
+      HOPES: HOPES - TOKENSUSED
+      FACE: FACE + TOKENSUSED
+      POTENTIALS: POTENTIALS - TOKENSUSED
+    }
+    if BREAKS > 0 & T {
+      BREAKS: BREAKS - POTENTIALS
+      FACE: FACE + POTENTIALS
+      if BREAKS < 0 {
+        FACE: FACE + BREAKS
+      }
+    }
+    FACE: FACE - (100 * POTENTIALS)
+  }
+  result: FACE
+}
+
+function: rolls A:n plus B:n power P:d bonus Q:s tohit H:n usetokens T:n{
+  RESULT: 1d0
+  ROLL: d10 + B >= H
+  loop X over {1..A}{
+    if X=1 {
+      RESULT: RESULT + (ROLL * (P+Q))
+    }
+    else {
+      RESULT: RESULT + (ROLL * P)
+    }
+  }
+
+  RESULT: [condense RESULT usetokens T]
+  
+  result: RESULT
+
+}
+
+function: rolls A:n dice plus B:n to hit using P:d power dice per hit with a bonus Q:s dice against to hit H:n that T:n use tokens {
+  result: [rolls A plus B power P bonus Q tohit H usetokens T]
+}
+
+\------------------------------------------------------\
+\---The stuff below here is the stuff you can change---\
+\------------------------------------------------------\
+\ For Settings, I would recommend using the Graph view \
+\ and the At Least data type when comparing weapons    \
+\------------------------------------------------------\
+
+I_BREAKS: 2    \number of break tokens in the pool\
+I_HOPES: 1     \number of hope tokens in the pool\
+
+\shortened format\
+output [rolls 1 plus 10 power 1dWHITE bonus 0 tohit 8 usetokens DOES] named "1 white"
+output [rolls 1 plus 10 power 2dBLACK bonus 0 tohit 8 usetokens DOES] named "2 black"
+output [rolls 1 plus 10 power 4dRED bonus 0 tohit 8 usetokens DOES] named "4 red"

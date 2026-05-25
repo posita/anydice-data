@@ -1,0 +1,76 @@
+\ Comparing a 1d10 with frequent advantage to a 1d12 without \
+
+NORMAL_AR: 1d20
+ADVANTAGE_AR: [ highest 1 of 2d20 ]
+FIFTY_FIFTY: d{0, 1}
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+CRITICAL_THRESHOLD: 20
+STR_MOD: 5
+PROFICIENCY: 3
+UNSEEN_MENACE: 1d10
+GREATSWORD: 2d6
+RAGE_BONUS: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+
+function: determine roll with NUM:n out of one hundred {
+  result: [ is roll of 1d100 less than NUM ]
+}
+
+function: is roll of THEDIE:n less than THRESHOLD:n {
+  if THEDIE <= THRESHOLD { result: ADVANTAGE_AR }
+  else { result: NORMAL_AR }
+}
+
+DAMAGE_BONUS: STR_MOD
+HIT_BONUS: STR_MOD + PROFICIENCY
+TARGET_AC: 22
+HIGH_ADVANTAGE_RATE: [ determine roll with 92 out of one hundred ]
+LOW_ADVANTAGE_RATE: [ determine roll with 78 out of one hundred ]
+AC_RANGE: { 14, 16, 18, 20, 22, 24 }
+
+CRITICAL_THRESHOLD: 21
+loop AC over AC_RANGE {
+  \ output [ hit with HIT_BONUS vs AC rolling NORMAL_AR ] named "Odds of hit [AC] (No advantage)" \
+  \ output [ hit with HIT_BONUS vs AC rolling ADVANTAGE_AR ] named "Odds of hit [AC]  (Advantage)" \
+}
+
+\ output NORMAL_AR named "Normal Attack Roll" \
+\ output ADVANTAGE_AR named "Attack Roll with Advantage" \
+\ output MAYBE_ADV named "Attack Roll [ADVANTAGE_PERCENT]% Advantage" \
+
+\ output [ hit with HIT_BONUS vs TARGET_AC rolling NORMAL_AR ] named "Odds of hit (No advantage)" \
+\ output [ hit with HIT_BONUS vs TARGET_AC rolling ADVANTAGE_AR ] named "Odds of hit  (Advantage)" \
+\ output [ hit with HIT_BONUS vs TARGET_AC rolling MAYBE_ADV ] named "Odds of hit  (Partial Advantage)" \
+
+
+CRITICAL_THRESHOLD: 20
+WEAPON: UNSEEN_MENACE
+TARGET_AC: 16
+output [ attack with HIT_BONUS vs TARGET_AC rolling HIGH_ADVANTAGE_RATE with UNSEEN_MENACE and DAMAGE_BONUS ] named "Unseen Menace, 16 AC Target"
+output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_AR with GREATSWORD and DAMAGE_BONUS ] named "Greatsword, 16 AC Target"
+
+TARGET_AC: 22
+output [ attack with HIT_BONUS vs TARGET_AC rolling LOW_ADVANTAGE_RATE with UNSEEN_MENACE and DAMAGE_BONUS ] named "Unseen Menace, 22 AC Target"
+
+output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_AR with GREATSWORD and DAMAGE_BONUS ] named "Greatsword, 22 AC Target"

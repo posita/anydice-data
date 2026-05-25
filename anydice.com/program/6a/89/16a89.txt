@@ -1,0 +1,83 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: save ROLL:n vs DC:n {
+  if ROLL < DC {result: HIT}
+  result: MISS
+}
+
+function: attack {
+ result: [damage for [attack ROLL vs DEFENSE]]
+}
+
+function: dccheck {
+ result: [damage for [save ROLL vs DC]]
+}
+
+MISSDAMAGE: 0
+DEFENSE: d{12..22}
+
+ROLL: 1d20
+ATTACK: 7
+HITDAMAGE: 1d6+4
+CRITICALDAMAGE: 2d6+4
+MISSDAMAGE: 0
+output [attack] named "Shortsword"
+
+ROLL: 1d20
+ATTACK: 7
+HITDAMAGE: 1d6+4+3d6
+CRITICALDAMAGE: 2d6+4+6d6
+MISSDAMAGE: 0
+output [attack] named "Shortsword + Sneak Attack"
+
+ROLL: [highest 1 of 2d20]
+ATTACK: 7
+HITDAMAGE: 1d6+4+3d6
+CRITICALDAMAGE: 2d6+4+6d6
+MISSDAMAGE: 0
+output [attack] named "Shortsword + Sneak Attack Adv."
+
+output 2d6+4+6d6 named "Shortsword Assassnate"
+
+ROLL: 1d20
+ATTACK: 7
+HITDAMAGE: 1d4+4+3d6
+CRITICALDAMAGE: 2d4+4+6d6
+MISSDAMAGE: 0
+output [attack] named "Dagger + Sneak Attack"
+
+ROLL: 1d20
+ATTACK: 7
+HITDAMAGE: 1d4+4+3d6
+CRITICALDAMAGE: 2d4+4+6d6
+MISSDAMAGE: 0
+output [attack] named "Dart + Sneak Attack"
+
+ROLL: 1d20
+ATTACK: 7
+HITDAMAGE: 1d6+4+3d6
+CRITICALDAMAGE: 2d6+4+6d6
+MISSDAMAGE: 0
+output [attack] named "Shortbow + Sneak Attack"

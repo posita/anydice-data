@@ -1,0 +1,73 @@
+function: ROLL:s plus B:n critical DIE:d {
+ CRIT: 1@[reverse {DIE}]
+ if ROLL = CRIT { result: 3 }
+ if ROLL + B >= CRIT - 2 { result: 2 }
+ if ROLL + B >= CRIT - 4 { result: 1 }
+ if ROLL <= CRIT - 7 { result: -1 }
+ result: 0
+}
+
+function: RO:s plus O:n w RW:s plus W:n w RT:s plus T:n roll DO:d w DW:d w DT:d {
+ CO: 1@[reverse {DO}]
+ CW: 1@[reverse {DW}]
+ CT: 1@[reverse {DT}]
+ SUM: 0
+ HALF: 0
+ if RO = CO { SUM: SUM + 2 }
+ if RW = CW { SUM: SUM + 2 }
+ if RT = CT { SUM: SUM + 2 }
+ if RO != CO & RO + O >= CO - 2 { SUM: SUM + 1 }
+ if RW != CW & RW + W >= CW - 2 { SUM: SUM + 1 }
+ if RT != CT & RT + T >= CT - 2 { SUM: SUM + 1 }
+ if RO + O <= CO - 3 & RO + O >= CO - 4 { HALF: HALF + 1 }
+ if RW + W <= CW - 3 & RW + W >= CW - 4 { HALF: HALF + 1 }
+ if RT + T <= CT - 3 & RT + T >= CT - 4 { HALF: HALF + 1 }
+ if RO + O <= CO - 7 { SUM: SUM - 1 }
+ if RW + W <= CW - 7 { SUM: SUM - 1 }
+ if RT + T <= CT - 7 { SUM: SUM - 1 }
+ result: SUM + (HALF / 2)
+}
+
+function: RO:s plus O:n w RW:s plus W:n w RT:s plus T:n roll DO:d w DW:d w DT:d no fail {
+ CO: 1@[reverse {DO}]
+ CW: 1@[reverse {DW}]
+ CT: 1@[reverse {DT}]
+ SUM: 0
+ HALF: 0
+ if RO = CO { SUM: SUM + 2 }
+ if RW = CW { SUM: SUM + 2 }
+ if RT = CT { SUM: SUM + 2 }
+ if RO != CO & RO + O >= CO - 2 { SUM: SUM + 1 }
+ if RW != CW & RW + W >= CW - 2 { SUM: SUM + 1 }
+ if RT != CT & RT + T >= CT - 2 { SUM: SUM + 1 }
+ if RO + O = CO - 3 { HALF: HALF + 1 }
+ if RW + W = CW - 3 { HALF: HALF + 1 }
+ if RT + T = CT - 3 { HALF: HALF + 1 }
+ result: SUM + (HALF / 2)
+}
+
+function: RO:s w RW:s w RT:s roll DO:d w DW:d w DT:d disfavour RD:s roll DD:d {
+ CO: 1@[reverse {DO}]
+ CW: 1@[reverse {DW}]
+ CT: 1@[reverse {DT}]
+ CD: 1@[{DD}]
+ SUM: 0
+ HALF: 0
+ if RO = CO { SUM: SUM + 2 }
+ if RW = CW { SUM: SUM + 2 }
+ if RT = CT { SUM: SUM + 2 }
+ if RO != CO & RO >= CO - 2 { SUM: SUM + 1 }
+ if RW != CW & RW >= CW - 2 { SUM: SUM + 1 }
+ if RT != CT & RT >= CT - 2 { SUM: SUM + 1 }
+ if RO <= CO - 3 & RO >= CO - 4 { HALF: HALF + 1 }
+ if RW <= CW - 3 & RW >= CW - 4 { HALF: HALF + 1 }
+ if RT <= CT - 3 & RT >= CT - 4 { HALF: HALF + 1 }
+ if RO <= CO - 7 { SUM: SUM - 1 }
+ if RW <= CW - 7 { SUM: SUM - 1 }
+ if RT <= CT - 7 { SUM: SUM - 1 }
+ result: SUM + (HALF / 2)
+}
+
+output [1d4 plus 0 critical d4] named "Sing. Die"
+output [1d12 plus 0 w 1d12 plus 0 w 1d12 plus 0 roll d12 w d12 w d12 no fail] named "No Fail"
+output [1d12 plus 0 w 1d12 plus 0 w 1d12 plus 0 roll d12 w d12 w d12] named "w/ Fail"

@@ -1,0 +1,39 @@
+
+F: {-1..1} \ Definition of a Fudge/Fate Die \
+
+\ The Fate curve is disjoint because there are less outcomes in a Fate roll than a 2D6 \
+function: convert SKILL:n skill fate roll ROLL:n to bs {
+  SHIFT: 7
+  if ROLL <= -1 { SHIFT: 6 }
+  if ROLL >= 2 { SHIFT: 8 }
+  result: ROLL + SHIFT + SKILL
+}
+
+\ Reverse: Converts a Fate Roll to a 2D6 curve. This is how to turn Fate rolls into Battlestation rolls \
+function: convert SKILL:n skill fate roll ROLL:n to battlestation {
+  SHIFT: +7
+  if ROLL <= 5 { SHIFT: +6 }
+  if ROLL >= 9 { SHIFT: +8 }
+  result: ROLL + SHIFT + SKILL
+}
+
+
+\ ** Typical Battlestation rolls ** \
+
+output 2d6 named "2D6"
+
+\ Expert roll, with the reroll of a single die.
+  Simulated with "throw 3, pick highest two", but it does not account for the second roll being worse.
+  Therefore this curve is a bit better than the actual expert roll. Note of interest: the expert curve
+  turns out to be close to 2D6 + 2 \
+output {1,2}@3d6 named "2D6 expert reroll"
+output 2d6 + 2 named "2D6 + 2"
+
+\ Shift due to typical +3/-3 bonus \
+output 2d6+3 named "2D6 + 3" 
+
+\ ** Fitting the Fate curve to the Battlestations curve ** \
+
+output [convert 0 skill fate roll 4dF to bs] named "0 skill Fate to BS"
+output [convert 2 skill fate roll 4dF to bs] named "2 skill Fate to BS"
+output [convert 3 skill fate roll 4dF to bs] named "3 skill Fate to BS"

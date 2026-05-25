@@ -1,0 +1,39 @@
+function: damage A:n {
+  if A=2 { result: CRIT }
+  result: A * DMG
+}
+
+function: roll H:n against A:n {
+  if H=1 { result: 0 }
+  if H=20 { result: 2}
+  if H+ATKB>=A { result:1 }
+  result: 0
+}
+
+MOD: 3
+PB: 2
+DMGDIE: 8
+DDIE: d{1..DMGDIE}
+
+loop AC over {12,15,18} {
+  ATKB: MOD+PB
+  DMG: DDIE+MOD
+  CRIT: DDIE+MOD+DMGDIE
+  
+  NORMAL: [damage [roll d20 against AC]]
+  output NORMAL named "Normal vs [AC]"
+  
+  ATKB: MOD+PB-5
+  DMG: DDIE+MOD+10
+  CRIT: DDIE+MOD+DMGDIE+10
+  
+  GREAT: [damage [roll d20 against AC]]
+  output GREAT named "Great Weapon vs [AC]"
+  
+  ATKB: MOD+PB+1
+  DMG: DDIE+MOD+1
+  CRIT: DDIE+MOD+DMGDIE+1
+  
+  PLUS: [damage [roll d20 against AC]]
+  output PLUS named "Ability+ vs [AC]"
+}

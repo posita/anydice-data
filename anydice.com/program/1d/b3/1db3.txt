@@ -1,0 +1,61 @@
+MISS: 0
+NORMALHIT: 1
+
+function: ROLL:n plus ATTACK:n vs AC:n th THREAT:n x MUL:n confirmed by CONFROLL:n {
+  if ROLL = 1 { result: MISS }
+  if (ROLL >= THREAT & ROLL + ATTACK >= AC) | ROLL = 20 {
+    if CONFROLL = 1 { result: NORMALHIT }
+    if CONFROLL + ATTACK >= AC | CONFROLL = 20 {
+      result: MUL
+    }
+    result: NORMALHIT
+  }
+  if ROLL + ATTACK >= AC { result: NORMALHIT }
+  result: MISS
+}
+
+function: HIT:n for DAMAGE:d {
+  if HIT > MISS {
+    TOTAL: DAMAGE
+    loop N over {2..HIT} {
+      TOTAL: TOTAL + DAMAGE
+    }
+    result: TOTAL
+  }
+  else {
+    result: 0
+  }
+}
+
+function: double N {
+  result: N + N
+}
+
+ACLIST: {11,24,21,22,28,23,22,21,24,18,21,24,18,24,26}
+AC: ACLIST / #ACLIST
+
+TOUCHACLIST: {-1,9,12,9,13,8,8,9,6,11,12,9,10,9,9}
+TOUCHAC: TOUCHACLIST / #TOUCHACLIST
+
+\ includes scintillating scales \
+TOUCHACLISTB: {-1,24,21,9,13,8,8,9,6,18,21,24,10,24,26}
+TOUCHACB: TOUCHACLISTB / #TOUCHACLISTB
+
+HPLIST: {256,152,58,150,102,142,90,189,152,112,168,52,93,150,118}
+HP: HPLIST / #HPLIST
+
+STRENGTH: (18-10 + 2 \level\ + 4 \enh\) / 2
+BAB: 10
+ATK: STRENGTH + BAB + 2
+DAMAGE: 2d6 + STRENGTH*3/2 + 2
+
+A: 0
+B: 0
+loop ATTACK over {ATK,ATK-5} {
+  A: A + [[d20 plus ATTACK vs AC th 20 x 2 confirmed by d20] for DAMAGE]
+
+  B: B + [[[highest 1 of 2d20] plus ATTACK vs AC th 20 x 2 confirmed by [highest 1 of 2d20]] for DAMAGE]
+}
+
+output A named "normal full attack"
+output B named "with 2d20b1"

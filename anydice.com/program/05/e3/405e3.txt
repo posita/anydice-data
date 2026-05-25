@@ -1,0 +1,32 @@
+MISS: 0 \make it 1 if yur a Halfling\
+HIT: 1
+CRITICALHIT: 2 
+
+NO_OF_HITS:4
+
+ATTACK: 8 \Attack Bonus\
+
+DAMAGE_DIE: 1d8+1d6
+DMG_MOD: 5
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage HITS:n{
+  if HITS=0{ result: 0}
+  if HITS=1{ result: DAMAGE_DIE + DMG_MOD }
+  if HITS=2{ result: DAMAGE_DIE*2 + DMG_MOD }
+}
+
+D:0
+
+loop N over {1..NO_OF_HITS}{
+ D:D+[damage [attack d20 vs 17]]
+}
+
+output D named "Average Damage"

@@ -1,0 +1,83 @@
+\Made by Decaffeinated Coffee\
+\to-hit calculation\
+function: hit F:n H:n I:n J:n{
+ if H>F { result:0 }
+ else { if J<=I { result:0 }
+ else { result:1 }
+ }
+}
+
+WPNROLL: 3d6
+DEFROLL: 3d6
+
+\Damage vs DR calculation\
+\A= DAM, B= DR, C= Pen, D= Wounding, E= Follow up\
+function: damage A:n B:n C:n D:n E:n{
+ if C=0 { B: B*2 C: 1}
+ if C=1000 {B: 0}
+ if D=0 { X: (A - B / C) / 2}
+ else {X: (A - B / C) * D}
+ if X < 1 {
+  if E < B {result: 0}
+  else {result: E*[hit WPN WPNROLL DEF DEFROLL]}
+ }
+ else {result: (X+E)*[hit WPN WPNROLL DEF DEFROLL]}
+}
+
+\CALCULATIONS ABOVE -- INPUTS BELOW\
+
+\Weapon Skill VS Active Defence\
+\WPN= weapon skill\
+\DEF= enemy active defence (negates attack)\
+\DR= enemy DR against attack\
+
+WPN: 18
+DEF: 0
+\--\
+RCL: 2
+ROF: 1
+
+SUCCESSES: WPN-WPNROLL
+DODGE: DEF-DEFROLL
+function: hitnum S:n D:n R:n F:n { X: (S)/R+1
+if X<0 { X: 0 }
+if D<0 { D: 0 }
+if X<D { D: 0 X: 0 }
+if S>0 { if X>F { X: F-D } else { result: X-D } } else  { result: 0 } }
+HITS: [hitnum SUCCESSES DODGE RCL ROF]
+
+\DAM= Damage dice\
+\PEN= Armor penetration\
+\WOUND= wounding modifier\
+\FOLLOW= Any follow up attacks\
+\Follow up attacks don’t work right if the follow up has armor pen\
+\AnyDice doesn't do decimals, so use fractions\
+\If target has Injury Tolerance, change WOUND to match\
+
+\Damage Statistics\
+DAM: 8d6
+PEN: 3
+WOUND: 1
+\--\
+LINKED: 0
+LPEN: 1
+LWOUND: 1
+\--\
+FRAG: 0
+FWOUND: 2
+\--\
+FOLLOW: 0
+
+\Armor Statistics\
+DR: 50
+\--\
+LDR: 50
+\--\
+FDR: 70
+
+\----------\
+
+output ([damage DAM 0 PEN WOUND FOLLOW]+[damage LINKED 0 LPEN LWOUND 0]+[damage FRAG 0 1 FWOUND 0])*HITS named "Unarmored Target"
+output ([damage DAM DR PEN WOUND FOLLOW]+[damage LINKED LDR LPEN LWOUND 0]+[damage FRAG FDR 1 FWOUND 0])*HITS named "Armored Target"
+output ([damage DAM DR 2 WOUND FOLLOW])*HITS named "Hardened x1, Armored Target"
+output ([damage DAM DR 1 WOUND FOLLOW])*HITS named "Hardened x2, Armored Target"

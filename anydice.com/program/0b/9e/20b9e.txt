@@ -1,0 +1,72 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: gwm BONUS_ACTION:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT_DMG:d on CRIT_RANGE:d {
+
+    NO_CRIT: BONUS_ACTION
+    ALREADY_CRIT: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        NO_CRIT: [attack ROLL plus BONUS vs AC 
+            hit  DMG + NO_CRIT
+            miss NO_CRIT
+            crit DMG + CRIT_DMG + ATTACK + ALREADY_CRIT on CRIT_RANGE
+        ]
+        ALREADY_CRIT: ATTACK + ALREADY_CRIT
+    }
+
+    result: NO_CRIT
+}
+
+AC: d{15..20}
+ADVANTAGE: [highest 1 of 2d20]
+EA: [highest 1 of 3d20]
+
+output 3d[attack 1d20 plus 10 vs AC for 1d8+7 crit 1d8 on 20] named "Extra Attack (3) Rapier"
+output 3d[attack 1d20 plus 12 vs AC for 1d8+9 crit 1d8 on 20] named "Extra Attack (3) Rapier + 2"
+output 3d[attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "Extra Attack (3) FT Rapier"
+output 4d[attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "Extra Attack (4) FT Rapier"
+output 5d[attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "Extra Attack (4) FT Rapier + Haste"
+output 3d[attack 1d20 plus 10 vs AC for 2d8+7 crit 2d8 on 20] named "Shadow Blade Extra Attack (3)"
+output 3d[attack ADVANTAGE plus 10 vs AC for 2d8+7 crit 2d8 on 20] named "Shadow Blade Extra Attack (3) in darkness"
+output 3d[attack EA plus 10 vs AC for 2d8+7 crit 2d8 on 20] named "Shadow Blade Extra Attack (3) in darkness with EA"
+output 3d[attack 1d20 plus 5 vs AC for 2d6+15 crit 2d6+[attack 1d20 plus 5 vs AC for 2d6+15 crit 2d6 on 20] on 20] named "Extra Attack (3) GWM GS"
+output 3d[attack 1d20 plus 5 vs AC for 4d6+15 crit 4d6+[attack 1d20 plus 5 vs AC for 4d6+15 crit 4d6 on 20] on 20] named "Extra Attack (3) GWM FTGS"
+output [attack 1d20 plus 10 vs AC for 1d8+7+2d8 crit 3d8 on 20] + [attack 1d20 plus 10 vs AC for 1d8+7 crit 1d8 on 20] named "BB + War Magic"
+output [attack 1d20 plus 10 vs AC for 2d8+7+2d8 crit 4d8 on 20] + [attack 1d20 plus 10 vs AC for 2d8+7 crit 1d8 on 20] named "BB + War Magic + Shadow Blade"
+output [attack 1d20 plus 10 vs AC for 1d8+2d6+7+2d8 crit 2d6+3d8 on 20] + [attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "BB + War Magic + FT Rapier"
+output [attack 1d20 plus 10 vs AC for 1d8+2d6+7+2d8+3d8 crit 2d6+3d8 on 20] + [attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "BB (Full) + War Magic + FT Rapier"
+output [attack 1d20 plus 10 vs AC for 1d8+2d6+5+2d8+2d8+7 crit 2d6+3d8 on 20] + [attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "GFB + War Magic + FT Rapier"
+
+output [attack 1d20 plus 10 vs AC for 1d8+2d6+7+2d8 crit 2d6+3d8 on 20] + 2d[attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "BB + War Magic + FT Rapier + Haste"
+output [attack 1d20 plus 10 vs AC for 1d8+2d6+7+2d8+3d8 crit 2d6+3d8 on 20] + 2d[attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "BB (Full) + War Magic + FT Rapier + Haste"
+output [attack 1d20 plus 10 vs AC for 1d8+2d6+5+2d8+2d8+7 crit 2d6+3d8 on 20] + 2d[attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "GFB + War Magic + FT Rapier + Haste"
+output [attack EA plus 10 vs AC for 1d8+2d6+5+2d8+2d8+7 crit 2d6+3d8 on 20] + 3d[attack 1d20 plus 10 vs AC for 1d8+2d6+7 crit 1d8+2d6 on 20] named "GFB + War Magic + FT Rapier + Haste + Bladesinger EA"
+output [attack EA plus 12 vs AC for 2d8+5+2d8+2d8+9 crit 6d8 on 20] + 3d[attack 1d20 plus 12 vs AC for 1d8+9 crit 1d8 on 20] named "GFB + War Magic + Sun Blade + Haste + Bladesinger EA"
+
+output 5 + [gwm 10 attacks 2 roll 1d20 plus 10 vs AC for 4d6+2d8+25 crit 4d6+4d8 on 19] named "Hexblade 13th level cloak of flies + spirit shroud + GWM GS + FTGS + maddening hex + HBC"

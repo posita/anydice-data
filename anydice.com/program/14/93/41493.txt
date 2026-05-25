@@ -1,0 +1,68 @@
+TN: 12
+BASE_DMG: 2d6
+
+ATK_PEN: 1d6
+RED1: 1d6
+RED2: 2d6
+RED3: 3d6
+
+\ --- clamp helper (works on dice)
+function: floor0 X:d {
+  if X < 0 { result: 0 }
+  result: X
+}
+
+\ --- expected damage per attack, negatives allowed
+function: attack dmg raw TN:n ATK_PENALTY:d DMG:d RED:d {
+  HIT: d20 - ATK_PENALTY > TN
+  result: HIT * (DMG - RED)
+}
+
+\ --- expected damage per attack, damage floored at 0
+function: attack dmg floor TN:n ATK_PENALTY:d DMG:d RED:d {
+  HIT: d20 - ATK_PENALTY > TN
+  result: HIT * [floor0 (DMG - RED)]
+}
+
+A_raw:  [attack dmg raw   TN ATK_PEN BASE_DMG 0]
+B1_raw: [attack dmg raw   TN 0       BASE_DMG RED1]
+B2_raw: [attack dmg raw   TN 0       BASE_DMG RED2]
+B3_raw: [attack dmg raw   TN 0       BASE_DMG RED3]
+
+A_flr:  [attack dmg floor TN ATK_PEN BASE_DMG 0]
+B1_flr: [attack dmg floor TN 0       BASE_DMG RED1]
+B2_flr: [attack dmg floor TN 0       BASE_DMG RED2]
+B3_flr: [attack dmg floor TN 0       BASE_DMG RED3]
+
+output A_raw  named "Atk -1d6, dmg 2d6 (raw)"
+output B1_raw named "Atk normal, dmg (2d6-1d6) (raw)"
+output B2_raw named "Atk normal, dmg (2d6-2d6) (raw)"
+output B3_raw named "Atk normal, dmg (2d6-3d6) (raw)"
+
+output A_flr  named "Atk -1d6, dmg 2d6 (floor0)"
+output B1_flr named "Atk normal, dmg (2d6-1d6) (floor0)"
+output B2_flr named "Atk normal, dmg (2d6-2d6) (floor0)"
+output B3_flr named "Atk normal, dmg (2d6-3d6) (floor0)"
+
+output [expected of A_raw]  named "E raw: Atk -1d6"
+output [expected of B1_raw] named "E raw: Dmg -1d6"
+output [expected of B2_raw] named "E raw: Dmg -2d6"
+output [expected of B3_raw] named "E raw: Dmg -3d6"
+
+output [expected of A_flr]  named "E floor0: Atk -1d6"
+output [expected of B1_flr] named "E floor0: Dmg -1d6"
+output [expected of B2_flr] named "E floor0: Dmg -2d6"
+output [expected of B3_flr] named "E floor0: Dmg -3d6"
+
+\ --- TN sweep (expected damage only)
+loop T over {5..20} {
+  output [expected of [attack dmg raw   T ATK_PEN BASE_DMG 0]]    named "E raw  Atk-1d6 TN[T]"
+  output [expected of [attack dmg raw   T 0       BASE_DMG RED1]] named "E raw  Dmg-1d6 TN[T]"
+  output [expected of [attack dmg raw   T 0       BASE_DMG RED2]] named "E raw  Dmg-2d6 TN[T]"
+  output [expected of [attack dmg raw   T 0       BASE_DMG RED3]] named "E raw  Dmg-3d6 TN[T]"
+
+  output [expected of [attack dmg floor T ATK_PEN BASE_DMG 0]]    named "E flr  Atk-1d6 TN[T]"
+  output [expected of [attack dmg floor T 0       BASE_DMG RED1]] named "E flr  Dmg-1d6 TN[T]"
+  output [expected of [attack dmg floor T 0       BASE_DMG RED2]] named "E flr  Dmg-2d6 TN[T]"
+  output [expected of [attack dmg floor T 0       BASE_DMG RED3]] named "E flr  Dmg-3d6 TN[T]"
+}

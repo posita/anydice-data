@@ -1,0 +1,91 @@
+\*** Average total damage over 5 rounds "Fighter 2, Assassin 5" vs "Assassin 7," assuming one surprise round and all sneak attacks ***\
+DEXMOD: 4
+ARCHERY: 2
+PURETOHIT: DEXMOD
+MCTOHIT: DEXMOD + ARCHERY
+
+RIFLE: 1d12
+SNEAKMC: 3d6
+SNEAKPURE: 4d6
+
+ACTIONSURGE: 2
+
+SNEAKTOTALMC: RIFLE + SNEAKMC + DEXMOD
+SNEAKTOTALPURE: RIFLE + SNEAKPURE + DEXMOD
+
+SURPRISETOTALMC: RIFLE + RIFLE + SNEAKMC + SNEAKMC + DEXMOD
+SURPRISETOTALPURE: RIFLE + RIFLE + SNEAKPURE + SNEAKPURE + DEXMOD
+
+CRITROLL: 20
+PROFICIENCY: 3
+ATTACKMOD: DEXMOD
+
+function: sneakattackrollmc ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SURPRISETOTALMC } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ARCHERY >= AC { result: SNEAKTOTALMC }
+ result: 0
+}
+function: sneakattackrollpure ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SURPRISETOTALPURE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: SNEAKTOTALPURE }
+ result: 0
+}
+function: surpriseattackrollmc ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SURPRISETOTALMC } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ARCHERY >= AC { result: SURPRISETOTALMC }
+ result: 0
+}
+function: surpriseattackrollpure ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SURPRISETOTALPURE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: SURPRISETOTALPURE }
+ result: 0
+}
+\looped against enemy AC from 15-20\
+ENEMYAC: d{10..20}
+
+output ACTIONSURGEd[surpriseattackrollmc [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollmc [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
+named "mcwininit"
+
+output 1d[surpriseattackrollpure [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollpure [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollpure d20 vs ENEMYAC]
++ 1d[sneakattackrollpure d20 vs ENEMYAC]
++ 1d[sneakattackrollpure d20 vs ENEMYAC]
+named "purewininit"
+
+output ACTIONSURGEd[surpriseattackrollmc [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
+named "mcloseinit"
+
+output 1d[surpriseattackrollpure [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollpure d20 vs ENEMYAC]
++ 1d[sneakattackrollpure d20 vs ENEMYAC]
++ 1d[sneakattackrollpure d20 vs ENEMYAC]
++ 1d[sneakattackrollpure d20 vs ENEMYAC]
+named "pureloseinit"
+
+
+output 1d[surpriseattackrollmc [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollmc [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
+named "nosurgewininit"
+
+output 1d[surpriseattackrollmc [highest 1 of 2d20] vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
++ 1d[sneakattackrollmc d20 vs ENEMYAC]
+named "nosurgeloseinit"

@@ -1,0 +1,85 @@
+TARGETAC:12
+TOHIT:5
+MOD:0
+CRITCHECK:0 
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+ \\\ Add NORMALDICE:n and copy that code \\\
+function: attackroll D:n DD:n DMG:n CRITDICE:n {
+ 
+if  DD >= D {
+ D:DD
+}
+
+if  D = 20 
+{
+  X:0
+  loop N over {1..CRITDICE} 
+  {
+  X: X + DMG
+  }
+ result: X
+ }
+else 
+ { 
+ if (D + TOHIT) >= TARGETAC 
+  {
+  result: DMG
+  }
+ else 
+  { 
+  result:0 
+  } 
+ }
+}
+
+
+function: savageattack A:n B:n { 
+ if A >= B { 
+  result:A 
+ }
+ else { 
+  result:B 
+ } 
+}
+
+function: greatweapon DTYPE:n DNUM:n {
+ X:0
+ loop N over {1..DNUM} {
+  X: X + [reroll 1dDTYPE 2 DTYPE]
+ }
+ result: X
+}
+
+function: critcheck 
+ {
+ if CRITCHECK = 1
+  {
+  result: 1d6
+  }
+ else
+  {
+  result: 0
+  }
+ }
+
+output ([attackroll 1d20 0 1d12 2]+ MOD) named "GreatAxe"
+output ([attackroll 1d20 0 2d6 2]+ MOD) named "GreatSword"
+\
+output ([attackroll 1d20 0 [savageattack 1d12 1d12] 2]+ MOD) named "Savage GreatAxe"
+output ([attackroll 1d20 0 [savageattack 2d6 2d6] 2]+ MOD) named "Savage GreatSword"
+
+output ([attackroll 1d20 0 [greatweapon 12 1] 2]+ MOD) named "Great GreatAxe"
+output ([attackroll 1d20 0 [greatweapon 6 2] 2]+ MOD) named "Great GreatSword"
+\
+output ([attackroll 1d20 0 [savageattack 1d12 1d12] 3]+ MOD) named "Brutal crit, Savage GreatAxe"
+output ([attackroll 1d20 0 [savageattack 2d6 2d6] 2]+ [critcheck]) named "Brutal crit, Savage GreatSword"
+
+output ([attackroll 1d20 0 [savageattack [greatweapon 12 1] [greatweapon 12 1]] 3]+ MOD) named "Brutal crit, Great, Savage GreatAxe"
+output ([attackroll 1d20 0 [savageattack [greatweapon 6 2] [greatweapon 6 2]] 2]+ [critcheck]) named "Brutal crit, Great, Savage GreatSword"

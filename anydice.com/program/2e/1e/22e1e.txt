@@ -1,0 +1,28 @@
+\ GWF with Greatsword \
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+GS: 2d[d6 reroll {1,2} as d6]
+
+function: attack ATK:n ac AC:n gwm GWM:n {
+  DMG: GS + 4
+  if GWM = 1 {
+    ATK: ATK - 5
+    DMG: DMG + 10
+  }
+  if ATK >= AC {
+    result: DMG
+  } else {
+    result: 0
+  }
+}
+
+
+DMG: 0
+loop N over {1..3} {
+  ATK: [highest 1 of 2d20] + 7
+  DMG: DMG + [attack ATK ac 15 gwm 1]
+}
+
+output DMG

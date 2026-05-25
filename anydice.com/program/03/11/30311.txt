@@ -1,0 +1,32 @@
+set "maximum function depth" to 5 
+
+
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T{
+  if ROLL =10 {result: 1+[rollexploding 1d10 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+
+function: wrapper DICE:n threshold T explode E{
+  RES:0
+  loop N over {1..DICE} {
+    RES:RES+[rollexploding 1d10 threshold T]
+  }
+  result:RES
+}
+
+function: sup DICE:n{
+  result:[wrapper DICE threshold 8 explode 0 ]
+}
+function: psi DICE:n{
+  result:[wrapper DICE threshold 7 explode 1 ]
+}
+
+
+output [sup 11]
+output [psi 8]

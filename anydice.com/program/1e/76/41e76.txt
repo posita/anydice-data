@@ -1,0 +1,50 @@
+DES: {20, 12, 10, 8, 6, 4}  
+ID_ATTRIBUT: 4            
+NV_ATTRIBUT: {0..3} \ 0..3 \
+NV_DEFAULT: 1
+NV_FREQUENCE: {0..2} \ 0..2 \
+NV_COMPETENCE: {0..4} \ 0..4 \
+\Pas de relance, conséquence\
+KO: 1
+
+function: push RESULT:n vs SEUIL:n with ID_FACES:n {
+\relancer les dés sans succès qui ne sont pas KO\
+if RESULT > KO & RESULT < SEUIL {result: d(ID_FACES@DES)}
+result: RESULT
+}
+
+function: roll N:n dc ID:n vs S:n push P:n {
+DE: ID@DES
+SEUIL: DE - S
+if P = 0 {result: [count {SEUIL..20} in NdDE] }
+
+X: 0
+if P = 2 {ID: ID + 1}
+DE: ID@DES
+SEUIL: DE - S
+loop I over {1..N} {
+X: X + [count {SEUIL..20} in [push dDE vs SEUIL with ID]]
+}
+result: X
+}
+
+loop PUSH over {0..2} {
+loop AT over NV_ATTRIBUT {
+loop NVFQ over NV_FREQUENCE {
+loop CP over NV_COMPETENCE {
+
+  FQ: NVFQ + 1 + NV_DEFAULT
+  IDC: FQ
+  ND: NV_DEFAULT@[reverse NV_COMPETENCE] - CP
+
+  DA: ID_ATTRIBUT@DES
+  DD: NV_DEFAULT@DES
+  DC: IDC@DES
+  
+  RA: [roll 1 dc ID_ATTRIBUT vs AT push 0]
+  RD: [roll ND dc NV_DEFAULT vs AT push 0]
+  RC: [roll CP dc IDC vs AT push PUSH]
+  output [lowest of (RC + RD) and 5] 
+  named "[PUSH]:[AT]:[NVFQ]:[CP] - (1d[DA]) [ND]d[DD] [CP]d[DC] vs [AT]"
+
+}}}}

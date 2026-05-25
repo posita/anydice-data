@@ -1,0 +1,52 @@
+function: pro M:n D:n L:n
+{
+  X:0
+  loop I over {1..M} {X:X+(1dD >= L)}
+  result:X
+}
+
+function: statCalc STAT:n MAX:n
+{
+  X:0
+  loop I over {1..7} 
+  {
+    if (STAT >= 1)
+    {
+      X:I
+      STAT:STAT - 1
+    }
+  }
+  result:X
+}
+
+C:11
+W:3
+G:0
+U:17
+B:0
+
+loop MIGHT over {1..7}
+{
+loop RESILIENCE over {1..7}
+{
+loop FINESSE over {1..7}
+{
+loop SMARTS over {1..7}
+{
+if (MIGHT +RESILIENCE +FINESSE +SMARTS = C)
+{
+    ATTACK: [statCalc MIGHT+SMARTS+G MIGHT]
+    BLOCK: [statCalc RESILIENCE+SMARTS+G RESILIENCE]
+    DOGE: [statCalc FINESSE+SMARTS+G FINESSE]
+
+    GROUP:ATTACK
+    if (GROUP > BLOCK) {GROUP: BLOCK}
+    if (GROUP > DOGE) {GROUP: DOGE}
+    output [pro MIGHT+W+(GROUP*B) 20 (U-ATTACK-GROUP)] + 
+           [pro RESILIENCE+W+(GROUP*B) 20 (U-BLOCK-GROUP)] + 
+           [pro FINESSE+W+(GROUP*B) 20 (U-DOGE-GROUP)] named "[MIGHT]-[RESILIENCE]-[FINESSE]-[SMARTS] ([ATTACK]-[BLOCK]-[DOGE])"
+}
+}
+}
+}
+}

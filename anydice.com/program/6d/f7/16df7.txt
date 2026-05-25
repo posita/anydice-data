@@ -1,0 +1,31 @@
+function: bowl MOD:n ADV:n PINSDOWN:n SECOND:n {
+F: 12 - MOD
+if F>20 {F: 20}
+else if F<0 {F: 0}
+
+MAX: 0
+if [{1..4} contains PINSDOWN] {MAX: 10}
+else if [{5..8} contains PINSDOWN] {MAX: 10 
+                                    F: F+2}
+else if 0 = PINSDOWN {if SECOND = 0 {MAX: 15} else {MAX:10}}
+if MAX = 0 {result: {}}
+
+if ADV = 0 {result: {PINSDOWN:F, (PINSDOWN+1)..8, MAX:12+PINSDOWN-F}}
+else {S: {PINSDOWN:F*F, MAX:(12+PINSDOWN-F)*(2*(F+9-PINSDOWN)-1+39)/2}
+      loop N over {(PINSDOWN+1)..8} {
+        S: {S, N:2*(F+N-PINSDOWN)-1}
+      }
+      result: S
+     }
+}
+
+function: bless MOD:n ADV:n PINSDOWN:n SECOND:n{
+result: {[bowl MOD+1 ADV PINSDOWN SECOND], [bowl MOD+2 ADV PINSDOWN SECOND], [bowl MOD+3 ADV PINSDOWN SECOND], [bowl MOD+4 ADV PINSDOWN SECOND]}
+}
+
+loop N over {0..8} {
+output [bless 10 1 N 1]
+}
+
+
+

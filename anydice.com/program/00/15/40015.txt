@@ -1,0 +1,82 @@
+function: pitch P:n {
+ if P = 1 {result: 2d6} \four-seam fastball\
+ if P = 2 {result: 1d6+1d4} \cutter\
+ if P = 3 {result: 2d4} \sinker\
+ if P = 4 {result: [absolute 1d6-1d4]+1d6} \curveball\
+ if P = 5 {result: [absolute 1d6-1d4+1d6]} \slider\
+ if P = 6 {result: [absolute 1d6-1d4]+1d4} \changeup\
+ if P = 7 {result: [absolute 1d6-1d4+1d4]} \splitter\
+  result: 0
+} 
+
+function: zone Z:n {
+ if Z < 5 | Z > 8 {result: 0} \strike zone from 5 to 8 (inclusive)\
+  result: 1
+}
+
+function: take P:n {
+ if [zone P] = 0 {result: 1} \ball\
+ if [zone P] != 0 {result: 2} \strike (called)\
+}
+
+function: swing B:n at P:n {
+ if P < B-R | P > B+R {result: 2} \strike (swing & miss)\
+ if P >= B-R & P <= B+R {
+  if P >= B-F & P <= B+F {result: 0} \ball in play\
+  if P < B-F | P > B+F {
+   if S < 2 {result: 3} \strike (foul with less than 2 strikes)\
+   result: 5 \foul with 2 strikes\
+  }
+ }
+}
+
+function: bat path BAT:n {
+ if BAT = 1 {result: 2@4d6+2} \regular swing\
+ if BAT = 2 {result: 2@3d6+3} \two-strike swing\
+}
+
+B: 0
+S: 0
+O: 0
+
+X: d{1:10,6:10,3:8,5:4,4} \pitch selection\
+Y: 1 \swing selection\
+ BAT: [bat path Y]
+  R: 3 \swing contact range\
+  F: 1 \fair ball contact range\
+
+PITCH: [pitch X]
+TAKE: [take PITCH]
+SWING: [swing BAT at PITCH]
+
+output X named "Pitch Mix"
+output PITCH named "Pitch Location"
+output TAKE named "Take"
+output SWING named "Swing"
+output BAT named "Bat Path"
+\
+output B named "Balls"
+output S named "Strikes"
+
+output [pitch 1] named "Four-Seam Fastball"
+output [pitch 2] named "Cutter"
+output [pitch 3] named "Sinker"
+output [pitch 4] named "Curveball"
+output [pitch 5] named "Slider"
+output [pitch 6] named "Changeup"
+output [pitch 7] named "Splitter"
+
+output [zone [pitch 1]] named "4S Fastball Zone%"
+output [zone [pitch 2]] named "Sinker Zone%"
+output [zone [pitch 3]] named "Cutter Zone%"
+output [zone [pitch 4]] named "Curveball Zone%"
+output [zone [pitch 5]] named "Slider Zone%"
+output [zone [pitch 6]] named "Changeup Zone%"
+output [zone [pitch 7]] named "Splitter Zone%"
+
+output [bat path 1] named "Swing 1"
+output [bat path 2] named "Swing 2"
+
+output [zone [bat path 1]] named "Swing 1 Zone%"
+output [zone [bat path 2]] named "Swing 2 Zone%"
+\

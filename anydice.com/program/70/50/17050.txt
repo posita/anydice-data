@@ -1,0 +1,32 @@
+function: ROLL:n with SUCCESSROLL:n over SUCCESS:n {
+  if SUCCESS < SUCCESSROLL {result: 0}
+  else { result: ROLL }
+}
+function: ROLL:n with SUCCESS:n { result: [ROLL with 1d100 over SUCCESS] }
+
+DEX_MOD: 5
+SPELL_MOD: 3
+
+WEAPON_DICE: 1
+SNEAK_DICE: 2
+GREENHIT_DICE: 1
+GREENEXTRA_DICE: 1
+BOOMHIT_DICE: 1
+BOOMEXTRA_DICE: 2
+
+function: boom TIMES TARGETS { X: (TIMES * BOOMHIT_DICE)d8 loop N over {1..TARGETS} { X: X + [BOOMEXTRA_DICEd8 with 1d100 over 30] } result: X }
+function: green TIMES { result: (TIMES * GREENHIT_DICE)d8 + (TIMES * GREENEXTRA_DICE)d8 + (TIMES * SPELL_MOD) }
+function: weapon TIMES TURNS { result: (TIMES * WEAPON_DICE)d8 + (TURNS * DEX_MOD) }
+function: sneak TURNS { result: (TURNS * SNEAK_DICE)d6 }
+
+output [sneak 1] + [weapon 1 1] + [boom 1 1]             named "booming blade"                  \ 0sp, 1   target, low dmg (24), +mobility \
+output [sneak 1] + [weapon 2 1] + [boom 2 2]             named "booming blade (twinned)"        \ 1sp, 2   target, ok dmg (35),  ++mobility \
+output [sneak 1] + [weapon 2 1] + [boom 2 1]             named "booming blade (quick + attack)" \ 2sp, 1-2 target, ok dmg (33),  +mobility \
+output [sneak 2] + [weapon 2 2] + [boom 2 0]             named "booming blade (quick + ready)"  \ 2sp, 1-2 target, ok dmg (42),  -mobility \
+
+output [sneak 1] + [weapon 1 1] + [green 1]              named "green flame blade"                  \ 0sp, 2 target \
+output [sneak 1] + [weapon 2 1] + [green 2]              named "green flame blade (quick + attack)" \ 2sp, 2 target, nice dmg (45), +mobility \
+output [sneak 2] + [weapon 2 2] + [green 2]              named "green flame blade (quick + ready)"  \ 2sp, 2 target, nice dmg (57), -mobility \
+
+output [sneak 1] + [weapon 3 1] + [boom 2 2] + [green 1] named "green flame blade (quick) + booming blade (twinned)" \ 3sp, 2-3 target, nice dmg(52), +mobility \
+

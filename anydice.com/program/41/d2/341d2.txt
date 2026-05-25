@@ -1,0 +1,117 @@
+\ fluent versions of booleans \
+YES: 1
+NO: 0
+TRUE: 1
+FALSE: 0
+WITH: 1
+WITHOUT: 0
+
+function: if COND:n then RET_T:n else RET_F:n {
+  if COND {
+    result: RET_T
+  } else {
+    result: RET_F
+  }
+}
+
+\ shorthand for advantage \
+function: adv X:d {
+  result: [highest of X and X]
+}
+
+function: attack ROLL:n with modifier CRIT_MOD:n {
+  if ROLL + CRIT_MOD >= 20 {
+    result: TRUE
+  } else {
+    result: FALSE
+  }
+}
+
+\ -------------------------------------------------------------- \
+
+ASTARION_ROLL_CRIT_MOD:1
+ASTARION_DEX_MOD: 5
+ASTARION_DMG_MOD: ASTARION_DEX_MOD + 2 + 2
+ASTARION_CRIT_DMG_MOD: 10
+ASTARION_ATTACKS: 4
+
+function: astarion weapon damage SA:n savage attacker and HM:n hunters mark {
+  if SA {
+    DMG: [adv d6] + [adv d10] + [adv d4] + [adv d4]
+  } else {
+    DMG: d6 + d10 + d4 + d4
+  }
+
+  if HM {
+    if SA {
+      DMG: DMG + [adv d6] + [adv d4]
+    } else {
+      DMG: DMG + d6 + d4
+    }
+  }
+
+  result: DMG
+}
+
+function: astarion ROLL:n damage roll SA:n savage attacker and HM:n hunters mark {
+  DMG: [astarion weapon damage SA savage attacker and HM hunters mark] + ASTARION_DMG_MOD
+  if ROLL + ASTARION_ROLL_CRIT_MOD >= 20 {
+    DMG: DMG + [astarion weapon damage SA savage attacker and HM hunters mark] + ASTARION_CRIT_DMG_MOD
+  }
+  result: ASTARION_ATTACKS * DMG
+}
+
+\ -------------------------------------------------------------- \
+
+LAEZEL_ROLL_CRIT_MOD: 0
+LAEZEL_STR_MOD: 5
+LAEZEL_DMG_MOD: LAEZEL_STR_MOD + 2
+LAEZEL_CRIT_DMG_MOD: 0
+LAEZEL_ATTACKS: 2
+
+function: laezel weapon damage SA:n savage attacker and level N:n smites {
+  if SA {
+    DMG: [adv d6] + [adv d6] + [adv d4] + [adv d4]
+  } else {
+    DMG: d6 + d6 + d4 + d4
+  }
+
+  \ apply smites \
+  if N > 0 {
+    if SA {
+      DMG: DMG + [adv d8]
+    } else {
+      DMG: DMG + d8
+    }
+
+    MAX_SMITES: [lowest of N and 4]
+    loop N over {1..MAX_SMITES}{
+      if SA {
+        DMG: DMG + [adv d8]
+      } else {
+        DMG: DMG + d8
+      }
+    }
+  }
+
+  result: DMG
+}
+
+function: laezel ROLL:n damage roll SA:n savage attacker and level N:n smites {
+  CRITICAL: [attack ROLL with modifier LAEZEL_ROLL_CRIT_MOD]
+  DMG: [laezel weapon damage SA savage attacker and level N smites] + LAEZEL_DMG_MOD
+  if CRITICAL {
+    DMG: DMG + [laezel weapon damage SA savage attacker and level N smites] + LAEZEL_CRIT_DMG_MOD
+  }
+  result: DMG * LAEZEL_ATTACKS
+}
+
+
+output [astarion d20 damage roll WITH savage attacker and WITH hunters mark] named "Astarion with both SA and HM ([ASTARION_ATTACKS] attacks)"
+\output [astarion d20 damage roll WITHOUT savage attacker and WITH hunters mark] named "Astarion with no SA but with HM ([ASTARION_ATTACKS] attacks)"\
+output [astarion d20 damage roll WITH savage attacker and WITHOUT hunters mark] named "Astarion with SA but no HM ([ASTARION_ATTACKS] attacks)"
+\output [astarion d20 damage roll WITHOUT savage attacker and WITHOUT hunters mark] named "Astarion without SA and with HM ([ASTARION_ATTACKS] attacks)"\
+loop N over {1..4} {
+  output [laezel d20 damage roll WITH savage attacker and level N smites] named "Laezel with SA (level [N] smites, [LAEZEL_ATTACKS] attacks)"
+  \output [laezel d20 damage roll WITH savage attacker and level N smites] named "Laezel without SA (level [N] smites, [LAEZEL_ATTACKS] attacks)"\
+}

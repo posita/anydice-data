@@ -1,0 +1,34 @@
+\ In Imperium Maledictum, "advantage" lets you reverse the digits of a die if it would be advantageous. "Disadvantage" forces you to reverse the digits of a die if it would be disadvantageous. I've represented these as custom dice, e.g. the DISADVANTAGE die has no single digit results because they always get reversed from 01, 02, 03 into 10, 20, 30, etc. \
+NORMAL: {1..100}
+ADVANTAGE: {1:2, 2:2, 3:2, 4:2, 5:2, 6:2, 7:2, 8:2, 9:2, 11:1, 12:2, 13:2, 14:2, 15:2, 16:2, 17:2, 18:2, 19:2, 22:1, 23:2, 24:2, 25:2, 26:2, 27:2, 28:2, 29:2, 33:1, 34:2, 35:2, 36:2, 37:2, 38:2, 39:2, 44:1, 45:2, 46:2, 47:2, 48:2, 49:2, 55:1, 56:2, 57:2, 58:2, 59:2, 66:1, 67:2, 68:2, 69:2, 77:1, 78:2, 79:2, 88:1, 89:2, 99:1, 100:1}
+DISADVANTAGE: {10:2, 11:1, 20:2, 21:2, 22:1, 30:2, 31:2, 32:2, 33:1, 40:2, 41:2, 42:2, 43:2, 44:1, 50:2, 51:2, 52:2, 53:2, 54:2, 55:1, 60:2, 61:2, 62:2, 63:2, 64:2, 65:2, 66:1, 70:2, 71:2, 72:2, 73:2, 74:2, 75:2, 76:2, 77:1, 80:2, 81:2, 82:2, 83:2, 84:2, 85:2, 86:2, 87:2, 88:1, 90:2, 91:2, 92:2, 93:2, 94:2, 95:2, 96:2, 97:2, 98:2, 99:1, 100:1}
+
+\ I've called these functions meleeattack and rangedattack for simplicity's sake, but really they correspond to attacks with opposed rolls, and attacks without opposed rolls, respectively. I just couldn't think of a better way to name them. Ranged attacks can be opposed by Reflexes (Dodge), but that requires a dodge action or reaction. Neither one accounts for criticals, because they take place outside the normal bounds of success/failure and aren't easily collapsed into a single number. Both return the amount of damage resulting from the attack, or 0 in the case of a miss. \
+function: meleeattack ATKROLL:n target ATKSKILL:n slbonus SLBONUS:n vs DEFROLL:n target DEFSKILL:n damage DMG:n armor ARMOR:n {
+     ATKSL: ATKSKILL / 10 - ATKROLL / 10
+     DEFSL: DEFSKILL / 10 - DEFROLL / 10
+     SLMARGIN: ATKSL + SLBONUS - DEFSL
+     if SLMARGIN < 0 { result: 0}
+     else if SLMARGIN = 0 {
+          if DEFSKILL >= ATKSKILL { result: 0}
+     }
+     result: [highest of SLMARGIN + DMG - ARMOR and 0]
+}
+
+function: rangedattack ATKROLL:n target ATKSKILL:n slbonus SLBONUS:n damage DMG:n armor ARMOR:n {
+     ATKSL: ATKSKILL / 10 - ATKROLL / 10
+     SLMARGIN: ATKSL + SLBONUS
+     if SLMARGIN < 0 { result: 0}
+     else if SLMARGIN = 0 {
+          if ATKROLL > ATKSKILL { result: 0}
+     }
+     result: [highest of SLMARGIN + DMG - ARMOR and 0]
+}
+
+TARGETARMOR: 3
+
+output [rangedattack 1dNORMAL target 50 slbonus 1 damage 6 armor TARGETARMOR - 2] named "Skill 50, bursting with Hot Shot Laspistol (One weapon)"
+output [rangedattack 1dDISADVANTAGE target 50 slbonus 1 damage 6 armor TARGETARMOR - 2] + [rangedattack 1dDISADVANTAGE target 50 slbonus 1 damage 6 armor TARGETARMOR - 2] named "Skill 50, bursting with 2x Hot Shot Laspistol (Ambidextrous)"
+output [rangedattack 1dNORMAL target 50 slbonus 0 damage 6 armor TARGETARMOR - 2] + [rangedattack 1dNORMAL target 50 slbonus 0 damage 6 armor TARGETARMOR - 2] named "Skill 50, bursting with 2x Hot Shot Laspistol (Ambidextrous + Gunslinger)"
+output [rangedattack 1dNORMAL target 50 slbonus 1 damage 8 armor TARGETARMOR - 4] named "Skill 50, bursting with Boltgun"
+output [rangedattack 1dADVANTAGE target 50 slbonus 0 damage 10 armor TARGETARMOR - 4] named "Skill 50, rapid firing with Boltgun"

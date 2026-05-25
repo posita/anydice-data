@@ -1,0 +1,32 @@
+function: alchemist outcome DICE:n with trump CARDS:n {
+  DICE: 1000 + DICE
+  CARDS: 1000 + CARDS
+  EFFECTS: 2@DICE
+  CONTROLS: 3@DICE
+  LOSSES: 4@DICE
+  TRUMP_CONTROLS: 3@CARDS
+  TRUMP_LOSSES: 4@CARDS
+
+  if EFFECTS > 1 {
+    EFFECTS_TO_CONTROLS: [lowest of EFFECTS - 1 and TRUMP_CONTROLS]
+    EFFECTS: EFFECTS - EFFECTS_TO_CONTROLS
+    CONTROLS: CONTROLS + EFFECTS_TO_CONTROLS
+    if EFFECTS > 1 {
+      EFFECTS_TO_LOSSES: [lowest of EFFECTS - 1 and TRUMP_LOSSES]
+      EFFECTS: EFFECTS - EFFECTS_TO_LOSSES
+    }
+  } else if EFFECTS = 1 & CONTROLS = 0 & TRUMP_CONTROLS > 0 {
+    result: 3
+  }
+  if CONTROLS >= EFFECTS & EFFECTS > 0 { result: 4 }
+  if CONTROLS > 0 & EFFECTS = 0 { result: 3 }
+  if EFFECTS > CONTROLS { result: 2 }
+  result: 1
+}
+
+output [alchemist outcome 211 with trump 100] named "DICE=211 CARDS=100"
+output [alchemist outcome 211 with trump 10]  named "DICE=211 CARDS=10"
+output [alchemist outcome 211 with trump 1]   named "DICE=211 CARDS=1"
+output [alchemist outcome 311 with trump 100] named "DICE=311 CARDS=100"
+output [alchemist outcome 311 with trump 10]  named "DICE=311 CARDS=10"
+output [alchemist outcome 311 with trump 1]   named "DICE=311 CARDS=1"

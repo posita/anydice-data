@@ -1,0 +1,33 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+ATTACK: 8
+HITDAMAGE: d8 + 16
+CRITICALDAMAGE: 2d8 + 16
+MISSDAMAGE: 0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+loop AC over {5..30} {
+TURNDAMAGE : 0
+loop TURNATTACK over {1,2,3} {
+TURNDAMAGE : TURNDAMAGE + [damage for [attack [highest 1 of 3d20] vs AC]]
+}
+output TURNDAMAGE named "AC [AC]"
+}

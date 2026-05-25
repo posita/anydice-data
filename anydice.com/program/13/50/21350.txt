@@ -1,0 +1,131 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+
+DEFENSE: d{15..19}
+MINCRIT: 20
+ROLL: d20
+
+function: attack ROLL:n vs DEFENSE:n {
+ ATTACK: ATKBONUS + PROF + DEX
+ if ROLL = 1 { result: MISS }
+ if ROLL >= MINCRIT {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: 2dBONUS
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: BONUS
+ }
+ result: 0
+}
+
+function: dualwield prof P:n dex D:n {
+ PROF: P
+ DEX: D
+ ATKBONUS: 0
+ HITDAMAGE: WEAPON + MARK + DEX
+ CRITDAMAGE: 2dWEAPON + 2dMARK + DEX
+ D: [damage for [attack ROLL vs DEFENSE]]
+ HITDAMAGE: WEAPON + MARK
+ CRITDAMAGE: 2dWEAPON + 2dMARK
+ result: D + [damage for [attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks w W:n{
+ WEAPON: W
+ HITDAMAGE: WEAPON + MARK + SHARP + DEX
+ CRITDAMAGE: 2dWEAPON + 2dMARK + SHARP + DEX
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks a A:n{
+ ATKBONUS: A
+ HITDAMAGE: WEAPON + MARK + SHARP + DEX
+ CRITDAMAGE: 2dWEAPON + 2dMARK + SHARP + DEX
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks dex D:n{
+ DEX: D
+ HITDAMAGE: WEAPON + MARK + SHARP + DEX
+ CRITDAMAGE: 2dWEAPON + 2dMARK + SHARP + DEX
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks offhand{
+ HITDAMAGE: WEAPON + MARK + SHARP
+ CRITDAMAGE: 2dWEAPON + 2dMARK + SHARP
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks offhand dex D:n{
+ DEX: D
+ HITDAMAGE: WEAPON + MARK + SHARP
+ CRITDAMAGE: 2dWEAPON + 2dMARK + SHARP
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks{
+ HITDAMAGE: WEAPON + MARK + SHARP + DEX
+ CRITDAMAGE: 2dWEAPON + 2dMARK + SHARP + DEX
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+\ ranger 11 vs rng 5:rog 6 \
+ SHARP: 0
+ LVL: 11
+ BASEATK: 2
+ PROF: 4
+ DEX: 5
+
+loop N over {15} {
+ DEFENSE: N
+ \ sharp, +2 weapons \
+ ATKBONUS: -1
+ SHARP: 12
+ MARK: 0
+ BONUS: 2d8
+ WEAPON: d10
+ \ haste, planar, distant \
+ output [BASEATK+1 attacks] named "[[LVL]] hvy ss ([DEFENSE]AC)"
+ output [BASEATK+2 attacks] named "[[LVL]] hvy ss haste ([DEFENSE]AC)"
+ BONUS: 0
+ WEAPON: d6
+ output ([BASEATK+2 attacks] + 2*[BASEATK+3 attacks])/3 named "[[LVL]] hand ss haste ([DEFENSE]AC)"
+
+ MARK: d6
+ BONUS: d8
+ WEAPON: d10
+ output [BASEATK attacks] named "[[LVL]] hvy ss rog ([DEFENSE]AC)"
+ BONUS: d8+3d6
+ output [BASEATK attacks] named "[[LVL]] hvy ss rog snk ([DEFENSE]AC)"
+
+ WEAPON: d6
+ BONUS: 3d6
+ output ([BASEATK attacks] + 2*[BASEATK+1 attacks])/3 named "[[LVL]] hand ss rog snk ([DEFENSE]AC)"
+}

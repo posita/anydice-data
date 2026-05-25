@@ -1,0 +1,26 @@
+function: pool RES:n TAR:n {
+ if RES = 5 { result: 5 + [pool helper 5d(1d10 <= TAR-1) (TAR-1)] }
+ result: RES
+}
+
+function: pool helper R:n T:n {
+ if R = 5 { result: [pool helper 5d(1d10 <= T-1) (T-1)] + 1}
+ result: 0
+}
+
+function: simple SEQ:s TAR:n {
+ if (SEQ <= TAR) = 5 { result: 5 + (TAR - 1@SEQ)}
+ result: SEQ <= TAR
+}
+
+function: simplewrong SEQ:s TAR:n {
+ if (SEQ <= TAR) = 5 { result: 5 + 5@SEQ}
+ if (SEQ > TAR) = 5 { result: TAR - 5@SEQ }
+ result: SEQ <= TAR
+}
+
+
+loop TEST over {0..8} {
+\output [simple 5d{0..9} TEST] named "Norm [TEST]"\
+output [simplewrong 5d{0..9} TEST] named "d{0..9} [TEST]"
+}

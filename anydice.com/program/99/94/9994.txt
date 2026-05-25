@@ -1,0 +1,185 @@
+function: lasgdmg {result: 1d10+3 }
+function: snipdmg {result: 1d10+3 }
+function: cshgdmg {result: 1d10+4 }
+function: bltgdmg {result: [highest 1 of 2d10]+4 }
+function: plagdmg {result: 1d10+10 }
+function: mltgdmg {result: 1d10+12 }
+function: hstbdmg {result: 1d10+4 }
+function: s N:n {
+ if N < 1 {result: 0}
+ else {result: N}
+}
+
+\ M36 LASGUN \
+function: lasg R:n BS:n T:n F:n A:n {  \Semi 3, Variable\
+ if T = 1 {
+  if F-2 > 0 {A: F-2}
+  else {F: 0}
+ }
+ else {
+  if F-0 > 0 {A: F-0}
+  else {F: 0}
+ }
+ if T = 2 {
+  if R < BS - 49 { result: [s ([lasgdmg]-A)]+[s ([lasgdmg]-A)]+[s ([lasgdmg]-A)]}
+  if R < BS - 19 { result: [s ([lasgdmg]-A)]+[s ([lasgdmg]-A)]}
+  if R < BS + 1 { result: [s ([lasgdmg]-A)]}
+  else {result: 0}
+ }
+ if T = 1 { 
+  if R < BS + 1 { result: [s ([lasgdmg]-A)] }
+  else {result: 0}
+ }
+ if T = 4 {
+  if R < BS + 1 { result: [s (([lasgdmg]+1)-A)] }
+  else {result: 0}
+ }
+ else {
+  if R < BS + 1 { result: [s (([lasgdmg]+2)-A)] }
+  else {result: 0}
+ }
+}
+
+\ SNIPER RIFLE \
+function: snip R:n BS:n T:n F:n A:n { 
+ if F-3 > 0 {A: F-3}
+ else {F: 0}
+ if T = 5 {
+  if R < (BS+40) - 39 { result: ([s [snipdmg]])+2d10 }
+  if R < (BS+40) - 19 { result: ([s [snipdmg]])+1d10 }
+  if R < (BS+40) + 1 { result: ([s [snipdmg]]) }
+  else { result: 0 }
+ }
+ if T = 4 {
+  if R < (BS+20) - 39 { result: ([s [snipdmg]])+2d10 }
+  if R < (BS+20) - 19 { result: ([s [snipdmg]])+1d10 }
+  if R < (BS+20) + 1 { result: ([s [snipdmg]]) }
+  else { result: 0 }
+ }
+ else {
+  if R < BS + 1 { result: ([s [snipdmg]]) }
+  else { result: 0 }
+ }
+}
+
+\ COMBAT SHOTGUN \
+\function: cshg R:n BS:n F:n A:n { 
+ if F-0 > 0 {A: F-0}
+ else {F: 0}
+}\
+
+\ BOLTGUN \
+function: bltg R:n BS:n T:n F:n A:n {  
+ if F-4 > 0 {A: F-4}
+ else {F: 0}
+ if T = 2 {
+  if R < BS - 49 { result: [s ([bltgdmg]-A)]+[s ([bltgdmg]-A)]+[s ([bltgdmg]-A)]}
+  if R < BS - 19 { result: [s ([bltgdmg]-A)]+[s ([bltgdmg]-A)]}
+  if R < BS + 1 { result: [s ([bltgdmg]-A)]}
+  else {result: 0}
+ }
+ else {
+  if R < BS + 1 { result: [s ([bltgdmg]-A)]}
+  else {result: 0}
+ }
+}
+\ PLASMAGUN \
+function: plag R:n BS:n T:n F:n A:n { 
+ if T = 4 {
+  if F-8 > 0 {A: F-8}
+  else {F: 0}
+ }
+ else {
+  if F-6 > 0 {A: F-6}
+  else {F: 0}
+ }
+ if T = 4 {
+  if R < BS + 1 { result: [s (([plagdmg]+1d10)-A)]}
+  else {result: 0}
+ }
+ if T = 2 {
+  if R < BS - 19 { result: [s ([plagdmg]-A)]+[s ([plagdmg]-A)]}
+  if R < BS + 1 { result: [s ([plagdmg]-A)]}
+  else {result: 0}
+ }
+ else {
+  if R < BS + 1 { result: [s ([plagdmg]-A)]}
+  else {result: 0}
+ }
+}
+
+\ MELTAGUN \
+function: mltg R:n BS:n T:n F:n A:n {  
+ if T = 4 {
+  if F-24 > 0 {A: F-24}
+  else {F: 0}
+ }
+ else {
+  if F-12 > 0 {A: F-12}
+  else {F: 0}
+ }
+
+ if T = 4{
+  if R < BS + 1 { result: [s ([mltgdmg]-A)]}
+  else {result: 0}
+ } 
+ else {
+  if R < BS + 1 { result: [s ([mltgdmg]-A)]}
+  else {result: 0}
+ }
+}
+
+\ HEAVY STUBBER \
+\function: hstb R:n BS:n F:n A:n {  
+ if F-3 > 0 {A: F-3}
+ else {F: 0}
+}\
+\T=1 (Single); T=2 (Semi); T=3 (Full); T=4 (Charged); T=5 (Overload)\
+
+output [lasg 1d100 35-20 2 0 0] named "Lasgun Semi-Auto, -20"
+output [plag 1d100 35-20 2 0 0] named "Plasma Gun Semi-Auto, -20"
+output [mltg 1d100 35-20 1 0 0] named "Melta Gun (Normal Range), -20"
+output 0 named "-----------"
+output [lasg 1d100 35+00 2 0 0] named "Lasgun Semi-Auto, +0"
+output [plag 1d100 35+00 2 0 0] named "Plasma Gun Semi-Auto, +0"
+output [mltg 1d100 35+00 1 0 0] named "Melta Gun (Normal Range), +0"
+output 0 named "-----------"
+output [lasg 1d100 35+20 2 0 0] named "Lasgun Semi-Auto, +20"
+output [plag 1d100 35+20 2 0 0] named "Plasma Gun Semi-Auto, +20"
+output [mltg 1d100 35+20 1 0 0] named "Melta Gun (Normal Range), +20"
+output 0 named "-----------"
+output [lasg 1d100 35+40 2 0 0] named "Lasgun Semi-Auto, +40"
+output [plag 1d100 35+40 2 0 0] named "Plasma Gun Semi-Auto, +40"
+output [mltg 1d100 35+40 1 0 0] named "Melta Gun (Normal Range), +40"
+output 0 named "-----------"
+output 0 named "-----------"
+output [lasg 1d100 35-20 1 0 0] named "Lasgun Single, -20"
+output [plag 1d100 35-20 4 0 0] named "Plasma Gun Maximal, -20"
+output [mltg 1d100 35-20 4 0 0] named "Melta Gun (1/2 Range), -20"
+output 0 named "-----------"
+output [lasg 1d100 35+00 1 0 0] named "Lasgun Single, +0"
+output [plag 1d100 35+00 4 0 0] named "Plasma Gun Maximal, +0"
+output [mltg 1d100 35+00 4 0 0] named "Melta Gun (1/2 Range), +0"
+output 0 named "-----------"
+output [lasg 1d100 35+20 1 0 0] named "Lasgun Single, +20"
+output [plag 1d100 35+20 4 0 0] named "Plasma Gun Maximal, +20"
+output [mltg 1d100 35+20 4 0 0] named "Melta Gun (1/2 Range), +20"
+output 0 named "-----------"
+output [lasg 1d100 35+40 1 0 0] named "Lasgun Single, +40"
+output [plag 1d100 35+40 4 0 0] named "Plasma Gun Maximal, +40"
+output [mltg 1d100 35+20 4 0 0] named "Melta Gun (1/2 Range), +40"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,36 @@
+set "maximum function depth" to 5
+
+\ Simplified King of Tokyo odds \
+
+\ King of Tokyo is a dice game where you roll d6's with different faces: Punch, Energy, Heart, 1, 2, 3.
+  You roll 5 of them, keep what you want and then reroll the rest. You reroll twice, which means you
+  roll three times all in all during your turn. You're allowed to roll previously kept dice.
+
+  This script is simplified because it assumes the roll is to attain as many of one result as possible.
+  Basically, that the player will *only* keep Punches and rerolls everything else.
+
+  This is modelled as a dicepool kind of thing, with only one "success"-type, everything else being
+  worth zero. The basic function structure is like an [explosion] function with a countdown. \
+
+function: keep and reroll NUM:n of DIE:d RR:n times {
+  \ NUM:n, the number of dice initially rolled, is given here as number instead of part of the DIE:d because it changes
+    as the number of dice rerolled decreases. RR:n refers to the upper bound of rolls/rerolls \
+  MAX: [maximum of DIE]
+  result: [keep helper NUMdDIE 0]
+}
+
+function: keep helper SEQ:s T:n {
+  if T < RR {      \ Countdown \
+   SUCS: SEQ = MAX \ Count successes \
+   if SUCS = #SEQ { result: SUCS }
+                   \ Nothing to reroll \
+   result: SUCS + [keep helper ((#SEQ - SUCS)dDIE) (T+1)]
+                   \ Successes + the remainder of the dice rerolled, increase the timer \
+   }
+  result: 0
+}
+
+output 6d(1d6=6)
+  \ This is a simple way to model dicepools. 1d6=6 is actually a probability distribution, {0:83%, 1:16%}, which can be used as a wonky die \
+output [keep and reroll 6 of (1d6=6) 3 times]
+  \ Roll 6 d6's, and keep all 6's, rerolling twice. The result is the number of 6's kept at the end. \

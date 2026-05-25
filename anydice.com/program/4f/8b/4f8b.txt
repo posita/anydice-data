@@ -1,0 +1,49 @@
+function: yspahan die value groups SEQUENCE:s {
+ UNIQUE: 0
+ UNIQUE: UNIQUE + ((SEQUENCE = 1) > 0)
+ UNIQUE: UNIQUE + ((SEQUENCE = 2) > 0)
+ UNIQUE: UNIQUE + ((SEQUENCE = 3) > 0)
+ UNIQUE: UNIQUE + ((SEQUENCE = 4) > 0)
+ UNIQUE: UNIQUE + ((SEQUENCE = 5) > 0)
+ UNIQUE: UNIQUE + ((SEQUENCE = 6) > 0)
+ result: UNIQUE
+}
+
+function: yspahan number of dice in row ROW:n for roll ROLL:s {
+ UNIQUE: [yspahan die value groups ROLL]
+ if UNIQUE <= ROW { result: 0 }
+
+ LOOPGROUP: 0
+ COUNT: 0
+ loop D over {1..#ROLL} {
+  if (D=1) | ((D-1)@ROLL != D@ROLL) {
+   LOOPGROUP: LOOPGROUP + 1
+  }
+
+  if LOOPGROUP = ROW {
+   COUNT: COUNT + 1
+  }
+ }
+
+ result: COUNT
+}
+
+/ **** Config variables for controlling what is computed **** /
+YELLOW: {0,3}
+SACKS: 0
+BARRELS: 0
+CHESTS: 1
+VASES: 1
+
+loop Y over {1..#YELLOW} {
+ YELLOWDICE: Y@YELLOW
+ if SACKS { output [yspahan number of dice in row 2 for roll (9+Y@YELLOW)d6] named "Number of sacks - [YELLOWDICE] yellow dice" }
+ if BARRELS { output [yspahan number of dice in row 3 for roll (9+Y@YELLOW)d6] named "Number of barrels - [YELLOWDICE] yellow dice" }
+ if CHESTS { output [yspahan number of dice in row 4 for roll (9+Y@YELLOW)d6] named "Number of chests - [YELLOWDICE] yellow dice" }
+ if VASES { output [yspahan number of dice in row 5 for roll (9+Y@YELLOW)d6] named "Number of vases - [YELLOWDICE] yellow dice" }
+}
+
+\ output [yspahan die value groups 9d6] named "Number of die value groups - 0 yellow dice" \
+\ output [yspahan die value groups 10d6] named "Number of die value groups - 1 yellow die" \
+\ output [yspahan die value groups 11d6] named "Number of die value groups - 2 yellow dice" \
+\ output [yspahan die value groups 12d6] named "Number of die value groups - 3 yellow dice" \

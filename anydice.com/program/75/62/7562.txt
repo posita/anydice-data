@@ -1,0 +1,71 @@
+\ This stuff sets up the Skew rules; you should leave it alone.  Scroll almost to the bottom to decide what dice will be rolled. \
+
+function: U:d {
+  if (#U = 1 & 1@{U} = 0) { result: {} } \ Because AnyDice says 0d12 means one die. \
+  result: {[maximum of 1@U]:#U}
+}
+function: U:d and V:d {
+  result: {[U], [V]}
+}
+function: U:d and V:d and W:d {
+  result: {[U], [V], [W]}
+}
+function: U:d and V:d and W:d and X:d {
+  result: {[U], [V], [W], [X]}
+}
+function: U:d and V:d and W:d and X:d and Y:d {
+  result: {[U], [V], [W], [X], [Y]}
+}
+function: U:d and V:d and W:d and X:d and Y:d and Z:d {
+  result: {[U], [V], [W], [X], [Y], [Z]}
+}
+
+function: tail of S:s {
+  RESULT: {}
+  loop I over {2..#S} {
+    RESULT: {RESULT, I@S}
+  }
+  result: RESULT
+}
+
+function: score S:s {
+  RESULT: 0
+  loop I over S {
+    CANDIDATE: I * [count I in S]
+    if CANDIDATE > RESULT { RESULT: CANDIDATE }
+  }
+  result: RESULT
+}
+function: roll R:s and combine with S:s {
+  if #R = 0 { result: [score S] }
+  TAIL: [tail of R]
+  RESULT: {}
+  loop I over {1..1@R} {
+    RESULT: {RESULT, [roll TAIL and combine with {S, I}]}
+  }
+  result: RESULT
+}
+
+function: skew R:s {
+ result: d[roll R and combine with {}]
+}
+function: degrees N:n {
+  if N < 0 { result: -[degrees -N] }
+  result: ([absolute N] + 4) / 5
+}
+function: A:s versus B:s {
+  result: [degrees [skew A] - [skew B]]
+}
+
+\ Here's where you enter what dice to roll.  The dice in the first set of brackets are the dice working towards success; the dice in the second set are those working towards failure.  After you've chosen the dice, click "Calculate".  Select the "Table" view to see how the odds stack up; select the "Roller" view, choose "Degrees" from the dropdown, enter "1" for the number of times to roll, and click "Roll" to actually make the rolls. \
+
+TOWARDS_SUCCESS: [2d4 and 1d6 and 0d8 and 1d12 and 0d20]
+TOWARDS_FAILURE: [1d4 and 0d6 and 1d8 and 1d12 and 0d20]
+
+\ The following lines perform the roll and present the results; make your changes to the lines just above. \
+
+SUCCESS: [skew TOWARDS_SUCCESS]
+FAILURE: [skew TOWARDS_FAILURE]
+output SUCCESS named "Values towards Success"
+output FAILURE named "Values towards Failure"
+output [degrees SUCCESS - FAILURE] named "Degree(s) of Success (Degree[s] of Failure if Negative)"

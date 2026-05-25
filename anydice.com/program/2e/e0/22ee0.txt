@@ -1,0 +1,43 @@
+\ Divide A by B and round up \
+function: divideup A by B {
+ result: (A + B - 1) / B
+}
+
+\ Get the maximum of A and B \
+function: max A B {
+ if A > B {
+  result: A
+ } else {
+  result: B
+ }
+}
+
+\ Result of cooking a stew
+  rolling a ROLL
+  with a bonus of BONUS
+  against a difficulty of DIFF \
+function: stew ROLL:n BONUS:n DIFF:n {
+ \ Nat one, crit fail \
+ if (ROLL = 1) {
+  result: 0
+ }
+
+ \ Success rate
+   If it's 0 or more, the stew was good! \
+ X: (BONUS + ROLL) - DIFF
+
+ if X >= 0 {
+  \ How good was the stew? \
+  result: [max [divideup X by 4] 1]
+ } else {
+  \ Yucky yucky \
+  result: 0
+ }
+}
+
+\ Let's try a range of skills \
+loop SKILL over {0..6}{
+ \ Base difficulty is 8 \
+ DIFF: 8
+ output [stew d20 SKILL DIFF] named "Skill: [SKILL] / Difficulty [DIFF]"
+}

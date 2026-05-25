@@ -1,0 +1,30 @@
+\if a dice roll contains more than the limit number of dice rolling a value, it sets the result to zero\
+\otherwise it just returns the original roll\
+\with Oathsworn, the Limit number is 2 and the Value is 0, so it returns 0 if 2 or more zeroes get rolled\
+function: fail on L:n or more dice rolling V:n in DICE:s{
+if [count V in DICE] >= L{
+ result: 0
+}
+else{
+ result: DICE
+}
+}
+
+\explodes the "n-th face" (top face) of a die, regardless of its value compared to other faces\
+\so it would explode a 4 on a d{1,6,6,4}, which would be defined as "{1,6,6,1000} with explode on 4" \
+\the value of X in "with explode on X" replaces the 1000, which is a placeholder that identifies explosions\
+function: top face explode BANGDICE:s with explode on BANGVAL:n{
+BANGS: BANGDICE/1000
+result: BANGDICE - (BANGS * 1000) + (BANGS * BANGVAL)
+}
+
+\creates a series of output for different numbers of dice\
+
+\Oathsworn WHITE dice are {0,0,1,1,2,1000} with explode on 2\
+\Oathsworn YELLOW dice are {0,0,1,2,3,1000} with explode on 3\
+\Oathsworn RED dice are {0,0,2,3,3,1000} with explode on 4\
+\Oathsworn BLACK dice are {0,0,3,3,4,1000} with explode on 5\
+
+loop N over {2..6}{
+output [top face explode [fail on 2 or more dice rolling 0 in N d [explode d{0,0,2,3,3,1000}]] with explode on 4] named "[N] exploding custom dice"
+}

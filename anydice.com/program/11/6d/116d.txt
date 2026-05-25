@@ -1,0 +1,31 @@
+function: nwod R:n again N:n {
+ if N = 1 { result: -1 }
+ if N >= R { result: 1 + [nwod R again d10] }
+ result: N >= 8
+}
+
+NWOD: [nwod 10 again d10]
+
+function: larpeval ROLL:n ADD:n {
+ if ROLL = 1 { result: -1 }
+ SUCCESSES: (ROLL+ADD >= 10) + (ROLL+ADD-10)/5
+ LEFTOVER: ROLL+ADD-10-(SUCCESSES-1)
+ if ROLL = 10 { result: SUCCESSES + (LEFTOVER+[explode d10])/5 }
+ if SUCCESSES > 0 { result: SUCCESSES }
+ result: 0
+}
+
+function: modlarp ROLL:n ADD:n {
+ if ROLL = 1 { result: -1 }
+ SUCCESSES: (ROLL+ADD > 8) + (ROLL+ADD-8)/3
+ LEFTOVER: ROLL+ADD-8-(SUCCESSES-1)
+ if ROLL = 10 { result: SUCCESSES + (LEFTOVER+[explode d10])/3 }
+ if SUCCESSES > 0 { result: SUCCESSES }
+ result: 0
+}
+
+loop N over {1..15} {
+ output [lowest of [highest of -1 and NdNWOD] and 10] named "nWoD Tabletop [N]d"
+ output [larpeval d10 N] named "nWoD LARP with pool of [N]"
+ output [modlarp d10 N] named "8/3 Modified nWoD LARP with pool of [N]"
+}

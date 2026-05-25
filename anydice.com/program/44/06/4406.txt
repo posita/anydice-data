@@ -1,0 +1,27 @@
+function: explode N:n { if N < 3 { result: 1d6 } result: N }
+
+function: infcritB attack A:n bonus B:n damage D:n ac C:n
+{  
+  if A > 17
+  {
+    result: D + [explode 1d6] + [infcritB attack A bonus B damage D ac C]
+  }
+  result: D
+}
+
+function: infcrit attack A:n bonus B:n damage D:n ac C:n
+{
+  if A > 17
+  {
+    result: D + [explode 1d6] + [infcritB attack A bonus B damage D ac C]
+  }
+  if A + B >= C
+  {
+    result: D
+  }
+  result: 0
+}
+
+set "maximum function depth" to 3
+
+output [infcrit attack 1d20 bonus +11 damage [explode 1d6] + [explode 1d6] + 5 ac 16]

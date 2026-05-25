@@ -1,0 +1,184 @@
+FACES: 12
+
+function: kersplode M:n times{
+ X:d dFACES-1
+ result: [kersplode helper X M times]
+ 
+}
+
+function: kersplode helper N:n M:n times {
+  if M = 0 {
+    if N = FACES-1 { result: FACES-2 }
+    else {result: N}
+  }
+  else if N = FACES-1 { result: FACES-2 + [kersplode M-1 times] }
+  else {result: N}
+}
+
+function: bigsplode M:n times{
+ X:d dFACES-1
+ result: [bigsplode helper X M times]
+ 
+}
+
+function: bigsplode helper N:n M:n times {
+  if M = 0 {
+    if N = FACES-1 { result: FACES-1 }
+    else {result: N}
+  }
+  else if N = FACES-1 { result: FACES-1 + [bigsplode M-1 times] }
+  else {result: N}
+}
+
+
+\function: check two M:n N:n {
+   result: [check two helper (4d [kersplode 20 times]) (4d [kersplode 20 times]) M N]
+}
+
+function: check two helper X:n Y:n M:n N:n {
+   result: (X >= M) & (Y >= N)
+}\
+
+\
+function: check two M:n N:n {
+  result: [check two helper (2d [kersplode 20 times]) M N]
+}
+
+function: check two helper X:n M:n N:n {
+   result: (X >= M) & (X >= N)
+}
+\
+
+\function: check two M:n N:n {
+  result: [check two helper (1d [kersplode 20 times]) (1d [kersplode 20 times]) (1d [kersplode 20 times]) M N]
+}
+
+function: check two helper X:n Y:n Z:n M:n N:n {
+   result: (X+Y >= M) & (Y+Z >= N)
+}\
+
+
+\P: 50
+Q: 50
+
+loop A over {P..Q}{
+     output [check two (0) (A)] named "check level [A] weapon-target complete mismatch"
+}
+
+loop A over {P..Q}{
+  X: A/2
+  Y: A-X 
+     output [check two (X) (Y)] named "check level [A] weapon-target perfect match"
+}\
+
+\loop A over {P..Q}{
+
+   loop B over {0..A/2}{
+   N: A-B
+output [check two (B) (N)] named "check [B] [N]"
+  }
+}\
+
+\
+output (2d [kersplode 20 times])
+\
+
+function: pewsplode Z:n dice M:n times{
+ X: [highest 1 of Zd (dFACES-1)]
+ 
+result: [pewsplode helper X M times]
+ 
+}
+
+function: pewsplode helper N:n M:n times {
+  if M = 0 {
+    if N = FACES-1 { result: FACES-2 }
+    else {result: N}
+  }
+  else if N = FACES-1 { result: FACES-2 + [kersplode M-1 times] }
+  else {result: N}
+}
+
+function: mega pewsplode Z:n dice M:n times{
+ X: [highest 1 of Zd (dFACES-1)]
+ 
+result: [mega pewsplode helper Z X M times]
+ 
+}
+
+function: mega pewsplode helper Z:n N:n M:n times {
+  if M = 0 {
+    if N = FACES-1 { result: FACES-2 }
+    else {result: N}
+  }
+  else if N = FACES-1 { result: FACES-2 + [mega pewsplode Z dice M-1 times] }
+  else {result: N}
+}
+
+\output [lowest 1 of 5d [kersplode 10 times]] named "quadruple disadvantage"
+output [lowest 1 of 4d [kersplode 10 times]] named "triple disadvantage"
+output [lowest 1 of 3d [kersplode 10 times]] named "double disadvantage"
+output [lowest 1 of 2d [kersplode 10 times]] named "single disadvantage"
+output 1d [kersplode 10 times] named "no advantage"
+output [highest 1 of 2d [kersplode 10 times]] named "single advantage"
+output [highest 1 of 3d [kersplode 10 times]] named "double advantage"
+output [highest 1 of 4d [kersplode 10 times]] named "triple advantage"
+output [highest 1 of 5d [kersplode 10 times]] named "quadruple advantage"\
+
+
+function: check two M:n N:n {
+  result: [check two helper (1d [kersplode 5 times]) ([pewsplode 2 dice 5 times]) (1d [kersplode 5 times]) M N]
+}
+
+function: check two helper X:n Y:n Z:n M:n N:n {
+   result: (X+Y >= M) & (Y+Z >= N)
+}
+
+function: check one helper X:n Y:n M:n {
+   result: (X+Y >= M)
+}
+
+
+X: 1d [kersplode 10 times]
+Y: 1d [pewsplode 3 dice 10 times] 
+Z: 1d [kersplode 10 times]
+
+P: 52
+Q: 53
+\loop A over {P..Q}{
+     output [check one helper X Y (A)] named "check level [A] weapon-target complete mismatch"
+}
+\
+loop A over {P..Q}{
+  W: A/2
+  V: A-W 
+     output [check two helper X Y Z (W) (V)] named "check level [A] weapon-target perfect match"
+}
+
+\
+output [pewsplode 1 dice 20 times] named "no advantage"
+output [pewsplode 2 dice 20 times] named "single advantage"
+output [pewsplode 3 dice 20 times] named "double advantage"
+output [pewsplode 4 dice 20 times] named "triple advantage"
+output [pewsplode 5 dice 20 times] named "quadruple advantage"
+output [pewsplode 6 dice 20 times] named "pentuple advantage"
+
+output [mega pewsplode 2 dice 20 times] named "single mega advantage"
+output [mega pewsplode 3 dice 20 times] named "double mega advantage"
+output [mega pewsplode 4 dice 20 times] named "triple mega advantage"
+output [mega pewsplode 5 dice 20 times] named "quadruple mega advantage"
+output [mega pewsplode 6 dice 20 times] named "pentuple mega advantage"
+\
+
+\output [highest 1 of 6d [kersplode 10 times]] named "pentuple advantage"\
+
+
+\
+output 1d [bigsplode 10 times] named "1 die bigsplode"
+output 2d [bigsplode 10 times] named "2 dice bigsplode"
+output 3d [bigsplode 10 times] named "3 dice bigsplode"
+
+output 1d [kersplode 10 times] named "1 die kersplode"
+output 2d [kersplode 10 times] named "2 dice kersplode"
+output 3d [kersplode 10 times] named "3 dice kersplode"
+\

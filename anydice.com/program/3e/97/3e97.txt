@@ -1,0 +1,57 @@
+\Current System\
+function: currenttest {
+ result: [roll I] + [roll I] + [roll D] + [roll B]
+}
+
+\Modified Deca System\
+function: decatest {
+ result: [decaroll A D] + [roll D] + [roll B]
+}
+
+function: roll DIE:d {
+ result: [rollrec DIE 0]
+}
+
+function: rollrec DIE:d MOD:n {
+ MAX: [maximum of DIE]
+ if MOD = MAX {result: 0}
+ result: [rollhelper DIE MAX MOD DIE]
+}
+
+function: rollhelper ROLL:n MAX:n MOD:n DIE:d {
+ if ROLL - MOD < 0 {result: 0}
+ if ROLL = MAX {result: (ROLL + [rollrec DIE MOD + 1] - MOD)}
+ if MOD > 0 {result: ROLL - MOD}
+ result: ROLL
+}
+
+function: decaroll DECADIE:d MODDIE:d {
+ result: [decarollrec DECADIE MODDIE 0]
+}
+
+function: decarollrec DECADIE:d MODDIE:d DECAMOD:n {
+ DECAMAX: [maximum of DECADIE]
+ MODMAX: [maximum of MODDIE]
+ if DECAMOD = DECAMAX {result: 0}
+ result: [decarollhelper DECADIE MODDIE DECAMAX MODMAX DECAMOD DECADIE MODDIE]
+}
+
+function: decarollhelper DECAROLL:n MODROLL:n DECAMAX:n MODMAX:n DECAMOD:n DECADIE:d MODDIE:d {
+ if DECAROLL - DECAMOD < 0 {result: 0}
+ if DECAROLL = DECAMAX & MODROLL = MODMAX {result: ((DECAROLL - DECAMOD) * 10 + [decarollrec DECADIE MODDIE DECAMOD + 1])}
+ if DECAMOD > 0 {result: (DECAROLL - DECAMOD) * 10 + MODROLL - 10}
+ result: DECAROLL * 10 + MODROLL - 10
+}
+
+A: d4
+B: d6
+C: d8
+D: d10
+E: d12
+F: d14
+G: d16
+H: d18
+I: d20
+
+output [currenttest]
+output [decatest]

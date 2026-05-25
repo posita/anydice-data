@@ -1,0 +1,30 @@
+FACES_A: {6, 8, 10, 12} \ Nombre de faces du Dé d'attribut \
+FACES_C: {0, 6, 8, 10, 12} \ Nombre de faces du Dé de Compétence \
+
+SUC_UN: {6..12} \ at least 1 success \
+SUC_DEUX: {10..12} \ 2 successes \
+
+REROLL_FACES_UN: {6, 8, 10, 12}
+REROLL_VALUES_UN: {2..12} \ which values are rerolled for these types of dices\
+REROLL_VALUES_DEUX: {2..9} \ which values are rerolled for other types of dices\
+
+function: pool FACES LANCER:s {
+ SUC: [count SUC_UN in LANCER] + [count SUC_DEUX in LANCER]
+ REROLLS: 0
+ if [count REROLL_FACES_UN in FACES] > 0
+   {
+     if [count REROLL_VALUES_UN in LANCER] > 0 {REROLLS: 1}
+   } else {
+     if [count REROLL_VALUES_DEUX in LANCER] > 0 {REROLLS: 1}
+   }
+ REROLLED: REROLLSdFACES
+ REROLLED_SUC: [count SUC_UN in REROLLED] + [count SUC_DEUX in REROLLED]
+ if REROLLS > 0 {S: REROLLED_SUC} else {S: SUC}
+ result: S
+}
+
+loop M over FACES_A{ 
+  loop N over FACES_C {
+    output [pool M 1dM] + [pool N 1dN] named "1d[M] 1d[N]"
+  }
+}

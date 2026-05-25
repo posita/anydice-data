@@ -1,0 +1,95 @@
+ATTACK: 5 + 4 + 2
+DEFENSE: 20
+QUARRY: 1d4+1d6
+
+\ [highest 1 of 2d20] \
+DICE: d20
+
+function: longbow for ROLL:n bonus BONUS:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL = 20 { result: 2d8 + 2dBONUS + DAMAGE }
+    if ROLL + ATTACK + HITMOD >= DEFENSE { result: d8 + BONUS + DAMAGE }
+    result: 0
+}
+
+function: bonus for ROLL:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL = 20 { result: 2dQUARRY }
+    if ROLL + ATTACK + HITMOD >= DEFENSE { result: QUARRY }
+    result: 0
+}
+
+function: longbowbonus for ROLL:n {
+    result: [longbow for ROLL bonus 0] + [bonus for ROLL]
+}
+
+function: zephyrbonus for ROLL:n {
+    result: [longbow for ROLL bonus d8] + [bonus for ROLL]
+}
+
+function: seconddamage for ROLL:n FIRSTDAMAGE:n {
+    if FIRSTDAMAGE = 0 { result: [longbowbonus for SECOND] }
+    else { result: [longbow for SECOND bonus 0] }
+}
+
+function: damage for FIRST:n and SECOND:n {
+    D: [longbowbonus for FIRST]
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+function: zephyr for FIRST:n and SECOND:n {
+    D: [zephyrbonus for FIRST]
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+DAMAGE: 5
+HITMOD: 0
+output [damage for DICE and DICE] named "Longbow"
+output [zephyr for [highest 1 of 2d20] and DICE] named "Zephyr"
+
+function: longbow for ROLL:n bonus BONUS:n {
+    if ROLL = 1 { result: 0 }
+    if ROLL = 20 { result: 2d8 + 2d6 + 2dBONUS + DAMAGE }
+    if ROLL + ATTACK + HITMOD >= DEFENSE { result: d8 + d6 + BONUS + DAMAGE }
+    result: 0
+}
+
+output [damage for DICE and DICE] named "Hunter's Mark"
+
+
+\
+DAMAGE: 15
+HITMOD: -5
+output [damage for DICE and DICE] named "Sharpshooter"
+output [zephyr for [highest 1 of 2d20] and DICE] named "Zephyr/SS"
+
+function: seconddamage for ROLL:n FIRSTDAMAGE:n {
+    if FIRSTDAMAGE = 0 { 
+        DAMAGE: 5
+        HITMOD: 0
+        result: [longbowbonus for SECOND] }
+    else { result: [longbow for SECOND bonus 0] }
+}
+
+function: damage for FIRST:n and SECOND:n {
+    DAMAGE: 15
+    HITMOD: -5
+    D: [longbowbonus for FIRST]
+
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+function: zephyr for FIRST:n and SECOND:n {
+    DAMAGE: 15
+    HITMOD: -5
+    D: [zephyrbonus for FIRST]
+    E: [seconddamage for SECOND D]
+    result: D + E
+}
+
+output [damage for DICE and DICE] named "Safety"
+output [zephyr for [highest 1 of 2d20] and DICE] named "Zephyr/Safety"
+\

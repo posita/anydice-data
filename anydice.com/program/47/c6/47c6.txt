@@ -1,0 +1,60 @@
+function: ROLL:n vs DEFENSE:n {
+ TOTAL: 0
+loop ESCALATION over {0..ROUNDS-1} {
+ X: 0
+ if ROLL = 1 
+  { 
+  \ natural 1 always is just miss damage \ 
+    X: MISS 
+    TOTAL: TOTAL + X
+  }
+ if ROLL + (CRITRANGE - 1) = 20 {
+  \ crit here \ 
+  if ROLL + ATTACK + ESCALATION >= DEFENSE 
+  { 
+  \ and it still hits \ 
+    X: CRITICAL
+    TOTAL: TOTAL + X 
+  }
+ \ otherwise just base damage \
+  X: DAMAGE
+  TOTAL: TOTAL + X
+ }
+ if ROLL + ATTACK + ESCALATION >= DEFENSE 
+  { 
+  \ regular hit here \
+    X: DAMAGE 
+    TOTAL: TOTAL + X
+  }
+ \ or a flat miss \
+  X: MISS
+  TOTAL: TOTAL + X
+ }
+ result: TOTAL
+}
+
+ROUNDS: 4
+DEFENSE: d{24..28}
+ATTACK: 15
+CRITRANGE: 1
+DAMAGE: 8d8+15
+CRITICAL: 16d8+30
+MISS: 8
+output [d20 vs DEFENSE] named "Melee Attack d8"
+
+\DEFENSE: d{24..28}\
+\ATTACK: 15\
+\CRITRANGE: 10\
+\DAMAGE: 8d10+12\
+\CRITICAL: 16d10+12\
+\MISS: 8\
+\output [d20 vs DEFENSE] named "angry joe"\
+
+DEFENSE: d{22..26}
+ATTACK: 15
+CRITRANGE: 1
+DAMAGE: 7d10
+CRITICAL: 14d10
+MISS: 8
+output [d20 vs DEFENSE] named "Lvl 7 ray of frost"
+

@@ -1,0 +1,88 @@
+STR:4 DEX:4
+\Format:\
+\NAME:damgedice\
+\NAMEV:vsDRDice\
+\NAMEATT:Attack stat. 0 if no stat bonus to attack. STR+STR/2 for 2hand, STR otherwise\
+RXBOW: 1d8 	RXBOWV: 1d6 	RXBATT:0 
+DAGGER: 1d4	DAGGERV: 1d4	DAGGERATT:STR
+BOW: 1d4	BOWV: 1d4	BOWATT:STR\?\
+MONK: 1d4	MONKV: 1d4	MONKATT: STR\?\
+SSWORD: 1d4 SSWORDV: 1d8
+PDAGGER: 1d6 PDAGGERV: 1d6
+STAFF: 1d4 STAFFV: 1d6
+LBOW: 1d6 LBOWV: 1d6
+WHIP: 1d6 WHIPV: 1d6
+BOX: 2d6 BOXV: 0
+HURL: 1d8 HURLV: 1d4
+SWORD: 1d8 SWORDV: 1d10
+SCIM: 1d10 SCIMV: 1d4
+AX: 1d8 AXV: 1d6
+SPEAR: 1d4 SPEARV: 1d12
+GBOW: 1d6 GBOWV: 1d10
+STIL: 1d8 STILV: 1d10
+SHOT: 1d6 SHOTV: 1d8
+LSWORD: 1d10 LSWORDV: 1d12
+LSPEAR: 1d8 LSPEARV: 3d6
+HAL: 1d12 HALV: 1d10
+BAX: 1d12 BAXV: 1d8
+PAX: 1d8 PAXV: 3d6
+SCY: 1d12 SCYV: 1d12
+XBOW: 2d8 XBOWV: 2d10
+CLAY: 2d10 CLAYV: 1d8 CLAYATT: STR+STR/2
+LANCE: 1d8 LANCEV: 3d6
+HXBOW: 2d12 HXBOWV: 3d8
+
+function: simulate NUMATTACKS
+{
+DAMAGE: 0
+loop X over {1..NUMATTACKS}
+{
+DAMAGE:DAMAGE+[attackroll]
+}
+
+result: DAMAGE
+}
+
+function: attackroll
+{
+result: ((WEAPON+ATTSTAT)-[floor (DR/DRMOD-(VSDR+DEX))])
+}
+
+
+function: floor DICE:n
+{
+
+if DICE<0
+{
+result:0
+}
+else
+{
+result:DICE
+}
+}
+
+
+DR: 0
+WEAPON: DAGGER VSDR: DAGGERV ATTSTAT: DAGGERATT DRMOD:1
+output [simulate 6] named "Dagger"
+
+
+WEAPON: CLAY VSDR: CLAYV ATTSTAT:CLAYATT DRMOD:1
+output [simulate 3] named "Claymore"
+
+
+WEAPON:LSWORD VSDR:LSWORDV ATTSTAT:STR DRMOD:1
+output [simulate 4] named "Longsword12-1hand"
+
+ATTSTAT:STR+STR/2
+output [simulate 4] named "Longsword12-2hand"
+
+WEAPON: PDAGGER VSDR: PDAGGERV ATTSTAT: STR DRMOD:1
+output [simulate 5] named "PDagger"
+
+WEAPON: SWORD VSDR: SWORDV ATTSTAT: STR DRMOD:1
+output [simulate 4] named "Sword"
+
+WEAPON: STIL VSDR: STIL ATTSTAT: STR DRMOD:1
+output [simulate 4] named "Stiletto"

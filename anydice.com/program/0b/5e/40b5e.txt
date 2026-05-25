@@ -1,0 +1,28 @@
+function: sevens POOL:s TARGET:n {
+  COUNT: 0 \ Initialize the count of ways to get 7 \
+  
+  \ --- 1. Count single die rolls of 7 --- \
+  \ If the die has fewer than 7 sides (e.g., d6), this count will be 0, \
+  \ as the number 7 cannot appear in the sequence. \
+  COUNT: COUNT + [count 7 in POOL]  
+  \ --- 2. Count unique pairs that sum to 7 (e.g., 1+6, 2+5, 3+4) --- \
+  
+  loop I over {1..3} { \ (Iterates through I=1, 2, 3) \
+    J: TARGET - I \ Calculate the required partner value \
+    
+    \ Count unique pairs limited by the minimum roll of I or J. \
+    COUNT: COUNT + [lowest of [count I in POOL] and [count J in POOL]]
+  }
+  
+  result: COUNT
+}
+
+output [count 1 in 3d4] named "1s in 3d4"
+output [count 1 in 3d6] named "1s in 3d6"
+output [count 1 in 3d8] named "1s in 3d8"
+output [count 1 in 3d20] named "1s in 3d20"
+
+output [sevens 3d4 7] named "7 in 3 d4"
+output [sevens 3d6 7] named "7 in 3 d6"
+output [sevens 3d8 7] named "7 in 3 d8"
+output [sevens  3d20 7] named "7 in 3 d20"

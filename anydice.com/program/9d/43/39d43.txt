@@ -1,0 +1,55 @@
+function: is X a success{
+  result: X >= 4
+}
+
+function: roll X:n dice{
+  COUNT: 0
+  loop D over {1..X}{
+    COUNT: COUNT + [is 1d6 a success]
+  }
+  result: COUNT
+}
+
+function: rollx{
+  result: [explosion helper 1d6]
+}
+
+function: explosion helper N:n{
+  if N = 6{
+    result: 1 + [rollx]
+  }
+  if N >= 4{
+    result: 1
+  }
+  result: 0
+}
+
+function: roll X:n dice and explode{
+  COUNT: 0
+  loop D over {1..X}{
+    COUNT: COUNT + [rollx]
+  }
+  result: COUNT
+}
+
+function: roll X dice with total reroll{
+  INITIAL: [roll X dice]
+  FAILURES: X - INITIAL
+  ROLL: INITIAL + [roll FAILURES dice]
+  result: [lowest of X and ROLL]
+}
+
+function: roll X dice with single reroll{
+  INITIAL: [roll X dice]
+  FINAL: INITIAL + (1d6>=4)
+  result: [lowest of X and FINAL]
+}
+
+output [roll 5 dice] named "Standard"
+output [roll 5 dice and explode] named "Standard + Explosion"
+output [roll 5 dice with single reroll] named "Standard + Single Reroll"
+output [roll 5 dice with total reroll] named "Standard + Total Reroll"
+output [roll 10 dice] named "Channel"
+output [roll 10 dice and explode] named "Channel With Explosion"
+output [roll 10 dice with single reroll] named "Channel With Single Reroll"
+output [roll 10 dice with total reroll] named "Channel With Total Reroll"

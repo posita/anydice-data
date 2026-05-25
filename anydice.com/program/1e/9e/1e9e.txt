@@ -1,0 +1,53 @@
+function: dam DAM:d at AT:n plasma PLASMA:n master MASTER:n con CON:n prof PROF:n shield SHIELD:n av AV:n JAM:n rolled D:s {
+ if JAM {
+  result: 0
+ }
+ ROLL: 1@D + 2@D
+ if (!PROF | CON < 10) & (1@D = 2@D & (1@D >= CON | (PLASMA & 1@D >= 8))) {
+  result: -1
+ }
+ if ROLL > AT {
+  result: 0
+ }
+ XS: AT - ROLL
+ DAMAGE: DAM
+ if SHIELD {
+  DAMAGE: [maximum of DAM]
+ }
+ if MASTER {
+  DAMAGE: DAMAGE + XS
+ }
+ if 1@D = 2@D & (PROF | 1@D = 1 | 1@D <= (CON - 10)) {
+  DAMAGE: DAMAGE * 2
+ }
+ if !PLASMA {
+  DAMAGE: DAMAGE - AV
+  DAMAGE: [floor DAMAGE]
+ }
+ result: DAMAGE
+}
+
+function: floor DAM:n {
+ if DAM < 0 {
+  result: 0
+ }
+ result: DAM
+}
+
+function: dam DAM:d at AT:n plasma PLASMA:n master MASTER:n con CON:n prof PROF:n shield SHIELD:n av AV:n rate RATE:n {
+ DAMAGE: 0
+ JAM: 0
+ loop X over {1..RATE} {
+  TEMPDAMAGE: [dam DAM at AT plasma PLASMA master MASTER con CON prof PROF shield SHIELD av AV JAM rolled 2d10]
+  DAMAGE: DAMAGE + TEMPDAMAGE
+ }
+ result: DAMAGE
+}
+
+\ edit the line below with the relevant information for your attack - add the bonuses for aiming directly to the weapon base damage and action total if aiming is being used; reduce the rate and add to the AT if sacrificing rate for accuracy. In order: base weapon damage, action total, 1/0 plasma/notplasma, 1/0 mastered/notmastered, condition, 1/0 profession/notprof, 1/0 hitting shield/notshield, AV, rate \
+
+\ VVV IMPORTANT LINE VVV \
+output [dam 2d6+9 at 31 plasma 0 master 1 con 10 prof 1 shield 0 av 8 rate 1] named "Damage"
+\ ^^^ IMPORTANT LINE ^^^ \
+
+\ some assumptions made, the rules are actually slightly unclear: professionals can still critically miss with substandard weapons (con < 10), as per page 30. If a weapon cannot critically miss (because profession or because con > 10), 10/10 is still a hit (else improving to condition 20 causing criticals on 1/1 through 10/10 makes no sense, per table in Downtime on page 82), and as such a professional will critically hit on a successful roll of 10/10. This is in keeping with the text on page 30 that states a condition 1 weapon cannot critically pass - even a 1/1 roll is still a critical fail. Basically, if you're amazing you can make it so that it's literally impossible for you to fuck up, which is ridiculous but hey, we're playing Corp. The analysis has critical fails miss but does not account for the jamming of the weapon preventing further attacks, so results will be slightly skewed to higher damage when using non-profession or low condition at rates > 1 \

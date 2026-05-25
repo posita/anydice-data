@@ -1,0 +1,77 @@
+function: NUM:n DICE:d with min MAX:n {
+  TOTAL: 0
+  loop N over {1..NUM} {
+    TOTAL: TOTAL + [lowest of DICE and MAX] 
+  }
+ result: TOTAL
+}
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A:[reroll 1dC B C] 
+ } 
+ else { 
+  result: A 
+ }
+}
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+function: roll NUM:n dice DICE:n keep HIGHEST:n highest reroll REROLL:n {
+ result: [highest HIGHEST of NUMd(DICE-REROLL)] + (HIGHEST * REROLL) 
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+ if ROLL = 1 {
+  result: 0
+ }
+ if ROLL >= CRIT_RANGE {
+  result: DMG + CRIT_DMG
+ }
+ if ROLL + BONUS >= AC {
+  result: DMG
+ }
+ result: 0
+}
+
+function: saving throw ROLL:n plus BONUS:n against DC:n taking FAILURE_DMG:d on failure or SUCCESS_DMG:d on success {
+  if ROLL = 1 {
+    result: SUCCESS_DMG
+  }
+  if ROLL = 20 {
+    result: 0 
+  }
+  if ROLL + BONUS >= DC {
+    result: SUCCESS_DMG
+  }
+  if ROLL + BONUS < DC {
+    result: FAILURE_DMG
+  }
+  result: 0 
+}
+
+output [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for [greatweaponmaster 6 2 2]+5+2 crit [greatweaponmaster 6 2 2] on 19] + [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for [greatweaponmaster 6 2 2]+5+2 crit [greatweaponmaster 6 2 2] on 19] named "Champion Fighter Level 9"
+
+output [attack [highest 1 of 1d20] plus 4+4+2 vs 16 for [greatweaponmaster 6 2 2]+4+2 crit [greatweaponmaster 6 2 2] on 19] + [attack [highest 1 of 1d20] plus 4+4+2 vs 19 for [greatweaponmaster 6 2 2]+4+2 crit [greatweaponmaster 6 2 2] on 19] + [attack [highest 1 of 1d20] plus 4+4+2 vs 19 for [greatweaponmaster 4 1 2]+4+2 crit [greatweaponmaster 4 1 2] on 19] named "PAM Champion Fighter Level 9"
+
+output [attack [highest 1 of 1d20] plus 4+4+2 vs 16 for 1d8+4+2+2d8+4 crit 1d8+2d8 on 20] + [attack [highest 1 of 1d20] plus 4+4+2 vs 16 for 2d8+4 crit 2d8 on 20] named "BB Arcana Cleric Level 9"
+
+output [attack [highest 1 of 1d20] plus 4+4+2 vs 16 for 1d8+4+2+2d8+4+3d8+4 crit 1d8+2d8 on 20] + [attack [highest 1 of 1d20] plus 4+4+2 vs 16 for 2d8+4 crit 2d8 on 20] named "BB Arcana Cleric Level 9 (with Rider)" 
+
+output [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for 1d10+1d6+5+2 crit 1d10+1d6 on 20] + [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for 1d10+1d6+5+2 crit 1d10+1d6 on 20] + [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for 1d4+1d6+5+2 crit 1d4+1d6 on 20] named "PAM Blood Hunter Level 9"
+
+output [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for 1d10+5+3 crit 1d10 on 20] + [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for 1d10+5+3 crit 1d10 on 20] + [attack [highest 1 of 1d20] plus 5+4+2 vs 16 for 2d8 crit 2d8 on 20] named "EB Artillerist Artificer Level 9"
+
+output [attack [highest 1 of 1d20] plus 4+4+2+2-5 vs 16 for 1d12+4+2+10 crit 1d12 on 20] + [attack [highest 1 of 1d20] plus 4+4+2+2-5 vs 16 for 1d12+4+2+10 crit 1d12 on 20] + [attack [highest 1 of 1d20] plus 4+4+2 vs 16 for 1d8+4 crit 1d8 on 20] named "Forge Adept Artificer Level 9"
+
+output [attack [highest 1 of 1d20] plus 4+4+2+2-5 vs 16 for 1d12+1d6+4+2+10 crit 1d12+1d6 on 20] + [attack [highest 1 of 1d20] plus 4+4+2+2-5 vs 16 for 1d12+4+2+10 crit 1d12 on 20] + [attack [highest 1 of 1d20] plus 4+4+2+2-5 vs 16 for 1d12+4+2+10 crit 1d12 on 20] named "Kensei Monk with Ki"
+
+output [attack [highest 1 of 1d20] plus 4+4+2+2-5 vs 16 for 1d12+1d4+4+2+10 crit 1d12+1d4 on 20] + [attack [highest 1 of 1d20] plus 4+4+2+2-5 vs 16 for 1d12+1d4+4+2+10 crit 1d12+1d4 on 20] named "Kensei Monk no Ki"
+
+output [attack [highest 1 of 1d20] plus 5+4+1-5 vs 16 for 1d12+2d6+10+5+1 crit 1d12+2d6 on 20] + [attack [highest 1 of 1d20] plus 5+4+2+1-5 vs 16 for 1d12+10+5+1 crit 1d12 on 20] + [attack [highest 1 of 1d20] plus 5+4 vs 16 for 1d8+4 crit 1d8 on 20] named "Battle Smith Artificer"

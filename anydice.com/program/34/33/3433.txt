@@ -1,0 +1,55 @@
+\ *** NAO MEXA NAS FUNCOES*** \
+
+set "maximum function depth" to 3
+set "position order" to "lowest first"
+
+function: simulateold D:n {
+  if D < 3 { result: 0 }
+  result: 1
+}
+
+function: simulateoldhalf D:n {
+  if D < 5 { result: 0 }
+  result: 1
+}
+
+function: simulatenew D:n {
+  result: D/2
+}
+
+function: oldroll D:n half H:n{
+  if H > 0 {
+    result: Dd[simulateold d6] + 1d[simulateoldhalf d6]
+  }
+  result: Dd[simulateold d6]
+}
+
+function: newroll D:n half H:n{
+  if H > 0 {
+    result: Dd[simulatenew d6] + 1d[simulatenewhalf d6]
+  }
+  result: Dd[simulatenew d6]
+}
+
+function: create sequence from START:n to FINISH:n{
+ SEQUENCE: {}
+ loop P over {START..FINISH}{
+  SEQUENCE: {SEQUENCE, P}
+ }
+ result: SEQUENCE
+}
+
+\ *** MUDE OS VALORES AQUI *** \
+
+ATTRIBUTE: 2
+DIFFICULTY: 5
+HALFDICE: 0
+  
+ROLLDICENUM: ATTRIBUTE + DIFFICULTY
+FINALDICESEQUENCE: [create sequence from 1 to DIFFICULTY]
+
+output  FINALDICESEQUENCE@[oldroll ROLLDICENUM half HALFDICE] named "old result"
+
+output  FINALDICESEQUENCE@[newroll ROLLDICENUM half HALFDICE] named "new result"
+
+ 

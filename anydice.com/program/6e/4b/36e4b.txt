@@ -1,0 +1,23 @@
+UNITS:1
+
+A: 3
+WS:3
+S: 12
+AP:-3
+D: d6+1
+
+T: 10
+SV:2
+INVSV:4
+
+HIT:d6>=WS
+if T=S {WOUND:d6>=4}
+if T>S {if T>=(S*2){WOUND:d6>=6} else {WOUND:d6>=5}}
+if T<S {if (T*2)<=S{WOUND:d6>=2} else {WOUND:d6>=3}}
+if INVSV=0 {SAVE:d6>=(SV-AP)}
+else {if(SV-AP)<INVSV {SAVE:d6>=(SV-AP)} else {SAVE:d6>=INVSV}}
+A: A*UNITS
+X:{}
+loop N over {1..A}{X:X+(HIT&WOUND&!SAVE)}
+
+output X named "Damage Dealt"

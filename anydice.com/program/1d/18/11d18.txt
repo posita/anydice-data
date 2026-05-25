@@ -1,0 +1,138 @@
+ATT: 4   \Number of Attacks\
+RDMG: 4  \Rage Damage\
+HITB: 11 \+ to Hit\
+AC: 15   \Targets AC\
+
+CRIT: 0
+DMG: 0
+
+function: Z:n Y:n reckless
+{
+L: 0
+   if Z > Y
+   {
+    L: Z
+   }
+    else
+   {
+    L: Y
+   }
+result: L
+}
+
+function: X:n attack
+{
+   if X >= 20
+   {
+    result: 5d8 + 9
+   }
+    else if X + HITB >= AC
+   {
+    result: 1d8 +9
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: X:n mercattack
+{
+   if X + RDMG >= 20
+   {
+    result: 5d8 + 9
+   }
+    else if X + HITB >= AC
+   {
+    result: 1d8 +9
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: Z:n twinterrors
+{
+D: 0
+  if Z != 0 
+  {
+   X: [1d20 1d20 reckless]
+   D: D + [X attack]
+   X: [1d20 1d20 reckless]
+   D: D + [X attack]
+   result: D
+  }
+  else {result: 0}
+}
+
+function: Z:n twinterrorsmerc
+{
+D: 0
+  if Z != 0 
+  {
+   X: [1d20 1d20 reckless]
+   D: D + [X mercattack]
+   X: [1d20 1d20 reckless]
+   D: D + [X mercattack]
+   result: D
+  }
+  else {result: 0}
+}
+
+function: Z:n findcrit
+{
+   if Z >= 20
+   {
+    result: 1
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: Z:n findcritmerc
+{
+   if Z + RDMG >= 20
+   {
+    result: 1
+   }
+   else
+   {
+    result: 0
+   }
+}
+
+function: resolvenormal
+{
+loop N over {1..4}
+{
+ X: [1d20 1d20 reckless]
+DMG: DMG + [X attack]
+CRIT: [X findcrit]
+}
+
+ X: [1d20 1d20 reckless]
+DMG: DMG + [CRIT twinterrors]
+
+result: DMG
+}
+
+function: resolvemerc
+{
+loop N over {1..4}
+{
+ X: [1d20 1d20 reckless]
+DMG: DMG + [X mercattack]
+CRIT: [X findcritmerc]
+}
+
+ X: [1d20 1d20 reckless]
+DMG: DMG + [CRIT twinterrorsmerc]
+
+result: DMG
+}
+
+output [resolvemerc]
+output [resolvenormal]

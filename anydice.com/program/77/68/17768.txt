@@ -1,0 +1,26 @@
+set "maximum function depth" to 3
+
+function: mux ROLL:s {
+ result: (ROLL = 6) * 100 + (ROLL = 5)
+}
+
+function: demuxsix N:n {
+ result: (N / 100)
+}
+
+function: demuxfive N:n {
+ result: (N - ((N / 100) * 100))
+}
+
+
+function: push X {
+ N: [mux Xd6]
+ Y: [demuxsix N]
+ Z: [demuxfive N]
+ result: (Y + Z + [push Y])
+}
+
+X: 7
+
+output [push X] named "pre-edged [X]"
+

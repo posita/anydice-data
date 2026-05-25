@@ -1,0 +1,26 @@
+CHARACTERISTIC: 11
+DIE: [highest of 0 and d20 - CHARACTERISTIC + 1]
+
+function: lowest N:n of ROLL:s if lowest in RANGE:s {
+  REV: [reverse ROLL]
+  if 1@REV = RANGE { result: {1..N}@REV }
+  else { result: -1 } \ out of range \
+}
+
+FOO: [lowest 2 of 3dDIE if lowest in {0}]
+BAR: [lowest 2 of 3dDIE if lowest in {1..20}]
+
+function: restrict ROLL:n to RANGE:s else REROLL:d {
+  if ROLL = RANGE { result: ROLL }
+  else { result: REROLL }
+}
+function: restrict ROLL:d to RANGE:s {
+  TEMP: ROLL
+  loop I over {1..20} {
+    TEMP: [restrict TEMP to RANGE else TEMP]
+  }
+  result: TEMP
+}
+
+output [restrict FOO to {0..99}] named "skill needed if lowest < [CHARACTERISTIC]"
+output [restrict BAR to {0..99}] named "skill needed if lowest >= [CHARACTERISTIC]"

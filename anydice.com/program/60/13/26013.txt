@@ -1,0 +1,91 @@
+function: reroll lowest of ROL:s y ROLL:s as REROL:d y REROLL:d if less than MIN:n y MINN:n{
+  LOWESTT: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  LOWEST:  (#ROL)@ROL      
+  if LOWEST >= MIN {
+    TOTAL: ROL+ 0 +ROLL
+  } else {
+    REST: {1..#ROL-1}@ROL  
+    TOTAL: REST + REROL + ROLL
+  }
+  if LOWESTT >= MINN {
+    TOTALL: ROL+ 0 +ROLL
+  } else {
+    REST: {1..#ROLL-1}@ROLL  
+    TOTALL: REST + REROLL + ROL
+  }
+  result: [highest of TOTAL and TOTALL]
+} 
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+function: dpa AT:s atack AC:n hit NORM:s and crit CRIT:s {
+ if AT=20 {
+  result: CRIT 
+ }
+ if AT>=AC {
+  result: NORM 
+ }
+ else{
+ result: 0  
+ }
+}
+
+RAP: 5+[reroll lowest of 1d8 y d0 as d8 y d0 if less than 5 y 0]
+SSW: 6+[reroll lowest of 1d6 y d0 as d6 y d0 if less than 4 y 0]
+RAP_MAN: 5+[reroll lowest of 2d8 y d0 as d8 y d0 if less than 5 y 0]
+SSW_MAN: 6+[reroll lowest of 1d8 y 1d6 as d8 y d6 if less than 5 y 4]
+RAP_CRIT: 5+[reroll lowest of 3d8 y d0 as d8 y d0 if less than 5 y 0]
+SSW_CRIT: 6+[reroll lowest of 3d6 y d0 as d6 y d0 if less than 4 y 0]
+RAP_MAN_CRIT: 5+[reroll lowest of 5d8 y d0 as d8 y d0 if less than 5 y 0]
+SSW_MAN_CRIT: 6+[reroll lowest of 2d6 y 3d8 as d6 y d8 if less than 4 y 5]
+SSW_MAN_CRITT: 6+[highest of [reroll lowest of 3d8 as d8 if less than 5]+2d6 and [reroll lowest of 2d6 as d6 if less than 4]+3d8]
+
+\  CONCLUSIONES CUANDO OCUPAR SHORTSWORD 
+%%%%%%%%%%%%
+USANDO DAÑO MANIOBRA, RAPIER SOLO CUANDO 
+( VENTAJA  ) 15<= AC <28 
+(  NORMAL  ) 10<= AC <28
+(DESVENTAJA) 10<= AC <28
+%%
+USANDO DAÑO MANIOBRA SOLO EN CRIT, SHORTSWORD CUANDO 
+( VENTAJA  ) 18<= AC <28
+(  NORMAL  ) 10<= AC <28
+(DESVENTAJA) 10<= AC <28
+%%
+SIN DAÑO MANIOBRA, SHORTSWORD SOLO CUANDO 
+( VENTAJA  ) 21<= AC <28
+(  NORMAL  ) 10<= AC <28
+(DESVENTAJA) 10<= AC <28
+%
+%%%%%%%%%%%%  RESUMEN CUANDO SACAR SSW
+AC ridiculo (<=9 o >=28)                    => RAP
+si no hay ventaja                           => SSW 
+Si hay ventaja,pero hay MAN y AC(>=15,18,21)=> SSW
+Si hay resistencia                          => SSW
+%%%%%%%%%%%%
+Es decir cuando tranqui (AC<=14,17,20)        
+[RID y No RES]o[ADV,NO RES,poco AC con MAN] => RAP
+cuando hay alguna dif (AC>=15,18,21)
+[hay RES o sin ADV o hay harto AC con MAN]  => SSW
+%%%%%%%%%%%% \
+PH_RAP:7 PH_SSW: 8 N_AT: 1 T_AC:10
+MULT_RAP:1 MULT_SSW:1  JUST_WHEN_HIT: 0
+if JUST_WHEN_HIT {
+ MULT_RAP: 20^N_AT /(20^N_AT - [highest of [lowest of (T_AC-PH_RAP-1) and 19 ]and 1]^N_AT)
+ MULT_SSW: 20^N_AT /(20^N_AT - [highest of [lowest of (T_AC-PH_SSW-1) and 19 ]and 1]^N_AT)}
+T_RAP: [dpa [highest 1 of N_ATd20] atack [highest of T_AC-PH_RAP and 2] hit RAP_MAN and crit RAP_MAN_CRIT]*MULT_RAP
+T_SSW: [dpa [highest 1 of N_ATd20] atack [highest of T_AC-PH_SSW and 2] hit SSW_MAN and crit SSW_MAN_CRIT]*MULT_SSW
+
+F_RAP: T_RAP        
+F_SSW: T_SSW
+
+\ output [dpa [highest 1 of N_ATd20] atack 2 hit 1 and crit 1] \
+output F_RAP named "rapier"
+output F_SSW named "shorsword"
+output F_SSW-F_RAP named "Short-Rap" 

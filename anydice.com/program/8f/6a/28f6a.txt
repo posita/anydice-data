@@ -1,0 +1,32 @@
+function: elimpool A:s B:s vs C:s D:s
+{
+  INITGREEN: [sort {A, B}]
+  INITRED: [sort {C, D}]
+
+  if 2@INITGREEN > 1@INITRED {result:2}
+  if 2@INITRED > 1@INITGREEN {result:0}
+
+  GREEN: {}
+  RED: {}
+
+  loop X over {[highest of 1@INITGREEN and 1@INITRED]..1}
+  { 
+     DIFF: [count X in INITGREEN]-[count X in INITRED]
+     GREEN: {GREEN, X:DIFF}
+     RED: {RED, X:-DIFF}
+     if 2@GREEN > 1@RED {result:2}
+     if 2@RED > 1@GREEN {result:0}
+  }
+  GREEN: [sort GREEN]
+  RED: [sort RED]
+ 
+  if #RED = 0 & #GREEN = 0 {result: 1}
+  if #RED = 0 {result: 2}
+  if #GREEN = 0 {result: 0}
+
+  if 2@GREEN > 1@RED {result:2}
+  if 2@RED > 1@GREEN {result:0}
+  result: 1
+}
+
+output [elimpool 1d10 1d8 vs 1d6 2d8]

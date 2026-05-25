@@ -1,0 +1,63 @@
+function: crit ATT:n FST:n SEC:n MELEE:n {
+  if ATT >= DEF {
+    if FST = SEC {
+      if MELEE {
+        DAM: 4d6 + POW - ARM
+        result: [highest of 0 and DAM]
+      }
+      DAM: 3d6 + POW - ARM
+      result: [highest of 0 and DAM]
+    }
+    if MELEE {
+      DAM: 3d6 + POW - ARM
+      result: [highest of 0 and DAM]
+    }
+    DAM: 2d6 + POW - ARM
+    result: [highest of 0 and DAM]
+  }
+  result: 0
+}
+
+function: std MELEE:n {
+  ATT: 2d6
+  FST: [highest 1 of ATT]
+  SEC: [middle 1 of ATT]
+  ATT: ATT + RAT
+  result: [crit ATT FST SEC MELEE]
+}
+
+function: barrier MELEE:n {
+  ATT: 2d6
+  FST: [highest 1 of ATT]
+  SEC: [middle 1 of ATT]
+  ATT: ATT + 2 + RAT
+  result: [crit ATT FST SEC MELEE]
+}
+
+function: deadeye MELEE:n {
+  ATT: 3d6
+  FST: [highest 1 of ATT]
+  SEC: [middle 1 of ATT]
+  ATT: ATT + RAT
+  result: [crit ATT FST SEC MELEE]
+}
+
+loop I over {0..3} {
+  RAT: 6
+  POW: 10
+  DEF: 13 - I
+  ARM: 17 + I
+
+  output 0 named "DEF [DEF] ARM [ARM]"
+  output 0 named ""
+
+  output [barrier 0] named "[DEF] [ARM] Temp Barrier"
+  output [deadeye 0] named "[DEF] [ARM] Deadeye"
+  output [barrier 1] named "[DEF] [ARM] Temp Barrier Melee"
+  output [deadeye 1] named "[DEF] [ARM] Deadeye Melee"
+
+  output [barrier 0] + [barrier 0] named "[DEF] [ARM] Feat Temp Barrier"
+  output [deadeye 0] + [std 0] named "[DEF] [ARM] Feat Deadeye"
+  output [barrier 1] + [barrier 1] named "[DEF] [ARM] Feat Temp Barrier Melee"
+  output [deadeye 1] + [std 1] named "[DEF] [ARM] Feat Deadeye Melee"
+}

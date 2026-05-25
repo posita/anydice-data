@@ -1,0 +1,33 @@
+set "explode depth" to 5
+set "maximum function depth" to 5
+function: poolplode DIE:d TN:n EN:n {
+ result: [poolplode helper DIE]
+}
+
+function: poolplode helper RES:n {
+ if RES >= EN { result: 1 + [poolplode helper DIE] }
+ if RES >= TN { result: 1 }
+ result: 0
+}
+
+
+function: plode SEQ:s TAR:n {
+ if (SEQ >= TAR) = #SEQ {result: #SEQ + [explode 1d{0:5,1}]}
+ result: (SEQ >= TAR)
+}
+
+\loop N over {1..8} {
+ output [plode N d6 4] named "[N]"
+}\
+
+output [poolplode 1d6 5 6]
+
+loop N over {1..15} {
+ output Nd(1d6 >= 5) + [poolplode 1d6 5 6] named "[N]+1"
+}
+
+ output 16d[poolplode 1d6 5 6]
+
+\loop N over {1..8} {
+ output Nd[poolplode 1d6 4 6]
+}\

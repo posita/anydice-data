@@ -1,0 +1,63 @@
+\TODO: Gets Hot!, on 1 to hit damage yourself.\
+\TODO: Multiple shots.\
+\TODO: Nd6 Rending.\
+\TODO: Melee combat.\
+\TODO: Cover saves.\
+
+\Rending USR\
+\outputs: rending dice\
+function: rend DICE:n {
+ if DICE = 6 { result: 6 + d3 }
+ result: DICE
+}
+
+function: hit DICE:n bs BS:n twin-linked TWINLINK:n {
+ if DICE >= 7-BS {
+  result: 1
+ }
+ else {
+  if TWINLINK = 1 {
+   result: [hit d6 BS 0]
+  }
+  if BS > 5 {
+   result: [hit d6 BS-5 0]
+  }
+ result: 0
+ }
+}
+
+NOTHIT: 0
+
+function: penetrate HITROLL:n s STRENGTH:n pen dice N:n rending RENDING:n { 
+ if HITROLL = 1 {
+  if RENDING = 1 {
+   result: STRENGTH+[rend d6]
+  }
+  result: STRENGTH+Nd6
+ }
+ else { result: NOTHIT }
+}
+
+NOTPEN: 0
+
+function: result PENROLL:n GLANCE:n AV:n {
+ PEN: 1
+ if PENROLL = NOTHIT { result: NOTHIT }
+ if PENROLL+GLANCE < AV { result: NOTPEN }
+ if PENROLL+GLANCE > AV { result: PEN }
+}
+
+AV: 11
+GLANCE: 1
+IGAUTOCANNON: [result [penetrate [hit d6 bs 3 twin-linked l 0] s 7 pen dice 1 rending 0] GLANCE AV]
+IGTLAUTOCANNON: [result [penetrate [hit d6 bs 3 twin-linked 1] s 7 pen dice 1 rending 0] GLANCE AV]
+IGTLLASCANNON: [result [penetrate [hit d6 bs 3 twin-linked 1] s 9 pen dice 1 rending 0] GLANCE AV]
+SMKRAKMISSILE: [result [penetrate [hit d6 bs 4 twin-linked 0] s 8 pen dice 1 rending 0] GLANCE AV]
+SMMELTAGUN: [result [penetrate [hit d6 bs 4 twin-linked 0] s 8 pen dice 2 rending 0] GLANCE AV]
+GKPSYCANNON: [result [penetrate [hit d6 bs 4 twin-linked 0] s 7 pen dice 1 rending 1] GLANCE AV]
+GKVINDICARE: [result [penetrate [hit d6 bs 7 twin-linked 0] s 0 pen dice 4 rending 1] GLANCE AV]
+
+output 2dIGAUTOCANNON named "IG Autocannon"
+output 2dIGTLAUTOCANNON named "IG TL Autocannon"
+output 3dIGTLLASCANNON named "Vendetta"
+output 1dSMKRAKMISSILE named "SM Krak Missile"

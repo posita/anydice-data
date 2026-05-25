@@ -1,0 +1,38 @@
+REROLL: {1..5}
+
+function: reroll RESULTAT:n sur DE:n avec ADRENALINE:n{
+        if [{1} contains ADRENALINE] {
+          result: RESULTAT
+        } else {
+          if [REROLL contains RESULTAT] {result: dDE} else {result: RESULTAT}
+        }
+}
+
+loop ATT over {6, 8, 10, 12} {
+  loop CMP over {0, 6, 8, 10, 12, 20} {
+    loop DORR over {0..1} {
+      loop ADR over {0, 6, 8, 10, 12} {
+        if CMP = 0 | CMP >= ATT {
+          R_AD: dADR
+          RES_AD: [count {6..20, 10..20, 14..20, 18..20} in R_AD]
+          BTC_AD: [count 1 in R_AD]
+
+          R_AT: dATT
+          R_CM: dCMP
+
+          if DORR = 1 {RR_AT: [reroll R_AT sur ATT avec R_AD]} else {RR_AT: R_AT}
+          if DORR = 1 {RR_CM: [reroll R_CM sur CMP avec R_AD]} else {RR_CM: R_CM}
+
+          RES_AT: [count {6..20, 10..20, 14..20, 18..20} in RR_AT]
+          RES_CM: [count {6..20, 10..20, 14..20, 18..20} in RR_CM]
+
+          if DORR = 1 {BTC_AT: [count 1 in RR_AT]} else {BTC_AT: 0}
+          if DORR = 1 {BTC_CM: [count 1 in RR_CM]} else {BTC_CM: 0}
+
+          output RES_AT + RES_CM + RES_AD named "S~d[ATT] d[CMP]~RR[DORR]~d[ADR]"
+          output BTC_AT + BTC_CM + BTC_AD named "B~d[ATT] d[CMP]~RR[DORR]~d[ADR]"
+        }
+      }
+    }
+  }
+}

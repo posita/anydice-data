@@ -1,0 +1,50 @@
+\output 1d{{1..2}, {3..12}:7} (GREAT_WEAPON_FIGHTING)
+output 1@2d12 (Advantage)
+function: roll hit dice
+function: detect crit (Just set CRIT_HIT=1)
+function: Check for GREAT_WEAPON_FIGHTING and CRIT_HIT variables, then calculate damage with and without those settings. 
+\
+
+function: hitdice {
+    if ELVEN_ACCURACY = 1 {result: 1@3d20}
+    if ADVANTAGE = 1 {result: 1@2d20}
+    result: 1d20
+}
+
+function: gwf DMG_DICE times SIDES {
+    result: DMG_DICEd{{1..2}, {3..SIDES}:SIDES/2+1}
+}
+
+function: damage DMG_DICE:n times SIDES:n {
+    if GREAT_WEAPON_FIGHTING = 1 {result: [gwf DMG_DICE times SIDES]}
+    result: DMG_DICEdSIDES
+}
+
+\ Is the hit a crit? \
+function: total ATK_ROLL:n for DMG:d crit CRIT_DMG:d {
+    if ATK_ROLL >= CRIT_RANGE {result: [damage DMG_DICE times SIDES] + [critdamage DMG]}
+    result: [damage DMG_DICE times SIDES]
+}
+
+\ Calculate crit damage \
+function: critdamage ATK_ROLL:n {
+    if EXTRA_CRIT_DICE = 1 {result: [damage DMG_DICE times SIDES]}
+    result: [damage EXTRA_CRIT_DICE times SIDES]
+}
+
+ATK_DICE: 1
+DMG_DICE: 1
+SIDES: 12
+ADVANTAGE: 1
+ELVEN_ACCURACY: 1
+GREAT_WEAPON_FIGHTING: 1
+CRIT_RANGE: 20
+EXTRA_CRIT_DICE: 1
+CRIT_HIT=1 \ Make sure this works when it's 0 \
+\---------------------------\
+ATK_ROLL: [hitdice ATK_DICE]
+DMG: [damage DMG_DICE times SIDES]
+CRIT_DMG: [critdamage ATK_ROLL]
+TOTAL_DMG: DMG + CRIT_DMG
+
+output TOTAL_DMG

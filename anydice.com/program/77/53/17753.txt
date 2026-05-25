@@ -1,0 +1,50 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+PROFICIENCY: 2
+ABILITYMOD: 5
+DMGDICE: 10
+
+function: attack ROLL:n vs DEFENSE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= 20 { result: CRIT }
+    if ROLL + ABILITYMOD + PROFICIENCY >= DEFENSE { result: HIT }
+    result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+    if ATTACKRESULT = CRIT {
+        result: dDMGDICE + ABILITYMOD
+    }
+    if ATTACKRESULT = HIT {
+        result: 2d(dDMGDICE) + ABILITYMOD
+    }
+    result: 0
+}
+
+function: reroll low R:n D:n sec {
+  if R <= 2 {
+    result: dD
+  }
+  result: R
+}
+function: reroll low D:n {
+  result: [reroll low dD D sec]
+}
+
+function: great weapon damage for ATTACKRESULT:n {
+    if ATTACKRESULT = CRIT {
+        result: [reroll low DMGDICE] + ABILITYMOD
+    }
+    if ATTACKRESULT = HIT {
+        result: 2d([reroll low DMGDICE]) + ABILITYMOD
+    }
+    result: 0
+}
+
+loop AC over {16} {
+    output [damage for [attack d20 vs AC]] named "[AC]"
+    output [great weapon damage for [attack d20 vs AC]] named "[AC]"
+
+}

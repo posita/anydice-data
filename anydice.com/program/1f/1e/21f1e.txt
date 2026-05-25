@@ -1,0 +1,52 @@
+function: damagearea a A:n dmg D:n target T:n
+{
+N:{1,2} 
+DI:0
+if T=1@ARM{DI:1dD N:ARM}
+if T=1@SH{DI:1dD N:SH}
+if T=1@UK{DI:2dD N:UK}
+if T=1@OK{DI:4dD N:OK}
+
+LT: 1@N
+HT: #N@N
+if A >= LT{
+ZD:0
+ZD:A-LT
+if ZD>HT-LT{ZD:HT-LT}
+result: ASTR+DI+ZD-BSTR
+}result:0
+}
+
+\problem ist, wenn hoch kann nicht niedrig sein\
+function:nonsub A:n vs B:n dmg D:n am AM:n bm BM:n target T:n{
+if (A+AA+AM)>(B+BA+BM){
+result:[damagearea a A+AA dmg D target T] 
+}result:0
+} 
+
+function: sub A:n vs B:n dmg D:n am AM:n bm BM:n target T:n{
+if (A+AA+AM)>(B+BA+BM){
+result:
+[damagearea a A+AA+AM-(B+BA+BM)dmg D target T]+DMG
+}result:0
+}
+
+
+ASTR:5 BSTR:3
+AA:5   BA:1
+AM:3   BM:5
+DICE:6
+DMG:0
+
+ARM:{1}
+SH:{2..5}
+UK:{6..10}
+OK:{10..15}
+
+
+function: t T{result:[sub d20 vs d20 dmg DICE am AM bm BM target 1@T]}
+
+output [t ARM] named"Arm"
+output [t SH]  named"Shoulder"
+output [t UK]  named"Unterkörper" 
+output [t OK]  named"Oberkörper"

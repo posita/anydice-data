@@ -1,0 +1,85 @@
+\- predefine a fudge die -\
+FUDGE: d{-1, 0, +1}
+
+\- miscellaneous helper functions used in the code below -\
+function: first N:n of SEQ:s {
+  FIRST: {}
+  loop I over {1..N} { FIRST: {FIRST, I@SEQ} }
+  result: FIRST
+}
+function: exclude RANGE:s from ROLL:n {
+  if ROLL = RANGE { result: d{} } else { result: ROLL }
+}
+function: sign of NUM:n {
+  result: (NUM > 0) - (NUM < 0)
+}
+function: if COND:n then A:d else B:d {
+  if COND { result: A } else { result: B }
+}
+
+\- a helper function to subtract two probabilities (given as {0,1}-valued dice) -\
+function: P:d minus Q:d {
+  DIFF: P - Q
+  loop I over {1..20} {
+    TEMP: [exclude 0 from DIFF]
+    DIFF: (DIFF != 0) * [sign of TEMP + TEMP]
+  }
+  result: [exclude -1 from DIFF]
+}
+
+\- this function calculates the probability of meeting or exceeding the target -\
+\- value, assuming that each die in the initial roll can be rerolled once and  -\
+\- that the player may stop rerolling at any point -\
+
+function: ROLL:s reroll one at a time up to SKILL:n target TARGET:n {
+  if ROLL + 0 >= TARGET { result: 1 }                            \- success -\
+  if #ROLL = 0 | SKILL = 0 | #ROLL@ROLL = 1 { result: 0 }        \- failure -\
+  FIRST: [first #ROLL-1 of ROLL]     \- remove last (=lowest) original roll -\ 
+  TNEW: TARGET - 1dFUDGE         \- adjust target value depending on reroll -\
+  result: [FIRST reroll one at a time up to SKILL-1 target TNEW] \-  reroll -\
+}
+
+\- this function calculates the probability of meeting or exceeding the target -\
+\- value, assuming that each die in the initial roll can be rerolled once but  -\
+\- the player must decide in advance how many of the dice they'll reroll; the  -\
+\- optimal(?) decision rule in this case is to always reroll all -1s and to    -\
+\- also reroll 0s if and only if the number of +1s in the initial roll is less -\
+\- than the target number -\
+
+function: ROLL:s reroll all at once up to SKILL:n target TARGET:n {
+  if [count +1 in ROLL] >= TARGET {
+    N: [lowest of SKILL and [count -1 in ROLL]]
+  } else {
+    N: [lowest of SKILL and [count {0, -1} in ROLL]]
+  }
+  result: (NdFUDGE + {1 .. #ROLL-N}@ROLL) >= TARGET
+}
+
+\- this function collects the success probabilities given by the two functions -\
+\- above into a single custom die D, such that the probability that D >= N is  -\
+\- equal to the probability of the player meeting or exceeding the target N;   -\
+\- the SEQUENTIAL flag controls which of the functions above is used -\
+
+function: collect results for SKILL:n from MIN:n to MAX:n sequential SEQUENTIAL:n {
+  BOGUS: MAX + 1
+  DIST: 0
+  PREV: 1
+  loop TARGET over {MIN..MAX} {
+    if SEQUENTIAL {
+      PROB: [4dFUDGE reroll one at a time up to SKILL target TARGET + 1]
+    } else {
+      PROB: [4dFUDGE reroll all at once up to SKILL target TARGET + 1]
+    }
+    DIST: [if d{MIN..TARGET} < TARGET then DIST else [if [PREV minus PROB] then TARGET else BOGUS]]
+    PREV: PROB
+  }
+  result: [exclude BOGUS from DIST]
+}
+
+\- finally we just loop over possible skill values and output the results -\
+loop SKILL over {0..4} {
+  output [collect results for SKILL from -4 to 4 sequential 1] named "skill [SKILL], one at a time"
+}
+loop SKILL over {0..4} {
+  output [collect results for SKILL from -4 to 4 sequential 0] named "skill [SKILL], all at once"
+}

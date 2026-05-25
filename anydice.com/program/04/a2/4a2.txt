@@ -1,0 +1,58 @@
+function: hit chance ATTACKROLL:n with ATTACKBONUS vs DC with crit on CRIT:n {
+  if ATTACKROLL = 0 { result: 0 }
+  if ATTACKROLL >= CRIT {
+    if ATTACKROLL + ATTACKBONUS >= DC { result: 0}
+    result: 1
+  }
+  if ATTACKROLL + ATTACKBONUS >= DC { result: 1 }
+  result: 0
+}
+
+function: crit chance ATTACKROLL:n with ATTACKBONUS vs DC with crit on CRIT:n {
+  if ATTACKROLL >= CRIT {
+    if ATTACKROLL + ATTACKBONUS >= DC { result: 1 }
+    result: 0
+  }
+  result: 0
+}
+
+function: ATTACKROLL:n with ATTACKBONUS:n vs DC:n for DAMAGE damage plus BONUS on crit of CRIT:n {
+  HITDAMAGE: [hit chance ATTACKROLL with ATTACKBONUS vs DC with crit on CRIT] * DAMAGE
+  CRITDAMAGE: [crit chance ATTACKROLL with ATTACKBONUS vs DC with crit on CRIT] * ([maximum of DAMAGE]+BONUS)
+  result: HITDAMAGE+CRITDAMAGE
+}
+
+function: NUM attacks of ATTACKROLL:n with ATTACKBONUS:n vs DC:n for DAMAGE damage plus CRITDAMAGE on crit of CRIT:n plus STRIKERDAMAGE {
+  HITS: 0
+  CRITS: 0
+  TOTALDAMAGE: 0
+  loop N over {1..NUM} {
+    HITRESULT: [hit chance ATTACKROLL with ATTACKBONUS vs DC with crit on CRIT]
+    CRITRESULT: [crit chance ATTACKROLL with ATTACKBONUS vs DC with crit on CRIT]
+    if HITRESULT > 0 {HITS: HITS + 1}
+    if CRITRESULT > 0 {CRITS: CRITS + 1}
+    TOTALDAMAGE: TOTALDAMAGE + (HITRESULT * DAMAGE) + (CRITRESULT * ([maximum of DAMAGE] + CRITDAMAGE))
+  }
+  if CRITS >= 1 { TOTALDAMAGE: TOTALDAMAGE + [maximum of STRIKERDAMAGE] }
+  else { if HITS >= 1 { TOTALDAMAGE: TOTALDAMAGE + STRIKERDAMAGE } }
+  result: TOTALDAMAGE
+}
+
+function: BONUS bonus damage on NUM hits in ATTACKRESULT:n {
+  if ATTACKRESULT > 0 { result: ATTACKRESULT + BONUS }
+  result: ATTACKRESULT
+}
+
+function: w {
+  result: WEAPONDAMAGE
+}
+
+WEAPONDAMAGE: 1d12+7
+DC: 11
+\output 1d20 >= DC named "Hit Probability"\
+output [2 attacks of 1d20 with +0 vs DC for [w] damage plus 3d6 on crit of 20 plus 2d8] named "Twin Strike"
+\output [2d8 bonus damage on 1 hits in 2d[1d20 with +0 vs DC for 1d12+7 damage plus 3d6 on crit of 20]] named "Twin Strike"\
+\output [2d8 bonus damage on 1 hits in [1d20 with +0 vs DC for 1d12+13 damage plus 3d6 on crit of 20]] named "Nimble Strike"\
+\output 2d[1d20 with +0 vs DC for 1d12+13 damage plus 3d6 on crit of 18] named "Biting Volley"\
+\output 3d[1d20 with +0 vs DC for 1d12+13 damage plus 3d6 on crit of 20] named "Confounding Arrows"\
+\output [3 attacks of 1d20 vs DC for 3d8+17 damage plus 4d6 on crit of 20] named "Thunder Summons"\

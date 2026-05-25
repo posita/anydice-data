@@ -1,0 +1,119 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+PROFICIENCY: 3
+CRITICAL_THRESHOLD: 20
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+GS: 2d6 + 1d4
+PHALAR_SAVAGE: 1@2d8 + 1@2d4 +1@2d4
+
+GS_SMITE: 2d6 + 1d4 +2d8
+PHALAR_SAVAGE_SMITE: 1@2d8 + 1@2d4 +1@2d4 +1@2d8+1@2d8
+
+GS_SMITE_TWO: 2d6 + 1d4 +3d8
+PHALAR_SAVAGE_SMITE_TWO: 1@2d8 + 1@2d4 +1@2d4 +1@2d8+1@2d8+1@2d8
+
+output {0} named "Calculations using no smite"
+loop TARGET_AC over { 12..20 } {
+   output {0} named "vs AC [TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1 - 5 + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GS and DAMAGE_BONUS ] named "Greatsword +1 GWM"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 2
+   HIT_BONUS: STR_MOD + PROFICIENCY +1  + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALAR_SAVAGE and DAMAGE_BONUS ] named "Phalar SAVAGE"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1 - 5 + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with GS and DAMAGE_BONUS ] named "Greatsword +1 GWM, advantage"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 2
+   HIT_BONUS: STR_MOD + PROFICIENCY +1  + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with PHALAR_SAVAGE and DAMAGE_BONUS ] named "Phalar SAVAGE, advantage"
+}
+
+output {0} named "Calculations using LvL 1 Smite"
+loop TARGET_AC over { 12..20 } {
+
+      output {0} named "vs AC [TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1 - 5 + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GS_SMITE and DAMAGE_BONUS ] named "Greatsword +1 GWM"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 2
+   HIT_BONUS: STR_MOD + PROFICIENCY +1  + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALAR_SAVAGE_SMITE and DAMAGE_BONUS ] named "Phalar SAVAGE"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1 - 5 + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with GS_SMITE and DAMAGE_BONUS ] named "Greatsword +1 GWM, advantage"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 2
+   HIT_BONUS: STR_MOD + PROFICIENCY +1  + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with PHALAR_SAVAGE_SMITE and DAMAGE_BONUS ] named "Phalar SAVAGE, advantage"
+}
+
+output {0} named "Calculations using LvL 2 Smite"
+loop TARGET_AC over { 12..20 } {
+ output {0} named "vs AC [TARGET_AC]"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1 - 5 + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GS_SMITE_TWO and DAMAGE_BONUS ] named "Greatsword +1 GWM"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 2
+   HIT_BONUS: STR_MOD + PROFICIENCY +1  + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PHALAR_SAVAGE_SMITE_TWO and DAMAGE_BONUS ] named "Phalar SAVAGE"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1 - 5 + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with GS_SMITE_TWO and DAMAGE_BONUS ] named "Greatsword +1 GWM, advantage"
+
+   STR_MOD: 3
+   DAMAGE_BONUS: STR_MOD + 1 + 2
+   HIT_BONUS: STR_MOD + PROFICIENCY +1  + 2d4
+   output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE with PHALAR_SAVAGE_SMITE_TWO and DAMAGE_BONUS ] named "Phalar SAVAGE, advantage"
+
+output {0} named "Done AC [TARGET_AC]"
+}

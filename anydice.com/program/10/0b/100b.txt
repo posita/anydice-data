@@ -1,0 +1,54 @@
+LT: {0, 1:2, 2:4, 3:8, 4:16, 5:32, 6:64, 7:128}
+IG: {1:3, 2:5, 3:7, 4:9, 5:11, 6:13, 7:15, 8:17, 9:19, 10:21, 11:23, 12:25, 13:27, 14:29, 15:31}
+
+function: logtwo N:n {
+  if N <= 0 {
+    result: -1
+  } else {
+    L: 0
+    NN: N
+    if (NN >= 65536) {
+      NN: NN / 65536
+      L: L + 16
+    }
+    if (NN >= 256) {
+      NN: NN / 256
+      L: L + 8
+    }
+    if (NN >= 256) {
+      result: L + 8
+    } else {
+      result: L + NN@LT
+    }
+  }
+}
+
+function: sqrt N:n {
+  if N <= 0 {
+    result: 0
+  } else if (N <= 255) {
+    result: N@IG
+  } else {
+    NN: N
+    MUL: 1
+    if (NN >= 65536) {
+      NN: NN / 65536
+      MUL: 256
+    }
+    if (NN >= 256) {
+      NN: NN / 256
+      MUL: 16
+    }
+    R: MUL * NN@IG
+    loop D over {1..10} {
+      R: (R + (N / R)) / 2
+    }
+    if R * R > N {
+      result: R - 1
+    } else {
+      result: R
+    }
+  }
+}
+
+output [sqrt 1d10000-1]

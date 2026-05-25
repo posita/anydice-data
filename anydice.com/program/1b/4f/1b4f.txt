@@ -1,0 +1,231 @@
+\Experimental Lunar Reckoning Dice Calculations - December 24th, 2012\
+\A work in progress, by FM\
+
+\Horribly inefficient code ahead! I couldn't get the @ operator to work with conditionals or functions, as they expected a boolean, which I thought I was providing them with my comparison syntax. Oh well.\
+\The 'Export' function is a standard CSV format, which Excel understands. Binary, you could use this to make graphs if you wanted, or a more user-friendly method of doing these calculations.\
+\I *think* this is all accurate and bug-free, but I could be horribly wrong, and I don't know if my calcs agree with Binary's Passive calculator. Feel free to bugfix if needed.\
+
+\Hopefully at least some of you are tech-savvy enough to play with this. Plugging new values into all the relevant variables isn't hard, but this isn't what I'd call a foolproof solution. This could probably be used as the basis for an LR char builder - specifically, some sort of analysis section for the really hardcore - but I expect any working programmer to laugh their ass off at this code.\
+
+\Initializing values\
+AROLLVALUE: 0
+EROLLVALUE: 0
+
+\Function for the main dice roll. Returns 21 if a straight and 0 if a triple. It also stores the true dice value in any of those cases, to be accessed later.\
+\A type of 0 is an attack die. A type of any other value is an evasion die.\
+function: lunardice A:n and B:n and C:n {
+  \Triples\
+  if A = B {
+    if B = C {
+      result: (0-100) - (A + B + C)
+    }
+  }
+  \Straights\
+  if (A != B) & (A != C) & (B != C) {
+    if (B = A + 2) & (B = C + 1) {
+
+    }
+    if (B = A + 1) & ((B = C - 1) | (B = C + 2)) {
+      result: A + B + C + 100
+    }
+    if (B = A - 1) & ((B = C - 2) | (B = C + 1)) {
+      result: A + B + C + 100
+    }
+    if (B = A - 2) & (B = C - 1) {
+      result: A + B + C + 100
+    }
+  }
+  \Standard roll\
+  result: A+B+C
+}
+
+\Simple tests below. Not really useful without active comparison, though try taking a look at them by uncommenting; it's hilarious how some values are so much less likely to pop up because they can be created by straights or triples. In actual practice this really only applies against passives; opposed rolls normalize into a sharp bell curve with no dips in probability.\
+\output 3d6\
+\output [lunardice 1d6 and 1d6 and 1d6]\
+
+\Initializing values\
+ATTACK:[lunardice 1d6 and 1d6 and 1d6]
+EVADE: [lunardice 1d6 and 1d6 and 1d6]
+ABONUS: 7
+EBONUS: 7
+
+\The big function - comparison! This will return out-of-scope values for special states, and a simple difference in all other cases.\
+\NOTE: Because AnyDice can only return numerical values, and I can't put them in a dynamic location because of how multiple graphs interact (all the graphs need their special states to be the same number for comparisons), any attack or evade values that produce standard values greater than 18 or less than -17 will break the graphs. Values less than the minimum roll are automisses, values greater than the max are autohits.\
+\Currently, this code has no way to take weapons into account - so it can't determine standard misses or hits, nor can it distinguish an autohit from a crit. Theoretically, it should be possible.\
+function: compare A:n plus B:n attack and C:n plus D:n evade {
+\Autohit\
+  if (A > 100) & (C < 100) {
+    result: 20
+  }
+\I don't have my combat WIP on me, and I forget if triple evade versus noncrit is crit damage or not. For now, it's a different state. I may need to expand the states out further to take into account melee combat special rolls, as I think some of these do matter in that case.\
+  \Double automiss\
+  if (A < -100) & (C < -100) {
+    result: -17
+  }
+  \Automiss\
+  if (A < -100) & (C > -100) {
+    result: -18
+  }
+  \Autohit alternate\
+  if (A < 100) & (C < -100) {
+    result: 19
+  }
+\Straight vs Straight\
+  if (A > 100) & (C > 100) {
+    result: ((A - 100) + B) - ((C - 100) + D)
+    \Test code below - do not uncomment\
+    \result: -18\
+  }
+\Autoevade\
+  if (A < 100) & (C > 100) {
+    result: -19
+  }
+\standard roll\
+  result: (A + B) - (C + D)
+}
+
+\Standard Evade Bonus (+7)\
+\output [compare ATTACK plus ABONUS attack and EVADE plus EBONUS evade] named "Active +7"\
+\Heavy Evade Bonus (+3)\
+EBONUS: 3
+\output [compare ATTACK plus ABONUS attack and EVADE plus EBONUS evade] named "Active +3"\
+\Light Evade Bonus (+3)\
+EBONUS: 10
+\output [compare ATTACK plus ABONUS attack and EVADE plus EBONUS evade] named "Active +10"\
+
+\As you can see, automiss and autohit values stay stable at around 12%. The straight vs straight chance seems to reduce both these values somewhat; that lies at a negligible 1.23%, or 1 in 81.\
+\This means that, though you have at least a 12% chance to deal full damage or better, you also have an unavoidable 12% chance to botch every shot you make. It seems my instincts were correct, and passive evasion is better for lower levels, as this failure state is removed entirely. Higher level Mages should have ways of manipulating this - Just Trust My Skill and rerolls are critical, as are forced enemy rerolls (which should be expanded). Some allowance for rerolls alongside offensive maneuvers should be introduced (though encouraging Legend Dice use might be enough); having a 12% chance of fucking up your best move is kind of shitty.\
+
+\Reinitializing variables\
+EBONUS: 7
+
+\Now time for comparisons to passives! A much easier beast, luckily.\
+function: compare A:n plus B:n attack and ten plus C:n passive {
+  \Autohit\
+  if A > 100 {
+    result: 20
+  }
+  \Automiss\
+  if A < -100 {
+    result: -18
+  }
+  \Normal roll\
+  result: (A + B) - (10 + C)
+}
+
+\Standard Passive Evade (17)\
+\output [compare ATTACK plus ABONUS attack and ten plus EBONUS passive] named "Passive 17"\
+
+\Heavy Passive Evade (13)\
+EBONUS: 3
+\output [compare ATTACK plus ABONUS attack and ten plus EBONUS passive] named "Passive 13"\
+
+\Light Passive Evade (20)\
+EBONUS: 10
+\output [compare ATTACK plus ABONUS attack and ten plus EBONUS passive] named "Passive 20"\
+
+\Old Standard Passive Evade (18)\
+EBONUS: 8
+\output [compare ATTACK plus ABONUS attack and ten plus EBONUS passive] named "Old Passive 18"\
+
+\Old Heavy Passive Evade (14)\
+EBONUS: 4
+\output [compare ATTACK plus ABONUS attack and ten plus EBONUS passive] named "Old Passive 14"\
+
+\Old Light Passive Evade (21)\
+EBONUS: 11
+\output [compare ATTACK plus ABONUS attack and ten plus EBONUS passive] named "Old Passive 21"\
+
+\Doing the damage calculator shouldn't be too difficult. A bunch of variables to store attack and evade, or maybe just one for the difference...which is then checked against damage range values, multiplied by the Damage Step, and added or subtracted from the Base Damage. Values higher than Max Damage are returned as Max Damage, values below the lower Damage Range bound are returned as 0, special automiss states are returned as negatives (except when calcing averages), autohits are returned as Max Damage, and crits are returned as double Max Damage. This will return fairly precise values on all relevant stats, up to and including a true miss rate.\
+
+\Using this to handle pure KE or TE damage would be easy enough. Modifying it for missiles wouldn't be hard either. Not sure how to handle mixed damage types, ion weapons, or Bonus Damage though. (The latter could probably be handled as a boolean modifier.) Melee might be tricky, as you'd want to determine return damage in the case of counters.\
+
+\This also doesn't exactly determine the average difference between attack and evade, where autohits are not in effect. While AnyDice calcs a mean for you, the way special rolls are returned renders it inaccurate. If only I could return non-numerical values...I could probably fudge it by forcing it to only return when there are no special states on the dice, but I'm not even sure how to force it to NOT return a value. I can force it to return based on other subsets no problem, but forcing a standard-only return might be tricky.\
+
+\Function Syntax: damage <Attack roll> <Attack bonus> <Evasion roll> <Evasion bonus> <base damage> <damage step> <max damage>\
+\AROLL and EROLL are lunardice calls. PRECISE is a boolean. All others are integers.\
+function: damage AROLL:n ABONUS:n EROLL:n EBONUS:n BDAM:n DSTEP:n MDAM:n MINSTEP:n PRECISE:n {
+  \Automiss and Autoevade\
+  if AROLL < -100 {
+    result: 0
+  }
+  if (AROLL < 100) & (EROLL > 100) {
+    result: 0
+  }
+  \Autohit and Critical\
+  if (AROLL > 100) & (EROLL < 100) {
+    \Autohit when attack would otherwise miss\
+    if (((AROLL - 100) + ABONUS) - (EROLL + EBONUS)) < MINSTEP {
+      result: MDAM
+    }
+    \Crit when attack would hit\
+    else {
+      if PRECISE != 0 {
+        result: MDAM*3
+      }
+      else {
+        result: MDAM*2
+      }
+    }
+  }
+  \Dual Straights\
+  if (AROLL > 100) & (EROLL > 100) {
+    AROLL: AROLL - 100
+    EROLL: EROLL - 100
+  }
+  \Normal Rolls - Equal Attack and Evasion\
+  if (AROLL + ABONUS) = (EROLL + EBONUS) {
+    result: BDAM
+  }
+  \Normal Rolls - Attack greater than Evasion\
+  if AROLL > EROLL {
+    \Don't surpass Max Damage!\
+    if ((AROLL + ABONUS) - (EROLL + EBONUS)) * DSTEP + BDAM >= MDAM {
+      result: MDAM
+    }
+    result: ((AROLL + ABONUS) - (EROLL + EBONUS)) * DSTEP + BDAM
+  }
+  \Normal Rolls - Evasion greater than Attack\
+  if EROLL > AROLL {
+    \Don't deal negative damage!\
+    if (((AROLL + ABONUS) - (EROLL + EBONUS)) * DSTEP) + BDAM <= 0 {
+      result: 0
+    }
+    result: ((AROLL + ABONUS) - (EROLL + EBONUS)) * DSTEP + BDAM
+  }
+}
+
+\Initialize variables\
+ABONUS: 7
+EBONUS: 7
+
+\Test with a Linear Cannon\
+output [damage ATTACK ABONUS EVADE EBONUS 12 6 12 (0-1) 0] named "Heavy Linear +7 Attack/+7 Evade"
+\Test with an Autocannon\
+output [damage ATTACK ABONUS EVADE EBONUS 7 1 12 (0-6) 0] named "Light++ Ballistic +7 Attack/+7 Evade"
+\Test with an Assault Rifle\
+output [damage ATTACK ABONUS EVADE EBONUS 8 2 12 (0-3) 0] named "Medium+ Ballistic +7 Attack/+7 Evade"
+
+\Set Evasion to 10\
+EBONUS: 10
+
+\Lightweight Version\
+\Test with a Linear Cannon\
+output [damage ATTACK ABONUS EVADE EBONUS 12 6 12 (0-1) 0] named "Heavy Linear +7 Attack/+10 Evade"
+\Test with an Autocannon\
+output [damage ATTACK ABONUS EVADE EBONUS 7 1 12 (0-6) 0] named "Light++ Ballistic +7 Attack/+10 Evade"
+\Test with an Assault Rifle\
+output [damage ATTACK ABONUS EVADE EBONUS 8 2 12 (0-3) 0] named "Medium+ Ballistic +7 Attack/+10 Evade"
+
+\Set Evasion to 3\
+EBONUS: 3
+
+\Heavyweight Version\
+\Test with a Linear Cannon\
+output [damage ATTACK ABONUS EVADE EBONUS 12 6 12 (0-1) 0] named "Heavy Linear +7 Attack/+3 Evade"
+\Test with an Autocannon\
+output [damage ATTACK ABONUS EVADE EBONUS 7 1 12 (0-6) 0] named "Light++ Ballistic +7 Attack/+3 Evade"
+\Test with an Assault Rifle\
+output [damage ATTACK ABONUS EVADE EBONUS 8 2 12 (0-3) 0] named "Medium+ Ballistic +7 Attack/+3 Evade"
+
+\Solution to the 'can't reference variables inside a function or return multiple values' problem - return the value +100 for straights and -100 for triples, with a boolean for whether to return those values or 0/21 (for more useful comparison)\

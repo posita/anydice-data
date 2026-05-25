@@ -1,0 +1,56 @@
+\\\*** Base Damage Calc Info ***\\\
+ENEMY_AC: 22
+LEVEL: 6
+PROF: 6               \Trained = 2, Expert = 4, Master = 6, Legendary = 8\
+HIT_MOD: 4            \Str for melee and throw, dex for ranged\
+WEAP_SPEC: 0          \Weapon specialization damage modifier\
+POTENCY: (LEVEL+5)/7  \level: 2, 9, 16\
+STRIKING: (LEVEL+3)/7 \level: 4, 11, 18\
+ADVANTAGE: 0          \0 = off, 1 = on\
+
+
+\\\*** Attack ***\\\
+ATTACK_DICE: 1d8
+DAMAGE_MOD: 1
+BONUS_DICE: 0
+HIT_BONUS: 0
+N_ATTACKS: 3
+MAP: 5
+DEADLY: d10
+
+
+\\\*** General Info ***\\\
+CRIT_RANGE: ENEMY_AC + 10
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+
+
+\\\*** Functions ***\\\
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 20 { result: CRITICAL_DAMAGE }
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACK >= ENEMY_AC + 10 { result: CRITICAL_DAMAGE }
+ if ROLL + ATTACK >= ENEMY_AC { result: HIT_DAMAGE }
+ if ROLL + ATTACK < ENEMY_AC { result: 0 }
+}
+
+
+\\\*** Damage Roll Calc ***\\\
+HIT_DAMAGE: (STRIKING + 1)dATTACK_DICE + WEAP_SPEC + DAMAGE_MOD + BONUS_DICE
+CRITICAL_DAMAGE: 2*( (STRIKING + 1)dATTACK_DICE + WEAP_SPEC + DAMAGE_MOD + BONUS_DICE ) + [highest of 1 and STRIKING]dDEADLY
+
+\\\*** Attack Roll Calc & Multiple Attack Penalty ***\\\
+ATTACK: HIT_MOD + LEVEL + PROF + POTENCY + HIT_BONUS
+output [ attack NORMAL_HIT vs ENEMY_AC ] named "Atk #1"
+if ADVANTAGE = 1 { output [ attack HIT_ADV vs ENEMY_AC ] named "Adv Atk #1" }
+
+if N_ATTACKS >= 2 {
+ATTACK: HIT_MOD + LEVEL + PROF + POTENCY + HIT_BONUS - MAP
+output [ attack NORMAL_HIT vs ENEMY_AC ] named "Atk #2"
+if ADVANTAGE = 1 { output [ attack HIT_ADV vs ENEMY_AC ] named "Adv Atk #2" }
+
+if N_ATTACKS >= 3 {
+ATTACK: HIT_MOD + LEVEL + PROF + POTENCY + HIT_BONUS - 2*MAP
+output [ attack NORMAL_HIT vs ENEMY_AC ] named "Atk #3"
+if ADVANTAGE = 1 { output [ attack HIT_ADV vs ENEMY_AC ] named "Adv Atk #3" }
+}}

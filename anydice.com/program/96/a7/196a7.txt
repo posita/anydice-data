@@ -1,0 +1,73 @@
+DISS: [lowest 1 of 2d20]
+
+function: attack ATTACK:n {
+  if ATTACK < 10 {result: -2} 
+  if ATTACK ={10,11,12,13}{result: -2}
+  if ATTACK ={14,15} {result: 0}
+  if ATTACK ={16,17} {result: 1}
+  if ATTACK ={18,19} {result: 2}
+  if ATTACK >= 20 {result: 3}
+  result: ATTACK }
+
+function: dissattack DISSATTACK:n {
+  if DISSATTACK < 10 {result: -1}
+  if DISSATTACK ={10,11,12,13} {result: -1}
+  if DISSATTACK ={14,15} {result: 1}
+  if DISSATTACK ={16,17} {result: 2}
+  if DISSATTACK ={18,19} {result: 4}
+  if DISSATTACK >= 20 {result: 6}
+  result: DISSATTACK}
+ 
+function: shoot X:n times Y:d {
+  BABY: 0 
+  TARGET: [attack Y]
+  loop N over {1..X} {BABY: BABY + TARGET} 
+  result: BABY}
+
+function: disshoot G:n times D:d {
+  DUMMY: 0
+  NUT: [dissattack D]
+  loop N over {1..G} {DUMMY:DUMMY + NUT}
+  result: DUMMY}
+
+COMMON: [shoot 5 times 1d20]
+ABLE: [shoot 5 times 1d20 + 2] 
+FIGHTER: [shoot 5 times 1d20 + 4] 
+ARCHER: [shoot 5 times 1d20 + 6]
+ARCHERER: [shoot 5 times 1d20 +7]
+SHARPER: [shoot 5 times 1d20 +4]
+
+DISSCOMMON: [disshoot 1 times 1dDISS]
+DISSABLE: [disshoot 1 times 1dDISS +2] 
+DISSFIGHTER: [disshoot 2 times 1dDISS +4]
+DISSARCHER: [disshoot 2 times 1dDISS +6]
+DISSARCHERER: [disshoot 2 times 1dDISS +7]
+DISSHARPER: [disshoot 2 times 1d20 +4]
+
+
+function: score A:n and B:n {
+  SCORE: A+B
+  if SCORE <= 0 {result:0}
+  if SCORE >= 1 {result:1}
+  result:SCORE}
+
+FINALCOM: [score DISSCOMMON and COMMON] 
+FINALABE: [score DISSABLE and ABLE] 
+FINALFIGHT: [score DISSFIGHTER and FIGHTER] 
+FINALARCH: [score DISSARCHER and ARCHER] 
+FINALARCHER: [score DISSARCHERER and ARCHERER] 
+FINALSHARP: [score DISSHARPER and SHARPER] 
+
+DAY: 3
+
+function: final DAY:n for ERNIE:d {
+  BURT: 0
+  loop N over {1..DAY} {BURT:BURT + ERNIE}
+  result: BURT}
+
+output [final DAY for FINALCOM] named "common"
+output [final DAY for FINALABE] named "able"
+output [final DAY for FINALFIGHT] named "fighter"
+output [final DAY for FINALARCH] named "archer"
+output [final DAY for FINALARCHER] named "acherer"
+output [final DAY for FINALSHARP] named "sharpshooter"

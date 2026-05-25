@@ -1,0 +1,41 @@
+\ This is a template taken from the articles page \
+
+\ Change attack damage/crit damage here \
+ATTACK: 4 + 3
+HITDAMAGE: 2 * (1d10 + 4)
+CRITICALDAMAGE: 2 * (2d10 + 4)
+MISSDAMAGE: 0
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+\ Calculate Hit Function \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+\ Calculates hit vs varying AC \
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+\ Damage vs Varying AC \
+loop AC over {10, 15, 20} {
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}

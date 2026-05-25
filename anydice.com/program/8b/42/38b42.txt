@@ -1,0 +1,52 @@
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: ride modifier RIDE:n {
+  RIDE_CHECK: 1d20+RIDE
+  result: [if RIDE_CHECK < 10 then -2 else [if RIDE_CHECK> 20 then +2 else 0]]
+}
+
+function: to hit AC:n with MOD:n {
+  ATTACK_CHECK: 1d20+MOD
+
+  result: [if ATTACK_CHECK < AC then 0 else 1]
+}
+
+function: score round HIT_ZUK:n against HIT_OPP:n {
+  result: [if HIT_ZUK = HIT_OPP then [score round HIT_ZUK against HIT_OPP] else HIT_ZUK - HIT_OPP]
+}
+
+function: score game HIT_ZUK:n against HIT_OPP:n with ZUK_WINS:n v OPP_WINS:n {
+  ROUND: [score round HIT_ZUK against HIT_OPP]
+
+  result: [if ZUK_WINS + ROUND >= 2 then 1 else [if OPP_WINS - ROUND >= 2 then -1 else [score game HIT_ZUK against HIT_OPP with ZUK_WINS+ROUND v OPP_WINS-ROUND]]]
+}
+
+ZUK_RIDE: 1
+ZUK_ATTACK: 4
+ZUK_AC: 17
+
+OPP_ONE_RIDE: 0
+OPP_ONE_ATTACK: 0
+OPP_ONE_AC: 10
+
+OPP_TWO_RIDE: 2
+OPP_TWO_ATTACK: 2
+OPP_TWO_AC: 13
+
+OPP_THREE_RIDE: 5
+OPP_THREE_ATTACK: 5
+OPP_THREE_AC: 15
+
+ZUK_V_OPP_ONE   : [to hit OPP_ONE_AC+[ride modifier OPP_ONE_RIDE] with ZUK_ATTACK]
+ZUK_V_OPP_TWO   : [to hit OPP_TWO_AC+[ride modifier OPP_TWO_RIDE] with ZUK_ATTACK]
+ZUK_V_OPP_THREE : [to hit OPP_THREE_AC+[ride modifier OPP_THREE_RIDE] with ZUK_ATTACK]
+
+OPP_ONE_V_ZUK   : [to hit ZUK_AC+[ride modifier ZUK_RIDE] with OPP_ONE_ATTACK]
+OPP_TWO_V_ZUK   : [to hit ZUK_AC+[ride modifier ZUK_RIDE] with OPP_TWO_ATTACK]
+OPP_THREE_V_ZUK   : [to hit ZUK_AC+[ride modifier ZUK_RIDE] with OPP_THREE_ATTACK]
+
+output [score game ZUK_V_OPP_ONE against OPP_ONE_V_ZUK with 0 v 0] named "First round"
+output [score game ZUK_V_OPP_TWO against OPP_TWO_V_ZUK with 0 v 0] named "Second round"
+output [score game ZUK_V_OPP_THREE against OPP_THREE_V_ZUK with 0 v 0] named "Third round"

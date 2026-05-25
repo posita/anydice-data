@@ -1,0 +1,54 @@
+ATTRIBUTE: 5
+SKILL: 7
+LIMIT: 2
+KEPT: 3
+
+SQUARE_AT: 3
+TRIANGLE_AT: 5
+PYRAMID_AT: 10
+PENTAGON_AT: 14
+
+MIN_SUCCESSES: 4
+MIN_ROLL_FOR_SUCCESS: 5
+
+function: sides for SKILL_VALUE:n {
+    if SKILL_VALUE <= SQUARE_AT {
+        result: 6
+    } else if SKILL_VALUE <= TRIANGLE_AT {
+        result: 8
+    } else if SKILL_VALUE <= PYRAMID_AT {
+        result: 10
+    } else if SKILL_VALUE <= PENTAGON_AT {
+        result: 12
+    } else {
+        result: 12
+    }
+}
+
+function: skilldie for SKILL_VALUE {
+    result: d[sides for SKILL_VALUE]
+}
+
+function: skilldice for DICE_KEPT and SKILL_VALUE {
+    SIDES: [sides for SKILL_VALUE]
+    result: DICE_KEPTdSIDES
+}
+
+function: successes for DICE_KEPT and SKILL_VALUE {
+    SIDES: [sides for SKILL_VALUE]
+    result: [count {MIN_ROLL_FOR_SUCCESS..SIDES} in DICE_KEPTdSIDES]
+}
+
+function: ones for DICE_KEPT and SKILL_VALUE {
+    SIDES: [sides for SKILL_VALUE]
+    result: [count 1 in DICE_KEPTdSIDES]
+}
+
+function: how many excess for SUCCESSES {
+    result: [highest of -1 and SUCCESSES - MIN_SUCCESSES]
+}
+
+MS: MIN_SUCCESSES
+output [successes for LIMIT+KEPT and SKILL] named "1) success rate for skill [SKILL] and limit [LIMIT]+[KEPT]"
+output [how many excess for [successes for LIMIT+KEPT and SKILL]] named "2) Rate of after-target dice on target [MS] for (1)"
+output [ones for LIMIT+3 and SKILL] named "3) ones for (1)"

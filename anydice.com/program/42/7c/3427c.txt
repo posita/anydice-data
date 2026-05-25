@@ -1,0 +1,23 @@
+\ counts number of pairs, 3-of-a-kind, 4-of-a-kind, etc. in a sequence \
+\ includes superior hands in results; e.g. 3-of-a-kind can count as a pair, 4-of-a-kind can count as TWO pairs, etc. \
+\ AMOUNT: elements in a set (e.g. 2 to look for pairs, 3 to look for 3-of-a-kind, etc.) \
+\ VALUES: the numbers that can legally be part of a set \
+\ DICE: the sequence to search \
+function: AMOUNT:n of a kind from VALUES:s in DICE:s {
+    SETS: 0
+    loop I over VALUES {
+        SETS: SETS + ([count I in DICE] / AMOUNT)
+    }
+    result: SETS
+}
+
+TRAIT: 3
+SKILL: 3
+PUSH_DIE: {1..TRAIT:(6 + (6 - TRAIT)), (TRAIT + 1)..6:(6 - TRAIT)}
+ROLL: SKILLd6
+PUSHED_ROLL: SKILLdPUSH_DIE
+NUM_SUCC: [count {1..TRAIT} in ROLL]
+NUM_SUCC_PUSH: [count {1..TRAIT} in PUSHED_ROLL]
+
+output NUM_SUCC named "Successes in [ROLL] <= [TRAIT]"
+output NUM_SUCC_PUSH named "Successes in [ROLL] <= [TRAIT], pushed"

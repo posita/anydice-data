@@ -1,0 +1,53 @@
+
+\ TARGETS = résultat de dés, à relancer \
+\ ROLL = le jet de dés \
+\ NEW_DICE = type de dé utiliser pour relancer \
+
+D_SIX: d{0..5}
+D_TROIS: d{0..2}
+D_DEUX: d{0..1}
+D_QUATRE_SPE: d{0,1,1,2,2,3}
+
+function: reroll one of TARGETS:s from ROLL:n as NEW_DICE:d {
+    if [TARGETS contains ROLL] {
+        result: NEW_DICE
+    }
+    result: ROLL
+}
+function: reroll one of TARGETS:s as DICE:d {
+    result: [reroll one of TARGETS from DICE as DICE]
+}
+function: roll NUMBER:n dices as DICE:d and reroll all TARGETS:s {
+    X: [reroll one of TARGETS as DICE]
+    result: NUMBERdX
+}
+
+
+output [roll 3 dices as D_SIX and reroll all {0}] named "Roll 3d6 & reroll 0's"
+output [roll 5 dices as D_SIX and reroll all {0,1,2,3}] named "Roll 5d6 & reroll 3-"
+output [roll 10 dices as D_SIX and reroll all {3,4}] named "Roll 20d6 & reroll 3&4"
+output [roll 20 dices as D_SIX and reroll all {4,5}] named "Roll 5d6 & reroll 4+"
+
+
+
+\ 
+function: reroll greatest of ROLL:s as REROLL:n if greater than TARGET:n {
+  SUCCESSES: ROLL <= TARGET
+  if SUCCESSES < #ROLL {
+    result: SUCCESSES + (REROLL <= TARGET)
+  }
+  else {
+   result: SUCCESSES
+  }
+}
+output [reroll greatest of 10d6 as 1d6 if greater than 3] named "Reroll 4+ Success only"
+
+
+function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+Y: [d6 replace {1} with d6]
+output 3dY named "3d6, reroll 1-3 once"
+\
+

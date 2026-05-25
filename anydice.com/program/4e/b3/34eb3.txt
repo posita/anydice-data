@@ -1,0 +1,35 @@
+function: roll successes N:n TN:n {
+ result: [count successes N d6 TN]
+}
+
+function: count successes ROLL:s TN:n {
+ result: (ROLL >= TN)
+}
+
+function: in S:s replace less than zero with REPLACE:n {
+  NEW: {}
+  loop I over {1 .. #S} {
+    if I@S < 0 { NEW: {NEW, REPLACE} }
+    else { NEW: {NEW, I@S} }
+  }
+  result: NEW
+}
+
+function: resolve ATK:n ATK_TN:n IGNORE_TN:n GRIT:n GRIT_TN:n {
+ A: [roll successes ATK ATK_TN]
+ B: [roll successes A IGNORE_TN]
+ C: [roll successes GRIT GRIT_TN]
+ R: B - C
+ 
+ RR: [in R replace less than zero with 0]
+ 
+ result: RR
+}
+
+ATK: 6
+ATK_TN: 4
+IGNORE_TN: 4
+GRIT: 3
+GRIT_TN: 4
+
+output [resolve ATK ATK_TN IGNORE_TN GRIT GRIT_TN] named "with grit"

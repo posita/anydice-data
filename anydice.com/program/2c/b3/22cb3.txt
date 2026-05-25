@@ -1,0 +1,93 @@
+SKILL: 2
+S: 8
+AP: 0
+DMG: 3
+
+T: 7
+SV: 3
+W: 6
+
+DICE: 1
+
+\Units in 9"\
+NEARUNITS: 2 
+\Number of models in target unit\
+MODELS: 10
+\Units within 3" of targeted unit for thunderbolt\
+FARUNITS: 2
+
+function: hitme NN:n {
+  result: [count {SKILL..6} in NN d6]
+}
+
+function: woundme HH:n {
+ if S >= T*2 { 
+  result: [count {2..6} in HH d6] 
+ }
+ if S > T { 
+  result: [count {3..6} in HH d6] 
+ }
+ if S = T { 
+  result: [count {4..6} in HH d6] 
+ }
+ if S*2 <= T { 
+  result: [count {6..6} in HH d6] 
+ }
+ if S < T {
+  result: [count {5..6} in HH d6] 
+ }
+}
+
+function: saveme MM:n {
+ SAVE: SV - AP - 1
+ result: [count {1..SAVE} in MM d6]
+}
+
+function: damageme DD:n {
+ result: DDdDMG
+}
+
+function: antime AA:n{
+ if AA = 6 {
+  result: 1d3+3
+ }
+ if AA >= 3 {
+  result: 3
+ }
+}
+
+function: fallingst FF:n {
+ if FF <= 5 {
+  if FF <= MODELS {
+   result: 1d3
+  }
+ }
+}
+
+function: smite SS:n {
+ if SS >= 11 {
+  result: 1d6
+ } 
+ if SS >= 5 {
+  result: 1d3
+ }
+ result: 0
+}
+
+output 1d6
+output {1d6,2,3,4,5,6}
+
+output [hitme DICE] named "Expected Hits"
+output [woundme [hitme DICE]] named "Expected Wounds"
+output [saveme [woundme [hitme DICE]]] named "Expected Unsaved Wounds"
+output [damageme [saveme [woundme [hitme DICE]]]] named "Full Expected Damage (Can Overflow)"
+
+output [antime 1d6] named "Antimatter Meteor"
+output [count {4..6} in NEARUNITSd6]d3 named "Cosmic Fire"
+output [count {4..6} in 3d6]d3 named "Gaze of Death"
+output [lowest of 10 and [count {6} in MODELSd6]] named "Sky of Falling Stars"
+output [fallingst 3d6] named "Sky of Falling Stars"
+output 1d6 >= W named "Time's Arrow Success Rate"
+output [count {2..6} in 1d6]d3 + [count {4..6} in FARUNITSd6] named "Transdimensional Thunderbolt"
+
+output [smite 2d6] named "Smite"

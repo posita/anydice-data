@@ -1,0 +1,40 @@
+TN: 15 \Poziom trudnosci, wliczajac wszystkie modyfikatory np. z obrony\
+MISERABLE: 0 \zmien na 1 jesli przygnebiony (sauron = autoporazka)\
+WEARY: 0 \zmien na 1 jesli zmeczony (1-3 licza sie jako 0)\
+FAVORED: 0 \zmien na 1 jesli wzmocniony (2k12 i wybierasz lepsze)\
+ILLFAVORED: 0 \zmien na 1 jesli oslabiony (2k12 i wybierasz gorsze)\
+
+SUCCESSDICENUMBER: 3 \liczba kosci sukcesu\
+
+\w tabeli wynikow, 1 to sukces, 0 to porazka\
+
+AUTOPASS: 1 \zmien na 2 jesli chcesz osobno policzyc szanse na automatyczny sukces\
+
+\ponizej tego nic nie zmieniaj\
+
+PASS: 1
+FAIL: 0
+
+function: roll FEAT:n plus SUCCESS:n vs PT:n {
+    if MISERABLE = 1 {
+        if FEAT = 0 { result: FAIL }
+    }
+    if FEAT = 12 { result: AUTOPASS }
+    if FEAT+SUCCESS >= PT { result: PASS }
+    if FEAT+SUCCESS < PT { result: FAIL }
+    }
+
+if WEARY = 0 {
+    if ILLFAVORED = 1 & FAVORED = 0 {output [roll [lowest 1 of 2d{0..10,12}] plus SUCCESSDICENUMBERd6 vs TN] named "Ill-favored [SUCCESSDICENUMBER] dice"}
+    if FAVORED = 1 & ILLFAVORED = 0 {output [roll [highest 1 of 2d{0..10,12}] plus SUCCESSDICENUMBERd6 vs TN] named "Favored [SUCCESSDICENUMBER] dice"}
+    if FAVORED+ILLFAVORED = {0,2} {output [roll d{0..10,12} plus SUCCESSDICENUMBERd6 vs TN] named "[SUCCESSDICENUMBER] dice"}
+    
+}
+
+if WEARY = 1 {
+    if ILLFAVORED = 1 {output [roll [lowest 1 of 2d{0..10,12}] plus SUCCESSDICENUMBERd{0,0,0,4,5,6} vs TN] named "Ill-favored [SUCCESSDICENUMBER] dice"}
+    if FAVORED = 1 {output [roll [highest 1 of 2d{0..10,12}] plus SUCCESSDICENUMBERd{0,0,0,4,5,6} vs TN] named "Favored [SUCCESSDICENUMBER] dice"}
+    if FAVORED+ILLFAVORED = {0,2} {output [roll d{0..10,12} plus SUCCESSDICENUMBERd{0,0,0,4,5,6} vs TN] named "[SUCCESSDICENUMBER] dice"}
+    }
+
+

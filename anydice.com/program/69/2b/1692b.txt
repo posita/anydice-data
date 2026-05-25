@@ -1,0 +1,40 @@
+DEX: 3
+PROF: 3
+OTHER: 2
+SHARPSHOOTER: 1
+ADV: 1
+CRT: 20
+
+function: to hit AC:n THB:n {
+  RES: 0
+  loop N over {1..ADV}{
+    RES: RES + ((1d20 + THB) >= AC)
+  }
+  result: RES>=1
+}
+
+function: crit DICE:d {
+  CRIT: 0
+  loop I over {1..CRT}{
+    CRIT: CRIT + (1d20>=CRT)
+  }
+  result: CRIT
+}
+
+RH: 1d6 + [crit 1d6] + DEX + 1 + (SHARPSHOOTER * 10)
+LH: 1d6 + [crit 1d6] + (SHARPSHOOTER * 10)
+HCBR: 1d6 + 1d6 + [crit 1d6 + 1d6] + DEX + (SHARPSHOOTER * 10)
+
+TAC: 13
+THB: DEX + PROF + OTHER + (-5 * SHARPSHOOTER)
+
+function: attack N:n times with ATK:d {
+  DMG: 0
+  loop I over {1..N} {
+    DMG: DMG + (ATK * [to hit TAC THB])
+  }
+  result: DMG
+}
+
+output [attack 3 times with RH] + [attack 1 times with LH]
+output [attack 3 times with HCBR]

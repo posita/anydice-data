@@ -1,0 +1,212 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n fail FAIL:n success SUCCESS:n{
+if SAVE >= DC {result: SUCCESS}
+if SAVE < DC {result: FAIL}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n onhit ONHIT onmiss ONMISS{
+if ROLL = 20 {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+HAX:[attack 1d20 plus 1 vs ac 10 for 1d6 plus 3]
+HAXA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3]
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3
+	onhit HAXA
+	onmiss HAX
+] named "1"
+
+LA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 4]
+P:[attack 1d20 plus 1 vs ac 10 for 1d4 plus 4]
+PA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 4]
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 plus 4
+	onhit [savethrow 1d20 vs dc 11
+		fail PA
+		success P
+	]
+	onmiss P
+] named "4"
+
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 plus 4
+	onhit [savethrow 1d20 vs dc 11
+		fail LA + PA
+		success [attack 1d20 plus 1 vs ac 10 for 1d10 plus 4
+			onhit [savethrow 1d20 vs dc 11
+				fail PA
+				success P
+			]
+			onmiss P
+		]
+	]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d10 plus 4
+		onhit [savethrow 1d20 vs dc 11
+			fail PA
+			success P
+		]
+		onmiss P
+	]
+] named "5"
+
+LA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 7]
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 plus 7
+	onhit [savethrow 1d20 vs dc 11
+		fail LA + PA
+		success [attack 1d20 plus 1 vs ac 10 for 1d10 plus 7
+			onhit [savethrow 1d20 vs dc 11
+				fail PA
+				success P
+			]
+			onmiss P
+		]
+	]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d10 plus 7
+		onhit [savethrow 1d20 vs dc 11
+			fail PA
+			success P
+		]
+		onmiss P
+	]
+] named "6"
+
+LA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 8]
+P:[attack 1d20 plus 1 vs ac 10 for 1d4 plus 5]
+PA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d4 plus 5]
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 plus 8
+	onhit [savethrow 1d20 vs dc 11
+		fail LA + PA
+		success [attack 1d20 plus 1 vs ac 10 for 1d10 plus 8
+			onhit [savethrow 1d20 vs dc 11
+				fail PA
+				success P
+			]
+			onmiss P
+		]
+	]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d10 plus 8
+		onhit [savethrow 1d20 vs dc 11
+			fail PA
+			success P
+		]
+		onmiss P
+	]
+] named "8"
+
+LA:[attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d10 plus 9]
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 plus 9
+	onhit [savethrow 1d20 vs dc 11
+		fail LA + PA
+		success [attack 1d20 plus 1 vs ac 10 for 1d10 plus 9
+			onhit [savethrow 1d20 vs dc 11
+				fail PA
+				success P
+			]
+			onmiss P
+		]
+	]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d10 plus 9
+		onhit [savethrow 1d20 vs dc 11
+			fail PA
+			success P
+		]
+		onmiss P
+	]
+] named "9"
+
+TSA:[attack [highest 1 of 2d20] plus -1 vs ac 10 for 1d10+2d6 plus 7]
+
+output [attack 1d20 plus 1 vs ac 10 for 1d10 plus 9 
+	onhit [savethrow 1d20 vs dc 11
+		fail LA + TSA + PA
+		success [attack 1d20 plus 1 vs ac 10 for 1d10 plus 9 
+			onhit [savethrow 1d20 vs dc 11
+				fail TSA + PA
+				success [attack 1d20 plus -1 vs ac 10 for 1d10+2d6 plus 7
+					onhit PA
+					onmiss P
+				]
+			]
+			onmiss [attack 1d20 plus -1 vs ac 10 for 1d10+2d6 plus 7
+				onhit PA
+				onmiss P
+			]
+		]
+	]
+	onmiss [attack 1d20 plus 1 vs ac 10 for 1d10 plus 9 
+		onhit [savethrow 1d20 vs dc 11
+			fail TSA + PA
+			success [attack 1d20 plus -1 vs ac 10 for 1d10+2d6 plus 7
+				onhit PA
+				onmiss P
+			]
+		]
+		onmiss [attack 1d20 plus -1 vs ac 10 for 1d10+2d6 plus 7
+			onhit PA
+			onmiss P
+		]
+	]
+] named "11"

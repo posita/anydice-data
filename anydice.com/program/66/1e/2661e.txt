@@ -1,0 +1,94 @@
+\reroll a given roll if the result is a given number\
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+\check if a given roll passes a given dc\
+function: pass ROLL:n dc DC:n{
+  if ROLL >= DC {result: 1}
+  result: 0
+}
+\roll 1d20 and reroll if not a 20\
+function: trytwenty ROLL:n{
+  if ROLL=20{result:20}
+  result: 1d20
+}
+\d&d attack roll sequence with varying to hit bonus, ac, crit threshold, damage, crit damage\
+function: attack ROLL:n bonus BONUS:n crits CRIT:n ac AC:n dmg DMG:d critdamage DMGCRIT:d {
+  if ROLL >= CRIT {result: DMGCRIT}
+  else if ROLL <= 1 {result: 0}
+  else if (ROLL + BONUS) >= AC {result: DMG}
+  result: 0
+}
+\d&d firearm attack roll sequence with varying to hit bonus, ac, crit threshold, misfire score, damage, crit damage\
+function: attack ROLL:n bonus BONUS:n crits CRIT:n misfire MISFIRE:n ac AC:n dmg DMG:d critdamage DMGCRIT:d {
+  if ROLL >= CRIT {result: DMGCRIT}
+  else if ROLL <= MISFIRE {result: 0}
+  else if (ROLL + BONUS) >= AC {result: DMG}
+  result: 0
+}
+\lancer attack roll with brutal\
+function: lattack ROLL:n bonus BONUS:n evasion EV:n dmg DMG:d crit CRIT:d brutal BRUTAL:d{
+  if ((ROLL=20)&(ROLL+BONUS>=20)){result: BRUTAL}
+  else if (ROLL+BONUS>=20){result: CRIT}
+  else if (ROLL+BONUS>=EV){result: DMG}
+  result: 0
+}
+\lancer attack roll with brutal and accuracy\
+function: lattack ROLL:n bonus BONUS:n accuracy ACC:n evasion EV:n dmg DMG:d crit CRIT:d brutal BRUTAL:d{
+  if ((ROLL=20)&(ROLL+BONUS+ACC>=20)){result: BRUTAL}
+  else if (ROLL+BONUS+ACC>=20){result: CRIT}
+  else if (ROLL+BONUS+ACC>=EV){result: DMG}
+  result: 0
+}
+\lancer attack roll with brutal and difficulty\
+function: lattack ROLL:n bonus BONUS:n difficulty DIFF:n evasion EV:n dmg DMG:d crit CRIT:d brutal BRUTAL:d{
+  if ((ROLL=20)&(ROLL+BONUS-DIFF>=20)){result: BRUTAL}
+  else if (ROLL+BONUS-DIFF>=20){result: CRIT}
+  else if (ROLL+BONUS-DIFF>=EV){result: DMG}
+  result: 0
+}
+\lancer attack roll\
+function: lattack ROLL:n bonus BONUS:n evasion EV:n dmg DMG:d crit CRIT:d{
+  if (ROLL+BONUS>=20){result: CRIT}
+  else if (ROLL+BONUS>=EV){result: DMG}
+  result: 0
+}
+\lancer attack roll with accuracy\
+function: lattack ROLL:n bonus BONUS:n accuracy ACC:n evasion EV:n dmg DMG:d crit CRIT:d{
+  if (ROLL+BONUS+ACC>=20){result: CRIT}
+  else if (ROLL+BONUS+ACC>=EV){result: DMG}
+  result: 0
+}
+
+\lancer attack roll with difficulty\
+function: lattack ROLL:n bonus BONUS:n difficulty DIFF:n evasion EV:n dmg DMG:d crit CRIT:d{
+  if (ROLL+BONUS-DIFF>=20){result: CRIT}
+  else if (ROLL+BONUS-DIFF>=EV){result: DMG}
+  result: 0
+}
+
+\LANCER ATTACKS WITH BRUTAL\
+\output [lattack 1d20 bonus 3 evasion 8 dmg 3d6 crit [highest 3 of 6d6] brutal 18]\
+\output [lattack 1d20 bonus 3 accuracy [highest 1 of 3d6] evasion 8 dmg 3d6 crit [highest 3 of 6d6] brutal 18]\
+\output [lattack 1d20 bonus 3 difficulty [highest 1 of 2d6] evasion 8 dmg 3d6 crit [highest 3 of 6d6] brutal 18]\
+\LANCER ATTACKS\
+output [lattack 1d20 bonus 3 evasion 8 dmg 1d6 crit [highest 1 of 2d6]]
+output [lattack 1d20 bonus 3 accuracy [highest 1 of 2d6] evasion 8 dmg 1d6 crit [highest 1 of 2d6]]
+output [lattack 1d20 bonus 3 difficulty [highest 1 of 2d6] evasion 8 dmg 1d6 crit [highest 1 of 2d6]]
+\LANCER ATTACKS WITH OPTIONAL REROLLS\
+\output [lattack [trytwenty 1d20] bonus 3 evasion 8 dmg 3d6 crit [highest 7 of 14d6] brutal 42]\
+\output [lattack [trytwenty 1d20] bonus 3 evasion 8 dmg 3d6 crit [highest 7 of 14d6]]\
+\output [lattack [trytwenty 1d20] bonus 3 accuracy [highest 1 of 3d6] evasion 8 dmg 3d6 crit [highest 7 of 14d6] brutal 42]\
+\output [lattack [trytwenty 1d20] bonus 3 accuracy [highest 1 of 3d6] evasion 8 dmg 3d6 crit [highest 7 of 14d6]]\
+\output [lattack [trytwenty 1d20] bonus 3 difficulty [highest 1 of 2d6] evasion 8 dmg 3d6 crit [highest 7 of 14d6] brutal 42]\
+\output [lattack [trytwenty 1d20] bonus 3 difficulty [highest 1 of 2d6] evasion 8 dmg 3d6 crit [highest 7 of 14d6]]\
+\LIKELIHOOD OF PASSING A CHECK, SAVE OR HITTING AN ATTACK\
+\output [pass 1d20+2d6+6 dc 10]\
+\output [pass 1d20-2d6+6 dc 10]\
+
+
+
+
+
+

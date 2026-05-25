@@ -1,0 +1,54 @@
+\ Burning Wheel Dice with Support for Open-Ended Rolls and Rerolls \
+\   Created for RPG SE - http://rpg.stackexchange.com/a/31458/1421 \
+\ This program circumvents the usual way AnyDice handles dice.     \
+\ Instead, each die is a function.                                 \
+\ Usage:                                                           \
+\ [b X] will roll X black dice.                                    \
+\ [be X] will roll and explode X black dice.                       \
+\ [br X] will roll X black dice and reroll failures.               \
+\ Similarly, [g X] and [w X] and related functions exist for other \
+\ dice.                                                            \
+\ The dice can be added together, e.g. [br 3] + [wr 2]             \
+
+set "maximum function depth" to 7 
+\do not set this below 4, as wrapper function count against the limit\
+
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rolldice DICE:n bonus B penalty P{
+  RES:0
+  loop N over {1..DICE} {
+    RES:RES+[roll 1d6 threshold 4]
+  }
+  loop N over {1..B} {
+    RES:RES+[roll 1d6 threshold 6]
+  }
+  loop N over {1..P} {
+    RES:[highest of 0 and RES-[roll 1d6 threshold 6]]
+  }
+  result:RES
+}
+
+function: rolldicereroll DICE:n reroll R bonus B penalty P{
+  RES:0
+  loop N over {1..DICE} {
+    if R{
+     RES: RES + [highest of [roll 1d6 threshold 4] and [roll 1d6 threshold 4]]
+    }
+    else{
+     RES: RES + [roll 1d6 threshold 4]
+    }
+  }
+  loop N over {1..B} {
+    RES:RES+[roll 1d6 threshold 6]
+  }
+  loop N over {1..P} {
+    RES:[highest of 0 and RES-[roll 1d6 threshold 6]]
+  }
+  result:RES
+}
+
+output [rolldicereroll 7 reroll 0 bonus 1 penalty 0]

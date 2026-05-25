@@ -1,0 +1,40 @@
+\**** Damage calculator ****\
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals dice damage twice \
+  result: ROLL + HIT >= ENEMYAC
+}
+
+function: multiattack N:n times {
+  result: [roll [attack ATTACKTYPE] to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    DAMAGE: FIRSTHIT d (DAMAGE + FIRST)
+    loop I over {2..N} {
+      DAMAGE: DAMAGE + [attack ATTACKTYPE] d DAMAGE
+    }
+    result: DAMAGE
+  } else {
+    result: [roll [attack ATTACKTYPE] to multiattack N-1 times]
+  }
+}
+
+ATTACKTYPE: 1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+ABILITYSCORE: 5
+ACCBONUS: 0
+PROFICIENCY: 4
+DMGBONUS: 0
+HIT: ABILITYSCORE + PROFICIENCY + ACCBONUS  \ bonus to attack roll \
+ENEMYAC: 18  \ target AC: attack hits if ATTACKTYPE + HIT >= AC \
+CRIT: 20  \ minimum attack roll to crit \
+DAMAGE: 1d8 + ABILITYSCORE + DMGBONUS  \ damage rolled on a successful hit \
+CRITDAMAGE: 2d8 + ABILITYSCORE + DMGBONUS  \ damage rolled on a critical hit \
+FIRST: 0  \ bonus damage on first hit \
+output [multiattack 1 times]
+

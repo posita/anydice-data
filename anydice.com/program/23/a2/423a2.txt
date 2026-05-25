@@ -1,0 +1,205 @@
+\ --- CONFIG --- \
+LEVEL: 12
+
+\ --- WEAPON SETUPS --- \
+DAMAGEA: 4d10
+MODA: 10
+MINA: 1
+EXTA: 0
+
+DAMAGEB:2d8
+MODB: 8
+MINB: 1 
+EXTB: 4
+
+\ --- DYNAMIC SCALING --- \
+function: get defense {
+  if LEVEL < 6 { result: 14 }
+  if LEVEL < 11 { result: 15 }
+  if LEVEL < 16 { result: 17 }
+  result: 17
+}
+function: get deflect {
+  if LEVEL < 6 { result: 1 }
+  if LEVEL < 11 { result: 1 }
+  if LEVEL < 16 { result: 2 }
+  result: 4
+}
+DEFENSE: [get defense]
+DEFLECT: [get deflect]
+
+\ --- CONSTANTS & LOGIC --- \
+PMISS: 1 PHIT: 2 PCRIT: 3
+MISS: 400 HIT: 500 CRIT: 600
+MISSCOMP: 401 HITCOMP: 501 CRITCOMP: 601
+MISSOP: 402 HITOP: 502 CRITOP: 602
+
+function: floor ROLL:n MIN:n { 
+  result: [highest of ROLL and MIN] 
+}
+
+function: reroll VAL:n {
+  if VAL < 5 { result: 1d6 }
+  result: VAL
+}
+
+function: attack ROLL:n plus MOD:n vs DF:n {
+  if ROLL = 20 { result: PCRIT }
+  if ROLL + MOD >= DF { result: PHIT }
+  result: PMISS
+}
+
+function: attackstakes ROLL:n plus MOD:n plus OPP:n vs DF:n {
+  if ROLL = 20 { result: 300 + OPP }
+  if ROLL + MOD + OPP >= DF { result: 200 + OPP }
+  result: 100 + OPP
+}
+
+function: stakes BASE:n {
+  if BASE >= 300 { if BASE >= 305 { result: CRITOP } if BASE >= 302 { result: CRITCOMP } result: CRIT }
+  if BASE >= 200 { if BASE >= 205 { result: HITOP } if BASE >= 202 { result: HITCOMP } result: HIT }
+  if BASE >= 105 { result: MISSOP } if BASE >= 102 { result: MISSCOMP } result: MISS
+}
+
+function: gaindice RESULT:n {
+  if RESULT = PCRIT { result: [highest 1 of 3d20] }
+  if RESULT = PHIT { result: [highest 1 of 2d20] }
+  result: 1d20
+}
+
+\ --- DAMAGE FUNCTIONS --- \
+
+function: damagestakes STATUS:n for DIE:d plus MOD:n plus EXTRA:n USEDEF:n MIN:n {
+  SUB: DEFLECT * USEDEF
+  F: [floor DIE MIN]
+  if STATUS >= 600 { result: [highest of 0 and ([maximum of DIE] + MOD + EXTRA - SUB)] } 
+  if STATUS = HITOP { result: [highest of 0 and ([maximum of DIE] + MOD + EXTRA - SUB)] }
+  if STATUS >= 500 { result: [highest of 0 and (F + MOD + EXTRA - SUB)] } 
+  if STATUS = MISSOP { result: [highest of 0 and ([maximum of DIE] - SUB)] }
+  result: 0
+}
+
+function: grazestakes STATUS:n for DIE:d plus MOD:n plus EXTRA:n USEDEF:n MIN:n {
+  SUB: DEFLECT * USEDEF
+  F: [floor DIE MIN]
+  if STATUS >= 600 { result: [highest of 0 and ([maximum of DIE] + MOD + EXTRA - SUB)] }
+  if STATUS = HITOP { result: [highest of 0 and ([maximum of DIE] + MOD + EXTRA - SUB)] }
+  if STATUS >= 500 { result: [highest of 0 and (F + MOD + EXTRA - SUB)] }
+  if STATUS = MISSOP { result: [highest of 0 and ([maximum of DIE] - SUB)] }
+  result: [highest of 0 and (F - SUB)] 
+}
+
+function: damagebase STATUS:n for DIE:d plus MOD:n plus EXTRA:n USEDEF:n MIN:n {
+  SUB: DEFLECT * USEDEF
+  F: [floor DIE MIN]
+  if STATUS = PCRIT { result: [highest of 0 and ([maximum of DIE] + MOD + EXTRA - SUB)] }
+  if STATUS = PHIT { result: [highest of 0 and (F + MOD + EXTRA - SUB)] }
+  result: 0
+}
+
+function: grazebase STATUS:n for DIE:d plus MOD:n plus EXTRA:n USEDEF:n MIN:n {
+  SUB: DEFLECT * USEDEF
+  F: [floor DIE MIN]
+  if STATUS = PCRIT { result: [highest of 0 and ([maximum of DIE] + MOD + EXTRA - SUB)] }
+  if STATUS = PHIT { result: [highest of 0 and (F + MOD + EXTRA - SUB)] }
+  result: [highest of 0 and (F - SUB)]
+}
+
+\ --- ROLLS --- \
+OPPS: 1d6
+OPPR: [reroll 1d6]
+STD: 1d20
+ADV: [highest 1 of 2d20]
+GDIEA: [gaindice [attack STD plus MODA vs DEFENSE]]
+ADVGDIEA: [gaindice [attack ADV plus MODA vs DEFENSE]]
+GDIEB: [gaindice [attack STD plus MODB vs DEFENSE]]
+ADVGDIEB: [gaindice [attack ADV plus MODB vs DEFENSE]]
+
+\ --- WEAPON A BLOCKS --- \
+ADBSY: [damagebase [attack STD plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADBSN: [damagebase [attack STD plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+ADBAY: [damagebase [attack ADV plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADBAN: [damagebase [attack ADV plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+ADBGY: [damagebase [attack GDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADBGN: [damagebase [attack GDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+ADBVY: [damagebase [attack ADVGDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADBVN: [damagebase [attack ADVGDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+
+AGBSY: [grazebase [attack STD plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGBSN: [grazebase [attack STD plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+AGBAY: [grazebase [attack ADV plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGBAN: [grazebase [attack ADV plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+AGBGY: [grazebase [attack GDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGBGN: [grazebase [attack GDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+AGBVY: [grazebase [attack ADVGDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGBVN: [grazebase [attack ADVGDIEA plus MODA vs DEFENSE] for DAMAGEA plus MODA plus EXTA 0 MINA]
+
+ADSSY: [damagestakes [stakes [attackstakes STD plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADSSN: [damagestakes [stakes [attackstakes STD plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+ADSAY: [damagestakes [stakes [attackstakes ADV plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADSAN: [damagestakes [stakes [attackstakes ADV plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+ADSGY: [damagestakes [stakes [attackstakes GDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADSGN: [damagestakes [stakes [attackstakes GDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+ADSVY: [damagestakes [stakes [attackstakes ADVGDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADSVN: [damagestakes [stakes [attackstakes ADVGDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+
+ADSRY: [damagestakes [stakes [attackstakes STD plus MODA plus OPPR vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+ADSRN: [damagestakes [stakes [attackstakes STD plus MODA plus OPPR vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+
+AGSSY: [grazestakes [stakes [attackstakes STD plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGSSN: [grazestakes [stakes [attackstakes STD plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+AGSAY: [grazestakes [stakes [attackstakes ADV plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGSAN: [grazestakes [stakes [attackstakes ADV plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+AGSGY: [grazestakes [stakes [attackstakes GDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGSGN: [grazestakes [stakes [attackstakes GDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+AGSVY: [grazestakes [stakes [attackstakes ADVGDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGSVN: [grazestakes [stakes [attackstakes ADVGDIEA plus MODA plus OPPS vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+
+AGSRY: [grazestakes [stakes [attackstakes STD plus MODA plus OPPR vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 1 MINA]
+AGSRN: [grazestakes [stakes [attackstakes STD plus MODA plus OPPR vs DEFENSE]] for DAMAGEA plus MODA plus EXTA 0 MINA]
+
+\ --- WEAPON B BLOCKS --- \
+BDBSY: [damagebase [attack STD plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDBSN: [damagebase [attack STD plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BDBAY: [damagebase [attack ADV plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDBAN: [damagebase [attack ADV plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BDBGY: [damagebase [attack GDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDBGN: [damagebase [attack GDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BDBVY: [damagebase [attack ADVGDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDBVN: [damagebase [attack ADVGDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+
+BGBSY: [grazebase [attack STD plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGBSN: [grazebase [attack STD plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BGBAY: [grazebase [attack ADV plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGBAN: [grazebase [attack ADV plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BGBGY: [grazebase [attack GDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGBGN: [grazebase [attack GDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BGBVY: [grazebase [attack ADVGDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGBVN: [grazebase [attack ADVGDIEB plus MODB vs DEFENSE] for DAMAGEB plus MODB plus EXTB 0 MINB]
+
+BDSSY: [damagestakes [stakes [attackstakes STD plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDSSN: [damagestakes [stakes [attackstakes STD plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BDSAY: [damagestakes [stakes [attackstakes ADV plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDSAN: [damagestakes [stakes [attackstakes ADV plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BDSGY: [damagestakes [stakes [attackstakes GDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDSGN: [damagestakes [stakes [attackstakes GDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BDSVY: [damagestakes [stakes [attackstakes ADVGDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDSVN: [damagestakes [stakes [attackstakes ADVGDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+
+BDSRY: [damagestakes [stakes [attackstakes STD plus MODB plus OPPR vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BDSRN: [damagestakes [stakes [attackstakes STD plus MODB plus OPPR vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+
+BGSSY: [grazestakes [stakes [attackstakes STD plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGSSN: [grazestakes [stakes [attackstakes STD plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BGSAY: [grazestakes [stakes [attackstakes ADV plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGSAN: [grazestakes [stakes [attackstakes ADV plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BGSGY: [grazestakes [stakes [attackstakes GDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGSGN: [grazestakes [stakes [attackstakes GDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+BGSVY: [grazestakes [stakes [attackstakes ADVGDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGSVN: [grazestakes [stakes [attackstakes ADVGDIEB plus MODB plus OPPS vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+
+BGSRY: [grazestakes [stakes [attackstakes STD plus MODB plus OPPR vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 1 MINB]
+BGSRN: [grazestakes [stakes [attackstakes STD plus MODB plus OPPR vs DEFENSE]] for DAMAGEB plus MODB plus EXTB 0 MINB]
+
+\ --- FINAL OUTPUTS --- \
+output ADSRN+BDBSN

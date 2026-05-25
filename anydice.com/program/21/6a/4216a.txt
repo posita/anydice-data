@@ -1,0 +1,64 @@
+\ ALERTE, ASSERTIF, AVISÉ, SOLIDE, TENACE \
+IDX: {1..4}
+DES: {6, 8, 10, 12}
+SEUILS: {6..12, 10..12}
+NOPUSH: {}
+STR: {0..6}
+
+
+function: roll DE:d {
+  result: [count SEUILS in DE]
+}
+
+function: reroll DE:d on VAL:n {
+  if ((VAL > #NOPUSH@NOPUSH) & (VAL < 1@SEUILS)) {
+    result: DE }
+  result: VAL
+}
+
+function: push DE:d {
+  X: [reroll DE on DE]
+  result: [count SEUILS in X]
+}
+
+loop IA over IDX {
+  loop IB over {0, IDX} {
+    if IA >= IB {
+      loop ST over STR { 
+        DSA: [highest of 0 and (ST - 4)]
+        DSB: [lowest of 4 and ST]
+        DA: IA@DES
+        DB: IB@DES
+        DC: 0
+        IDA: IA
+        IDB: IB
+        IDC: 0
+        loop I over {1..ST} {
+          if IDA = 4 {
+            IDC: IDC + 1 } else {
+            if IDA = IDB {
+              IDA: IDA + 1 } else {
+              IDB: IDB + 1
+        }}}
+        ISA: [lowest of 4 and ST]
+        ISB: [highest of 0 and (ST - 4)]
+        DIA: IDA@DES
+        DIB: IDB@DES
+        DIC: IDC@DES
+        DSA: ISA@DES
+        DSB: ISB@DES
+        RA: [roll dDIA]
+        RB: [roll dDIB]
+        RSA: [roll dDSA]
+        RSB: [roll dDSB]
+        RC: [roll dDIC]
+        output RA + RB + RC named "d[DIA] d[DIB] d[DIC] (d[DA] d[DB] d[DC]) Stress:[ST]"
+        output RSA + RSB named "STRESS:d[DSA] d[DSB]"
+\
+        RA: [push dDA]
+        RB: [push dDB]
+        output RA + RB named "d[DA] d[DB] d[DC] Stress:[ST] pushed"
+\
+}}}}
+
+\ADR: +1 nv, STRESS: black dice d6, d8, d10, d12, d6d12, d8d12, d10d12 -> Panique \

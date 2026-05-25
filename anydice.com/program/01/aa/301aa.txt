@@ -1,0 +1,52 @@
+\ Starting strength, including Aleya \
+
+MAXVIGILATORS: 5
+STARTINGSTRENGTH: MAXVIGILATORS + 1
+
+loop SISTERS over {1..STARTINGSTRENGTH}{
+
+HIT:3
+WOUND: 4
+WEAPONATTACKS: 2
+
+
+\ Avenge the fallen stratagem, if possible (and Aleya's Tenacious Spirit) \
+if SISTERS < STARTINGSTRENGTH {
+    HIT: 2
+    WEAPONATTACKS: 3
+}
+if SISTERS < (STARTINGSTRENGTH + 1) / 2 { \ +1 to make anydice round up \
+    HIT: 2
+    WEAPONATTACKS: 4
+}
+if SISTERS = 1 {
+    HIT: 2
+    WEAPONATTACKS: 2
+}
+ATTACKS: WEAPONATTACKS * (SISTERS - 1)
+
+\ Calculates hits for all the vigilators \
+HITS: 0
+loop N over {1..ATTACKS}{
+    
+    HITS: HITS + 1d{0:(HIT-1), 1:(7-HIT)} * 1d{0:(WOUND-1), 1:(7-WOUND)}
+}
+D: HITS * 2
+
+
+ATTACKS: WEAPONATTACKS + 2
+HIT:2
+
+\ Calculates hits for Aleya \
+HITS: 0
+loop N over {1..ATTACKS}{
+    HITS: HITS +  1d{0:(HIT-1), 1:(7-HIT)} * 1d{0:(WOUND-1), 1:(7-WOUND)}
+}
+D: D + HITS * 3
+
+SISTERS: SISTERS - 1
+
+D: [lowest of D/16 and 1]
+
+output D named "[SISTERS] out of [MAXVIGILATORS] Vigilators + Aleya"
+}

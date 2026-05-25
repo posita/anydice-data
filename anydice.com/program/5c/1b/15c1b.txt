@@ -1,0 +1,48 @@
+\\\*** Base Damage Calc Info ***\\\
+ENEMY_AC: d{10..20}  \looped against enemy AC from 10-20\
+LEVEL: 10
+STAT_MOD: 5
+TURNS: 5
+
+\\\*** Attack A ***\\\
+ATTACK_DICE_A: 3d8
+BONUS_DAM_MOD_A: 0
+BONUS_DICE_A: 0
+HIT_BONUS_A: 0
+MAGIC_A: 0
+N_ATTACKS_A: TURNS*2
+
+\\\*** Attack B ***\\\
+ATTACK_DICE_B: 2d6
+BONUS_DAM_MOD_B: 0
+BONUS_DICE_B: 0
+HIT_BONUS_B: 0
+MAGIC_B: 2
+N_ATTACKS_B: (TURNS-1)*3
+
+\\\*** General Info ***\\\
+CRIT_RANGE: 20
+CRIT_BONUS: 6d8 \Any additional dice used specifically for a critical\
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+PROF: (LEVEL+7)/4
+
+\\\*** Functions ***\\\
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT_RANGE { result: CRITICALDAMAGE }
+ if ROLL + ATTACK >= ENEMY_AC { result: HITDAMAGE }
+ result: 0
+}
+
+ATTACK: STAT_MOD + PROF + MAGIC_A + HIT_BONUS_A
+HITDAMAGE: ATTACK_DICE_A + STAT_MOD + MAGIC_A + BONUS_DAM_MOD_A + BONUS_DICE_A
+CRITICALDAMAGE: 2dATTACK_DICE_A + STAT_MOD + MAGIC_A + BONUS_DAM_MOD_A + 2dBONUS_DICE_A + CRIT_BONUS
+output N_ATTACKS_Ad[attack NORMAL_HIT vs ENEMY_AC] named "SB"
+output N_ATTACKS_Ad[attack HIT_ADV vs ENEMY_AC] named "Adv SB"
+
+ATTACK: STAT_MOD + PROF + MAGIC_B + HIT_BONUS_B
+HITDAMAGE: ATTACK_DICE_B + STAT_MOD + MAGIC_B + BONUS_DAM_MOD_B + BONUS_DICE_B
+CRITICALDAMAGE: 2dATTACK_DICE_B + STAT_MOD + MAGIC_B + BONUS_DAM_MOD_B + 2dBONUS_DICE_B + CRIT_BONUS
+output N_ATTACKS_Bd[attack NORMAL_HIT vs ENEMY_AC] named "Haste"
+output N_ATTACKS_Bd[attack HIT_ADV vs ENEMY_AC] named "Adv Haste"

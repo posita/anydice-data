@@ -1,0 +1,31 @@
+set "maximum function depth" to 5
+
+\ usage [reroll die minimum_number_to_reroll maximum_number_to_reroll] \
+\ so to implement the Lighting Speed charm (reroll 5 & 6s) you would use: \
+\ [reroll d10 5 6] \
+function: reroll N:n MIN MAX {
+  if N >= MIN {
+    if N <= MAX { result: [reroll d10 MIN MAX] }
+    result: N
+  }
+  result: N
+}
+
+\ usage [hit die minimum_number_for_hit minimum_number_for_double_hit \
+\ so to implement the rule of 8 (7 is a hit, 8-10 double hit): \
+\ [hit d10 7 8] \
+function: hit N:n MINH MIND {
+  if N >= MINH {
+    if N >= MIND { result: 2 }
+    result: 1
+  }
+  result: 0
+}
+
+output [hit [reroll d10 5 6] 7 10] named "reroll 5 & 6"
+
+loop N over {7..10} {
+  output [hit d10 7 N] named "double [N]s"
+}
+
+output [hit [reroll d10 1 1] 7 9] named "excellent strike with double 9s"

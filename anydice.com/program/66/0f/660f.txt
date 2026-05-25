@@ -1,0 +1,27 @@
+\ how many times to explode \
+EXPLODE: 1
+\ number of dice to roll \
+NUM: 4
+\ type of die. only works correctly on even sided dice \
+DIE: d6
+\ success counted on rolls greater than below \
+SUCCESS: (#{DIE} / 2 + 1)
+
+function: success DIE:d {
+  result: [count {SUCCESS..#{DIE}} in DIE]
+}
+
+function: explode success DIE:d {
+  result: [explode success DIE helper]
+}
+
+function: explode success ROLL:n helper {
+  if ROLL = #{DIE} { result: 1 + [explode success DIE helper] }
+  else if ROLL >= SUCCESS { result: 1 }
+  else { result: 0 }
+}
+
+set "maximum function depth" to 2 + EXPLODE
+
+output NUMd[success DIE] named "success dice [NUM][DIE]"
+output NUMd[explode success DIE] named "exploding success dice [NUM][DIE]"

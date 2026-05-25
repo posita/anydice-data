@@ -1,0 +1,151 @@
+\*****************************************************************************\
+\ Função para cortar o dado em um número máximo.                              \
+function: cut ROLL:n at TARGET:n {
+    if ROLL > TARGET { result: 10 }
+    result: ROLL
+}
+
+
+\*****************************************************************************\
+\ Função para encontrar o mínimo e contabilizar extras.                       \
+function: decide ROLL:s BONUS:n {
+    if 1@ROLL = 10 { result: 0 }
+    result: 1@ROLL + (ROLL < 10) - 1 + BONUS
+}
+
+
+\*****************************************************************************\
+\ Função para contar o número de sucessos.                                    \
+function: count ROLL:n vs TARGET:n {
+    if ROLL = 1 { result: 1 + [ count d10 vs TARGET ] }
+    if ROLL <= TARGET { result: 1 }
+    result: 0
+}
+
+
+\*****************************************************************************\
+\ Função para calcular chances de vitória/empate/derrota.                     \
+function: ROLLA:n versus ROLLB:n {
+    if ROLLA > ROLLB { result: 1 }
+    if ROLLA < ROLLB { result: -1 }
+    result: 0
+}
+
+
+\*****************************************************************************\
+\ Função para calcular o efeito sobre uma dificuldade.                        \
+function: eval ROLL:n versus DIFF:n step DIV:n {
+    if ROLL >= DIFF { result: (ROLL - DIFF) / DIV + 1 }
+    result: 0
+}
+
+
+set "maximum function depth" to 5
+set "position order" to "lowest first"
+DSIX: { 1, 2, 3, 0, 0, 0 }
+ATTBASE: 0
+SKLBASE: 4
+BASEDIFF: 3
+
+
+\*****************************************************************************\
+\ Cálculo da tarefa simples -- sem habilidades.                               \
+loop POOL over { 2..4 } {
+    loop SKILL over { -2..5 } {
+        DCUT: [ cut d10 at (SKILL+SKLBASE) ]
+        DPOOL: [ count d10 vs 4 ]
+        output [ decide (POOL)dDCUT 0 ] named "[POOL]d10x[SKILL]"
+        output (SKILL+SKLBASE)dDPOOL named "[SKILL]d10x4"
+    }
+}
+
+
+\*****************************************************************************\
+\ Cálculo da tarefa simples.                                                  \
+loop POOL over { 2, 3, 4 } {
+    loop ATTRIBUTE over { -2..6 } {
+        loop SKILL over { -2..3 } {
+            DCUT: [ cut d10 at (SKILL+SKLBASE) ]
+            output [ decide POOLdDCUT (ATTRIBUTE+ATTBASE) ] named "[POOL]Dx[SKILL] + [ATTRIBUTE]"
+        }
+    }
+}
+
+
+\*****************************************************************************\
+\ Cálculo do efeito sobre a dificuldade básica.                               \
+\
+loop ATTRIBUTE over { -2..6 } {
+    DCUT: [ cut d10 at (ATTRIBUTE+ATTBASE) ]
+    loop SKILL over { -2..3 } {
+        output [ eval [ decide 3dDCUT ]+SKILL versus BASEDIFF step 1 ] named "3Dx[ATTRIBUTE] + [SKILL] vs [BASEDIFF]"
+    }
+}
+\
+
+\*****************************************************************************\
+\ Cálculo do conflito sem habilidades.                                        \
+\
+loop ATTRIBUTEA over { -2..6 } {
+    DCUTA: [ cut d10 at (ATTRIBUTEA+ATTBASE) ]
+    loop ATTRIBUTEB over { -2..6 } {
+        DCUTB: [ cut d10 at (ATTRIBUTEB+ATTBASE) ]
+            output [ [ decide 3dDCUTA ] versus [ decide 3dDCUTB ] ] named "3Dx[ATTRIBUTEA] vs 3Dx[ATTRIBUTEB]"
+    }
+}
+\
+
+\*****************************************************************************\
+\ Cálculo do conflito.                                                        \
+\
+loop ATTRIBUTEA over { -2..6 } {
+    DCUTA: [ cut d10 at (ATTRIBUTEA+ATTBASE) ]
+    loop ATTRIBUTEB over { -2..6 } {
+        DCUTB: [ cut d10 at (ATTRIBUTEB+ATTBASE) ]
+        loop SKILLA over { -2, 0, 3 } {
+            loop SKILLB over { -2, 0, 3 } {
+                output [ [ decide 3dDCUTA ]+SKILLA versus [ decide 3dDCUTB ]+SKILLB ] named "3Dx[ATTRIBUTEA]+[SKILLA] vs 3Dx[ATTRIBUTEB]+[SKILLB]"
+            }
+        }
+    }
+}
+\
+
+\*****************************************************************************\
+\ Cálculo do efeito nos conflitos.                                            \
+\
+loop ATTRIBUTEA over { -2..6 } {
+    DCUTA: [ cut d10 at (ATTRIBUTEA+ATTBASE) ]
+    loop ATTRIBUTEB over { -2..6 } {
+        DCUTB: [ cut d10 at (ATTRIBUTEB+ATTBASE) ]
+        output [ eval [ decide 3dDCUTA ] versus [ decide 3dDCUTB ] step 1 ] named "3Dx[ATTRIBUTEA] vs 3Dx[ATTRIBUTEB]"
+    }
+}
+\
+
+\*****************************************************************************\
+\ Cálculo das chances de vitória em testes passivos.                          \
+\
+loop ATTRIBUTE over { -2..6 } {
+    DCUT: [ cut d10 at (ATTRIBUTE+ATTBASE) ]
+    loop SKILL over { -2..3 } {
+        loop VERSUS over { -2..6 } {
+            output [ [ decide 3dDCUT ]+SKILL versus (VERSUS+BASEDIFF) ] named "3Dx[ATTRIBUTE]+[SKILL] vs [VERSUS]"
+        }
+    }
+}
+\
+
+
+\*****************************************************************************\
+\ Cálculo dos efeitos em testes passivos.                                     \
+\
+loop ATTRIBUTE over { -2..6 } {
+    DCUT: [ cut d10 at (ATTRIBUTE+ATTBASE) ]
+    loop SKILL over { -2..3 } {
+        loop VERSUS over { -2..6 } {
+            output [ eval [ decide 3dDCUT ] + SKILL versus (VERSUS+BASEDIFF) step 1 ] named "3Dx[ATTRIBUTE]+[SKILL] vs [VERSUS]"
+        }
+    }
+}
+\

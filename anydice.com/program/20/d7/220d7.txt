@@ -1,0 +1,42 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n crit on CRIT:s {
+ if ROLL = 1 { result: MISS }
+ if ROLL = CRIT {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE crit on CRITRANGE]]
+}
+
+DEFENSE: d{10..20}
+
+ATTACK: +5
+HITDAMAGE: d8 + 3 + 2d6
+CRITICALDAMAGE: d8*2+3 +(2d6)*2
+CRITRANGE: {20}
+MISSDAMAGE: 0
+
+output 2d[attack] named "RAW Crit"
+
+CRITICALDAMAGE: 2d8+3 +4d6
+output 2d[attack] named "Twice Dice Crit"
+CRITICALDAMAGE: d8+8+3+4d6
+output 2d[attack] named "RME Crit"
+CRITICALDAMAGE: d8+8+3+2d6+12
+output 2d[attack] named "Juicy Crit"

@@ -1,0 +1,58 @@
+function: ROLL:s hits vs DC:n with mastery{
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ CRITICAL: (ROLL=12)
+ MODS: SUCCESSES+CRITICAL
+ if (MODS>8) {result: 8}
+ if (MODS<-3) {result: -3}
+ result: MODS
+}
+
+function: ROLL:s hits vs DC:n{
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ CRITICAL: (ROLL=12)
+ MODS: SUCCESSES-BADONES+CRITICAL
+ if (MODS>8) {result: 8}
+ if (MODS<-3) {result: -3}
+ result: MODS
+}
+
+function: N:s dimyr DC:n{
+if N= 12 {result:2}
+if N>= DC {result:1}
+if N= 1 {result:-1}
+result:0
+}
+
+function: ROLL:n dimyrn DC:n{
+result:(ROLL >= DC)+(ROLL=12)-(ROLL=1)
+}
+
+function: N:n with DC:n and ADV:n{
+if ADV>0{result:[highest N of [(N+1)d12 dimyr DC]]}
+if ADV<0{result:[lowest N of [(N+1)d12 dimyr DC]]}
+result:[Nd12 dimyr DC]
+}
+
+function: N:n dice DC:n dc and ADV:n{
+if ADV>0{result: [highest N of (N+1)d[d12 dimyrn DC]]}
+if ADV<0{result: [lowest N of (N+1)d[d12 dimyrn DC]]}
+result: Nd[d12 dimyrn DC]
+}
+
+RANKS:0
+ATTR:3
+DICE: ATTR
+ADV:1
+HDICE:DICE+1
+loop RANKS over {0}{
+loop ADV over {-1..1}{
+
+DC:9-RANKS
+output [ATTR dice DC dc and ADV] named "[DICE]d12 vs [DC] and [ADV]"
+
+}
+output [ATTR+1 dice DC dc and 0] named "4d12 vs [DC]"
+output [ATTR-1 dice DC dc and 0] named "2d12 vs [DC]"
+}

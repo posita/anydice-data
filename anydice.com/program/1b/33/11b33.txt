@@ -1,0 +1,66 @@
+FOUR: {{1..2}:2, {3..4}:6}
+EIGHT: {{1..2}:2, {3..8}:10}
+TEN: {{1..2}:2, {3..10}:12}
+TWELVE: {{1..2}:2, {3..12}:14}
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vss AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [[highest 1 of 2d20] plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vsss AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [[highest 1 of 3d20] plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+TARGET: 14
+output [{9,9} vs TARGET crit 20 2 0 dmg 1dTEN 5]+[9 vs TARGET crit 20 2 0 dmg 1dFOUR 5] named "Enya PAM"
+output [{9,9} vs TARGET crit 20 2 0 dmg 1dTEN+1d4 5] named "Enya PAM Favor11"
+output [{9,9} vs TARGET crit 20 2 0 dmg 1dTEN+1d4 5]+[9 vs TARGET crit 20 2 0 dmg 1dFOUR+1d4 5] named "Enya PAM Favor"
+output [{9,9} vs TARGET crit 20 2 0 dmg 1dTEN+2d8+1d4 5]+[9 vs TARGET crit 20 2 0 dmg 1dFOUR+2d8+1d4 5] named "Enya PAM Favor +3 Lv.1 Smites"
+
+output [{9,9} vs TARGET crit 20 2 0 dmg 1dTEN+1d8 5]+[9 vs TARGET crit 20 2 0 dmg 1dFOUR+1d8 5] named "Enya PAM&IDS"
+output [{9,9} vs TARGET crit 20 2 0 dmg 1dTEN+1d8+1d4 5]+[9 vs TARGET crit 20 2 0 dmg 1dFOUR+1d8+1d4 5] named "Enya PAM&IDS +Divine Favor"
+
+output [{12,12} vs TARGET crit 20 2 0 dmg 1d8 10] named "Dawnbringer"
+output [{12,12} vs TARGET crit 20 2 0 dmg 2d8 10] named "Dawnbringer w/Maneuver"
+
+output [{10,10} vs TARGET crit 20 2 1d12 dmg 1d12 9] named "Chog-bog w/Rage"
+\output [{10,10,10} vs TARGET crit 20 2 1d12 dmg 1d12 9] named "Chog-bog w/Frenzy"\
+
+output [{10,10} vss TARGET crit 20 2 1d12 dmg 1d12 9] named "Reckless Chog-bog w/Rage"
+\output [{10,10,10} vss TARGET crit 20 2 1d12 dmg 1d12 9] named "Reckless Chog-bog w/Frenzy"\

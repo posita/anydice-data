@@ -1,0 +1,32 @@
+NUMDICE: 6
+
+function: push DICE:s {
+ OUT: 1@DICE >= 5
+ if OUT = 0 {
+  NEXTPOOL: [count {2..4} in DICE]
+  OUT: [reroll NEXTPOOLd6]
+ }
+ result: OUT
+}
+
+function: reroll DICE:s {
+ OUT: 1@DICE >= 5
+ if OUT = 0 {
+  NEXTPOOL: [count {2..4} in DICE]
+  NEXTPOOL: 2@[sort {NEXTPOOL, 2}]
+  OUT: [second reroll 2d6]
+ }
+ result: OUT
+}
+
+function: second reroll DICE:s {
+ result: 1@DICE >= 5 & 2@DICE >= 5
+}
+
+loop N over {1..NUMDICE}{
+output 1@Nd6 >= 5 named "[N]D with no reroll"
+}
+
+loop N over {1..NUMDICE}{
+output [push Nd6] named "[N]D with reroll"
+}

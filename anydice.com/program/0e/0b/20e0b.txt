@@ -1,0 +1,38 @@
+HEROINIT: 0
+HEROATTACK: 0
+HERODEFENSE: 0
+HERODAMAGE: 0
+HEROTOUGHNESS: 0
+
+MONSTERINIT: 0
+MONSTERATTACK: 0
+MONSTERDEFENSE: 0
+MONSTERDAMAGE: 0
+MONSTERTOUGHNESS: 0
+
+ROLL: 1d20
+DEF: 1d20 + MONSTERDEFENSE
+EFFECT: 1
+DAMAGE: 1d20 + HERODAMAGE - MONSTERTOUGHNESS
+TOTAL: 0
+SCORE: 0
+
+function: attack ROLL:n {
+ if ROLL = 1 {result:0 }
+ if ROLL = 20 {result:DAMAGE+5 }
+ if ROLL + HEROATTACK >= 10 + MONSTERDEFENSE { result:DAMAGE }
+ result:0
+}
+
+TOTAL:TOTAL + [attack ROLL]
+
+function: damage TOTAL:n {
+ if TOTAL > 25 {result: 5}
+ if TOTAL > 20 {result: 4}
+ if TOTAL > 15 {result: 3}
+ if TOTAL > 10 {result: 2}
+ if TOTAL > 5 {result:1}
+result:0
+}
+
+output [damage TOTAL] named "Hit Result (0: miss, 1: injured, 2: stunned, 3: disabled, 4: dying, 5: dead)"

@@ -1,0 +1,174 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Here are some examples: \
+\output [{17,14,13,11,17,12} vs 30 crit 19 2 dmg 1d6+14] named "Kamas"
+output [{19,16,15,13} vs 30 crit 19 2 dmg 1d10+14] named "Fists"
+output [{19,14,19,14} vs 30 crit 15 2 dmg 1d6+16] named "DWShortSword"
+output [{19,14} vs 30 crit 15 2 dmg 2d6+30] named "greatsword"
+output [{19,14,19,14} vs 30 crit 15 2 dmg 1d6+16+5] named "DWShortSwordFW"
+output [{19,14} vs 30 crit 15 2 dmg 2d6+30+10] named "greatswordFW"
+
+output [{19,14,19,14} vs 30 crit 15 2 dmg 1d6+16-10] named "DWShortSwordvDR"
+output [{19,14} vs 30 crit 15 2 dmg 2d6+30-10] named "greatswordvDR"\
+
+\output [15 vs 17 crit 19 2 1d10 dmg 3d6+20 1d6] named "flaming burst greatsword raging bull strength enlarged"
+output [{10,10} vs 17 crit 20 2 dmg 1d6+10] named "2 claw attacks"
+output [6 vs 17 crit 20 2 dmg 1d6+1 1d6] named "javelin sneak attack"\
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \
+
+output [{20,20} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4] named "Shield"                             \8 Str + 4 Dex + 2 EB + 1d4 Weapon\
+output [{26,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4] named "SW"                             \8 Str + 4 Dex + 2 EB + 1d4 Weapon\
+output [{20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6] named "GW"                         \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{18,18,18,18} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4] named "DW"                     \4 Str + 8 Dex + 2 EB + 1d4 Weapon\
+output [{20,20,20,20} vs 30 crit 19 2 dmg 1d8+1d4+12+4+2+1d4+6] named "GW Monk"             \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{18,18,18,18,18,18} vs 30 crit 19 2 dmg 1d6+1d4+8+4+2+1d4] named "DW Monk"             \8 Dex + 4 Str + 2 EB + 1d4 Weapon + 6 IPA\
+output [{22,22} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6] named "Greatsword Fighter"                 \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{20,20,20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+8] named "DW Champion Pt1"                \\
+output [{20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+8] named "DW Champion Pt2"                \\
+output [{22,22} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+16] named "GW Champion Pt1"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{22} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+16] named "GW Champion Pt2"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{28,28} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+24] named "SW Champion"                \\
+output [{20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+4] named "Greatsword Barbarian"             \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA + 4 Rage\
+output [{18,18,18,18,18,18} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+5d4+4] named "DW Berserker"   \\
+output [{20,20,20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+4d4+4] named "GW Berserker"   \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA + 6 Rage + 1d6 Frenzy\
+output [{26,26,26,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+3d4+4] named "SW Berserker"   \\
+output [{20,20,20,20} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4] named "Shortswords Fighter"             \4 Str + 8 Dex + 2 EB + 1d4 Weapon\
+output [{18,18,18,18} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4+4] named "Shortswords Barbarian"           \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 4 Rage\
+output [{26,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4] named "Longsword (Single Weapon Style)" \8 Str + 4 Dex + 2 EB + 1d4 Weapon (+6 AB)\ 
+output [{23,23} vs 30 crit 19 2 dmg 1d8+4+8+2+1d4 5d6] named "Shortsword 1H Style Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 6 AB + 5d6 Sneak\
+output [{15,15,15,15} vs 30 crit 19 2 dmg 1d8+4+8+2+1d4 5d6] named "Shortsword DW Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 5d6 Sneak\
+output [{19,19,19} vs 30 crit 20 3 dmg 1d8+4+8+2] named "Longbow (+2 Ammo)"                       \4 Str + 8 Dex + 2 Ammo\
+output [{21,21} vs 30 crit 19 2 dmg 2d10+4+8+2] named "Heavy Crossbow (+2 Ammo)"                       \4 Str + 8 Dex + 2 Ammo\
+
+output [{0} vs 30 crit 15 2 dmg 1d6+16-10] named "FLAME WEAPON (2d4):"
+
+output [{20,15} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4] named "Longsword"                       \8 Str + 4 Dex + 2 EB + 1d4 Weapon\
+output [{20,15} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4] named "GreatswordPA"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{22,22,22} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4] named "GW Fighter"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\ 
+output [{25,25,25,25} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion"                \\
+output [{20,20,20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion Pt1"                \\
+output [{20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion Pt2"                \\
+output [{27,27} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4+16] named "GW Champion"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{33,33} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4+24] named "SW Champion"                \\
+output [{20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4+4] named "GW Barbarian"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{18,18,18,18,20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+3d6+5] named "DW Berserker"                \8 Dex + 4 Str + 2 EB + 1d4 Weapon\
+output [{20,20,20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+2d4+3d6+6+4] named "GW Berserker"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{26,26,26,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4+2d6+4] named "SW Berserker"                \8 Dex + 4 Str + 2 EB + 1d4 Weapon\
+output [{18,13,18,13} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4+2d4] named "Shortswords"               \4 Str + 8 Dex + 2 EB + 1d4 Weapon\
+output [{26,21} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4] named "Longsword (Single Weapon Style)" \8 Str + 4 Dex + 2 EB + 1d4 Weapon (+6 AB)\ 
+output [{18,15,12,18} vs 30 crit 19 2 dmg 1d10+4+8+2+1d4+2d4] named "Fists (Unarmed Style)"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon\
+output [{18,15,12,18} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4+2d4+2] named "Quarterstaff Monk"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 6 GWS\
+output [{21,18,15,21} vs 30 crit 17 2 dmg 1d6+4+8+2+1d4+2d4] named "Shortsword 1H Style Monk"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 6 AB\
+output [{23,18} vs 30 crit 17 2 dmg 1d8+4+8+2+1d4+5d6+2d4] named "Shortsword 1H Style Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 6 AB + 5d6 Sneak\
+output [{15,10,15,10} vs 30 crit 17 2 dmg 1d8+4+8+2+1d4+5d6+2d4] named "Shortsword DW Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 5d6 Sneak\
+output [{19,14,19} vs 30 crit 20 3 dmg 1d8+4+8+2d4] named "Longbow (No Ammo)"                       \4 Str + 8 Dex\
+output [{20,15,20} vs 30 crit 20 3 dmg 1d8+4+8+1+2d4] named "Longbow (+1 Ammo)"                       \4 Str + 8 Dex + 1 Ammo\
+output [{21,16,21} vs 30 crit 20 3 dmg 1d8+4+8+2+2d4] named "Longbow (+2 Ammo)"                       \4 Str + 8 Dex + 2 Ammo\
+output [{22,17,22} vs 30 crit 20 3 dmg 1d8+4+8+3+2d4] named "Longbow (+3 Ammo)"                       \4 Str + 8 Dex + 3 Ammo\
+output [{21,16} vs 30 crit 19 2 dmg 2d10+4+8+2d4] named "Heavy Crossbow(No Ammo)"                       \4 Str + 8 Dex + 1 Ammo\
+output [{22,17} vs 30 crit 19 2 dmg 2d10+4+8+1+2d4] named "Heavy Crossbow (+1 Ammo)"                       \4 Str + 8 Dex + 1 Ammo\
+output [{23,18} vs 30 crit 19 2 dmg 2d10+4+8+2+2d4] named "Heavy Crossbow (+2 Ammo)"                       \4 Str + 8 Dex + 2 Ammo\
+output [{24,19} vs 30 crit 19 2 dmg 2d10+4+8+3+2d4] named "Heavy Crossbow (+3 Ammo)"                       \4 Str + 8 Dex + 3 Ammo\
+
+output [{0} vs 30 crit 15 2 dmg 1d6+16-10] named "HASTE:"
+
+output [{20,15,20} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4] named "Longsword"                       \8 Str + 4 Dex + 2 EB + 1d4 Weapon\
+output [{20,15,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6] named "Greatsword"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{22,22,22} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6] named "GW Fighter"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\ 
+output [{25,25,25,25,27} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+8] named "DW Champion"                \\
+output [{27,27,27} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+16] named "GW Champion"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{33,33,33} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+24] named "SW Champion"                \\
+output [{20,20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+4] named "GW Barbarian"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{18,18,18,18,20,20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+3d6+5] named "DW Berserker"                \8 Dex + 4 Str + 2 EB + 1d4 Weapon\
+output [{20,20,20,20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+3d6+6+4] named "GW Berserker"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{26,26,26,26,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d6+4] named "SW Berserker"                \8 Dex + 4 Str + 2 EB + 1d4 Weapon\
+output [{18,13,18,13,20,15} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4] named "Shortswords"               \4 Str + 8 Dex + 2 EB + 1d4 Weapon\
+output [{26,21,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4] named "Longsword (Single Weapon Style)" \8 Str + 4 Dex + 2 EB + 1d4 Weapon (+6 AB)\ 
+output [{18,15,12,18,13,8} vs 30 crit 20 2 dmg 1d10+4+8+2+1d4+2d6] named "Fists (Unarmed Style)"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon\
+output [{18,16,12,18,13,8} vs 30 crit 20 2 dmg 1d6+4+8+2+1d4+2+2d6] named "Quarterstaff Monk"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 6 GWS\
+output [{21,18,15,21,18} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4] named "Shortsword 1H Style Monk"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 6 AB\
+output [{23,18,23} vs 30 crit 19 2 dmg 1d8+4+8+2+1d4+5d6] named "Shortsword 1H Style Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 6 AB + 5d6 Sneak\
+output [{15,10,15,10,17,12} vs 30 crit 19 2 dmg 1d8+4+8+2+1d4+5d6] named "Shortsword DW Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 5d6 Sneak\
+output [{19,14,19,14,9} vs 30 crit 20 3 dmg 1d8+4+8] named "Longbow (No Ammo)"                       \4 Str + 8 Dex\
+output [{20,15,20,15,10} vs 30 crit 20 3 dmg 1d8+4+8+1] named "Longbow (+1 Ammo)"                       \4 Str + 8 Dex + 1 Ammo\
+output [{21,16,21,16,11} vs 30 crit 20 3 dmg 1d8+4+8+2] named "Longbow (+2 Ammo)"                       \4 Str + 8 Dex + 2 Ammo\
+output [{22,17,22,17,12} vs 30 crit 20 3 dmg 1d8+4+8+3] named "Longbow (+3 Ammo)"                       \4 Str + 8 Dex + 3 Ammo\
+output [{21,16,21} vs 30 crit 19 2 dmg 2d10+4+8] named "Heavy Crossbow(No Ammo)"                       \4 Str + 8 Dex + 1 Ammo\
+output [{22,17,22} vs 30 crit 19 2 dmg 2d10+4+8+1] named "Heavy Crossbow (+1 Ammo)"                       \4 Str + 8 Dex + 1 Ammo\
+output [{23,18,23} vs 30 crit 19 2 dmg 2d10+4+8+2] named "Heavy Crossbow (+2 Ammo)"                       \4 Str + 8 Dex + 2 Ammo\
+output [{24,19,24} vs 30 crit 19 2 dmg 2d10+4+8+3] named "Heavy Crossbow (+3 Ammo)"                       \4 Str + 8 Dex + 3 Ammo\
+
+output [{0} vs 30 crit 15 2 dmg 1d6+16-10] named "HASTE AND FLAME WEAPON:"
+
+output [{20,20,20} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4] named "Longsword/Shield"                       \8 Str + 4 Dex + 2 EB + 1d4 Weapon\
+output [{20,20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4] named "Greatsword"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{18,18,18,18,20} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4+2d4] named "Shortswords"               \4 Str + 8 Dex + 2 EB + 1d4 Weapon\
+output [{26,26,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4] named "Longsword (Single Weapon Style)" \8 Str + 4 Dex + 2 EB + 1d4 Weapon (+6 AB)\ 
+output [{22,22,22} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4] named "Sword/Shield Fighter"                       \8 Str + 4 Dex + 2 EB + 1d4 Weapon\
+output [{22,22,22} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4] named "GW Fighter"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\ 
+output [{25,25,25,25,27} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion"                \\
+output [{20,20,20,20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion Pt1"                \\
+output [{20,20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion Pt2"                \\
+output [{20,20} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion Pt3"                \\
+output [{25,25,25,25,25} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+8] named "DW Champion NewRules"                \\
+output [{27,27,27} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4+16] named "GW Champion"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{33,33,33} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4+24] named "SW Champion"                \\
+output [{20,20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+6+2d4+4] named "GW Barbarian"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{18,18,18,18,18,18,18} vs 30 crit 19 2 dmg 1d6+8+4+2+1d4+2d4+5d4+4] named "DW Berserker"                \8 Dex + 4 Str + 2 EB + 1d4 Weapon\
+output [{20,20,20,20,20} vs 30 crit 19 2 dmg 2d6+12+4+2+1d4+2d4+4d4+6+4] named "GW Berserker"                \8(*1.5) Str + 4 Dex + 2 EB + 1d4 Weapon + 6 IPA\
+output [{26,26,26,26,26} vs 30 crit 19 2 dmg 1d8+8+4+2+1d4+2d4+3d4+4] named "SW Berserker"                \8 Dex + 4 Str + 2 EB + 1d4 Weapon\
+output [{25,25,25} vs 30 crit 19 2 dmg 1d8+7+2+2+1d4+2d4+6] named "DexClericSWStyle"                \7 Dex + 2 Str + 2 EB + 1d4 Weapon + 6 Divine Might\
+output [{20,20,20} vs 30 crit 19 2 dmg 2d6+12+1+2+1d4+2d4+6+6] named "GreatswordCleric"                \8(*1.5) Str + 1 Dex + 2 EB + 1d4 Weapon + 6 Divine Might + 6 Style\
+output [{17,17,17,17,19} vs 30 crit 19 2 dmg 1d6+7+2+2+1d4+2d4+6] named "DualWieldCleric"                \7 Dex + 2 Str + 2 EB + 1d4 Weapon + 6 Divine Might\
+output [{20,17,20,15,10} vs 30 crit 20 2 dmg 1d6+7+2+2+1d4+2d4+2d6+6] named "Sacred Fists (Unarmed Style)" \7 Dex + 2 Str + 2 EB + 1d4 Weapon + 2d6 Haste Style +6DivineMight\
+output [{15,15,15,15,17} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4+2d4 5d6] named "DW Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 5d6 Sneak\
+output [{23,23,23} vs 30 crit 19 2 dmg 1d8+4+8+2+1d4+2d4 5d6] named "SW Rogue"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 5d6 Sneak\
+output [{15,15,15,15,17} vs 30 crit 19 2 dmg 1d6+4+8+2+1d4+2d4 10d6] named "DW Rogue Grace"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 5d6 Sneak\
+output [{23,23,23} vs 30 crit 19 2 dmg 1d8+4+8+2+1d4+2d4 10d6] named "SW Rogue Grace"                    \4 Str + 8 Dex + 2 EB + 1d4 Weapon + 5d6 Sneak\
+output [{19,19,19,19} vs 30 crit 20 3 dmg 1d8+4+8+2+2d4+1d4] named "Longbow"              \4 Str + 8 Dex + 2 Ammo\
+output [{21,21,21} vs 30 crit 19 2 dmg 2d10+4+8+2+2d4+1d4] named "Heavy Crossbow"                       \4 Str + 8 Dex + 2 Ammo\

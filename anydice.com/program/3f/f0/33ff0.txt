@@ -1,0 +1,33 @@
+
+
+function: explodes DICE:s to DEPTH:n {
+ TARGET: NKEPT * 6
+ if DEPTH = 0 {result: DICE}
+ if TARGET = DICE {
+  result: TARGET + [POOLSIZE p NKEPT to DEPTH -1]
+ }
+ result: DICE
+}
+
+
+function: POOLSIZE:n p NKEPT:n to DEPTH:n {
+X: NKEPT - POOLSIZE
+ if X > 0 {
+  
+  result: [explodes [lowest NKEPT of (NKEPT + X) d{1..6}] to DEPTH]
+ }
+ else {
+  result: [explodes [highest NKEPT of POOLSIZE d{1..6}] to DEPTH]
+ }
+}
+
+\output [default] named "default"\
+
+loop KEEP over {1..3} {
+ loop POOL over {0..6} {
+  D: (POOL + 2 + POOL - KEEP) / (KEEP)
+  DEPTH: D
+  if DEPTH > 0 {  set "maximum function depth" to DEPTH}
+  output [POOL p KEEP to DEPTH] named "[POOL]p[KEEP] to [DEPTH] depth"
+ }
+}

@@ -1,0 +1,78 @@
+PLAYERSPELLATTACK: 9
+PLAYERSPELLMOD: 5
+PLAYERSPELLDC: 17
+
+function: save ROLL:n plus BONUS:n vs DC:n for DMG:d on save CRIT_DMG:n on fail {
+    if ROLL + BONUS < DC {
+        result: CRIT_DMG
+    } else {
+        result: DMG
+    }
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: eldritch blast against AC:n {
+result: [attack d20 plus PLAYERSPELLATTACK vs AC
+    hit  1d10 + PLAYERSPELLMOD
+    miss 0
+    crit 2d10 + PLAYERSPELLMOD on 20
+]}
+
+function: eldritch blast hex against AC:n {
+result: [attack d20 plus PLAYERSPELLATTACK vs AC
+    hit  1d10 + PLAYERSPELLMOD + 1d6
+    miss 0
+    crit 2d10 + PLAYERSPELLMOD + 1d6 on 20
+]}
+
+function: one beam against AC:n {
+result: [eldritch blast against AC]}
+
+function: one beam hex against AC:n {
+result: [eldritch blast hex against AC]}
+
+function: two beams against AC:n {
+result: [one beam against AC] + [one beam against AC]}
+
+function: two beams hex against AC:n {
+result: [one beam hex against AC] + [one beam hex against AC]}
+
+function: three beams against AC:n {
+result: [two beams against AC] + [one beam against AC]}
+
+function: three beams hex against AC:n {
+result: [two beams hex against AC] + [one beam hex against AC]}
+
+MONSTERSAVE: 5
+MONSTERAC: 18
+
+output [three beams against MONSTERAC] named "Eldritch blast single target"
+output [three beams hex against MONSTERAC] named "Eldritch blast hex single target"
+output [save d20 plus MONSTERSAVE vs PLAYERSPELLDC for 0 on save 4d10 on fail] named "Sickening radiance single target"
+output [save d20 plus MONSTERSAVE vs PLAYERSPELLDC for 0 on save 4d10 on fail] + [save d20 plus MONSTERSAVE vs PLAYERSPELLDC for 0 on save 4d10 on fail] named "Sickening radiance two target"
+output [save d20 plus MONSTERSAVE vs PLAYERSPELLDC for 0 on save 4d10 on fail] + [save d20 plus MONSTERSAVE vs PLAYERSPELLDC for 0 on save 4d10 on fail] + [save d20 plus MONSTERSAVE vs PLAYERSPELLDC for 0 on save 4d10 on fail] named "Sickening radiance three target"

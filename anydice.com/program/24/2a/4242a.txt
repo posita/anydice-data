@@ -1,0 +1,44 @@
+\ Redactable values. For ATTACK_VALUE, ARMOR_VALUE and EVADE_VALUE type a group of successful values enclosed in "{}" symbols. Examples are "{3, 4, 5, 6}" or "{3..6}". \
+
+ATTACK: 12
+ATTACK_VALUE: {3..6}
+PRECISION: 3
+SURGE: d6
+CRITS: 2
+ARMOR_VALUE: {5, 6}
+EVADE_VALUE: {6}
+DAMAGE_VALUE: 1
+DAMAGE_STORED: 0
+DAMAGE_REDUCTION: 0
+
+\ End of redactable values \
+
+function: hits N:n out of MAX:n{
+  if N > MAX {
+    result: MAX
+  } else {
+    result: N
+  }
+}
+
+function: null check N:n {
+  if N < 0 {
+    result: 0
+  } else {
+    result: N
+  }
+}
+
+function: roll N:n at VALUE:s {
+  result: [count VALUE in Nd6]
+}
+
+HITS: [hits [count ATTACK_VALUE in ATTACKd6] + PRECISION out of ATTACK]
+ARMOR_ROLLS: [null check HITS - SURGE - CRITS]
+ARMORS: [roll  ARMOR_ROLLS at ARMOR_VALUE]
+EVADE_ROLLS: [null check HITS - ARMORS]
+EVADES: [roll  EVADE_ROLLS at EVADE_VALUE]
+CONFIRMED_HITS: [null check EVADE_ROLLS - EVADES]
+DAMAGE: [null check (CONFIRMED_HITS * DAMAGE_VALUE) + DAMAGE_STORED - DAMAGE_REDUCTION]
+
+output DAMAGE

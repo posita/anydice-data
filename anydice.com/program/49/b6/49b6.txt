@@ -1,0 +1,143 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+function: BASE:n BONUS:n main AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: 0
+  loop MINUS over {0, -5, -10, -15} {
+    ATK: BASE + MINUS
+    if ATK > 0 | MINUS = 0 {
+      SUM: SUM + [ATK + BONUS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+    }
+  }
+  result: SUM
+}
+function: ATTACKS:s BONUS:n off AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: 0
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [BASE+BONUS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \
+
+STR: 0
+DEX: 4
+SNEAK: 3
+
+BASE: 3
+AC: 15
+
+MASTERWORK: 1
+MAGIC: 0
+
+WZ_ATK: MAGIC+MASTERWORK
+WZ_DMG: 1d6+STR+MAGIC
+WZ_CRIT: 18
+WZ_CRIT_EXTRA: 0
+WZ_MUL: 2
+WZ_EXTRA: SNEAKd6
+
+NAT_ATK: +0
+NAT_DMG: 1d4+STR
+NAT_CRIT: 20
+NAT_CRIT_EXTRA: 0
+NAT_MUL: 2
+NAT_EXTRA: SNEAKd8
+
+CLAW_ATK: MAGIC+MASTERWORK
+CLAW_DMG: 1d4+STR+MAGIC
+CLAW_CRIT: 20
+CLAW_CRIT_EXTRA: 0
+CLAW_MUL: 2
+CLAW_EXTRA: SNEAKd8
+
+BOW_ATK: MAGIC+MASTERWORK
+BOW_DMG: 1d8+STR+MAGIC
+BOW_DMG_GRAVITY: 2d8+STR+MAGIC
+BOW_CRIT: 20
+BOW_CRIT_EXTRA: 0
+BOW_MUL: 3
+BOW_EXTRA: SNEAKd6
+
+output
+[BASE DEX+BOW_ATK main AC crit BOW_CRIT BOW_MUL BOW_CRIT_EXTRA dmg BOW_DMG BOW_EXTRA]
+named "longbow"
+
+output
+[BASE DEX+BOW_ATK main AC crit BOW_CRIT BOW_MUL BOW_CRIT_EXTRA dmg BOW_DMG_GRAVITY BOW_EXTRA]
+named "gravitybow"
+
+output
+[BASE DEX+WZ_ATK main AC crit WZ_CRIT WZ_MUL WZ_CRIT_EXTRA dmg WZ_DMG WZ_EXTRA]
+named "wakizashi"
+
+output
+[BASE DEX+NAT_ATK off AC crit NAT_CRIT NAT_MUL NAT_CRIT_EXTRA dmg NAT_DMG NAT_EXTRA]
+named "natural claw"
+
+output
+[BASE DEX+CLAW_ATK main AC crit CLAW_CRIT CLAW_MUL CLAW_CRIT_EXTRA dmg CLAW_DMG CLAW_EXTRA]
+named "claw blade"
+
+output
+[BASE DEX-2+WZ_ATK main AC crit WZ_CRIT WZ_MUL WZ_CRIT_EXTRA dmg WZ_DMG WZ_EXTRA]+
+[BASE DEX-2+WZ_ATK off AC crit WZ_CRIT WZ_MUL WZ_CRIT_EXTRA dmg WZ_DMG WZ_EXTRA]
+named "2 x wakizashi (TWO)"
+
+output
+[{BASE,BASE} DEX+NAT_ATK off AC crit NAT_CRIT NAT_MUL NAT_CRIT_EXTRA dmg NAT_DMG NAT_EXTRA]
+named "2 x natural claw"
+
+output
+[BASE DEX-2+CLAW_ATK main AC crit CLAW_CRIT CLAW_MUL CLAW_CRIT_EXTRA dmg CLAW_DMG CLAW_EXTRA] +
+[BASE DEX-2+CLAW_ATK main AC crit CLAW_CRIT CLAW_MUL CLAW_CRIT_EXTRA dmg CLAW_DMG CLAW_EXTRA]
+named "2 x claw blade (TWO)"
+
+output
+[BASE DEX+CLAW_ATK main AC crit CLAW_CRIT CLAW_MUL CLAW_CRIT_EXTRA dmg CLAW_DMG CLAW_EXTRA] +
+[BASE DEX-5+NAT_ATK off AC crit NAT_CRIT NAT_MUL NAT_CRIT_EXTRA dmg NAT_DMG NAT_EXTRA]
+named "claw blade + natural claw"

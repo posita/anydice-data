@@ -1,0 +1,103 @@
+\AC		If GWM					Otherwise
+1-12		Shortbow (+1) and Help Brenda (GWM)	Shortbow (+1) and Help Anakis.
+13-16		Shortbow (+1) and Help Brenda (GWM)	TWF (Shortswords) and Help Anakis.
+17		TWF (Shortswords) and Help Anakis.	Shortbow (+1) and Help Anakis.
+18-27		Shortbow (+1) and Help Anakis.		TWF (Shortswords) and Help Anakis.
+28-(28+n)	Shortbow (+1) and Help Brenda (GWM)	Shortbow (+1) and Help Anakis.
+
+[Brenda uses GWM]
+If AC < 17 or AC > 27, then Shortbow (+1) and Help Brenda (GWM).
+If AC = 17, then TWF (Shortswords) and Help Anakis if Attack misses.
+If AC = {18...27}, then Shortbow (+1) and Help Anakis.
+
+[Brenda doesn't use GWM]
+If AC = {13...16} or {18...27}, then TWF (Shortswords) and Help Anakis if Attack misses.
+Otherwise, Shortbow (+1) and Help Anakis.\
+
+AC: 15
+PROFICIENCY: 3
+DEX: 4
+SNEAK: 3d6
+BRENDA: 5+1
+ANAKIS: 4+1
+
+function: rapier ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d8+2dSNEAK+4 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d8+SNEAK+4 }
+ result: 0
+}
+
+function: shortbow ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK+4+1+2 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX +1 >= AC { result: d6+SNEAK+4+1+2 }
+ result: 0
+}
+
+function: shortsword ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK+4 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d6+SNEAK+4 }
+ result: 0
+}
+
+function: daggertwf ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 2d6+2dSNEAK } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + DEX >= AC { result: d6+SNEAK }
+ result: 0
+}
+
+function: brenda ROLL:n vs AC:n {
+ if ROLL >= 19 { result: 2d{{1..2}, {3..12}:7}+BRENDA } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + BRENDA >= AC { result: d{{1..2}, {3..12}:7}+BRENDA }
+ result: 0
+}
+
+function: brendagwm ROLL:n vs AC:n {
+ if ROLL >= 19 { result: 2d{{1..2}, {3..12}:7}+BRENDA+10 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + BRENDA-5 >= AC { result: d{{1..2}, {3..12}:7}+BRENDA+10 }
+ result: 0
+}
+
+function: anakis ROLL:n vs AC:n {
+ if ROLL >= 20 { result: 4d{{1..2}, {3..6}:4}+ANAKIS+6d8 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ANAKIS >= AC { result: 2d{{1..2}, {3..6}:4}+ANAKIS}
+ result: 0
+}
+
+output [shortbow [highest 1 of 2d20] vs AC]+[brenda d20 vs AC] named "Hide + shortbow (+1)"
+
+function: first A:n second B:n {
+  if A = 20 {result: 2d6+DEX+2dSNEAK + [brenda [highest 1 of 2d20] vs AC]}
+  if A + DEX + PROFICIENCY >= AC & A != 1 {result: d6+DEX+SNEAK + [brenda [highest 1 of 2d20] vs AC]}
+  result: [daggertwf d20 vs AC]+[brenda d20 vs AC]
+}
+
+output [first d20 second d20] named "shortsword + TWF (shortsword)/Help Brenda"
+
+function: first A:n second B:n {
+  if A = 20 {result: 2d6+DEX+2dSNEAK + [brendagwm [highest 1 of 2d20] vs AC]}
+  if A + DEX + PROFICIENCY >= AC & A != 1 {result: d6+DEX+SNEAK + [brendagwm [highest 1 of 2d20] vs AC]}
+  result: [daggertwf d20 vs AC]+[brendagwm d20 vs AC]
+}
+
+output [first d20 second d20] named "shortsword + TWF (shortsword)/Help Brenda (GWM)"
+
+function: first A:n second B:n {
+  if A = 20 {result: 2d6+DEX+2dSNEAK + [anakis [highest 1 of 2d20] vs AC]}
+  if A + DEX + PROFICIENCY >= AC & A != 1 {result: d6+DEX+SNEAK + [anakis [highest 1 of 2d20] vs AC]}
+  result: [daggertwf d20 vs AC]+[anakis d20 vs AC]
+}
+
+output [first d20 second d20] named "shortsword + TWF (shortsword)/Help Anakis"
+
+output [shortbow d20 vs AC]+[brenda [highest 1 of 2d20] vs AC] named "shortbow (+1) + Help Brenda"
+
+output [shortbow d20 vs AC]+[brendagwm [highest 1 of 2d20] vs AC] named "shortbow (+1) + Help Brenda (GWM)"
+
+output [shortbow d20 vs AC]+[anakis [highest 1 of 2d20] vs AC] named "shortbow (+1) + Help Anakis"

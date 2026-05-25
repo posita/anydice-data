@@ -1,0 +1,40 @@
+function: clamp N:n between MIN:n and MAX:n {
+  if N <= MIN { result: MIN }
+  if N >= MAX { result: MAX }
+  result: N
+}
+function: minimum of D:d {
+ result: 1@{D}
+}
+
+
+function: explode D:d both {
+  MIN: [minimum of D]
+  MAX: [maximum of D]
+  result: [explode D using D with MIN and MAX]
+}
+function: explode N:n using D:d with MIN:n and MAX:n {
+  if N = MIN {
+    result: N - [explode D] 
+  }
+  if N = MAX {
+    result: N + [explode D] 
+  }
+  result: N
+}
+
+RANGE: 21
+
+set "explode depth" to 30
+output [clamp [explode 1d(1d10 > 2)]-[explode 1d(1d10 > 2)] between -RANGE and RANGE] named "laplace"
+
+set "explode depth" to 2
+output [clamp [explode d10]-[explode d10] between -RANGE and RANGE] named "d10!-d10!"
+
+set "explode depth" to 3
+ZFIVE: {0..5}
+ZSEVEN: {0..7}
+
+output [clamp 2d[explode dZFIVE both]-5 between -RANGE and RANGE] named "2z5!-5"
+output [clamp 2d[explode dZSEVEN both]-7 between -RANGE and RANGE] named "2z7!-7"
+output [clamp [explode dZSEVEN both]+[explode dZFIVE both]-6 between -RANGE and RANGE] named "z7!+d5!-z7!-z5!-6"

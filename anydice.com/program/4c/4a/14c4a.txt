@@ -1,0 +1,59 @@
+SSIX: {-1, 0, 0, 0, 0, 1}
+STEN: {-1, 0, 0, 0, 0, 1, 1, 1, 1, 1}
+SPSIX: {0, 0, 0, 0, 1}
+SPTEN: {0, 0, 0, 0, 1, 1, 1, 1, 1}
+SLTEN: {-1, 0, 0, 0, 0, 1, 1, 1, 1, 2}
+SLPTEN: {0, 0, 0, 0, 1, 1, 1, 1, 2}
+
+function: peripheral N {
+  result: [N check for botches on sixes first (5-N)@(5-N)d6]
+}
+
+function: N:n check for botches on sixes first MINSIX:n {
+ if MINSIX = 1 {
+  result: (5-N-1)dSSIX + NdSTEN + 1
+ }
+ else {
+  result: [N check for botches on tens second N@Nd10]
+ }
+}
+
+function: N:n check for botches on tens second MINTEN:n {
+ if MINTEN = 1 {
+  result: (5-N)dSPSIX + (N-1)dSTEN + 1
+ }
+ else {
+  result: (5-N)dSPSIX + NdSPTEN
+ }
+}
+
+
+function: alt peripheral N {
+  result: [N check for botches on tens first N@Nd10]
+}
+
+function: N:n check for botches on tens first MINTEN:n {
+ if MINTEN = 1 {
+  result: (5-N)dSSIX + (N-1)dSTEN + 1
+ }
+ else {
+  result: [N check for botches on sixes second (5-N)@(5-N)d6]
+ }
+}
+
+function: N:n check for botches on sixes second MINSIX:n {
+ if MINSIX = 1 {
+  result: (5-N-1)dSSIX + NdSPTEN + 1
+ }
+ else {
+  result: (5-N)dSPSIX + NdSPTEN
+ }
+}
+
+
+
+loop N over {0..5}{
+	output (5-N)dSSIX + NdSTEN named "Skill [N]"
+	output [peripheral N] named "Skill [N] plus peripheral"
+	output [alt peripheral N] named "Skill [N] plus peripheral"
+}

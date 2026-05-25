@@ -1,0 +1,71 @@
+C: d{0,0,0,-1,-1,2}    \routs on two of the 0s\
+I: d{0,-1,-1,1,2,2}    \routs on the 0 and 1\
+\I: d{0,0,-1,-1,-1,2}\
+
+R: d{0,1,2,3}
+
+\
+1@XdY is essentially keep highest 1
+X@XdY is essentially keep lowest 1
+IMPORTANT: you can do boolean operations on 1@XdY, whereas you cannot on [highest] function, etc.
+  because it returns a die.
+\
+
+function: valk ROLL:s {
+ if (1@ROLL = 0) {    \highest rolls is a 0\
+  result: [count -1 in ROLL]    \if there's any -1s, return that, else we get 0\
+ }
+ if (1@ROLL = 1) {    \highest rolls is a 1\
+  result: 1 + [count -1 in ROLL]    \return 1 and add any -1s as +1s\
+ }
+ if (1@ROLL = 2) {    \highest rolls is a 2\
+  result: 2 + [count -1 in ROLL]    \return 2 and add any -1s as +1s\
+ }
+ result: [count -1 in ROLL]
+}
+
+
+function: valkhighest ROLL:s {
+\ dealing with the -1 as highest roll.
+  we're always going to be adding all -1s as +1s,
+  so they can effectively be treated as a 0 for getting the highest value.
+\
+ if (1@ROLL = -1) {
+  result: 0
+ }
+ result: 1@ROLL
+}
+
+function: battle CLASH:s IGNITE:s {
+ CL: [valkhighest CLASH]
+ IG: [valkhighest IGNITE]
+
+ if (CL >= IG) {
+  result: CL + [count -1 in CLASH] + [count -1 in IGNITE]
+ }
+ result: IG + [count -1 in CLASH] + [count -1 in IGNITE]
+}
+
+function: blades ROLL:s {
+ if 1@ROLL = 6 {
+  result: 2 + (2@ROLL = 6)
+ }
+ result: 1@ROLL >= 4
+}
+
+
+
+output [battle 1dC 0dI] named "Valkmir Defender: 1dCLASH + 0dIGNITE"
+output [battle 2dC 0dI] named "Valkmir Defender: 2dCLASH + 0dIGNITE"
+output [battle 2dC 1dI] named "Valkmir Defender: 2dCLASH + 1dIGNITE"
+output [battle 2dC 2dI] named "Valkmir Defender: 2dCLASH + 2dIGNITE"
+
+output 1
+
+output [battle 0dC 1dI] named "Valkmir Attacker: 0dCLASH + 1dIGNITE"
+output [battle 1dC 1dI] named "Valkmir Attacker: 1dCLASH + 1dIGNITE"
+output [battle 1dC 2dI] named "Valkmir Attacker: 1dCLASH + 2dIGNITE"
+output [battle 1dC 3dI] named "Valkmir Attacker: 1dCLASH + 3dIGNITE"
+
+output 1
+output 1@2dR named "Root: Attacker"

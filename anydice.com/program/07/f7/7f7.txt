@@ -1,0 +1,61 @@
+function: roll POOL:n {
+ A: 0
+ loop X over {1..POOL} {
+  B: A + [sroll 1d6]
+  A: B
+ }
+ result: A
+}
+
+function: roll POOL:n with edge EDGE:n {
+ A: 0
+ Y: POOL + EDGE
+ loop X over {1..Y} {
+  B: A + [eroll 1d6]
+  A: B
+ }
+ result: A
+}
+
+function: roll POOL:n with reroll {
+ A: 0
+ loop X over {1..POOL} {
+  B: A + [reroll 1d6]
+  A: B
+ }
+ result: A
+}
+
+function: sroll D:n {
+ if D >= 5 {
+  result: 1
+ } else {
+  result: 0
+ }
+}
+
+function: eroll D:n {
+ if D >= 6 {
+  result: 1 + [eroll 1d6]
+ } else {
+  if D >= 5 {
+   result: 1
+  } else {
+  result: 0
+  }
+ }
+}
+
+function: reroll D:n {
+ if D >= 5 {
+  result: 1
+ } else {
+  result: [sroll 1d6]
+ }
+}
+
+loop DICE over {1..40} {
+ output [roll DICE] named "Rolling [DICE] dice"
+ output [roll DICE with edge 3] named "Rolling [DICE] dice plus edge 3"
+ output [roll DICE with reroll] named "Rolling [DICE] dice plus edge reroll"
+}

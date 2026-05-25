@@ -1,0 +1,154 @@
+\RESULTS\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\FUNCTIONS\
+
+function: attack ROLL:n using WEAPON:s vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_MIN {
+  result: CRITICALHIT
+ }
+ if ROLL + 1@WEAPON + 2@WEAPON + 3@WEAPON + ATK_BONUS >= DEFENSE { 
+  result: HIT
+ }
+ result: MISS
+}
+
+function: damage for ATTACK_RESULT:n using WEAPON:s {
+ if ATTACK_RESULT = CRITICALHIT {
+  result: 2dDAMAGE_DICE + 1@WEAPON + 2@WEAPON + DMG_BONUS
+ }
+ if ATTACK_RESULT = HIT {
+  result: 1dDAMAGE_DICE + 1@WEAPON + 2@WEAPON + DMG_BONUS
+ }
+ result: 0
+}
+
+function: average damage for ROLL:n using WEAPON:s vs DEFENSE:n {
+ result: [damage for [attack ROLL using WEAPON vs DEFENSE] using WEAPON]
+}
+
+function: finesse {
+ if DEXTERITY > STRENGTH {
+  result: DEXTERITY
+ }
+ result: STRENGTH
+}
+
+
+\Character\
+CRIT_MIN: 20
+STRENGTH: -1
+DEXTERITY: 3
+CHARISMA: -1
+PROFICIENCY: 3
+DEFENSE: d{10..25}
+ATTACKS_PER_ACTION: 2
+
+\Class and Feat extra\
+ATK_BONUS: 0
+DMG_BONUS: 0
+
+\Weapons\
+\MAGIC_GLAIVE: {STRENGTH, 1, PROFICIENCY}
+DAMAGE_DICE: 1d10
+output [average damage for 1d20 using MAGIC_GLAIVE vs DEFENSE] named "Glaive +1"\
+
+GLAIVE: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 1d10
+output ATTACKS_PER_ACTION d[average damage for 1d20 using GLAIVE vs DEFENSE] named "Glaive"
+
+LONGBOW: {DEXTERITY, 0, PROFICIENCY}
+DAMAGE_DICE: 1d8
+ATK_BONUS: 2
+DMG_BONUS: 0
+output ATTACKS_PER_ACTION d[average damage for 1d20 using LONGBOW vs DEFENSE] named "Longbow"
+output ATTACKS_PER_ACTION d[average damage for [lowest 1 of 2d20] using LONGBOW vs DEFENSE] named "Longbow Long Range"
+ATK_BONUS: 0
+DMG_BONUS: 0
+
+GREATAXE: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 1d12
+output ATTACKS_PER_ACTION d[average damage for 1d20 using GREATAXE vs DEFENSE] named "Greataxe"
+
+GREATSWORD: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 2d6
+output ATTACKS_PER_ACTION d[average damage for 1d20 using GREATSWORD vs DEFENSE] named "Greatsword"
+
+RAPIER: {[finesse], 0, PROFICIENCY}
+DAMAGE_DICE: 1d8
+output ATTACKS_PER_ACTION d[average damage for 1d20 using RAPIER vs DEFENSE] named "Rapier"
+
+HAND_CROSSBOW: {DEXTERITY, 0, PROFICIENCY}
+DAMAGE_DICE: 1d6
+ATK_BONUS: 2
+DMG_BONUS: 0
+output [average damage for 1d20 using HAND_CROSSBOW vs DEFENSE] named "Hand Crossbow"
+output [average damage for [lowest 1 of 2d20] using HAND_CROSSBOW vs DEFENSE] named "Hand Crossbow Long Range"
+ATK_BONUS: 0
+DMG_BONUS: 0
+
+LONGSWORD: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 1d8
+output ATTACKS_PER_ACTION d[average damage for 1d20 using LONGSWORD vs DEFENSE] named "Longsword"
+DAMAGE_DICE: 1d10
+output ATTACKS_PER_ACTION d[average damage for 1d20 using LONGSWORD vs DEFENSE] named "Longsword Versatile"
+
+QUARTERSTAFF: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 1d6
+output ATTACKS_PER_ACTION d[average damage for 1d20 using QUARTERSTAFF vs DEFENSE] named "Quarterstaff"
+DAMAGE_DICE: 1d8
+output ATTACKS_PER_ACTION d[average damage for 1d20 using QUARTERSTAFF vs DEFENSE] named "Quarterstaff Versatile"
+
+SHORTBOW: {DEXTERITY, 0, PROFICIENCY}
+DAMAGE_DICE: 1d6
+ATK_BONUS: 2
+DMG_BONUS: 0
+output ATTACKS_PER_ACTION d[average damage for 1d20 using SHORTBOW vs DEFENSE] named "Shortbow"
+output ATTACKS_PER_ACTION d[average damage for [lowest 1 of 2d20] using SHORTBOW vs DEFENSE] named "Shortbow Long Range"
+ATK_BONUS: 0
+DMG_BONUS: 0
+
+\ELDRITCH_BLAST: {CHARISMA, 0, PROFICIENCY}
+DAMAGE_DICE: 1d10
+ATK_BONUS: 1
+DMG_BONUS: 0
+output [average damage for 1d20 using ELDRITCH_BLAST vs DEFENSE] + [average damage for 1d20 using ELDRITCH_BLAST vs DEFENSE] + [average damage for 1d20 using ELDRITCH_BLAST vs DEFENSE] named "Eldritch Blast"
+ATK_BONUS: 0
+DMG_BONUS: 0\
+
+SPEAR: {STRENGTH, 0, PROFICIENCY}
+DAMAGE_DICE: 1d6
+output ATTACKS_PER_ACTION d[average damage for 1d20 using SPEAR vs DEFENSE] named "Spear"
+output ATTACKS_PER_ACTION d[average damage for 1d20 using SPEAR vs DEFENSE] named "Spear Ranged"
+output ATTACKS_PER_ACTION d[average damage for [lowest 1 of 2d20] using SPEAR vs DEFENSE] named "Spear Long Ranged"
+DAMAGE_DICE: 1d8
+output ATTACKS_PER_ACTION d[average damage for 1d20 using SPEAR vs DEFENSE] named "Spear Versatile"
+
+DAGGER: {[finesse], 0, PROFICIENCY}
+DAMAGE_DICE: 1d4
+output ATTACKS_PER_ACTION d[average damage for 1d20 using DAGGER vs DEFENSE] named "Dagger"
+output ATTACKS_PER_ACTION d[average damage for 1d20 using DAGGER vs DEFENSE] named "Dagger Ranged"
+output ATTACKS_PER_ACTION d[average damage for [lowest 1 of 2d20] using DAGGER vs DEFENSE] named "Long Dagger Ranged"
+
+HEAVY_CROSSBOW: {DEXTERITY, 0, PROFICIENCY}
+DAMAGE_DICE: 1d10
+ATK_BONUS: 2
+DMG_BONUS: 0
+output [average damage for 1d20 using HEAVY_CROSSBOW vs DEFENSE] named "Heavy Crossbow"
+output [average damage for [lowest 1 of 2d20] using HEAVY_CROSSBOW vs DEFENSE] named "Heavy Crossbow Long Range"
+ATK_BONUS: 0
+DMG_BONUS: 0
+
+LIGHT_CROSSBOW: {DEXTERITY, 0, PROFICIENCY}
+DAMAGE_DICE: 1d8
+ATK_BONUS: 2
+DMG_BONUS: 0
+output [average damage for 1d20 using LIGHT_CROSSBOW vs DEFENSE] named "Light Crossbow"
+output [average damage for [lowest 1 of 2d20] using LIGHT_CROSSBOW vs DEFENSE] named "Light Crossbow Long Range"
+ATK_BONUS: 0
+DMG_BONUS: 0
+
+

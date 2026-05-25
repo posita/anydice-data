@@ -1,0 +1,80 @@
+YES: 1
+NO: 0
+
+SPEED: 1
+ACCURACY: 6
+STRENGTH: 14
+LUCK: 0
+SHARP: YES
+EARLYIRON: NO
+
+PLAYERSPEED: 0
+PLAYERACCURACY: 0
+PLAYERSTRENGTH: 0
+PLAYERLUCK: 0
+
+TOUGHNESS: {8, 10, 12, 14, 16}
+
+function: earlyiron ROLL:n {
+ if [count 1 in ROLL] { result: 1 } \ cancel all wounds\
+ result: 0 \ wound as normal \
+}
+
+function: perfecthit ROLL:n {
+ if [count 10 in ROLL] { result: 1 } \ perfect hit\
+ result: 0 \ wound as normal \
+}
+
+HITROLL: 1d10
+HITCHANCE: (HITROLL >= (ACCURACY-PLAYERACCURACY))
+\PERFECTHT: (HITROLL = 10)\
+\EARLYIRON: (HITROLL = 1)\
+
+\output HITCHANCE\
+\output EARLYIRON\
+\output ((HITCHANCE-EARLYIRON) > 0)\
+\output ((HITCHANCE*(10-EARLYIRON)) >0)\
+
+WOUNDROLL: 1d10
+if SHARP = YES {
+  SHARPSTR: 1d10
+} else {SHARPSTR: 0}
+
+\output [earlyiron WOUNDROLL] named "Early Iron"\
+\output [perfecthit WOUNDROLL] named "Perfect Hit"\
+
+loop T over TOUGHNESS
+{
+  WOUNDRESULT: (WOUNDROLL + STRENGTH + SHARPSTR + PLAYERSTRENGTH) >= T
+  
+
+  WOUNDCHANCE: HITCHANCE*WOUNDRESULT
+  \output WOUNDCHANCE named "Chance to Wound per Attack vs Toughness [T]"\
+  
+  \output [earlyiron WOUNDROLL]\
+
+  CRITICALCHANCE: (WOUNDROLL+LUCK+PLAYERLUCK) >= 10
+  CRITICALHIT: CRITICALCHANCE*HITCHANCE
+  \output CRITICALHIT named "Chance to Crit per Attack"\
+
+  EICHANCE: WOUNDROLL = 1
+  EIHIT: EICHANCE*HITCHANCE
+
+  WOUNDS: 0
+  CRITS: 0
+  loop N over {1..(SPEED+PLAYERSPEED)}
+  {
+    if [earlyiron HITROLL] {
+      WOUNDS: 0
+      CRITS: 0
+    } else {
+      WOUNDS: WOUNDS+WOUNDCHANCE
+      CRITS: CRITS+CRITICALHIT
+    }
+  }
+  
+  output WOUNDS named "Chance to Wound Toughness [T]"
+  
+}
+output CRITS named "Chance to Crit"
+\Calculate Criticals\

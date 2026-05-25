@@ -1,0 +1,37 @@
+\Pathfinder Weapon Damage Calculator
+created by Doug Strait 2012\
+
+\This function calculates how much damage you do on an attack
+ATTACKS is the number you add to your attack roll (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is your critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+DAMAGE is your damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice from flaming weapon or sneak attack (e.g. 1d6) otherwise leave this blank\
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE 0]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: {MULT}d{DAMAGE} + EXTRA } 
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: {MULT}d{DAMAGE} + EXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+
+\Here are some examples:\
+AC: 17
+output [9       vs AC crit 19 2 dmg 2d6 + 13] named "great"
+output [15      vs AC crit 19 2 dmg 3d6 + 20] named "great, rage, bull, enlarge"
+output [{10,10} vs AC crit 20 2 dmg 1d6 + 10] named "claws, rage"
+output [6       vs AC crit 20 2 dmg 1d6 + 4 ] named "javelin"
+
+\Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation\

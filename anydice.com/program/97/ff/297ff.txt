@@ -1,0 +1,59 @@
+\ CONFIGURE \
+
+ORDER_MIN:   2
+ORDER_MAX:   6
+
+MAINTAINING: 0  \ Number of powers you are already maintaining. \
+EXERTION:    0  \ -1 - gain strain equal to order | 0 - none | 1+ - strain amount \
+
+SHOW_ADEPT:  1  \ 0 - hide checks with advantage | 1 - show checks with advantage \
+SHOW_NORMAL: 1  \ 0 - hide checks without advan. | 1 - show checks without advan. \
+
+
+\ FUNCTIONS \
+
+function: banana for reference { result: 0 }
+
+function: get manifestation dice for ORDER:n {
+  LOW:  {4, 6, 8}
+  MID:  {6, 8}
+  HIGH: {8}
+  if ORDER < 4 {
+    \ Since you can only maintain a number
+      of powers up to your proficiency bonus: \
+    if MAINTAINING < 3 { result: LOW } else
+    if MAINTAINING < 5 { result: MID }
+    result: HIGH
+  }
+  if ORDER = 4 {
+    if MAINTAINING < 5 { result: MID }
+    result: HIGH
+  }
+  result: HIGH
+}
+
+function: manifest power at ORDER:n with MANIFESTATION_DIE:n {
+  if EXERTION = -1 { STRAIN: ORDER    } else
+  if EXERTION > -1 { STRAIN: EXERTION } else { STRAIN: 0 }
+
+  if MANIFESTATION_DIE > ORDER + MAINTAINING { result: STRAIN }
+  if MANIFESTATION_DIE = ORDER + MAINTAINING { result: STRAIN + 1 }
+  result: STRAIN + ORDER
+}
+
+
+\ PROGRAM \
+
+output [banana for reference] named "Average strain from..."
+
+loop ORDER over {ORDER_MIN..ORDER_MAX} {
+  MANIFESTATION_DICE: [get manifestation dice for ORDER]
+  loop SIZE over MANIFESTATION_DICE {
+    if SHOW_NORMAL {
+      output [manifest power at ORDER with   1dSIZE] named "[ORDER] @ 1d[SIZE]"
+    }
+    if SHOW_ADEPT {
+      output [manifest power at ORDER with 1@2dSIZE] named "[ORDER] @ 2d[SIZE]"
+    }
+  }
+}

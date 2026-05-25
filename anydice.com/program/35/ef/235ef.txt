@@ -1,0 +1,65 @@
+\FIGHT: ENTER YOUR TOTAL DICE AVAILABLE TO ROLL \
+\SWORDS and SHIELD: ENTER YOUR SET NUMBER OF SWORDS AND SHIELDS \
+\POOL: ENTER YOUR EXPLODE POOL (SPIRIT, OR ROT IF CORRUPTED) \
+
+FIGHT: 8
+SWORDS: 3
+SHIELDS: 2
+POOL: 7
+
+function: highest {
+ if POOL > 4 {result: POOL }
+result: 4
+}
+
+set "maximum function depth" to 6 
+\do not set this below 4, as wrapper function count against the limit\
+
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T{
+  if ROLL =6 {result: 1+[rollexploding 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailures ROLL:n threshold T{
+  if ROLL = 1 {result: [roll 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: wrapper DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplode 1d6 threshold T]}
+    else {if E {RES:RES+[rollexploding 1d6 threshold T]}
+      else {if R {RES:RES+[rerollfailures 1d6 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+
+function: b DICE:n{
+  result:[wrapper DICE threshold 4 explode 0 reroll 0]
+}
+function: be DICE:n{
+  result:[wrapper DICE threshold 4 explode 1 reroll 0]
+}
+function: br DICE:n{
+  result:[wrapper DICE threshold 6 explode 0 reroll 1]
+}
+function: br DICE:n{
+  result:[wrapper DICE threshold 6 explode 0 reroll 1]
+}
+function: mbr DICE:n{
+  result:[wrapper DICE threshold 5 explode 0 reroll 1]
+}
+
+output [be FIGHT] + SWORDS named "Swords"
+output [br FIGHT] + SHIELDS named "Shields"
+output [mbr FIGHT] named "Misses"
+

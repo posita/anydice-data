@@ -1,0 +1,44 @@
+\Created by Luxyr from the MCDM Discord.\
+
+\To use, modify the numbers in the lines closer to the bottom to represent the stats you're analyzing.\
+\You can also copy and paste them to analyze multiple sets of stats at once.\
+\Click the calculate button to run the program and display the new results. If you have View set to Table and Data set to Normal, it will show the possible amounts of casualties inflicted by a single attack roll (in the column under "#"), with the probability of each amount (in the column under "%" and visually in the bar graph).\
+
+\To calculate the expected average damage, multiply the chance to deal 2 casualties by 2, and add that to the chance to deal 1 casualty: (2 * [chance of 2 hits]) + ([chance of 1 hit]).\
+\If the target unit is diminished, the effective damage should be multiplied by (1+[the chance the target will fail a DC 15 Morale check]). For example, if a unit has +4 Morale, it will need to roll at least a natural 11 to succeed; that's a 50% chance to fail and take double damage each casualty, so we multiply average damage by 1.5.\
+
+
+CRITICALHIT: 2
+HIT: 1
+MISS: 0
+
+
+DAMAGE: 1
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: [power d20] + [power d20]
+ }
+ if ATTACKRESULT = HIT {
+  result: [power d20]
+ }
+}
+
+function: attack ROLL:n {
+ if ROLL = 20 {result: [damage for CRITICALHIT] }
+ if ROLL + ATTACK >= DEFENSE { result: [damage for HIT] }
+ result: MISS
+}
+
+function: power ROLL:n {
+ if ROLL + POWER >= TOUGHNESS { result: DAMAGE }
+ result: MISS
+}
+
+\Modify these lines to represent the attacker's offensive stats, and the target's defensive stats.\
+ATTACK: +3
+DEFENSE: 13
+POWER: +2
+TOUGHNESS: 12
+
+output [attack d20] named "Human Medium Regular Infantry Att: [ATTACK] / Def: [DEFENSE] / Pow: [POWER] / Tough: [TOUGHNESS]"

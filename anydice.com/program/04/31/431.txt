@@ -1,0 +1,46 @@
+function: ROLL:s check {
+ \ get highest \
+ HIGH: 1@ROLL
+
+ \ get highest pair \
+ loop N over {1..#ROLL}{
+  PAIR: N@ROLL
+  loop M over {1..#ROLL}{
+   if (N != M){
+    if (N@ROLL = M@ROLL) { PAIR: PAIR + M@ROLL }
+   }
+  }
+ }
+
+ \ get straight total \
+ STRAT: 0
+ SHII: 0
+ loop N over {1..#ROLL}{
+  SHI: 0
+  NUM: 0
+  SHII: N@ROLL
+  loop M over {N..#ROLL}{
+   if (N != M){
+    if (SHII - 1 = M@ROLL){
+     if (SHI = 0){ SHI: SHI + N@ROLL }
+     SHII: M@ROLL
+     SHI: SHI + M@ROLL
+    }
+   }
+  }
+  if (STRAT < SHI){ STRAT: SHI }
+ }
+
+ \ check for ones \
+ ONE: 0
+ loop N over {1..#ROLL}{
+  if (N@ROLL = 1){
+   ONE: ONE + 1
+  }
+ }
+
+ if (ONE > #ROLL / 2) { result: 1 }
+ result: [highest of PAIR and [highest of STRAT and HIGH]]
+}
+
+output [2d10 check]

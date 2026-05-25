@@ -1,0 +1,85 @@
+function: ceiling M:n and N:n {
+ if N > M { result: M }
+ result: N
+}
+
+function: floor M:n and N:n {
+ if N < M { result: M }
+ result: N
+}
+
+function: clamp MIN:n and MAX:n and N:n {
+ result: [floor MIN and [ceiling MAX and N]]
+}
+
+function: highest N:n and M:n {
+ if M > N { result: M }
+ result: N
+}
+
+function: lowest N:n and M:n {
+ if M < N { result: M }
+ result: N
+}
+
+function: wildchild N:n {
+ if N = 2 { result: 1 }
+ result: 0
+}
+
+function: wild {
+ result: [wildchild 2dWILD]
+}
+
+function: explode DIE:d {
+ MAX: [maximum of DIE]
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = MAX { result: N - 1 + [explode DIE helper] }
+ result: N
+}
+
+set "maximum function depth" to 10
+
+FATE:  d{0, 0, 1, 1, 2, 2}
+SPEAR: d{0, 0, 0, 1, 1, 1}
+SWORD: d{0, 0, 1, 1, 1, 2}
+AXE:   d{0, 0, 0, 1, 2, 2}
+HAMMER:d{0, 0, 0, 0, 2, 3}
+
+WILD:  d{0, 0, 0, 0, 0, 1}
+WHITE: d{0, 0, 0, 0, 1, 1}
+BLUE:  d{0, 0, 0, 1, 1, 2}
+YELLOW:d{0, 0, 0, 1, 2, 2}
+PURPLE:d{0, 0, 1, 1, 1, 3}
+ORANGE:d{0, 0, 1, 1, 2, 3}
+RED:   d{0, 0, 1, 2, 3, 4}
+BLACK: d{0, 1, 2, 3, 3, 4}
+
+function: defense         { result: 2dWHITE }
+function: attack ATTACK:n { result: [floor 0 and ATTACK - [defense]] }
+
+\output [attack 3dWHITE]+[attack 3dWHITE]+[attack 3dWHITE]+[attack 3dWHITE]+\
+\       [attack 3dWHITE]+[attack 3dWHITE]+[attack 3dWHITE]+[attack 3dWHITE]+\
+\       [attack 3dWHITE]+[attack 3dWHITE]+[attack 3dWHITE]+[attack 3dWHITE]\
+
+output [attack 3dBLUE]+
+       [attack 3dBLUE]+
+       [attack 3dBLUE]
+
+output [attack 3dBLUE+2dWHITE]+
+       [attack 3dBLUE+2dWHITE]+
+       [attack 3dBLUE+2dWHITE]
+
+output [attack 4dBLUE+2dBLUE]+
+       [attack 4dBLUE+2dBLUE]+
+       [attack 4dBLUE+2dBLUE]
+
+output [attack 4dYELLOW]+
+       [attack 4dYELLOW]+
+       [attack 4dYELLOW]+
+       [attack 4dORANGE]
+
+\output [floor 0 and ([highest 3dPURPLE and 3dPURPLE ])]\

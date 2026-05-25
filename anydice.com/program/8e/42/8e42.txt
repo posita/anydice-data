@@ -1,0 +1,69 @@
+\https://docs.google.com/document/d/13mQZmddA8hjiuwpHQgpCKYzfkFiYFgLEgZ72lWVrPZo/edit?usp=sharing\
+
+\The instruction for this program is in the bottom.\
+\If you want to contact me for any reason, Skype baskakov_dima is probably the best option.\
+\You are free to use, change and distribute this program as you wish without asking for permission.\
+\I have put a lot of comments out there and named variables as obviously as possible, so I hope it is easy to understand my code.\
+\I ask you to credit me, Baskakov_Dmitriy, for writing it, but it is purely up to your conscience to do so.\
+
+set "maximum function depth" to 5
+\Limits the depth of recursive functions to 5, as the only recursive function in here is the explosive roll for old editions of oWoD that.\
+\The odds of having to roll it 5 times are actually one in hundred thousand, and odds of having to roll 6 times are one in a million\
+
+function: diceroll DIE:n vs DIFFICULTY:n {
+\if DIE = 10 {result: 2}\
+\Uncomment the line above if rolling for a trait in which the character is specialized or 10 grants two successes for any other reason.\
+\Alternatively, use the function provided below.\
+if DIE >= DIFFICULTY {result: 1}
+if DIE = 1 {result: -1}
+result: 0
+}
+\This sets the rule for rolling a die in oWoD, specifically the V20 edition.\
+\For technical reasons, die is not specified yet. But it only works with D10.\
+\1 means a success, -1 means rolling a “1” and losing a success, 0 means neither.\
+
+function: specialtyroll DIE:n vs DIFFICULTY:n {
+if DIE = 10 {result: 2}
+if DIE >= DIFFICULTY {result: 1}
+if DIE = 1 {result: -1}
+result: 0
+}
+\Same as above, but gives 2 successes if a “10” is rolled.\
+\Note that it shouldn’t affect the amount of Botches at all (if there is at least one “10”, it is already not a Botch, if there are no, specialty didn’t work at all), only the amount of Fails or Successes. Especially the amount of successes at greater difficulties, such as 9 or 10.\
+\In terms of average amount of successes per die or dicepool, it effectively reduces the difficulty by 1.\
+\Didn’t check the chance to fail or succeed though.\
+
+
+function: smartevaluate ROLL:s {
+if (ROLL > 0) > 0 {
+result: ROLL
+}
+if (ROLL = -1) > 0 {
+result: -1000
+}
+result: 0
+}
+
+\This function accepts a sequence of numbers that are roll results from the function(s) above.\
+\It checks if there are successes (results of 1) in a given sequence.\
+
+\If there are any, it returns the raw roll result. For simple actions (single rolls) positive results are Success (different degrees of them), other numbers are Fails, Botch is already impossible. For extended actions or if you plan to add automatical successes, it is actually important if “1”s outnumber successes or not.\
+\Then it checks for “1”s. If there are any, as we already know that there are no successes, it declares a Botch (results in -1000)\
+\If neither “1”s nor successes are rolled, it returns 0 as the only possible result.\
+\Because of possible result of -1000, this is not usable for calculating mean.\
+\Rules for applying automatic successes to botched rolls or losing them due to 1s are not specified in the Corebook.\
+\If you have an automatic success granted by spending Willpower, you can just use this program as it is, counting all the botches and fails as marginal successes (one success aquired), and adding one success to any success results. \
+
+loop DICEPOOL over {1..5} {
+loop DIFFICULTY over {6..6} {
+DICEROLL: [diceroll d10 vs DIFFICULTY]
+output [smartevaluate DICEPOOL d DICEROLL] named "Dicepool of [DICEPOOL] vs difficulty of [DIFFICULTY]"}}
+
+\Specify the ranges of the DICEPOOL (between 1 and ~250) and the DIFFICULTY (between 2 and 10)\
+\Every dicepool within range will be rolled against every difficulty within range. \
+\The loops roll a given amount of dice against a given difficulty, evaluating the sequences for a possible Botches, then return the result of a roll.\
+\If -1000 is returned, it is a Botch. Positive numbers are different degrees of success, other negative are different degrees of fail.\
+
+\What can you do with AnyDice.com:\
+\”Normal” gives you the odds of every possible result. “At least” and “At most” give the odds of getting at least or at most this amount of points respectively, useful when, for example, you need at least a given amount of successes. “Summary” contains some useful statistical things like calculated mean and standard deviation, but check if it is representative.\
+

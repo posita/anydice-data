@@ -1,0 +1,62 @@
+ION: 1d{2,2,3}
+HAND: 1d{2,2..4}
+TRANQ: 1d{2,2..4}
+DICE: 1d{2,2..4}+3d{5,5,5,5,5..12}
+FLAT: 6
+IONSAVE: 0
+IONDC: 10
+IONFAIL: 0
+HANDSAVE: 0
+HANDDC: 10
+HANDFAIL:0
+TRANQSAVE: 4d4
+TRANQDC: 16
+TRANQFAIL: 0
+TOHIT: 6+3+1
+IONCRIT: 2
+HANDCRIT: 3
+TRANQCRIT: 2
+ENEMYAC: 18
+ENEMYSAVE: 5
+ATTACK: [highest 1 of 3d20]
+SAVE: 1d20
+
+function: advantage SET:d {
+ result: [highest 1 of 2d(SET)]
+}
+
+function: did ATTACK:d crit CHECK:n with MOD:n {
+ if CHECK>=(20-MOD) {
+  result: [advantage 2d(ATTACK)]
+ } else {
+  result: [advantage ATTACK]
+ }
+}
+
+function: save DC:n for EFFECT:d with SAVE:n and FAIL:n using CHECK:n {
+ if CHECK<=(1+FAIL) {
+  result: 1@[sort EFFECT]
+ } if (CHECK+SAVE)<DC {
+  result: EFFECT
+ } else {
+  result: EFFECT/2
+ }
+}
+
+function: deal DICE:d plus FLAT:n and EFFECT:d with DC:n against AC:n and BONUS:n using SAVE:n with CRITFAIL:n and ATTACK:n plus TOHIT:n and TOCRIT:n {
+ if (ATTACK+TOHIT)>=AC {
+  result: [did DICE crit ATTACK with TOCRIT]+FLAT+[save DC for EFFECT with BONUS and CRITFAIL using SAVE]
+ } else {
+  result: 0
+ }
+}
+
+output [advantage ION+DICE]+FLAT named "Ion Hit"
+output [advantage HAND+DICE]+FLAT named "Hand Hit"
+output [advantage TRANQ+DICE]+FLAT+[save TRANQDC for TRANQSAVE with ENEMYSAVE and TRANQFAIL using SAVE] named "Tranq Hit"
+output [advantage 2d(ION+DICE)]+FLAT named "Ion Crit"
+output [advantage 2d(HAND+DICE)]+FLAT named "Hand Crit"
+output [advantage 2d(TRANQ+DICE)]+FLAT+[save TRANQDC for TRANQSAVE with ENEMYSAVE and TRANQFAIL using SAVE] named "Tranq Crit"
+output [deal ION+DICE plus FLAT and IONSAVE with IONDC against ENEMYAC and ENEMYSAVE using SAVE with IONFAIL and ATTACK plus TOHIT and IONCRIT] named "Ion Attack"
+output [deal HAND+DICE plus FLAT and HANDSAVE with HANDDC against ENEMYAC and ENEMYSAVE using SAVE with HANDFAIL and ATTACK plus TOHIT and HANDCRIT] named "Hand Attack"
+output [deal TRANQ+DICE plus FLAT and TRANQSAVE with TRANQDC against ENEMYAC and ENEMYSAVE using SAVE with TRANQFAIL and ATTACK plus TOHIT and TRANQCRIT] named "Tranq Attack"

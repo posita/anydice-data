@@ -1,0 +1,84 @@
+\ I want to roll a x number of dice. in this example 5. then count the 1s,2s,3s and 4s rolled (and i want to roll at least 3 of these).
+  Then roll again a x number of dice, 5 again for the example and check how many matches i got (if rolled 1,2,3 i need a 1,2,3)  and i want at least 3 matches.
+  Also the result of 6 counts like a match for 1,2,3,4.
+  So to recap, i search for the possibility to match at least 3 of the possible (1,2,3,4) results of the 1st roll with the second roll, (having also a 6 as a wild)
+\
+
+D: d{1, 10, 100, 10000, 0, 1000}
+
+function: match A:n and B:n {
+
+
+ A_ONES: A / 10000
+ AR: A - A_ONES * 10000
+ A_TWOS: AR / 1000
+ AR: AR - A_TWOS * 1000
+ A_THREES: AR / 100
+ AR: AR - A_THREES * 100
+ A_FOURS: AR / 10
+
+
+ B_ONES: B / 10000
+ BR: B - B_ONES * 10000
+ B_TWOS: BR / 1000
+ BR: BR - B_TWOS * 1000
+ B_THREES: BR / 100
+ BR: BR - B_THREES * 100
+ B_FOURS: BR / 10
+ B_SIXES: BR - B_FOURS * 10
+ 
+ if A_ONES = B_ONES {
+  MATCHES: A_ONES
+ }
+ else if A_ONES < B_ONES {
+  MATCHES: [lowest of A_ONES and B_ONES]
+ }
+ else {
+  MATCHES: [lowest of A_ONES and B_ONES + B_SIXES]
+  B_SIXES: B_SIXES - MATCHES + B_ONES
+ }
+
+ if A_TWOS = B_TWOS {
+  MATCHES: MATCHES + A_TWOS
+ }
+ else if A_TWOS < B_TWOS {
+  M: [lowest of A_TWOS and B_TWOS]
+  MATCHES: MATCHES + M
+ }
+ else {
+  M: [lowest of A_TWOS and B_TWOS + B_SIXES]
+  B_SIXES: B_SIXES - M + B_TWOS
+  MATCHES: MATCHES + M
+ }
+
+ if A_THREES = B_THREES {
+  MATCHES: MATCHES + A_THREES
+ }
+ else if A_THREES < B_THREES {
+  M: [lowest of A_THREES and B_THREES]
+  MATCHES: MATCHES + M
+ }
+ else {
+  M: [lowest of A_THREES and B_THREES + B_SIXES]
+  B_SIXES: B_SIXES - M + B_THREES
+  MATCHES: MATCHES + M
+ }
+
+ if A_FOURS = B_FOURS {
+  MATCHES: MATCHES + A_FOURS
+ }
+ else if A_FOURS < B_FOURS {
+  M: [lowest of A_FOURS and B_FOURS]
+  MATCHES: MATCHES + M
+ }
+ else {
+  M: [lowest of A_FOURS and B_FOURS + B_SIXES]
+  B_SIXES: B_SIXES - M + B_FOURS
+  MATCHES: MATCHES + M
+ }
+
+ result: MATCHES 
+}
+
+POOL: 5dD
+output [match POOL and POOL] named "matches"

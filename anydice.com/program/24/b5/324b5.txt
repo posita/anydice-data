@@ -1,0 +1,61 @@
+CHA:     24   \Charisma\
+LVL:     12   \Player level\
+BONUS:   1    \Critical Strike Bonus\
+
+TWIN:    1    \Twinned spell # of beams\
+
+SNEAK:   0    \Enable full sneak attack abuse\
+ROGUE:   3    \Levels of Rogue\
+SKUL:    1    \Skullduggery Gloves\
+
+RHAP:    0    \Rhapsody\
+MARKO:   0    \Markoheshkir\
+SPLSPK:  0    \Spellsparkler\
+MOURN:   0    \Mourning Frost\
+
+AGON:    0    \Agonizing Blast\
+DRAC:    0    \Draconic Sorcerer 6\
+ELE_AUG: 0    \Elemental Augmentation Amulet\
+PO_ROBE: 0    \Potent Robe\
+GLOW:    0    \Callous Glow Ring\
+EX:      0    \Any extra bonuses that could apply\
+
+VULN:    1    \Cold Vulnerability Multiplier\
+PS:      1    \Perilous Stakes\
+
+if PS > 1 { VULN: 1 }
+
+function: crit D:n with B:n {
+   if D >= 20-B { result: 1 } else { result: 0 }
+}
+
+function: grthree D:n {
+   if D >= 2 { result: 1 } else { result: 0 }
+}
+
+function: AB:n mod {
+   result: (AB - 10)/2
+}
+
+ADV: [highest 1 of 2d20]
+CRIT: [crit ADV with BONUS]
+PROF: 1+(LVL+3)/4
+SDICE: (ROGUE+1)/2
+RAYSP: [grthree d3]
+
+SDAMAGE: SDICEd6 + SKULd4
+
+EB_DICE: d10 + SNEAK*SDAMAGE
+EB_FLAT: (AGON + PO_ROBE)*[CHA mod] + 3*RHAP + 2*GLOW
+
+output PS*3*(SPLSPK + EB_DICE + (1+SNEAK*(1+SKUL))*EB_FLAT + CRIT*EB_DICE) + SPLSPK*(1+1d8) named "EB | SNK: [SNEAK]"
+
+RF_DICE: VULN*3d8 + SNEAK*SDAMAGE
+RF_FLAT: (PO_ROBE + ELE_AUG + DRAC)*[CHA mod] + MARKO*PROF + 3*RHAP + 2*GLOW
+
+output PS*TWIN*(VULN*MOURN + VULN*SPLSPK + RF_DICE +(1 + (VULN-1) + SNEAK*(1+SKUL))*RF_FLAT + CRIT*RF_DICE)+ RAYSP*VULN*SPLSPK*(1+1d8) named "[TWIN] Beam RoF | mult: [VULN] SNK: [SNEAK]"
+
+\SR_DICE: 2d6 + SNEAK*SDAMAGE
+SR_FLAT: DRAC*[CHA mod] + MARKO*PROF + 3*RHAP + 2*GLOW
+
+output PS*7*(SR_DICE + (1+SNEAK*(1+SKUL))*SR_FLAT + CRIT*SR_DICE) named "Sneak Ray Maxcast"\

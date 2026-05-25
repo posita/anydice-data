@@ -1,0 +1,87 @@
+WHITE: d{2,3,104,1105,1206,11207}
+TEAL: d{3,4,105,1106,1207,11208}
+GREEN: d{4,5,106,1107,1208,11209}
+BLUE: d{5,6,107,1108,1209,11210}
+
+PURPLE: d{1,2,1003,1105,2106,12107}
+ORANGE: d{2,3,1004,1106,2107,12108}
+RED: d{3,4,1005,1107,2108,12109}
+GREY: d{4,5,1006,1108,2109,12110}
+
+function: X remainder Y {
+ result: (X - (Y * (X / Y)))
+}
+
+function: value of A:s {
+ TOTAL: 0
+ loop D over A {
+  TOTAL: TOTAL + [D remainder 100]
+ }
+ result: TOTAL
+}
+
+function: armor of A:s {
+ TOTAL: 0
+ loop D over A {
+  TOTAL: TOTAL + ([D remainder 1000] / 100)
+ }
+ result: TOTAL
+}
+
+function: books of A:s {
+ TOTAL: 0
+ loop D over A {
+  TOTAL: TOTAL + ([D remainder 10000] / 1000)
+ }
+ result: TOTAL
+}
+
+
+function: burst of A:s {
+ TOTAL: 0
+ loop D over A {
+  TOTAL: TOTAL + (D / 10000)
+ }
+ result: TOTAL
+}
+
+function: espelancer A:s {
+ TOTAL: 0
+ loop D over A {
+  TOTAL: TOTAL + (D / 10000) + [D remainder 100]
+ }
+ result: TOTAL
+}
+
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+
+function: zeke average damage against DF with X:s {
+ if [value of X] >= DF {
+  result: ([value of X] - DF) + (([armor of X] / 2)* 2) + (([books of X] / 2)* 2) + ([burst of X] * 2)
+ } else {
+  result: 0
+ }
+}
+
+function: night ruination with C:s against CON:s with wilt {
+  if 6 + [value of C] + [armor of C] > [value of CON] {
+    result: [value of 1dORANGE] + 2
+  } else {
+    result: 0
+  }
+}
+
+\output [zeke average damage against 12 with [reroll lowest of 2dTEAL as dTEAL if less than 1106]] named "ZEKE DAMAGE AGAINST 12"\
+\output [espelancer (1dWHITE + 1dORANGE)] named "ZEKE ESPELANCER"\
+\output [value of [reroll lowest of 2dTEAL as dTEAL if less than 1106]] named "ZEKE OCEANCLEAVER"\
+\output [value of (1dRED + 1dORANGE)] named "ZEKE ELENIAN EDGE"\
+\output [value of 2dBLUE] named "ZEKE MAX"\
+output [night ruination with 1dORANGE against 2dTEAL with wilt] named "NIGHT RUINATION DAMAGE"

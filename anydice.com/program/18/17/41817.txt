@@ -1,0 +1,41 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: divine smite nivel A:n {
+    result: 1d8 + Ad8
+}
+
+function: eldritch smite nivel A:n {
+    result: Ad8
+}
+
+function: ataque com a marreta {
+    result: [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 4
+}
+
+function: thunderous smite {
+    result: 2d6
+}
+
+function: indice{
+    result: [ataque com a marreta] + [thunderous smite] + [divine smite nivel 3] + [eldritch smite nivel 3]
+}
+
+function: role ROLL:n mais BONUS:n vs AC:n armor class para o ataque DMG:d critando o ataque CRIT_DMG:d quando rolar acima de CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+output [role 1d20 mais 10 vs 15 armor class para o ataque [indice] critando o ataque [indice] quando rolar acima de 19] named "Dano do Índice"

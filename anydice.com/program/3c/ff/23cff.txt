@@ -1,0 +1,67 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+REFDIE: d6
+
+function: att ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+   result: HITDAMAGE
+  }
+ result: MISSDAMAGE
+}
+
+function: refresh RROLL:n vs REFTARGET:n {
+ if RROLL >= REFTARGET {
+  result: 1
+ }
+ result: 0
+}
+
+function: dot ROUND:n on REFRESH:n {
+ if ROUND = 1 {
+  result: [mangle]
+ }
+ if ROUND > 1 {
+  if REFRESH=1 {
+   result: [mangle]
+  }
+ }
+ result: [multiattack]
+}
+
+function: attack {
+ result: [damage for [att [highest 1 of 2d20] vs AC]]
+}
+
+function: multiattack {
+ result: 2d[attack]
+}
+
+function: mangle {
+ result: 6d[attack]
+}
+
+ATTACK: 7
+AC: 15
+HITDAMAGE: d8+4+2d8
+CRITICALDAMAGE: 2d8+4+4d8
+
+D:0
+loop N over {1..3} {
+ output [dot N on d6] named "round [N]"
+ D: D + [dot N on d6]
+}
+output D/3 named "avg"

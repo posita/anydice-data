@@ -1,0 +1,44 @@
+RED_DIE: {100, 200, 200, 210, 300, 300}
+BLUE_DIE: {12, 102, 203, 113, 204, 105}
+GREEN_DIE: {11, 111, 201, 112, 202, 203}
+YELLOW_DIE: {10, 120, 201, 111, 12, 102}
+
+\could standardize size of numbers by adding 1 to each since no face ever has a value of 9 to go to the next place, this could solve that issue\
+
+function: convert number N:n {
+ Z: #N=3
+ result: (Z+0)@(N)*10000 +(Z+1)@(N)*100 + (Z+2)@(N)
+} 
+
+function: convert number set S:s {
+ R: {}
+ loop P over {1..#S}{
+  R: {R, [convert number P@S]}
+ }
+ result: R
+}
+
+\Pre modded dice, could be useful? If so make sure they are under the needed functions\
+RED_M_DIE: 1d([convert number set RED_DIE])
+BLUE_M_DIE: 1d([convert number set BLUE_DIE])
+GREEN_M_DIE: 1d([convert number set GREEN_DIE])
+YELLOW_M_DIE: 1d([convert number set YELLOW_DIE])
+
+function: check possible pips TOTAL:s sets across NUM:n total dice {
+	MINDMG: 8
+	MINSRG: 1
+	MINACC: 2
+	R:{}
+	loop P over {1..NUM}{
+                Z: #(P@TOTAL)
+		\R: {R, 1@(P@TOTAL)*(Z>=5)}\\Instead of adding damage to set, can set value for comparison\
+                \D: 1@(P@TOTAL)*(Z>=5)\
+                R: {R, (Z-3)@(P@TOTAL)*10+(Z-2)@(P@TOTAL)}\Instead of adding surge to set, can set value for comparison\
+	}
+        result: R
+}
+
+PAL: 2dRED_M_DIE + 1dBLUE_M_DIE + 1dYELLOW_M_DIE
+\output PAL named "pal thing"\
+output PAL named "PAL DICE"
+output [check possible pips PAL sets across 4 total dice] named "counting rolls with at least one dmg, should be all"

@@ -1,0 +1,58 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL = 19 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: advantage {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: 
+MISSDAMAGE: 0
+
+\No SS No Adv\
+ATTACK: 5+3
+HITDAMAGE: d8+5
+CRITICALDAMAGE: 3d8+5
+output 3d[attack] named "base"
+
+\No SS Adv\
+ATTACK: 8
+HITDAMAGE: d8+5
+CRITICALDAMAGE: 3d8+5
+output 3d[advantage] named "Adv only"
+
+\SS No Adv\
+ATTACK: 5+3-5
+HITDAMAGE: d8+5+10
+CRITICALDAMAGE: 3d8+5+10
+output 3d[attack] named "GWM only"
+
+\SS Adv\
+ATTACK: 5+3-5
+HITDAMAGE: d8+5+10
+CRITICALDAMAGE: 3d8+5+10
+output 3d[advantage] named "GWM & Adv"
+
+
+

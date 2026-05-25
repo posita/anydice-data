@@ -1,0 +1,99 @@
+LEVEL: 3
+ATK:  1d20                 \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+STR:  2                    \ strength modifier \
+DEX:  4                    \ dexterity modifier \
+AC:   12                    \ target AC: attack hits if ATK + HIT >= AC \
+CRIT: 20                   \ minimum attack roll to crit \
+DMG:  d4                   \ damage rolled on successful hit \
+HIT:  8                    \ bonus to attack roll \  
+ATTACKS: 3
+
+function: proficiency from LVL:n {
+  if LVL >= 5  & LVL < 9  {result: 3}
+  if LVL >= 9  & LVL < 13 {result: 4}
+  if LVL >= 13 & LVL < 17 {result: 5}
+  if LVL >= 17            {result: 6}
+  result: 2
+}
+function: damagedice from LVL:n {
+  if LEVEL < 5              {result: d4}
+  if LEVEL >= 5  & LVL < 11 {result: d6}
+  if LEVEL >= 9  & LVL < 17 {result: d8}
+  if LEVEL >= 17            {result: d10}
+}
+
+function: roll turbulence for POOL:n {
+    if LEVEL < 5             {result: [count {2,3,4,5,6,7,8,9,10} in POOL * d4]}
+    if LEVEL >= 5 & LVL <  9 {result: [count {2,3,4,5,6,7,8,9,10} in POOL * d6]}
+    if LEVEL >= 9 & LVL < 17 {result: [count {2,3,4,5,6,7,8,9,10} in POOL * d8]}
+    if LEVEL >= 17           {result: [count {2,3,4,5,6,7,8,9,10} in POOL * d10]}
+}
+
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + HIT >= AC
+}
+
+function: multiattack N:n times {
+  DAMAGE:0
+  loop I over {1..N} {
+    DAMAGE: DAMAGE + [roll [attack ATK]]
+  }
+  result: DAMAGE
+}
+
+
+
+function: roll HITS:n {
+  if HITS = 0 {
+    result: 0 
+  }
+  if HITS > 0 {
+    TOTALDAMAGE: DEX
+    REMAINING_DICE: [proficiency from LEVEL]
+    loop I over {1..HITS} {
+      SUCCESSFUL_DICE:  [roll turbulence for REMAINING_DICE] \ Count successes (dice that don't roll a 1)\
+      REMAINING_DICE: SUCCESSFUL_DICE
+      TURBULENCE_DMG: [proficiency from LEVEL] * [damagedice from LEVEL]
+      TOTALDAMAGE: TOTALDAMAGE + [damagedice from LEVEL] + TURBULENCE_DMG 
+
+    }
+    result: TOTALDAMAGE
+  }
+
+}
+
+function: rolltd HITS:n {
+
+  if HITS <= 0 {
+    result: REMAINING_DICE 
+  }
+  if HITS > 0 {
+    TOTALDAMAGE: DEX
+    REMAINING_DICE: [proficiency from LEVEL]
+    loop I over {1..HITS} {
+      SUCCESSFUL_DICE: [count {2,3,4,5,6,7,8,9,10} in REMAINING_DICE d4]      \ Count successes (dice that don't roll a 1)\
+      REMAINING_DICE: SUCCESSFUL_DICE                            \ Keep track of remaining turbulence dice\
+    }
+  }
+    result: REMAINING_DICE
+}
+
+function: retrntd {
+  result: [rolltd ATTACKS]
+}
+
+\output [retrntd]                   named "Remaining Turbulence Dice"\
+output [multiattack 3 times] named "Full Turn of Monk Damage"
+output [roll 1]                    named "Single Hit"
+output [roll 2]                    named "Single Critical Hit"
+output [roll [attack ATK]]         named "Single Unarmed Attack with Full Turbulence Dice"
+
+
+
+
+
+

@@ -1,0 +1,43 @@
+\Alternative "explode" functions\
+
+function: softexplode DIE:d {
+ MAX: [maximum of DIE]
+ result: [softexplode DIE helper]
+}
+
+function: softexplode N:n helper {
+ if N = MAX { result: N-1 + [softexplode DIE helper] }
+ result: N
+}
+
+function: implode DIE:d {
+ MIN: 1@{DIE}
+ result: [implode DIE helper]
+}
+
+function: implode N:n helper {
+ if N = MIN { result: N + [implode DIE helper] }
+ result: N
+}
+
+DIE: d4
+
+\No exploding, as a reference\
+output DIE named "Flat"
+
+\Explode: If you roll max, add and roll again\
+\Exciting, easy\
+set "maximum function depth" to 5
+output [explode DIE] named "Explode"
+
+\If you roll max, add one less and roll again\
+\Smooths out the curve instead of "skipping" max values\
+set "maximum function depth" to 5
+output [softexplode DIE] named "Soft-explode"
+
+\If you roll min, add it and roll again\
+\Technically unlimited, but stays bounded near the original die\
+\Depending on what you want, subtracting one makes the average worse than a flat roll, but still gives an unlimited maximum\
+set "maximum function depth" to 10
+output [implode DIE] named "Implode"
+output [implode DIE]-1 named "Implode minus one"

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/articles/exploding-dice/">
+		<meta property="og:type" content="article">
+		<meta property="og:image" content="https://anydice.com/articles/exploding-dice/explode-2d4.png">
+		<meta property="og:description" content="How exploding dice work and how to make your own.">
+		<meta property="og:title" content="Exploding Dice">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Exploding Dice</title>
+		<link href="../articles.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"mainEntity": {
+				"@type": "Article",
+				"@id": "https://anydice.com/articles/exploding-dice/#article",
+				"headline": "Exploding Dice",
+				"alternativeHeadline": "Making Your Own Explosions",
+				"description": "How exploding dice work and how to make your own.",
+				"datePublished": "2010-06-25",
+				"author": { "@type": "Person", "name": "Jasper Flick", "@id": "https://catlikecoding.com/jasper-flick/#person" },
+				"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+				"image": "https://anydice.com/articles/exploding-dice/explode-2d4.png"
+			},
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/articles/", "name": "Articles" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Articles</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1>Exploding Dice</h1>
+					<p>Making Your Own Explosions</p>
+				</header>
+				
+				<p>Exploding dice are fun! The traditional exploding die is rolled again whenever its highest value is rolled. The rolled values are summed, so you have a small chance of getting very high results.</p>
+				
+				<p>The humble d4 is very prone to explosions. Just try it! It's not unthinkable to get an explosion sequence like 4 + 4 + 3 after about a dozen tries.</p>
+				
+				<p>Theoretically, a die can keep exploding forever. In practice, that doesn't really happen. Even if you keep rolling 4s on that d4, after several explosions you'll likely won't bother anymore, the result so far is good enough. Likewise, AnyDice has to stop at some point too.</p>
+				
+				<pre>output d4 named "d4, not exploded"
+
+loop DEPTH over {1..5} {
+ set "explode depth" to DEPTH
+ output [explode d4] named "d4, exploded at most [DEPTH] times"
+}</pre>
+				
+				<figure>
+					<img src="explode-d4.png" width="500" height="400">
+					<figcaption>Exploding a d4.</figcaption>
+				</figure>
+				
+				<section>
+					<h2>Combining Exploding Dice</h2>
+					
+					<p>Rolling multiple exploding dice together is simply a matter of exploding each individually, then summing their final values. Using AnyDice, you can accomplish this in various ways, which might not be totally obvious at first.</p>
+					
+					<pre>output [explode d4] + [explode d4] named "calculated twice"
+
+EXPLODED: [explode d4]
+
+output 2d EXPLODED named "in two steps"
+
+output 2d [explode d4] named "in one go"</pre>
+					
+					<p>Note that this is quite different from rolling the dice together, then exploding based on their sum, as if they were a single die.</p>
+					
+					<pre>output [explode 2d4] named "2d4 exploded as one"</pre>
+					
+					<figure>
+						<img src="explode-2d4.png" width="500" height="400">
+						<figcaption>2d[explode d4] and [explode 2d4].</figcaption>
+					</figure>
+					
+				</section>
+				
+				<section>
+					<h2>Your Own Exploding Function</h2>
+					
+					<p>The predefined <code>explode DIE</code> function is handy for dealing with the default case, but there are many ways to explode a die. If we want to explode using different criteria, then we'll have to create our own function.</p>
+					
+					<p>When writing our own function, we don't need to bother with being generic, so we'll just go ahead and hardcode the dice into our function. Let's start with copying the default explosion behavior for d4.</p>
+					
+					<pre>function: explode ROLLEDVALUE:n {
+ if ROLLEDVALUE = 4 { result: 4 + [explode d4] }
+ result: ROLLEDVALUE
+}
+
+output [explode d4] named "explode on 4"</pre>
+					
+					<p>The <code>:n</code> behind <code>ROLLEDVALUE</code> in the function definition indicates that we want this value to be a number. So whenever we feed it a die, the function will be called for each individually rolled value, not the entire die at once.</p>
+					
+					<p>Also note that this function doesn't set a limit for the number of explosions. This is handled implicitly via the <code>maximum function depth</code> setting. Whenever this depth is reached, further function calls will always result in the empty die, which is usually interpreted as empty, nothing, or zero. By default the maximum function depth is 10, so at most ten d4 will be rolled for a single exploding die.</p>
+					
+					<pre>function: explode N:n {
+ if N = 4 { result: 4 + [explode d4] }
+ result: N
+ \ N is shorter to write than ROLLEDVALUE \
+}
+
+loop DEPTH over {1..4} {
+ set "maximum function depth" to DEPTH
+ output [explode d4] named "depth set to [DEPTH]"
+}</pre>
+					
+					<figure>
+						<img src="explode-d4-custom.png" width="500" height="400">
+						<figcaption>Custom explosion.</figcaption>
+					</figure>
+					
+				</section>
+				
+				<section>
+					<h2>Magic Number</h2>
+					
+					<p>Suppose we would like to explode on a 1 instead of on a 4. This is an easy change to make.</p>
+					
+					<pre>function: explode N:n {
+ if N = 1 { result: 1 + [explode d4] }
+ result: N
+}</pre>
+					
+					<p>In fact, if we'd like to get a little more generic, we could provide our magic number as a function parameter.</p>
+					
+					<pre>function: explode N:n on MAGICNUMBER:n {
+ if N = MAGICNUMBER {
+  result: N + [explode d4 on MAGICNUMBER]
+ }
+ result: N
+}
+
+set "maximum function depth" to 3
+loop X over {1..4} {
+ output [explode d4 on X] named "explode on [X]"
+}</pre>
+					
+					<figure>
+						<img src="explode-magic-number.png" width="500" height="400">
+						<figcaption>Exploding on different numbers.</figcaption>
+					</figure>
+					
+					<p>Alternatively, we could define the magic number as a variable before using the function.</p>
+					
+					<pre>function: explode N:n {
+ if N = MAGICNUMBER { result: N + [explode d4] }
+ result: N
+}
+
+set "maximum function depth" to 3
+loop MAGICNUMBER over {1..4} {
+ output [explode d4] named "explode on [MAGICNUMBER]"
+}</pre>
+					
+					
+				</section>
+				
+				<section>
+					<h2>Threshold</h2>
+					
+					<p>Another variant is to explode using a threshold instead of an exact match.</p>
+					
+					<pre>function: explode N:n {
+ if N >= THRESHOLD { result: N + [explode d4] }
+ result: N
+}
+
+set "maximum function depth" to 3
+loop THRESHOLD over {1..4} {
+ output [explode d4] named "explode on at least [THRESHOLD]"
+}</pre>
+					
+					<figure>
+						<img src="explode-threshold.png" width="500" height="400">
+						<figcaption>Exploding with a threshold.</figcaption>
+					</figure>
+					
+				</section>
+				
+				<section>
+					<h2>Diminishing</h2>
+					
+					<p>To wrap up with a more exotic variant, let's consider an explosion with diminishing returns. The idea is that when we roll the maximum value, we explode with a smaller die. In this case, we start with a d10, explode with a d8, then a d6, and finish with a d4 that doesn't explode anymore.</p>
+					
+					<pre>function: explode N:n on SIZE:n {
+ if N = SIZE & SIZE > 4 {
+  result: N + [explode d(SIZE - 2) on SIZE - 2]
+ }
+ result: N
+}
+
+output [explode d10 on 10] named "diminishing"</pre>
+					
+					<figure>
+						<img src="explode-diminishing.png" width="500" height="400">
+						<figcaption>Exploding with diminishing returns.</figcaption>
+					</figure>
+					
+				</section>
+				
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+		
+		<script src="../articles.js"></script>
+	</body>
+</html>

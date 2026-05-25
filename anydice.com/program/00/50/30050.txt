@@ -1,0 +1,238 @@
+
+
+LEVEL: 10        \ Character level of the PC. \ 
+AC_FOR_LVL: 1   \ Use DMG level-appropriate AC if 1, otherwise, assume static AC (set below). \
+AC: 16          \ Static AC to use if AC_FOR_LEVEL is not 1. \
+
+
+
+\-------------------------------------------------------------------------------
+Code block. Do not change.  
+Scroll down to the next comment block for my comments
+-------------------------------------------------------------------------------\
+
+CRITRANGE: 20   \ Lowest rolled number where the character triggers a critical hit. \
+CRITONLYDAM: 0  \ Damage only added on a critical hit. \
+
+function: proficiency {
+    if LEVEL >=17 {
+        result: 6
+    }
+    if LEVEL >= 13 {
+        result: 5
+    }
+    if LEVEL >= 9 {
+        result: 4
+    }
+    if LEVEL >= 5 {
+        result: 3
+    }
+    else {
+        result: 2
+    }
+}
+
+function: roll ROLL:n at plus ATTACKBONUS:n for CRITABLEDAM:d plus HITDAM:d {
+    if ROLL >= CRITRANGE {
+        result: CRITONLYDAM + CRITABLEDAM + CRITABLEDAM + HITDAM
+    }
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= AC - ATTACKBONUS {
+        result: CRITABLEDAM + HITDAM
+    }
+    else {
+        result: 0
+    }
+}
+
+function: reference REQUEST:n {
+    if LEVEL >= 20 {
+        \ Use level-appropriate AC unless it was overridden in the globals below \
+        if AC_FOR_LVL = 1 {AC: 19}
+
+        \ Warlock with Eldritch Blast & Agonizing Blast \
+        W: [roll 1d20 at plus 11 for 1d10+1d6 plus 5]
+
+        \ Fighter with Crossbow Expert, Archery Fighting Style, Sharpshooter \
+        F: [roll 1d20 at plus 8 for 1d6 plus 15]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8+1d6 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6+1d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d10+1d4+1d6 plus 1+4]
+        if REQUEST = 4 {result: C+C+R + (A+A)}
+
+        \ Warlock baseline \
+        if REQUEST = 1 {result: W+W+W+W}
+
+        \ Fighter baseline \
+        if REQUEST = 2 {result: F+F+F+F+F}
+
+        \ Fighter baseline, with Action Surge\
+        if REQUEST = 3 {result: F+F+F+F+F+F+F+F+F}
+    }
+    if LEVEL >= 17 {
+        if AC_FOR_LVL = 1 {AC: 19}
+        W: [roll 1d20 at plus 11 for 1d10+1d6 plus 5]
+        F: [roll 1d20 at plus 8 for 1d6 plus 15]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8+1d6 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6+1d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4+1d6 plus 1+4]
+        if REQUEST = 4 {result: C+C+R + (A+A)}
+        if REQUEST = 1 {result: W+W+W+W}
+        if REQUEST = 2 {result: F+F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F+F+F}
+    }
+    if LEVEL >= 13 {
+        if AC_FOR_LVL = 1 {AC: 18}
+        W: [roll 1d20 at plus 10 for 1d10+1d6 plus 5]
+        F: [roll 1d20 at plus 7 for 1d6 plus 15]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8+1d6 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6+1d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4+1d6 plus 1+4]
+        if REQUEST = 4 {result: C+C+R + (A+A)/2}
+        if REQUEST = 1 {result: W+W+W}
+        if REQUEST = 2 {result: F+F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F+F+F}            
+    }
+    if LEVEL >= 11 {
+        if AC_FOR_LVL = 1 {AC: 17}
+        W: [roll 1d20 at plus 9 for 1d10+1d6 plus 5]
+        F: [roll 1d20 at plus 6 for 1d6 plus 15]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8+1d6 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6+1d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4+1d6 plus 1+4]
+        if REQUEST = 4 {result: C+C+R + (A+A)/2}
+        if REQUEST = 1 {result: W+W+W}
+        if REQUEST = 2 {result: F+F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F+F+F}                
+    }
+    if LEVEL >= 10 {
+        if AC_FOR_LVL = 1 {AC: 17}
+        W: [roll 1d20 at plus 9 for 1d10+1d6 plus 5]
+        F: [roll 1d20 at plus 6 for 1d6 plus 15]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        I: [roll 1d20 at plus [proficiency]+4 for 4d10 plus 4]
+        if REQUEST = 7 {result: 2*I}
+        if REQUEST = 4 {result: C+C+R + A/2}
+        if REQUEST = 1 {result: W+W}
+        if REQUEST = 2 {result: F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F}                    
+    }
+    if LEVEL >= 9 {
+        if AC_FOR_LVL = 1 {AC: 16}
+        W: [roll 1d20 at plus 9 for 1d10+1d6 plus 5]
+        F: [roll 1d20 at plus 6 for 1d6 plus 15]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        if REQUEST = 4 {result: C+C+R + A/2}
+        if REQUEST = 1 {result: W+W}
+        if REQUEST = 2 {result: F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F}                            
+    }
+    if LEVEL >= 8 {
+        if AC_FOR_LVL = 1 {AC: 16}
+        W: [roll 1d20 at plus 8 for 1d10+1d6 plus 5]
+        F: [roll 1d20 at plus 5 for 1d6 plus 15]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        if REQUEST = 4 {result: C+C+R + A/2}
+        if REQUEST = 1 {result: W+W}
+        if REQUEST = 2 {result: F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F}                            
+    }
+    if LEVEL >= 6 {
+        if AC_FOR_LVL = 1 {AC: 15}
+        W: [roll 1d20 at plus 7 for 1d10+1d6 plus 4]
+        F: [roll 1d20 at plus 4 for 1d6 plus 14]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        if REQUEST = 4 {result: C+C+R}
+        if REQUEST = 1 {result: W+W}
+        if REQUEST = 2 {result: F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F}                            
+    }
+    if LEVEL >= 5 {
+        if AC_FOR_LVL = 1 {AC: 15}
+        W: [roll 1d20 at plus 7 for 1d10+1d6 plus 4]
+        F: [roll 1d20 at plus 3 for 1d6 plus 13]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        if REQUEST = 4 {result: C+C+R}
+        if REQUEST = 1 {result: W+W}
+        if REQUEST = 2 {result: F+F+F}
+        if REQUEST = 3 {result: F+F+F+F+F}                            
+    }
+    if LEVEL >= 4 {
+        if AC_FOR_LVL = 1 {AC: 14}
+        W: [roll 1d20 at plus 6 for 1d10+1d6 plus 4]
+        F: [roll 1d20 at plus 2 for 1d6 plus 13]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        if REQUEST = 4 {result: C+R}
+        if REQUEST = 1 {result: W}
+        if REQUEST = 2 {result: F+F}
+        if REQUEST = 3 {result: F+F+F}                                
+    }
+    if LEVEL >= 2 {
+        if AC_FOR_LVL = 1 {AC: 13}
+        W: [roll 1d20 at plus 5 for 1d10+1d6 plus 3]
+        F: [roll 1d20 at plus 7 for 1d6 plus 3]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        if REQUEST = 4 {result: C+R}
+        if REQUEST = 1 {result: W}
+        if REQUEST = 2 {result: F+F}
+        if REQUEST = 3 {result: F+F+F}                                    
+    }
+    if LEVEL >= 1 {
+        if AC_FOR_LVL = 1 {AC: 13}
+        W: [roll 1d20 at plus 5 for 1d10+1d6 plus 0]
+        F: [roll 1d20 at plus 7 for 1d6 plus 3]
+        C: [roll 1d20 at plus [proficiency]+4 for 2d8 plus 4]
+        R: [roll 1d20 at plus [proficiency]+4 for 2d6 plus 1+4]
+        A: [roll 1d20 at plus [proficiency]+4 for 1d8+1d4 plus 1+4]
+        if REQUEST = 4 {result: C+R}
+        if REQUEST = 1 {result: W}
+        if REQUEST = 2 {result: F+F}
+        if REQUEST = 3 {result: 0}
+    }
+}
+
+\-------------------------------------------------------------------------------
+Here are some baseline curves to compare your build against.  Reference 1 is 
+Treantmonk's Warlock Baseline, which uses eldritch blast, agonizing blast, and 
+hex, and increases its CHA at levels 4 and 8. Reference 2 is a fighter that 
+takes crossbow expert as a racial feat, the Archery fighting style at level 1, 
+the sharpshooter feat at level 4, and increases its DEX at levels 6 and 8.  
+Reference 3 is the same fighter build on a round where they action surge to take 
+a second Attack action.
+-------------------------------------------------------------------------------\
+\*
+output [reference 1] named "Level [LEVEL] Warlock Reference"
+output [reference 2] named "Level [LEVEL] Fighter Reference"
+output [reference 3] named "Level [LEVEL] Fighter Action Surge Reference"
+output [reference 4] named "Level [LEVEL] Python"
+output [reference 7] named "Level [LEVEL] Investigator/Warden"
+*\
+\-------------------------------------------------------------------------------
+Dakka dakka motha mucka
+-------------------------------------------------------------------------------\
+
+output 4*[roll 1d20 at plus [proficiency]+4 for 2d6 plus 0] named "Level [LEVEL] Thrall Guns"
+output 4*[roll 1d20+1d4 at plus [proficiency]+4 for 2d6 plus 0] named "Level [LEVEL] Thrall Guns + Bless"
+output 3*[roll 1d20 at plus [proficiency]+4 for 2d6 plus 0] + [roll 1d20 at plus 1+[proficiency]+4 for 2d6 plus 1] named "Level [LEVEL] Current Death Baron Thrall Guns"
+output 4*[roll 1d20 at plus 1+[proficiency]+4 for 2d6 plus 1] named "Level [LEVEL] 15 Charnel Death Baron Thrall Guns"
+
+output 8*[roll [lowest 1 of 2d20] at plus [proficiency]+4 for 2d6 plus 0] named "Level [LEVEL] Automatic Thrall Guns"
+output 8*[roll [lowest 1 of 2d20]+1d4 at plus [proficiency]+4 for 2d6 plus 0] named "Level [LEVEL] Automatic Thrall Guns + Bless"
+output 6*[roll [lowest 1 of 2d20] at plus [proficiency]+4 for 2d6 plus 0] + 2*[roll [lowest 1 of 2d20] at plus 1+[proficiency]+4 for 2d6 plus 1] named "Level [LEVEL] Current Death Baron Automatic Thrall Guns"
+output 8*[roll [lowest 1 of 2d20] at plus 1+[proficiency]+4 for 2d6 plus 1] named "Level [LEVEL] 15 Charnel Death Baron Automatic Thrall Guns"

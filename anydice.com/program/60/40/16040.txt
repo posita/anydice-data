@@ -1,0 +1,109 @@
+\ STANDARD DICE \
+\\\\\\\\
+
+MISS: -999
+\ NUMBER = DS: surge is one's place, hearts/damage are ten's place and beyond \
+BLUE:   {MISS,  10, 11, 20, 20, 21}
+RED:    {10,    20, 20, 20, 30, 31}
+YELLOW: {01,    10, 10, 11, 20, 21}
+EQUIPMENTSURGE:  {01} \ equipment giving 1 surge modeled as a die with one face giving 1 surce 100% of the time \
+EQUIPMENTDAMAGE: {10} \ same with damage \
+
+BROWN: {0, 0, 0, 1, 1, 2}
+GRAY:  {0, 1, 1, 1, 2, 3}
+BLACK: {0, 2, 2, 2, 3, 4}
+
+
+\ FUNCTIONS \
+\\\\\\\\
+
+function: A:n add B:n {
+  if A = MISS | B = MISS {
+    result: MISS
+  }
+  result: ([damage A] + [damage B]) * 10 + [surge A] + [surge B]
+}
+
+function: damage A:n {
+  if A = MISS {
+    result: 0
+  }
+  result: (A - [surge A])/10
+}
+
+function: surge A:n {
+  if A = MISS {
+    result: 0
+  }
+  if #A < 2 {
+    result: A
+  }
+  result: 2@A
+}
+
+function: damage of A:n with surgebonusdamages SURGEBONUSDAMAGES:s {
+  if A = MISS {
+    result: 0
+  }
+  TOTAL: [damage A]
+  SURGESLEFT: [surge A]
+  loop S over SURGEBONUSDAMAGES {
+    if SURGESLEFT > 0 {
+      TOTAL: TOTAL + S
+    }
+    SURGESLEFT: SURGESLEFT - 1
+  }
+  result: TOTAL
+}
+
+function: fight ATTACKDAMAGE:n vs DEFENSEDAMAGE:n with pierce PIERCE:n {
+  DEFENSEAFTERPIERCE: [highest of DEFENSEDAMAGE - PIERCE and 0]
+  result: [highest of ATTACKDAMAGE - DEFENSEAFTERPIERCE and 0]
+}
+
+function: fight ATTACKER:n with surgebonusdamages SURGEBONUSDAMAGES:s and surgebonuspierces SURGEBONUSPIERCES:s and pierce PIERCE:n vs DEFENDER:n {
+  if ATTACKER = MISS {
+    result: 0
+  }
+  DEFENSELEFT: [highest of DEFENDER - PIERCE and 0]
+  TOTALDAMAGE: [damage ATTACKER]
+
+  SURGEBONUSDAMAGES_INDEX: 1
+  SURGEBONUSPIERCES_INDEX: 1
+  loop S over {1..[surge ATTACKER]} {
+    POTENTIAL_DAMAGE: 0
+    POTENTIAL_PIERCE: 0
+    if SURGEBONUSDAMAGES_INDEX <= #SURGEBONUSDAMAGES {
+      POTENTIAL_DAMAGE: SURGEBONUSDAMAGES_INDEX@SURGEBONUSDAMAGES
+    }
+    if SURGEBONUSPIERCES_INDEX <= #SURGEBONUSPIERCES {
+      POTENTIAL_PIERCE: SURGEBONUSPIERCES_INDEX@SURGEBONUSPIERCES
+      POTENTIAL_PIERCE: [lowest of POTENTIAL_PIERCE and DEFENSELEFT]
+    }
+    if POTENTIAL_DAMAGE >= POTENTIAL_PIERCE {
+      TOTALDAMAGE: TOTALDAMAGE + POTENTIAL_DAMAGE
+      SURGEBONUSDAMAGES_INDEX: SURGEBONUSDAMAGES_INDEX + 1
+    } else {
+      DEFENSELEFT: DEFENSELEFT - POTENTIAL_PIERCE
+      SURGEBONUSPIERCES_INDEX: SURGEBONUSPIERCES_INDEX + 1
+    }
+  }
+  result: [highest of TOTALDAMAGE - DEFENSELEFT and 0]
+}
+
+
+\ ATTACKERS / DEFENDERS \
+\\\\\\\\
+
+ZOMBIE: [[1dBLUE add 1dRED] add 1dYELLOW]
+BOGEN: [[1dBLUE add 1dRED] add 1dYELLOW]
+AXT: [1dBLUE add 1dRED]
+AXTWITHEQUIPMENT: [[1dAXT add 1dEQUIPMENTSURGE] add 1dEQUIPMENTDAMAGE]
+BARON: 1dBROWN + 1dGRAY + 1dBLACK
+DRACHE: 2dGRAY
+
+
+\ USAGE \
+\\\\\\\\
+
+output [fight 1dAXTWITHEQUIPMENT with surgebonusdamages {2} and surgebonuspierces {1} and pierce 1 vs 1dBARON] named "Axt vs Baron"

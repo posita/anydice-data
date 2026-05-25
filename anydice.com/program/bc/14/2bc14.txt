@@ -1,0 +1,26 @@
+function: encode SEQUENCE:s in base BASE:n {
+  NUMBER: 0
+  loop DIGIT over SEQUENCE {
+    NUMBER: BASE * NUMBER + DIGIT
+  }
+  result: NUMBER
+}
+
+function: ACTION:s action STRESS:s stress {
+  \ Loop over the ACTION dice, canceling any with an equal or higher STRESS roll if possible, keep the rest.  \
+  \ Note that this algorithm relies on the ACTION and STRESS sequences both being sorted in descending order! \
+  KEEP: {}
+  INDEX: 1  \ This index points to the first (i.e. highest) stress die not yet used. \
+  loop DIE over ACTION {
+    if INDEX <= #STRESS & INDEX@STRESS >= DIE {
+      INDEX: INDEX + 1  \ Cancel this action die, move index to next stress die. \  
+    } else {
+      KEEP: {KEEP, DIE} \ Keep this action die, don't move index. \
+    }
+  }
+
+  \ We cannot return a sequence from a function auto-summed over a die, so we must encode it as a number. \
+  result: [encode KEEP in base 10]
+}
+
+output [5d6 action 3d6 stress]

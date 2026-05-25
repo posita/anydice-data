@@ -1,0 +1,76 @@
+\AMZUG 0-Spieler; 1-Gegner\
+\result: 0-Gegner hat gewonnen; 1-Spieler hat gewonnen; -1-unentschieden innerhalb der Rundenzahl\
+
+function: konter PROBE:n {
+ if PROBE > 0 {result: 1}
+ else {result: 0}
+}
+
+function: vert PROBE:n {result: PROBE-1}
+
+function: angriff PROBE:n GAT:n GDF:n {
+ if PROBE = -2 {result: 1}
+ if PROBE = -1 {result: [konter [probe 2d6 (GAT)]]}
+ if PROBE =  0 {result: [vert [probe 2d6 (GDF)]]}
+ if PROBE =  1 {result: [vert [probe 2d6 (GDF)]]-1}
+ if PROBE =  2 {result: -3}
+}
+
+function: damvert PROBE:n {
+ if PROBE = -2 {result: 3}
+ if PROBE = -1 {result: 2}
+ if PROBE =  0 {result: 1}
+ if PROBE >  0 {result: 0}
+}
+
+function: damage PROBE:n GAT:n GDF:n {
+ if PROBE < 0 {result: 0}
+ if PROBE =  0 {result: [damvert [probe 2d6 (GDF)]]}
+ if PROBE =  1 {result: [damvert [probe 2d6 (GDF)]]+1}
+ if PROBE =  2 {result: 3}
+}
+
+function: probe ROLL:n MOD:n {
+ if ROLL = 2 {
+  result: -2
+ }
+ else if ROLL+MOD < 7 {
+  result: -1
+ }
+ else if ROLL = 12 {
+  result: 2
+ }
+ else if 9 < ROLL+MOD {
+  result: 1
+ }
+ else 
+ {
+  result: 0
+ }
+}
+
+function: reroll ROLL:n {
+ if ROLL = 1 {
+  result: 2
+ }
+ else {
+  result: ROLL
+ }
+}
+
+\output 6+2d6 named "Leben"\
+output 6+[highest 2 of 3d[reroll 1d6]] named "Leben+Ausdauer"
+\output [highest 1 of 2d[reroll 1d6]] named "Ausdauer"\
+\output (2d[reroll 1d6])/2 named "AusdauerAlt2"\
+\output (2d[reroll 1d6]) named "AusdauerAlt2"\
+output [damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4] named "6Ausdauer"
+output [damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4] named "4Ausdauer"
+output [damage [probe  [highest 2 of 3d6] (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4]+[damage [probe  2d6 (-2)] 0 4] named "Runde2"
+output [damage [probe  [highest 2 of 3d6] (-2)] 0 4]+[damage [probe  [highest 2 of 3d6] (-2)] 0 4] named "Runde3"
+output [damage [probe  2d6 (-2)] 0 4] named "damage"
+output [damage [probe  [highest 2 of 3d6] (-2)] 0 4] named "damage with advantage"
+\output [angriff [probe  2d6 (0)] 0 0] named "Angriff"\
+\output [angriff [probe  2d6 (2)] 2 0] named "Angriff"\
+output [probe 2d6 (0)] named "Probe"
+\output [probe [highest 2 of 3d6] (0)] named "Probe Advantage"\
+\output [probe [lowest 2 of 3d6] (0)] named "Probe Disadvantage"\

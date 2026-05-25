@@ -1,0 +1,73 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: save ROLL:n vs DC:n {
+  if ROLL < DC {result: HIT}
+  result: MISS
+}
+
+function: attack {
+ result: [damage for [attack ROLL vs DEFENSE]]
+}
+
+function: dccheck {
+ result: [damage for [save ROLL vs DC]]
+}
+
+DEFENSE: d{12..22}
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 1d6+5
+CRITICALDAMAGE: 2d6+5
+MISSDAMAGE: 0
+output [attack] named "Silvered Shortsword"
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 1d6+1d6+5
+CRITICALDAMAGE: 2d6+2d6+5
+MISSDAMAGE: 0
+output [attack] named "Silvered Shortsword + Hunter's Mark"
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 1d8+5
+CRITICALDAMAGE: 2d8+5
+MISSDAMAGE: 0
+output [attack] named "Longbow"
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 1d8+1d6+5
+CRITICALDAMAGE: 2d8+2d6+5
+MISSDAMAGE: 0
+output [attack] named "Longbow + Hunter's Mark"
+
+ROLL: 1d20
+ATTACK: 4
+HITDAMAGE: 2d4+4
+CRITICALDAMAGE: 4d4+4
+MISSDAMAGE: 0
+output [attack] named "Talons, Lorelei"

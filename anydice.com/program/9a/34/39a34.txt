@@ -1,0 +1,66 @@
+ARMOR : 0
+
+function: check X:n target T:n accuracy A:n difficulty D:n bonus B:n {
+    if X + A - D + B >= 20 { result : 2 }
+    if X + A - D + B >= T { result : 1 }
+    result : 0
+}
+
+function: attack X:n target T:n accuracy A:n difficulty D:n grit G:n {
+    X : [check X target T accuracy A difficulty D bonus G]
+    if X > 0 {
+        H : 1@Xd6
+    } else { H : 0 }
+    H : [highest of H - ARMOR and 0]
+    result : H
+}
+
+function: decksweeper X:n target T:n accuracy A:n difficulty D:n grit G:n {
+    X : [check X target T accuracy A difficulty D bonus G]
+    if X > 0 {
+        H : {1..2}@{2*X}d6
+    } else { H : 0 }
+    H : [highest of H - ARMOR and 0]
+    result : H
+}
+
+function: assaultrifle X:n target T:n accuracy A:n difficulty D:n grit G:n {
+    X : [check X target T accuracy A difficulty D bonus G]
+    if X > 0 {
+        H : 1@Xd6
+        H : [highest of H and 2]
+    } else { H : 2 }
+    H : [highest of H - ARMOR and 0]
+    result : H
+}
+
+function: pistol X:n target T:n accuracy A:n difficulty D:n grit G:n {
+    X : [check X target T accuracy A difficulty D bonus G]
+    if X > 0 {
+        H : 1@Xd3
+    } else { H : 1 }
+    H : [highest of H - ARMOR and 0]
+    result : H
+}
+
+function: battlerifle X:n target T:n accuracy A:n difficulty D:n grit G:n {
+    X : [check X target T accuracy A difficulty D bonus G]
+    if X > 0 {
+        H : 1@Xd{2..6}
+    } else { H : 0 }
+    result : H
+}
+
+function: hmg X:n target T:n accuracy A:n difficulty D:n grit G:n {
+    X : [check X target T accuracy A difficulty D bonus G]
+    if X > 0 {
+        H : {1..2}@{2*X}d6 + 4
+    } else { H : 0 }
+    H : [highest of H - ARMOR and 0]
+    result : H
+}
+
+output [attack 1d20 target 10 accuracy 0 difficulty 0 grit 1] named "d6 weapon"
+output [decksweeper 1d20 target 10 accuracy 0 difficulty 1d6 grit 1] named "2d6 weapon"
+output [assaultrifle 1d20 target 10 accuracy 0 difficulty 0 grit 1] named "d6 reliable 2"
+output 2d[pistol 1d20 target 10 accuracy 0 difficulty 0 grit 1] named "2x d3 reliable 1"

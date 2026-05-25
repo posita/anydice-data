@@ -1,0 +1,38 @@
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\\ Rough calc of ability score distribution when players are allowed to: \\
+\\ 1. Roll for their ability scores with 4d6 drop lowest, assign any.    \\
+\\ 2. Choose to abandon their rolled scores to use point buy instead.    \\
+\\ 3. Gain a number of extra points during point buy, equal to:          \\
+\\    B = max(0, party size - 2 - number of abandoned rolls party-wide). \\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+\\\ Parameters \\\
+\ Party size \
+P: 4
+\ Ability score generation die \
+S: 6d({1..3}@4d6)
+\ Threshold to abandon a stat roll; using sum(scores), bad metric due to min-max \
+T: 71
+
+
+\\\ Functions \\\
+\ Basic reroll \
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+
+\\\ Calculated \\\
+\ Max bonus from abandoning a stat roll \
+B: P - 2
+if B < 0 { B: 0 }
+\ Expected number of abandons \
+A: Pd(S < T + B/2)
+
+
+\\\ Resulting distributions \\\
+output  S                                 named "[S]"
+output [S reroll {1..T-1 + B} as T + B-A] named "[S], with-abandons"
+output [S reroll {1..T-1}     as T]       named "[S], over-abandons" \ Use this result when A > B. \

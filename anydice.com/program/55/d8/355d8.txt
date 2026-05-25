@@ -1,0 +1,41 @@
+LOW: 0
+LOW_KINETIC: 3
+MEDIUM: 1
+MEDIUM_KINETIC: 4
+HIGH: 2
+function: hit check X:n Y:n G:n B:n DT:n DB:n vs DV:n {
+DM: 1
+if DT=LOW_KINETIC | DT=MEDIUM_KINETIC {DM: 2}
+if X+Y+G+B >= DV {
+if DT=LOW | DT=LOW_KINETIC {
+if X<Y & X<G { result: X + DB }
+if Y<X & Y<G { result: Y + DB }
+if G<X & G<Y { result: G + DB }
+if X=Y & X<G { result: DM*(X + Y) + DB }
+if X=G & X<Y { result: DM*(X + G) + DB }
+if Y=G & Y<X { result: DM*(Y + G) + DB }
+if X=Y & Y=G { result: X + Y + G + DB }
+}
+if DT=MEDIUM | DT=MEDIUM_KINETIC {
+if X>Y & X<G { result: X + DB }
+if Y>X & Y<G { result: Y + DB }
+if G>X & G<Y { result: G + DB }
+if X=Y & X>G { result: DM*(X + Y) + DB }
+if X=G & X>Y { result: DM*(X + G) + DB }
+if Y=G & Y>X { result: DM*(Y + G) + DB }
+if X=Y & Y=G { result: X + Y + G + DB }
+}
+if DT=HIGH {
+if X>Y & X>G { result: X + DB }
+if Y>X & Y>G { result: Y + DB }
+if G>X & G>Y { result: G + DB }
+if X=Y & X>G { result: X + Y + DB }
+if X=G & X>Y { result: X + G + DB }
+if Y=G & Y>X { result: Y + G + DB }
+if X=Y & Y=G { result: X + Y + G + DB }
+}
+}
+result: 0
+}
+output [hit check 1d6 1d6 1d4 1 LOW_KINETIC 1 vs 12]
+output [hit check 1d8 1d8 1d4 1 LOW 1 vs 12]

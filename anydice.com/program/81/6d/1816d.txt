@@ -1,0 +1,28 @@
+HITROLL: 2
+HITDAMAGE: d10 + 11
+CRITROLL: 15
+CRITDAMAGE: 2d10 + 17
+ATTACKS: 4
+HITPOINTS: 190
+ADVANTAGE: 2
+
+function: attackroll ROLL:n
+{
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL >= HITROLL { result: HITDAMAGE }
+ result: 0
+}
+
+loop ROUNDS over {1..10} 
+{
+  loop N over {1..ATTACKS} 
+    {
+      RL: [highest 1 of ADVANTAGEd20]
+      HITPOINTS: HITPOINTS-[attackroll RL]
+    }
+  output HITPOINTS<=0 named "dead in [ROUNDS] round(s)"
+}
+
+RL: [highest 1 of ADVANTAGEd20]
+output [attackroll RL] named "Damage taken"

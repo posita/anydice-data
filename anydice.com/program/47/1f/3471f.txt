@@ -1,0 +1,44 @@
+\ Comparing a 1d10 with frequent advantage to a 1d12 without \
+
+ATTACKS_PER_DAY: 25
+ADVANTAGE_AR: [ highest 1 of 2d20 ]
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+CRITICAL_THRESHOLD: 20
+STR_MOD: 5
+PROFICIENCY: 3
+UNSEEN_MENACE: 1d10
+GREATSWORD: 2d6
+RAGE_BONUS: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+
+DAMAGE_BONUS: STR_MOD + RAGE_BONUS
+HIT_BONUS: STR_MOD + PROFICIENCY
+WEAPON: UNSEEN_MENACE
+TARGET_AC: 15
+NORMAL_AR: 1d20
+
+output [ attack with HIT_BONUS vs TARGET_AC rolling ADVANTAGE_AR with WEAPON and DAMAGE_BONUS ] named "Unseen Menace"
+
+WEAPON: GREATSWORD
+output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_AR with WEAPON and DAMAGE_BONUS ] named "Unseen Menace"

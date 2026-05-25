@@ -1,0 +1,44 @@
+\ Trial Params \
+AC: 18
+TO_HIT: 7
+ATTACKS: 2
+ADVANTAGE: 0
+DISADVANTAGE: 0
+
+\ Derived Values \
+NEED_TO_ROLL: AC - TO_HIT
+if NEED_TO_ROLL < 2 {
+    NEED_TO_ROLL: 2
+}
+if NEED_TO_ROLL > 20 {
+    NEED_TO_ROLL: 20
+}
+\ Count Crits in 1000s column and hits in 1 \
+function: score X:n {
+    if X = 20 {
+        result: 1000
+    } else {
+        if X >= NEED_TO_ROLL {
+            result: 1
+        } else {
+            result: 0
+        }
+    }
+}
+\ Loop over each iteration \
+X: 0
+loop N over {1..ATTACKS}{
+    if ADVANTAGE & !DISADVANTAGE { \ Advantage \
+        ROLL: [highest 1 of 2d20]
+    } else {
+        if DISADVANTAGE & !ADVANTAGE { \ Disadvantage \
+            ROLL: [lowest 1 of 2d20]
+        } else { \ Normal \
+            ROLL: 1d20
+        }
+    }
+    \ Hit +1, CRIT +1000 \
+    X: X + [score ROLL]
+}
+\ Print result \
+output X named "number of hits"

@@ -1,0 +1,63 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+TARGET_AC: d{15..20}
+
+ONE_TINY_OBJECT: [attack d20 plus 8 vs TARGET_AC for 1d4 + 4 crit 1d4 on 20]
+
+ONE_SMALL_OBJECT: [attack d20 plus 6 vs TARGET_AC for 1d8 + 2 crit 1d8 on 20]
+
+ONE_MEDIUM_OBJECT: [attack d20 plus 5 vs TARGET_AC for 2d6 + 1 crit 2d6 on 20]
+
+ONE_LARGE_OBJECT: [attack d20 plus 6 vs TARGET_AC for 2d10 + 2 crit 2d10 on 20]
+
+ONE_HUGE_OBJECT: [attack d20 plus 8 vs TARGET_AC for 2d12 + 4 crit 2d12 on 20]
+
+TOTAL_DAMAGE_TINY: 0
+TOTAL_DAMAGE_SMALL: 0
+TOTAL_DAMAGE_MEDIUM: 0
+TOTAL_DAMAGE_LARGE: 0
+
+
+loop ATTACKS over {1..8} {
+    TOTAL_DAMAGE_TINY: TOTAL_DAMAGE_TINY + ONE_TINY_OBJECT
+}
+
+loop ATTACKS over {1..8} {
+    TOTAL_DAMAGE_SMALL: TOTAL_DAMAGE_SMALL + ONE_SMALL_OBJECT
+}
+
+loop ATTACKS over {1..4} {
+    TOTAL_DAMAGE_MEDIUM: TOTAL_DAMAGE_MEDIUM + ONE_MEDIUM_OBJECT
+}
+
+loop ATTACKS over {1..2} {
+    TOTAL_DAMAGE_LARGE: TOTAL_DAMAGE_LARGE + ONE_LARGE_OBJECT
+}
+
+
+output TOTAL_DAMAGE_TINY named "8 tiny objects"
+
+output TOTAL_DAMAGE_SMALL named "8 small objects"
+
+output TOTAL_DAMAGE_MEDIUM named "4 medium objects"
+
+output TOTAL_DAMAGE_LARGE named "2 large objects"
+
+output ONE_HUGE_OBJECT named "1 huge object"

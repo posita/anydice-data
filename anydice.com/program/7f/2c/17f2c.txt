@@ -1,0 +1,57 @@
+EV: 15
+POWER: 50
+PIERCING: 1
+DEFLECT: 0 \1 for repel missiles, 2 for deflect missiles\
+
+\FUNCTION DEFINITIONS\
+function: roll NUM:n of size SIZE:n {
+  result: NUMdSIZE
+}
+
+function: deflect ACC:n by DEGREE:n piercing PIERCING:n {
+  if(DEGREE = 0) {
+    result: ACC
+  } else {
+    if(DEGREE = 1) {
+      if(PIERCING = 1) {
+        MINACC: ((ACC + 1)/2)+1
+        result: [roll 1 of size ACC-MINACC] - 1 + MINACC
+      } else {
+        result: [roll 1 of size ACC] - 1
+      }
+    } else {
+      if(PIERCING = 1) {
+        result: ([roll 1 of size 2*ACC])/3 - 1
+      } else {
+        result: [roll 1 of size ACC/2] - 1
+      }
+    }
+  }
+}
+\FUNCTION DEFINITIONS END\
+
+EVROLL: [highest of 0  and [roll 2 of size ([roll 1 of size EV] - 1)] / 2 - 1]
+
+BASELBACCURACY: 7+POWER/40
+LBACCURACY: [roll 1 of size BASELBACCURACY] - 1
+LBACCURACY: [deflect LBACCURACY by DEFLECT piercing 1]
+
+BASEBOCACCURACY: 10+POWER/25
+BOCACCURACY: [roll 1 of size BASEBOCACCURACY] - 1
+BOCACCURACY: [deflect BOCACCURACY by DEFLECT piercing 1]
+
+BASEISACCURACY: 7+POWER/15
+ISACCURACY: [roll 1 of size BASEISACCURACY] - 1
+ISACCURACY: [deflect ISACCURACY by DEFLECT piercing 0]
+
+BASELCSACCURACY: 10+POWER/15
+LCSACCURACY: [roll 1 of size BASELCSACCURACY] - 1
+LCSACCURACY: [deflect LCSACCURACY by DEFLECT piercing 0]
+
+output LBACCURACY >= EVROLL named "chance of hitting with Lightning Bolt"
+
+output BOCACCURACY >= EVROLL named "chance of hitting with Bolt of Cold/Fire"
+
+output ISACCURACY >= EVROLL named "chance of hitting with Iron Shot"
+
+output LCSACCURACY >= EVROLL named "chance of hitting with Lehudib's Crystal Spear"

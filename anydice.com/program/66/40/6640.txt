@@ -1,0 +1,28 @@
+ATTACKER: { \strength\ 1, \effectiveness\ 1, \initiative\ 1 }
+DEFENDER: { \strength\ 1, \effectiveness\ 1, \initiative\ 1 }
+
+function: STRENGTH:n EFFECTIVENESS:n battleroll {
+  result: STRENGTH d {1:EFFECTIVENESS, 0:(6-EFFECTIVENESS)}
+}
+
+function: combat between S_ATT:n E_ATT:n and S_DEF:n E_DEF:n for LIMIT:n steps {
+  if S_ATT <= 0 { result: -1 }
+  if S_DEF <= 0 { result: +1 }
+  if LIMIT <= 0 { result: 0 }
+  S_DEF: S_DEF - [S_ATT E_ATT battleroll]
+  \ reverse the roles for the next half-turn, negate result: \
+  result: -[combat between S_DEF E_DEF and S_ATT E_ATT for LIMIT-1 steps]
+}
+
+\ we do our own recursion limiting \
+set "maximum function depth" to 99
+TURNS: 3
+
+if (3@ATTACKER >= 3@DEFENDER) {
+  output [combat between 1@ATTACKER 2@ATTACKER and 1@DEFENDER 2@DEFENDER for 2*TURNS steps]
+    named "-1 = defender wins, 0 = tie, +1 = attacker wins"
+} else {
+  \ defender goes first, but we still want +1 to mean victory for the attacker \
+  output -[combat between 1@DEFENDER 2@DEFENDER and 1@ATTACKER 2@ATTACKER for 2*TURNS steps]
+    named "-1 = defender wins, 0 = tie, +1 = attacker wins"
+}

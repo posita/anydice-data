@@ -1,0 +1,44 @@
+N: 4
+Q: d20
+
+function: level X:n rolled S:n {
+ if S < [maximum of Q] + 1 - X {
+  result: N@NdQ
+ } else {
+  result: 1@NdQ
+ }
+}
+
+function: level X:n check {
+ result: [level X rolled dQ]
+}
+
+function: advantage of A:n over B:n {
+ result: A - B
+}
+
+function: crit B:n with advantage X:n using C:d {
+ if X < 0 {
+  result: 0
+ } else {
+  if X < 5 | !Z {
+   result: C
+  } else {
+   result: 2*C
+  }
+ }
+}
+
+function: damage from A:n against B:n using C:d with crits Z:n {
+ AC: [level A check]
+ BC: [level B check]
+ result: [crit Z with advantage [advantage of AC over BC] using C]
+}
+
+ATTACKER: 12
+DEFENDER:  0
+DICE:     2d4
+
+output 0 named "ATK lv.[ATTACKER] vs DEF lv.[DEFENDER], [DICE]"
+output [damage from ATTACKER against DEFENDER using DICE with crits 1] named "With Crits (+5 -> 2x)"
+output [damage from ATTACKER against DEFENDER using DICE with crits 0] named "Without Crits"

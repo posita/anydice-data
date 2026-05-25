@@ -1,0 +1,100 @@
+\ Exploding Dice \
+\ Adventures Beyond \
+set "maximum function depth" to 4
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T{
+  if ROLL =6 {result: 1+[rollexploding 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailures ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplode ROLL: n threshold T {
+  if ROLL < T {result: [rollexploding 1d6 threshold T]}
+  result: [rollexploding ROLL threshold T]
+}
+
+function: wrapper DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplode 1d6 threshold T]}
+    else {if E {RES:RES+[rollexploding 1d6 threshold T]}
+      else {if R {RES:RES+[rerollfailures 1d6 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+
+\ D4 Skill Checks \
+
+function: rollexplodingfour ROLL:n threshold T{
+  if ROLL =4 {result: 1+[rollexplodingfour 1d4 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollfailuresfour ROLL:n threshold T{
+  if ROLL < T {result: [roll 1d4 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+function: rerollthenexplodefour ROLL: n threshold T {
+  if ROLL < T {result: [rollexplodingfour 1d4 threshold T]}
+  result: [rollexplodingfour ROLL threshold T]
+}
+
+function: wrapperfour DICE:n threshold T explode E reroll R{
+  RES:0
+  loop N over {1..DICE} {
+    if E & R {RES: RES+[rerollthenexplodefour 1d4 threshold T]}
+    else {if E {RES:RES+[rollexplodingfour 1d4 threshold T]}
+      else {if R {RES:RES+[rerollfailuresfour 1d4 threshold T]}
+        else {RES:RES+[roll 1d6 threshold T]}
+      }
+    }
+  }
+  result:RES
+}
+
+function: six DICE:n{
+  result:[wrapper DICE threshold 2 explode 0 reroll 0]
+}
+function: sixexplode DICE:n{
+  result:[wrapper DICE threshold 2 explode 1 reroll 0]
+}
+function: sixreroll DICE:n{
+  result:[wrapper DICE threshold 2 explode 0 reroll 1]
+}
+function: sixexplodereroll DICE:n{
+  result:[wrapper DICE threshold 4 explode 1 reroll 1]
+}
+function: four DICE:n{
+  result:[wrapperfour DICE threshold 2 explode 0 reroll 0]
+}
+function: fourexplode DICE:n{
+  result:[wrapperfour DICE threshold 2 explode 1 reroll 0]
+}
+function: fourreroll DICE:n{
+  result:[wrapperfour DICE threshold 2 explode 0 reroll 1]
+}
+function: fourexplodereroll DICE:n{
+  result:[wrapperfour DICE threshold 4 explode 1 reroll 1]
+}
+output [sixexplode 1] named "Skill Check with 1e6"
+output [sixexplode 2] named "Skill Check with 2e6"
+output [sixexplode 3] named "Skill Check with 3e6"
+output [sixexplode 4] named "Skill Check with 4e6"
+output [sixexplode 5] named "Skill Check with 5e6"
+output [sixexplode 6] named "Skill Check with 6e6"
+output [sixexplode 7] named "Skill Check with 7e6"
+output [sixexplode 8] named "Skill Check with 8e6"
+output [fourexplode 5] named "Skill Check with 5d4"
+output [sixexplode 5] - [sixexplode 5] named "Skill Contest 5d6 vs 5d6"

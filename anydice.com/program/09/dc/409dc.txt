@@ -1,0 +1,59 @@
+function: if CONDITION:n then A:s else B:s {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: rerollok HIGHEST:n MID:n LOWEST:n {
+   if HIGHEST>=10 {
+      if MID + LOWEST < 10 {
+         result: 1
+      }
+      result: 0
+   }
+   result: 0
+}
+
+
+function: secondroll OLDHIGHEST:n {
+  ROLL: 2d12
+\  HIGHEST: {1}@ROLL
+  LOWEST: {2}@ROLL
+  result: [if  LOWEST < OLDHIGHEST then HIGHEST + OLDHIGHEST else ROLL]
+\
+  result: 2
+}
+
+function: roll {
+   ROLL: 3d6
+   BASE: {1,2}@ROLL
+   HIGHEST: {1}@ROLL
+   MID: {2}@ROLL
+   LOWEST: {3}@ROLL
+   result: [if  [ rerollok HIGHEST MID LOWEST ] then {1,2}@3d6 else BASE]
+}
+
+ROLL: [roll]
+
+
+output {1}@4d6 >= 6 named "D6_high"
+output {1}@3d12 >= 10 named "D12_high"
+
+
+output {4}@4d6 <= 1 named "D6_ID"
+output {3}@3d12 <= 3 named "D12_ID"
+
+output {1,2,3}@4d6 > 11 named "D6_EASY"
+output {1,2}@3d12 > 15 named "D12_EASY"
+output d20 >=9 named "D20_EASY"
+
+output {1,2,3}@4d6 > 12 named "D6_NORMAL"
+output {1,2}@3d12 > 16 named "D12_NORMAL"
+output d20 >= 12 named "D20_NORMAL"
+
+output {1,2,3}@4d6 > 13 named "D6_HARD"
+output {1,2}@3d12 > 18 named "D12_HARD"
+output d20 >= 15 named "D20_HARD"
+
+output {1,2,3}@4d6 > 15 named "D6_EXTREME"
+output {1,2}@3d12 > 20 named "D12_EXTREME"
+output d20 >= 18 named "D20_EXTREME"
+

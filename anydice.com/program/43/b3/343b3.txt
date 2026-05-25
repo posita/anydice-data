@@ -1,0 +1,71 @@
+SIX:   d{0,0,0,0,0,1}
+EIGHT: d{0,0,0,0,0,1,1,2}
+
+function: highest of A:n and B:n and C:n {
+  if A > B { 
+     if A > C {
+        result: A
+     }
+     result: C
+  }
+  if B > C {
+     result: B
+  }
+  result: C
+}
+
+function: roll NUM:n {
+   VAL: 0
+   loop N over {1..NUM}{
+      VAL: VAL + SIX
+   }
+   result: VAL
+}
+
+function: roll NUM:n adv {
+   VAL: 0
+   loop N over {1..NUM}{
+      VAL: VAL + SIX
+   }
+   result: VAL + EIGHT
+}
+
+function: push NUM:n {
+   VAL: 0
+   loop N over {1..NUM}{
+      VAL: VAL + [push SIX help SIX]
+   }
+   result: VAL
+}
+
+function: push NUM:n adv {
+   VAL: 0
+   loop N over {1..NUM}{
+      VAL: VAL + [push SIX help SIX]
+   }
+   result: VAL + [push EIGHT help EIGHT]
+}
+
+function: push DICE:d help ROLL:n {
+   if ROLL = 0 { result: DICE } else { result: ROLL }
+}
+
+function: does ROLL:n beat DIFF:n {
+   if ROLL = 0        { result: 0 }
+   if ROLL < DIFF     { result: 0 }
+   if ROLL < DIFF * 2 { result: 1 }
+   else               { result: 2 }
+}
+
+DC:   2
+
+LOW:  1
+HIGH: 10
+
+loop N over {LOW..HIGH}{
+   output [does [roll N] beat DC] named "[N]d6"
+}
+
+loop N over {LOW..HIGH}{
+   output [does [push N] beat DC] named "[N]d6 (push)"
+}

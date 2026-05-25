@@ -1,0 +1,47 @@
+\\\ Old formula 
+If ATTACK > PARRY:
+  If 2d6 > TOUGHNESS:
+    Success!\
+
+\\\ New formula
+If ATTACK - PARRY = DAMAGE > 0:
+  if DAMAGE + 7 > TOUGHNESS:
+    Success!
+
+DAMAGE + 7 > TOUGHNESS | substitute DAMAGE
+ATTACK - PARRY + 7 > TOUGHNESS | + PARRY
+ATTACK + 7 > TOUGHNESS + PARRY \
+
+\ config \
+TOUGHNESS: 6
+PARRY: 6
+DAMAGE_STATIC: 7
+DAMAGE_DICE: 2d[explode d6]
+SKILL_DIE: 1d[explode d8]
+WILD_DIE: 1d[explode d6]
+
+\ calculations \
+
+ATTACK: [highest of WILD_DIE and SKILL_DIE]
+
+function: does A:s hit B:n {
+  if A >= B { result: 1 }
+  else { result: 0 }
+}
+
+function: do damage if A:s hits {
+  if A = 1 { result: DAMAGE_DICE }
+  else { result: 0 }
+}
+
+
+
+\ output [does [do damage if [does ATTACK hit PARRY] hits] hit TOUGHNESS] named "Old style damage" \
+
+DAMAGE: ATTACK - PARRY
+FINAL_DAMAGE: DAMAGE + DAMAGE_STATIC
+
+output DAMAGE
+output FINAL_DAMAGE
+output [do damage if [does ATTACK hit PARRY] hits]
+\ output [does FINAL_DAMAGE hit TOUGHNESS] named "New style damage" \

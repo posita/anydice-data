@@ -1,0 +1,42 @@
+function: averagehelper ROLL_VAL:n NUM_DICE:n DIE_SIZE:n {
+    loop N over {1..DIE_SIZE} {
+        FLOOR_VAL: (DIE_SIZE-N) 
+        ROLL_TARGET: (FLOOR_VAL)* NUM_DICE
+        if ROLL_VAL > ROLL_TARGET { result:FLOOR_VAL+1 }
+    }
+    result: 1
+
+}
+
+function: average ROLL_VAL:n NUM_DICE:n DIE_SIZE:n {
+    result: [averagehelper ROLL_VAL-(NUM_DICE-1)*(1d2-1) NUM_DICE DIE_SIZE]
+}
+
+function: droplowest NUM_DICE:n DIE_SIZE:n TO_DROP_LOW:n {
+    RANGE_END: NUM_DICE - TO_DROP_LOW
+    result: {1..RANGE_END}@NUM_DICEdDIE_SIZE
+}
+
+function: averagewithdrop NUM_DICE:n DIE_SIZE:n TO_DROP:n {
+    NUM_KEPT: NUM_DICE - TO_DROP
+    result: [average [droplowest NUM_DICE DIE_SIZE TO_DROP] NUM_KEPT DIE_SIZE]
+}
+
+function: droprange NUM_DICE:n DIE_SIZE:n TO_DROP_LOW:n TO_DROP_HIGH:n {
+    RANGE_END: NUM_DICE - TO_DROP_LOW
+    result: {TO_DROP_HIGH+1..RANGE_END}@NUM_DICEdDIE_SIZE
+}
+
+function: averagewithdroprange NUM_DICE:n DIE_SIZE:n TO_DROP_LOW:n TO_DROP_HIGH:n {
+    NUM_KEPT: NUM_DICE - TO_DROP_LOW - TO_DROP_HIGH
+    result: [average [droprange NUM_DICE DIE_SIZE TO_DROP_LOW TO_DROP_HIGH] NUM_KEPT DIE_SIZE]
+}
+
+function: takenthhighest NUM_DICE:n DIE_SIZE:n N:n {
+    result: {N}@NUM_DICEdDIE_SIZE
+}
+
+loop HITDIE over {4, 6, 8, 10, 12} {
+    output [averagewithdrop 4 HITDIE 1] named "4d[HITDIE] drop lowest"
+    output [takenthhighest 6 HITDIE 3] named "6d[HITDIE] take 3rd highest"
+}

@@ -1,0 +1,51 @@
+\
+MOD -2 = TERRIBLE
+MOD -1 = BAD
+MOD  0 = AVERAGE
+MOD +1 = CAPABLE
+MOD +2 = PROFICIENT
+MOD +3 = SKILLED
+MOD +4 = EXPERIENCED
+MOD +5 = ADEPT
+
+DC 8  = TRIVIAL
+DC 9  = ROUTINE
+DC 10 = SIMPLE
+DC 11 = NORMAL
+DC 12 = TRICKY
+DC 13 = TOUGH
+DC 14 = FORMIDABLE
+DC 15 = DIFFICULT
+DC 16 = IMPOSSIBLE
+\
+
+SUCCESS: 0  \Regular success\
+CRIT: 1     \Critical success\
+FAIL: 2     \Regular failure\
+CFAIL: 3    \Critical failure\
+
+function: check ROLL:n MOD:n v DC:n {
+  if ROLL = 18              {if ROLL+MOD >= DC {result: CRIT} else {result: SUCCESS}}
+  else if ROLL+MOD >= DC+5  {result: CRIT}
+  else if ROLL+MOD >= DC    {result: SUCCESS}
+  else if ROLL = 3          {if ROLL+MOD < DC {result: CFAIL} else {result: FAIL}}
+  else if ROLL+MOD < DC-5   {result: CFAIL}
+  else                      {result: FAIL}
+}
+
+loop I over {8..16} {
+  if I = 8  {output 4 named "vs. DC 8 (TRIVIAL)"}
+  if I = 9  {output 4 named "vs. DC 9 (ROUTINE)"}
+  if I = 10 {output 4 named "vs. DC 10 (SIMPLE)"}
+  if I = 11 {output 4 named "vs. DC 11 (NORMAL)"}
+  if I = 12 {output 4 named "vs. DC 12 (TRICKY)"}
+  if I = 13 {output 4 named "vs. DC 13 (TOUGH)"}
+  if I = 14 {output 4 named "vs. DC 14 (FORMIDABLE)"}
+  if I = 15 {output 4 named "vs. DC 15 (DIFFICULT)"}
+  if I = 16 {output 4 named "vs. DC 16 (IMPOSSIBLE)"}
+  loop J over {-2..5} {
+    if J = 0       {output [check 3d6 J v I] named "3d6 vs. DC [I]"}
+    else if J < 0  {output [check 3d6 J v I] named "3d6[J] vs. DC [I]"}
+    else           {output [check 3d6 J v I] named "3d6+[J] vs. DC [I]"}
+  }
+}

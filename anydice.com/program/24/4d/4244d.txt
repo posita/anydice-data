@@ -1,0 +1,48 @@
+\ The Paladin's Oath odds \
+
+DICEA: d{0:9, 10:10, 20:1}
+DICEB: d{0:12, 13:7, 20:1}
+DICEC: d{0:14, 15:5, 20:1}
+RETRYA: d{0:9, 10:10, 20:1}
+RETRYB: d{0:12, 13:7, 20:1}
+RETRYC: d{0:14, 15:6}
+
+function: count no mull ROLLA:n and ROLLB:n and ROLLC:n {
+  if ROLLA=20 & ROLLC>=15 { result: 3 }
+  if ROLLA=20 { result: 2 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB=20 { result: 3 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB>=13 & ROLLB<20 & ROLLC>=15 { result: 3 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB>=13 & ROLLB<20 { result: 2 }
+  if ROLLA>=10 & ROLLA<20 { result: 1 }
+  result: 0
+}
+
+function: count ROLLA:n and ROLLB:n and ROLLC:n with mulligans MULLA:n and MULLB:n and MULLC:n {
+  \ 3 successes \
+  if ROLLA>=10 & ROLLA<20 & ROLLB>=13 & ROLLB<20 & ROLLC>=15 { result: 3 }
+  if ROLLA=20 & ROLLC>=15 { result: 3 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB=20 { result: 3 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB>=13 & ROLLB<20 & ROLLC<15 & MULLC>=15 { result: 3 }
+  if ROLLA=20 & ROLLC<15 & MULLC>=15 { result: 3 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB<13 & MULLB>=13 & MULLB<20 & ROLLC>=15 { result: 3 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB<13 & MULLB=20 { result: 3 }
+  if ROLLA<10 & MULLA>=10 & MULLA<20 & ROLLB>=13 & ROLLB<20 & ROLLC>=15 { result: 3 }
+  if ROLLA<10 & MULLA=20 & ROLLC>=15 { result: 3 }
+  if ROLLA<10 & MULLA>=10 & MULLA<20 & ROLLB=20 { result: 3 }
+
+  \ 2 successes \
+  if ROLLA=20 { result: 2 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB>=13 & ROLLB<20 { result: 2 }
+  if ROLLA>=10 & ROLLA<20 & ROLLB<13 & MULLB>=13 & MULLB<20 { result: 2 }
+  if ROLLA<10 & MULLA>=10 & MULLA<20 & ROLLB>=13 & ROLLB<20 { result: 2 }
+  if ROLLA<10 & MULLA=20 { result: 2 }
+
+  \ 1 success \
+  if ROLLA>=10 & ROLLA<20 & ROLLB<13 { result: 1 }
+  if ROLLA<10 & MULLA>=10 & MULLA<20 { result: 1 }
+
+  result: 0
+}
+
+output [count no mull DICEA and DICEB and DICEC] named "No mulligan successes"
+output [count DICEA and DICEB and DICEC with mulligans RETRYA and RETRYB and RETRYC] named "With mulligan successes"

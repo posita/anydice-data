@@ -1,0 +1,38 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n plus BONUS:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + BONUS >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n DAMAGEDICE:d plus DAMAGEBONUS:n  {
+ if ATTACKRESULT = CRITICALHIT {
+  result: DAMAGEDICE + DAMAGEDICE + DAMAGEBONUS
+ }
+ if ATTACKRESULT = HIT {
+  result: DAMAGEDICE + DAMAGEBONUS
+ }
+ result: 0
+}
+
+TOHIT:1d20
+TOHITADVANTAGE:[highest 1 of 2d20]
+
+loop AC over {15,20,25} {
+    MITHONEH: [damage for [attack TOHITADVANTAGE plus 9 vs AC] 2d8 plus 6]
+    MITHTWOH: [damage for [attack TOHITADVANTAGE plus 9 vs AC] 2d10 plus 6]
+    DAG: [damage for [attack TOHIT plus 7 vs AC] 1d4 plus 4]
+
+
+   output MITHONEH + MITHONEH + DAG named "one handed [AC]"
+   output MITHTWOH + MITHTWOH named "two handed [AC]"
+}
+
+
+
+
+

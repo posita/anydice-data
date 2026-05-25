@@ -1,0 +1,35 @@
+function: inloop RES:n F:n T:n D:d {
+ FIN: 0
+ if (RES>=T) {FIN: FIN+1}                                   \the -1 tells the func not to recurse, as nothing ever checks for it\
+ if (F=1) {if (RES<T){FIN: FIN + [explode -1 T 1 D]}}       \it could be any non-bool num theoretically (not 0 or 1). 2 would work\
+ if (F=0) {if (RES>=T) {FIN: FIN + [explode -1 T 1 D]}}     \its actually in a roundabout way telling this function not to recurse\
+ result: FIN                                                \fsr calling inloop throws an error; it thinks I'm calling it with 3 vars\
+}
+
+function: explode F:n T:n M:n D:d {
+ SUC: 0
+ loop N over {1..M} {
+  SUC: SUC + [inloop D F T D]  \necessary to convert dice into a single number while also remembering max dice size\
+ }
+ result: SUC
+}
+
+function: guided T:n M:n D:d {
+ SUC: 0
+ loop N over {1..M} {
+  SUC: SUC + [inloop D (-1) T D]  \necessary to convert dice into a single number while also remembering max dice size\
+ }
+ result: SUC
+}
+
+\this is for a game called MAC Attack btw. Its a war game which uses mechs and those are the four weapon types\
+\there are also other things you can add to weapons but they don't affect these numbers, which is just number of hits\
+
+MVA: 1   \attacker movement number\
+MVB: 3   \target movement number\
+POW: 2   \weapon power\
+
+output [explode 1 (MVA+MVB) POW 1d6] named "burst"
+output [explode 0 (MVA+MVB) POW 1d6] named "piercing"
+output [guided (2*[lowest of MVA and MVB]) POW 1d6] named "guided"
+output 2*((1d6>(MVA+MVB))+(1d6>(MVA+MVB))) named "multi"

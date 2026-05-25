@@ -1,0 +1,57 @@
+AC: 15
+\Target's AC\
+ATTACKBONUS: 10
+\Your attack bonus\
+DAMAGE: 1d8
+\Your weapon's damage after all modifiers\
+ATTACKROLL: 1d20 + ATTACKBONUS
+\Let's see if we hit\
+CRITICALCONFIRMATION: 1d20 + ATTACKBONUS
+
+function: hit ac ARMORCLASS:n with attbonus BONUS:n rolling TOTALROLL:n confirming CONFIRMATION:n {
+if TOTALROLL = (BONUS + 20) {
+\Critical threat scored\
+if CONFIRMATION = TOTALROLL {
+\Another natural 20\
+result: 3
+\we have just scored a crit, deal x3 damage\
+}
+else {
+\We did not roll a natural 20 for crith confirmation\
+if CONFIRMATION >= ARMORCLASS {
+result: 3
+\Confirmed, but not with a natural 20\
+}
+else {
+\Critical hit not confirmed\
+result: 1
+}
+}
+}
+else {
+\Not a critical threat\
+if TOTALROLL >= ARMORCLASS {
+result: 1
+}
+else {
+result: 0
+}
+}
+}
+
+loop AC over {1..20} {
+DAMAGEMULTIPLIER: [hit ac AC with attbonus ATTACKBONUS rolling ATTACKROLL confirming CRITICALCONFIRMATION]
+output DAMAGEMULTIPLIER named "Average damage multiplier"
+
+DAMAGEDEALT: DAMAGEMULTIPLIER d DAMAGE
+output DAMAGEDEALT named "Damage dealt"
+
+\Let's check the pronged arrow\
+
+DAMAGE: 1d6
+ATTACKBONUS: ATTACKBONUS - 1
+DAMAGEMULTIPLIER: [hit ac AC with attbonus ATTACKBONUS rolling ATTACKROLL confirming CRITICALCONFIRMATION]
+output DAMAGEMULTIPLIER named "Average damage multiplier, pronged arrow"
+DAMAGEDEALT: DAMAGEMULTIPLIER d DAMAGE
+output DAMAGEDEALT named "Damage dealt, pronged arrow"
+}

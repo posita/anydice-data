@@ -1,0 +1,36 @@
+\ Noma's Nova \
+\ Separate Instances of Damage (Including Relentless Endurance) \
+CHA_MOD:  4
+SPELL_CURSE_BONUS: 3
+SHARD_CURSE_BONUS: 3
+SHARD_PROCS: 5
+
+function: reroll R:n of S:n {
+  if R > S/2 { result: R }
+  result: 1dS
+}
+
+function: empower N:n of S:n {
+  DAMAGE: NdS
+  TOTAL_DAMAGE: 0
+  loop X over {1..N} {
+    if X <= N - CHA_MOD {
+      TOTAL_DAMAGE: TOTAL_DAMAGE + X @ DAMAGE
+    }
+    else {
+      TOTAL_DAMAGE: TOTAL_DAMAGE + [reroll X @ DAMAGE of S]
+    }
+  }
+  result: TOTAL_DAMAGE
+}
+
+BLIGHT_DAMAGE: ([empower 8 of 8] + SPELL_CURSE_BONUS)
+TOUCH_DAMAGE: [empower 2 of 8] + SPELL_CURSE_BONUS
+WHIP_DAMAGE: ([empower 3 of 6] + SPELL_CURSE_BONUS)/2
+SHARD_DAMAGE: (3d6 + SHARD_CURSE_BONUS) * SHARD_PROCS
+
+output BLIGHT_DAMAGE + TOUCH_DAMAGE + WHIP_DAMAGE + SHARD_DAMAGE named "Total Damage"
+output BLIGHT_DAMAGE named "Blight Damage"
+output TOUCH_DAMAGE named "Touch Damage"
+output WHIP_DAMAGE named "Whip Damage"
+output SHARD_DAMAGE named "Shard Damage"

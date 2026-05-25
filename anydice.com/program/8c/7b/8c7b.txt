@@ -1,0 +1,56 @@
+function: ROLL:n vs AC:n {
+
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: [threat ROLL]
+ }
+ result: 0
+}
+function: threat ROLL:n {
+ if ROLL >= THREAT {
+  result: CRITICAL d DAMAGE + STRENGTH
+ }
+ result: DAMAGE
+}
+function: ROLL:n crit {
+ if ROLL = 20 {
+  result: 1
+ }
+ result: 0
+}
+function: ROLL:n hit {
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: 1
+ }
+ result: 0
+}
+function: ROLL:n HIT:n save {
+ if ROLL >= (HIT / 2) & ROLL >= 10 {
+  result: 0
+ }
+ result: 1
+}
+function: ROLL:n HIT:n savea {
+ if ROLL >= (HIT) {
+  result: 1
+ }
+ result: 2
+}
+AC: 22
+ACF: 17
+STRENGTH: 3
+ATTACK: 6 + STRENGTH
+ROUND: 2
+ATTACKS: 3
+ENEMIES: 4
+DAMAGE: 2d8
+THREAT: 20
+CRITICAL: 2
+DISROLL: 2@2d20
+ADVROLL: 1@2d20
+SAVEMOD: 7
+
+output (ROUND*ATTACKS*ENEMIES)d[DISROLL crit] named "crit hits"
+output (ROUND*ATTACKS*ENEMIES)d[DISROLL hit] named "hits"
+output [(1d20 + SAVEMOD) (DAMAGE + STRENGTH) save]*((ROUND*ATTACKS*ENEMIES)d[DISROLL hit]) + [(1d20 + SAVEMOD) (2d DAMAGE + STRENGTH) save] * (ROUND*ATTACKS*ENEMIES)d[DISROLL crit] named "lose cons"
+output (ROUND*ATTACKS*ENEMIES)d[DISROLL vs AC] named "dmg in"
+output ROUND*(2d[ADVROLL vs ACF] + (ENEMIES)d[(1d20 + 3) 16 savea]d(DAMAGE)/2 + ENEMIES*4) named "dmg output"

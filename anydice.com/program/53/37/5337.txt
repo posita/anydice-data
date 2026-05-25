@@ -1,0 +1,49 @@
+set "explode depth" to 5
+set "maximum function depth" to 8
+
+function: pairplode DIE:d TAR:n {
+ result: [pairplode helper DIE]
+} \ main function to get the DIE... wait... this wasn't necessary \
+
+function: pairplode helper SEQ:s {
+ SUCS: (SEQ >= TAR)
+ if SUCS > 0 {
+   if (1@SEQ = (SUCS)@SEQ) { result: SUCS + SUCSd[poolplode 1d6 4 6] }
+ }
+ result: SUCS
+}
+
+
+function: pairplode with botches DIE:d TAR:n DIFF:n {
+ result: [pairplode  with botches helper DIE]
+} \ main function to get the DIE... wait... this wasn't necessary \
+
+function: pairplode with botches helper SEQ:s {
+ SUCS: (SEQ >= TAR)
+
+ if SUCS > 0 {
+   if (1@SEQ = (SUCS)@SEQ) { result: (SUCS + SUCSd[poolplode 1d6 4 6]) >= DIFF }
+ }
+ if SUCS < (SEQ = 1) {
+  if SUCS < DIFF { result: -1}
+ }
+ result: (SUCS >= DIFF)
+}
+
+function: poolplode DIE:d TN:n EN:n {
+ result: [poolplode helper DIE]
+}
+
+function: poolplode helper RES:n {
+ if RES >= EN { result: 1 + [poolplode helper DIE] }
+ if RES >= TN { result: 1 }
+ result: 0
+}
+
+loop N over {1..10}{
+ output [pairplode with botches 6d6 4 N] named "botches [N]"
+ output ([pairplode 6d6 4] >= N)  * 2 named "normal [N]"
+}
+
+
+

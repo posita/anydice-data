@@ -1,0 +1,196 @@
+TORPEDONUM: 6
+LANCENUM: 2
+TURRETHIT: {0:3,1:3}
+
+ELDARTORPEDONUM: 4
+ELDARLANCENUM: 1
+ELDARTURRETHIT: {0:5,1:1}
+
+TURRETNUM: 2
+ARMORHIT: {0:4,1:2}
+FRONTARMORHIT: {0:5,1:1}
+
+ELDARTURRETNUM: 0
+ELDARARMORHIT: {0:3,1:3}
+
+LANCEHIT: {0,1}
+ELDARSAVE: {0:5,1:1}
+
+DEFENDERISELDAR: 1
+
+if DEFENDERISELDAR {
+  CLOSINGBATTERYNUM: 3
+  AWAYBATTERYNUM: 2
+  ABEAMBATTERYNUM: 1
+  ELDARBATTERYNUM: 6
+} else {
+  CLOSINGBATTERYNUM: 4
+  AWAYBATTERYNUM: 3
+  ABEAMBATTERYNUM: 2
+  ELDARBATTERYNUM: 8
+}
+
+
+function: compare A:n B:n {
+  if A >= B {
+    result: 1
+  }
+  result: 0
+}
+
+function: eldar torpedo survival {
+  if DEFENDERISELDAR {
+    result: ELDARTORPEDONUM - ELDARTURRETNUMdELDARTURRETHIT
+  } else {
+    result: ELDARTORPEDONUM - TURRETNUMdELDARTURRETHIT
+  }
+}
+
+function: torpedo survival {
+  if DEFENDERISELDAR {
+    result: TORPEDONUM - ELDARTURRETNUMdTURRETHIT
+  } else {
+    result: TORPEDONUM - TURRETNUMdTURRETHIT
+  }
+}
+
+function: eldar torpedoes SURVIVED:n ISFRONT:n {
+  HITS: 0
+
+  loop I over {1..ELDARTORPEDONUM} {
+    if [compare SURVIVED I] {
+      if DEFENDERISELDAR {
+        HITS: HITS + [highest of 1dELDARARMORHIT and 1dELDARARMORHIT]
+      } else {
+        if ISFRONT {
+          HITS: HITS + [highest of 1dFRONTARMORHIT and 1dFRONTARMORHIT]
+        } else {
+          HITS: HITS + [highest of 1dARMORHIT and 1dARMORHIT]
+        }
+      }
+    }
+  }
+
+  if DEFENDERISELDAR {
+    HITS: HITSdELDARSAVE
+  }
+
+  result: HITS
+}
+
+function: torpedoes SURVIVED:n ISFRONT:n {
+  HITS: 0
+
+  loop I over {1..TORPEDONUM} {
+    if [compare SURVIVED I] {
+      if DEFENDERISELDAR {
+        HITS: HITS + 1dELDARARMORHIT
+      } else {
+        if ISFRONT {
+          HITS: HITS + 1dFRONTARMORHIT
+        } else {
+          HITS: HITS + 1dARMORHIT
+        }
+      }
+    }
+  }
+
+  if DEFENDERISELDAR {
+    HITS: HITSdELDARSAVE
+  }
+
+  result: HITS
+}
+
+function: no permute A:n B:n C:n {
+  result: A + A*B + A*B*C
+}
+
+function: eldar lances {
+  HITS: 0
+
+  loop I over {0..ELDARLANCENUM-1} {
+    ATTACK: 1dLANCEHIT
+
+    HITS: HITS + [no permute ATTACK ATTACK ATTACK]
+  }
+
+  if DEFENDERISELDAR {
+    HITS: HITSdELDARSAVE
+  }
+
+  result: HITS
+}
+
+function: lances {
+  HITS: LANCENUMdLANCEHIT
+
+  if DEFENDERISELDAR {
+    HITS: HITSdELDARSAVE
+  }
+
+  result: HITS
+}
+
+function: eldar battery ISFRONT:n {
+  if DEFENDERISELDAR {
+    result: ELDARBATTERYNUMdELDARARMORHIT
+  } else {
+    if ISFRONT {
+      result: ELDARBATTERYNUMdFRONTARMORHIT
+    } else {
+      result: ELDARBATTERYNUMdARMORHIT
+    }
+  }
+}
+
+function: battery LOC:n {
+  if LOC = 1 {
+    \ Location 1 == closing. \
+    BATNUM: CLOSINGBATTERYNUM
+  } else { if LOC = 2 {
+    \ Location 2 == moving away. \
+    BATNUM: AWAYBATTERYNUM
+  } else { if LOC = 3 {
+    \ Location 3 == abeam. \
+    BATNUM: ABEAMBATTERYNUM
+  }}}
+
+  if DEFENDERISELDAR {
+    result: BATNUMdELDARARMORHIT
+  } else {
+    if LOC {
+      result: BATNUMdFRONTARMORHIT
+    } else {
+      result: BATNUMdARMORHIT
+    }
+  }
+}
+
+function: nova saved SAVE:n {
+  if SAVE {
+    result: 1d6
+  }
+    result: 0
+}
+
+function: nova cannon hole {
+  if DEFENDERISELDAR {
+    result: [nova saved 1dELDARSAVE]
+  } else {
+    result: 1d6
+  }
+}
+
+output [eldar torpedoes [eldar torpedo survival] 0] named "Eldar Torpedoes"
+output [eldar torpedoes [eldar torpedo survival] 1] named "Eldar Torpedoes to Front"
+output [torpedoes [torpedo survival] 0 ] named "Regular Torpedoes"
+output [torpedoes [torpedo survival] 1 ] named "Regular Torpedoes to Front"
+output [eldar lances] named "Eldar Lances"
+output [lances] named "Lances"
+output [eldar battery 0] named "Eldar Battery"
+output [eldar battery 1] named "Eldar Battery to Front"
+output [battery 1] named "Closing Battery"
+output [battery 2] named "Moving Away Battery"
+output [battery 3] named "Abeam Battery"
+output [nova cannon hole] named "Nova Cannon Hole"

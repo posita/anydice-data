@@ -1,0 +1,63 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Here are some examples: \
+output [{19,19,14,9} vs 25 crit 15 2 dmg 1d4+25 2d6+10] named "Daring Champion"
+output [{25,25,20,20,15,15} vs 25 crit 17 3 dmg 1d8+15 1d6] named "TWF Falcata"
+output [{20,20,20,15} vs 25 crit 15 2 dmg 1d6+14 1d6+11]+[{20} vs 20 crit 15 2 dmg 10d6] named "Hexcrafter"
+output [{16} vs 11 crit 20 4 dmg 4d6+28 1d6]+[{16,16,16,11,11} vs 11 crit 20 4 dmg 1d6+18 1d6] named "Gun Chemist"
+output [{26,26,21} vs 25 crit 15 2 dmg 2d6+33 5d6] named "Battle Oracle"
+output [{25,25,25,20,20} vs 25 crit 15 2 dmg 1d4+11 6d8] named "Asha"
+output [{30,30,30,25,20} vs 25 crit 17 2 dmg 1d2+27 1d6+7] named "Teklu w/ Sanpkhang, RS, haste, smite"
+output [{20} vs 25 crit 15 2 dmg 6d8+16 1d6]+[{20,20,20,15,10} vs 25 crit 15 2 dmg 6d8+12 1d6] named "Softstrike Monk"
+output [{29,29,24} vs 25 crit 15 2 dmg 2d6+35 9d6] named "Sanctified Slayer"
+output [{20} vs 25 crit 20 2 dmg 2d8+13 4d6+5]+[{20,20,20,20,20,20,15,10} vs 25 crit 20 2 dmg 2d8+10 4d6+5] named "Suli Monk"
+output [{25,25,25,20,20,15} vs 25 crit 20 2 dmg 3d8+25 4d6]+[{17} vs 25 crit 20 2 dmg 1d8+8 1d6]+[{18,12} vs 25 crit 20 2 dmg 1d6+8 1d6] named "Wild Child Mutagenic Brawler + Companion"
+output [{27,27,27,22,22,17,17} vs 25 crit 19 2 dmg 8d8+25 1d6] named "Hinyasi Shikigami non PFS"
+output [{24,24,24,24,24} vs 25 crit 20 2 dmg 1d3+21 4d6+11]+[{19,19,19,19,19,19} vs 25 crit 20 2 dmg 1d2+17 4d6+11] named "Natural Attack Ratfolk Shaman"
+
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \

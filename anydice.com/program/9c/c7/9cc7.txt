@@ -1,0 +1,30 @@
+\ Facciamo un paio di test per il nuovo danno da disinta.                                   \
+\ Naturlamente, in attesa dei valori numerici corretti per verificare se funziona bene.     \
+\ Intanto ipotiziamo una base di 11 a cui aggiungere i bonus-malus vari                     \
+TS_BASE:11 \ Il "malus" nativo. sono convinto che sia 11 assorbendo il -1 del 1d21-1 = 0:20 \
+\ quindi praticamente 1d21-1-(10+TS) -> 1d21-(11+TS)                                        \
+\ NOTA: questo simulatore fa solo divisioni intere, quindi ho fattorizzato il /2 ed il /100 \
+\       alla fine in modo da evitare troncamenti. Non so come Carlo abbia deciso di gestire \
+\       questo da codice (se passa per float, o se anche lui fattorizza alla fine).         \
+TS_BASE:+00  \ !!! MA Moli mi dice che per DANNO TS_BASE e' 0 !!!                           \
+output 50d10*1 named "DANNO CRUDO" \ Vediamo innanzitutto quanto male farebbe senza TS.     \    
+TS: +20      \ Bonus totale ai TS. Qui è ipotizzato per testare un caso limite              \
+output (50d10*(200-(([lowest of [highest of (1d21-(TS_BASE+TS)) and 0] and 20]*5))))/200 named "TEST +20"
+TS: +10      \ Bonus totale ai TS. Qui è ipotizzato per testare un caso limite              \
+output (50d10*(200-(([lowest of [highest of (1d21-(TS_BASE+TS)) and 0] and 20]*5))))/200 named "TEST +10"
+TS: +00      \ Bonus totale ai TS. Qui è ipotizzato per testare un caso limite              \
+output (50d10*(200-(([lowest of [highest of (1d21-(TS_BASE+TS)) and 0] and 20]*5))))/200 named "TEST +00"
+TS: -10     \ Bonus totale ai TS. Qui è ipotizzato                                          \
+output (50d10*(200-(([lowest of [highest of (1d21-(TS_BASE+TS)) and 0] and 20]*5))))/200 named "TEST -10"
+TS: -20     \ Bonus totale ai TS. Qui è ipotizzato                                          \
+output (50d10*(200-(([lowest of [highest of (1d21-(TS_BASE+TS)) and 0] and 20]*5))))/200 named "TEST -20"
+\ output 50d10/2 named "DANNO MEZZI"  Per debuggare con 50% sempre - è identico             \
+\ Provo ora a dare valori piu' consistenti ai TS separando le varie voci, in attesa delle   \
+\ rispettive tabelle vere e proprie.                                                        \
+TS_RAZZA: +0       \ Bonus razziale - Per i pg e' praticamente sempre 0                     \
+TS_CLASSE_LV:+2    \ Bonus di classe - Parte da 10,9,8 arriva a 3,2,1 a lv 50. E' positivo! \
+TS_STAT:+0         \ Bonus da caratteristiche - varia tra +1 e -1                           \
+TS_EQ:-4           \ Bonus da equipaggiamento (!)                                           \
+TS_ALTRO:-1        \ Bonus da altro, tipo incantesimi (benediz, pelle di albero)            \
+TS: TS_RAZZA + TS_CLASSE_LV + TS_STAT + TS_EQ + TS_ALTRO                                    
+output (50d10*(200-(([lowest of [highest of (1d21-(TS_BASE+TS)) and 0] and 20]*5))))/200 named "TS_TOT=[TS]"

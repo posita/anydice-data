@@ -1,0 +1,28 @@
+SAVEBONUS: 0
+DAMAGE: 1d8+5
+FAIL:1
+SAVE:2
+BASE:17
+
+function: save ROLL:n vs dc DC:n {
+	if ROLL + SAVEBONUS < DC {result: FAIL}
+	if ROLL + SAVEBONUS >= DC {result: SAVE}
+}
+
+function: damage for SAVERESULT:n {
+	if SAVERESULT = FAIL {
+		result: DAMAGE
+	 }
+	if SAVERESULT = SAVE {
+		result: DAMAGE/2
+	}
+}
+function: sum CHECKNO:n rolls of DAMAGE:d {
+	TOTAL: 0
+	loop P over {1..CHECKNO} {
+		TOTAL: TOTAL + DAMAGE
+		}
+	result: TOTAL
+}
+
+output [sum 15 rolls of [damage for [save [highest 1 of 2d20] vs dc 17]]] + BASE

@@ -1,0 +1,44 @@
+function: comp ROLL:n MASS:n ARMOR:n {
+  if ROLL > MASS {
+    result: 0
+  }
+  result: [highest of ROLL-ARMOR and 1]
+}
+
+function: inspire ROLL:s MASS:n {
+  if 1@ROLL > MASS {
+    result: 2@ROLL
+  }
+  result: 1@ROLL
+}
+
+function: curse ROLL:s MASS:n {
+  if 1@ROLL <= MASS {
+    result: 2@ROLL
+  }
+  result: 1@ROLL
+}
+
+function: banner MASS:n ARMOR:n {
+  result: [comp 1d6 MASS ARMOR]
+}
+
+function: inspired banner MASS:n ARMOR:n {
+  result: [comp [inspire 2d6 MASS] MASS ARMOR]
+}
+
+function: cursed banner MASS:n ARMOR:n {
+  result: [comp [curse 2d6 MASS] MASS ARMOR]
+}
+
+
+MASSES: 6
+ARMORS: 3
+
+loop I over {1..MASSES} {
+  loop J over {0..ARMORS} {
+    output [banner I J] named "[I]-[J]"
+    output [inspired banner I J] named "[I]-[J] Inspired"
+    output [cursed banner I J] named "[I]-[J] Cursed"
+  }
+}

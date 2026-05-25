@@ -1,0 +1,83 @@
+\***********Target Vars**********\
+
+DEF_AC: 14
+
+\***********player vars**********\
+PROF_BONUS: 2
+ATRB_MOD: 3
+ATTACK_MOD: PROF_BONUS + ATRB_MOD
+ATTACK_ROLL: 1d20
+
+SAVE_DC: 8 + PROF_BONUS + ATRB_MOD
+
+
+
+
+\**********Generic Vars**********\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+DMG_ROLL: 0
+DMG_MOD: 0
+MISS_DMG:0 
+
+\**********Functions**********\
+
+function: ROLL:n vs DEF_AC {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK_MOD >= DEF_AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT { 
+   D: D + 2d(DMG_ROLL) + [bonus damage for ATTACKRESULTS]
+  }
+  else if A = HIT { 
+   D: D + DMG_ROLL + [bonus damage for ATTACKRESULTS]
+  }
+  else {
+   D: D + MISS_DMG
+  }
+ result: D  
+ }
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: DMG_MOD
+}
+
+function: attack {
+ result: [damage for [ATTACK_ROLL vs DEF_AC]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[ATTACK_ROLL vs DEF_AC]]
+}
+
+\********** Maul w/ GWF **********\
+
+DMG_ROLL: 2d{3:3, 4, 5, 6}
+DMG_MOD: ATRB_MOD
+
+output [attack] named "Maul w/ GWF"
+
+
+
+\ **********Dual Light Weapons w/ Nick (& Hex)**********\
+
+DMG_ROLL:1d4
+DMG_MOD: ATRB_MOD
+
+function: nick attack {
+ PRIMARY_ATK: [attack]
+ DMG_MOD: DMG_MOD - ATRB_MOD
+ NICK_ATK:[attack]
+ result: PRIMARY_ATK + NICK_ATK
+}
+
+output [nick attack] named "Light Hammers Nick"

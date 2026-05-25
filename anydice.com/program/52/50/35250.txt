@@ -1,0 +1,67 @@
+output 0 named "Add Pairing (x++ -> Pair>=x) Possibilities to Successes :"
+output 0 named "Overflow(OF) (ES=0): x++ min with possible overflow, ExactSum(ES=1): x++ exact without overflow"
+output 0 named "Failures count(FC=1): count the Failures as Successes, (FC=0): count Successes as normal"
+output 0 named "Inside Range Targets (LR=1): x within dice values, Outside Range Targets(HR) (LR=0): x beyond dice max value"
+\ Explanations:
+5d4={0,1,2,2,3}
+LR = 2++ to 3++ (1++ is the same as 1+).
+HR = 4++ to 6++.
+OF = x++ with min target overflowing sum: for 4++, (3+2) ok.
+ES = x++ with exact target sum: for 4++, (3+1) ok but (3+2) not ok.
+\
+
+\ Dices based on D4 \
+_QUATRE: d{0..3}
+_DEUX: d{0..1}
+_QUATRE_TO_TROIS: d{0,1,1,2}
+
+
+function: count with pairing TARGETS:s in SEQUENCE:s with low range LR:n failures count FC:n and exact sum ES:n {
+ REVERSED: [reverse SEQUENCE]
+ TARGETS: [sort TARGETS]
+ SIZEMAX: #REVERSED
+ SIZEMIN: 1
+ COUNT: [count TARGETS in SEQUENCE]
+ loop N over {1..#SEQUENCE} {
+  END: 0
+  if N@SEQUENCE < #TARGETS@TARGETS  {
+    loop Q over {(SIZEMIN)..(SIZEMAX-N)} {
+       if (END=0) & (ES=0) {
+         if ((N@SEQUENCE + Q@REVERSED) >= #TARGETS@TARGETS) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: Q+1
+         }
+       }
+       if (END=0) & (ES=1) {
+         if ((N@SEQUENCE + Q@REVERSED) = #TARGETS@TARGETS) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: Q+1
+         }
+       }
+    }
+  }
+ }
+ if (FC=1) {
+   COUNT: #SEQUENCE - COUNT
+ }
+ result: COUNT
+}
+
+
+T: {4}
+N: 18
+
+\test
+TEST: {5,4,4,3,3,3,2,1,1,0}
+output [count with pairing T in TEST with low range 1 failures count 0 and exact sum 0] named "4++ on 10d4"
+
+output [count {3,2,1} in NdD_QUATRE] named "1+ on [N]d4"
+output [count {3,2} in NdD_QUATRE] named "2+ on [N]d4"
+output [count {3} in NdD_QUATRE] named "3+ on [N]d4"
+\
+
+output [count with pairing {4} in Nd_QUATRE with low range 1 failures count 0 and exact sum 0] named "4++ on [N]d4"
+output [count with pairing {4} in Nd_QUATRE with low range 1 failures count 0 and exact sum 1] named "4++ on [N]d4"
+

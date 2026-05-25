@@ -1,0 +1,33 @@
+\\\
+Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry
+last updated 2018-03-06
+\\\
+
+function: hit ROLL:n BONUS:n AC:n {
+  if (ROLL =1) {
+    result: 0
+  } else if (ROLL = 20) {
+    result: 1
+  }
+  result: ROLL + BONUS >= AC
+}
+
+function: attack ROLL:n BONUS:n AC:n DAMAGE:d PRECISION_DAMAGE:d CRIT_ROLL:n THREAT_RANGE:n MULTIPLIER:n EXTRA_CRIT_DAMAGE:d {
+  if (![hit ROLL BONUS AC]) { 
+    result: 0
+  }
+  if (ROLL >= THREAT_RANGE & [hit CRIT_ROLL BONUS AC]) {
+    result: MULTIPLIER d DAMAGE + PRECISION_DAMAGE + (MULTIPLIER - 1) d EXTRA_CRIT_DAMAGE
+  }
+  result: DAMAGE + PRECISION_DAMAGE
+}
+
+function: simple attack BONUS:n AC:n DAMAGE:d THREAT_RANGE:n MULTIPLIER:n {
+  result: [attack 1d20 BONUS AC DAMAGE 0 1d20 THREAT_RANGE MULTIPLIER 0]
+}
+
+loop AC over {1..20} {
+  output [simple attack 0 AC 2d6+40 19 2] named "AC [AC]: Greatsword"
+  output [simple attack 0 AC 2d4+40 18 2] named "AC [AC]: Falchion"
+}

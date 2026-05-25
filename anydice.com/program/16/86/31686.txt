@@ -1,0 +1,53 @@
+\output (((1@2d20 + 9)>= 16)*(1@2d6 + 1@2d6 + 1@2d4 + 1@2d4+ (1@2d6 + 1@2d6) + (1@2d8 + 1@2d8)))\ 
+\1@2d6 + 1@2d6 + 1@2d4 + 1@2d4 + (1@2d6 + 1@2d6) + (1@2d8 + 1@2d8)\
+MISS: 0
+HIT: 1
+CRIT: 2
+
+ATTACK: 9
+
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRIT}
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+MISSDMG: 0
+HITDMG: 1@2d6 + 1@2d6 + 1@2d4 + 1@2d4 + 5 \normal melee\
+SMITE: 1@2d6 + 1@2d6
+CRITSMITE: 4d{ 1@2d8 }
+CRITDMG:  1@2d4 + 1@2d4 + 5
+
+function: smite at LEVEL:n {
+ if LEVEL = 0 { result: 0 }
+ SUM: 1@2d8
+ loop N over {1..LEVEL} {
+  SUM: SUM + 1@2d8
+ }
+ result: SUM
+}
+
+function: damage for ATTACKRES:n {
+ if ATTACKRES = CRIT {result: CRITDMG }
+ if ATTACKRES = HIT { result: HITDMG }
+ result: MISSDMG
+ 
+}
+
+function: smite at LEVEL:n {
+ if LEVEL = 0 { result: 0 }
+ 
+ SUM: 1@2d8
+ 
+ loop N over {1..LEVEL} {
+  SUM: SUM + 1@2d8
+ }
+ result: SUM
+}
+
+
+loop AC over {10..30} {
+ output [attack 1@2d20 vs AC] named "[AC]"
+}

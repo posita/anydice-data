@@ -1,0 +1,35 @@
+D: d{1,2,2}
+
+function: compare A:n to B:n {
+ if A < B { result:-1 }
+ if A > B { result: 1 }
+ result: 0
+}
+
+output [compare D to D] named "as a function"
+
+\
+ The problem is that simulating rerolls will not work with the below approach.
+\
+
+function: reroll equal compare A:n to B:n {
+ if A < B { result:-1 }
+ if A > B { result: 1 }
+}
+
+output [reroll equal compare D to D] named "incorrect reroll"
+
+\
+ The problem manifests because the recursive algorithm normalizes at every recursive level,
+ which makes the 'outer' die dominant.
+
+ The solution is to only omit values from single-argument functions. That way the odds will
+ always be normalized linearly and stay correct.
+\
+
+output D - D named "as a single die"
+
+function: reroll N:n {
+ if N { result: N }
+}
+output [reroll D - D] named "correct reroll"

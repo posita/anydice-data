@@ -1,0 +1,26 @@
+\ NOTE: COMMENTS START AND END WITH BACKSLASH\
+\       IF YOU UNCOMMENT A LINE, MAKE SURE TO REMOVE BOTH\
+\       ALSO, RECOMMENT ANY LINE YOU UNCOMMENTED UNLESS YOU WANT BOTH IN THE OUTPUT\
+\       THIS STARTS WITH AN OUTPUT LINE ALREADY UNCOMMENTED SO YOU WON'T SEE A BIG RED ERROR BOX AT THE START\
+
+SIDES: 12 \ sides on main die -- success values range from 1..SIDES, the other half are failures \
+INFSIDES: 12 \ sides on influence dice \
+INFMAX: 1 \ max range for influence \
+function: infmean N:n {result: d{1..SIDES/2} + [count {1..INFMAX} in [absolute N]dINFSIDES]}
+function: inf N:n {result: [use N inf [count {1..INFMAX} in [absolute N]dINFSIDES] die d12]}
+function: use N:n inf C:n die D:n {
+  if C = 0 {result: D@{-SIDES/2..-1,1..SIDES/2}}
+  if N < 0 {result: -C - D@{1..SIDES/2,1..SIDES/2}}
+  if N > 0 {result: C + D@{1..SIDES/2,1..SIDES/2}}
+}
+
+\ output results for 0 .. 10 influence dice \
+loop NN over {0..10} {
+  N: NN
+\ uncomment the next line and use "Transposed" to see chance of success \
+\  output [inf N] > 0 named "influence [N]"\
+
+\ uncomment the next line and use "Normal" and "At Least" to see chances of getting certain values and "Summary" for the mean values \
+  output [infmean N] named "influence [N]"
+
+}

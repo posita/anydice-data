@@ -1,0 +1,44 @@
+YES: 1
+NO: 0
+\--------------------------------------------------\
+\-------------| Set Variables Below |--------------\
+\--------------------------------------------------\
+
+NUMBER_OF_ATTACKS: 2
+ENEMY_AC: 15
+
+STRENGTH: 19
+PROFICIENCY_BONUS: 3
+WEAPON_BONUS: 1
+MISC_BONUS: 0
+
+ADVANTAGE: YES
+GREAT_WEAPON_MASTER: YES
+GREAT_WEAPON_FIGHTING: YES
+HALF_ORC: YES
+
+WEAPON_DIE_COUNT: 2
+WEAPON_DIE: d6
+
+\--------------------------------------------------\
+\------------------| Code Below |------------------\
+\--------------------------------------------------\
+
+TO_HIT: (STRENGTH - 10)/2 + PROFICIENCY_BONUS + WEAPON_BONUS - (5 * GREAT_WEAPON_MASTER)
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+TOTAL_DMG: 0
+
+loop N over {1..NUMBER_OF_ATTACKS} {
+  NAT_ATK: [highest 1 of (1 + ADVANTAGE)d20]
+  ATK: NAT_ATK + TO_HIT + MISC_BONUS
+  DMG: (WEAPON_DIE_COUNT + (WEAPON_DIE_COUNT + HALF_ORC)*(NAT_ATK = 20))d[WEAPON_DIE reroll {0..GREAT_WEAPON_FIGHTING*2} as WEAPON_DIE] + (STRENGTH - 10)/2 + WEAPON_BONUS + (10 * GREAT_WEAPON_MASTER)
+
+  TOTAL_DMG: TOTAL_DMG + (DMG * (ATK >= ENEMY_AC))
+}
+
+output TOTAL_DMG

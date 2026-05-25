@@ -1,0 +1,65 @@
+function: reroll C:n if N:n or less using D:d{
+ if C <= N {
+  result: D
+ }
+ result: C
+}
+
+function: reroll D:d less or equal to X:n {
+  result:[reroll D if X or less using D]
+}
+
+function: average reroll D:d {
+  result:[reroll D if D or less using D]
+}
+
+function: save S:n armor piercing AP:n damage D:n armor SV:n{
+  if S >= SV + AP {
+    result:0
+  }
+  result:D
+}
+
+function: wound W:n strength S:n armor piercing AP:n damage D:n against t T:n armor SV:n
+{
+  if S >= 2*T{
+    if W >= 2{
+      result:[save 1d6 armor piercing AP damage D armor SV]
+    }
+  } else if 2*S <= T{
+    if W >= 6{
+      result:[save 1d6 armor piercing AP damage D armor SV]
+    }
+  } else if S > T{
+    if W >= 3{
+      result:[save 1d6 armor piercing AP damage D armor SV]
+    }
+  } else if S < T{
+    if W >= 5{
+      result:[save 1d6 armor piercing AP damage D armor SV]
+    }
+  } else {
+    if W >= 4{
+      result:[save 1d6 armor piercing AP damage D armor SV]
+    }
+  }
+  result: 0
+}
+
+function: attack A:n ballistics BS:n strength S:n rerolling wounds on R:n armor piercing AP:n damage D:n against t T:n armor SV:n {
+  if A >= BS {
+    result:[wound [reroll 1d6 less or equal to R] strength S armor piercing AP damage D against t T armor SV]
+  }
+  result:0
+}
+
+function: attack A:n ballistics BS:n strength S:n armor piercing AP:n damage D:n against t T:n armor SV:n {
+  if A >= BS {
+    result:[attack A ballistics BS strength S rerolling wounds on 0 armor piercing AP damage D against t T armor SV]
+  }
+  result:0
+}
+
+output 16d[attack [reroll 1d6 less or equal to 1] ballistics 3 strength 7 rerolling wounds on 4 armor piercing 2 damage 4 against t 8 armor 3] named "double buffed castigator cannon into a tank equivalent"
+
+output 12d[attack [reroll 1d6 less or equal to 1] ballistics 3 strength 6 rerolling wounds on 4 armor piercing 2 damage 3 against t 8 armor 3] + 12d[attack 1d6 ballistics 3 strength 7 armor piercing 2 damage 3 against t 8 armor 3]named "two single buffed gatling cannons into a tank equivalent"

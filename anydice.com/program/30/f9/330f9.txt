@@ -1,0 +1,46 @@
+
+
+ORB  : 1        \ amount of orbs in pool                            \
+TWO  : 9        \ amount of 2stats in pool                          \
+THRE : 6        \ amount of 3stats in pool (no crunes!!!)           \
+FOUR : 2        \ amount of 4stats in pool                          \
+FIVE : 1        \ Amount of 5stats in pool                          \
+
+PONE : 19       \ amount of 1stat passives                          \
+PTWO : 2        \ amount of 2stat passives                          \
+
+
+function: X:n weapon {
+  W: 0
+  P: [d(PONE+PTWO) passive]
+  if      X <= ORB { P: [d(PONE+PTWO) passive] + [d(PONE+PTWO) passive] }
+  else if X <= ORB+TWO { W: 2 }
+  else if X <= ORB+TWO+THRE { W: 3 }
+  else if X <= ORB+TWO+THRE+FOUR { W: 4 }
+  else { W: 5 }
+  result: ([roll W + P stats])
+}
+
+function: X:n passive { if X <= PTWO {result: 2} else {result: 1} }
+
+function: X:n worn {
+  if      X = 1 { result: 5 }
+  else if X <= 6 { result: 3 }
+  else if X <= 16 { result: 1 }
+  else { result: 0 }
+}
+
+function: dismantle X:n {
+ if      X < 21  { result: 1 }
+ else if X < 41  { result: 3 }
+ else if X < 61  { result: 5 }
+ else if X < 81  { result: 25 }
+ else if X < 95  { result: 300 }
+ else if X < 100 { result: 1000 }
+ else { result: 5000 }
+}
+
+function: roll X:n stats { result: ((Xd101/X) + [d100 worn]) -1 }
+function: shop X:n stats { result: (40 + (Xd61/X) + [d100 worn]) -1 }
+
+output [dismantle [d(ORB+TWO+THRE+FOUR+FIVE) weapon]]

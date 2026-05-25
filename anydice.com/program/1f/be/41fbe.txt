@@ -1,0 +1,97 @@
+set "maximum function depth" to 8
+KARMA: 0
+USE_ALL_KARMA: 0
+
+function: blowup ROLLED:n SIZE:n on THRESH:n {
+if ROLLED >= THRESH {
+  if SIZE = 20 {
+    result: ROLLED + [blowup d20 20 on 20]
+  }
+  if SIZE = 12 {
+    result: ROLLED + [blowup d(SIZE+8) (SIZE+8) on (THRESH+8)]
+  }
+  result: ROLLED + [blowup d(SIZE+2) (SIZE+2) on (THRESH+2)]
+ }
+if USE_ALL_KARMA = 1 {
+ result: ROLLED + K
+ }
+else {
+ result: ROLLED
+ }
+}
+
+function: blowupkarma ROLLED:n SIZE:n on THRESH:n karma K:n {
+if ROLLED >= (THRESH - K) {
+  if SIZE = 20 {
+    result: SIZE + [blowupkarma d20 20 on THRESH karma (ROLLED - THRESH + K)]
+  }
+  if SIZE = 12 {
+    result: SIZE + [blowupkarma d(SIZE+8) (SIZE+8) on (THRESH+8) karma (ROLLED - THRESH + K)]
+  }
+  result: SIZE + [blowupkarma d(SIZE+2) (SIZE+2) on (THRESH+2) karma (ROLLED - THRESH + K)]
+ }
+if USE_ALL_KARMA = 1 {
+ result: ROLLED + K
+ }
+else {
+ result: ROLLED
+ }
+}
+
+function: blowkarma ROLLED:n SIZE:n on THRESH:n karma K:n {
+if ROLLED >= (THRESH - K) {
+  result: SIZE + [blowkarma d(SIZE) SIZE on THRESH karma (ROLLED - THRESH + K)]
+ }
+if USE_ALL_KARMA = 1 {
+ result: ROLLED + K
+ }
+else {
+ result: ROLLED
+ }
+
+}
+
+function: blowdownkarma ROLLED:n SIZE:n on THRESH:n karma K:n {
+if ROLLED >= (THRESH - K) {
+  if SIZE = 2 {
+    result: SIZE + [blowdownkarma d2 2 on THRESH karma (ROLLED - THRESH + K)]
+  }
+  if SIZE = 20 {
+    result: SIZE + [blowdownkarma d(SIZE-8) (SIZE-8) on (THRESH-8) karma (ROLLED - THRESH + K)]
+  }
+  result: SIZE + [blowdownkarma d(SIZE-2) (SIZE-2) on (THRESH-2) karma (ROLLED - THRESH + K)]
+ }
+if USE_ALL_KARMA = 1 {
+ result: ROLLED + K
+ }
+else {
+ result: ROLLED
+ }
+}
+
+
+
+output [blowkarma d2 2 on 2 karma KARMA] named "2s same"
+output [blowkarma d4 4 on 4 karma KARMA] named "4s same"
+output [blowkarma d6 6 on 6 karma KARMA] named "6s same"
+output [blowkarma d8 8 on 8 karma KARMA] named "8s same"
+output [blowkarma d10 10 on 10 karma KARMA] named "10s same"
+output [blowkarma d12 12 on 12 karma KARMA] named "12s same"
+output [blowkarma d20 20 on 20 karma KARMA] named "20s same"
+
+
+output [blowupkarma d2 2 on 2 karma KARMA] named "2s up"
+output [blowupkarma d4 4 on 4 karma KARMA] named "4s up"
+output [blowupkarma d6 6 on 6 karma KARMA] named "6s up"
+output [blowupkarma d8 8 on 8 karma KARMA] named "8s up"
+output [blowupkarma d10 10 on 10 karma KARMA] named "10s up"
+output [blowupkarma d12 12 on 12 karma KARMA] named "12s up"
+output [blowupkarma d20 20 on 20 karma KARMA] named "20s up"
+
+\output [blowdownkarma d2 2 on 2 karma KARMA] named "2s down"
+output [blowdownkarma d4 4 on 4 karma KARMA] named "4s down"
+output [blowdownkarma d6 6 on 6 karma KARMA] named "6s down"
+output [blowdownkarma d8 8 on 8 karma KARMA] named "8s down"
+output [blowdownkarma d10 10 on 10 karma KARMA] named "10s down"
+output [blowdownkarma d12 12 on 12 karma KARMA] named "12s down"
+output [blowdownkarma d20 20 on 20 karma KARMA] named "20s down"\

@@ -1,0 +1,34 @@
+DEATH: 99
+TARGET_CON: 0
+MAX_NUMBER_OF_DEBILITIES: 3
+LENGTH_OF_ILLNESS: 10
+
+function: sicken ROLL:n with CURRENT_DEBILITIES:n {
+ if ROLL <= 6 { 
+   result: CURRENT_DEBILITIES + 1 
+ }
+ if ROLL > 6 & ROLL < 10 { 
+   result: CURRENT_DEBILITIES 
+ }
+ if ROLL >= 10 & CURRENT_DEBILITIES > 0 {
+   result: CURRENT_DEBILITIES -1
+ }
+}
+
+function: deathcheck CURRENT_DEBILITIES:n {
+ if CURRENT_DEBILITIES > MAX_NUMBER_OF_DEBILITIES { 
+   result: DEATH
+ }
+ result: CURRENT_DEBILITIES
+}
+
+function: cycle CURRENT_DEBILITIES:n {
+  NEW_DEBILITIES: [sicken 2d6+TARGET_CON with CURRENT_DEBILITIES]
+  result: [deathcheck NEW_DEBILITIES]
+}
+
+NUM_OF_DEBILITIES: 0
+loop N over {1..LENGTH_OF_ILLNESS} {
+  NUM_OF_DEBILITIES: [cycle NUM_OF_DEBILITIES]
+  output NUM_OF_DEBILITIES named "After [N] days"
+}

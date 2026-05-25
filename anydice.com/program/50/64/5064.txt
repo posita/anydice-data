@@ -1,0 +1,110 @@
+function: triples A:s {
+  if [count 2 in A] = 3 {
+    result: 1
+  } else if [count 3 in A] = 3 {
+    result: 1
+  } else if [count 4 in A] = 3 {
+    result: 1
+  } else if [count 5 in A] = 3 {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+function: doubles A:s {
+  if [count 2 in A] = 2 {
+    result: 1
+  } else if [count 3 in A] = 2 {
+    result: 1
+  } else if [count 4 in A] = 2 {
+    result: 1
+  } else if [count 5 in A] = 2 {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+function: untwenty T:s {
+  X: 1@T
+  Y: 2@T
+  Z: 3@T
+  Q: {}
+  
+  if X = 6 {
+    if Y = 1 {
+      Q: {0, 5, 0}
+      Y: 5
+    } else if Z = 1 {
+      Q: {0, 0, 5}
+      Z: 5
+    } else {
+      Q: {X, 0, 0}
+    }
+  } else if X = 1 {
+    if Y = 6 {
+      Q: {0, 5, 0}
+      Y: 5
+    } else if Z = 6 {
+      Q: {0, 0, 5}
+      Z:5
+    } else {
+      Q: {X, 0, 0}
+    }
+  } else {
+    Q: {X, 0, 0}
+  }
+
+  
+  if 2@Q = 0 {
+    if Y = 1 {
+      if Z = 6 {
+	Q: {1@Q, 0, 5}
+      } else {
+	Q: {1@Q, Y, 3@Q}
+      }
+    } else if Y = 6 {
+      if Z = 1 {
+	Q: {1@Q, 0, 5}
+      } else {
+	Q: {1@Q, Y, 3@Q}
+      }
+    } else {
+      Q: {1@Q, Y, 3@Q}
+    }
+  }
+
+  if 3@Q = 0 {
+    Q: {1@Q, 2@Q, Z}
+  }
+
+
+  A: [count 1 in Q]
+  B: [count 6 in Q]
+
+
+  if A = 3 {
+    result: -1000
+  } else if A = 2 {
+    result: -100
+  } else if B = 3 {
+    result: 1000
+  } else if B = 2 {
+    result: 100
+  } else if [triples Q] = 1 {
+    result: Q + 3
+  } else if [doubles Q] = 1 {
+    if A = 1 {
+      result: Q
+    } else if B = 1 {
+      result: Q + 3
+    } else {
+      result: Q + 1
+    }
+  } else {
+    result: Q
+  }
+}
+
+output [untwenty 3d6]

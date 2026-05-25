@@ -1,0 +1,243 @@
+\
+HD: [highest of d6 and 3]
+T: 6+(9*20)
+C: 0
+loop N over {1..19} {
+ T: T+HD
+ C: C+1
+}
+output T named "hp"
+output C named "count"
+\
+
+PROF: 6  \ Paw Stars Proficiency Bonus \
+ENEMYAC: 34 \ Enemy ac \
+COUNTCRITS: 1 \ 1 = yes, 0 = no \
+COUNTTENOVER: 1 \ count 10 over ac based on enemy ac \
+VLADFACTOR: 0 \ attempt to compensate for vlad's insane rolls \
+SHOWUPGRADES: 1 \ 1 = yes, 0 = no \ 
+SINGLETARGET: 0 \ 1 = yes, 0 = no \
+ISFIEND: 1 \ xia solaris \
+ELISFAV: 1 \ elion is enemy favored \
+ELSWIFT: 1 \ elion swift quiver \
+VALTENSORS: 0 \ valiente tensors transform \
+SENTINEL: 1 \ valiente Sentinel \
+COUNTSURGE: 1 \ belbin, xia action surge \
+SSRGWM: 1 \ use sharpshooter/gwm \
+BELINCARNATION: 1 \ Belbin unleash incarnation \
+BLESS: 1d4 \ Blessed buff: 0 or 1d4 \
+HASTE: 1 \ Haste \ 
+MARKDEATH: 1 \ elion's mark for death \
+WARCRY: 0 \ xia's war cry \
+
+
+ELHTM: 11 \ Elion's hunters mark \
+
+
+\ Belbin \
+BELDEX: 15
+BELEAC: 39
+BELSAVE: 17
+BELHP: 296
+BELMHBON: 5
+BELOHBON: 5
+BELCRTPERMH: 14 \ 27 = 3 advantage, 19 = 2 advantage \
+BELCRTPEROH: 14 \ 14 = 3 advantage, 10 = 2 advantage \
+BELTENPERMH: 61
+BELTENPEROH: 61
+if (VLADFACTOR = 1) {
+   BELCRTPERMH: 20
+   BELCRTPEROH: 20 
+   BELTENPERMH: 20
+   BELTENPEROH: 20
+}
+BELMH: 36+BELMHBON+BELDEX \ 6d8 pierce, +2d8 giant size \
+BELOH: 36+BELOHBON+BELDEX
+BELNUMATT: 4+HASTE \ att, ex att, ex att(2), ex att(3) \
+
+BELATT: BELMH+BELOH
+
+\ belbin gets 4 attacks per round plus 1 hasted each round plus 13 total incarnation \
+\ plus 8 additional from action surges \
+BELNUMATTJOR: (30 * BELNUMATT) + (BELINCARNATION * 13) + (COUNTSURGE * 8)
+BELJORDMG: BELNUMATTJOR * BELATT \ base damage before crits + mark for death \
+
+BELMARKHITS: (10 * BELNUMATT) + 10 + 8 \ 10 rounds w mark, during incarnation and surges, not counting dual wielded yet  \
+BELMARKHITS: BELMARKHITS + BELMARKHITS + (( BELMARKHITS * ( BELCRTPERMH + BELCRTPEROH + BELTENPERMH + BELTENPEROH ) ) / 100 ) \ MH hits + OH hits + Crits + Tens \
+BELJORDMG: BELJORDMG + (BELMARKHITS * ELHTM)
+
+
+BELCRTDMGMH: BELMH-BELMHBON-BELDEX \ mh - mods \ 
+BELCRTDMGOH: BELOH-BELOHBON-BELDEX \ oh - mods \
+
+BELJORDMG: BELJORDMG + (((BELNUMATTJOR*BELCRTPERMH)/100) * BELCRTDMGMH) + (((BELNUMATTJOR*BELCRTPEROH)/100) * BELCRTDMGOH)
+BELJORDMG: BELJORDMG + (((BELNUMATTJOR*BELTENPERMH)/100) * BELCRTDMGMH) + (((BELNUMATTJOR*BELTENPEROH)/100) * BELCRTDMGOH)
+
+BELJORDPR: BELJORDMG / 30
+output BELJORDMG named "bel jor dmg"
+
+BELHEAL: (6*(4d4+4)+8*(2d6+8)+1d10+16)/15
+
+output BELJORDPR named "Belbin DPR"
+
+\ Elion \
+ELDEX: 15 \ dexterity bonus \
+ELEAC: 46 \ effective ac \ 
+ELSAVE: 22 \ effective save bonus \
+ELHP: 329 \ normal form hp \
+ELWEPBON: 5 \ weapon +hit/dmg \ 
+ELSSR: 21 \ sharpshooter damage \
+ELFVE: 1d12 \ favored enemy \
+ELPLW: 2d8 \ planar warrior \
+ELELEMENT: 14  \ liamoria's elemental damage \
+ELATT: 27+ELWEPBON+ELDEX+ELELEMENT+(ELISFAV*ELFVE)+(SSRGWM*ELSSR)+9 \ Muse + elemental damage+giant size \
+ELCRTPER: 14
+ELTENPER: 11 \ plus 1 free not 10 over becomes 10 over per round \ 
+ELNUMATT: 3+HASTE+WARCRY \ att, ex att, horizon att, haste \
+
+ELNUMATTJOR: (30*ELNUMATT)+36-2-2 \ 30 rounds, 3 attacks + haste + 36 total swift quiver - refresh haste 2x \
+ELJORDMG: ELNUMATTJOR * ELATT \ not counting crit, 10 over, mark death \
+
+\ mark hits \
+ELMARKHITS: 36 \ 1 main + 1 haste, + 8 rounds swift quiver \
+ELMARKHITS: ELMARKHITS + (( ELMARKHITS * (ELCRTPER + ELTENPER) ) / 100 ) 
+ELJORDMG: ELJORDMG + (ELMARKHITS * ELHTM)
+
+\ crits + ten \ 
+ELCRTDMG: ELATT-ELWEPBON-ELDEX \ crit damage is weapon attack minus mods \
+ELJORDMG: ELJORDMG + (ELCRTDMG * (( ELNUMATTJOR * (ELCRTPER+ELTENPER))/100) ) + (30 * ELCRTDMG) \ crit + ten + 1 attack made ten each round \
+
+ELJORDMG: ELJORDMG + 4*(450-89)+140
+ELJORDPR: ELJORDMG/30
+
+output ELNUMATTJOR named " el jor att "
+output ELJORDMG named "el jor dmg "
+output ELJORDPR named "el jor dpr"
+
+ELHEAL: (8*(5*(3d6)))/15 \ healing spirit full party each round after sigurd is downed \
+
+
+JONINT: 13
+JONEAC: 42
+JONSAVE: 20
+JONDPR: 34d12+JONINT+34d12+JONINT
+JONAWD: 53
+JONHP: 222+JONAWD
+JONHEAL: 2+JONINT
+
+JONCANTRIP: 22+JONINT
+
+JONJORDMG: 8750+1050+490  \ illusury dragon + freezing sphere*3 + psychic scream\
+JONJORDMG: JONJORDMG + 15*(JONCANTRIP+JONCANTRIP) \ 15 rounds double cantrips \
+JONJORDPR: JONJORDMG/30
+
+output JONJORDMG named "Jonas jor dmg"
+output JONJORDPR named "Jonas jor dpr"
+
+\ Stone \
+
+STONECHA: 16
+STONEAC: 48
+STONESAVE: 29
+STONEHP: 392
+
+STONECANTRIP: 4d10+STONECHA
+STONEFIREBALL: 28+STONECHA
+
+STONESINGDPR: STONECANTRIP+STONECANTRIP
+STONEAOEDPR: 3*((56+STONECHA)+STONECANTRIP+(56+STONECHA)+STONECANTRIP)
+
+STONEJORMAXTURN: 2*(STONEFIREBALL*10 + STONECANTRIP + STONEFIREBALL*3 + STONECANTRIP) \ Hellfire, widen fireball + fire bolt + quick fireball + fire bolt \
+STONEHELLFIREDMG: 8055
+
+output STONEHELLFIREDMG named "hellfire damage body "
+
+STONEJORMAXDMG: STONEJORMAXTURN*28+ 2*(STONEFIREBALL*3+STONECANTRIP + STONEFIREBALL*3+STONECANTRIP)
+
+
+STONEJORDMG: STONEJORMAXDMG+STONEHELLFIREDMG
+STONEJORDPR: STONEJORDMG/30
+
+output STONEJORDMG named "Stone jor dmg"
+output STONEJORDPR named "Stone jor DPR"
+
+
+
+\ Valiente \ 
+VALDEX: 13 \ dexterity modifier \
+VALEAC: 47 \ effective ac \
+VALSAVE: 8 \ effective save bonus \
+VALHP: 968 \  hp \
+VALWEPBONMH: 5 \ morthingi wep bon \
+VALWEPBONOH: 5 \ rapier +hit/dmg bonus \
+VALWEPMH: 1d4+VALWEPBONMH+VALDEX+(VALTENSORS*13)+5 \ morthingi attack + giant size potion \
+VALWEPOH: 1d8+VALWEPBONOH+VALDEX+(VALTENSORS*13)+9 \ 1d8 + wepbon + dex + giant size potion \
+VALSAT: 46 \ 13d6 sneak attack \
+
+VALCRTPER: 14
+VALTENPER: 43
+
+VALATT: VALWEPMH+VALWEPOH
+VALNUMATT: 1+HASTE+VALTENSORS+SENTINEL \ att, tenser att, haste, sentinel \
+VALNUMATTJOR: (30*VALNUMATT)-2-10 \ 30 rounds - 2 refresh haste - 7 breath attacks \
+
+VALJORDMG: (VALNUMATTJOR*(VALATT+VALSAT+VALSAT)) + ((VALWEPMH+VALSAT)*8)  \ 30 turn sneaks + 30 sentinel sneak + 8 bonus attack morthingi w/ sneak \
+
+VALMARKHITS: (10 * VALNUMATT) - 1 \ 10 rounds w mark, not counting dual wielded or morthingi bonus yet - 1 refresh haste \
+VALMARKHITS: VALMARKHITS + VALMARKHITS + 8 + (( VALMARKHITS * ( (2*VALCRTPER) + (2*VALTENPER) ) ) / 100 ) \ MH hits + OH hits + morthingi bonus + Crits + Tens \
+VALJORDMG: VALJORDMG + (VALMARKHITS* ELHTM)
+
+VALCRTDMGMH: VALWEPMH-VALWEPBONMH-VALDEX+VALSAT+VALSAT
+VALCRTDMGOH: VALWEPOH-VALWEPBONOH-VALDEX 
+
+VALJORDMG: VALJORDMG + (((VALNUMATTJOR*VALCRTPER)/100) * VALCRTDMGMH) + (((VALNUMATTJOR*VALCRTPER)/100) * VALCRTDMGOH)
+VALJORDMG: VALJORDMG + (((VALNUMATTJOR*VALTENPER)/100) * VALCRTDMGMH) + (((VALNUMATTJOR*VALTENPER)/100) * VALCRTDMGOH)
+VALJORDMG: VALJORDMG + (VALSAT*((60*(VALCRTPER+VALTENPER)) / 100))
+
+VALBREATH: 6027 \ 7 breaths, 10 targets, 60% pass save \
+VALJORDMG: VALJORDMG+VALBREATH
+VALJORDPR: VALJORDMG/30
+
+output VALNUMATTJOR named " val jor att"
+output VALJORDMG named " val jor dmg "
+output VALJORDPR named "val jor dpr "
+
+
+
+VALHEAL: (8*(4d4+4))/15
+
+
+output [highest 1 of 3d20]+PROF+BELDEX+BELMHBON+BLESS named "Belbin Hit%"
+if (SSRGWM = 1) {
+   output [highest 1 of 3d20]+ELDEX+PROF+ELWEPBON-5+BLESS named "Elion SSR Hit%"
+}
+else {
+   output [highest 1 of 3d20]+ELDEX+PROF+ELWEPBON+2+BLESS named "Elion Hit%"
+}
+output 8+PROF+JONINT named "Jonas Save DC"
+output [highest 1 of 3d20]+PROF+VALDEX+VALWEPBONOH+BLESS named "Valiente Hit%"
+
+JORHP: BELJORDPR+ELJORDPR+JONJORDPR+STONEJORDPR+VALJORDPR
+output JORHP named " jormungandr DPR "
+
+
+PSHP: BELHP+ELHP+JONHP+VALHP+STONEHP
+GOLDDRAGONHP: 378
+BELBINDRAGON: 546
+BELBINLASTSTAND: 246
+ELIONDRAGON: 490
+PSDHP: BELBINDRAGON+ELIONDRAGON+GOLDDRAGONHP+PSHP+BELBINLASTSTAND+(BELBINDRAGON+VALHP+ELIONDRAGON+GOLDDRAGONHP+STONEHP) \ form hp + normal hp + giant size \
+PSDHP: PSDHP + PSDHP \ invulnerability potions \
+output PSDHP named "Paw Stars DHP"
+
+
+JORF: 62
+JORH: 31
+
+JORDMG: 2*(10*JORF) + 2*(9*JORF+JORH) + 2*(8*JORF+2*JORH) + 2*(7*JORF+3*JORH) + 2*(6*JORF+4*JORH) + 2*(5*JORF+5*JORH) + 2*(4*JORF+6*JORH) + 2*(3*JORF+7*JORH) + 2*(2*JORF+8*JORH) + 2*(JORF+9*JORH) + 5*(10*JORH) + 5*(10*JORF)
+JORDPR: JORDMG/30
+
+output JORDMG named "jor damage"
+output JORDPR named "jor dpr"
+
+

@@ -1,0 +1,70 @@
+Q: d{0..3}
+
+\Explanation :
+First, we separate [3s,2s] & [1s,0s].
+Then we can find the 3s : [MAX value possible of the interval] - [Actual value] = 2s
+                          [Size Interval] - 2s = 3s
+Roll: {3,3,3,3,2,2,1,1,1,1,1,0}
+Part 1 : {1,1,1,1,1,0} = 5 donc 5x1s
+Part 2 : {3,3,3,3,2,2} = 16 for 6 parts       3*6=18 -> 18-16=2 -> 2(2s) & (6-2)(3s)
+\
+
+
+function: overflowing pairing SEQUENCE:s on TARGET:n {
+ TEMP: {0,0,0}
+ TOTAL: 0
+ IDX: 1
+ END: 0
+ loop M over {1..#SEQUENCE} {
+    if (M@SEQUENCE >= 2) & ((M+1)@SEQUENCE < 2) & (END=0) {
+      IDX: M+1
+      END: 1
+    }
+ }
+
+
+ LOWPART: {IDX..#SEQUENCE}@SEQUENCE      \sequence with 1s & 0s\
+ UN: {1:LOWPART}
+ DEUX: {1:((IDX-1)*3 - {1..IDX-1}@SEQUENCE)}
+ TROIS: {1:((IDX-1) - DEUX)}
+ TEMP: {#UN, #DEUX, #TROIS}
+ TOTAL: {TARGET..3}@TEMP
+
+ 
+ if(TARGET=6){result: TOTAL + (TROIS/2)}
+ if(TARGET=5){result: TOTAL + ((TROIS+{1..#TROIS}@DEUX)/2)}
+ if(TARGET=4){result: TOTAL + ((TROIS+({1..#TROIS}@{1:(UN+DEUX)}) + ({(TROIS-UN+1)..#DEUX}@DEUX))/2)}
+ if(TARGET=3){result: TOTAL + ((DEUX+{1..#DEUX}@UN)/2)}
+ if(TARGET=2){result: TOTAL + (UN/2)}
+\}\
+ result: TOTAL
+}
+
+
+POOL: 15
+SIXPLUS: [overflowing pairing POOLdQ on 6]
+CINQPLUS: [overflowing pairing POOLdQ on 5]
+QUATREPLUS: [overflowing pairing POOLdQ on 4]
+TROISPLUS: [overflowing pairing POOLdQ on 3]
+DEUXPLUS : [overflowing pairing POOLdQ on 2]
+UNPLUS : [overflowing pairing POOLdQ on 1]
+
+
+
+
+
+
+
+
+output (POOLd(dQ>=2))-6
+output (POOLd(dQ>=2))-5
+output (POOLd(dQ>=2))-3
+output (POOLd(dQ>=2))-1
+output (POOLd(dQ>=2))+1
+output (POOLd(dQ>=2))+3
+output (POOLd(dQ>=2))-4
+output (POOLd(dQ>=2))-2
+output (POOLd(dQ>=2))+0
+output (POOLd(dQ>=2))+2
+output (POOLd(dQ>=2))+4
+output (POOLd(dQ>=2))+5

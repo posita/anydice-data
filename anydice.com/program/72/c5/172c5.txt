@@ -1,0 +1,92 @@
+\ @auth Tyler "Vicarium" Vey \
+
+
+DICE: {4,6,8,10,12}
+
+
+function: round DIE:n {
+ if DIE = 1{
+  result: d{0,0,0,4}
+ }
+ if DIE = 3{
+  result: d{0,0,0,4,4,6,6,8}
+ }
+ if DIE = 2{
+  result: d{0,0,0,4,4,6}
+ }
+ if DIE = 4{
+  result: d{0,0,0,4,4,6,6,8,8,10}
+ }
+ result: d{0,0,0,4,4,6,6,8,8,10,10,12}
+}
+
+\ A basic check roll, 1s subtract, >3 gives 1 success \
+function: roll ROLL:s {
+ if ROLL > 3{
+  result: 1
+ }
+ if ROLL = 1{
+  result: 0
+ }
+ result: 0
+}
+
+\ Expanded highest function, can use different dice sizes \
+function: highest N:n of A:s B:s {
+    result: {1..N}@[sort {A, B}]
+}
+
+
+\ Roll Stress die. They are d6s that can only reduce successes \
+function: stress NUM:n {
+ SUCCESS: 0
+ loop N over {1..NUM}{
+  SUCCESS: SUCCESS + [roll stress d6]
+ }
+ result: SUCCESS
+}
+function: roll stress ROLL:s {
+ if ROLL = 1{
+  result: -1
+ }
+ result: 0
+}
+
+\ Replace negative values with 0s for cleaner results \
+function: replace ones OLD:s {
+
+ NEW: {}
+ loop V over OLD{
+  if OLD < 0{
+   NEW: {NEW,0}
+  }
+  else{
+   NEW: {NEW,OLD}
+  }
+ }
+ result: NEW
+}
+
+
+\ Single Die Checks \
+loop V over {1..5}{
+ DIE: d(V@DICE)
+ RDIE: [round V]
+ output [highest 1 of RDIE]named "highest [DIE]"
+ 
+ PRINT: [roll DIE]
+ output [replace ones PRINT] named "[DIE]"
+ 
+}
+
+\ Two Dice Checks \
+loop V over {1..5}{
+
+ DIE: d(V@DICE)
+ RDIE: [round V]
+ output [highest 1 of [round V] [round 4]] named "highest d10 + [DIE]"
+ loop POTENT over {1}{
+  PRINT: [roll d10] + [roll dDIE] + [roll d6]
+  output [replace ones PRINT] named "d10 + [DIE] + [POTENT]d6"
+ }
+}

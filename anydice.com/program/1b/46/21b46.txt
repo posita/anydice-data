@@ -1,0 +1,16 @@
+function: stunt points for DICE:s and DRAGON_DIE:n vs TARGET:n {
+  if {1,2}@DICE + DRAGON_DIE < TARGET { result: 0 }  \ miss \
+
+  \ it's a hit; can we choose a pair that will give us stunts? \
+  if 1@DICE = DRAGON_DIE { result: DRAGON_DIE }
+  if DICE = DRAGON_DIE & 1@DICE + 2 * DRAGON_DIE >= TARGET { result: DRAGON_DIE }
+  loop I over {1..#DICE-1} {
+    if I@DICE = (I+1)@DICE & 2 * I@DICE + DRAGON_DIE >= TARGET { result: DRAGON_DIE }
+  }
+
+  result: 0  \ hit but no pair \
+}
+
+loop TARGET over {3..18} {
+  output [stunt points for 2d6 and d6 vs TARGET] named "hit on [TARGET]"
+}

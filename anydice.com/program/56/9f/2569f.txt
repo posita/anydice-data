@@ -1,0 +1,40 @@
+AC: 18  \ target AC \
+DEX: 4  \ dex modifier \
+PROF: 3  \ proficiency bonus \
+SAN: 4
+SA: SANd6  \ sneak attack dice \
+SAC: (2*SAN)d6
+
+DAGGER: d4
+SHORTSWORD: d6
+RAPIER: d8
+
+function: attack roll advantage A:d if N:n {
+  if N { result: A }
+  result: d20
+}
+
+
+SUCCESS: 5*d20 <= 100 \ percent \
+AROLL: [attack roll advantage [highest 1 of 2d20] if SUCCESS]
+EROLL: [attack roll advantage [highest 1 of 3d20] if SUCCESS]
+
+\ try to hit with a single weapon \
+function: attack A:n with W:d {
+  if A = 20 { result: 2dW + DEX + SAC } \ critical hit \
+  if A + DEX + PROF >= AC { result: W + DEX + SA }  \ attack action hit \
+  result: 0  \ no hit \
+}
+
+\ try to hit with a single weapon and piercer feat \
+function: attack A:n with piercing W:d {
+  if A = 20 { result: 2dW + DEX + [highest 2*SAN of (2*SAN+1)d6] + d8 }
+  if A + DEX + PROF >= AC { result: W + DEX + [highest SAN of (SAN+1)d6] } \ attack action hit \
+  result: 0  \ no hit \
+}
+
+output [attack AROLL with RAPIER] named "Rapier"
+output [attack AROLL with piercing RAPIER] named "Rapier - Piercer"
+output [attack AROLL with [highest 1 of 2dRAPIER]] named "Rapier - Savage Attacker"
+output [attack EROLL with RAPIER] named "Rapier - Elven Accuracy"
+

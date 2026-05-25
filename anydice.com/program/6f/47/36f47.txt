@@ -1,0 +1,31 @@
+POOL: 14
+LIMIT: 29
+
+function: target TARGET:n reroll REROLL:n VALUE:n {
+  if VALUE = REROLL {
+    result: 1 + [target TARGET reroll REROLL BASEDIE]
+  }
+  if VALUE  > TARGET {
+    result: 1
+  }
+  result: 0
+}
+
+function: target TARGET:n VALUE:n {
+  if VALUE < (TARGET + 1) {
+    result: [count {5,6} in 1d6]
+  }
+  if VALUE  > TARGET {
+    result: 1
+  }
+  result: 0
+}
+
+BASEDIE: d6
+
+DIEE: [target 4 reroll 6 BASEDIE]
+DIED: [target 4 BASEDIE]
+
+output [lowest of [count {5, 6} in POOLd6] and LIMIT] named "normal"
+output [lowest of POOLdDIEE and POOL] named "explode"
+output [lowest of POOLdDIED and LIMIT] named "reroll"

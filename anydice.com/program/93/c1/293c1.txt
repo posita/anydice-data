@@ -1,0 +1,42 @@
+\ CONFIG \
+
+DOMAIN_SIZE: 1
+
+
+\ FUNCTIONS \
+
+function: remain NUM:n turns with DIE:d {
+  START: 8
+  TEST: 1
+  if NUM > 0 & NUM < TURN_MAX {
+    loop N over {1..NUM} {
+      TEST: TEST & (DIE < START + N)
+    }
+  }
+  result: TEST
+}
+
+function: duration with TEST:d {
+  TURN_MAX: 4 + DOMAIN_SIZE
+  TURN_SEQ: {0..TURN_MAX-1} \ first turn auto-succeeds \
+  TURNS: 0
+  loop T over TURN_SEQ {
+    TURNS: TURNS + [remain T turns with TEST]
+  }
+  result: TURNS
+}
+
+function: domain skill modifier {
+  \ Give some spread of domain skill modifiers, from +0 to +4: \
+  result: 2 @ (1 + 2 * DOMAIN_SIZE) d {0..4}
+}
+
+
+\ PROGRAM \
+
+NOSKILL: 1d20
+SKILLED: 1d20 + [domain skill modifier]
+
+output [domain skill modifier] named "Domain skill modifier"
+output [duration with NOSKILL] named "Without domain skill"
+output [duration with SKILLED] named "With    domain skill"

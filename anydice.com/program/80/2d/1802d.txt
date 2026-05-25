@@ -1,0 +1,119 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: attackt ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + TAX >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + TAX >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: attackz ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + TAY >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + TAY >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: attackzz ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + TAZ >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + TAZ >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: [missdmg]
+}
+function: damaget for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: TCX
+ }
+ if ATTACKRESULT = HIT {
+  result: TDX
+ }
+ result: MISSDAMAGE
+}
+function: damagez for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: TCY
+ }
+ if ATTACKRESULT = HIT {
+  result: TDY
+ }
+ result: MISSDAMAGE
+}
+function: damagezz for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: TCZ
+ }
+ if ATTACKRESULT = HIT {
+  result: TDZ
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: attackt {
+ result: [damaget for [attackt d20 vs DEFENSE]]
+}
+function: attackz {
+ result: [damagez for [attackz d20 vs DEFENSE]]
+}
+function: attackzz {
+ result: [damagezz for [attackzz d20 vs DEFENSE]]
+}
+
+function: missdmg {
+ result: HITDAMAGE/2
+}
+
+DEFENSE: d{12..22}
+
+
+ATTACK: 4 + 4
+HITDAMAGE: 2d6+6
+CRITICALDAMAGE: 18
+MISSDAMAGE: 0
+
+TAX: 4 + 4
+TDX: 1d6+2
+TCX: 8
+
+TAY: 4 + 6
+TDY: 1d6+6
+TCY: 12
+
+TAZ: 4 + 5
+TDZ: 1d6+4
+TCZ: 10
+
+output [attack]+2*([attackz]) named "Menace"
+output 2d[attack]+2*([attackt]) named "Jaws"
+
+

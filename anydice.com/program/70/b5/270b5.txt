@@ -1,0 +1,52 @@
+function: H dice { 
+ result: [count {5,6} in Hd6]
+}
+
+function: A vs B {
+ result: [A dice] - [B dice]
+}
+
+function: AL lead A cavalry AC assault DL lead D cavalry DC {
+ RA: A
+ if D + DC > 0 { RA: (A + 1) / 2 }
+ result: [(RA+AL) dice] >= D + DC &
+         [(RA+AL) dice] > 0 &
+         [(D+DL+1) dice] < A + AC
+}
+
+function: L lead A pirate B {
+ result: (A = [B dice] + 1 & [(1+L) dice] > 0) |
+         (A > [B dice] + 1 & [(2+L) dice] > 0)
+}
+
+function: A reform B break ties T modifier M {
+ if T = 1 { result: [highest 1 of Ad6] + M >= [highest 1 of Bd6] }
+ else { result: [highest 1 of Ad6] + M > [highest 1 of Bd6] }
+}
+
+function: A debate B committed C {
+ C: 2 - C
+ result: ([(A+3) dice] - [(B+C) dice]) > B
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+\[attacker hbr] lead [besieging regs & mercs] cavalry [besieging cavalry] assault
+ [defender hbr] lead [fortified regs & mercs] cavalry [fortified cavalry]\
+output [1 lead 1 cavalry 0 assault 0 lead 1 cavalry 0] named "Assault"
+
+\[attacker hbr] lead [corsairs] pirate [defender dice]\
+output [0 lead 1 pirate 1] named "Piracy"
+
+\[attacker dice] reform [defender dice] break ties [yes: 1, no: 0] modifier [1, 0 or -1]\
+output [1 reform 1 break ties 0 modifier 0] named "(Counter-)reformation"
+
+\[attacker rating] debate [defender rating] committed [yes: 1, no: 0]\
+output [1 debate 1 committed 1] named "Disgrace/Burn at stake"
+
+\[attacker dice] vs [defender dice]\
+output [4 vs 4] named "Battle"
+
+loop N over {1..11}{
+output [count {5,6} in Nd6] named "[N] dice"
+}

@@ -1,0 +1,27 @@
+POOL:2
+MULTI:0
+
+function: helper {
+POOL:POOL-COUNT
+MULTI:MULTI+COUNT 
+result:[task 9 in POOLd{0..9}]
+} 
+
+function: task VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ if 
+ POOL>=COUNT & COUNT>0 { result: [helper] }
+ else 
+ {result: MULTI*9  + d{0..9}}
+
+}
+
+output [task 9 in POOLd{0..9}] named "9er raus"
+output POOLd[explode d{0..9}] named "explodierten einzeln"
+output d[explode POOLd{0..9}] named "explodiert bei maximun"
+
+
+

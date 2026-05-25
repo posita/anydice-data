@@ -1,0 +1,96 @@
+
+\ Fate Functions \
+function: fate roll FATE:n {
+ result: [count {1..FATE} in 2d6]
+}
+
+function: fate results ROLL:n {
+ if ROLL = 0 { result: -1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL = 2 { result: 1 }
+}
+
+function: fate FATE:n {
+ ROLL: [fate roll FATE] 
+ result: [fate results ROLL]
+}
+
+
+\ Luck Functions \
+function: luck ROLL:n STAT:n LUCK:n { \This should also trigger on a 1 (on if the STAT is rolled?). Either would make having a stat of 1 bad.\
+ if ROLL = 6 {
+  result: [count {1..LUCK} in 1d6]
+ }
+ else {
+  result: [count {1..STAT} in ROLL]
+ }
+}
+
+
+\ Roll Functions \
+function: basic roll STAT:n { \A basic roll without mods\
+ ROLL: 1d6
+ result: [count {1..STAT} in ROLL]
+}
+
+function: basic full A:n B:n C:n { \a full roll of three stats, w/o mods\
+ ROLLA: [basic roll A]
+ ROLLB: [basic roll B]
+ ROLLC: [basic roll C]
+
+ result: ROLLA + ROLLB + ROLLC
+}
+
+function: fate full A:n B:n C:n F:n { \This allows for -1 and 4 results currently\
+ ROLL: [basic full A B C]
+ 
+ result: ROLL + [fate F]
+}
+
+function: luck roll STAT:n LUCK:n { \A basic roll with luck\
+ ROLL: 1d6
+ result: [luck ROLL STAT LUCK]
+}
+
+function: luck full A:n B:n C:n L:n { \a full roll of three stats, w/ luck\
+ ROLLA: [luck roll A L]
+ ROLLB: [luck roll B L]
+ ROLLC: [luck roll C L]
+
+ result: ROLLA + ROLLB + ROLLC
+}
+
+function: fateluck full A:n B:n C:n L:n F:n { \This allows for -1 and 4 results currently\
+ ROLL: [luck full A B C L]
+ 
+ result: ROLL + [fate F]
+}
+
+\ Stats \
+A_ONE: 3
+A_TWO: 3
+A_THR: 3
+A_LUCK: 1
+A_FATE: 1
+
+B_ONE: 2
+B_TWO: 2
+B_THR: 2
+B_LUCK: 2
+B_FATE: 3
+
+
+\ Outputs \
+output [fate A_FATE] named "Fate"
+
+output [basic roll A_ONE] named "basic roll w/o mods"
+
+output [luck roll A_ONE A_LUCK] named "basic roll w/ Luck"
+
+output [basic full A_ONE A_TWO A_THR] named "basic full roll w/o mods"
+
+output [luck full A_ONE A_TWO A_THR A_LUCK] named "basic full roll w/ Luck"
+
+output [fate full A_ONE A_TWO A_THR A_FATE] named "full roll w/ fate"
+
+output [fateluck full A_ONE A_TWO A_THR A_LUCK A_FATE] named "full roll w/ fate and luck"

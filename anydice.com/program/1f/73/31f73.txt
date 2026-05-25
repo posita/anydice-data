@@ -1,0 +1,62 @@
+\ RUINA CALCULATOR \
+
+\ clash (A-B), where \ A: 4 B: 7 \   against (C-D), where    \ C: 2 D: 11
+                       FULL_L: 0 \ for this option see below \ FULL_R: 0
+
+\ The first output shows the winning chances: -1 for (A-B) win, 0 for draw, and 1 for (C-D) win (i.e. in order of side input, with draw in the middle) \
+\ The second output shows "clash value", which by default is the difference of rolls (with the same sign as the first output, so negative means left winner) \
+\ If you'd like to see the full (sign-adjusted) winner value instead (for example, to see the average offensive-offensive impact), set FULL_L and/or FULL_R to nonzero\
+\ The third and fourth outputs show the distributions of "clash value" conditional on either side winning \
+\ To calculate mass-summations, use sequences as min and max (for example, C: {2, 3} D: {4, 5} is a summation of 2-4 and 3-5) \
+\ The last two graphs are mostly just for some optional perspective on summations (you might want to switch the view to graph if the last point interests you) \
+
+function: diff X:n full FL:n only WL:n vs Y:n full FR:n only WR:n {
+  if X = Y {
+    if WL | WR {
+      result: d{}
+    }
+    result: 0
+  }
+  if X > Y {
+    if WR {
+      result: d{}
+    }
+    if FL {
+      result: -X
+    }
+  } else {
+    if WL {
+      result: d{}
+    }
+    if FR {
+      result: Y
+    }
+  }
+  result: Y - X
+}
+
+function: clash X:n vs Y:n {
+  if X > Y { result: -1 }
+  if X = Y { result: 0 }
+  result: 1
+}
+
+function: fix X:s to Y:s {
+  L: [lowest of #X and #Y]
+  S: 0
+  loop N over {1..L} {
+    if (N@X > N@Y) { 
+      S: S + N@Y
+    } else {
+      S: S + d{N@X..N@Y}
+    }
+  }
+  result: S
+}
+
+output [clash [fix A to B] vs [fix C to D]] named "winner"
+output [diff [fix A to B] full FULL_L only 0 vs [fix C to D] full FULL_R only 0] named "clash value"
+output [diff [fix A to B] full FULL_L only 1 vs [fix C to D] full FULL_R only 0] named "clash value if (A-B) wins"
+output [diff [fix A to B] full FULL_L only 0 vs [fix C to D] full FULL_R only 1] named "clash value if (C-D) wins"
+output [fix A to B] named "roll -1 (A-B)"
+output [fix C to D] named "roll 1 (C-D)"

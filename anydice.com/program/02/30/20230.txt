@@ -1,0 +1,162 @@
+function: explode VALUE:n {
+  if VALUE = 10 {result: 10 + 1d10}
+  if VALUE = 1 {result: 1 - 1d10}
+  result: VALUE
+}
+
+function: average of DIE:d {
+  MIN: 1@{DIE}
+  R: {}
+  loop P over {1..#{DIE}} {
+    R: {P@{DIE}, R}
+  }
+  MAX: 1@{R}
+
+  result: ((MAX + MIN) / 2)
+}
+
+function: IN:n floor VALUE:n {
+ if IN < VALUE {result: VALUE}
+ result: IN
+}
+
+function: IN:n ceiling VALUE:n {
+ if IN > VALUE {result: VALUE}
+ result: IN
+}
+
+function: adjust ARMOR:n pen PEN:n bypass BYPASS:n {
+  if (ARMOR < BYPASS) {PASS: 0} else {PASS: ARMOR}
+  if (PEN = 0) {result: PASS}
+  HIGH: ((PASS + 1) / 2)
+  LOW: (PASS / 2)
+  if (HIGH > LOW) {result: HIGH} else {result: LOW}
+}
+
+function: crit DICE:s {
+  result: (([count 6 in DICE] > 1) * 5)
+}
+
+
+function: attack DAMAGE:d plus SOLO:n at BASE:n armor ARMOR:d pen PEN:n bypass BYPASS:n range RANGE:s at INCREMENT:n evasion EVASION:d can DODGE:n headshot WEAK:n auto AUTO:n rof ROF:n ap AP:n {
+  if ([average of (DODGE * EVASION)] > INCREMENT@RANGE) {DC: EVASION} else {DC: INCREMENT@RANGE}
+  if (WEAK = YES) {BONUS: (BASE - 8)} else {BONUS: BASE}
+  ATTACK: [explode 1d10] + BONUS
+  HITMOD: [[(ATTACK - DC) floor 0] ceiling (AUTO + 1)]
+  EFFECTIVE: [adjust ARMOR pen PEN bypass BYPASS]
+  THROUGH: [((HITMOD * (DAMAGE + SOLO)) - EFFECTIVE) floor 0]
+  if (WEAK = YES) {AMP: (THROUGH * 2)} else {AMP: THROUGH}
+  FULL: (AMP + [crit DAMAGE])
+  if (ROF > 1) {
+    ABLATE: ([THROUGH ceiling 1] * (AP + 1))
+    result: FULL + [attack DAMAGE plus SOLO at BASE armor (ARMOR - ABLATE) pen PEN bypass BYPASS range RANGE at INCREMENT evasion EVASION can DODGE headshot WEAK auto AUTO rof (ROF - 1) ap AP]
+  }
+  result: FULL
+}
+
+
+\armor table:
+ tech bonus: +1
+ leathers: 4 20eb
+ kevlar: 7 (final concealable?) 50eb
+ light armorjack: 11 (final no penalty) 100eb
+ med armorjack: 12 (-2 penalty) 100eb
+ heavy armorjack: 13 (-2 penalty) 500eb
+ flak: 15 (-4 penalty) 500eb
+ metalgear: 18 (-4 penalty) 5000eb
+\
+
+\sample evasion bases\
+START_EVASION: 8 + 6 \the maximum starting evasion\
+MAX_EVASION: 8 + 10 \the maximum attainable evasion, unmodifed\
+RAT_EVASION: 5 + 6 \the minimum starting evasion using streetrat rules\
+MIN_EVASION: 2 + 2 \the minimum starting evasion using other rules\
+GOON_EVASION: 5 + 1d2 \evasion of the goons in the book\
+LIEU_EVASION: 5 + 1d{1, 3, 3} \evasion of the lieutenants in the book\
+MINI_EVASION: 12 + 1d2 \evasion of the minibosses in the book\
+BOSS_EVASION: 13 + 1d10 \evasion of the boss in the book\
+
+\range tables\
+\0 to 6m, 7 to 12m, 13 to 25 m, 26 to 50m, 51 to 100 m, 101 to 200 m, 201 to 400 m, 401 to 800 m\
+MELEE: {0, 0, 0, 0, 0, 0, 0, 0} \remember to set these as dodgeable otherwise it will always hit\
+PISTOL: {13, 15, 20, 25, 30, 30, 100, 100}
+SMG: {15, 13, 15, 20, 25, 25, 30, 100}
+SHOTGUN: {13, 15, 20, 25, 30, 35, 100, 100}
+AR: {17, 16, 15, 13, 15, 20, 25, 30}
+SNIPER: {30, 25, 25, 20, 15, 16, 17, 20}
+BOW: {15, 13, 15, 17, 20, 22, 100, 100}
+GRENADE: {16, 15, 15, 17, 20, 22, 25, 100}
+ROCKET: {17, 16, 15, 15, 20, 20, 25, 30}
+SMG_AF: {20, 17, 20, 25, 30, 100, 100, 100}
+AR_AF: {22, 20, 17, 20, 25, 100, 100, 100}
+
+\attack modifier table:
+excellent quality: +1 (no unarmed)
+smart link: +1 (gun only)
+targeting scope: +1 (aimed shot only)
+scope/teleoptics: +1 (over 50m (increment 5) single shot only)
+synthcoke: +1 (ref boost, gun only)
+solo: >>+3
+aimed shot: -8
+Night or low lighting conditions: -1
+Slept uncomfortable the night before: -2
+Exhausted: -4
+Extremely drunk or sedated: -4
+Task obscured by smoke, darkness: -4
+\
+
+NO: 0
+YES: 1
+AUTOSMG: 2 \these are intentionally 1 less than the modifiers in the book, it works out in the sim\
+AUTOAR: 3
+AUTOEXOTIC: 4
+
+set "maximum function depth" to 10 \this value must be at least 1 more than the highest rof simulated, the default is 10\
+
+ATTACK: 14           \the attacker's base + modifers for the skill they're using for the attack\
+SOLO: 0              \solo damage bonus\
+ARMOR: 7            \the target's armor SP\
+INCREMENT: 3         \the increment the distance between the attacker and target falls into, refer to the range tables\
+EVASION: 7          \the target's evasion base + modifiers\
+REF: NO              \if the target's reflex is at least 8, they may chose to dodge bullets\
+AP: NO               \if the target is using AP rounds, only matters on sims with ROF>1\
+
+\ranged weapons\
+
+output [attack 2d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range SMG at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "smg singles"
+output [attack 2d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range PISTOL at INCREMENT evasion EVASION can REF headshot NO auto NO rof 2 ap AP] named "medium pistol"
+output [attack 3d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range PISTOL at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "hsmg singles"
+output [attack 3d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range PISTOL at INCREMENT evasion EVASION can REF headshot NO auto NO rof 2 ap AP] named "heavy pistol"
+output [attack 4d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range PISTOL at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "very heavy pistol"
+output [attack 4d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range BOW at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "bow"
+output [attack 5d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range AR at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "AR"
+output [attack 5d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range SNIPER at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "sniper"
+output [attack 5d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range SHOTGUN at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "shotgun slugs"
+output [attack 6d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range GRENADE at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "grenade"
+output [attack 8d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range ROCKET at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "rocket"
+output [attack 2d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range SMG_AF at INCREMENT evasion EVASION can REF headshot NO auto AUTOSMG rof 1 ap AP] named "SMG or HSMG autofire"
+output [attack 2d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range AR_AF at INCREMENT evasion EVASION can REF headshot NO auto AUTOAR rof 1 ap AP] named "AR autofire"
+
+\ranged exotics\
+
+output [attack 5d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range PISTOL at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "Malorian"
+output [attack 5d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range SHOTGUN at INCREMENT evasion EVASION can REF headshot NO auto NO rof 2 ap AP] named "Constitution Arms hurricane Assault weapon"
+output [attack 6d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range GRENADE at INCREMENT evasion EVASION can REF headshot NO auto NO rof 2 ap AP] named "militech Cowboy u-56 Grenade launcher"
+output [attack 5d6 plus SOLO at ATTACK armor ARMOR pen NO bypass 11 range AR at INCREMENT evasion EVASION can REF headshot NO auto NO rof 1 ap AP] named "Rhinemetall emg-86 Railgun"
+output [attack 2d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range AR_AF at INCREMENT evasion EVASION can REF headshot NO auto AUTOEXOTIC rof 1 ap AP] named "tsunami arms helix"
+
+\melee\
+
+output [attack 1d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "brawling bod <5 no cyber"
+output [attack 2d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "brawling cyberarm minimum or bod 4>>7"
+output [attack 3d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "brawling bod 6>>11"
+output [attack 4d6 plus SOLO at ATTACK armor ARMOR pen NO bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "brawling bod 11+"
+output [attack 1d6 plus SOLO at ATTACK armor ARMOR pen YES bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "light wep or MA bod <5"
+output [attack 2d6 plus SOLO at ATTACK armor ARMOR pen YES bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "med wep or MA bod 4>>7"
+output [attack 3d6 plus SOLO at ATTACK armor ARMOR pen YES bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "heavy wep or MA bod 6>>11"
+output [attack 4d6 plus SOLO at ATTACK armor ARMOR pen YES bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 1 ap AP] named "very heavy wep"
+output [attack 4d6 plus SOLO at ATTACK armor ARMOR pen YES bypass NO range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 2 ap AP] named "MA bod 11+"
+
+\melee exotics\
+
+output [attack 4d6 plus SOLO at ATTACK armor ARMOR pen YES bypass 11 range MELEE at INCREMENT evasion EVASION can YES headshot NO auto NO rof 1 ap AP] named "kendachi mono-three"

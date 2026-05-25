@@ -1,0 +1,43 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+function: plussneakattack BASE_DAMAGE:n plus SA:d {
+ if BASE_DAMAGE = 0 { result: 0 }
+ result: BASE_DAMAGE + SA
+}
+
+AC: 17
+MYCRIT: 20
+ADVANTAGE: [highest 1 of 2d20]
+ABONUS: 2 + 3
+SNEAK_ATTACK: 1d6
+DBONUS: 3
+DAMAGE: 1d8
+HITDMG: DAMAGE + DBONUS
+CRITDMG: DAMAGE + SNEAK_ATTACK 
+RAPIER_ATTACK: [attack ADVANTAGE plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT]
+RAPIER_SNEAK: [plussneakattack RAPIER_ATTACK plus SNEAK_ATTACK]
+ 
+DAMAGE: 1d6
+HITDMG: DAMAGE + DBONUS
+CRITDMG: DAMAGE + SNEAK_ATTACK 
+HANDCROSSBOW_ATTACK: [attack ADVANTAGE plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT]
+HANDCROSSBOW_SNEAK: [plussneakattack HANDCROSSBOW_ATTACK plus SNEAK_ATTACK]
+
+TOTAL_ATTACK: HANDCROSSBOW_ATTACK + RAPIER_ATTACK
+TOTAL_SNEAK: [plussneakattack TOTAL_ATTACK plus SNEAK_ATTACK]
+
+output RAPIER_ATTACK named "Rapier"
+output RAPIER_SNEAK named "Rapier with Sneak"
+output HANDCROSSBOW_ATTACK named "HandCrossbow"
+output HANDCROSSBOW_SNEAK named "HandCrossbow with Sneak"
+output TOTAL_ATTACK named "Full Attack Without Sneak"
+output TOTAL_SNEAK named "Full Attack with Sneak"

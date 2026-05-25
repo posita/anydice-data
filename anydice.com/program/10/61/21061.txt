@@ -1,0 +1,100 @@
+function: save  R:n again N:n sundering S:n vulnerable V:n{
+ if N = 6{ 
+   if V = 1 {
+     result: [save R again d6 sundering S vulnerable 0] 
+   }
+   result: 0 
+ }
+ if N - S >= R {
+   if V = 1 {
+     result: [save R again d6 sundering S vulnerable 0] 
+   }
+   result: 0
+ }
+ result: 1
+}
+
+function: attaque R:n again N:n charge C:n critblow B:n precision P:n sundering S:n armor A:n weaken W:n vulnerable V:n {
+ if N >= R {
+   if W = 1{
+     result: [attaque R again d6 charge 0 critblow B precision  P sundering S armor A weaken 0 vulnerable V]
+   }
+   if N = 6 {
+     if P = 1 {
+        if B = 1 {
+          result: 1 + [save A again d6 sundering S vulnerable V]
+        }
+        result: 1
+     }
+     if B = 1 {
+        result: [save A again d6 sundering S vulnerable V] + [save A again d6 sundering S vulnerable V]
+     }
+   }
+   result: [save A again d6 sundering S vulnerable V]
+ }
+ if C = 1 {
+    result: [attaque R again d6 charge 0 critblow B precision P sundering S armor A weaken W vulnerable V]
+ }
+ result: 0
+}
+
+function: moral R:n again N:n and M:n vicious V:n paniked P:n damage D:n addition A:n {
+ if M+N >= R-V {
+  if P = 1 {
+    if N >= 4 {
+       if M >= 4 {
+         if D = 1 {
+            result: [moral R again d6 and d6 vicious V paniked 0 damage d3 addition A]
+         }
+         result: [moral R again d6 and d6 vicious V paniked 0 damage D addition A]
+       }
+
+       if D = 1 {
+         result: [moral R again d6 and M vicious V paniked 0 damage d3 addition A]
+       }
+       result: [moral R again d6 and M vicious V paniked 0 damage D addition A]
+    }
+    if M >= 4 {
+       if D = 1 {
+         result: [moral R again N and d6 vicious V paniked 0 damage d3 addition A]
+       }
+       result: [moral R again N and d6 vicious V paniked 0 damage D addition A]
+    }
+    if D = 1 {
+       result: [moral R again N and M vicious V paniked 0 damage d3 addition A]
+    }
+  }
+ }
+ if M+N >= R-V {
+     result: 0
+ }
+ result : D + A
+}
+
+function: takemoral M:n wound W:n vicious V:n paniked P:n panickdamage D:n {
+   if W >=1 {
+      result: W + 1d[moral M again d6 and d6 vicious V paniked P damage d3 addition D]
+   }
+   result: 0 
+}
+
+function: attack dice X tohit T charge C critblow B precision P sundering S armor A weaken W vulnerable V autohit H moral M  vicious I paniked A panickdamage D  {
+   WOUND: Xd[attaque T again d6 charge C critblow B precision P sundering S armor A weaken W vulnerable V] + Hd[save A again d6 sundering S vulnerable V]
+   result : [takemoral M wound WOUND vicious I paniked A panickdamage D]
+}
+
+output 
+[attack dice 7 tohit 4 charge 1 critblow 1 precision 0 sundering 1 armor 4 weaken 0 vulnerable 0 autohit 0 moral 7 vicious 0 paniked 0 panickdamage 0]
+named "SSS"
+
+output 
+[attack dice 4 tohit 4 charge 0 critblow 0 precision 0 sundering 0 armor 4 weaken 0 vulnerable 0 autohit 0 moral 7 vicious 0 paniked 0 panickdamage 0] + 
+[attack dice 6 tohit 4 charge 1 critblow 0 precision 0 sundering 0 armor 4 weaken 0 vulnerable 0 autohit 3 moral 7 vicious 0 paniked 0 panickdamage 0]
+named "SW charging voley"
+
+output 
+[attack dice 6 tohit 4 charge 1 critblow 0 precision 0 sundering 1 armor 4 weaken 0 vulnerable 0 autohit 0 moral 7 vicious 0 paniked 0 panickdamage 0]
+named "CDS"
+
+
+

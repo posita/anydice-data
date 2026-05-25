@@ -1,0 +1,31 @@
+function: damage from DAM:d at AT:n mastered MASTER:n profession PROF:n shielded SHLD:n rolled D:s {
+ ROLL: 1@D + 2@D
+ if ROLL = 20 & !PROF {
+  result: -1
+ }
+ if ROLL = 20 | ROLL > AT {
+  result: 0
+ }
+ XS: AT - ROLL
+ DAMAGE: DAM
+ if SHLD {
+  DAMAGE: [maximum of DAM]
+ }
+ if MASTER {
+  DAMAGE: DAMAGE + XS
+ }
+ if 1@D = 2@D {
+  DAMAGE: DAMAGE * 2
+ }
+ result: DAMAGE
+}
+
+function: attack at rate RATE:n {
+ DAMAGE: 0
+ loop X over {1..RATE} {
+  DAMAGE: DAMAGE + [damage from 3d8 at 29 mastered 1 profession 1 shielded 0 rolled 2d10]
+ }
+ result: DAMAGE
+}
+
+output [attack at rate 4] named "Expected Damage"

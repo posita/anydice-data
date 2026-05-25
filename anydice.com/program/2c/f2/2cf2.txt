@@ -1,0 +1,37 @@
+\Shadowrun Extended test calculator:\
+\Here are the steps of what I'm trying to do:
+1: roll dice and count hits (possibly limited)
+1a: in code would use DICEd(d6>4)
+2: add new hits to running total
+3: compare running total to target number
+3a: If running total >= target, jump to Step 6
+3b: else subtract 1 die
+4: increment rounds taken
+5: compare number of dice remaining
+5a: If dice remain, jump to Step 1
+5b: else output 0 as number of rolls taken (to signify failure)
+6: output number of rolls taken\
+
+function: limit HITS:n by LIMIT:n{
+ if HITS > LIMIT {result: LIMIT}
+ result: HITS
+}
+
+function: extended roll DICE:n limit LIMIT:n need TARGET:n hits {
+   COUNT: 1 \counter for loop, also how many rolls it took\ 
+   ROLLEDDICE: DICE
+   HITSROLLED: 0
+   GOALREACHEDAT: 0
+   TEMPHITS: 0
+   loop COUNT over {1..TARGET} {
+      HITSROLLED: HITSROLLED + [limit ROLLEDDICEd(d6 > 4) by LIMIT]
+      
+      BOOL: (HITSROLLED > (TARGET-1))
+      if BOOL=1 { result: COUNT }
+      
+      ROLLEDDICE: (ROLLEDDICE -1)
+   }
+   result: COUNT \GOALREACHEDAT\
+}
+
+output [extended roll 10 limit 10 need 10 hits] named "Goal Reached in X Rolls"

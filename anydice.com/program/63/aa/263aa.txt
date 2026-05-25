@@ -1,0 +1,27 @@
+function: ROLL:n target TARGET:n {
+  result: ROLL >= TARGET
+}
+
+function: get NUMFOUR:n fourdroplow stats total if at least ATLEASTCOUNT:n over TARGET:n and total more than POINTSTHRESHOLD:n {
+  TOTAL: 0
+  COUNTOVERTARGET: 0
+  loop I over {1..NUMFOUR} {
+    FOURDROPLOW: [highest 3 of 4d6]
+    TOTAL: TOTAL + FOURDROPLOW
+    COUNTOVERTARGET: COUNTOVERTARGET + [FOURDROPLOW target TARGET]
+  } 
+  TOTALPOINTS: TOTAL - 10*NUMFOUR
+  MYRESULT: [COUNTOVERTARGET target ATLEASTCOUNT] & [TOTALPOINTS target POINTSTHRESHOLD]
+  
+  result: MYRESULT
+}
+
+function: get chance of at least ATLEASTCOUNT:n set better than pointbuy in NUMSETS:n sets {
+  BETTERSETCOUNT: 0
+  loop I over {1..NUMSETS} {
+    BETTERSETCOUNT: BETTERSETCOUNT + [get 6 fourdroplow stats total if at least 2 over 14 and total more than 11]
+  } 
+  result: [BETTERSETCOUNT target ATLEASTCOUNT]
+}
+
+output [get chance of at least 1 set better than pointbuy in 7 sets]

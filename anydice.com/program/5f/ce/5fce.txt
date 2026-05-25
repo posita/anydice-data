@@ -1,0 +1,51 @@
+set "maximum function depth" to 100
+function: factorial A:n {
+  ACC: 1
+  loop N over {1..A}{
+    ACC: ACC*N
+  }
+  result: ACC
+}
+
+function: N:n choose K:n {
+  result: [factorial N]/[factorial K]/[factorial N-K]
+}
+
+function: buckles inner CURRENT:n N:n K:n LIMIT:n INDEX:n {
+  NEWLIMIT: [N-CURRENT choose K] + LIMIT
+  if NEWLIMIT >= INDEX { result: {CURRENT,LIMIT}}
+  else { result: [buckles inner CURRENT+1 N K NEWLIMIT INDEX]}
+}
+
+function: N:n buckles K:n index INDEX:n {
+  ACC: {}
+  CURRENT: 0
+  LIMIT: 0
+  loop I over {1..K-1}{
+    R: [buckles inner CURRENT+1 N K-I LIMIT INDEX]
+    CURRENT: 1@R
+    LIMIT: 2@R
+    ACC:{ACC,CURRENT}
+  }
+  result: {ACC,CURRENT+INDEX-LIMIT} 
+}
+
+function: select SELECTOR:s from SEQ:s {
+  ACC: {}
+  loop I over SELECTOR {
+    ACC: {ACC,I@SEQ}
+  }  
+  result: ACC  
+}
+
+function: draw K:n items from SEQ:s at lexicographical index INDEX:n {
+  result: [select [#SEQ buckles K index INDEX] from SEQ]
+}
+
+function: draw from SEQ:s K:n times {
+  INDEX: d[#SEQ choose K]
+  result: [draw K items from SEQ at lexicographical index INDEX]
+}
+
+SEQ: {1, 1, 1, 1, 1, 3, 3, 3, 5, 5, 7}
+output [draw from SEQ 4 times] named "mydie"

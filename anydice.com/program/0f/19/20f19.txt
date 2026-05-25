@@ -1,0 +1,49 @@
+\ Simulate TFC Downtime Crime \
+\ See https://docs.google.com/document/d/1eORYzEfHq5sufSivMqVS_0ZperALzkBLh9CM0kbmjmw/edit#heading=h.jzs0sq1779q3 \
+
+LEVEL: 8       \ character level \
+DC: 20         \ crime difficulty classs \
+REWARD: 200    \ crime reward gold (per level) \
+CRIMINAL: 1d4  \ bonus for criminal background, or zero \
+COST: 25       \ research cost to carry out crime \
+STEALTH: 6     \ stealth skill \
+PERCEPTION: 2  \ perception, investigation, or deception skill \
+TOOLS: 6       \ thieves' tools, forgery, or disguise skill \
+DTVALUE: 10    \ value to character (in gold) of one day of DT \
+
+\ Calculate the value of attempting a crime \
+function: crime SUCCESS:n PARTIAL:n ESC:n {
+  if SUCCESS { result: REWARD*LEVEL - COST }
+  if PARTIAL { result: (REWARD/2)*LEVEL - COST }
+  if ESC { result: -COST }
+  \ You got caught! You pay a fine and are locked up for a while. \
+  result: -(REWARD + (REWARD/25)* 7 * DTVALUE + COST)
+}
+
+\ Downtime crime rolls \
+RS: d20 + STEALTH + CRIMINAL
+RP: d20 + PERCEPTION + CRIMINAL
+RT: d20 + TOOLS + CRIMINAL
+
+\ Pass/fail for the rolls against crime difficulty \
+CS: RS >= DC
+CP: RP >= DC
+CT: RT >= DC
+
+\ Was the crime a success (three passes)? \
+SUCCESS: CS & CP & CT  
+
+\ Was it a partial success (two passes)? \
+PARTIAL: (CS & CP) | (CS & CT) | (CP & CT)
+
+\ Did you escape (one pass)? \
+ESC: CS | CP | CT
+
+\ Output the total expected value of the crime \
+\ This will also show the probability of each outcome \
+output [crime SUCCESS PARTIAL ESC] named "expectation"
+
+\ Details \
+output ESC named "escape"
+output PARTIAL named "partial success"
+output SUCCESS named "success"

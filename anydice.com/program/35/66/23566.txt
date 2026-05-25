@@ -1,0 +1,45 @@
+function: player countnormalhits with PCRITS:n crits{
+result: [count {1..(PSKILL-PLUCK)} in (DICE+PEXTRADICE-PCRITS)d(20-PLUCK)]
+}
+function: opponent countnormalhits with OCRITS:n crits{
+result: [count {1..(OSKILL-OLUCK)} in (DICE+OEXTRADICE-OCRITS)d(20-OLUCK)]
+}
+function: battle with pcrits PCRITS:n ocrits OCRITS:n{
+    PNORMALHITSDIE: [player countnormalhits with PCRITS crits]
+    ONORMALHITSDIE: [opponent countnormalhits with OCRITS crits]
+    result: [calculatewinner PCRITS OCRITS PNORMALHITSDIE ONORMALHITSDIE]
+}
+function: calculatewinner PCRITS:n OCRITS:n PNORMALHITS:n ONORMALHITS:n {
+    PSCORE: PCRITS * 2 + PNORMALHITS
+    OSCORE: OCRITS * 2 + ONORMALHITS
+    if PSCORE > OSCORE {
+        result: 1
+    }
+    if OSCORE > PSCORE {
+        result: 0
+    }
+    else {
+        result: 8
+    }
+}
+
+\skill score of 20 should be marked as 19\
+\----------------------------------------------------------------------------inputs go here!\
+PSKILL: 15
+PLUCK: 0
+OSKILL: 15
+OLUCK: 0
+DICE: 3
+PEXTRADICE: 0
+OEXTRADICE: 0
+
+PCRITSDIE: [count {1..PLUCK} in  (DICE+PEXTRADICE)d20]
+OCRITSDIE: [count {1..OLUCK} in (DICE+OEXTRADICE)d20]
+
+output PCRITSDIE
+output OCRITSDIE
+
+output [player countnormalhits with 0 crits]
+output [opponent countnormalhits with 0 crits]
+
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]

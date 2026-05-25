@@ -1,0 +1,65 @@
+TARGET_AC: 18
+SLOT_BONUS: 0
+DIE: 6
+DIE_NUMBER: 8
+REROLL: 1
+MULTI: 0
+CHA: 5
+PROF: 5
+CRIT: 2
+
+DIESQ: DIE * DIE
+REROLLSQ: REROLL * REROLL
+MODONE: REROLL + 1
+MODTWO: DIESQ - REROLLSQ
+
+SPELL_DAMAGE: {{1..REROLL}:REROLL, {MODONE..DIE}:(MODTWO / (DIE - REROLL))}
+
+ATTACK: {CHA + (((2 * PROF) + 1) / 2)}
+DAMAGE: ((DIE_NUMBER + SLOT_BONUS)dSPELL_DAMAGE + (CHA * MULTI))
+DAMAGE_CRIT: ((CRIT * (DIE_NUMBER + SLOT_BONUS))dSPELL_DAMAGE + (CHA * MULTI))
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{TARGET_AC}
+
+ATTACK: ATTACK
+HITDAMAGE: DAMAGE
+CRITICALDAMAGE: DAMAGE_CRIT
+MISSDAMAGE: 0
+output [attack] named "Spell"
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+ATTACK: ATTACK
+HITDAMAGE: DAMAGE
+CRITICALDAMAGE: DAMAGE_CRIT
+output [attack] named "Adv Spell"

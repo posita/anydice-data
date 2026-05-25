@@ -1,0 +1,42 @@
+AC: {10..20}
+ARCHERY_STYLE: 2
+ADVANTAGE: 1@2d20
+ELVEN_ACCURACY: 1@3d20
+
+function: attack DMG:d crit CRIT_DMG:d penalty PENALTY:n rider RIDER:n dex DEX:n roll ROLL:n{
+    PROFICIENCY: ((LEVEL-1)/4) + 2    
+    MODIFIER: (DEX-10)/2
+    DMG_WITH_BONUS: DMG + MODIFIER + RIDER
+	
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        result: DMG_WITH_BONUS + CRIT_DMG
+    }
+    if ROLL + MODIFIER + PROFICIENCY - PENALTY + ARCHERY_STYLE  >= AC {
+        result: DMG_WITH_BONUS
+    }
+    result: 0
+}
+
+function: longbow DEX:n dex with ROLL:n {
+    result: [attack 1d8 crit 1d8 penalty 0 rider 0 dex DEX roll ROLL]
+}
+
+function: sharpshooter longbow DEX:n dex with ROLL:n {
+    result: [attack 1d8 crit 1d8 penalty 5 rider 10 dex DEX roll ROLL]
+}
+
+LEVEL: 1
+output [longbow 19 dex with ELVEN_ACCURACY] named "Level [LEVEL] Elven Accuracy"
+output [sharpshooter longbow 18 dex with ADVANTAGE] named "Level [LEVEL] Sharpshooter"
+
+LEVEL: 4
+output [longbow 20 dex with ELVEN_ACCURACY] named "Level [LEVEL] Elven Accuracy & Resilient(Dex)"
+output [sharpshooter longbow 19 dex with ELVEN_ACCURACY] named "Level [LEVEL] Sharpshooter & Elven Accuracy"
+
+LEVEL: 5
+output 2d[longbow 20 dex with ELVEN_ACCURACY] named "Level [LEVEL] Elven Accuracy & Resilient(Dex)"
+output 2d[sharpshooter longbow 19 dex with ADVANTAGE] named "Level [LEVEL] Sharpshooter & Elven Accuracy"
+

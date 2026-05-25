@@ -1,0 +1,69 @@
+FALSE:0
+TRUE:1
+\ Basic Values \
+\ Healing Skill \                   FAS: 4
+\ Logic \                           LOG: 6
+\ Edge \                            EDG: 3
+\ Use Edge? \                       E: FALSE \ (Explode dice & remove limit) FALSE/TRUE\
+\ Mental Limit\                      ML: 8
+\ Maximum Heal (Skillrating)\        MH: 4
+\ Medkit Rating\                     MKR: 6
+\ Wireless enabled?\                 W: FALSE
+
+\ Initializing derived values \
+FA: 0
+if W { 
+  if E { FA: FAS + LOG + MKR + EDG}
+  else { FA: FAS + LOG + MKR } 
+}
+else {
+  if E { FA: FAS + LOG + EDG}
+  else { FA: FAS + LOG } 
+}
+HL: ML + MKR    
+MH: FAS
+
+function: explode N:n {
+ if N = 6 { result: 1 + [explode d6] }
+ result: N = 5
+}
+
+function: limit HITS:n by LIMIT:n{
+ if HITS > LIMIT {result: LIMIT}
+ result: HITS
+}
+
+function: hitslost HITS:n by LIMIT:n{
+ if HITS > LIMIT {result: (HITS-LIMIT)}
+ result: 0
+}
+
+function: healingamount HITS:n by MAXHEAL:n{
+ HA: HITS-2
+ if HA > MAXHEAL {result: MAXHEAL}
+ if HA < 0 {result: 0}
+ result: HA
+}
+
+\Heal Roll\ 
+HR:0
+if E {
+  HR: FAd[explode d6]
+  \Healer's roll with Limit\ HRL: HR
+  HOL: 0
+} 
+else {
+  HR: FAd(d6 > 4)
+  \Healer's roll with Limit\ HRL: [limit HR by HL]
+  HOL: [hitslost HR by HL]
+}
+\Damage healed\
+DH: [healingamount HR by MH]
+DOMH: [hitslost HR-2 by MH]
+THW: DOMH + HOL
+
+output DH   named "Damage healed:"
+output HR   named "Hits rolled:"
+output THW  named "Total healing wasted:"
+output HOL  named "Hits wasted (over limit):"
+output DOMH named "Boxes wasted (over skillrating):"

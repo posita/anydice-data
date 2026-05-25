@@ -1,0 +1,53 @@
+set "maximum function depth" to 11 \this is the number of calls that takes a d4 to d12\
+function: thra DIE:d { \takes in the die being rolled\
+ MAX: 0 OG_MAX: [maximum of DIE] \defines the max and OG max to see if the die has been upgraded yet\
+ result: [thra DIE helper] \calls the helper\
+}
+
+function: thra adv DIE:d {
+ MAX: 0 OG_MAX: [maximum of DIE]
+ result: [thra adv [highest 1 of 2dDIE] helper] \sends two to the helper and takes the highest\
+}
+
+function: upgraded die DIE:d { \copy of thra die that defines the new max and leaves og max untouched\
+ MAX: [maximum of DIE] result: [thra DIE helper]
+}
+
+function: upgraded die adv DIE:d { \copy of thra adv die that defines the new max and leaves og max untouched\
+ MAX: [maximum of DIE] result: [thra adv [highest 1 of 2dDIE] helper]
+}
+
+function: thra N:n helper {
+ if N <= 10 & N = [highest of MAX and OG_MAX] { result: [upgraded die 1d(N+2)] } 
+ \if we roll the max on less than a d12, upgrade and keep going\
+ if MAX = OG_MAX {result: N} else {result: [highest of N and MAX-2]} 
+ \if we get here we didn't roll the max this time. If we've upgraded, result is the max of the die before. If we haven't upgraded, result is the roll\
+}
+
+function: thra adv N:n helper { \same as thra helper but calls upgraded die adv\
+ if N <= 10 & N = [highest of MAX and OG_MAX] { result: [upgraded die adv 1d(N+2)] }
+ if MAX = OG_MAX {result: N} else {result: [highest of N and MAX-2]}
+}
+
+function: thra attack ATK:n vs DEF:n{ \Checks if the attack overcomes the defense\
+if ATK+TO_HIT > DEF+TO_DEF {result: 1}
+result: 0}
+
+ATK_DIE: d8 \Hit die of attacking creature\
+TO_HIT:  3  \Bonus of attacking creature\
+
+DEF_DIE: d10 \Hit die of defending creature\
+TO_DEF:  0   \Bonus of defending creature\
+
+\Some example attacks\
+output [thra attack [thra ATK_DIE]     vs [thra DEF_DIE]]     named  "P([ATK_DIE]+[TO_HIT]>[DEF_DIE]+[TO_DEF])"
+output [thra attack [thra adv ATK_DIE] vs [thra DEF_DIE]]     named  "P(adv [ATK_DIE]+[TO_HIT]>[DEF_DIE]+[TO_DEF])"
+output [thra attack [thra adv ATK_DIE] vs [thra adv DEF_DIE]] named  "P(adv [ATK_DIE]+[TO_HIT]> adv [DEF_DIE]+[TO_DEF])"
+
+\some example checks\
+output [thra d4]  named "Thra d4"
+output [thra d6]  named "Thra d6"
+output [thra d6]+2  named "Thra d6 +2"
+output [thra d8]  named "Thra d8"
+output [thra d10] named "Thra d10"
+output [thra d12] named "Thra d12" \no change because d12 CANNOT upgrade\

@@ -1,0 +1,76 @@
+\ Pathfinder 2nd edition Weapon Damage Calculator
+created by /u/jtblin 2019 \
+
+function: ATTACKS:s vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n {
+  SUM: {0}
+  N: 0
+  F: 0
+  T: 0
+  FE: 0
+  LAST: 0
+  loop ATTACK over ATTACKS {
+    S: 0
+    N: N + 1
+    if LAST = 0 { LAST: ATTACK }
+    else if ATTACK < LAST { 
+      LAST: ATTACK
+      FE: FAILURE_EFFECT
+    }
+    if (N = 2) { 
+      F: FORCEFUL 
+      T: TWIN
+    } else if (N > 2) { 
+      F: 2*FORCEFUL 
+      T: TWIN
+    }
+    SUM: SUM + [1d20 plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL] 
+  }
+  result: SUM
+}
+
+function: ROLL:n plus ATTACK:n vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n {
+  if (ROLL + ATTACK >= (AC+10)) { 
+     result: [crit DAMAGE FORCEFUL TWIN DEADLY FATAL]
+  }
+  if (ROLL + ATTACK >= AC) {
+    if (ROLL = 20){ 
+      result: [crit DAMAGE FORCEFUL TWIN DEADLY FATAL]
+    }
+    result: DAMAGE+FORCEFUL+TWIN
+  }
+  if (ROLL = 20){ result: DAMAGE+FORCEFUL+TWIN }
+  result: FAILURE_EFFECT
+}
+
+function: crit DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n {
+  if FATAL != 0 { result: 2*(FATAL+FORCEFUL+TWIN)+DEADLY+FATAL }
+  result: 2*(DAMAGE+FORCEFUL+TWIN)+DEADLY
+}
+
+
+output [{21,17,13} vs 26 with 0 for 2d6+7+4d6 0 0 0 0] named "[AoA] Rogue 10, Intimidation build, Dread Striker"
+output [{21,16,11} vs 26 with 0 for 2d8+7+4d6 0 0 0 0] named "[AoA] Rogue 10, Arcane Trickster build, Dread Striker, Elven Curve Blade"
+output [{21,16,11} vs 26 with 0 for 2d6+7+4d6 0 0 1d8 0] named "[AoA] Rogue 10, Arcane Trickster build, Dread Striker, Elven Branched Spear"
+
+output [{21,16,11} vs 26 with 0 for 2d8+11+1d6 0 0 0 0] named "[AoA] Swash 10, Dueling Sword"
+output [{21,16,11} vs 26 with 0 for 2d6+11+1d6 0 0 1d8 0] named "[AoA] Swash 10, Rapier"
+
+output [{23,18,13} vs 29 with 0 for 2d8+11+1d6 0 0 0 0] named "[AoA] Swash 12, Dueling Sword"
+output [{23,18,13} vs 29 with 0 for 2d6+11+1d6 0 0 2d8 0] named "[AoA] Swash 12, Rapier"
+
+
+
+output [{21,17,13} vs 26 with 0 for 2d6+11+1d6 0 0 0 0] named "[AoA] Swash 10, Kukri"
+output [{21} vs 26 with 0 for 2d8+7+5d6 0 0 0 0] named "[AoA] Swash 10, Dueling Sword, Finisher"
+output [{21} vs 26 with 0 for 2d8+11+1d6 0 0 0 0]+[{16} vs 26 with 0 for 2d8+7+5d6 0 0 0 0] named "[AoA] Swash 10, Dueling Sword, Attack + Finisher"
+output [{21,16} vs 26 with 0 for 2d8+11+1d6 0 0 0 0]+[{11} vs 26 with 0 for 2d8+7+5d6 0 0 0 0] named "[AoA] Swash 10, Dueling Sword, Attack x 2 + Finisher"
+output [{21,17} vs 26 with 0 for 2d6+11+1d6 0 0 0 0]+[{13} vs 26 with 0 for 2d6+7+5d6 0 0 0 0] named "[AoA] Swash 10, Kukri, Attack x 2 + Finisher"
+
+output [{21} vs 26 with 0 for 2d8+9+1d6 0 0 0 0]+[{16} vs 26 with 0 for 2d8+7+5d6 0 0 0 0]+[{21} vs 26 with 0 for 2d8+5+1d6 0 0 0 0] named "[AoA] Swash 10, Dueling Sword, Attack + Finisher + AoO or Riposte"
+output [{21} vs 26 with 0 for 2d6+9+1d6 0 0 0 0]+[{17} vs 26 with 0 for 2d6+7+5d6 0 0 0 0]+[{21} vs 26 with 0 for 2d6+5+1d6 0 0 0 0] named "[AoA] Swash 10, Kukri, Attack + Finisher + AoO or Riposte"
+
+output [{21} vs 26 with 0 for 2d8+7+5d6 0 0 0 0]+[{21,21} vs 26 with 0 for 2d8+7+1d6 0 0 0 0] named "[AoA] Swash 10, Dueling Sword, Finisher + AoO + Riposte"
+
+
+
+

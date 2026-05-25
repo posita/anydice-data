@@ -1,0 +1,210 @@
+\ Static Variables \
+FAILURE: 0
+SUCCESS: 1
+CRIT: 2
+OTHER_FAILURE: 2
+OTHER_SUCCESS: 3
+
+\ Dynamic Variables \
+AC_RANGE: d{12..22}
+DC: 15
+ATTACK: 6
+HIT_DAMAGE: 1d4 + 3
+CRIT_DAMAGE: 2d4 + 3
+MISS_DAMAGE: 0
+
+\ Dice Roll Functions \
+function: advantage {
+ result: [highest 1 of 2d20]
+}
+function: regular {
+ result: d20
+}
+function: disadvantage {
+ result: [lowest 1 of 2d20]
+}
+
+\ Saving Throw Function !Commented out! \
+\
+function: savingthrow ROLL:n plus SAVE:n {
+ if ROLL + SAVE >= DC { result: FAILURE }
+ result: SUCCESS
+}
+function: othersavingthrow ROLL:n plus SAVE:n {
+ if ROLL + SAVE >= DC { result: OTHER_FAILURE }
+ result: OTHER_SUCCESS
+}
+\
+
+\ Attack Function !Commented out! \
+\
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: FAILURE }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATTACK >= AC { result: SUCCESS }
+ result: FAILURE
+}
+\
+
+\ Damage Function !Commented out! \
+\
+function: damage for RESULT:n {
+ if RESULT = CRIT {result: CRIT_DAMAGE }
+ if RESULT = SUCCESS { result: HIT_DAMAGE }
+ result: MISS_DAMAGE
+}
+\
+
+\ Average Damage !Commented out! \
+\
+function: averagedamage vs AC:n {
+ result: [damage for [attack [regular] vs AC]]
+}
+\
+
+\ Basic Function Calls \
+\
+loop SAVE over {1..DC-3} {
+ output [savingthrow [regular] plus SAVE] named "[SAVE]"
+}
+loop AC over {10..20} {
+ output [attack [regular] vs AC] named "[AC]"
+}
+loop AC over {10, 15, 20} {
+ output [damage for [attack [regular] vs AC]] named "[AC]"
+}
+\
+
+\ Difference Between Roll Types \
+\
+loop SAVE over {0..DC-3} {
+ output [savingthrow [regular] plus SAVE] named "[SAVE]"
+}
+loop SAVE over {0..DC-3} {
+ output [othersavingthrow [advantage] plus SAVE] named "[SAVE]"
+}
+\
+
+
+
+
+
+
+\ !!!Mythos!!! \
+
+\ Attack Functions \
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: FAILURE }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATTACK >= AC { result: SUCCESS }
+ result: FAILURE
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRIT {
+   D: D + CRIT_DAMAGE
+  }
+  else if A = SUCCESS {
+   D: D + HIT_DAMAGE
+  }
+  else {
+   D: D + MISS_DAMAGE
+  }
+ }
+ result: D
+}
+
+function: attack {
+ result: [damage for [attack regular vs AC_RANGE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs AC_RANGE]]
+}
+
+
+\ Kaira Variables and Output \
+ATTACK: 5+1+3+1
+HIT_DAMAGE: 4d4 + 5+1+2+1
+CRIT_DAMAGE: 9d4 + 5+1+2+1
+MISS_DAMAGE: 0
+
+output [2 attacks ] named "Kaira"
+
+ATTACK: 1+3
+HIT_DAMAGE: 1d8 + 1
+CRIT_DAMAGE: 3d8 + 1
+
+output [1 attacks ] named "Kaira Spirit"
+
+
+\ Aeldroth Variables and Output \
+ATTACK: 6+3
+HIT_DAMAGE: 2d6 + 6
+CRIT_DAMAGE: 4d6 + 6
+
+output [3 attacks ] named "Aeldroth"
+\output [1 attacks ] named "Aeldroth Offhand"\
+
+
+\ Aeldroth GWM Variables and Output \
+ATTACK: 6+3-5
+HIT_DAMAGE: 2d6 + 6 + 10
+CRIT_DAMAGE: 4d6 + 6 + 10
+
+output [3 attacks ] named "Aeldroth GWM"
+\output [1 attacks ] named "Aeldroth Offhand"\
+
+
+\ Granny Variables and Output \
+ATTACK: 4+3
+HIT_DAMAGE: 1d10 + 4
+CRIT_DAMAGE: 2d10 + 4
+
+output [2 attacks ] named "Granny"
+
+
+\ Nysa Variables and Output \
+ATTACK: 4+3
+HIT_DAMAGE: 1d6 + 4
+CRIT_DAMAGE: 2d6 + 2d6 + 4
+
+output [2 attacks ] named "Nysa"
+
+ATTACK: 4+3
+HIT_DAMAGE: 1d6 + 4
+CRIT_DAMAGE: 2d6 + 4
+
+output [1 attacks ] named "Nysa Unarmed"
+output [2 attacks ] named "Nysa Flurry"
+
+
+\ Tink Variables and Output \
+ATTACK: 4+3+1
+HIT_DAMAGE: 1d8 + 4+1
+CRIT_DAMAGE: 2d8 + 4+1
+
+output [2 attacks ] named "Tink"
+
+ATTACK: 4+3
+HIT_DAMAGE: 1d8 + 3
+CRIT_DAMAGE: 2d8 + 3
+
+output [1 attacks ] named "TERHD Cick’R"
+
+
+\ Owlbears Variables and Output \
+ATTACK: 7
+HIT_DAMAGE: 1d10 + 5
+CRIT_DAMAGE: 2d10 + 5
+
+output [2 attacks ] named "Owlbears Beak"
+
+ATTACK: 7
+HIT_DAMAGE: 2d8 + 5
+CRIT_DAMAGE: 4d8 + 5
+
+output [2 attacks ] named "Owlbears Claws"

@@ -1,0 +1,25 @@
+IMPREG_CHANCE: 96
+LITTER_SIZE: 1
+DIE_SIZE: 4
+EGG_BONUS: 2
+
+\ Step 1: input all variables.
+  Step 2: use roller to get "egg die result"
+  Step 3: use roller to get num offspring by selecting the number rolled by the egg dice
+  Warnings: 
+  Very large litter sizes may break. 
+  Be VERY CAREFUL with egg bonuses, as they stack multiplicatively with litter size.
+  Litter Size should be positive. Die Size should be >1
+\
+
+EGG_DIE: LITTER_SIZEdDIE_SIZE
+
+output EGG_DIE + (EGG_BONUS * LITTER_SIZE) named "Egg Die"
+
+loop I over {EGG_DIE + (EGG_BONUS * (LITTER_SIZE/2))}{
+ HITS: 0
+ loop J over {1..I}{
+  HITS: HITS + (1d100 >= IMPREG_CHANCE - [lowest of (5 * (LITTER_SIZE / 2)) and 15])
+ }
+ output HITS named "[I] ova"
+}

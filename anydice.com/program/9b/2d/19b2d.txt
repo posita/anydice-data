@@ -1,0 +1,72 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs EVASION:n {
+  if ROLL < EVASION {
+    result: MISS
+  }
+  if ROLL >= 20 {
+    result: CRITICALHIT
+  }
+  result: HIT
+}
+
+function: neuroattack ROLL:n vs EVASION:n {
+  if ROLL < EVASION {
+    result: [attack MATERIELRIFLE vs EVASION]
+  }
+  if ROLL >= 20 {
+    result: CRITICALHIT
+  }
+  result: HIT
+}
+
+function: damage for ATTACKRESULT:n from HITDAMAGE:n and CRITDAMAGE:n{
+  if ATTACKRESULT = CRITICALHIT {
+    result: CRITDAMAGE
+  }
+  if ATTACKRESULT = HIT {
+    result: HITDAMAGE
+  }
+  result: 0
+}
+
+function: materielrifle vs EVASION:n {
+  result: [damage for [neuroattack MATERIELRIFLE vs EVASION] from MATERIELRIFLEHIT and MATERIELRIFLECRIT]
+}
+
+MATERIELRIFLE: 4+1d20+[highest 1 of 2d6]
+MATERIELRIFLEHIT: 2d6+1d6
+MATERIELRIFLECRIT: [highest 2 of 4d6]+[highest 1 of 2d6]+[highest 1 of 2d6]
+
+function: vulturedamage for ATTACKRESULT:n {
+  if ATTACKRESULT = CRITICALHIT {
+    result: CRITDAMAGE
+  }
+  if ATTACKRESULT = HIT {
+    result: HITDAMAGE
+  }
+  result: 0
+}
+
+function: hitoverkill for DAMAGE:n {
+  if DAMAGE > 1 {
+    result: DAMAGE
+  }
+  result: [hitoverkill for 1d6]
+}
+
+function: vulturerifle vs EVASION:n {
+  result: [damage for [neuroattack VULTURERIFLE vs EVASION] from VULTURERIFLEHIT and VULTURERIFLECRIT]
+}
+
+VULTURERIFLE: 4+1d20+[highest 1 of 2d6]
+VULTURERIFLEHIT: 1 + [hitoverkill for 1d6]
+VULTURERIFLECRIT: 1 + [highest of [hitoverkill for 1d6] and [hitoverkill for 1d6]] + [highest of [hitoverkill for 1d6] and [hitoverkill for 1d6]]
+
+EVASION: 10
+\output [neuroattack MATERIELRIFLE vs EVASION] named "Materiel Rifle Hit rate"\
+output [materielrifle vs EVASION] named "Materiel Rifle Damage"
+output [vulturerifle vs EVASION] named "Vulture Rifle Damage"
+

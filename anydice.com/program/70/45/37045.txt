@@ -1,0 +1,29 @@
+THRESHOLD: 7
+FAILURE: 1
+MAX_DICE: 6
+REROLL_TARGET: 9
+REROLL_MAX: 2
+
+set "maximum function depth" to REROLL_MAX
+
+function: reroll N:n {
+  if N = REROLL_TARGET {
+    result: [reroll dN]
+  }
+  result: N
+}
+
+function: varde ROLL:s {
+  X: (ROLL >= THRESHOLD) - (ROLL = FAILURE)
+  if X > 0 {
+   result: 1
+  }
+  if X > -1 {
+    result: 0
+  }
+  result: -1
+}
+
+loop N over {1..MAX_DICE} {
+ output [varde Nd[reroll d12]] named "[N]d12 over [THRESHOLD] minus [FAILURE]s"
+}

@@ -1,0 +1,54 @@
+\- To use this in other AnyDice programs, copy the code below marked Part A through C -\
+
+\- Part A: Implements the special d20 -\
+function: D:n plus A:n {
+ ROLL : D
+ if ROLL = 1 {
+  result : 0
+ } else if ROLL = 20 {
+  result : ROLL + A + 10
+ } else {
+  result : ROLL + A
+ }
+}
+
+\- Part B: Computes the higher of two rolls -\
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+\- Part C: Computes the highest result of N rolls -\
+function: highest ROLL:d of N:n {
+ HIGHEST_SO_FAR : ROLL
+ loop I over {2..N}{
+  HIGHEST_SO_FAR : [highest of HIGHEST_SO_FAR and ROLL]
+ }
+ result : HIGHEST_SO_FAR
+}
+
+
+\- How to use the rolling functions:
+   (You need square brackets in both cases. They can be nested.)
+
+   To roll w/ special d20, write:
+   [d20 plus <extra dice/modifiers>]
+   
+   To roll w/ TGS, write:
+   [highest <roll> of <# of TGS uses>]
+\
+
+\- Note:
+   ATTACK_ROLL is a variable that names the dice, so that
+   you don't have to change every instance of the same roll.
+\
+ATTACK_ROLL : [d20 plus 3+1d6+7+4+2]
+output [highest ATTACK_ROLL of 1] named "No TGS (1 roll total)"
+output [highest ATTACK_ROLL of 2] named "TGS w/ 2 rolls total"
+output [highest ATTACK_ROLL of 3] named "TGS w/ 3 rolls total"
+output [highest ATTACK_ROLL of 10] named "TGS w/ 10 rolls total (dont ask how)"
+
+\- You can still roll things without using variables, if
+   you only plan on rolling it once, like the following.
+\
+output [highest [d20 plus -1] of 2] named "Terrible Roll, TGS w/ 2 rolls total"

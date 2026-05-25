@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/articles/dice-and-averages/">
+		<meta property="og:type" content="article">
+		<meta property="og:image" content="https://anydice.com/articles/dice-and-averages/d4s.png">
+		<meta property="og:title" content="Dice and Averages">
+		<meta property="og:description" content="How to calculate the average result of dice rolls.">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Dice and Averages</title>
+		<link href="../articles.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"mainEntity": {
+				"@type": "Article",
+				"@id": "https://anydice.com/articles/dice-and-averages/#article",
+				"headline": "4d6 Drop Lowest",
+				"alternativeHeadline": "Sums and Sequences",
+				"description": "How to calculate the average result of dice rolls.",
+				"datePublished": "2009-12-25",
+				"author": { "@type": "Person", "name": "Jasper Flick", "@id": "https://catlikecoding.com/jasper-flick/#person" },
+				"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+				"image": "https://anydice.com/articles/dice-and-averages/d4s.png"
+			},
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/articles/", "name": "Articles" }}
+				]
+			}
+		}</script>
+		<script>
+			var hasMath = true;
+		</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Articles</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1>Dice and Averages</h1>
+					<p>Sums and Sequences</p>
+				</header>
+				
+				<p>How do you calculate the average of something? You add lowest and highest, then divide that by two, right? Well, yes, but that's actually a special case. How do you calculate the average of an unconstrained collection of values, in general?</p>
+				
+				<figure>
+					<img src="d4s.png" width="500" height="400">
+					<figcaption>Some d4s.</figcaption>
+				</figure>
+				
+				<p>In the general case, you sum all elements of the collection, then divide that by the number of elements. For example, a d4 represents the collection {1,2,3,4}, therefore its average is `(1 + 2 + 3 + 4) / 4 = 10/4 = 2.5`.</p>
+				
+				<p>This works for multiple dice as well. 2d4 represents the collection {2,3,3,4,4,4,5,5,5,5,6,6,6,7,7,8}, so its average is `(2 + 3*2 + 4*3 + 5*4 + 6*3 + 7*2 + 8) / 16 = 80/16 = 5`.</p>
+				
+				<p>You can use it for more exotic cases as well, for example taking the highest of 2d4. It represents the collection {1,2,2,2,3,3,3,3,3,4,4,4,4,4,4,4} and so its average is `(1 + 2*3 + 3*5 + 4*7) / 16 = 50/16 = 3.125`.</p>
+				
+				<p>So if you know how often each element occurs, then you can calculate the average, no matter how strange the distribution.</p>
+				
+				<p>But what if you don't know exactly how often each number occurs, but only know the odds per value? That's not a problem. The difference is that the division at the end has already been done for you. You only have to sum the values multiplied by their odds. For example, when taking the highest of 2d4 you'll get `1/16 + 2*3/16 + 3*5/16 + 4*7/16 = 50/16 = 3.125`.</p>
+				
+				<section>
+					<h2>The Special Case</h2>
+					
+					<p>If you want to sum a straight sequence of `1 + 2 + 3 + &hellip; + n`, then you can use the famous formula `sum_(i=1)^n i = (n(n+1))/2`. It works because it takes advantage of the symmetry of the problem. You can calculate it like (lowest + highest) + (2nd lowest + 2nd highest) + &hellip; up to the middle. So you end up with `n/2` pairs that equal `n + 1`, plus a lonely middle value equal to `(n+1)/2` in case `n` is odd. As in this case `n` is also the number of elements, to get the average you have to divide the sum by `n`. So the average becomes `(n(n+1))/(2n) = (n+1)/2`. But the straight sequence doesn't need to start at 1, so you get the common formula `(l + h) / 2`.</p>
+					
+					<p>This simple formula works for 1d4, but does it also work for 2d4, 3d4, etcetera? Yes it does! The average for 2d4 is `(2+8)/2=5` and the average for 3d4 is `(3+12)/2=7.5`. It works for any distribution that is symmetrical around its average. In those cases you can ignore the odds of the individual elements and treat is as a simple linear range. In all other cases you can use the general approach.</p>
+					
+				</section>
+				
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+		
+		<script src="../articles.js"></script>
+	</body>
+</html>

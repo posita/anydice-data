@@ -1,0 +1,101 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+PROFICIENCYBONUS: 4
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+MISSDAMAGE: 0
+
+\Booming Blade + Shadow Blade Melee Attack\
+ATTACKMODIFIER: 3
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 6d8 + 3
+CRITICALDAMAGE: 12d8 + 3
+BBSB: [damage for [attack [highest 1 of 2d20] vs 20]] 
+
+\Shadow Blade Melee Attack\
+ATTACKMODIFIER: 3
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 4d8 + 3
+CRITICALDAMAGE: 8d8 + 3
+SB: [damage for [attack [highest 1 of 2d20] vs 20]] 
+
+output 2dBBSB + SB named "Shadow Blade Strategy"
+
+\Booming Blade + Crystal Scimitar Melee Attack\
+ATTACKMODIFIER: 5
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 1d6 + 3d8 + 5
+CRITICALDAMAGE: 2d6 + 6d8 + 5
+BBCS: [damage for [attack d20 vs 20]] 
+
+\Crystal Scimitar Melee Attack\
+ATTACKMODIFIER: 5
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 1d6 + 1d8 + 5
+CRITICALDAMAGE: 2d6 + 2d8 + 5
+CS: [damage for [attack d20 vs 20]] 
+
+\Summon Fey (Fuming) Melee Attack\
+ATTACKMODIFIER: 4
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 2d6 + 9
+CRITICALDAMAGE: 4d6 + 9
+ADVFEY: [damage for [attack [highest 1 of 2d20] vs 20]] 
+
+\Base Summon Fey Melee Attack\
+ATTACKMODIFIER: 4
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 2d6 + 9
+CRITICALDAMAGE: 4d6 + 9
+FEY: [damage for [attack d20 vs 20]] 
+
+output 2dBBCS + CS + ADVFEY + 2dFEY named "Summon Fey Strategy"
+
+
+\Animate Objects (Tiny) Melee Attack\
+ATTACKMODIFIER: 4
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 1d4 + 4
+CRITICALDAMAGE: 2d4 + 4
+TINY: [damage for [attack d20 vs 20]] 
+
+\Booming Blade Crystal Scimitar + Crystal Scimitar + 12 Animated Object (Tiny) Attacks\
+output BBCS + CS + 12dTINY named "Animate Objects (Tiny) Strategy"
+
+
+\2 Booming Blade Crystal Scimitar + 2 Crystal Scimitar\
+output 2dBBCS + 2dCS named "Haste Strategy"
+
+
+\2 Booming Blade Crystal Scimitar + Crystal Scimitar + Ashardalon's Stride (Level 6)\
+output 2dBBCS + CS + 3d(4d6) named "Ashardalon's Stride Strategy"
+
+
+\Steel Wind Strike Spell Attack\
+ATTACKMODIFIER: 4
+ATTACK: PROFICIENCYBONUS + ATTACKMODIFIER
+HITDAMAGE: 6d10
+CRITICALDAMAGE: 12d10
+STEELSTRIKE: [damage for [attack d20 vs 20]] 
+
+\Steel Wind Strike + Ashardalon's Stride\
+loop ENEMIES over {1..5} {
+ output ENEMIESdSTEELSTRIKE + ENEMIESd(4d6) named "[ENEMIES] Enemy"
+}

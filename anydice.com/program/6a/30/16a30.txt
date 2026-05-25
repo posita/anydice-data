@@ -1,0 +1,36 @@
+\ config \
+TOUGHNESS: 10
+PARRY: 7
+DAMAGE: 7
+DAMAGE_DICE: 2d6
+SKILL_DIE: d8
+
+\ functions \
+function: does A:s hit B:n {
+  if A > B { result: 1 }
+  else { result: 0 }
+}
+
+function: when A:s hits B:n do damage {
+  if A > B { result: 2d6 }
+  else { result: 0 }
+}
+
+NEW: [highest of [explode 1d6] and [explode SKILL_DIE]]
+
+SKILL: [does [explode SKILL_DIE] hit PARRY]
+WILD: [does [explode 1d6] hit PARRY]
+OLD: SKILL | WILD \ logical OR \
+
+\ show that both have the same result \
+output NEW > PARRY named "New way hits Parry"
+output OLD named "Old way hits Parry"
+
+\ calculate new way \
+
+output NEW + 7 > PARRY + TOUGHNESS named "New way hits Toughness"
+
+
+SKILL: [when [explode SKILL_DIE] hits PARRY do damage] > TOUGHNESS
+WILD: [when [explode 1d6] hits PARRY do damage] > TOUGHNESS
+output SKILL | WILD named "Old way hits toughness"

@@ -1,0 +1,108 @@
+\****Debuff Spells calculator ****\
+
+function: grapple OBJECT_ROLL:n vs TARGET_ROLL:n {
+if OBJECT_ROLL + OBJECT_ATH > TARGET_ROLL + TARGET_ATH { result: 1 }
+if OBJECT_ROLL = 1 { result: 0 }
+result: 0
+}
+
+function: grapple plus synaptic static OBJECT_ROLL:n vs TARGET_ROLL:n minus SYNAPTIC_STATIC_ROLL:n{
+if OBJECT_ROLL + OBJECT_ATH > TARGET_ROLL + TARGET_ATH - SYNAPTIC_STATIC_ROLL { result: 1 }
+if OBJECT_ROLL = 1 { result: 0 }
+result: 0
+}
+
+function: hold monster TARGET_ROLL:n {
+if TARGET_ROLL + TARGET_WIS >= SPELL_SAVE_DC { result: 0 }
+result: 1
+}
+
+function: brain tease TARGET_ROLL:n {
+if TARGET_ROLL + TARGET_INT >= SPELL_SAVE_DC { result: 0 }
+result: 1
+}
+
+function: hold monster with brain tease BRAIN_TEASE:n TARGET_ROLL:n {
+if TARGET_ROLL + TARGET_WIS - BRAIN_TEASE >= SPELL_SAVE_DC { result: 0 }
+result: 1
+}
+
+function: hold monster plus brain tease combo BRAIN_TEASE:n FIRST_ROLL:n SECOND_ROLL:n{
+if FIRST_ROLL + TARGET_INT <= SPELL_SAVE_DC {
+  if SECOND_ROLL + TARGET_WIS - BRAIN_TEASE >= SPELL_SAVE_DC { result: 0 }
+  result: 1
+ }
+ else {
+  if SECOND_ROLL + TARGET_WIS >= SPELL_SAVE_DC { result: 0 } 
+  result: 1
+ }
+}
+
+function: synaptic static plus animate objects combo SYNAPTIC_STATIC:n OBJECT_ROLL:n FIRST_ROLL:n SECOND_ROLL:n{
+if FIRST_ROLL + TARGET_INT <= SPELL_SAVE_DC {
+  if SECOND_ROLL + TARGET_ATH - SYNAPTIC_STATIC >= OBJECT_ROLL + OBJECT_ATH { result: 0 }
+  if OBJECT_ROLL = 1 { result: 0 }
+  result: 1
+ }
+ else {
+  if SECOND_ROLL + TARGET_ATH >= OBJECT_ROLL + OBJECT_ATH { result: 0 }
+  if OBJECT_ROLL = 1 { result: 0 }
+  result: 1
+ }
+}
+
+
+function: summon undead estimate BRAIN_TEASE:n BRAIN_TEASE_SAVE:n POISON_SAVE:n PARALYSIS_SAVE:n {
+  if POISON_SAVE + TARGET_CON - BRAIN_TEASE < SPELL_SAVE_DC {
+     if PARALYSIS_SAVE + TARGET_CON < SPELL_SAVE_DC { result: 1}
+     result: 0
+  }
+  result: 0
+}
+
+function: wand of web TARGET_ROLL:n {
+if TARGET_ROLL + TARGET_DEX >= WEB_SAVE_DC { result: 0 } 
+result: 1
+}
+
+
+function: stone shape TARGET_ROLL:n {
+if TARGET_ROLL + TARGET_DEX >= SPELL_SAVE_DC { result: 0 }
+result: 1
+}
+
+function: synaptic static TARGET_ROLL:n {
+if TARGET_ROLL + TARGET_INT >= SPELL_SAVE_DC { result: 0 }
+result: 1
+}
+
+OBJECT_ATH: 4
+TARGET_ATH: 6
+
+TARGET_DEX: 3
+TARGET_INT: 1
+TARGET_WIS: 6
+TARGET_CON: 8
+TARGET_AC: 18
+
+WEB_SAVE_DC: 15
+SPELL_SAVE_DC: 18
+SPELL_ATK: 10
+
+
+output [summon undead estimate 1d4 1d20 1d20 [lowest 1 of 2d20]] named "Summon Undead Best Conditions Estimate"
+output [synaptic static plus animate objects combo 1d6 1d20 1d20 1d20] named "Synaptic Static + Animate Objects Combo"
+output [hold monster 1d20] named "Hold Monster"
+output [wand of web 1d20] named "Wand of Web"
+output [hold monster plus brain tease combo 1d4 1d20 1d20] named "Hold Monster/Brain Tease Combo"
+output [stone shape 1d20] named "Stone Shape"
+
+
+
+
+
+
+
+
+
+

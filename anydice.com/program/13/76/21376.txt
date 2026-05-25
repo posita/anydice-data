@@ -1,0 +1,87 @@
+\Cálculo de dano com GWM\
+\{{1..2}, {3..N}:N/2+1}\
+  
+CA                  : 21           \CA do alvo\
+MARGEM_DE_CRITICO   : 20           \Dado mínimo para critar\
+DADOS_POR_ATAQUE    : 2            \Coloque 1 para ataque normal, 2 para vantagem e 3 para Elven Accuracy\
+NUMERO_DE_ATAQUES   : 3            \Total de ataques. Coloque 1 a mais se tiver Haste\
+
+ATAQUE_PADRAO       : 5 + 4 + 2    \Bonus de ataque no 1º cálculo (Sem GWM)\
+ATAQUE_PADRAO_GWM   : 5 + 4 + 2 -5 \Bonus de ataque no 2º cálculo (Com GWM)\
+BLESS               : 1d4          \Substitua 0 por 1d4 para cálculo com Bless\
+BOND                : 1d4          \Substitua 0 por 1d4 para cálculo com Bond, por outro dado que vá usar apenas uma vez por turno, 
+                                   ou por uma soma dos dois (ex:1d4+1d8)\
+
+DANO_PADRAO_ARMA    : 1d{{1..2},{3..10}:6}+1d{{1..2}, {3..6}:4}    
+                                  \Dado base de dano da sua arma, coloque 1d8+2d6 para Longsowrd Flametongue por exemplo\
+DANO_FIXO           : 5+2         \Dano fixo em todos os ataques. Atributos, arma mágia, fúria etc\
+DANO_GWM            : 10          \Dano do GWM\
+
+DANOS_UNICOS_DADOS  : 1d8         \Aqui coloque danos como Smite, Manobras, Sneak, Colosso Slayer e etc. Por padrao o dano é usado uma 
+                                  vez, se quiser saber o dano para o caso de usar 2 Smites de 1º nível, coloque 4d8 ao invés de 2d8\
+DANOS_UNICOS_FIXOS   : 0          \ Aqui coloque danos fixos que só funcionam 1 vez por turno, como do Aasimar ou do Barbaro Zealot\
+
+DANO_DIFERENTE_ARMA : 1d{{1..2},{3..4}:3}   
+                                  \Se tiver um ataque por turno que use um dado diferente, por exemplo Double Bladed Scimitar ou 
+                                  Polearm Master, coloque aqui. Caso contrario repita o valor do dado da arma\
+
+
+ERRO                : 0          \Dano ao errar\
+
+
+
+function: ataque DADO:n vs CA :n {
+ if DADO = 1                               { result: ERRO}
+ if DADO = 20 | DADO = MARGEM_DE_CRITICO   { result: 2*DANO_PADRAO_ARMA + DANO_FIXO}        \Dano total ao acertar sem GWM\
+ if DADO + ATAQUE_PADRAO >= CA             { result: DANO_PADRAO_ARMA + DANO_FIXO}          \Dano total ao critar acertar sem GWM\
+ result: ERRO
+}
+
+function: ataquegwm DADO:n vs CA :n {
+ if DADO = 1                               { result: ERRO}
+ if DADO = 20 | DADO = MARGEM_DE_CRITICO   { result: 2*DANO_PADRAO_ARMA + DANO_FIXO + DANO_GWM}    \Dano total ao acertar sem GWM\     
+ if DADO + ATAQUE_PADRAO_GWM>= CA          { result: DANO_PADRAO_ARMA + DANO_FIXO + DANO_GWM}      \Dano total ao critar acertar com GWM\
+ result: ERRO
+}
+
+function: ataquecount ENUM:n vs TOTAL :n {
+if ENUM <= TOTAL {result: 1}
+result: 0
+}
+
+function: ataqueunico DADO:n vs CA :n {
+ if DADO = 1                               { result: ERRO}
+ if DADO = 20 | DADO = MARGEM_DE_CRITICO   { result: 2*DANO_DIFERENTE_ARMA + DANO_FIXO + 2*DANOS_UNICOS_DADOS + DANOS_UNICOS_FIXOS}    \Dano total ao acertar sem GWM com danos únicos\     
+ if DADO + ATAQUE_PADRAO>= CA              { result: DANO_DIFERENTE_ARMA + DANO_FIXO + DANOS_UNICOS_DADOS + DANOS_UNICOS_FIXOS}      \Dano total ao critar acertar sem GWM com danos únicos\
+ result: ERRO
+}
+
+function: ataqueunicogwm DADO:n vs CA :n {
+ if DADO = 1                               { result: ERRO}
+ if DADO = 20 | DADO = MARGEM_DE_CRITICO   { result: 2*DANO_DIFERENTE_ARMA + DANO_FIXO + DANO_GWM + DANOS_UNICOS_DADOS+ DANOS_UNICOS_FIXOS}    \Dano total ao acertar com GWM com danos únicos\     
+ if DADO + ATAQUE_PADRAO_GWM>= CA          { result: DANO_DIFERENTE_ARMA + DANO_FIXO + DANO_GWM + DANOS_UNICOS_DADOS+ DANOS_UNICOS_FIXOS}      \Dano total ao critar acertar com GWM com danos únicos\
+ result: ERRO
+}
+
+output [ataquecount 1 vs NUMERO_DE_ATAQUES]*[ataqueunico  [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS-BOND)] + 
+       [ataquecount 2 vs NUMERO_DE_ATAQUES]*[ataque       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      +
+       [ataquecount 3 vs NUMERO_DE_ATAQUES]*[ataque       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 4 vs NUMERO_DE_ATAQUES]*[ataque       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 5 vs NUMERO_DE_ATAQUES]*[ataque       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 6 vs NUMERO_DE_ATAQUES]*[ataque       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 7 vs NUMERO_DE_ATAQUES]*[ataque       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 8 vs NUMERO_DE_ATAQUES]*[ataque       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]
+
+output [ataquecount 1 vs NUMERO_DE_ATAQUES]*[ataqueunicogwm  [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS-BOND)] + 
+       [ataquecount 2 vs NUMERO_DE_ATAQUES]*[ataquegwm       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      +
+       [ataquecount 3 vs NUMERO_DE_ATAQUES]*[ataquegwm       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 4 vs NUMERO_DE_ATAQUES]*[ataquegwm       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 5 vs NUMERO_DE_ATAQUES]*[ataquegwm       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 6 vs NUMERO_DE_ATAQUES]*[ataquegwm       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 7 vs NUMERO_DE_ATAQUES]*[ataquegwm       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]      + 
+       [ataquecount 8 vs NUMERO_DE_ATAQUES]*[ataquegwm       [highest 1 of DADOS_POR_ATAQUEd20] vs (CA-BLESS)]
+
+
+
+
+

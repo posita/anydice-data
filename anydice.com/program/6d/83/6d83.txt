@@ -1,0 +1,44 @@
+\**************** EXPECTED DAMAGE PER SWING ***************\
+\***********************************************************
+* Used to calculate expected damage per attack for D&D5e,  * 
+*  taking misses and Critical hits into consideration.     *
+* Comparing non-magical weapons can be done by comparing   *
+*  Damage Per Hit, since you hit as often with both.       *
+* Magic weapons will help you hit a higher AC, so this tool*
+*  can help you decide whether to use a +1 Dagger or a     *
+*  non-magical Shortsword.                                 *
+* This will also help you decide whether to take a bonus   *
+*  to-hit or a bonus to-damage (e.g. Archery vs. Duelist). *
+* Expected damage per swing is always dependent on your    *
+*  chance to hit, and therefore on the enemy's AC.         *
+* The tool will provide results for ACs over a range; use  *
+*  an appropriate AC range for enemies you expect to fight.*
+***********************************************************\
+\**User Variables**\
+ENEMY_AC_MIN: 10    \Enemy's AC, minimum to test\
+ENEMY_AC_MAX: 10    \Enemy's AC, maximum to test\
+PC_TO_HIT:     7    \Player's to-hit bonus (prof. bonus, ability mod, power attack, etc.)\
+DAMAGE_DICE:  d4    \Weapon or spell damage, e.g. d4, d6, 2d6, 1d6+1d8 (Do NOT include flat damage)\
+DAMAGE_FLAT:   5    \Flat damage from ability mod, magic weapon, duelist feature, etc.\
+
+\**Function to roll dice and calculate damage**\
+\**Champion fighters must modify Crit chance (replace "20" below)**\
+\**Half-Orc's and Barbarian's extra crit dice not yet implemented**\
+function: attack ROLL:n plus TO_HIT:n against AC:n for DICE:d plus FLAT{
+ if ROLL >= 20 {             \CRITICAL HIT (double dice)\
+  result: DICE+DICE+FLAT
+ }
+ else if ROLL = 1 {          \Crit fail (always misses)\
+  result: 0
+ }
+ else if ROLL+TO_HIT > AC {  \Hit!\
+  result: DICE+FLAT
+ }
+ else {                      \Miss\
+  result: 0
+ }
+}
+
+loop AC over {ENEMY_AC_MIN..ENEMY_AC_MAX} {
+ output[attack d20 plus PC_TO_HIT against AC for DAMAGE_DICE plus DAMAGE_FLAT] named "Expected Damage per Swing against AC[AC]"
+}

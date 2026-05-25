@@ -1,0 +1,48 @@
+function: wodvfive roll COUNT:n dice {
+  RELABELED: {1, 2:4, 9:4, 10}
+  result: [wodvfive roll COUNT d RELABELED]
+}
+
+function: wodvfive roll ROLL:s {
+  
+  SUPERSUCCESSES: [count {10} in ROLL]
+  SUCCESSES: [count {9} in ROLL]
+  BOTCHES: [count {1} in ROLL]
+
+  if (SUCCESSES+SUPERSUCCESSES = 0) & BOTCHES > 0 {
+    result: -1
+  }
+  else
+  {
+    result: SUCCESSES+SUPERSUCCESSES+2*(SUPERSUCCESSES/2)
+  }
+
+}
+
+function: wodcustom roll COUNT:n dice {
+  RELABELED: {1,2:4,9:4,10}
+  result: [wodcustom roll COUNT d RELABELED]
+}
+
+function: wodcustom roll ROLL:s {
+  SUPERSUCCESSES: [count {10} in ROLL]
+  SUCCESSES: [count {9} in ROLL]
+  BOTCHES: [count {1} in ROLL]
+
+  TOTALSUCCESSES: SUCCESSES+2*SUPERSUCCESSES-BOTCHES
+
+  if TOTALSUCCESSES < 0 {
+    if SUCCESSES+SUPERSUCCESSES = 0 {
+      result: -1
+    }
+    else {
+      result: 0
+    }
+  }
+  else {
+    result: TOTALSUCCESSES
+  }
+}
+
+output [wodvfive roll 10 dice]
+output [wodcustom roll 0 dice]

@@ -1,0 +1,24 @@
+\ Concentration Save Parameters \
+DAMAGE: 21
+CON_BONUS: 7
+
+\ DC is half damage or 10, whichever is higher \
+DC: [highest of 10 and DAMAGE/2]
+
+\ Define a single d20 roll with modifier \
+function: save ROLL:n vs TARGET:n {
+  if ROLL + CON_BONUS >= TARGET { result: 1 }  \ success \
+  result: 0  \ failure \
+}
+
+\ Advantage: roll 2d20, take highest \
+function: advantage save vs TARGET:n {
+  result: [save [highest of 1d20 and 1d20] vs TARGET]
+}
+
+\ Output results \
+output DC named "DC for Concentration Save"
+output [advantage save vs DC] named "Success with Advantage (1=pass, 0=fail)"
+
+\ For more detail - show the highest d20 roll distribution \
+output [highest of 1d20 and 1d20] + CON_BONUS named "Total Roll (Advantage + Modifier)"

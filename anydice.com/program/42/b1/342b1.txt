@@ -1,0 +1,34 @@
+function: roll attack with advantage ADV:n {
+  result: 1@ADVd20
+}
+
+function: damage DAMAGE:d CRIT:n {
+  if CRIT > 0 {
+    result: DAMAGE + [maximum of DAMAGE]
+  }
+
+  result: DAMAGE
+}
+
+function: attack ATTACK:n plus ATTACK_MOD:n vs AC:n {
+  if ATTACK + ATTACK_MOD >= AC {
+    result: 1
+  }
+
+  result: 0
+}
+
+function: expected damage ADV:n AC:n ATTACK_MOD:n DAMAGE:d {
+  ATTACK_ROLL: [roll attack with advantage ADV]
+
+  IS_CRIT: ATTACK_ROLL >= 20
+  IS_HIT: [attack ATTACK_ROLL plus ATTACK_MOD vs AC]
+
+  result: [damage DAMAGE IS_CRIT] * IS_HIT
+}
+
+AC: 16
+ATTACK_MOD: 4
+
+output [expected damage 3 AC ATTACK_MOD 1d6+1] 
+output [expected damage 1 AC ATTACK_MOD 1d6] + [expected damage 1 AC ATTACK_MOD 1d6]

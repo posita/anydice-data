@@ -1,0 +1,42 @@
+function: SIZE:n DUMMY:n vs NONE:n plus NTWO:n {
+  if SIZE = DUMMY { result: 0 }
+  if (SIZE <= NONE) & (SIZE <= NTWO){ result: 2 }
+  if SIZE <= (NONE + NTWO) { result: 1 }
+  result: 0
+}
+
+function: DIE:n against ONE:n and TWO:n {
+  result: [1dDIE DIE vs ONE plus TWO]
+}
+
+function: count highest dupes in DICE:s {
+  MAX: 1
+  loop X over {1..1@DICE} {
+    COUNT: X = DICE
+    if COUNT > 1 & COUNT > MAX { MAX: COUNT }
+  }
+  result: MAX
+}
+loop N over {2..5} {
+loop M over {2..6} {
+  output Nd[12 against 2 and M] named "[N]d12 against 2+[M]"
+  loop L over {1..((M-2)/2)} {
+    I: 2+L
+    J: M-L
+    output Nd[12 against (2+L) and (M-L)] named "[N]d12 against [I]+[J]"
+  }
+}
+
+loop M over {3..6} {
+  output Nd[12 against M and 6] named "[N]d12 against [M]+6"
+  loop L over {1..((6-M)/2)} {
+    I: M+L
+    J: 6-L
+    output Nd[12 against I and J] named "[N]d12 against [I]+[J]"
+  }
+}
+}
+
+loop N over {4..3} {
+  output [count highest dupes in Nd6] named "[N]d6 pool largest match"
+}

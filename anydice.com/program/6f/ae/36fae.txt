@@ -1,0 +1,79 @@
+
+
+function: attack D:n plus BONUS:n vs AC:n  {
+    if D = 20 { result: 1 } 
+    else if D = 1 { result: 0}
+    else if D + BONUS >= AC { result: 1 } 
+    else { result:0}
+}
+
+AC: 18
+FIEND_OR_UNDEAD: 0
+
+\ =============================== \
+\             DORIC               \
+\ =============================== \
+
+DORIC_EB_ATK: +9
+DORIC_EB_DMG: 1d10+5
+DORIC_EB_CURSE_DMG: 1d10+5+4
+
+DORIC_EB: [attack d20 plus DORIC_EB_ATK vs AC]*DORIC_EB_DMG
+DORIC_EB_CURSE: [attack d20 plus DORIC_EB_ATK vs AC]*DORIC_EB_CURSE_DMG
+
+\ Assume turn 1 is Hexblades Curse and EB, turn 2 and onwards is quickened EB. \
+DORIC_TURN_ONE: 3dDORIC_EB
+DORIC_TURN_TWO: 6dDORIC_EB_CURSE
+
+\ =============================== \
+\             LIANIRI             \
+\ =============================== \
+
+function: smite L:n {
+  if L >= 4 { result: 5d8 + (FIEND_OR_UNDEAD & 1d8) }
+  else { result: (L+1)d8 + (FIEND_OR_UNDEAD & 1d8)}
+}
+
+LIANIRI_ATK: +8
+LIANIRI_MAIN_DMG: 1d10+1d8+4
+LIANIRI_BA_DMG: 1d4+1d8+4
+
+LIANIRI_MAIN_SMITE_TWO_DMG: LIANIRI_MAIN_DMG + [smite 2]
+LIANIRI_MAIN_SMITE_THREE_DMG: LIANIRI_MAIN_DMG + [smite 3]
+LIANIRI_BA_SMITE_TWO_DMG: LIANIRI_BA_DMG + [smite 2]
+LIANIRI_BA_SMITE_THREE_DMG: LIANIRI_BA_DMG + [smite 3]
+
+LIANIRI_MAIN: [attack d20 plus LIANIRI_ATK vs AC]*LIANIRI_MAIN_DMG
+LIANIRI_MAIN_SMITE_TWO: [attack d20 plus LIANIRI_ATK vs AC]*LIANIRI_MAIN_SMITE_TWO_DMG
+LIANIRI_MAIN_SMITE_THREE: [attack d20 plus LIANIRI_ATK vs AC]*LIANIRI_MAIN_SMITE_THREE_DMG
+
+LIANIRI_BA: [attack d20 plus LIANIRI_ATK vs AC]*LIANIRI_BA_DMG
+LIANIRI_BA_SMITE_TWO: [attack d20 plus LIANIRI_ATK vs AC]*LIANIRI_BA_SMITE_TWO_DMG
+LIANIRI_BA_SMITE_THREE: [attack d20 plus LIANIRI_ATK vs AC]*LIANIRI_BA_SMITE_THREE_DMG
+
+\ Burning all smite slots ASAP. Unrealistic upper bound \
+LIANIRI_TURN_ONE: 2dLIANIRI_MAIN_SMITE_THREE + 1dLIANIRI_BA_SMITE_THREE
+LIANIRI_TURN_TWO: 2dLIANIRI_MAIN_SMITE_TWO + 1dLIANIRI_BA_SMITE_TWO
+
+\ =============================== \
+\               JAS               \
+\ =============================== \
+
+\ =============================== \
+\           CAELYSTAEA            \
+\ =============================== \
+
+\ =============================== \
+\             OUTPUT              \
+\ =============================== \
+
+TOTAL_TURN_ONE: DORIC_TURN_ONE + LIANIRI_TURN_ONE
+TOTAL_TURN_TWO: DORIC_TURN_TWO + LIANIRI_TURN_TWO
+
+output DORIC_TURN_ONE named "Doric - Turn 1"
+output DORIC_TURN_TWO named "Doric - Turn 2+"
+output LIANIRI_TURN_ONE named "Lianiri - Turn 1"
+output LIANIRI_TURN_TWO named "Lianiri - Turn 2"
+
+output TOTAL_TURN_ONE named "Whole Party - Turn 1"
+output TOTAL_TURN_TWO named "Whole Party - Turn 2"

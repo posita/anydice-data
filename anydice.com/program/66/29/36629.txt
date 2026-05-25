@@ -1,0 +1,50 @@
+set "explode depth" to 4
+set "maximum function depth" to 4
+
+function: rollbase POOL:n {
+  result: POOLd6
+}
+
+function: roll POOL:n {
+  result: [count {5,6} in POOLd6]
+}
+
+function: roll POOL:n get THRES:n{
+  result: [count {5,6} in POOLd6] >= THRES
+}
+
+function: roll POOL:n opposed TARGET:n{
+  NETHITS: [count {5,6} in POOLd6] - [count {5,6} in TARGETd6]
+  result: [highest of 0 and NETHITS]
+}
+
+function: extended POOL:n {
+  HITS: 0
+  loop N over {1..POOL}{
+  HITS: HITS + [roll N]
+  }
+  result: HITS
+}
+
+
+function: ruleofsix POOL:n {
+ COUNT: 0
+
+ if POOL = 5 {COUNT: COUNT + 1}
+ if POOL = 6 {COUNT: COUNT + 1 + [ruleofsix 1d6]}
+ 
+ result: COUNT
+}
+
+function: push POOL:n {
+  HITS: 0
+  
+  result: [count {5,6} in POOLd6]
+}
+
+POOL: 16
+EDGE: 3
+
+output [roll POOL]
+output (POOL+EDGE)d[ruleofsix 1d6]
+

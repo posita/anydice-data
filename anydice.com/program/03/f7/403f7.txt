@@ -1,0 +1,55 @@
+\**variables to edit**\
+MISS: 0
+HIT: 1
+CRITHIT: 2
+
+ABILITYMOD: 5
+DMGBONUS: 3
+PROFICIENCY: 3
+ACCBONUS: 0
+
+ATTACKTIMES: 2
+
+MISSDAMAGE: 5
+DAMAGE: 2d6 + ABILITYMOD + DMGBONUS
+CRITDAMAGE: 2d6 + 12 + ABILITYMOD + DMGBONUS
+
+ATTACK: ABILITYMOD + PROFICIENCY + ACCBONUS
+
+\**will it hit?**\
+\*edit modifiers above*\
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = {19,20}{ result: CRITHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\**running will it hit function over AC range**\
+\*can check for normal, advantage, EA advantage, or disadvantage*\
+loop AC over {18} {
+ output [attack d20 vs AC] named "n [AC]"
+ \output [attack [highest 1 of 2d20] vs AC] named "a [AC]"\
+ \output [attack [highest 1 of 3d20] vs AC] named "EA a [AC]"\
+ \output [attack [lowest 1 of 2d20] vs AC] named "d [AC]"\
+}
+
+\**how much damage if it hits?**\
+\*edit damage variables above*\
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITHIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: DAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\**running damage function over AC range**\
+\*can check for normal, advantage, EA advantage, or disadvantage*\
+loop AC over {18} {
+ output ATTACKTIMESd[damage for [attack d20 vs AC]] named "n [AC]"
+ \output ATTACKTIMESd[damage for [attack [highest 1 of 2d20] vs AC]] named "a [AC]"\
+ \output ATTACKTIMESd[damage for [attack [highest 1 of 3d20] vs AC]] named "EA a [AC]"\
+}

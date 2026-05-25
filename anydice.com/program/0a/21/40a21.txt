@@ -1,0 +1,66 @@
+\- Monk Unarmed Strikes -\
+
+MONK_LEVEL: 8
+DEXTERITY: 20
+HAS_TAVERN_BRAWLER: 1
+IS_USING_FLURRY_OF_BLOWS: 1
+EXTRA_TO_HIT_BONUS: 1
+EXTRA_DAMAGE_BONUS: 1
+
+
+CRIT: 20
+
+
+function: martial arts die {
+  if MONK_LEVEL<= 4 {result: d6}
+  if MONK_LEVEL<= 10 {result: d8}
+  if MONK_LEVEL<= 16 {result: d10}
+  result: d12
+}
+
+
+function: attack {result: d20}
+function: attack with advantage {result: [highest of d20 and d20]}
+function: attack with disadvantage {result: [lowest of d20 and d20]}
+
+function: tavern brawler D:d {result: [tavern brawler D D]}
+function: tavern brawler N:n M:n{
+  if N = 1 {result: M}
+  result: N
+}
+
+function: damage dice{
+  if HAS_TAVERN_BRAWLER{result: [tavern brawler [martial arts die]]}
+  result: [martial arts die]
+}
+
+function: number of attacks {
+  ATTACKS: 2
+  if MONK_LEVEL >= 5 {ATTACKS: ATTACKS + 1}
+  if IS_USING_FLURRY_OF_BLOWS{
+     if MONK_LEVEL >= 10 {result: ATTACKS + 2}
+     if MONK_LEVEL >= 2 {result: ATTACKS + 1}
+  }
+  result: ATTACKS
+}
+
+
+DMG_DICE: [damage dice]
+DEX_MOD: (DEXTERITY/2 - 5)
+PROF_BONUS: (MONK_LEVEL - 1)/4  + 2
+DMG_MOD: DEX_MOD + EXTRA_DAMAGE_BONUS
+TO_HIT: DEX_MOD + PROF_BONUS + EXTRA_TO_HIT_BONUS
+
+function: damage from ROLL:n {
+  if ROLL = 1  {result: 0}
+  if ROLL >= CRIT {result: 2dDMG_DICE + DMG_MOD}
+  if ROLL + TO_HIT >= AC {result: DMG_DICE + DMG_MOD}
+  result: 0
+}
+
+
+ATTACKS: [number of attacks]
+
+loop AC over {TO_HIT + 2..TO_HIT + 20} {
+ output ATTACKS d [damage from [attack]] named "AC [AC]"
+}

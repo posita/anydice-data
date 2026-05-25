@@ -1,0 +1,59 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: 15
+MISSDAMAGE: 0
+
+function: rolldamage for N:n {
+ if(N < REROLLDAMAGE) { 
+  result: 1d10
+ }
+ result: N
+}
+
+ATTACK: 10
+REROLLDAMAGE: 5
+HITDAMAGE: [rolldamage for d10] + 5
+CRITICALDAMAGE: 3d10 + 5
+output 2d[attack] named "Heavy CB"
+
+ATTACK: 5
+HITDAMAGE: [rolldamage for d10] + 15
+CRITICALDAMAGE: 3d10 + 15
+output 2d[attack] named "Heavy CB + SS"
+
+ATTACK: 9
+HITDAMAGE: d6 + 5
+CRITICALDAMAGE: 2d6 + 5
+REROLLDAMAGE: 0
+output 3d[attack] named "Light CB"
+
+ATTACK: 4
+HITDAMAGE: d6 + 15
+CRITICALDAMAGE: 2d6 + 15
+output 3d[attack] named "Light CB + SS"

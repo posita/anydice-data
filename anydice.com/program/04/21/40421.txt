@@ -1,0 +1,50 @@
+B: 1 \ Dados Base \
+P: 0 \ Dados de Proficiência \
+D: 0 \ Dados de Determinação \
+
+
+\ DADOS ESPECIAIS \
+M:{-1,0,0,0,0,1}
+N:{-1,0,0,0,0,1,1,2}
+O:{-2,-1,-1,-1,-1,1,1,2,2,3,3,4}
+
+\ CONTAGEM DE SUCESSOS E FALHAS \
+
+SUCESSOM: [count {1} in BdM] \ sucessos com o d6 \
+SUCESSON: [count {1, 2:2} in PdN] \ sucessos com o d8 \
+SUCESSOO: [count {1, 2:2, 3:3, 4:4} in DdO] \ sucessos com o d12 \
+SUCESSOTOTAL: SUCESSOM+SUCESSON+SUCESSOO
+
+FALHAM: [count {-1} in BdM] \ falhas com o d6 \
+FALHAN: [count {-1} in PdN] \ falhas com o d8 \
+FALHAO: [count {-1,-2:2} in DdO] \ falhas com o d12 \
+FALHATOTAL: FALHAM+FALHAN+FALHAO
+
+\-----------------------------------------------------------------------------------------------\
+
+\ FUNÇÃO PARA FORÇAR A ROLAGEM \
+
+function: push ROLL:n {
+  if ROLL != 0 { result: ROLL } else { result: SUCESSOTOTAL & FALHATOTAL }
+}
+
+\----------------------------------------------------------------------------------------------------------\
+
+\ CONTAGEM DE SUCESSOS E FALHAS AO FORÇAR A ROLAGEM \
+
+SUCESSOFM: [count {1} in [push BdM]]
+SUCESSOFN: [count {1,2:2} in [push PdN]]
+SUCESSOFO: [count {1, 2:2, 3:3, 4:4} in [push DdO]]
+SUCESSOTOTALF: SUCESSOFM+SUCESSOFN+SUCESSOFO
+
+FALHAFM: [count {-1} in [push BdM]]
+FALHAFN: [count {-1} in [push PdN]]
+FALHAFO: [count {-1,-2:2} in [push DdO]]
+FALHATOTALF: FALHAFM+FALHAFN+FALHAFO
+
+\---------------------------------------------------------------------------------------------------------------\
+
+output SUCESSOTOTAL named "Sucessos"
+output FALHATOTAL named "Falhas"
+output SUCESSOTOTALF named "Sucessos depois de forçar"
+output FALHATOTALF named "Falhas depois de forçar"

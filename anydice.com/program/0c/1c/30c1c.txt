@@ -1,0 +1,34 @@
+function: attackdamage ATTACKROLL:n ATTACKMOD:n AC:n DAMAGE_DICE:d DAMAGE_MOD:n  {
+  if (ATTACKROLL = 20) { result: DAMAGE_DICE + DAMAGE_DICE + DAMAGE_MOD }
+  else if (ATTACKROLL = 1) { result: 0 }
+  else if ((ATTACKROLL + ATTACKMOD) >= AC) { result: DAMAGE_DICE + DAMAGE_MOD }
+  else { result: 0 }
+}
+
+function: attackroll with advantage ADV:n {
+  if (ADV > 0) { result: [ highest 1 of 2d20 ] }
+  else if (ADV < 0) { result: [ lowest 1 of 2d20 ] }
+  else { result: 1d20 }
+}
+
+loop AC over {5..30} {
+  output [attackdamage [attackroll with advantage 0 ] (6 + 0 - 0) AC (1d12) (3 + 0)] named "[AC]:normal"
+\  output [attackdamage [attackroll with advantage 0 ] (6 + 1d4 - 0) AC (1d12) (3 + 0)] named "[AC]:champ"\
+  output [attackdamage [attackroll with advantage 1 ] (6 + 0 - 0) AC (1d12) (3 + 0)] named "[AC]:reckless"
+  output [attackdamage [attackroll with advantage 0 ] (6 + 0 - 5) AC (1d12) (3 + 10)] named "[AC]:great"
+\  output [attackdamage [attackroll with advantage 1 ] (6 + 1d4 - 0) AC (1d12) (3 + 0)] named "[AC]:champ reckless"\
+\  output [attackdamage [attackroll with advantage 0 ] (6 + 1d4 - 5) AC (1d12) (3 + 10)] named "[AC]:champ great"\
+  output [attackdamage [attackroll with advantage 1 ] (6 + 0 - 5) AC (1d12) (3 + 10)] named "[AC]:reckless great"
+\  output [attackdamage [attackroll with advantage 1 ] (6 + 1d4 - 5) AC (1d12) (3 + 10)] named "[AC]:champ reckless great"\
+}
+
+
+
+\
+output [attackroll with advantage 0 ] named "normal"
+output [attackroll with advantage 1 ] named "advantage"
+output [attackroll with advantage -1 ] named "disadvantage"
+output [attackroll with advantage 0 ] + 1d4 named "normal plus 1d4"
+output [attackroll with advantage 1 ] + 1d4 named "advantage plus 1d4"
+output [attackroll with advantage -1 ] + 1d4 named "disadvantage plus 1d4"
+\

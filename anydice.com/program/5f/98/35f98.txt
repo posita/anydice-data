@@ -1,0 +1,133 @@
+\\\ Gyre Silvereye, D&D 5e damage per turn probabilities \\\
+
+\\\ Named Constants \\\
+\ Attack Type \
+MELEE_WEAPON_ATTACK: 1
+BOOMING_BLADE: 2
+SNEAK_ATTACK: 3
+
+\Attack Type Abbriviations \
+MWA: MELEE_WEAPON_ATTACK
+BB: BOOMING_BLADE
+SA: SNEAK_ATTACK
+
+\ Attack Die \
+ADV: 1@2d20
+STD: 1d20
+DIS: 2@2d20
+
+\ Attack Result \
+MISS: 0
+HIT: 1
+CRIT: 2
+
+\\\ Functions \\\
+\ Attack Type => Damage Die \
+function: damage die for ATTACK_TYPE:n {
+  if ATTACK_TYPE = MELEE_WEAPON_ATTACK {
+    result: 1d8
+  }
+	if ATTACK_TYPE = BOOMING_BLADE {
+    result: 3d8 + [damage die for MELEE_WEAPON_ATTACK]
+  }
+	if ATTACK_TYPE = SNEAK_ATTACK { 
+	  result: 6d6
+	}
+	result: ERROR_UNKNOWN_ATTACK_TYPE
+}
+
+\ Reduce the possible results from d20 rolls to a weighted d3 \
+function: preroll with ROLL:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRIT_ON { result: CRIT }
+  if ROLL + ATTACK_MOD >= AC { result: HIT } 
+  result: MISS
+}
+
+\ Damage die result probabilites for a single attack \ 
+function: damage result PREROLL:n for DAMAGE_DICE:d {
+  if PREROLL = MISS { result: 0 } 
+  result: PREROLLdDAMAGE_DICE + DAMAGE_MOD  
+}
+
+function: turn PREROLL:d attacks ATTACKS:s index INDEX:n {
+  ATTACKS_LEFT: {}
+  loop I over {INDEX..#ATTACKS} {
+    ATTACKS_LEFT: {ATTACKS_LEFT, I@ATTACKS}
+  }
+
+  MWA_DAMAGE: ([count MWA in ATTACKS_LEFT])d([damage result PREROLL for [damage die for MELEE_WEAPON_ATTACK]])
+  BB_DAMAGE: ([count BB in ATTACKS_LEFT])d([damage result PREROLL for [damage die for BOOMING_BLADE]])
+
+  result: MWA_DAMAGE + BB_DAMAGE
+}
+
+function: turn with sneak PREROLL:n with ATTACK_DIE:d attacks ATTACKS:s index INDEX:n {
+  if #ATTACKS = 0 { result: 0 }  \ Nothing to see here, let's go back! \
+
+  if PREROLL = MISS {
+    TOTAL_DMG: 0
+  } else {
+    TOTAL_DMG: PREROLLd([damage die for INDEX@ATTACKS]) 
+      + PREROLLd([damage die for SNEAK_ATTACK]) 
+      + DAMAGE_MOD
+  } 
+
+  if INDEX+1 > #ATTACKS { 
+    \ Isn't that enough? Let's go back. \
+    result: TOTAL_DMG
+  }
+  
+  \ Another attack, please hold \
+  NEXT_PREROLL: [preroll with ATTACK_DIE]
+  if PREROLL = MISS {  
+    result: TOTAL_DMG + [
+      turn with sneak NEXT_PREROLL with ATTACK_DIE
+        attacks ATTACKS 
+        index INDEX+1 
+    ]
+  } else {
+    result: TOTAL_DMG + [
+      turn NEXT_PREROLL
+        attacks ATTACKS 
+        index INDEX+1 
+    ]
+  }
+}
+
+\ --------------------------------------------------------------------------- \
+
+\\\ Run Configuration \\\
+CRIT_ON: 19
+AC: 0
+PROFICIENCY_BONUS: 6
+ABILITY_MOD: 5
+ADDITIONAL_MOD: 3
+WEAPON_BONUS: 2
+
+\ Modifiers \
+ATTACK_MOD: PROFICIENCY_BONUS + ABILITY_MOD + WEAPON_BONUS + ADDITIONAL_MOD
+DAMAGE_MOD: PROFICIENCY_BONUS + WEAPON_BONUS + ADDITIONAL_MOD
+
+PREROLL_ADV: [preroll with ADV] 
+PREROLL_STD: [preroll with STD] 
+PREROLL_DIS: [preroll with DIS] 
+ATTACKS: {MWA:9}
+
+set "maximum function depth" to 15
+
+output [
+  turn with sneak PREROLL_DIS with DIS 
+    attacks ATTACKS
+    index 1 
+  ] named "Damage Per Turn (disadvantage)"
+output [
+  turn with sneak PREROLL_STD with STD 
+    attacks ATTACKS 
+    index 1 
+  ] named "Damage Per Turn (standard)"
+output [
+  turn with sneak PREROLL_ADV with ADV 
+    attacks ATTACKS
+    index 1 
+  ] named "Damage Per Turn (advantage)"

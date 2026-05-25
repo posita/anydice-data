@@ -1,0 +1,147 @@
+AC: 13
+ABI_MOD: 3
+PROF_BONUS: 2
+
+\ATTACK FUNCTION RELATED\
+FLAT_DAMAGE_BONUS: 0
+DAMAGE_DIE_BONUS: 0
+ATTACK_BONUS: 3
+DAMAGE_DIE: 1d6
+
+\SHOVING ATTRIBUTE RELATED\
+CHAR_ATHLETIC_BONUS: 5
+ENM_ATHLETIC_BONUS:3
+
+\SAVING THROW RELATED\
+ENM_PROF_BONUS: 2
+DC: 15
+SA_MOD: 3
+
+\NON EDITABLE\
+ATTACK_MOD: ABI_MOD + PROF_BONUS
+DAMAGE_BONUS: 0
+DMG_BONUS_TOT: ABI_MOD + DAMAGE_BONUS
+
+RESIST: 0
+PRONE: 1
+
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: advantagesavingthrow ROLL:n with A_MOD:n against DC_IN:n
+{
+  if ROLL + A_MOD + ENM_PROF_BONUS >= DC_IN
+  {
+    result: RESIST
+  }
+  else
+  {
+    result: PRONE
+  }
+}
+
+function: shovingcontest AROLL:n against BROLL:n
+{
+  if AROLL + CHAR_ATHLETIC_BONUS >= BROLL + ENM_ATHLETIC_BONUS
+  {
+    result: PRONE
+  }
+  else
+  {
+    result: RESIST  
+  }
+}
+
+
+function: dieroll DIE:d with ADVANTAGE:n
+{
+  if ADVANTAGE = 1
+  {
+    result: [highest of DIE and DIE]
+  }
+  else
+  {
+	result: DIE
+  }
+}
+
+function: attackroll ROLL:n against AC_IN:n
+{
+  if ROLL = 1
+  {
+    result: MISS
+  }
+  if ROLL = 20
+  {
+    if ROLL + ATTACK_MOD >= AC_IN
+    {
+     result: CRIT
+    }
+  }
+  if ROLL + ATTACK_MOD >= AC_IN
+  {
+    result: HIT
+  }
+  else
+  {
+   result: MISS
+  }
+}
+
+function: damageroll DAMAGE:n for ATTACKROLLS:n
+{
+  if ATTACKROLLS = CRIT
+  {
+    result: (DAMAGE * 2) + DMG_BONUS_TOT
+  }
+  if ATTACKROLLS = HIT
+  {
+    result: DAMAGE + DMG_BONUS_TOT
+  }
+  else
+  {
+    result:0
+  }
+}
+
+function: damageroll DAMAGE:n with DAMAGEBONUS:n for ATTACKROLLS:n
+{
+  if ATTACKROLLS = CRIT
+  {
+    result: (DAMAGE * 2) + DMG_BONUS_TOT + DAMAGEBONUS
+  }
+  if ATTACKROLLS = HIT
+  {
+    result: DAMAGE + DMG_BONUS_TOT + DAMAGEBONUS
+  }
+  else
+  {
+    result:0
+  }
+}
+
+function: damagebonusonsavingthrow DAMAGE:d on ROLL:n with A_MOD:n against DC_IN:n
+{
+  if ROLL + A_MOD + ENM_PROF_BONUS >= DC_IN
+  {
+    result: 0
+  }
+  else
+  {
+    result: DAMAGE
+  }
+}
+
+output [damageroll 1d4 for[attackroll 1d20 against AC]] named "Damage Result for 1d4 against 13 AC"
+output [damageroll 1d4 for[attackroll [highest of 1d20 and 1d20] against AC]] named "Damage Result for 1d4 with advantage against 13 AC"
+output [damageroll 1d6 for[attackroll 1d20 against AC]] named "Damage Result for 1d6 against 13 AC"
+output [damageroll 1d6 for[attackroll [highest of 1d20 and 1d20] against AC]] named "Damage Result for 1d6 with advantage against 13 AC"
+output [damageroll 1d8 for[attackroll 1d20 against AC]] named "Damage Result for 1d8 against 13 AC"
+output [damageroll 1d8 for [attackroll [highest of 1d20 and 1d20] against AC]] named "Damage Result for 1d8 with advantage against 13 AC"
+output [damageroll 1d10 for[attackroll 1d20 against AC]] named "Damage Result for 1d10 against 13 AC"
+output [damageroll 1d10 for[attackroll [highest of 1d20 and 1d20] against AC]] named "Damage Result for 1d10 with advantage against 13 AC"
+output [damageroll 1d12 for[attackroll 1d20 against AC]] named "Damage Result for 1d12 against 13 AC"
+output [damageroll 1d12 for[attackroll [highest of 1d20 and 1d20] against AC]] named "Damage Result for 1d12 with advantage against 13 AC"
+output [damageroll 2d6 for[attackroll 1d20 against AC]] named "Damage Result for 2d6 against 13 AC"
+output [damageroll 2d6 for[attackroll [highest of 1d20 and 1d20] against AC]] named "Damage Result for 2d6 with advantage against 13 AC"

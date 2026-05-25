@@ -1,0 +1,27 @@
+function: newsys FEAT:s PROF:s {
+
+  TFEAT: [count {3, 6,9} in FEAT]
+\  TPROF: [highest of ([count {3,6} in PROF] - [count 1 in PROF]) and 0] \
+  TPROF: [count {3,6} in PROF] \- [count {1} in FEAT]\
+  if 1@FEAT = 12 {
+    TOTAL: 2 + TPROF }
+  else {
+    TOTAL: TFEAT + TPROF
+  }
+
+  if TOTAL > 2 {LEVEL: 3}
+  if TOTAL = 2 {LEVEL: 2}
+  if TOTAL = 1 {LEVEL: 1}
+  if TOTAL <= 0 {LEVEL: 0}
+
+  result: [lowest of LEVEL and 3]
+
+}
+
+loop N over {1} {
+  output [newsys d0 Nd6] named "[N]d6"
+ output [newsys 1d12 {N-1}d6] named "d12+[N-1]d6"
+ output [count {3,6} in 1d6]
+ output [count {3,6,9,12,12} in 1d12]
+}
+

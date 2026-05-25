@@ -1,0 +1,30 @@
+function: onemissile ATTACKROLL:n JIMDAMAGE:d CRITJIMDAMAGE:d HEXDAMAGE:d{
+
+  if ATTACKROLL = 1 {result: -500}
+  else if ATTACKROLL = 20 {result: (CRITJIMDAMAGE + HEXDAMAGE)}
+  else if (ATTACKROLL + MOD) >= AC {result: (JIMDAMAGE + HEXDAMAGE)}
+  else if (ATTACKROLL + MOD) < AC {result: 0}
+}
+
+function: threemissiles {
+  TOTAL: 0
+  loop N over {1..3} {
+    DAMAGE: [onemissile ATTACKROLL JIMDAMAGE CRITJIMDAMAGE HEXDAMAGE]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+function: withselfdamage TOTDAMAGE:n {
+    if TOTDAMAGE < 0  {result: -3}
+    else {result: TOTDAMAGE}
+}
+
+AC: 17
+MOD: 6
+ATTACKROLL: 1d20
+JIMDAMAGE: 2d4
+CRITJIMDAMAGE: 5d4
+HEXDAMAGE: 1d6
+
+output [withselfdamage [threemissiles]] named "Jim's MM + Hex Damage Distribution"

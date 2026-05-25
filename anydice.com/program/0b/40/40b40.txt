@@ -1,0 +1,73 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\ Attack \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\ Damage \
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Attack \ 
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+\ Pole Arm Master Attack\
+function: pamdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: 2d4
+ }
+ if ATTACKRESULT = HIT {
+  result: d4
+ }
+ result: 0
+}
+function: pamattack {
+ result: [pamdamage for [attack d20 vs DEFENSE]]
+}
+
+\ Great Weapon Fighting \ 
+function: gwf ROLL:n {
+  if ROLL <= 2 {
+    result: d6
+  }
+  result: ROLL
+}
+
+\ AC Range of Enemies \
+DEFENSE: d{12..22}
+
+\ Greatsword \
+ATTACK: 10
+HITDAMAGE: [gwf d6] + [gwf d6] + 5
+CRITICALDAMAGE: [gwf d6] + [gwf d6] + [gwf d6] + [gwf d6] + 5
+MISSDAMAGE: 5
+output [attack] + [attack] + [attack] named "Greatsword"
+
+\ Halberd \
+ATTACK: 10
+HITDAMAGE: d10 + 5
+CRITICALDAMAGE: 2d10 + 5
+MISSDAMAGE: 0
+output [attack] + [attack] + [attack] + [pamattack] named "Halberd"
+
+\ Handaxe \
+ATTACK: 10
+HITDAMAGE: d6 + 7
+CRITICALDAMAGE: 2d6 + 7
+MISSDAMAGE: 0
+output [attack] + [attack] + [attack] named "Handaxe"

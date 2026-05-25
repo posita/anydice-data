@@ -1,0 +1,104 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attacka ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + FIRSTATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + FIRSTATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + FIRSTATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackb ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + SECONDATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + SECONDATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + SECONDATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackc ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + THIRDATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + THIRDATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + THIRDATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ 
+
+function: attacka {
+ result: [damage for [attacka d20 vs DEFENSE]] \ first attack \
+}
+function: attackb {
+ result: [damage for [attackb d20 vs DEFENSE]] \ second attack \
+}
+function: attackc {
+ result: [damage for [attackc d20 vs DEFENSE]] \ third attack \
+}
+
+DEFENSE: (3d{5..18}/3) \ Randomized ACs between +5 and +18 over basic martial attack bonus in a normal distribution\
+
+output 0 named "Barbarian"
+
+FIRSTATTACK: 0\ Standard bonus to hit first attack\
+SECONDATTACK: -5 \ Standard bonus to hit second attack\
+THIRDATTACK: -10  \ Standard bonus to hit third attack \
+
+D:2 \ Number of Damage Dice \
+S:12 \ Size of Dice\
+SC:12 \Size of Dice in Critical\
+DMGMOD:4 \Ability Score\
+WEPSP:0
+EXTRA:4
+BONUS:(DMGMOD+WEPSP+EXTRA)
+CRIT:0
+
+HITDAMAGE: DdS+BONUS
+CRITICALDAMAGE: ((2*DdSC)+(2*BONUS)+CRIT)
+MISSDAMAGE: 0
+output [attacka] named "Barbarian Great1"
+output [attackb] named "Barbarian Great2"
+output [attackc] named "Barbarian Great3"
+
+
+output 0 named "Fighter"
+
+FIRSTATTACK: 2\ Standard bonus to hit first attack\
+SECONDATTACK: -3 \ Standard bonus to hit second attack\
+THIRDATTACK: -8  \ Standard bonus to hit third attack \
+
+D:2 \ Number of Damage Dice \
+S:10 \ Size of Dice\
+SC:12 \Size of Dice in Critical\
+DMGMOD:4 \Ability Score\
+WEPSP:0
+EXTRA:0
+BONUS:(DMGMOD+WEPSP+EXTRA)
+CRIT:1d12
+
+HITDAMAGE: DdS+BONUS
+CRITICALDAMAGE: ((2*DdSC)+(BONUS*2)+CRIT)
+MISSDAMAGE: 0
+output [attacka] named "Fighter Great1"
+output [attackb] named "Fighter Great2"
+output [attackc] named "Fighter Great3"

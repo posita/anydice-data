@@ -1,0 +1,30 @@
+ADICE:1         \ Player 1's number of dice in pool \
+BDICE:2         \ Player 2's number of dice in pool \
+DICESIDES:6     \ Number of sides on each dice \
+
+function: check BIGPOOL:n vs SMALLPOOL:n {
+   SEQ: {}
+   loop N over {1..#(BIGPOOL)} {
+      if {N@BIGPOOL} > {N@SMALLPOOL} {SEQ: {{SEQ}, 1}}
+      if {N@BIGPOOL} < {N@SMALLPOOL} {SEQ: {{SEQ}, 2}}
+      if {N@BIGPOOL} = {N@SMALLPOOL} {SEQ: {{SEQ}, 0}}
+   
+   }
+   \ if smallpool is 1 and bigpool is more, and seq has no 1s, add a 1 \
+     \ if SMALLPOOL = 1 & BIGPOOL != 1 & !(SEQ = 1) { SEQ: {SEQ, 1} } \
+   result: SEQ
+}
+
+SEQUENCE: [check (1@[sort {ADICE, BDICE}])dDICESIDES vs (2@[sort {ADICE, BDICE}])dDICESIDES]
+
+AA: 1@SEQUENCE
+AB: 2@SEQUENCE
+AC: 3@SEQUENCE
+AD: 4@SEQUENCE
+AE: 5@SEQUENCE
+AF: 6@SEQUENCE
+AG: 7@SEQUENCE
+
+output 1 named "SEQUENCE grabs [AA] [AB] [AC] [AD] [AE] [AF] [AG] "
+
+output SEQUENCE  named "result of check, should be SEQ"

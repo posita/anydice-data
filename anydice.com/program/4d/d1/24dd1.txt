@@ -1,0 +1,62 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+HITDAMAGE: 2d4 + 6
+CRITICALDAMAGE: 2*(2d4+6)+d6
+MISSDAMAGE: 0
+DEFENSE: 28
+ATTACK:8+4+4+1
+MULTIPLEATTACKPENALTY:2 \flurry\
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ if ROLL + ATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ PMULTI: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+   if PMULTI = 0 {PMULTI:2}
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+   if PMULTI = 0 {PMULTI:1}
+  }
+ }
+ result: D + ([bonus damage for ATTACKRESULTS]* PMULTI)
+}
+
+function: N:n attacks {
+  D: 0
+  loop X over {1..N}{
+    D: D+[damage for Nd[attack d20 vs DEFENSE]]
+    ATTACK:ATTACK-MULTIPLEATTACKPENALTY
+  }
+  result: D
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+
+output [3 attacks]+[damage for [attack d20 vs DEFENSE]] named "full round flurry agile"
+
+ATTACK:8+4+4+1
+MULTIPLEATTACKPENALTY:4 \agile precision\
+PRECISION: d8
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: PRECISION
+}
+
+output [3 attacks]+[damage for [attack d20 vs DEFENSE]] named "full round precision agile" 

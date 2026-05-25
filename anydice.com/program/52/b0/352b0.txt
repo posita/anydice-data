@@ -1,0 +1,66 @@
+\ Others Examples \
+\ 
+function: reroll greatest of ROLL:s as REROLL:n if greater than TARGET:n {
+  SUCCESSES: ROLL <= TARGET
+  if SUCCESSES < #ROLL {
+    result: SUCCESSES + (REROLL <= TARGET)
+  }
+  else {
+   result: SUCCESSES
+  }
+}
+output [reroll greatest of 10d6 as 1d6 if greater than 3] named "Reroll 4+ Success only"
+
+function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+Y: [d6 replace {1} with d6]
+output 3dY named "3d6, reroll 1-3 once"
+\
+
+
+output 0 named "Functions to Reroll :"
+\ TARGETS = résultat de dés, à relancer \
+\ ROLL = le jet de dés \
+\ NEW_DICE = type de dé utiliser pour relancer \
+
+\ Dices based on D4 \
+_QUATRE: d{0..3}
+_DEUX: d{0..1}
+_QUATRE_TO_TROIS: d{0,1,1,2}
+
+
+function: reroll one of TARGETS:s from ROLL:n as another NEW_DICE:d {
+    if [TARGETS contains ROLL] {
+        result: NEW_DICE
+    }
+    result: ROLL
+}
+
+\ Use only if there are several types of dice \
+function: reroll one of TARGETS:s as same DICE:d {
+    result: [reroll one of TARGETS from DICE as another DICE]
+}
+
+function: roll NUMBER:n dices DICE:d and reroll all TARGETS:s {
+    X: [reroll one of TARGETS as same DICE]
+    result: NUMBERdX
+}
+
+
+
+output 0 named "-> with Sum of the whole Roll :"
+output [roll 3 dices _QUATRE and reroll all {0}] named "Roll 3d4 & reroll 0's"
+output [roll 5 dices _QUATRE and reroll all {0,1,2}] named "Roll 5d4 & reroll 2-"
+output [roll 10 dices _QUATRE and reroll all {2,3}] named "Roll 10d4 & reroll 2&3"
+output [roll 20 dices _QUATRE and reroll all {3}] named "Roll 20d4 & reroll 3+"
+output 20d([reroll one of {3} as same _QUATRE]) named "Roll 20d4 & reroll 3+"   \ same result, different writing \
+
+
+output 0 named "-> with Count of Successes :"
+output [count {2..3} in [roll 3 dices _QUATRE and reroll all {0}]] named "3d4: Successes on 2+ & reroll 0's"
+output [count {2..3} in [roll 5 dices _QUATRE and reroll all {0,1}]] named "5d4: Successes on 2+ & reroll 1-"
+output [count {2..3} in [roll 20 dices _QUATRE and reroll all {2,3}]] named "20d4: Successes on 2+ & reroll 2+"
+
+

@@ -1,0 +1,43 @@
+function: ntwf A:n vs B:n {
+  TEMP: 0
+  if (A+1)>B {
+    TEMP: MAIN
+    if (A-4)>B {
+      TEMP: TEMP + OFF
+    }
+  }
+  result: TEMP
+}
+
+OTWF: 0
+MTWF: 0
+NTWF: 0
+THF: 0
+\Round up dice\
+\ Level 1, 14/16 STR, S. swords/G. sword
+MAIN: 6 
+OFF: 5 
+DOUBLE: 10 
+\
+\ Level 4, 14/16 STR, Specialization, +1 twf / +1 flaming thf \
+MAIN: 9
+OFF: 8
+DOUBLE: 14
+\ Virtually identical \
+\ Level 5 ranger (16 STR, 14 WIS), +1 twf or +1 flaming thf
+MAIN: 10
+OFF: 8
+DOUBLE: 12
+ TWF is superior \ 
+loop AC over {4..14}{
+OTWF: OTWF + ((d20-2 > AC) * MAIN + (d20-2 > AC) * OFF)
+MTWF: MTWF + (d20-2 > AC)* (MAIN + OFF)
+NTWF: NTWF + [ntwf d20 vs AC]
+\X: d20
+NTWF: NTWF + ((X+1 > AC) * MAIN + (X-4 > AC) * OFF)\
+THF: THF + ((d20 > AC) * DOUBLE)
+}
+output OTWF
+output MTWF
+output NTWF
+output THF

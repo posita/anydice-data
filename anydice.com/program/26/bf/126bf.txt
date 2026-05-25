@@ -1,0 +1,41 @@
+HIT_LIMIT: 4
+REGULAR_DIE: {1..6}
+ELITE_DIE: {1..10}
+COMMON_DIE: {1..4}
+
+function: count hits in ROLL {
+ HITS: 0
+ loop I over {1..#ROLL} {
+  HITS: HITS + (I@ROLL >= HIT_LIMIT)
+ }
+ result: HITS
+}
+
+function: power of R regular E elite C common {
+ result: R + E + C
+}
+
+function: hits of R regular E elite C common {
+ result: [count hits in R] + [count hits in E] + [count hits in C]
+}
+
+LR: 4dREGULAR_DIE
+LE: 0dELITE_DIE
+LC: 0dCOMMON_DIE
+
+RR: 2dREGULAR_DIE
+RE: 1dELITE_DIE
+RC: 0dCOMMON_DIE
+
+LPOWER: [power of LR regular LE elite LC common]
+LHITS: [hits of LR regular LE elite LC common]
+RPOWER: [power of RR regular RE elite RC common]
+RHITS: [hits of RR regular RE elite RC common]
+LBALANCE: LPOWER - RPOWER
+
+output LPOWER named "Left power"
+output LHITS named "Left hits (raw)"
+output RPOWER named "Right power"
+output RHITS named "Right hits (raw)"
+output LBALANCE named "Left balance"
+output LBALANCE > 0 named "Left win"

@@ -1,0 +1,55 @@
+HIT: 1
+CRIT: 2
+MISS: 0
+CRANGE: 19
+DAMAGE: 2d10+1d6+1d6+8 \ Max = 20 + 6 + 6 + 8 = 40 \
+
+ATTACK: {31, 31, 26, 26, 21, 21, 16, 31}
+AC: 30
+
+function: attack R:n plus A:n vs B {
+  if (R >= CRANGE) {
+    result: CRIT
+  }
+  if R = 1 {
+    result: MISS
+  }
+  if R+A >= B {
+    result: HIT
+  }
+  result: MISS
+}
+
+HI: 0
+MI: 0
+CR: 0
+loop A over {1..#ATTACK} {
+  R: [attack d20 plus A@ATTACK vs AC]
+    MI: MI + 1 * (R=MISS)
+    HI: HI + 1 * (R=HIT)
+    CR: CR + 1 * (R=CRIT)
+}
+
+output MI named "Misses"
+output HI named "Hits"
+output CR named "Crits"
+
+H: 0
+C: 0
+D: 0d6
+J: 0
+
+loop A over {1..#ATTACK} {
+  M: [attack d20 plus A@ATTACK vs AC]
+  D: D + M*DAMAGE
+  H: H + C*M
+  if A=2 {
+    J: J+M*(C=1)*2d6
+  }
+  if A>2 {
+    J: J+M*(C>1)*4d6
+  }
+  C: C+(M>0)
+}
+
+output D + H + J named "Damage"

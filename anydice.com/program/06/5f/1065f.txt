@@ -1,0 +1,54 @@
+set "maximum function depth" to 6
+
+function: DICE:n between LOW:n and HIGH:n {
+   if LOW > HIGH {
+      result: [DICE between HIGH and LOW]
+   }
+
+   if DICE < HIGH & DICE > LOW {
+      result: 1
+   } else {
+      result: 0
+   }
+}
+
+function: roll  { result: 4d4 }
+function: derive ROLL:n {
+   if ROLL <= 7 {
+      result: 6
+   } else if ROLL <= 11 {
+      result: 8
+   } else if ROLL <= 13 {
+      result: 10
+   } else {
+      result: 12
+   }
+}
+
+function: five derived {
+   result: [derive [roll]] + [derive [roll]] + [derive [roll]] + [derive [roll]] + [derive [roll]]
+}
+
+function: five rolls {
+   result: [roll] + [roll] + [roll] + [roll] + [roll]
+}
+
+function: internal five limit ROLL:n MIN:n MAX:n {
+   if [ROLL between MIN and MAX] {
+      result: ROLL
+   } else {
+      result: [five rolls limit MIN MAX]
+   }
+}
+
+function: five rolls limit MIN MAX { 
+   if MIN > MAX { result: [five rolls limit MAX MIN] }
+
+   result: [internal five limit [five rolls] MIN MAX]
+}
+
+output [roll] named "base stat"
+output [five rolls limit 42 58] named "average total"
+output [derive [roll]] named "derived dice size"
+output [[five derived] between 5 * 8 and 5 * 10]
+output [[five rolls] between 42 and 58] named "success rate"

@@ -1,0 +1,139 @@
+STR:2 DEX:4 BAB: 4
+REFDEFENSE:4
+DR: 6
+\Format:\
+\NAME:damgedice\
+\NAMEV:vsDRDice\
+\NAMEC: Crit damage Dice\
+\NAMEATT:Attack stat. 0 if no stat bonus to attack. STR+STR/2 for 2hand, 
+
+STR otherwise\
+
+\Daggers\
+DAGGER: 1d4	DAGGERV: 1d4 DAGGERC:2d8
+PARRY:1d6	PARRYV:1d4	PARRYC:1d1
+PDAGGER: 1d6 	PDAGGERV: 1d6	PDAGGERC:1d1
+CINQ: 1d10	CINQV:1d4	CINQC:1d1
+STIL: 1d6	STILV: 1d12	STILC:1d1
+
+\Swords\
+SSWORD: 1d4	SSWORDV: 2d4 SSWORDC:1d1
+SHORT:1d8	SHORTV:1d4	SHORTC:1d1
+SWORD: 1d8	SWORDV: 1d8 SWORDC:1d1
+SCIM: 1d10	SCIMV: 1d4	SCIMC:1d1
+LSWORD: 1d12 LSWORDV: 1d8 LSWORDC:1d1
+CLAY: 2d10	CLAYV: 1d8	CLAYC: 1d1
+ZWEI: 2d10	ZWEIV:1d8	ZWEIC:1d1
+
+\Bows\
+RXBOW: 1d8 	RXBOWV: 1d6	RXBOWC:1d1
+SBOW: 1d4	SBOWV: 1d4	SBOWC:1d1
+BOW: 1d6	BOWV: 1d6	BOWC:1d1
+LBOW: 1d6	LBOWV: 1d10 LBOWC:1d1
+XBOW: 2d8	XBOWV: 2d10 XBOWC:1d1
+HXBOW: 2d10	HXBOWV: 2d10 HXBOWC:1d1
+
+\Polearms\
+STAFF: 1d4	STAFFV: 1d4	STAFFC:1d1
+SPEAR: 1d4	SPEARV: 2d4	SPEARC:1d1
+HAL: 1d10	HALV: 1d10	HALC:1d1
+GLAI: 2d8	GLAIV:1d6	GLAIC:1d1
+TRID: 3d4	TRIDV:1d6	TRIDC:1d1
+LANCE: 1d8	LANCEV:3d6	LANCEC:1d1
+SCY: 1d10	SCYV: 1d10	SCYC:1d1
+
+\Axes\
+HURL: 1d6	HURLV: 1d4	HURLC:1d1
+AX: 1d8		AXV: 1d6	AXC:1d1
+PAX: 1d8	PAXV: 3d6	PAXC:1d1
+BEARD:1d10	BEARDV:1d4	BEARDC:1d1 \arcswing\
+BAX: 2d8	BAXV: 1d10	BAXC:1d1
+
+\Hammers and Maces\
+TONFA: 1d6	TONFAV:-DEX TONFAC:1d1
+HAM:1d10	HAMV:-DEX	HAMC:1d1
+FLAIL: 1d8	FLAILV:-DEX	FLAILC:1d1\flail hits two locations, needs two separate 
+
+dex reductions\
+MSTAR: 2d10	MSTARV:-DEX	MSTARC:1d1
+PFLAIL:2d8	PFLAILV:-DEX PFLAILC:1d1
+WHAM: 2d12	WHAMV:-DEX	WHAMC:1d1
+
+\Firearms\
+PISTOL:3d6	PISTOLV:2d8	PISTOLC:1d1
+MUSK:3d12	MUSKV:2d10	MUSKC:1d1
+
+\Misc\
+MFIST: 1d4	MFISTV: 1d4	MFISTC:1d1
+BFIST: 1d12	BFISTV: 0	BFISTC:1d1
+BOX: 2d6	BOXV: 0		BOXC:1d1
+WHIP: 1d6	WHIPV: 1d6	WHIPC:1d1
+WCHLITE:1d4	WCHLITEV:0	WCHLITEC:1d1
+WCH:2d4		WCHV:0		WCHC:1d1
+
+
+function: highstat
+{
+	if STR>=DEX
+	{result: STR}
+	else {result: DEX}
+}
+
+function: ATTEMPTS:n attacks ROLL:n CDICE:n
+{ 
+	DAMAGE: 0
+	loop X over {1..ATTEMPTS}
+	{
+	if ROLL > 0
+		{
+		if (CDICE >= THREAT)
+		{
+		 DAMAGE: DAMAGE+[damageroll]+CRIT
+				}
+				else 
+				{DAMAGE: DAMAGE+[damageroll]}
+			       }
+	}
+	result:DAMAGE
+}
+
+
+function: damageroll
+{
+	result: [floor ((WEAPON+ATTSTAT)-[floor (DR/DRMOD-(VSDR+DEX))])]
+}
+
+
+function: floor DICE:n
+{
+
+	if DICE<0
+	{
+		result:0
+	}
+	else
+	{
+		result:DICE
+	}
+}
+
+
+
+
+
+
+\RXBOWTIER\
+WEAPON: RXBOW VSDR: RXBOWV ATTSTAT: 0 DRMOD: 1 HITSTAT:DEX ACC:0 THREAT:20 CRIT:RXBOWC
+ATTACKROLL: ((1d20+HITSTAT+ACC+BAB)-(1d20+REFDEFENSE))
+\output [7 attacks ATTACKROLL 1d20] named "Repeating Crossbow"\
+
+
+
+
+\1 Second Weapons\
+
+WEAPON: DAGGER VSDR: DAGGERV ATTSTAT: STR DRMOD:1 HITSTAT:DEX ACC:0 THREAT:19 CRIT:DAGGERC
+ATTACKROLL: ((1d20+HITSTAT+ACC+BAB)-(1d20+REFDEFENSE))
+\output [6 attacks ATTACKROLL 1d20] named "Dagger"\
+
+

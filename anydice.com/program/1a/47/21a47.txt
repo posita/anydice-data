@@ -1,0 +1,43 @@
+output 0 named "Set D to the number of dice to roll, or set it to -1 to see a single roll of each size"
+D: 2
+
+
+output 0 named "--------------------------------------------------"
+H: {1,1,1,2,2,3}
+function: base health A:n {
+  result: A@H
+}
+function: crit health A:n {
+  result: 2 * (A > 5)
+}
+function: compute health R:s {
+  result: [base health 1@R] + [crit health 2@R]
+}
+
+function: recover A {
+  if (A = 0) {
+    result: [base health 2@2d6]
+  } else {
+    result: [compute health Ad6]
+  }
+}
+
+if (D < 0) {
+  output [recover 0] named "0d: No Help"
+  output [recover 1] named "1d: Basic NPC"
+  output [recover 2] named "2d: Low-level Physicker or Good NPC"
+  output [recover 3] named "3d: Mid-Level Physicker or Very Good NPC"
+  output [recover 4] named "4d: Max possible"
+}
+
+if (D >= 0) {
+  output [recover D]   named "One roll of [D]d"
+  output 2d[recover D] named "Two rolls of [D]d"
+  output 3d[recover D] named "Three rolls of [D]d"
+
+  output 0 named "--------------------------------------------------"
+  output 0 named "Assuming two rolls:"
+  output (2d[recover D]) >=  4 named "Chance to recover 1 level of harm"
+  output (2d[recover D]) >=  8 named "Chance to recover 2 levels of harm"
+  output (2d[recover D]) >= 12 named "Chance to recover 3 levels of harm"
+}

@@ -1,0 +1,32 @@
+function: attack HIT:n plus AMOD:n vs AC:n for DAMAGE:d plus DMOD:n {
+  if (HIT=20) { result: DAMAGE+DAMAGE+DMOD} \ Critical hit \
+  else {
+    if (HIT=1) { result: 0 } \ Critical fail \
+    else {
+      if (HIT+AMOD>=AC) { result: DAMAGE+DMOD }
+      else { result: 0 }
+    }
+  }
+}
+
+output [attack 1d20 plus 4 vs 16 for 2d4 plus 2] named "ghoul damage"
+
+function: paralyzed ATTACK:d AC:n SAVE:d DC:n{
+  result: [attack ATTACK plus 0 vs AC for 1 plus 0] & (SAVE<DC)
+}
+
+function: reroll R:n under N:n {
+   if R < N { result: 1d20 } else {result: R}
+}
+LUCKY: [reroll 1d20 under 2]
+WELLBYSAVE: LUCKY+2
+WELLBYAC: 16
+
+\ 4 opportunity attacks + 5 next-round attacks without disadvantage \
+output 9d[paralyzed 1d20+4 WELLBYAC WELLBYSAVE 10] >= 1 named "no action gets paralyzed"
+
+\ 4 opportunity attacks + 5 next-round attacks at disadvantage \
+output 9d[paralyzed 2@2d20+4 WELLBYAC WELLBYSAVE 10] >= 1 named "dodge gets paralyzed"
+
+\ 5 next-round attacks without disadvantage \
+output 5d[paralyzed 1d20+4 WELLBYAC WELLBYSAVE 10] >= 1 named "disengage gets paralyzed"

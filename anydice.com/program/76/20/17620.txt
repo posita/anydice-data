@@ -1,0 +1,47 @@
+set "position order" to "highest first"
+
+  function: pool ROLL:s { result: 1@ROLL } 
+  function: drag ROLL:s { result: 1@ROLL } 
+\rolling normal dice\
+\rolling negation dice\
+
+
+  loop A over {1..6} { loop B over {0..3} { 
+\how many normal dice\
+\how many negation dice\
+
+
+  function: D:s negate P:s {
+    if #D != 0 {
+      if [count D in P] = #P{
+        result: 0
+      }
+      else if [D contains P] {
+        C: 0
+        loop X over {1..#P} {
+          if C = 0{
+            if [D contains X@P] {
+            } else {
+              C: C + X
+            }
+          } else {
+            result: C@P
+          }
+        }
+      }  
+    }
+\how many pool=drag, if equal to all pool\
+\then everything negated already, result==0\
+\if any pool=drag, find next highest that not=drag\
+\result==next highest not negated\
+
+
+    else {
+      result: 1@P
+    }
+  }
+\if nothing negated, then result==highest result\
+
+
+  output [[drag Bd6] negate [pool Ad6]] named "[A]d--[B] Drag"
+}}

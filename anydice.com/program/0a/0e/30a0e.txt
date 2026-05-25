@@ -1,0 +1,35 @@
+function: product NS:s {
+  PROD:  1
+  loop N over NS {
+    PROD:  (PROD * N)
+  }
+  result:  PROD
+}
+
+MAX: 8
+S: {}
+X: [product {1..MAX}]
+
+loop N over {0..MAX} {
+  S:  {S, N:X}
+  X:  X / (N+1)
+}
+\ output S named "Poisson1" \
+
+function: dexplode FS:s on N:n of F:n {
+  J:  1
+\  D:  [count F in FS] \
+  R:  {}
+  loop I over FS {
+    if I = F & J <= N {
+      J:  J + 1
+      R:  {R, I * 1000 + 1}
+    }
+    else {
+      R:  {R, I * 1000}
+    }
+  }
+  result:  [explode d R] / 1000
+}
+
+output [dexplode {1,2,3,4,5,5,5,5} on 3 of 5]

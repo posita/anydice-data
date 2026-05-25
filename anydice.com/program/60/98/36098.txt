@@ -1,0 +1,45 @@
+output 0 named "Combat Sequence : Unit vs Unit"
+Q: d{0..3}      \Custom D4 Dice\
+I: d{1,1,2,3}   \Custom Damages Dice\
+\AT (Attacker): A(Attacks), V(Velocity Weapon), L(Lethality Weapon)\
+\DF (Defender):  M(Movement), S(Defensive Save:to put as an addition???)\
+\Ex: A: 2d+0    V: 5    L: 1   M: 3   S: M-V       2 Servitors vs 2 Servitors\
+
+function: force zeros in SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+
+\Passed Hits : Hits Roll into Save ROll :\
+function: HITSROLL:s attacks with save SAVE:n{
+ R: #HITSROLL - (#HITSROLLd(dQ>=3))                 \remove 3s\
+ result: [force zeros in (HITSROLL  - (RdQ + SAVE))]
+}
+
+\Unsaved Damages : Passed Hits into Damages :\
+function: PASSEDHITS:s into D:n damages{
+ result: PASSEDHITS * D
+}
+
+\
+A: 2d+0    L: 1  S: -10     Low Attacks, Low Lethality, Low Save
+A: 2d+0    L: 1   S: 10     Low Attacks, Low Lethality, High Save : Sequence MIN possible
+
+A: 2d+0    L: 10  S: -10    Low Attacks, High Lethality, Low Save : 3 Snipers
+A: 2d+0    L: 10  S: 10     Low Attacks, High Lethality, High Save : 3 Snipers
+
+A: 15d+0    L: 1  S: -10    High Attacks, Low Lethality, Low Save : 5 gatlings
+A: 15d+0    L: 1  S: 10     High Attacks, Low Lethality, High Save : 5 gatlings
+
+A: 15d+0   L: 10   S: -10   High Attacks, High Lethality, Low Save : Sequence MAX possible
+A: 15d+0   L: 10   S: 10    High Attacks, High Lethality, High Save
+\
+
+\output [AdQ attacks with save S] named "Passed Hits from [A]A vs [S]Save"
+output [[AdQ attacks with save S] into L damages] named "Unsaved Damages (before any regen)"\
+
+
+output [2dQ  attacks with save -10]  named "Passed Hits from 2A  vs 0Save"
+output [2dQ  attacks with save 10] named "Passed Hits from 2A  vs 10Save"
+output [13dQ attacks with save -10]  named "Passed Hits from 15A vs 0Save"
+output [13dQ attacks with save 10] named "Passed Hits from 15A vs 10Save"

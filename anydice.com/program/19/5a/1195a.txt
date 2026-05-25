@@ -1,0 +1,33 @@
+function: rangedattack ROLL:n vs AC:n SS PA:n {
+DMGBONUS: 5
+DAMAGE: 1d8 + DMGBONUS
+if ROLL >= CRITROLL { DAMAGE: DAMAGE + 1d8 }
+if ROLL = 1 { result: 0 }
+if SS {
+ DAMAGE: DAMAGE + 10
+ SS: -5
+}
+if ROLL + PROFICIENCY + ATTACKMOD + SS + PA >= AC { result: DAMAGE }
+result: 0
+}
+
+function: spellattack ROLL:n vs AC:n {
+DMGBONUS: 4
+DAMAGE: 1d10 + DMGBONUS
+if ROLL >= CRITROLL { DAMAGE: DAMAGE + 1d10 }
+if ROLL = 1 { result: 0 }
+if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: DAMAGE }
+result: 0
+}
+
+ENEMYAC: d{10..20}
+
+ACCBONUS: 0
+ATTACKMOD: 4
+PROFICIENCY: 3
+CRITROLL: 20
+output 2d[rangedattack d20 vs ENEMYAC 0 0] named "Ranged attack"
+output 2d[rangedattack d20 vs ENEMYAC 1 0] named "Ranged attack + Sharpshooter"
+output 2d[rangedattack d20 vs ENEMYAC 1 1d8] named "Ranged attack + Sharpshooter + Battlemaster PA"
+output 2d[spellattack d20 vs ENEMYAC] named "Eldritch Blast"
+output 4d[spellattack d20 vs ENEMYAC] named "Quickened Eldritch Blast"

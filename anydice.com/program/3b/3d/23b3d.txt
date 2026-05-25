@@ -1,0 +1,48 @@
+
+function : dice map PLUS:n vs AC:n crit CRIT:n
+{
+ P : 2@[sort {1, AC - PLUS - 1,CRIT-1}]
+ result : 1d{0:P,1:(CRIT-1-P),2:21-CRIT}
+}
+
+function : dmap PLUS:n vs AC:n
+{
+ result : [dice map PLUS vs AC crit 20]
+}
+
+function : make attack MAP:n dmg PLUS:n DMG:d CRT:d
+{
+ Q : 0
+ if MAP > 0
+ {
+  Q : Q + PLUS
+ }
+ Q : Q + MAPdDMG + (MAP>1)dCRT
+ result : Q
+}
+
+P : 1d6
+
+HR :  88
+HBR : 88
+
+ER : 120
+EBR : 120
+DPR : 27
+
+BA : 1
+T : 1dP
+
+R : [make attack [dmap 7 vs 1d{14}] dmg 4 1d12 0]
+BR : [make attack [dice map 7 vs 1d{14} crit 19] dmg 4 1d12+P P]
+BRT : [make attack [dice map 7 vs 1d{14} crit 19] dmg 4 1d12+P+T P] 
+
+output [dmap 5 vs 17]*27/2
+output 2dR
+
+
+loop N over {0..3}
+{
+ output [dmap 5 vs 17]*27 + (1+BA+N)dP named "Damage Taken [N]xTech"
+ output [lowest of N and 2+BA]dBRT + [highest of 2+BA-N and 0]dBR named "Damage Dealt [N]xTech"
+}

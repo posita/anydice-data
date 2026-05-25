@@ -1,0 +1,52 @@
+function: gun N:n ar AR:n ap AP:n dm W:n{
+ COUNT: 0
+ loop P over {1..N} {
+  COUNT: COUNT + [checkhit 2d6]
+ }
+ result: COUNT*W
+}
+function: miss N:n ar AR:n ap AP:n dm W:n{
+ COUNT: 0
+ loop P over {1..N} {
+  COUNT: COUNT + [checkmiss 3d6]
+ }
+ result: COUNT*W
+}
+function: checkmiss HH:n {
+ if HH >= 15 {result: [checksv 1]}
+ if HH + AR > DR {result: [checksv 0]}
+ result: 0
+}
+function: checkhit HH:n {
+ if HH >= 11 {result: [checksv 1]}
+ if HH + AR > DR+DRM {result: [checksv 0]}
+ result: 0
+}
+function: checksv VV:n {
+ result: (d6 < SV+AP+VV)
+}
+
+DR: 7
+DRM: 0
+SV: 4
+
+
+output [gun 8 ar 6-2 ap 2 dm 1] named "MG57+AP*2"
+output [gun 1d6-1 ar 6-2 ap 2 dm 2]+[gun 1d6-1 ar 6-2 ap 2 dm 1] named "Jackhammer firing twice"
+
+output [gun 16 ar 8-2 ap 1 dm 1]+[gun 8 ar 8-2 ap 1 dm 1] named "Gunslinger MG57*2"
+output [gun 16 ar 8-2 ap 3 dm 1] named "Gunslinger Pilebunker*2"
+
+output [gun 16 ar 5-2 ap 1 dm 1]+[gun 16 ar 5-2 ap 1 dm 1] named "MG57+AP*2"
+output [gun 8 ar 5-2 ap 1 dm 3] named "BCannon+HE+STRG"
+
+
+output [gun 8 ar 5-2 ap 2 dm 1]+[gun 8 ar 5-2 ap 1 dm 1] named "NephStarter MG57+AP"
+output [gun 16 ar 5-2 ap 1 dm 1]+[gun 16 ar 3-2 ap 1 dm 1] named "NephStarter MG57+MG57"
+output [gun 16 ar 5-2 ap 1 dm 1]+[miss 4 ar 2 ap 6 dm 1] named "NephStarter MG57+APMissile"
+
+output [gun 5 ar 6-2+1 ap 3 dm 1] named "Shredder+AP"
+output [gun 10 ar 6-2+1 ap 1 dm 1] named "Shredder+Buckshot"
+
+output (2d6 >= 11) named "crit chance guns"
+output (3d6 >= 15) named "crit chance missiles"

@@ -1,0 +1,45 @@
+RS: 2
+ATA: 12
+ATB: 16
+PA: 8
+TPA: 1d6+2
+TPB: 2d6+6
+
+function: tpsumme ERSTE:n ZWEITE:n {
+  result: [highest of ERSTE and 0] + [highest of ZWEITE and 0]
+}
+
+function: atprobe ATWERT:n PAWERT:n ATWURF:n PAWURF:n TPWURF:n {
+  if ATWURF <= ATWERT {
+    if PAWURF <= PAWERT {
+      result: 0
+    } else {
+      result: [highest of (TPWURF-RS) and 0]
+    }
+  } else {
+    result: -1
+  }
+}
+
+function: folgeat ATWERT:n PAWERT:n ATWURF:n TPWURF:n TPERSTE:n {
+  if 0 <= TPERSTE {
+    result: [tpsumme TPERSTE [atprobe ATWERT 0 1d20 1 TPWURF]]
+  } else {
+    result: [tpsumme TPERSTE [atproble ATWERT PAWERT 1d20 1d20 TPWURF]]
+  }
+} 
+
+function: pariertimmer {
+  ERSTE: [atprobe ATA PA 1d20 1d20 TPA]
+  
+  result: [folgeat ATB PA 1d20 1d20 TPB]
+}
+function: pariertniemals {
+  ERSTE: [atprobe ATA 0 1d20 1 TPA]
+  result: [folgeat ATB PA 1d20 1d20 TPB]
+}
+
+
+\output [pariertimmer] named "Pariert erste Attacke"\
+\output [pariertniemals] named "Wartet zweite Attacke"\
+output [pariertimmer] - [pariertniemals] named "Unterschied"

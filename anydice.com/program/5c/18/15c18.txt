@@ -1,0 +1,62 @@
+\ Variables \
+STR: 4      \ Strength modifier \
+PROF: 3     \ Proficiency bonus \
+LVL: 5      \ Level \
+RAGE: 2     \ Rage damage bonus \
+
+BASE_DICE: d12 + d6 \ Damage dice of weapon \
+
+FURY_DIE: d6     \ Extra die from Divine Fury feature \
+FURY_FLAT: LVL/2 \ Flat damage bonus from Divine Fury feature \
+
+AC: 11 \ AC of target \
+
+if LVL >= 5 {NUM_ATTACKS: 2} else {NUM_ATTACKS: 1} \ If 5th-level or higher, get two attacks \
+
+NORMAL_HIT: d20
+SECOND_HIT: d20
+
+RECKLESS_HIT: [highest 1 of 2d20]
+SECOND_RECKLESS_HIT: [highest 1 of 2d20]
+
+GWM_HIT: -5
+GWM_FLAT: 10
+
+function: get damage from HIT:s to hit with MOD:n modifier and DICE:s base FLAT:n flat damage {
+ if HIT = 20 {
+  DAMAGE: 2 * DICE + FLAT
+ } else {
+  if HIT = 1 {
+   DAMAGE: 0
+  } else {
+   TO_HIT: HIT + MOD
+   if TO_HIT >= AC {
+    DAMAGE: DICE + FLAT
+   } else {
+    DAMAGE: 0
+   }
+  }
+ }
+ result: DAMAGE
+}
+
+NORMAL_DAMAGE: [get damage from NORMAL_HIT to hit with STR + PROF modifier and BASE_DICE + FURY_DIE base STR + RAGE + FURY_FLAT flat damage]
+RECKLESS_DAMAGE: [get damage from RECKLESS_HIT to hit with STR + PROF modifier and BASE_DICE + FURY_DIE base STR + RAGE + FURY_FLAT flat damage]
+GWM_DAMAGE: [get damage from NORMAL_HIT to hit with STR + PROF + GWM_HIT modifier and BASE_DICE + FURY_DIE base STR + RAGE + FURY_FLAT + GWM_FLAT flat damage]
+GWM_RECKLESS_DAMAGE: [get damage from RECKLESS_HITto hit with STR + PROF + GWM_HIT modifier and BASE_DICE + FURY_DIE base STR + RAGE + FURY_FLAT + GWM_FLAT flat damage]
+
+if NUM_ATTACKS = 2 {
+ SECOND_DAMAGE: [get damage from SECOND_HIT to hit with STR + PROF modifier and BASE_DICE base STR + RAGE flat damage]
+ NORMAL_DAMAGE: NORMAL_DAMAGE + SECOND_DAMAGE
+ SECOND_RECKLESS_DAMAGE: [get damage from SECOND_RECKLESS_HIT to hit with STR + PROF modifier and BASE_DICE base STR + RAGE flat damage]
+ RECKLESS_DAMAGE: RECKLESS_DAMAGE + SECOND_RECKLESS_DAMAGE
+ SECOND_GWM_DAMAGE: [get damage from SECOND_HITto hit with STR + PROF + GWM_HIT modifier and BASE_DICE base STR + RAGE + GWM_FLAT flat damage]
+ GWM_DAMAGE: GWM_DAMAGE + SECOND_GWM_DAMAGE
+ SECOND_GWM_RECKLESS_DAMAGE: [get damage from SECOND_RECKLESS_HIT to hit with STR + PROF + GWM_HIT modifier and BASE_DICE base STR + RAGE + GWM_FLAT flat damage]
+ GWM_RECKLESS_DAMAGE: GWM_RECKLESS_DAMAGE + SECOND_GWM_RECKLESS_DAMAGE
+}
+
+output NORMAL_DAMAGE named "Normal"
+output RECKLESS_DAMAGE named "Reckless"
+output GWM_DAMAGE named "GWM"
+output GWM_RECKLESS_DAMAGE named "GWM & Reckless"

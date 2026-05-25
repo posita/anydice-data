@@ -1,0 +1,59 @@
+DICE: 2  \ Size of Dice Pool \
+ATTR: 7  \ Attribute Score \
+SKILL:3  \ Skill Score, max 6 \
+TAG:  1  \ 0 = Skill Not Tagged, 1 = Skill Tagged \
+DIFF: 1  \ Test Difficulty \
+COMP: 1  \ Complication Range \
+REROLL: 0  \ Reroll dice \
+
+\** No further config required **\
+function: build A:n S:n G: n {
+  T: A+[min S 6]
+  SM: [min S 6]
+  if G = 0 { result: d{2,1:T-1,0:20-T} }
+  result: d{2:SM,1:T-SM,0:20-T}
+}
+
+function: check D:n vs A:n S:n G:n beats F:n {
+  result: Dd[build A [min S 6] G] >= F
+} 
+
+function: ap D:n vs A:n S:n G:n beats F:n {
+  R: Dd[build A [min S 6] G]
+  result: [apcheck R F]
+} 
+
+function: apcheck R:n F:n {
+  if R - F <= 0 { result: 0 }
+  result: R - F
+}
+
+function: comp R:s C:n {
+  result: R >= 21 - C
+}
+
+function: min V:n W:n {
+  if V <= W { result: V }
+  result: W
+}
+
+TARGET: ATTR + [min SKILL 6]
+
+output [check DICE vs ATTR SKILL TAG beats DIFF] named "Pass Difficulty [DIFF] Test"
+output DICEd[build ATTR SKILL TAG] named "Successes [DICE]d20 vs Target [TARGET]"
+output [ap DICE vs ATTR SKILL TAG beats DIFF] named "Action Points Gained"
+
+if COMP = 1 { output [comp DICEd20 COMP] named "[DICE]d20 Complications, Normal" } else 
+if COMP = 2 { output [comp DICEd20 COMP] named "[DICE]d20 Complications, Risky" } else 
+if COMP = 3 { output [comp DICEd20 COMP] named "[DICE]d20 Complications, Perilous" } else 
+if COMP = 4 { output [comp DICEd20 COMP] named "[DICE]d20 Complications, Precarious" } else 
+if COMP = 5 { output [comp DICEd20 COMP] named "[DICE]d20 Complications, Treacherous" } else 
+{ output [comp DICEd20 COMP] named "[DICE]d20 Complications, Range [COMP]" }
+
+\
+loop CDIFF over {1..5} {
+  loop APS over {0..3} {
+    output [check APS+2 vs ATTR SKILL TAG beats CDIFF] named "[APS]AP vs Diff [CDIFF]"
+  }
+}
+\

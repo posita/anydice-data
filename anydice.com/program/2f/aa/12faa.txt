@@ -1,0 +1,37 @@
+ATK:     1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+P:          0  \ number of power attacks \
+HIT:       +7  \ bonus to attack roll \
+HITPWR:    -3  \ deficit to attack roll with power attack \
+AC:        15  \ target AC: attack hits if ATK + HIT >= AC \
+CRIT:      20  \ minimum attack roll to crit \
+DMG:      1d8  \ damage rolled on successful hit \
+DMGMOD:     4  \ damage modifiers, not doubled on crit \
+DMGMODPWR:  3  \ damage bonus with power attack, not doubled on crit \
+FHBONUS:    0  \ bonus damage on first hit \
+
+function: attack ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  if P > 0 {
+  P: P - 1
+  result: ROLL + HIT + HITPWR >= AC
+  } else { result: ROLL + HIT >= AC }
+}
+ATTACK: [attack ATK]  \ optimization: precalculate the miss/hit/crit probabilities \
+
+function: multiattack N:n times {
+  result: [roll ATTACK to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    result: FIRSTHIT d (DMG + FHBONUS) + DMGMOD + (N-1) d (ATTACK d DMG)
+  } else {
+    result: [roll ATTACK to multiattack N-1 times]
+  }
+}
+
+output [multiattack 4 times]

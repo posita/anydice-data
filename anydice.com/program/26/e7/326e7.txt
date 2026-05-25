@@ -1,0 +1,46 @@
+\Параметры защищающегося \
+TARGET_AC: 20
+AC_ADD: 4
+
+
+\Параметры атакующего\
+ATTACK_MOD: 19
+MISSDAMAGE: 0
+HITDAMAGE: 4d12+10
+CRITICALDAMAGE: 8d12+10
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT { result: CRITICALDAMAGE }
+ if ATTACKRESULT = HIT { result: HITDAMAGE }
+ result: MISSDAMAGE
+}
+
+\расчет урона\
+TARGET_HIGH_AC: TARGET_AC + AC_ADD
+ATTACK: [damage for [attack d20 vs TARGET_AC]]
+ATTACK_HIGH_AC: [damage for [attack d20 vs TARGET_HIGH_AC]]
+
+
+\вывод атак на график\
+output ATTACK + ATTACK + ATTACK + ATTACK + ATTACK
+named "Обычный КД"
+
+output ATTACK_HIGH_AC + ATTACK_HIGH_AC + ATTACK_HIGH_AC + ATTACK_HIGH_AC + ATTACK_HIGH_AC
+named "Высокий КД (+[AC_ADD])"
+
+output (ATTACK/2) + ATTACK + ATTACK + ATTACK + ATTACK
+named "Невероятное уклонение"
+
+output [highest of 0 and (ATTACK - (1d12+20+5))] + ATTACK + ATTACK + ATTACK + ATTACK
+named "Парирование КБИ+УР+ЛВК"

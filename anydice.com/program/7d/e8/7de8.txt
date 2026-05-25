@@ -1,0 +1,58 @@
+B: 0 \ # of Boost Dice \
+A: 2 \ # of Ability Dice \
+P: 1 \ # of Proficiency Dice \
+
+S: 1 \ # of Setback Dice \
+D: 2 \ # of Difficulty Dice \
+C: 0 \ # of Challenge Dice \
+
+V: 2 \ Damage Value of Weapon \
+K: 3 \ Soak Value \
+L: 0 \ Pierce Value \
+
+BS: Bd{0, 0, 1, 1, 0, 0}                   \ Success table for boost die \
+AS: Ad{0, 1, 1, 2, 0, 0, 1, 0}             \ Success table for ability die \
+PS: Pd{0, 1, 1, 2, 2, 0, 1, 1, 1, 0, 0, 1} \ Success table for proficiency die \
+
+BA: Bd{0, 0, 0, 1, 2, 1}                   \ Advantage table for boost die \
+AA: Ad{0, 0, 0, 0, 1, 1, 1, 2}             \ Advantage table for ability die \
+PA: Pd{0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0} \ Advantage table for proficiency die \
+
+PT: Pd{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1} \ Triumph table for proficiency die \
+
+SF: Sd{0, 0, 1, 1, 0, 0}                   \ Failure table for setback die \
+DF: Dd{0, 1, 2, 0, 0, 0, 0, 1}             \ Failure table for difficulty die \
+CF: Cd{0, 1, 1, 2, 2, 0, 0, 1, 1, 0, 0, 1} \ Failure table for challenge die \
+
+ST: Sd{0, 0, 0, 0, 1, 1}                   \ Threat table for setback die \
+DT: Dd{0, 0, 0, 1, 1, 1, 2, 1}             \ Threat table for difficulty die \
+CT: Cd{0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0} \ Threat table for challenge die \
+
+CD: Cd{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1} \ Despair table for challenge die \
+
+X: (BS + AS + PS) - (SF + DF + CF) \ Net Successes \
+Y: (BA + AA + PA) - (ST + DT + CT) \ Net Advantage \
+Z: (PT) \ Net Triumph \
+Q: (CD) \ Net Despair \
+
+output X named "Success"
+output Y named "Advantage"
+output Z named "Triumph"
+output Q named "Despair"
+
+function: calculatedamage DAMAGE:n plus NETSUCCESS:n plus SOAK:n {
+ if NETSUCCESS < 1 { result: 0 }
+ result: DAMAGE + NETSUCCESS - SOAK
+}
+
+function: linkeddamage DAMAGE:n plus NETSUCCESS:n plus NETADV:n plus SOAK:n {
+ if NETSUCCESS < 1 { result: 0 }
+ if NETSUCCESS >= 1 {if NETADV < 2 { result: DAMAGE + NETSUCCESS - SOAK } }
+ result: DAMAGE + NETSUCCESS + DAMAGE + NETSUCCESS - SOAK - SOAK
+}
+
+MD: [calculatedamage V plus X plus K]
+MDV: [linkeddamage V plus X plus Y plus K]
+
+output MD named "Average Damage Done"
+output MDV named "Average Linked Damage"

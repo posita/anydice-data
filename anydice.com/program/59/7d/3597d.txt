@@ -1,0 +1,28 @@
+DIE: d20
+
+function: outcome EFFORT:n vs TN:n {
+  R: 0
+  loop N over {1..EFFORT} {
+    R: [highest of R and [roll DIE vs TN]]
+  }
+  result: R
+}
+function: roll R:n vs TN:n {
+  PART: TN
+  FULL: (TN+1) / 2
+  CRIT: (TN+2) / 4
+  if CRIT < 1 { CRIT: 1 }
+
+  if PART > 19 { PART: 19 }
+  if FULL >= PART { FULL: PART - 1 }
+  if CRIT >= FULL { CRIT: FULL - 1 }
+
+  if R <= CRIT { result: 3 }
+  if R <= FULL { result: 2 }
+  if R <= PART | R = 1 { result: 1 }
+  result: 0
+}
+
+loop TN over {1,3,5,10,15,20,30,40} {
+  output [outcome 2 vs TN] named "[TN]"
+}

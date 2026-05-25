@@ -1,0 +1,36 @@
+ATK:     1d20    \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+ADV:     1@2d20
+DIS:     2@2d20
+HIT:     +0      \ bonus to attack roll \
+AC:      7       \ target AC: attack hits if ATK + HIT >= AC \
+NEVERCRIT:    21
+NORMCRIT:    20      \ minimum attack roll to crit \
+BIGCRIT: 19
+NUMBER:     3
+DMG:  	 d6     \ damage rolled on successful hit \
+REDMG:   d{{3..6}:4, {1..2}}  \ damage rolled on successful hit \
+
+function: attack ROLL:n crit on CRIT:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+   \ if ROLL <= 1 { result: 0 }  \     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: 1
+   \ result: ROLL + HIT >= AC \ 
+}
+
+function: rolldamage advantage is ADVANTAGE:d damage is NUM:n of DAMAGETYPE:d crit on CRIT:n {
+  result: [roll [attack ADVANTAGE crit on CRIT] number NUM of DAMAGETYPE]
+}
+
+function: roll FIRSTHIT:n number NUM of DICE:d {
+	result: FIRSTHIT * NUM d(DICE)
+}
+
+output [rolldamage advantage is ATK damage is NUMBER of DMG crit on NEVERCRIT] named "never crit"
+output [rolldamage advantage is ATK damage is NUMBER of REDMG crit on NEVERCRIT] named "never crit reroll"
+
+output [rolldamage advantage is ATK damage is NUMBER of DMG crit on NORMCRIT] named "normal"
+output [rolldamage advantage is ATK damage is NUMBER of REDMG crit on NORMCRIT] named "normal reroll"
+
+output [rolldamage advantage is ATK damage is NUMBER of DMG crit on BIGCRIT] named "normal easy crit"
+output [rolldamage advantage is ATK damage is NUMBER of REDMG crit on BIGCRIT] named "normal reroll easy crit"

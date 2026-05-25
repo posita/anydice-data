@@ -1,0 +1,137 @@
+\------------------\
+\ ATTACK SIMULATOR \
+\------------------\
+
+
+\---------------------------------------------------------------------------\
+\ CHARACTER STATS \
+\----------------------------\
+\Ability Modifiers & Proficiency Bonus\
+STR: +5					\*Replace\
+DEX: -1					\*Replace\	
+CON: +4					\*Replace\
+INT: -1					\*Replace\
+WIS: -1					\*Replace\
+CHA: +2					\*Replace\
+PROF:+5					\*Replace\
+
+
+
+\----------------------------\
+\ Attack Modifier \
+ATKMOD: STR + PROF			\*Replace\
+DMGMOD: STR				\*Replace\
+
+\----------------------------\
+\Other Relevant Features\
+RAGEBONUS: +3				\*Replace\
+DIVFAV: +d4				\Divine Favor spell\
+DIVFURY: 1d6 + DMGMOD			\Divine Fury, 1st hit, once/turn\
+
+GREATWEAPONMASTER: +10
+TOPPLEDC: 8 + ATKMOD
+
+
+\---------------------------------------------------------------------------\
+\ ENEMY STATS \
+\----------------------------\
+E_AC: 17
+E_HP: 330
+
+E_STR: +5					\*Replace\
+E_DEX: +3					\*Replace\	
+E_CON: +8					\*Replace\
+E_INT: +3					\*Replace\
+E_WIS: +6					\*Replace\
+E_CHA: +5					\*Replace\
+
+
+\---------------------------------------------------------------------------\
+\ ATTACK ROLLS \
+\----------------------------\
+\ Standard Roll\
+ATK: 1d20 + ATKMOD
+ATK_ADV: 1@2d20
+ATK_DIS: 2@2d20
+
+\----------------------------\
+\Special Rolls\
+ATK_RECK:  ATK_ADV
+ATK_BRUTAL: ATK
+
+\----------------------------\
+\Special Attack Modifiers\
+ATK_GWM: -5
+
+
+\---------------------------------------------------------------------------\
+\ DAMAGE DICE \
+\----------------------------\
+\ Normal Dice \
+
+DFOUR: d4
+DSIX: d6
+DEIGHT: d8
+DTEN: d10
+DTWELVE: d12
+
+\----------------------------\
+\ Great Weapon Fighting dice \
+
+DFOUR_GWF: d{3,3,3,4}
+DSIX_GWF: d{3,3,3,4,5,6}
+DEIGHT_GWF: d{3,3,3,4,5,6,7,8}
+DTEN_GWF: d{3,3,3,4,5,6,7,8,9,10}
+DTWELVE_GWF: d{3,3,3,4,5,6,7,8,9,10,11,12}
+
+\----------------------------\
+\ Special Damage Modifiers \
+DMG_GWM: +10
+
+
+\---------------------------------------------------------------------------\
+\ FUNCTIONS \
+\----------------------------\
+\Attacks on 1 or 20\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENCE:n {
+if ROLL =1 {result: MISS}
+if ROLL =20 {result: CRITICALHIT}
+if ROLL + ATKMOD >= E_AC {result: HIT}
+result: MISS
+}
+
+\----------------------------\
+\maximum of hit dice such as for a critical hit or other feature\
+function: maximum of DIE:d {result: 1@[reverse {DIE}]}
+
+\----------------------------\
+\savage attacks\
+function: savage DMGDICEE:d{result: 1@2d{DMGDICE}}
+
+
+
+\---------------------------------------------------------------------------\
+\ SHOK THE VICIOUS ATTACK ROLLS \
+\----------------------------\
+\ 1st attack:
+	Reckless for advantage
+
+		If hits:
+		savage attack
+		ragebonus
+		divine fury if hits
+		topple check
+
+		If misses
+		divine fury available for 2nd hit\
+
+
+output ATK_ADV + ATKMOD > E_AC named "ATK_1 RECK - hit chance"
+output ATK + ATKMOD > E_AC named "ATK_1 RECK/BRUT - hit chance"
+output [attack ATK_ADV vs E_AC]
+
+

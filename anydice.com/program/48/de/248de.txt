@@ -1,0 +1,31 @@
+function: N:n is even { result: N = 2*(N/2) }
+function: highest of ROLL:s prefer even {
+  if [2@ROLL is even] & ![1@ROLL is even] { result: 2@ROLL }
+  result: 1@ROLL
+}
+function: highest of ROLL:s prefer odd {
+  if ![2@ROLL is even] & [1@ROLL is even] { result: 2@ROLL }
+  result: 1@ROLL
+}
+
+function: roll again if even A:n B:n {
+  if [A is even] { result: 1@[ sort {A, B}]}
+  result: A
+}
+
+function: roll again if odd A:n B:n {
+  if ![A is even] { result: 1@[ sort {A, B}]}
+  result: A
+}
+
+output [roll again if even 1d20 1d20] named "roll again if even"
+output [roll again if odd 1d20 1d20] named "roll again if odd"
+
+output [highest of 2d20 prefer even] named "prefer even"
+output [highest of 2d20 prefer odd] named "prefer odd"
+
+function: halfadv DA DB MAYBE_ADV:n { 
+  result: [highest of DA and (DB*MAYBE_ADV)] 
+}
+
+output [halfadv 1d20 1d20 (1d{0,1})] named "coin flip"

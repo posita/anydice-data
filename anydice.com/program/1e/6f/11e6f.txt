@@ -1,0 +1,98 @@
+\ The big problem with Savage Attacker is that improving your accuracy and damage by getting an ASI increases your damage way more than getting the feat does.        \
+\ But if we're using a V. Human, then Savage Attacker has to compete with other feats.                                                                                \
+\ In this case, UA Blade Mastery is better even though the average damage is about 1 point less, because it gives you more abilities.                                 \
+\ (advantage on opportunity attacks, increased AC at the cost of a reaction)                                                                                          \
+\ This isn't Savage Attacker's main problem, though. The problem is that it's only useful in combat, the damage increase worsens the more dice you reroll,            \
+\ and that you can only do it once per set of damage dice per turn.                                                                                                   \
+\ It's far better to take the Lucky feat or GWM.                                                                                                                      \
+\ Another alternative is just taking a level of fighter and getting the GWF or Duelling fighting style, which additionally comes with the ever desirable Action Surge.\
+\ This is a good way of getting your damage dice reroll kicks (especially since GWF works on all damage dice involved in an attack).                                  \
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: 0
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+
+function: damagetwo for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGETWO
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGETWO
+ }
+ result: 0
+}
+
+ATTACK: 3 + 3
+HITDAMAGE: [highest 2 of 4d6] + 3
+CRITICALDAMAGE: [highest 4 of 8d6] + 3 
+HITDAMAGETWO: 2d6 + 3
+CRITICALDAMAGETWO: 4d6 + 3
+loop AC over {12} {
+ output [damage for [attack d20 vs AC]] + [damagetwo for [attack d20 vs AC]] named "[Lvl 6 Barb with 16 str and Savage Attacker]"
+}
+
+ATTACK: 3 + 4
+HITDAMAGE: 2d6 + 4
+CRITICALDAMAGE: 4d6 + 4
+HITDAMAGETWO: 2d6 + 4
+CRITICALDAMAGETWO: 4d6 + 4
+
+loop AC over {12} {
+ output [damage for [attack d20 vs AC]] + [damagetwo for [attack d20 vs AC]] named "[Lvl 6 Barb with 18 str]"
+}
+
+ATTACK: 4 + 4
+HITDAMAGE: 2d6 + 4
+CRITICALDAMAGE: 4d6 + 4
+HITDAMAGETWO: 2d6 + 4
+CRITICALDAMAGETWO: 4d6 + 4
+
+loop AC over {12} {
+ output [damage for [attack d20 vs AC]] + [damagetwo for [attack d20 vs AC]] named "[Lvl 6 v. human Barb with 18 str and UA Blade Mastery]"
+}
+
+ATTACK: 3 + 4
+HITDAMAGE: [highest 2 of 4d6] + 4
+CRITICALDAMAGE: [highest 4 of 8d6] + 4
+HITDAMAGETWO: 2d6 + 4
+CRITICALDAMAGETWO: 4d6 + 4
+
+loop AC over {12} {
+ output [damage for [attack d20 vs AC]] + [damagetwo for [attack d20 vs AC]] named "[Lvl 6 v. human Barb with 18 str and Savage Attacker]"
+}
+
+ATTACK: 3 + 4
+HITDAMAGE: 2d{{1..2}, {3..6}:4} + 4
+CRITICALDAMAGE: 4d{{1..2}, {3..6}:4} + 4
+HITDAMAGETWO: 2d{{1..2}, {3..6}:4} + 4
+CRITICALDAMAGETWO: 4d{{1..2}, {3..6}:4} + 4
+
+loop AC over {12} {
+ output [damage for [attack d20 vs AC]] + [damagetwo for [attack d20 vs AC]]  named "[Lvl 1 Fighter/5 Barb with GWF and 18 str]"
+}
+
+
+ATTACK: 3 + 4
+HITDAMAGE: 2d6 + 6
+CRITICALDAMAGE: 4d6 + 6
+HITDAMAGETWO: 2d6 + 6
+CRITICALDAMAGETWO: 4d6 + 6
+loop AC over {12} {
+ output [damage for [attack d20 vs AC]] + [damagetwo for [attack d20 vs AC]]  named "[Lvl 1 Fighter/5 Barb with Fighter Duelling Style and 18 str]"
+}

@@ -1,0 +1,73 @@
+
+function: A:n B:n C:n D:n dndroll{
+M: 7
+if A-M<0{
+M: A
+}
+if B-M<0{
+M: B
+}
+if C-M<0{
+M: C
+}
+if D-M<0{
+M: D
+}
+result: A+B+C+D-M
+}
+
+output [d6 d6 d6 d6 dndroll]
+
+function: X:n Y:n conditional{
+if X-Y<0{
+X: 0
+}
+else{
+X: X-Y
+}
+result: X
+}
+
+function: Y:n tripledietwenty{
+A: [d20 Y conditional]
+B: [d20 Y conditional]
+C: [d20 Y conditional]
+result: A+B+C
+}
+
+function: X:n Y:n Z:n tripledietwenty{
+A: [d20 X conditional]
+B: [d20 Y conditional]
+C: [d20 Z conditional]
+result: A+B+C
+}
+
+function: X:n Y:n Z:n M:n tripledietwenty{
+A: [d20 X+M conditional]
+B: [d20 Y+M conditional]
+C: [d20 Z+M conditional]
+result: A+B+C
+}
+
+function: X:n Y:n Z:n qualitylevel{
+R:0
+if X-Y>=16 {R:6}
+else if X-Y>=13 {R:5}
+else if X-Y>=10 {R:4}
+else if X-Y>=7 {R:3}
+else if X-Y>=4 {R:2}
+else if X-Y>=0 {R:1}
+else {R:0}
+result: R
+}
+
+function: X:n Y:n Z:n M:n L:n qualityleveltripledietwenty{
+A: [X Y Z M tripledietwenty]
+Q: [L A 3 qualitylevel]
+result: Q
+}
+
+
+loop N over {0..17}{
+output [16 14 17 0 N qualityleveltripledietwenty] named "Quality with skill level [N]"
+}

@@ -1,0 +1,45 @@
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+ATTACKMOD: 4
+SHARPSHOOTER: 0
+SSPENALTY: 0
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 1
+
+ATTACK: ATTACKMOD + SSPENALTY + PROFICIENCY
+
+
+HITDAMAGE: 1d8 + ATTACKMOD + DMGBONUS + SHARPSHOOTER
+NODAMAGE:  0
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS + SHARPSHOOTER
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: NODAMAGE
+}
+
+\looped against enemy AC from 15-20\
+
+output [damage for [attack d20 vs d{10}]] named "Damage"
+

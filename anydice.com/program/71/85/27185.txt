@@ -1,0 +1,63 @@
+TRUE: 1
+FALSE: 0
+
+
+TARGET: 15
+ATTACKMOD: 4 + 3
+DAMAGEMOD: 4
+DAMAGEDIE: d6
+DIECOUNT: 2
+ATTACKS: 1
+GWF: FALSE
+
+
+
+
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+ 
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACKMOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage ROLL:n vs DEFENSE:n{
+ X: [attack ROLL vs DEFENSE]
+ if X = 0 {result: 0}
+ if GWF = 1 {
+  if X = 1 {result: DIECOUNTd[reroll{1,2} on DAMAGEDIE] + DAMAGEMOD}
+  if X = 2 {result: DIECOUNTd[reroll{1,2} on DAMAGEDIE] + DIECOUNTd[reroll{1,2} on DAMAGEDIE] + DAMAGEMOD}
+ } 
+ if X = 1 {result: DAMAGEDIE + DAMAGEMOD}
+ if X = 2 {result: DAMAGEDIE + DAMAGEDIE + DAMAGEMOD}
+}
+
+
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+
+output [attack d20 vs TARGET] named "to Hit"
+
+RESULT: 0
+
+loop N over {1..ATTACKS} {
+ RESULT: RESULT + [damage d20 vs TARGET] 
+}
+
+output RESULT named "damage with hit chance considered"

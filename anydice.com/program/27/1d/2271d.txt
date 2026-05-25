@@ -1,0 +1,66 @@
+DICE: d20
+
+MOOK_ATK: -1
+MOOK_AMR: 0
+MOOK_DMG: 2
+BADDIE_ATK: 2
+BADDIE_AMR: 2
+BADDIE_DMG: 3
+BOSS_ATK: 4
+BOSS_AMR: 4
+BOSS_DMG: 4
+
+T_ATK: -1
+T_AMR: 0
+H_ATK: -1
+H_AMR: 1
+ERR_ATK: 1
+ERR_AMR: 1
+
+SML_DMG: 1d6
+MED_DMG: 1d6+2
+LRG_DMG: 1d6+4
+
+MISS: 0
+HIT: 1
+
+function: ROLL:n vs DEFENSE:n ATTACK:n {
+ if (ROLL+ATTACK) >= (10+DEFENSE) {
+   result: HIT
+ }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n with ARMOUR:n {
+ if ATTACKRESULT = HIT {
+  THIS_DMG: (HITDAMAGE-ARMOUR)
+  result: [highest of THIS_DMG and 0]
+ }
+ result: MISSDAMAGE
+}
+
+function: attacks NUMBEROFATTACKS:n {
+  TOTAL_DMG: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL_DMG: TOTAL_DMG + [damage for [d20 vs DEF ATK] with AMR]
+  }
+  result: TOTAL_DMG
+}
+
+ATK: BADDIE_ATK
+DEF: T_ATK
+AMR: T_AMR
+HITDAMAGE: BADDIE_DMG
+MISSDAMAGE: 0
+
+loop X over {1..5} {
+  output [attacks X] named "[X] rounds of damage when baddie focuses transgenic"
+}
+
+ATK: T_ATK
+DEF: BADDIE_ATK
+AMR: BADDIE_AMR
+HITDAMAGE: SML_DMG
+MISSDAMAGE: 0
+
+output [attacks 4] named "4 rounds of damage when human focuses baddie with small"

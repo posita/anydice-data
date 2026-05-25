@@ -1,0 +1,67 @@
+\ ORIGINAL FUNCTION FOR A SINGLE OPTIONAL REROLL VS TARGET             \
+\ Usage example:                                                       \
+\       output [roll 7d6 vs TARGET with optional d6 reroll] named "r"  \
+
+function: roll ROLL:s vs TARGET:n with optional REROLL:d reroll {
+  SUM: ROLL + 0  \ force the sequence to be summed into a single number! \
+  if SUM >= TARGET {
+    \ no need to reroll, since we've already met the target \
+    result: 1
+  } else {
+    \ discard and reroll the lowest die \
+    REST: {1..#ROLL-1}@ROLL
+    result: REST + REROLL >= TARGET
+  }
+}
+
+\ This function will do up to TWO optional rerolls vs target \
+
+function: roll ROLL:s vs TARGET:n with optional rerolls REROLLONE:s and REROLLTWO:s {
+
+  SUM: ROLL + 0
+
+  if SUM >= TARGET {
+    result: 1
+  } else {  
+    REST: {1..#ROLL-1}@ROLL
+
+    \\\ This works because the result: call forces the LHS to become a number ?? \\\
+    \\\ But commenting this out and trying 'if REST + REROLLONE >= TARGET' gets an error about booleans must be numbers \\\
+    \ result: REST + REROLLONE >= TARGET \
+
+    \\\ This works (more slowly) only if we change the REROLL inputs to sequences instead of dice \\\
+    \if (REST + REROLLONE) >= TARGET {  \
+    \   result: 1    \
+    \ } else {       \
+    \   result: 0     \
+    \}\
+
+    \\\ THIS WORKS \\\
+    if (REST + REROLLONE) >= TARGET {  
+       result: 1    
+    } else {       
+       NEWSEQ: {REST, (REROLLONE+0)}
+       NEWSEQ: [sort NEWSEQ]  
+       NEWREST: {1..#NEWSEQ-1}@NEWSEQ
+       if NEWREST + REROLLTWO >= TARGET {
+          result: 1
+       } else {
+          result: 0
+       } \close out 3rd level else \
+    } \ close out 2nd level else \
+
+
+  } \ close out top level else \
+  
+} \ close out function definition \
+
+
+
+
+\\\ output \\\
+loop TARGET over {15 .. 20} { 
+  output 7d6 >= TARGET named "[TARGET]" 
+  output [roll 7d6 vs TARGET with optional d6 reroll] named "r" 
+  output [roll 7d6 vs TARGET with optional rerolls d6 and d6] named "rr" 
+}
+

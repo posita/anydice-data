@@ -1,0 +1,157 @@
+output 0 named "Add Pairing (x++ -> Pair>=x) Possibilities to Successes :"
+output 0 named "Overflow(OF) (ES=0): x++ min with possible overflow, ExactSum(ES=1): x++ exact without overflow"
+output 0 named "Failures count(FC=1): count the Failures as Successes, (FC=0): count Successes as normal"
+output 0 named "Inside Range Targets (LR=1): x within dice values, Outside Range Targets(HR) (LR=0): x beyond dice max value"
+\ Explanations:
+5d4={0,1,2,2,3}
+LR = 2++ to 3++ (1++ is the same as 1+).
+HR = 4++ to 6++.
+OF = x++ with min target overflowing sum: for 4++, (3+2) ok.
+ES = x++ with exact target sum: for 4++, (3+1) ok but (3+2) not ok.
+\
+
+\ Dices based on D4 \
+_QUATRE: d{0..3}
+Q: d{0..3}
+
+function: count with pairing TARGETS:s in SEQUENCE:s with low range LR:n failures count FC:n and exact sum ES:n {
+ REVERSED: [reverse SEQUENCE]
+ TARGETS: [sort TARGETS]
+ SIZEMAX: #REVERSED
+ SIZEMIN: 1
+ COUNT: [count TARGETS in SEQUENCE]
+ loop N over {1..#SEQUENCE} {
+  END: 0
+  if N@SEQUENCE < #TARGETS@TARGETS  {
+    loop Q over {(SIZEMIN)..(SIZEMAX-N)} {
+       if (END=0) & (ES=0) {
+         if ((N@SEQUENCE + Q@REVERSED) >= #TARGETS@TARGETS) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: Q+1
+         }
+       }
+       if (END=0) & (ES=1) {
+         if ((N@SEQUENCE + Q@REVERSED) = #TARGETS@TARGETS) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: Q+1
+         }
+       }
+    }
+  }
+ }
+ if (FC=1) {
+   COUNT: #SEQUENCE - COUNT
+ }
+ result: COUNT
+}
+
+\********************************************************************************\
+
+function: count THRESHOLD:n plus in SEQUENCE:s {
+ result: (SEQUENCE >= THRESHOLD )
+}
+
+
+function: count with pairing TARGET:n in SEQUENCE:s with exact sum ES:n {
+ REVERSED: [reverse SEQUENCE]
+ SIZEMAX: #REVERSED
+ SIZEMIN: 1
+ COUNT: [count TARGET plus in SEQUENCE]
+ loop N over {1..#SEQUENCE} {
+  END: 0
+  if N@SEQUENCE < TARGET  {
+    loop Q over {(SIZEMIN)..(SIZEMAX-N)} {
+       if (END=0) & (ES=0) {
+         if ((N@SEQUENCE + Q@REVERSED) >= TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: Q+1
+         }
+       }
+       if (END=0) & (ES=1) {
+         if ((N@SEQUENCE + Q@REVERSED) = TARGET) {
+           COUNT: COUNT + 1
+           END: 1
+           SIZEMIN: Q+1
+         }
+       }
+    }
+  }
+ }
+ result: COUNT
+}
+
+
+
+function: overflowing pairing SEQUENCE:s on TARGET:n {
+ TEMP: {}
+ OF: {}
+ COUNT_UN: 0
+ COUNT_DEUX: 0
+ COUNT_TROIS: 0
+ TOTAL: 0
+ loop M over {1..#SEQUENCE} {
+    if (M@SEQUENCE > 0) { TEMP: {M@SEQUENCE, TEMP} }      \ Remove 0s from the roll, inverse it & put it in TEMP. \
+    if (M@SEQUENCE < TARGET) { OF: {OF, M@SEQUENCE} }      \ Remove 0s & Targets from the roll & put it in OF. \
+    if (M@SEQUENCE < TARGET) & (M@SEQUENCE != 0) { TEMP: {TEMP, M@SEQUENCE} }    \ Remove 0s & Targets from the roll. \
+
+    if (M@SEQUENCE = 1) { COUNT_UN: COUNT_UN + 1 }
+    if (M@SEQUENCE = 2) { COUNT_DEUX: COUNT_DEUX + 1 }
+    if (M@SEQUENCE = 3) { COUNT_TROIS: COUNT_TROIS + 1 }
+ }
+ loop N over {1..3} {        \ 3= Max of Dice \
+    if (N = 1) & (N >= TARGET) { TOTAL: TOTAL + COUNT_UN }
+    if (N = 2) & (N >= TARGET) { TOTAL: TOTAL + COUNT_DEUX }
+    if (N = 3) & (N >= TARGET) { TOTAL: TOTAL + COUNT_TROIS }
+ }
+ loop L over {1..#TEMP} {
+    
+ }
+ result: TOTAL
+}
+\                                         Normal Count    Pairing
+Target: 2++          ->        Total= 8 = 4(3s) + 2(2s)   + 2(1s+1s)                 = + COUNT_UN/2
+Target: 3++          ->        Total= 6 = 4(3s)           + 2(2s+1s) + 0(2s+2s)
+Target: 4++          ->        Total= 5 =                 4(3s+1s) + 0(3s+2s) + 2(2s+2s) + 0(3s+3s)
+Target: 5++          ->        Total= 3 =                 2(3s+2s) + 1(3s+3s)
+Target: 6++          ->        Total= 2 =                 4(3s+3s)                   = + COUNT_TROIS/2
+Roll: {3,3,3,3,2,2,1,1,1,1,1,0}
+COUNT_UN: {1,1,1,1,1}
+COUNT_DEUX: {2,2}
+COUNT_TROIS: {3,3,3,3}
+
+tableau des SOMMEs de 1 à 3 (9 sum)
+faire une Sequence sans les chiffres >=TARGET
+\
+
+
+function: exact pairing SEQUENCE:s on TARGET:n {
+ COUNT: 0
+ result: COUNT
+}
+
+T: 2
+output 10d(dQ>=2)
+output [exact pairing 10dQ on T] named "[T]++ on 12d4 TEST"
+
+N: 10
+
+\test\
+\T: 2
+TEST: {3,3,3,3,2,2,1,1,1,1,0,0}
+output 14d(d6>=6)
+output Nd(d_QUATRE>=T) +1 named "Success on [T]+"
+
+output [count with pairing T in TEST with exact sum 0] named "[T]++ on 12d4 TEST"
+output [count with pairing T in Nd_QUATRE with exact sum 0] named "[T]++ on 12d4 [N]d4"
+
+output [count with pairing {2,3} in Nd_QUATRE with low range 1 failures count 0 and exact sum 0] named "[T]++ on [N]d4"
+
+output 14d(d6>=2)
+output 14d(d6>=3)
+output 14d(d6>=4)
+output 14d(d6>=5)
+output 14d(d6>=6)
+\

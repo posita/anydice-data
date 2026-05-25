@@ -1,0 +1,40 @@
+function: reroll R:n ones {
+   if R <= 1 { result: 1d6 } else {result: R}
+}
+
+function: autohit WOUND:n SAVE:n {
+  result:  ([reroll 1d6 ones]>=WOUND)&(1d6<SAVE)
+}
+
+function: multiattackauto SHOTS:n shots to wound on WOUND:n save on SAVE:n{
+  TOTAL: 0
+  loop N over {1..SHOTS} {
+    DAMAGE: [autohit WOUND SAVE]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+function: shoot WOUND:n SAVE:n {
+  BS: 3
+  result: (1d6>=BS)&([reroll 1d6 ones]>=WOUND)&(1d6<SAVE)
+}
+
+function: multiattack SHOTS:n shots to wound on WOUND:n save on SAVE:n{
+  TOTAL: 0
+  loop N over {1..SHOTS} {
+    DAMAGE: [shoot WOUND SAVE]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+output [multiattackauto 15 shots to wound on 3 save on 6] named "15 autohit shots with auto bolt rifle at geq, reroll wound of 1"
+output [multiattackauto 15 shots to wound on 4 save on 4] named "15 autohit shots with auto bolt rifle at meq, reroll wound of 1"
+
+output [multiattack 20 shots to wound on 3 save on 7] named "20 shots with bolt rifle at geq, reroll wound of 1"
+output [multiattack 20 shots to wound on 4 save on 5] named "20 shots with bolt rifle at meq, reroll wound of 1"
+
+
+
+

@@ -1,0 +1,37 @@
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: sharpshoot ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS -5 >= AC { result: DAMAGE + 10 }
+ result: 0
+}
+
+function: newshoot ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACKMOD + ACCBONUS -5 >= AC { result: DAMAGE + (2 * PROFICIENCY) }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+loop PROFICIENCY over {1..6} {
+ACCBONUS: 2
+CRITROLL: 20
+ATTACKTIMES: 1
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Longbow with archery, Prof: [PROFICIENCY]"
+output ATTACKTIMESd[sharpshoot d20 vs ENEMYAC] named "Longbow with archery + SS_OLD, Prof: [PROFICIENCY]"
+output ATTACKTIMESd[newshoot d20 vs ENEMYAC] named "Longbow with archery + SS_NEW, Prof: [PROFICIENCY]"
+}
+

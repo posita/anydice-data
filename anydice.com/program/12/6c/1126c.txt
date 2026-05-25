@@ -1,0 +1,53 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL = 19 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: gwm N:n {
+ if N = 1 { result: 1d6 }
+ if N = 2 { result: 1d6 }
+ result: N
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: recklessattack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+DEFENSE: 30
+RAGEDAMAGE: 3
+PROFBONUS: 5
+STR: 5
+MAGIC: 3
+MISSDAMAGE: 0
+
+MAGIC: 2
+ATTACK: PROFBONUS + STR + MAGIC
+HITDAMAGE: ((2+3)*3)d [gwm 1d6] + STR + MAGIC + RAGEDAMAGE
+CRITICALDAMAGE: ((2+3)*3*2+1)d [gwm 1d6] + STR + MAGIC + RAGEDAMAGE
+\ output 16d[attack] named "don't let her in (gds +2, normal)" \
+\ output 16d[recklessattack] named "don't let her in (gds +2)" \
+\ output 21d[recklessattack] named "don't let her in (gds, haste +2)" \
+
+MAGIC: 3
+
+ATTACK: PROFBONUS + STR + MAGIC
+HITDAMAGE: ((2+3)*3)d [gwm 1d6] + STR + MAGIC + RAGEDAMAGE
+CRITICALDAMAGE: ((2+3)*3*2+1)d [gwm 1d6] + STR + MAGIC + RAGEDAMAGE
+\ output 16d[attack] named "don't let her in (gds +3, normal)" \
+\ output 16d[recklessattack] named "don't let her in (gds +3)" \
+output 21d[recklessattack] named "don't let her in (gds, haste +3)"

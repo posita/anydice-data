@@ -1,0 +1,71 @@
+\**** Damage calculator ****\
+
+function: damage CONF:n {
+ if CONF = 0 {result: ATTDAMA+ADDDAMAGE} 
+ if CONF = 1 {result: ATTDAMA+ADDDAMAGE+ATTDAMA}
+ if CONF = 2 {result: ATTDAMA+ADDDAMAGE+[maximum of ATTDAMA]}
+}
+
+function: advantage ADV:n{
+ if ADV=1{result: [highest 1 of 2d20]}
+ if ADV=-1 {result: [lowest 1 of 2d20]}
+ else{result: 1dROLL}
+}
+
+function: attackroll ROLL:n vs AC:n advantage ADV:n advantageindex ADIN:n{
+ \VAL: [advantage ADV]\
+ if ADIN=1{
+  if ROLL>ADV{
+   if ROLL>= CRITROLL {result:1d20+ROLL*1000+ADV*1000000}
+   if ROLL+ADDHIT >= AC { result: ROLL+ADDHIT+ADV*1000000 }
+  }
+  else{
+   if ADV>= CRITROLL {result:1d20+ADV*1000+ROLL*1000000}
+   if ADV+ADDHIT >= AC { result: ADV+ADDHIT+ROLL*1000000}
+  }
+ }
+ if ADIN=-1{
+  if ROLL<ADV{
+   if ROLL>= CRITROLL {result:1d20+ROLL*1000+ADV*1000000}
+   if ROLL+ADDHIT >= AC { result: ROLL+ADDHIT+ADV*1000000}
+  }
+  else{
+   if ADV>= CRITROLL {result:1d20+ADV*1000+ROLL*1000000}
+   if ADV+ADDHIT >= AC { result: ADV+ADDHIT+ROLL*1000000}
+  }
+ }
+ else{
+  if ROLL>= CRITROLL {result:1d20+ROLL*1000}
+  if ROLL+ADDHIT >= AC { result: ROLL+ADDHIT }
+ }
+}
+
+\looped against enemy AC from 15-20\
+\ENEMYAC: d{15..20}\
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+ADDDAMAGE: DMGBONUS+ATTACKMOD
+ADDHIT:ATTACKMOD+PROFICIENCY+ACCBONUS
+CRITROLL: 20
+F:0
+S:0
+E:0
+TH:1
+TO:0
+
+ATTDAMA: Fd4+Sd6+Ed8+THd10+TOd12
+
+AD:1
+
+loop ENEMYAC over {7..30}{
+ output [attackroll d20 vs ENEMYAC advantage d20 advantageindex AD] named "attack roll vs [ENEMYAC]"
+}
+
+
+loop CRITIND over {0..2}{
+ output [damage CRITIND] named "Damage [CRITIND]"
+}
+

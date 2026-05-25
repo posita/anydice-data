@@ -1,0 +1,33 @@
+AURA: 1
+
+set "maximum function depth" to 6
+
+function: explode DIE:n {
+ if DIE = 1 { result: 2 * [explode d10] }
+ result: DIE
+}
+
+function: botch DIE:n single {
+ if DIE = 10 { result: -1 }
+ result: 0
+}
+
+function: botch dice N:n {
+ result: {N}d [botch 1d10 single]
+}
+
+function: stress FIRST:n with risk N:n {
+ if FIRST = 10 {result: [botch dice N]}
+ result: [explode FIRST]
+}
+
+function: experiment DIE:n {
+ if DIE < 0 {result:1}
+ if DIE < 5 {result:2}
+ if DIE < 7 {result:3}
+ result: DIE
+}
+
+loop RISK over {1..3} {  
+  output [ experiment [stress d10 with risk RISK]]
+}

@@ -1,0 +1,28 @@
+\threshold equals roll value above which is counted as a success\
+
+
+set "maximum function depth" to 7 
+\do not set this below 4, as wrapper function count against the limit\
+
+function: dicepool DICE:n{
+  result:[wrapper DICE threshold 5] }
+
+
+function: wrapper DICE:n threshold T{
+  RES:0
+  loop N over {1..DICE} {RES:RES+[rollexploding 1d6 threshold T]}
+  result:RES }
+
+
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0 }
+
+function: rollexploding ROLL:n threshold T{
+  if ROLL =6 {result: 1+[rollexploding 1d6 threshold T]}
+  result: [roll ROLL threshold T]
+}
+
+
+output [dicepool 2]
+

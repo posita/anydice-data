@@ -1,0 +1,87 @@
+Q: {0..3}
+\
+Nombre de 3, de 2, etc...
+
+(1à4)x2s
+(1à4)x3s
+(2+)x2s : at least (2,2) & (3,3)
+
+D table :
+pair x2
+2 pair
+3 pair
+1 triple
+2 triple
+3 triple
+\
+
+function: find X:n sets of Y:n on TARGET:n plus in ROLL:s {
+ IDX: 1
+ END: 0
+ loop M over {1..#ROLL} {
+    if (M@ROLL >= 2) & ((M+1)@ROLL < 2) & (END=0) {
+      IDX: M+1
+      END: 1
+    }
+ }
+ LOWPART: {IDX..#ROLL}@ROLL              \sequence with 1s & 0s\
+ UN: {1:LOWPART}
+ DEUX: {1:((IDX-1)*3 - {1..IDX-1}@ROLL)}
+ TROIS: {1:((IDX-1) - DEUX)}
+ ZERO: #LOWPART - UN
+ SIZE: {ZERO, #UN, #DEUX, #TROIS}
+
+ if(1){}
+
+
+ \TOTAL: {TARGET..3}@TEMP
+
+ if(TARGET=6){result: TOTAL + (TROIS/2)}
+ if(TARGET=5){result: TOTAL + ((TROIS+{1..#TROIS}@DEUX)/2)}
+ if(TARGET=4){result: TOTAL + ((TROIS+({1..#TROIS}@{1:(UN+DEUX)}) + ({(TROIS-UN+1)..#DEUX}@DEUX))/2)}
+ if(TARGET=3){result: TOTAL + ((DEUX+{1..#DEUX}@UN)/2)}
+ if(TARGET=2){result: TOTAL + (UN/2)}\
+
+ result: TOTAL
+}
+
+
+function: unique values in S:s {
+  U: {}
+  loop N over S { if !(N = U) { U: {U, N} } }
+  result: U
+}
+function: find PATTERN:s in ROLL:s {
+  COUNTS: {}
+  loop N over [unique values in ROLL] {
+    COUNTS: {COUNTS, N = ROLL}
+  }
+  result: [sort PATTERN] = [sort COUNTS]
+}
+
+function: PATTERN:s upto SIZE:n{
+ SEQ: PATTERN
+ START: 1+PATTERN
+ loop N over {START..SIZE} {
+   SEQ: {SEQ,1}
+ }
+ result: SEQ
+}
+
+POOL: 6
+
+
+output [find [{2,2} upto POOL] in POOLdQ] named "two pairs in [POOL]d4"
+output [find [{2,2,2} upto POOL] in POOLdQ] named "three pairs in [POOL]d4"
+output [find [{3} upto POOL] in POOLdQ] named "one triple in [POOL]d4"
+output [find [{3,3} upto POOL] in POOLdQ] named "two triples in [POOL]d4"
+output [find [{4} upto POOL] in POOLdQ] named "one quadruple in [POOL]d4"
+output [find [{5} upto POOL] in POOLdQ] named "five-tuple in [POOL]d4"
+output [find [{6} upto POOL] in POOLdQ] named "six-tuple in [POOL]d4"
+
+
+\output [find [{3,2,1} upto POOL] in POOLdQ] named "triple and pair in [POOL]d4"
+output [find {4,2} in 6dQ] named "four and a pair"
+output [find {2,1,1,1,1} in 6dQ] named "one pair"
+output [find {1,1,1,1,1,1} in 6dQ] named "all different"\
+

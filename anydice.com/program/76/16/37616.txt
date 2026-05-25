@@ -1,0 +1,109 @@
+\ Purpose: Calculates Mean and Deviation for Lancer GMS weapons given a certain Accuracy bonus, Target Evasion, and Target Armor \
+\ Currently, the reliable trait is not fully integrated into the main function, so Pistol and Assault Rifle have their own function. \
+\ The Cyclone Pulse Rifle with Reliable 5 is ommitted because it's difficult. \
+\ The Segment Knife does not have Overkill taken into account. \
+\ The Thermal Pistol is ommitted because it doesn't have any dice. \
+
+ACCURACY: 1
+TESTEVASION: 8
+TESTARMOR: 1
+
+function: armordiff INCOMINGDAMAGE:n vs ARMOR:n {
+ if INCOMINGDAMAGE >= ARMOR { result: INCOMINGDAMAGE-ARMOR }
+ result: 0
+}
+
+function: attackroll BASEROLL:n with BASEACCURACY:n base accuracy{
+ result: BASEROLL + [highest 1 of (BASEACCURACY+ACCURACY)d6]
+}
+
+function: weaponexpecteddamage ATTACKROLL:n dealing DICENUM:n die DICESIZE:n plus BASE:n damage ap AP:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 0
+ if ATTACKROLL >= 20 {
+  OUTGOINGDAMAGE: [highest DICENUM of (2*DICENUM)dDICESIZE]+ BASE
+ }
+ else if ATTACKROLL >= DEFENSE { OUTGOINGDAMAGE: DICENUMdDICESIZE + BASE}
+ if AP = 1 { result: OUTGOINGDAMAGE }
+ else { result: [armordiff OUTGOINGDAMAGE vs ARMOR] }
+}
+
+function: assaultrifle ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 2
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d{2,2,3,4,5,6}]
+ }
+ else if ROLL >= DEFENSE { OUTGOINGDAMAGE: 1d{2,2,3,4,5,6}}
+ result: [armordiff OUTGOINGDAMAGE vs ARMOR]
+}
+
+function: pistol ROLL:n vs DEFENSE:n and ARMOR:n {
+ OUTGOINGDAMAGE: 1
+ if ROLL >= 20 {
+  OUTGOINGDAMAGE: [highest 1 of 2d3]
+ }
+ else if ROLL >= DEFENSE { OUTGOINGDAMAGE: 1d3}
+ result: [armordiff OUTGOINGDAMAGE vs ARMOR]
+}
+
+\ Heavy Weapons \
+\ Cyclone Pulse Rifle ommitted due to difficulty \
+
+output [weaponexpecteddamage [attackroll d20 with 1 base accuracy] dealing 2 die 6 plus 0 damage ap 1 vs TESTEVASION and TESTARMOR]
+ named "Anti-Materiel Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 6 plus 3 damage ap 1 vs TESTEVASION and TESTARMOR]
+ named "Heavy Charged Blade vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with -1 base accuracy] dealing 2 die 6 plus 4 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Heavy Machine Gun vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 2 die 6 plus 1 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Heavy Melee Weapon vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with -1 base accuracy] dealing 2 die 6 plus 0 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Howitzer vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 6 plus 3 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Thermal Lance vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+\ Main Weapons \
+
+output [assaultrifle d20+[highest 1 of ACCURACYd6] vs TESTEVASION and TESTARMOR]
+ named "Assault Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 3 damage ap 1 vs TESTEVASION and TESTARMOR]
+ named "Charged Blade vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 6 plus 0 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Nexus Hunter-Killer vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 6 plus 1 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Rocket-Propelled Grenade vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 6 plus 2 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Tactical Melee Weapon vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 6 plus 0 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Shotgun vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 2 damage ap 1 vs TESTEVASION and TESTARMOR]
+ named "Thermal Rifle vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+\ Auxiliary Weapons \
+\ Segment Knife Overkill not accounted for. \
+\ Thermal Pistol ommitted. \
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 1 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Missile Rack vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 0 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Nexus Light vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [pistol d20+[highest 1 of ACCURACYd6] vs TESTEVASION and TESTARMOR]
+ named "Pistol vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 1 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Segment Knife vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"
+
+output [weaponexpecteddamage [attackroll d20 with 0 base accuracy] dealing 1 die 3 plus 1 damage ap 0 vs TESTEVASION and TESTARMOR]
+ named "Tactical Knife vs [TESTEVASION] EVA and [TESTARMOR] ARMOR"

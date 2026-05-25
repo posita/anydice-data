@@ -1,0 +1,115 @@
+DIE: d{
+ 0000000100101, \ red with circle \
+ 0000001000110, \ red with cross \
+ 0000010001001, \ blue with circle \
+ 0000100001010, \ blue with cross \
+ 0001000010001, \ green with circle \
+ 0010000010010, \ green with cross \
+ 0100000000000, \ white \
+ 1000000000000  \ black \
+}
+
+\
+ the die works like a matrix
+ from right to left, these are the columns:
+\
+
+CIRCLE: 1
+CROSS: 2
+RED: 3
+BLUE: 4
+GREEN: 5
+REDCIRCLE: 6
+REDCROSS: 7
+BLUECIRCLE: 8
+BLUECROSS: 9
+GREENCIRCLE: 10
+GREENCROSS: 11
+WHITE: 12
+BLACK: 13
+
+\
+ because each digit represents a property,
+ this approach works only up to nine dice,
+ because more dice would cause columns to overflow
+\
+
+set "position order" to "lowest first"
+
+function: columns CRITERIA:s in ROLL:n{
+ \ select only some columns from the dice matrix \
+ COUNT: 0
+ loop C over CRITERIA { COUNT: COUNT * 10 + C@ROLL }
+ result: COUNT
+}
+
+function: sum columns CRITERIA:s in ROLL:n{
+ \ sum some dice matrix columns \
+ COUNT: 0
+ loop C over CRITERIA { COUNT: COUNT + C@ROLL }
+ result: COUNT
+}
+
+function: exist CRITERIA:s in ROLL:n{
+ \ make an existance matrix of some columns \
+ COUNT: 0
+ loop C over CRITERIA { COUNT: COUNT * 10 + (C@ROLL > 0) }
+ result: COUNT
+}
+
+function: sum exist CRITERIA:s in ROLL:n{
+ \ sum an existance matrix \
+ COUNT: 0
+ loop C over CRITERIA { COUNT: COUNT + (C@ROLL > 0) }
+ result: COUNT
+}
+
+function: filter on all CRITERIA:s in ROLL:n{
+ \ reduce rows that don't have all criteria to zero \
+ loop C over CRITERIA { if C@ROLL = 0 { result: 0 } }
+ result: ROLL
+}
+
+function: filter on one of CRITERIA:s in ROLL:n{
+ \ reduce rows that don't have any of the criteria to zero \
+ loop C over CRITERIA { if C@ROLL > 0 { result: ROLL } }
+ result: 0
+}
+
+\ here's how the full matrices look \
+
+output DIE named "matrix for a single die"
+output 2dDIE named "matrix for two dice"
+
+\ here's an example for working with the dice matrix \
+
+loop N over {1..3} {
+ ROLL: NdDIE
+ 
+ output [columns {WHITE, BLACK} in ROLL]
+  named "occurance matrix of white/black for [N] dice"
+
+ output [sum columns {WHITE, BLACK} in ROLL]
+  named "sum of white/black total for [N] dice"
+ 
+ output [exist {WHITE, BLACK} in ROLL]
+  named "existance matrix of white/black for [N] dice"
+ 
+ output [sum exist {WHITE, BLACK} in ROLL]
+  named "sum of white/black existance for [N] dice"
+}
+
+\ here's an example of a very specific query \
+
+loop N over {1..6} {
+ output [sum exist {REDCIRCLE, BLUECIRCLE, GREENCIRCLE} in NdDIE] = 2
+  named "getting exactly two differently colored circles on [N] dice"
+}
+
+\ here's some filter examples \
+
+output [filter on all {CIRCLE, WHITE} in 3dDIE]
+ named "matrix for three dice when rolling at least a circle and a white"
+
+output [sum columns {CROSS} in [filter on one of{WHITE, BLACK} in 3dDIE]]
+ named "number of crosses with at least one white/black on three dice"

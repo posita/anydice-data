@@ -1,0 +1,35 @@
+function: roll N:n with Limit L:n {
+ROLL: Nd6
+result: [lowest of [count{5..6} in ROLL] and L]
+}
+function: glitch N:n {
+ROLL: Nd6
+ONES: [count 1 in ROLL]
+SUC: [count {5..6} in ROLL]
+result: ONES>=((N/2)+1) & SUC>1
+}
+function: critical glitch N:n {
+ROLL: Nd6
+ONES: [count 1 in ROLL]
+SUC: [count {5..6} in ROLL]
+result: ONES>=((N/2)+1) & SUC=0
+}
+
+function: extended roll N:n with Limit L:n{
+S: 0
+loop X over{0..N}{
+ROLL: (N-X)d6
+ONES: [count 1 in ROLL]
+SUC: [count {5..6} in ROLL]
+TMP:([lowest of  SUC and L]*(ONES<((N-X)/2+1)) - (ONES>=((N-X)/2+1) & SUC>1)*d6)
+\- (ONES>=((N-X)/2+1) & SUC=0)*100\
+S: S+TMP
+}
+result: [highest of S and -1]
+}
+
+N: 5
+L: 7
+
+output [roll N with Limit L] named "Single Test"
+output [extended roll N with Limit L] named "Extended Test"

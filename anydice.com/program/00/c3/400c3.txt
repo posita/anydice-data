@@ -1,0 +1,94 @@
+STRENGTH_BONUSES: {0 + 25, 5 + 25, -10 + 25}
+SPEED_BONUSES: {0 + 25, 5 + 25, -10 + 25}
+INTELLECT_BONUSES: {0 + 25, 5 + 25, 10 + 25, 15 + 25, 20 + 25}
+COMBAT_BONUSES: {0 + 25, 5 + 25, 10 + 25, -10 + 25}
+SANITY_BONUSES: {0 + 10, 10 + 10, 30 + 10}
+FEAR_BONUSES: {0 + 10, 10 + 10, 20 + 10, 60 + 10}
+BODY_BONUSES: {0 + 10, 10 + 10}
+
+STRENGTH_BONUS_OFFSET: 1
+SPEED_BONUS_OFFSET: STRENGTH_BONUS_OFFSET * #STRENGTH_BONUSES
+INTELLECT_BONUS_OFFSET: SPEED_BONUS_OFFSET * #SPEED_BONUSES
+COMBAT_BONUS_OFFSET: INTELLECT_BONUS_OFFSET * #INTELLECT_BONUSES
+SANITY_BONUS_OFFSET: COMBAT_BONUS_OFFSET * #COMBAT_BONUSES
+FEAR_BONUS_OFFSET: SANITY_BONUS_OFFSET * #SANITY_BONUSES
+BODY_BONUS_OFFSET: FEAR_BONUS_OFFSET * #FEAR_BONUSES
+
+function: mod TOTAL:n by SUB:n {
+    result: TOTAL - (TOTAL / SUB) * SUB
+}
+
+function: encode STRENGTH:n SPEED:n INTELLECT:n COMBAT:n SANITY:n FEAR:n BODY:n {
+    result: STRENGTH*STRENGTH_BONUS_OFFSET + SPEED*SPEED_BONUS_OFFSET + INTELLECT*INTELLECT_BONUS_OFFSET + COMBAT*COMBAT_BONUS_OFFSET + SANITY*SANITY_BONUS_OFFSET + FEAR*FEAR_BONUS_OFFSET + BODY*BODY_BONUS_OFFSET
+}
+
+function: bonuses CLASS:n SPECIAL_STAT:n {
+    if CLASS=1 {
+        result: [encode 0 0 0 2 0 2 1]
+    } else if CLASS=2 {
+        if SPECIAL_STAT=1 {
+            result: [encode 2 0 4 0 0 3 0] \ -10 to 1 stat \
+        } else if SPECIAL_STAT=2 {
+            result: [encode 0 2 4 0 0 3 0]
+        } else if SPECIAL_STAT=3 {
+            result: [encode 0 0 2 0 0 3 0]
+        } else if SPECIAL_STAT=4 {
+            result: [encode 0 0 4 3 0 3 0]
+        }
+    } else if CLASS=3 {
+        if SPECIAL_STAT=1 {
+            result: [encode 1 0 2 0 2 0 0]
+        } else if SPECIAL_STAT=2 {
+            result: [encode 0 1 2 0 2 0 0]
+        } else if SPECIAL_STAT=3 {
+            result: [encode 0 0 3 0 2 0 0]
+        } else if SPECIAL_STAT=4 {
+            result: [encode 0 0 2 1 2 0 0]
+        }
+    } else if CLASS=4 {
+        result: [encode 1 1 1 1 1 1 1]
+    }
+}
+
+function: strength BASE:n plus BONUS:n {
+    result: BASE + ([mod BONUS / STRENGTH_BONUS_OFFSET by #STRENGTH_BONUSES]+1)@STRENGTH_BONUSES
+}
+
+function: speed BASE:n plus BONUS:n {
+    result: BASE + ([mod BONUS / SPEED_BONUS_OFFSET by #SPEED_BONUSES]+1)@SPEED_BONUSES
+}
+function: intellect BASE:n plus BONUS:n {
+    result: BASE + ([mod BONUS / INTELLECT_BONUS_OFFSET by #INTELLECT_BONUSES]+1)@INTELLECT_BONUSES
+}
+function: combat BASE:n plus BONUS:n {
+    result: BASE + ([mod BONUS / COMBAT_BONUS_OFFSET by #COMBAT_BONUSES]+1)@COMBAT_BONUSES
+}
+function: sanity BASE:n plus BONUS:n {
+    result: BASE + ([mod BONUS / SANITY_BONUS_OFFSET by #SANITY_BONUSES]+1)@SANITY_BONUSES
+}
+function: fear BASE:n plus BONUS:n {
+    result: BASE + ([mod BONUS / FEAR_BONUS_OFFSET by #FEAR_BONUSES]+1)@FEAR_BONUSES
+}
+function: body BASE:n plus BONUS:n {
+    result: BASE + ([mod BONUS / BODY_BONUS_OFFSET by #BODY_BONUSES]+1)@BODY_BONUSES
+}
+
+function: total stats STRENGTH:n SPEED:n INTELLECT:n COMBAT:n BONUSES:n {
+    \ This times out if all the stats are dice \
+    \ They can be added later: [total stats 0 0 0 0 BONUSES] + 8d10 \
+    result: [strength STRENGTH plus BONUSES] + [speed SPEED plus BONUSES] + [intellect INTELLECT plus BONUSES] + [combat COMBAT plus BONUSES]
+}
+BONUSES: [bonuses 1d4 1d4]
+MARINE_BONUSES: [bonuses 1 1d4]
+ANDROID_BONUSES: [bonuses 2 1d4]
+SCIENTIST_BONUSES: [bonuses 3 1d4]
+TEAMSTER_BONUSES: [bonuses 4 1d4]
+
+\output [total stats 0 0 0 0 SCIENTIST_BONUSES] + 8d10 named "Total Stats"\
+output [strength 2d10 plus SCIENTIST_BONUSES] named "Strength"
+output [speed 2d10 plus SCIENTIST_BONUSES] named "Speed"
+output [intellect 2d10 plus SCIENTIST_BONUSES] named "Intellect"
+output [combat 2d10 plus SCIENTIST_BONUSES] named "Combat"
+output [sanity 2d10 plus SCIENTIST_BONUSES] named "Sanity"
+output [fear 2d10 plus SCIENTIST_BONUSES] named "Fear"
+output [body 2d10 plus SCIENTIST_BONUSES] named "Body"

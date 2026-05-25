@@ -1,0 +1,23 @@
+BAB: 4
+STR: 4
+WEAPON_BONUS: 1+1
+POWER_ATTACK: 1*0
+DIVINE_FAVOR: 3*0
+TO_HIT: (BAB+STR+WEAPON_BONUS-POWER_ATTACK+DIVINE_FAVOR)
+CRIT_ON: 19
+DAMAGE: (1d8+STR*(3/2)+WEAPON_BONUS+POWER_ATTACK*3+DIVINE_FAVOR)
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT_ON & ROLL+TO_HIT >= DEFENSE { result: [threat d20 vs DEFENSE] }
+ if (ROLL >= DEFENSE) {result: DAMAGE}
+ result: 0
+}
+function: threat ROLLTHREAT:n vs DEFENSE:n {
+ if ROLLTHREAT+TO_HIT >= DEFENSE { result: DAMAGE + DAMAGE }
+ else { result: DAMAGE }
+}
+
+
+loop AC over {5..30} {
+ output [attack d20 vs AC] named "[AC]"
+}

@@ -1,0 +1,83 @@
+\ \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\ Determine whether the heist results in a regular win, critical win, or loss. \
+\ ATTACK here is what the user will have as modifiers to their dice roll. \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\ Determine how much damage the attack dealt based on the chances of the attack hit \
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\What is the damage for an attack|heist using d20 with ATTACK modifier 
+  against an AC|location 
+\
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22} \ This is the location strength \
+
+
+
+ATTACK: 5 + 3
+HITDAMAGE: d10 + 4
+CRITICALDAMAGE: 14
+MISSDAMAGE: 0
+output [attack] named "Attack1"
+
+ATTACK: 5 + 2
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 12 + d8
+output [attack] named "Attack2"
+
+ATTACK: 5 + 3
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 12
+output [attack] named "Attack3"
+
+
+
+\AC is Armor Class which could be considered the location strength \
+\ Damage for a AC heist for player \
+\ Add abilities to modify these individually \
+ATTACK: 5 + 3 
+HITDAMAGE: d10 + 4
+CRITICALDAMAGE: 14
+MISSDAMAGE: 0
+loop AC over {10, 20, 30} {
+ \What is the damage for an attack|heist using d20 with ATTACK modifier 
+  against an AC|location 
+ \
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

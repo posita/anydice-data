@@ -1,0 +1,30 @@
+function: bbrange boons BOONS:n banes BANES:n {
+  BOONCHANCE: [highest of 0 and (3 + BOONS - BANES)]
+  BOONCHANCE: [lowest of BOONCHANCE and 6]
+  BANECHANCE: 6 - BOONCHANCE
+  result: d{0:BANECHANCE, 1:BOONCHANCE}
+}
+
+function: bbroll count COUNT:n bb BBRANGE:s  {
+  TOTAL: BOONS + BANES + COUNT
+  ROLL: TOTALd6
+  if 1@BBRANGE = 0 { result: [lowest COUNT of ROLL] }
+  result: [highest COUNT of ROLL]
+}
+
+function: dos ROLL:s {
+  if 1@ROLL = 2 { result: -2 }
+  if 1@ROLL = 12 { result: 3 }
+  if 1@ROLL >= 9 { result: 2 }
+  if 1@ROLL >= 6 { result: 1 }
+  result: 0
+}
+
+loop BANES over {0..2}{
+ loop BOONS over {0..2}{
+  BBRANGE: [bbrange boons BOONS banes BANES]
+  ROLL: [bbroll count 2 bb BBRANGE]
+  RES: [dos ROLL]
+  output RES named "[BOONS][+] [BANES][-]"
+ }
+}

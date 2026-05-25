@@ -1,0 +1,50 @@
+function: mode ROLL:s {
+ NUM_DICE: #ROLL
+ NUM_SIDES: [maximum of 1@ROLL]
+ MAX: 0
+ MODE: 0
+ loop I over {1..NUM_SIDES} {
+  COUNT: 0
+  loop J over {1..NUM_DICE} {
+   if J@ROLL = I {
+    COUNT: COUNT + 1
+   }
+  }
+  if COUNT = MAX {
+   MODE: 0
+  }
+  else {
+   if COUNT > MAX {
+    MAX: COUNT
+    MODE: I
+   }
+  }
+ }
+ result: MODE
+}
+
+function: count groups in ROLL:s as big as BIG_GROUP_SIZE:n {
+ NUM_DICE: #ROLL
+ NUM_SIDES: [maximum of 1@ROLL]
+ NUM_BIG_GROUPS: 0
+ loop I over {1..NUM_SIDES} {
+  COUNT: 0
+  loop J over {1..NUM_DICE} {
+   if J@ROLL = I {
+    COUNT: COUNT + 1
+   }
+  }
+  if COUNT >= BIG_GROUP_SIZE {
+   NUM_BIG_GROUPS: NUM_BIG_GROUPS + 1
+  }
+ }
+ result: NUM_BIG_GROUPS
+}
+
+X: 8
+Y: 6
+ROLL: XdY
+\output [mode ROLL] named "Mode of [X]d[Y]"\
+
+\output [count 1 in ROLL] > (X / 3) named "%chance of a Majority Mass Section"\
+output [count groups in ROLL as big as (X / 3)] named "Number of >=1/3 Mass Sections"

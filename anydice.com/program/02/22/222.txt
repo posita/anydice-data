@@ -1,0 +1,41 @@
+\
+ This function picks the H-th highest value of a sequence
+ (ordered highest to lowest).
+ If there is no such value, then the result is empty.
+\
+function: pick value H:n from S:s {
+ CURRENTH: 1
+ CURRENTVALUE: 1@S
+ loop P over {1..#S} {
+  if CURRENTVALUE != P@S {
+   CURRENTH: CURRENTH + 1
+   CURRENTVALUE: P@S
+  }
+  if CURRENTH = H { result: P@S }
+ }
+}
+
+\
+ This function wipes all sixes from a sequence.
+\
+function: scrub sixes from S:s {
+ RESULT: {}
+ loop P over {1..#S} {
+  if P@S != 6 { RESULT: {RESULT, P@S} }
+ }
+ result: RESULT
+}
+
+\
+ The final mechanic.
+ Roll 3d6, discard sixes, take 2nd highest value.
+ If there's no value, it's a toss-up between a 0 and a 6.
+\
+function: roll ROLL:s{
+ \ RESULT: [pick value 2 from [scrub sixes from ROLL]] \
+ RESULT: [pick value 2 from ROLL]
+ if #RESULT { result: RESULT }
+ result: d{0,6}
+}
+
+output [roll 3d6] named "the mechanic"

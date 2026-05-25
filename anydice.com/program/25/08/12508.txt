@@ -1,0 +1,51 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL >= AC { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL >= AC { result: HIT }
+ result: MISS
+}
+
+
+FIRST_NORMAL_DAMAGE: 2d6+4
+FIRST_CRIT_DAMAGE: 3d6+4
+SECOND_NORMAL_DAMAGE: 1d10+4
+SECOND_CRIT_DAMAGE: 2d10+4
+
+function: damage HIT:n for TYPE:n {
+ OUT: 0
+ if (HIT = 1 & TYPE = 1) {
+  OUT: OUT + (FIRST_NORMAL_DAMAGE)
+ } else if (HIT = 2 & TYPE = 1) {
+  OUT: OUT + (FIRST_CRIT_DAMAGE)
+ }
+ if (HIT = 1 & TYPE = 2) {
+  OUT: OUT + (SECOND_NORMAL_DAMAGE)
+ } else if (HIT = 2 & TYPE = 2) {
+  OUT: OUT + (SECOND_CRIT_DAMAGE)
+ }
+ result: OUT
+}
+
+
+DAMAGE_TOTAL: 0
+ARMOR: 15
+HIT_DICE: ([highest 1 of 2d20]+7)
+
+loop N over {1..3} {
+ HIT_RESULT: 0
+ HIT_RESULT: [attack (HIT_DICE) vs ARMOR]
+ if (N >= 2) {
+  DAMAGE: [damage HIT_RESULT for 2]
+ } else {
+  DAMAGE: [damage HIT_RESULT for N]
+ }
+ DAMAGE_TOTAL: DAMAGE_TOTAL + DAMAGE
+}
+output DAMAGE_TOTAL named "Total Damage"

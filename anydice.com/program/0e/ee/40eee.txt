@@ -1,0 +1,38 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n plus MOD:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + MOD >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRIT_DMG
+ }
+ if ATTACKRESULT = HIT {
+  result: HIT_DMG
+ }
+ result: MISS_DMG
+}
+
+HIT_DMG: 1d10 + 4
+CRIT_DMG: 2d10 + 4
+MISS_DMG: 0
+
+ATK_ROLL: 1d20
+ATK_MOD: 4
+
+AC: 15
+
+output [damage for [attack ATK_ROLL plus ATK_MOD vs AC]] named "test"
+output [damage for [attack ATK_ROLL plus ATK_MOD vs AC]] + [damage for [attack ATK_ROLL plus ATK_MOD vs AC]] named "2 attacks"
+output [damage for [attack ATK_ROLL plus ATK_MOD vs AC]] + [damage for [attack ATK_ROLL plus ATK_MOD vs AC]] named "2 attacks"
+ELDRITCH_BLAST: [damage for [attack ATK_ROLL plus ATK_MOD vs AC]]
+output ELDRITCH_BLAST + ELDRITCH_BLAST named "Two eldritch blasts"

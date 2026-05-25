@@ -1,0 +1,121 @@
+\Example case is a level 11 Paladin with 2 ASIs vs an AC 17 monster.  Note AC 17 is the average for a CR 11 monster according to the DMG.\
+
+\All this stuff at the top is just a general program for calculating DPR including things like accuracy, crit rate, and even things like Superiority Dice if I feel like it.\
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: precise SUP:n attack ROLL:n vs AC:n for DMG:d {
+    if ROLL + SUP >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:s use USE:d pass PASS:d {
+    if ROLL = 1 {
+        result: PASS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG + 2dSUP + USE
+    }
+    if [PRECISE_RANGE contains (ROLL + BONUS)] {
+        result: [precise SUP attack ROLL + BONUS vs AC for DMG] + USE
+    }
+    if ROLL + BONUS >= AC {
+        if SUP_DICE >= ATTACKS {
+            result: DMG + SUP + USE
+        }
+        result: DMG + PASS
+    }
+
+    result: PASS
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d {
+
+    \A B C D E F G are previous attack with 0, 1, 2, 3, 4, 5, or 6 superiority dice remaining\
+
+    A: 0
+    B: 0
+    C: 0
+    D: 0
+    E: 0
+    F: 0
+    G: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        G: [battlemaster 6 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use F pass G]
+        F: [battlemaster 5 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use E pass F]
+        E: [battlemaster 4 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use D pass E]
+        D: [battlemaster 3 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use C pass D]
+        C: [battlemaster 2 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use B pass C]
+        B: [battlemaster 1 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use A pass B]
+        A: ATTACK + A
+    }
+
+    if SUP_DICE = 6 {
+        result: G
+    }
+    if SUP_DICE = 5 {
+        result: F
+    }
+    if SUP_DICE = 4 {
+        result: E
+    }
+    if SUP_DICE = 3 {
+        result: D
+    }
+    if SUP_DICE = 2 {
+        result: C
+    }
+    if SUP_DICE = 1 {
+        result: B
+    }
+    if SUP_DICE = 0 {
+        result: A
+    }
+}
+
+AC: 17 
+PROF: 4
+STAT: 5
+
+
+output
+2d[attack 1d20 plus PROF + STAT vs AC for 1d10 + 1d8 + STAT crit 1d10 + 1d8 on 20]+1d[attack 1d20 plus PROF + STAT vs AC for 1d4 + 1d8 + STAT crit 1d4+1d8 on 20] named "[11] 18 Str PAMadin, Glaive"
+
+output
+2d[attack [highest 1 of 2d20] plus PROF + STAT vs AC for 1d10 + 1d8 + STAT crit 1d10 + 1d8 on 20]+1d[attack [highest 1 of 2d20] plus PROF + STAT vs AC for 1d4 + 1d8 + STAT crit 1d4+1d8 on 20] named "[11] 18 Str PAMadin, Glaive, Advantage"
+
+output
+2d[attack 1d20 plus PROF + STAT vs AC for 1d10 + 3d8 + STAT crit 1d10 + 3d8 on 20]+1d[attack 1d20 plus PROF + STAT vs AC for 1d4 + 3d8 + STAT crit 1d4+3d8 on 20] named "[11] 18 Str PAMadin, Glaive, L1 Smite"
+
+output
+2d[attack [highest 1 of 2d20] plus PROF + STAT vs AC for 1d10 + 3d8 + STAT crit 1d10 + 3d8 on 20]+1d[attack [highest 1 of 2d20] plus PROF + STAT vs AC for 1d4 + 3d8 + STAT crit 1d4+3d8 on 20] named "[11] 20 Str PAMadin, Glaive, L1 Smite, Advantage"
+
+STAT: 5
+
+output
+2d[attack 1d20 plus PROF + STAT vs AC for 1d6 + 1d8 + STAT crit 1d6 + 1d8 on 20]+1d[attack 1d20 plus PROF + STAT vs AC for 1d6 + 1d8 crit 1d6+1d8 on 20] named "[11] 20 Dex Elfadin, Shortswords"
+
+output
+2d[attack [highest 1 of 3d20] plus PROF + STAT vs AC for 1d6 + 1d8 + STAT crit 1d6 + 1d8 on 20]+1d[attack [highest 1 of 3d20] plus PROF + STAT vs AC for 1d6 + 1d8 crit 1d6+1d8 on 20] named "[11] 20 Dex Elfadin, Shortswords, Advantage"
+
+output
+2d[attack 1d20 plus PROF + STAT vs AC for 1d6 + 3d8 + STAT crit 1d6 + 3d8 on 20]+1d[attack 1d20 plus PROF + STAT vs AC for 1d6 + 3d8 crit 1d6+3d8 on 20] named "[11] 20 Dex Elfadin, Shortswords, L1 Smite"
+
+output
+2d[attack [highest 1 of 3d20] plus PROF + STAT vs AC for 1d6 + 3d8 + STAT crit 1d6 + 3d8 on 20]+1d[attack [highest 1 of 3d20] plus PROF + STAT vs AC for 1d6 + 3d8 crit 1d6+3d8 on 20] named "[11] 20 Dex Elfadin, Shortswords, L1 Smite, Advantage"

@@ -1,0 +1,38 @@
+function: compare S:s vs O:s {
+ R: #S
+ if R > #O { R: #O }
+ loop I over {1..R} {
+  
+ }
+ result: R
+}
+
+output [compare 2d20 vs 2d20]
+
+\
+function: cascade N:n {
+ if N = 20 { result: 12 }
+ if N = 12 { result: 10 }
+ if N = 10 { result: 8 }
+ if N = 8 { result: 6 }
+ if N = 6 { result: 4 }
+ result: 0
+}
+function: cascade S:s with M:n sides {
+ if M = 4 { result: S }
+ R: {}
+ loop I over {1..#S} {
+  if I@S = M { R: R + [ cascade 1d([cascade M]) with [cascade M] sides ] }
+ }
+ result: S + R
+}
+function: N:n c M:n { result: [ cascade (N)d(M) with M sides ] }
+function: luck { result: 1d4 + [2c6] }
+
+output [luck] + [lowest 2 of 11d10]-2 named "-1"
+output [luck] + [lowest 2 of  7d10]-2 named "0"
+output [luck] + [lowest 2 of  4d10]-2 named "1"
+loop N over {2..10} {
+ output [luck] + [highest 2 of (N)d10]-2
+}
+\

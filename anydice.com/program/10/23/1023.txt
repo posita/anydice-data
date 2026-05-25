@@ -1,0 +1,50 @@
+\
+ 3 is removed from play
+ 2 is flee
+ 1 is initiative loss
+ 0 is nothing
+\
+
+\ conversion of result range 0-6 to results listed above \
+CONVERSION: {0, 0, 1, 1, 2, 3}
+
+function: ATTACK:s vs DEFENSE:s {
+ A: 1@ATTACK
+ AP: 1
+ loop P over {1..#DEFENSE} {
+  if P@DEFENSE >= A {
+   \ eliminate die \
+   AP: AP + 1
+   A: AP@ATTACK
+  }
+  else { P: 100 } \ break out of loop \
+ }
+ \ convert remaining die, remove @CONVERSION to show original die value \
+ result: A@CONVERSION
+}
+
+function: boosted ATTACK:s vs DEFENSE:s {
+ A: 1@ATTACK
+ AP: 1
+ PIP: 1
+ loop P over {1..#DEFENSE} {
+  if P@DEFENSE >= A {
+   if PIP & A < 6 & P@DEFENSE < (A + 1) {
+    \ use pip to prevent elimination \
+    A: A + 1
+    PIP: 0
+   }
+   else {
+    \ eliminate die \
+    AP: AP + 1
+    A: AP@ATTACK
+   }
+  }
+  else { P: 100 }
+ }
+ result: A@CONVERSION
+ 
+}
+
+output [4d6 vs 3d6] named "normal 3 vs 2"
+output [boosted 4d6 vs 3d6] named "boosted 3 bonus vs 2"

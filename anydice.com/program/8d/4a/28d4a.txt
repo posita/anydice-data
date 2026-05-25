@@ -1,0 +1,21 @@
+function: roll ROLL:s  {
+ result: (ROLL > 5) + ((ROLL = 10)/2)*2
+}
+
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+
+output [reroll lowest of 2d10 as d10 if less than 6] named "2 dice, with WP2d12 replace lowest if < 6"
+
+output [roll 2d10] named "2 dice"
+output [roll 4d10] named "4 dice"
+output [roll 6d10] named "6 dice"
+output [roll 8d10] named "8 dice"
+output [roll 8d10] named "10 dice"

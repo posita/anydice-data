@@ -1,0 +1,38 @@
+set "explode depth" to 2
+
+function: four   {result: d[explode d{-1, 0, 0, 1}] }
+function: eight  {result: d[explode d{-1, 0, 0, 1, 1, 1, 1, 2}] }
+function: twelve {result: d[explode d{-1, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3}] }
+
+function: do A B C {result: Ad[twelve] + Bd[eight] + Cd[four]}
+
+loop C over {1..5}
+{
+  output Cd[four] named "[C]d4"
+}
+
+loop B over {1..5}
+{
+  output Bd[eight] named "[B]d8"
+}
+
+loop A over {1..5}
+{
+  output Ad[twelve] named "[A]d12"
+}
+
+loop B over {1..4}
+{
+  loop C over {1..5-B}
+  {
+    output [do 0 B C] named "[B]d8+[C]d4"
+  }
+}
+
+loop A over {1..4}
+{
+  loop B over {1..5-A}
+  {
+    output [do A B 0] named "[A]d12+[B]d8"
+  }
+}

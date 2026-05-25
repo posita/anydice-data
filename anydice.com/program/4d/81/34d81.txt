@@ -1,0 +1,43 @@
+RARITY: 4
+ACTUALCOST: 16250
+
+BONUS: 9
+SETTLEMENTBONUS: 0
+ROLL: 1d20
+
+function: cost RARITY:n {
+  if RARITY>=4 { result: (2d10+2)*1250 }
+  if RARITY=3 { result: (2d10+2)*125 }
+  if RARITY=2 { result: (1d10+2)*25 }
+  result: (1d8+2)*5
+}
+function: craft dc RARITY:n COST:n {
+  if RARITY>=4 { result: COST/100 }
+  if RARITY=3 { result: COST/25 }
+  if RARITY=2 { result: (COST*2)/25 }
+  result: 0
+}
+function: max days DC:n BONUS:n {
+  result: ((DC-1) / (1+BONUS))+1
+}
+function: min days DC:n BONUS:n {
+  result: ((DC-1) / (20+BONUS))+1
+}
+
+function: expected days BONUS:n COST:n DC:n {
+  MINDAYS: [min days DC BONUS]
+  MAXDAYS: [max days DC BONUS]
+  EXPECTEDEXTRADAYS: 0
+  loop N over {MINDAYS..MAXDAYS} {
+    DAYN: (1 - (Nd20+(N*BONUS) >= DC))
+    EXPECTEDEXTRADAYS: EXPECTEDEXTRADAYS + DAYN
+  }
+  result: EXPECTEDEXTRADAYS + MINDAYS
+}
+
+COST: [cost RARITY]
+output COST named "Cost of magic item"
+
+DC: [craft dc RARITY ACTUALCOST]
+output [expected days BONUS ACTUALCOST DC] named "Expected days to craft DC[DC] for [ACTUALCOST]gp"
+

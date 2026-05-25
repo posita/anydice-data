@@ -1,0 +1,69 @@
+\ I want to roll a x number of dice. in this example 5. then count the 1s,2s,3s and 4s rolled (and i want to roll at least 3 of these).
+  Then roll again a x number of dice, 5 again for the example and check how many matches i got (if rolled 1,2,3 i need a 1,2,3)  and i want at least 3 matches.
+  Also the result of 6 counts like a match for 1,2,3,4.
+  So to recap, i search for the possibility to match at least 3 of the possible (1,2,3,4) results of the 1st roll with the second roll, (having also a 6 as a wild)
+\
+
+D: d{1, 10, 100, 0, 0, 1000}
+
+function: match A:n and B:n {
+ A_SIXES: A / 1000
+ AR: A - A_SIXES * 1000
+ A_THREES: AR / 100
+ AR: AR - A_THREES * 100
+ A_TWOS: AR / 10
+ A_ONES: AR - A_TWOS * 10
+ 
+ B_SIXES: B / 1000
+ BR: B - B_SIXES * 1000
+ B_THREES: BR / 100
+ BR: BR - B_THREES * 100
+ B_TWOS: BR / 10
+ B_ONES: BR - B_TWOS * 10
+ 
+ if A_ONES = B_ONES {
+  MATCHES: A_ONES
+ }
+ else if A_ONES < B_ONES {
+  MATCHES: [lowest of A_ONES + A_SIXES and B_ONES]
+  A_SIXES: A_SIXES - MATCHES + A_ONES
+ }
+ else {
+  MATCHES: [lowest of A_ONES and B_ONES + B_SIXES]
+  B_SIXES: B_SIXES - MATCHES + A_ONES
+ }
+
+ if A_TWOS = B_TWOS {
+  MATCHES: MATCHES + A_TWOS
+ }
+ else if A_TWOS < B_TWOS {
+  M: [lowest of A_TWOS + A_SIXES and B_TWOS]
+  A_SIXES: A_SIXES - M + A_TWOS
+  MATCHES: MATCHES + M
+ }
+ else {
+  M: [lowest of A_TWOS and B_TWOS + B_SIXES]
+  B_SIXES: B_SIXES - M + A_TWOS
+  MATCHES: MATCHES + M
+ }
+
+ if A_THREES = B_THREES {
+  MATCHES: MATCHES + A_THREES
+ }
+ else if A_THREES < B_THREES {
+  M: [lowest of A_THREES + A_SIXES and B_THREES]
+  A_SIXES: A_SIXES - M + A_THREES
+  MATCHES: MATCHES + M
+ }
+ else {
+  M: [lowest of A_THREES and B_THREES + B_SIXES]
+  B_SIXES: B_SIXES - M + A_THREES
+  MATCHES: MATCHES + M
+ }
+ 
+ \ Assuming remaining sixes match as well, otherwise only use MATCHES as the result. \
+ result: MATCHES + [lowest of A_SIXES and B_SIXES]
+}
+
+POOL: 5dD
+output [match POOL and POOL] named "matches"

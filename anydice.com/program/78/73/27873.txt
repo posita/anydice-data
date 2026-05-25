@@ -1,0 +1,41 @@
+SIZE: 6 \Die size\
+COUNT: 2 \Num dice\
+ITERATIONS: 5 \Only used if LOOP > 1; d6 max 120 & d10 max 90\
+START: 5 \Min number of iterations\
+LOOP: 10 \Iterates through 1..LOOP iterations if > 1; d6 max 50 & d10 max 40\
+
+function: pig {
+  ACC: 0
+  loop I over {1..ITERATIONS} {
+    ACC: ACC + COUNTd{-1000, {1..SIZE-1}}
+  }
+  result: [highest of 0 and ACC]
+}
+
+function: nonzero {
+  ACC: 0
+  loop I over {1..ITERATIONS} {
+    ACC: ACC + COUNTdSIZE
+  }
+  result: ACC
+}
+
+if LOOP > 1 & LOOP > START{
+  loop I over {START..LOOP} {
+    ITERATIONS: I
+    output [pig] named "[ITERATIONS] iterations pig"
+  }
+} else {
+  output [pig] named "[ITERATIONS] pig"
+}
+
+\
+if LOOP > 1 & LOOP > START{
+  loop I over {START..LOOP} {
+    ITERATIONS: I
+    output [nonzero] named "[ITERATIONS] iterations nonzero pig"
+  }
+} else {
+  output [nonzero] named "[ITERATIONS] nonzero pig"
+}
+\

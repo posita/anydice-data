@@ -1,0 +1,105 @@
+set "maximum function depth" to 5
+function: ramp N:n S:s{
+ R: S
+ if N = 6 {
+  result: 6
+ }
+ if R <= N {
+  result: [ramp (N+1) 1d6]
+ }
+ result: N
+}
+function: triobar BAR:n DIR:n S:s {
+ H: 1@S
+ L: 2@S
+ RES: 0
+ BOTH: 0
+ if DIR = 1 {
+  if H >= BAR {
+   RES: RES + 1
+   BOTH: BOTH + 1
+  }
+  if L >= BAR {
+   RES: RES + 1
+   BOTH: BOTH + 1
+  }
+ }
+ if DIR = (-1) {
+  if H <= BAR {
+   RES: RES - 1
+   BOTH: BOTH + 1
+  }
+  if L <= BAR {
+   RES: RES - 1
+   BOTH: BOTH + 1
+  }
+ }
+ if BOTH = 2 {
+  result: RES + [triobar BAR DIR 2d6]
+ }
+ result: RES
+}
+function: triowithbar S:s {
+ H: 1@S
+ M: 2@S
+ L: 3@S
+ if H = 1 {M: M - 1}
+ if H = 6 {M: M + 1}
+ if L = 1 {M: M - 1}
+ if L = 6 {M: M + 1}
+ if H = L {
+  if H > 3 {result: M + [triobar H 1 2d6]}
+  else {result: M + [triobar H (-1) 2d6]}
+ }
+ result: M
+}
+function: trio S:s {
+ H: 1@S
+ M: 2@S
+ L: 3@S
+ if H = 1 {M: M - 1}
+ if H = 6 {M: M + 1}
+ if L = 1 {M: M - 1}
+ if L = 6 {M: M + 1}
+ result: M
+}
+function: sbreak D:n {
+ if D > 0 {
+  D: D - 1
+  if D = 1 {result: 1 + [sbreak 1d{2,1:3}]}
+ }
+ else {
+  D: D + 1
+  if D = (-1) {result: (-1) + [sbreak 1d{-2,-1:3}]}
+ }
+ result: 0
+}
+function: sigma D:n {
+ if D = 12 {result: (D-7) + [sbreak 1d{2,1:3}]}
+ if D = 3 {result: (D-8) + [sbreak 1d{-2,-1:3}]}
+ if D >= 8 {result: D-7}
+ result: D-8
+}
+function: shbreak D:n {
+ if D = 2 {result: D + [shbreak 1d{0:3,1:2,2}]}
+ if D = -2 {result: D + [shbreak 1d{0:3,-1:2,-2}]}
+ result: D
+}
+function: shigma D:n {
+ if D = 3 {result: D + [shbreak 1d{0:3,1:2,2}]}
+ if D = -3 {result: D + [shbreak 1d{0:3,-1:2,-2}]}
+ result: D
+}
+output [shigma 1d{-3,-2,-1,1,2,3}] named "shigma"
+output [sigma 3d4] named "sigma"
+output [trio 3d6] named "trio"
+output [triowithbar 3d6] named "triowithbar"
+\output 6d{0:7,1:3}\
+\output [ramp 1 1d6]\
+\output [ramp 2 1d6]\
+\output [ramp 3 1d6]\
+\output [ramp 4 1d6]\
+\output [ramp 5 1d6]\
+\output 1d6\
+\output 1d3\
+\output 1d2\

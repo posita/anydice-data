@@ -1,0 +1,63 @@
+\ NUMBER = DS: surge is one's place, hearts/damage are ten's place \
+MISS: -999
+BLUE:   {MISS,  10, 11, 20, 20, 21}
+RED:    {10,    20, 20, 20, 30, 31}
+YELLOW: {01,    10, 10, 11, 20, 21}
+
+BROWN: {0, 0, 0, 1, 1, 2}
+GRAY: {0, 1, 1, 1, 2, 3}
+BLACK: {0, 2, 2, 2, 3, 4}
+
+function: A:n add B:n {
+  if A = MISS {
+    result: MISS
+  }
+  if B = MISS {
+    result: MISS
+  }
+  result: ([damage A] + [damage B]) * 10 + [surge A] + [surge B]
+}
+
+function: damage A:n {
+  if A = MISS {
+    result: 0
+  }
+  if #A < 2 {
+    result: 0
+  }
+  result: 1@A
+}
+
+function: surge A:n {
+  if A = MISS {
+    result: 0
+  }
+  if #A < 2 {
+    result: A
+  }
+  result: 2@A
+}
+
+function: damage of A:n with surges SURGES:s {
+  if A = MISS {
+    result: 0
+  }
+  TOTAL: [damage A]
+  SURGESLEFT: [surge A]
+  loop S over SURGES {
+    if SURGESLEFT > 0 {
+      TOTAL: TOTAL + S
+    }
+    SURGESLEFT: SURGESLEFT - 1
+  }
+  result: TOTAL
+}
+
+ZOMBIE: [[1dBLUE add 1dRED] add 1dYELLOW]
+BARON: 1dBROWN + 1dGRAY + 1dBLACK
+
+output [highest of [damage of 1dZOMBIE with surges {1}] - 1dBARON and 0] named "Zombie vs Baron With X and Surge 1"
+\
+output [highest of [damage of 1dZOMBIE with surges {2}] - 1dBARON and 0] named "Zombie vs Baron With X and Surge 2"
+output [highest of [damage of 1dZOMBIE with surges {2, 1}] - 1dBARON and 0] named "Zombie vs Baron With X and Surge 2 1"
+\

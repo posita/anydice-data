@@ -1,0 +1,28 @@
+function: select INDICES:s from SEQUENCE:s {
+  RESULT: {}
+  loop INDEX over INDICES {
+    RESULT: {RESULT, INDEX@SEQUENCE}
+  }
+  result: RESULT
+}
+
+function: ROLL:s drop highest up to LIMIT:n unless EXCLUDE:s {
+  \ assumes ROLL is sorted in descending order! \
+  OFFSET: 1 + (ROLL > LIMIT) 
+  if OFFSET > #ROLL | OFFSET@ROLL = EXCLUDE { result: ROLL }
+  result: [select {1 .. OFFSET-1, OFFSET+1 .. #ROLL} from ROLL]
+}
+
+function: count ones in ROLL:s disadvantage DIS:s if sum is TARGET:n {
+  POOL: [sort ROLL]
+  loop D over DIS {
+    if D > 1 { POOL: [POOL drop highest up to D unless 1] }
+  }
+  SUM: {1,2}@POOL
+  if SUM != TARGET { result: d{} } \ wrong sum, skip this result! \
+  result: (ROLL = 1) + (DIS = 1)   \ else return total number of ones \
+}
+
+loop TARGET over {1..8} {
+  output [count ones in 2d4 disadvantage 1d4 if sum is TARGET] named "number of ones if sum = [TARGET]"
+}

@@ -1,0 +1,35 @@
+function: reroll TARGETS:s on ROLL:n to REPLACEMENT:d {
+    if [TARGETS contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+function: reroll REROLL:s as DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: reroll greatest of ROLL:s as REROLL:n if greater than TARGET:n {
+  SUCCESSES: ROLL <= TARGET
+  if SUCCESSES < #ROLL {
+    result: SUCCESSES + (REROLL <= TARGET)
+  }
+  else {
+   result: SUCCESSES
+  }
+}
+
+Q: d{0..3}
+
+
+output [reroll greatest of 10dQ as 1dQ if greater than 3] named "Reroll 4+ Success only"
+output [reroll {1..3} as dQ]
+output [reroll {1,3} on dQ to dQ]
+
+
+output 0 named "reroll failures only"
+output 0 named "reroll successes only"
+output 0 named "reroll any target"
+output 0 named "roll & reroll as x+"
+output 0 named "roll as x+ & reroll as y+"
+
+

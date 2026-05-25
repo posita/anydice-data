@@ -1,0 +1,36 @@
+DES: {6, 8, 10, 12}
+SEUILS: {6..12, 10..12}
+NOPUSH: {}
+
+function: roll DE:d {
+  result: [count SEUILS in DE]
+}
+
+function: reroll DE:d on VAL:n {
+  if ((VAL > #NOPUSH@NOPUSH) & (VAL < 1@SEUILS)) {
+    result: DE }
+  result: VAL
+}
+
+function: push DE:d {
+  X: [reroll DE on DE]
+  result: [count SEUILS in X]
+}
+
+loop N over {1..10} {
+  TA: [count {1} in Nd6]
+  output TA named "STRESS: [N]d6"
+}
+
+loop AT over DES {
+  loop CP over {0, DES} {
+    if AT >= CP {
+      RA: [roll dAT]
+      RB: [roll dCP]
+      output RA + RB named "d[AT] d[CP]"
+      RA: [push dAT]
+      RB: [push dCP]
+      output RA + RB named "d[AT] d[CP] pushed"
+}}}
+
+\ADR: +1 nv, STRESS: black dice d6, d8, d10, d12, d6d12, d8d12, d10d12 -> Panique \

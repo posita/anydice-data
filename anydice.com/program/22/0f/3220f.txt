@@ -1,0 +1,40 @@
+TARGET_AC: 16
+TARGET_HIGH_AC: 25
+ATTACK_MOD: 6
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+MISSDAMAGE: 0
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+\bite damage\
+HITDAMAGE: 3d8
+CRITICALDAMAGE: 6d8
+BITE: [damage for [attack d20 vs TARGET_AC]]
+BITE_UP: [damage for [attack d20 vs TARGET_HIGH_AC]]
+
+
+output BITE  named "обычный КД"
+output [highest of 0 and [highest of 0 and (BITE - (1d6+9))]] named "парирование"
+output BITE_UP named "высокий КД"
+
+

@@ -1,0 +1,56 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1           { result: 0 }
+    if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG }
+    if ROLL + BONUS >= AC { result: DMG }
+    result: 0
+}
+
+function: max A:n B:n {
+  if A > B { result: A }
+  result: B
+}
+
+function: reroll A:n B:n T:n DIE:d {
+  if A < T { result: [max DIE B] }
+  if B < T { result: [max A DIE] }
+  result: [max A B]
+}
+
+function: reroll A:n T:n DIE:d {
+  if A < T { result: DIE }
+  result: A
+}
+
+function: advantaged DIE:d {
+  result: [max DIE DIE]
+}
+
+function: elven DIE:d T:n {
+  result: [reroll DIE DIE T DIE]
+}
+
+AC: 10  \ AC of target \
+DT: 5   \ damage dice threshold for reroll \
+HT: 11  \ to-hit dice threshold for reroll \
+
+output [attack d20 plus 9 vs AC for 1d8+4 crit 1d8 on 19] named "longbow"
+
+output [attack [advantaged d20] plus 9 vs AC for 1d8+4 crit 1d8 on 19] named "advantaged longbow"
+
+output [attack d20 plus 9-5 vs AC for 1d8+4+10 crit 1d8 on 19] named "sharp longbow"
+
+output [attack d20 plus 9 vs AC for [reroll 1d8 DT 1d8]+4 crit 2d8 on 19] named "piercer longbow"
+
+output [attack [elven d20 HT] plus 9 vs AC for 1d8+4 crit 1d8 on 19] named "elven advantaged longbow"
+
+output [attack [elven d20 HT] plus 9 vs AC for [reroll 1d8 DT 1d8]+4 crit 2d8 on 19] named "elven advantaged piercer longbow"
+
+output [attack [advantaged d20] plus 9-5 vs AC for 1d8+4+10 crit 1d8 on 19] named "advantaged sharp longbow"
+
+output [attack [advantaged d20] plus 9 vs AC for [reroll 1d8 DT 1d8]+4 crit 2d8 on 19] named "advantaged piercer longbow"
+
+output [attack [elven d20 HT] plus 9-5 vs AC for 1d8+4+10 crit 1d8 on 19] named "elven advantaged sharp longbow"
+
+output [attack [elven d20 HT] plus 9-5 vs AC for [reroll 1d8 DT 1d8]+4+10 crit 2d8 on 19] named "elven advantaged sharp piercer longbow"
+
+output [attack d20 plus 9-5 vs AC for [reroll 1d8 DT 1d8]+4+10 crit 2d8 on 19] named "sharp piercer longbow"

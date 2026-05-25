@@ -1,0 +1,203 @@
+INT_MOD: 5
+PROF_BONUS: 6
+set "maximum function depth" to 15
+
+function: is prone by AC and STR {
+  result: 1d20 + INT_MOD + PROF_BONUS >= AC & 1d20+STR < 8 + INT_MOD + PROF_BONUS
+}
+
+function: apply adv by IS_PRONE:n {
+  if IS_PRONE {
+    result: [highest 1 of 2d20]
+  } else {
+    result: 1d20
+  }
+}
+
+function: crit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK = 20 {
+    result: DMG + DMG + ADD
+  } else if ATK + BONUS >= AC{
+    result: DMG + ADD
+  } else {
+    result: 0
+  }
+}
+
+function: champcrit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK >= 18 {
+    result: DMG + DMG + ADD
+  } else if ATK + BONUS >= AC{
+    result: DMG + ADD
+  } else {
+    result: 0
+  }
+}
+
+function: sharpcrit DMG with ADD by ATK:n and BONUS and AC {
+  if ATK = 20 {
+    result: DMG + DMG + ADD + 1d6 + 10
+  } else if ATK + BONUS - 5>= AC{
+    result: DMG + ADD + 10
+  } else {
+    result: 0
+  }
+}
+
+function: save DAMAGE by ROLL:n with BONUS against DC {
+  if ROLL + BONUS >= DC {
+    result: 0
+  } else {
+    result: DAMAGE
+  }
+}
+
+function: add PER_TURN per turn to COUNT DAMAGE_ROLL with CONST:s by ADV_COUNT and BONUS and AC {
+  TOTAL: 0
+  USED: 0
+  loop N over {1..COUNT}{
+    if N <= ADV_COUNT {
+      ATK: [highest 1 of 2d20]
+    } else {
+      ATK: 1d20
+    }
+    if USED {
+      TOTAL: TOTAL + [crit (DAMAGE_ROLL) with N@CONST by ATK and BONUS and AC]
+    } else {
+      NEW: TOTAL + [crit (DAMAGE_ROLL + PER_TURN) with N@CONST by ATK and BONUS and AC]
+      if {NEW} >= {TOTAL} {
+        USED: 1
+      }
+      TOTAL: NEW
+    }
+  }
+  result: TOTAL
+}
+
+function: champadd PER_TURN per turn to COUNT DAMAGE_ROLL with CONST by ADV_COUNT and BONUS and AC {
+  TOTAL: 0
+  USED: 0
+  loop N over {1..COUNT}{
+    if N <= ADV_COUNT {
+      ATK: [highest 1 of 2d20]
+    } else {
+      ATK: 1d20
+    }
+    if USED {
+      TOTAL: TOTAL + [champcrit (DAMAGE_ROLL) with CONST by ATK and BONUS and AC]
+    } else {
+      NEW: TOTAL + [champcrit (DAMAGE_ROLL + PER_TURN) with CONST by ATK and BONUS and AC]
+      if {NEW} >= {TOTAL} {
+        USED: 1
+      }
+      TOTAL: NEW
+    }
+  }
+  result: TOTAL
+}
+
+function: sharpadd PER_TURN per turn to COUNT DAMAGE_ROLL with CONST by ADV_COUNT and BONUS and AC {
+  TOTAL: 0
+  USED: 0
+  loop N over {1..COUNT}{
+    if N <= ADV_COUNT {
+      ATK: [highest 1 of 2d20]
+    } else {
+      ATK: 1d20
+    }
+    if USED {
+      TOTAL: TOTAL + [sharpcrit (DAMAGE_ROLL) with CONST by ATK and BONUS and AC]
+    } else {
+      NEW: TOTAL + [sharpcrit (DAMAGE_ROLL + PER_TURN) with CONST by ATK and BONUS and AC]
+      if {NEW} >= {TOTAL} {
+        USED: 1
+      }
+      TOTAL: NEW
+    }
+  }
+  result: TOTAL
+}
+
+function: smite at SLEVEL {
+  result: 1d8 + SLEVELd8
+}
+
+function: guiding bolt at SLEVEL {
+  result: 3d6 + SLEVELd6
+}
+
+function: repeat ROLL times TIMES {
+  TOTAL: 0
+  loop N over {1..TIMES} {
+    TOTAL: TOTAL + ROLL
+  }
+  result: TOTAL
+}
+
+function: repeat ROLL until MOD beats DC {
+  TOTAL: 0
+  ENDED: 0
+  loop N over {1..5} {
+    if {1d20 + MOD} >= DC {
+      ENDED: 1
+    }
+    if !ENDED {
+      TOTAL: TOTAL + ROLL
+    }
+  }
+  result: TOTAL
+}
+
+function: reroll ROLL:n as DICE under LIMIT {
+  if ROLL <= LIMIT {
+    result: DICE
+  }
+  result: ROLL
+}
+
+MAX: 1850
+MIN: 210
+function: bound VALUE {
+  result: [highest of [lowest of VALUE and MAX] and MIN]
+}
+
+\Player Level\
+LEVEL: 20
+
+\Zariel\
+\ENEMY_AC: 21\
+\ENEMY_STR: 8\
+
+\Vecna\
+ENEMY_AC: 18
+ENEMY_STR: 2
+
+CANTRIP_LEVEL: (LEVEL + 1 - (LEVEL + 1)/5)/5
+CASTER_LEVEL: [highest of LEVEL and 6] - 6 + [lowest of LEVEL and 6]/2
+SPELL_SLOT: 1 + CASTER_LEVEL/2
+SHADOW_DAMAGE_ROLL: (2 + ([lowest of SPELL_SLOT and 8]-1)/2)d8
+BOOMING_DAMAGE_ROLL: SHADOW_DAMAGE_ROLL + 1d8 + (2*CANTRIP_LEVEL)d8
+
+PRONE: [is prone by ENEMY_AC and ENEMY_STR]
+
+BONUS: INT_MOD + PROF_BONUS
+SAVE_DC: 8 + BONUS
+
+output 4d84 + 338 named "Champion Fighter Naive (Estimated)"
+
+output 4d160 + 1062 named "Magnificent Blastard (estimated)"
+
+output [repeat [reroll 1d122 as 1d122 under 40] times 4] + 473 named "Frostblade (Estimated)"
+
+output 4d100 + 567 named "Ellie Upcasting (Estimated)"
+
+output 4d70 + 206 named "Astral Shifter (Estimated)"
+
+output 4d143 + 555 named "Runic Tosser (Estimated)"
+
+output 4d200 + 743 named "Duel Scholar (estimated)"
+
+
+
+
+

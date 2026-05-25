@@ -1,0 +1,36 @@
+\ SCROLL TO THE BOTTOM FOR THE CALCULATOR \ 
+
+\ Dice templates \
+GRIM: {1,1,1,1,1,1   }
+TOME: {1,1,1,1,   0,0}
+LOOT: {1,1,1,   0,0,0}
+WOOD: {1,1,   0,0,0,0}
+
+\ Ranald's roller \
+function: ranalds bones with DICE:s {
+  GRIM_N: [lowest of 1@DICE and 7]
+  TOME_N: [lowest of 2@DICE and 7 - GRIM_N]
+  LOOT_N: [lowest of 3@DICE and 7 - GRIM_N - TOME_N]
+  WOOD_N: 7 - GRIM_N - TOME_N - LOOT_N
+  result: GRIM_NdGRIM + TOME_NdTOME + LOOT_NdLOOT + WOOD_NdWOOD
+}
+
+\ Add two sequences \
+function: add SA:s and SB:s {
+  SUM: {}
+  loop N over {1..[lowest of #SA and #SB]} {
+    SUM: {SUM, N@SA + N@SB}
+  }
+  result: SUM
+}
+
+\ ----------------------------------------------------------------- \
+
+\ Dice awarded by you mutator. Format: {GRIM, TOME, LOOT} \
+AWARD: {0, 0, 0}
+
+\ Show some common scenarios \
+output [ranalds bones with [add {0,0,0} and AWARD]] named "No books"
+output [ranalds bones with [add {0,3,0} and AWARD]] named "Only tomes"
+output [ranalds bones with [add {2,3,0} and AWARD]] named "Tomes and grims"
+output [ranalds bones with [add {2,3,2} and AWARD]] named "Full dice"

@@ -1,0 +1,85 @@
+\Joe Paladin damage calculation\
+MODIFIER:4
+\Info box end\
+
+
+MOD:MODIFIER
+
+function: crit DIE:n SIZE:n GWF:n {
+TOTALDAMAGE:0
+if GWF=1 {
+loop N over {1..(DIE*2)}{
+DAMAGE: [gwf 1dSIZE SIZE]
+TOTALDAMAGE:TOTALDAMAGE+DAMAGE}
+result:TOTALDAMAGE
+}else{result: (DIE*2)d(SIZE)}
+}
+
+function: gwf A:n B:n {
+if A<=2 {result:1dB}
+else {result:A}
+}
+
+function: longsword CR:n {
+if CR=1 {
+result:[crit 1 8 0]
+}else {result: 1d8}
+}
+
+function: longswordv CR:n {
+if CR=1 {
+result:[crit 1 10 1]
+}else {result: [gwf 1d10 10]}
+}
+
+function: greatsword CR:n {
+if CR=1 {result:[crit 2 6 1]}
+else {
+DAMAGE:0
+loop N over {1..2}{
+DIE:[gwf 1d6 6]
+DAMAGE:DAMAGE+DIE}
+result:DAMAGE}
+}
+
+function: divinesmite SS:n GWF:n CR:n {
+DIE:SS+1
+if CR=1{result: [crit DIE 8 GWF] 
+}else if GWF=1{
+TDAM:0
+loop N over {1..DIE}{
+DAM:[gwf 1d8 8]
+TDAM:TDAM+DAM}
+result:TDAM
+}else{result: DIEd8}
+}
+
+\outputs\
+output [longsword 0]+MOD named "Longsword"
+output [longswordv 0]+MOD named "Longsword (2h)"
+output [greatsword 0]+MOD named "Greatsword"
+output [longsword 1]+MOD named "Longsword (crit)"
+output [longswordv 1]+MOD named "Longsword (2h,crit)"
+output [greatsword 1]+MOD named "Greatsword (crit)"
+
+output [divinesmite 1 0 0] named "Divine Smite 1"
+output [divinesmite 2 0 0] named "Divine Smite 2"
+output [divinesmite 3 0 0] named "Divine Smite 3"
+output [divinesmite 4 0 0] named "Divine Smite 4"
+output [divinesmite 5 0 0] named "Divine Smite 5"
+output [divinesmite 1 1 0] named "Divine Smite 1 (GWF)"
+output [divinesmite 2 1 0] named "Divine Smite 2 (GWF)"
+output [divinesmite 3 1 0] named "Divine Smite 3 (GWF)"
+output [divinesmite 4 1 0] named "Divine Smite 4 (GWF)"
+output [divinesmite 5 1 0] named "Divine Smite 5 (GWF)"
+output [divinesmite 1 0 1] named "Divine Smite 1 (crit)"
+output [divinesmite 2 0 1] named "Divine Smite 2 (crit)"
+output [divinesmite 3 0 1] named "Divine Smite 3 (crit)"
+output [divinesmite 4 0 1] named "Divine Smite 4 (crit)"
+output [divinesmite 5 0 1] named "Divine Smite 5 (crit)"
+output [divinesmite 1 1 1] named "Divine Smite 1 (GWF,crit)"
+output [divinesmite 2 1 1] named "Divine Smite 2 (GWF,crit)"
+output [divinesmite 3 1 1] named "Divine Smite 3 (GWF,crit)"
+output [divinesmite 4 1 1] named "Divine Smite 4 (GWF,crit)"
+output [divinesmite 5 1 1] named "Divine Smite 5 (GWF,crit)"
+

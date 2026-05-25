@@ -1,0 +1,51 @@
+\Values\
+ROSE:2
+SKULL:1
+VOID:0
+
+\Faces\
+BASEDICE: {1:3, 2:3}
+ROSEDICE: {0:3, 2:3}
+SKULLDICE: {0:3, 1:3}
+
+\POOLS\
+BASES:3
+ROSES:0
+SKULLS:0
+
+\Interim\
+BASEPOOL: BASESdBASEDICE
+ROSEPOOL: ROSESdROSEDICE
+SKULLPOOL: SKULLSdSKULLDICE
+GARDENROSES: [count {ROSE} in BASEPOOL] + [count {ROSE} in ROSEPOOL]
+GARDENSKULLS: [count {SKULL} in BASEPOOL] + [count {SKULL} in SKULLPOOL]
+GARDENVOIDS: [count {VOID} in ROSEPOOL] + [count {VOID} in SKULLPOOL]
+
+\Outputs\
+\output [count {ROSE} in BASESdBASEDICE] named "Roses on [BASES]d Bases"
+output [count {SKULL} in BASESdBASEDICE] named "Skulls on [BASES]d Bases"
+output [count {ROSE} in ROSESdROSEDICE] named "Roses on [ROSES]d Roses"
+output [count {SKULL} in SKULLSdSKULLDICE] named "Skulls on [SKULLS]d Skulls"\
+
+output GARDENROSES >= GARDENSKULLS named "Roses >= Skulls"
+output GARDENROSES < GARDENSKULLS named "Skulls > Roses"
+
+\As the pool size increases the chance of = decreases.\
+output GARDENROSES = GARDENSKULLS named "Roses = Skulls"
+output GARDENSKULLS > 0 named "Skulls > 0"
+
+function: outcome C:n R:n S:n{
+   if R >= C 
+   {
+      if S < 1 {result:3} \Triumph\
+      if S >= R {result:1} \Wilt\
+      result:2 \Success\
+   }
+   result:0 \Failure\
+}
+
+output [outcome 1 GARDENROSES GARDENSKULLS] named "Challenge 1 (0=Failure 1=Wilt 2=Success 3=Triumph)"
+
+loop CHALLENGE over {2..5} {
+   output [outcome CHALLENGE GARDENROSES GARDENSKULLS] named "Challenge [CHALLENGE]"
+}

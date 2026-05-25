@@ -1,0 +1,25 @@
+\ point buy cost of a single ability score using extended D&D 5e cost table \
+\ from https://chicken-dinner.com/5e/5e-point-buy.html via https://rpg.stackexchange.com/a/185268 \
+function: cost of SCORE:n {
+  if SCORE < 3 { result: -1000 }    \ safety check 1: rolling below 3 should be impossible \
+  if SCORE > 18 { result: 1000000 } \ safety check 2: rolling above 18 should also be impossible \
+  result: (SCORE - 2) @ { -9, -6, -4, -2, -1, 0, 1, 2, 3, 4, 5, 7, 9, 12, 15, 19 }
+}
+
+\ point cost distributions for 6 stat arrays rolled with different methods \
+STANDARD: 6d[cost of [highest 3 of 4d6]]  \ standard (4d6 drop lowest) \
+CLASSIC: 6d[cost of 3d6]  \ classic (3d6) \
+
+\ optimized alternative to 1@(NdD) from https://rpg.stackexchange.com/a/176183 \
+function: highest of N:n x D:d {
+  if N = 0 { result: 0 }
+  if N = 1 { result: D }
+  RES: 1@2d[highest of N/2 x D]
+  if N - (N/2)*2 = 1 { RES: [highest of D and RES] }
+  result: RES
+}
+
+output STANDARD named "5e point cost of standard 4d6 drop lowest array"
+loop N over {1..10} {
+  output [highest of N x CLASSIC] named "highest 5e point cost of [N] classic 3d6 arrays"
+}

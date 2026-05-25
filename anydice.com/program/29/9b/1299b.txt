@@ -1,0 +1,45 @@
+function: remove N:n from SEQUENCE:s {
+  RESULT:{}
+  REMOVED: 0
+  loop C over SEQUENCE {
+    if (REMOVED = 0) & (C=N) { REMOVED: 1 } else { RESULT: {RESULT,C} }
+  }
+  result: RESULT
+}
+
+function: draw from SEQUENCE:s with X:n and RESULT:s C:n more times{
+  if C = 0 {
+   result: RESULT
+  } else {
+    SEQUENCE: [remove X from SEQUENCE]
+    result: [draw from SEQUENCE with dSEQUENCE and {RESULT,X} C-1 more times]
+  }
+}
+
+function: draw from SEQUENCE:s with X:n and RESULT:s C:n times keeping KEEP:s {
+  if C = 0 {
+   result:  KEEP @ [sort RESULT]
+  } else {
+    SEQUENCE: [remove X from SEQUENCE]
+    result: [draw from SEQUENCE with dSEQUENCE and {RESULT,X} C-1 times keeping KEEP]
+  }
+}
+
+function: draw from SEQ:s N:n times keeping KEEP:s {
+   result: [draw from SEQ with dSEQ and {} N times keeping KEEP]
+}
+
+function: draw from SEQUENCE:s N:n times {
+  result: [draw from SEQUENCE with dSEQUENCE and {} N more times]
+}
+
+UNI: {1: 6, 10: 6, 100: 6, 1000: 6}
+
+ASI: {1: 8, 10: 6, 100: 6, 1000: 4}
+
+output [draw from UNI 3 times] named "Uni 3"
+output [draw from ASI 3 times] named "Asi 3"
+
+
+
+output [draw from UNI 4 times] named "Uni 4"

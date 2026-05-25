@@ -1,0 +1,35 @@
+function: ROLL:n under SKILL:n {
+   if ROLL = 1 { result: SKILL}
+   if ROLL > SKILL { result: 0} 
+   result: ROLL
+} 
+function: roll SKILL {
+   NUMDIE: (SKILL+19)/20
+   DIECOLLECTION: NUMDIEd20
+   MINDIE: NUMDIE@DIECOLLECTION
+   TARGET: SKILL - (NUMDIE-1) *20
+   NUMONES: [count {1} in DIECOLLECTION]
+   SUBTOTAL: 0
+   if NUMDIE > 1 {
+      X: NUMDIE -1
+      loop N over {1..X}{
+          SUBTOTAL: SUBTOTAL + N@DIECOLLECTION
+      } 
+   }
+   
+   LASTDIE: [MINDIE under TARGET]
+   result: LASTDIE + SUBTOTAL
+
+}
+
+function: compare ATT vs DEF {
+    ONE: [roll ATT]
+    TWO: [roll DEF]
+    result: ONE - TWO
+}
+
+output [compare 30 vs 15]
+loop N over {20..25}{
+     output [roll N] named "Skill [N]"
+} 
+

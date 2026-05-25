@@ -1,0 +1,21 @@
+\ Slår X antal tärningar och räknar de tärningar som visar 4+ som lyckade resultat. \
+\ Om någon tärning slår max så slår man ytterligare en tärning.                     \
+
+\ Högre värden ger mer exakta resultat i uträkningen men tar längre tid. Testa själv. \
+set "maximum function depth" to 6    \ Default-värdet är 10 men jag minskade det till 6. \
+
+function: exploding DIE:n {                  \ Tar in varje enskild tärning. \
+  SUCCESSES: [count {4,5,6} in DIE]           \ Lägger till 1 till potten om tärningen visar 4+. \
+                                     \ Slår en ny tärning om tärningen visar max.  \
+  if DIE = 6 { result: SUCCESSES + [exploding 1dDIE] }
+  result: SUCCESSES                        \ Returnerar antalet lyckade tärningar. \
+}
+
+MINDICE: 1          \ Minsta antalet tärningar i beräkningen. \
+MAXDICE: 1         \ Största antalet tärningar i beräkningen. \
+DIE: d6             \ Den tärningstyp som du vill använda \
+
+loop N over {MINDICE..MAXDICE} {
+  SUCCESSES: 0
+  output Nd[exploding DIE] named "Slå 4,5,6 med exploderande [N]d6"
+}

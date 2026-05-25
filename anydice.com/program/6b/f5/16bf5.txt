@@ -1,0 +1,56 @@
+function: is ROLL:n successful over NUMBER{
+if ROLL >= NUMBER{
+      result: 1
+   }else{
+      result: 0
+   }
+}
+
+function: flip ROLL{
+result: 7 - ROLL
+}
+
+function: flip ROLL:n negative{
+if ROLL = {4..6}{result: [flip ROLL]}else{result: ROLL}
+}
+
+function: flip ROLL:n positive{
+if ROLL = {1..3}{result: [flip ROLL]}else{result: ROLL}
+}
+
+function: reroll A:n if less than N:n{
+ if A < N { result: 1d6 }
+ result: A
+}
+
+function: roll DICE dice rerolling under THRESHOLD up to REROLLS times{
+SUCCESS: 0
+loop N over {1..DICE}{
+   ROLL: 1d6
+   if REROLLS < 0{
+      loop N over {1..(-REROLLS)}{
+         ROLL: [flip ROLL negative]
+      }
+   }
+   loop M over {1..REROLLS}{
+      ROLL: [reroll ROLL if less than THRESHOLD]
+   }
+   SUCCESS: SUCCESS + [count{5,6} in ROLL] - [count{1,2} in ROLL]
+}
+result: SUCCESS
+}
+
+MARKSMAN: 0
+RANGE: 0
+
+PISTOL: [roll 4 dice rerolling under 3 up to (0 + MARKSMAN - RANGE) times]
+RIFLE: [roll 4 dice rerolling under 3 up to (1 + MARKSMAN - RANGE) times]
+SHOTGUN: [roll 4 dice rerolling under 3 up to (2 + MARKSMAN - RANGE) times]
+SNIPER: [roll 4 dice rerolling under 3 up to (5 + MARKSMAN - RANGE) times]
+
+DL: 1
+
+output [is PISTOL successful over DL] named "pistol"
+output [is RIFLE successful over DL] named "rifle"
+output [is SHOTGUN successful over DL] named "shotgun"
+output [is SNIPER successful over DL] named "sniper"

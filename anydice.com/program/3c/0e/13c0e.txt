@@ -1,0 +1,24 @@
+function: roll DIE:d vs TN:n {
+ MAX: [maximum of DIE]
+ result: [roll DIE vs TN helper]
+}
+
+function: roll R:n vs TN:n helper {
+  RES: (R-TN+4)/4
+  if RES < 0 { RES: 0 }
+  if R = MAX { 
+    if TN < 3 {
+      RES: RES + [roll DIE vs 2 helper]
+    } else {
+      RES: RES + [roll DIE vs TN-1 helper]
+    }
+  }
+
+  result: RES
+}
+
+loop TN over {6} {
+  loop N over {4,6,8,10} {
+    output [highest of [roll dN vs TN] and [roll d6 vs TN]] named "d[N]T vs [TN]"
+  }
+}

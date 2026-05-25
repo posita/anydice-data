@@ -1,0 +1,67 @@
+function: remove N:n from SEQ:s {
+  NEW_SEQ: {}
+  FLAG: 0
+  loop I over { 1..#SEQ } {
+    if FLAG = 0 {
+      if N = I@SEQ { FLAG: 1 }
+      else { NEW_SEQ: { NEW_SEQ, I@SEQ }}
+    }
+    else { NEW_SEQ: { NEW_SEQ, I@SEQ }}
+  }
+  result: NEW_SEQ
+}
+
+function: fupoolrec AD:s DD:s {
+  loop X over AD {
+    loop Y over DD {
+      if X = Y {
+        NEW_AD: [ remove X from AD ]
+        NEW_DD: [ remove Y from DD ]
+        result: [ fupoolrec NEW_AD NEW_DD ]
+      }
+    }
+  }
+  
+}
+
+function: fupoolsex AD:s DD:s {
+\ if AD = DD { result: 0 } else { result: -1 } \
+  if #AD = 0 & #DD = 0 { result: 0 } 
+  if #AD = 1 & #DD = 0 { result: 5 }
+  if #AD = 0 & #DD = 1 { result: 2 }
+  if #AD = 0 & #DD > 1 { result: 1 }
+  if #AD > 1 & #DD = 0 { result: 6 }
+  loop X over {1..#AD} {
+    loop Y over {1..#DD} {
+      if X@AD = Y@DD {
+        NEW_AD: {}
+        if #AD = 0 { result: -7 }
+        if #AD = 1 { NEW_AD: {}}
+        else if X = 1 {
+          if #AD = 2 { NEW_AD: 2@AD }
+          else if #AD = 4 {
+            NEW_AD: {1,2,3,4}@AD 
+            if #NEW_AD != #AD { result: 10 + #NEW_AD  }
+          }
+        }
+        else if X = #AD {
+          NEW_AD: { 1..( #AD - 1 )}@AD 
+          if #NEW_AD != (#AD - 1) { result: -4 }
+        }
+        else if X > 1 & X < #AD {
+          NEW_AD: {{1..( X - 1 )}@AD, {( X + 1 )..#AD }@AD } 
+        }
+        if #DD = 1 { NEW_DD: {}}  
+        else if Y = 1 { NEW_DD: { 2..#DD }@DD }
+        else if Y = #DD { NEW_DD: { 1..( #DD - 1 )}@DD }
+        else if Y > 1 & Y < #DD { NEW_DD: {{1..( Y - 1 )}@DD, {( Y + 1 )..#DD }@DD }}
+
+        if #NEW_AD != #NEW_DD { result: -3 } 
+        result: [ fupoolsex NEW_AD NEW_DD ] 
+      }
+    }
+  }
+  result: -1
+}
+
+output [ fupoolsex 4d6 3d6 ] named "fupools"

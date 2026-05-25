@@ -1,0 +1,76 @@
+\FUNFS\
+function: calculate roll {
+  if ALWAYS_ADV{
+    result: [highest 1 of 2d20]
+  }
+  else{
+    result: 1d20
+  }
+}
+
+function: calculate attack ROLL:n vs AC:n using weapon dice DICE:d {
+  \CRIT\
+  if ROLL >= CRIT_ROLL {
+    result: 2d(DICE) + STAT_MOD + DAMAGE_BON
+  }
+  \HIT\
+  if ROLL + PROFICIENCY + STAT_MOD + ACCURACY_BON >= AC{
+    result: DICE + STAT_MOD + DAMAGE_BON
+  }
+  \MISS\
+  result: 0
+}
+
+
+function: calculate spell ROLL:n vs AC:n using spell dice DICE:d {
+  EXTRA_SPELLCASTER_DMG: 0
+  if IS_STAT_SPELL_BONUS = 1 {EXTRA_SPELLCASTER_DMG: STAT_MOD}
+  \CRIT\
+  if ROLL >= CRIT_ROLL {
+    result: 2d(DICE) + EXTRA_SPELLCASTER_DMG
+  }
+  \HIT\
+  if ROLL + PROFICIENCY + STAT_MOD + ACCURACY_BON >= AC{
+    result: DICE + EXTRA_SPELLCASTER_DMG
+  }
+  \MISS\
+  result: 0
+}
+
+\===CONSTANTS===\
+\1 for always having advantage during attack\
+ALWAYS_ADV: 0
+
+\proficiency bonus\
+PROFICIENCY: 3
+
+\attack stat modifier\
+STAT_MOD: 6
+
+\1 for apply for extra dmg from spellcaster modifier\
+IS_STAT_SPELL_BONUS: 0
+
+\weapon damage modifier\
+DAMAGE_BON: 1
+
+\weapon accuracy modifier\
+ACCURACY_BON: 1
+
+\crit roll\
+CRIT_ROLL: 20
+
+TOTAL_KIJ : 0
+TOTAL_NOGI : 0
+loop N over {1..20} {
+  CURRENT: [calculate attack [calculate roll] vs 18 using weapon dice 1d8]
+  TOTAL_KIJ : TOTAL_KIJ + CURRENT
+}
+loop N over {1..18} {
+  DAMAGE_BON: 0
+  CURRENT: [calculate attack [calculate roll] vs 18 using weapon dice 1d6]
+  TOTAL_NOGI : TOTAL_NOGI + CURRENT
+}
+
+output TOTAL_KIJ named "TOTAL SPELL after 10 rounds"
+output TOTAL_NOGI named "TOTAL BOOK after 10 rounds"
+output TOTAL_KIJ + TOTAL_NOGI named "total dymydż after 10 rounds"

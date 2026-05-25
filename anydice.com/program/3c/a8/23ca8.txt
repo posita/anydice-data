@@ -1,0 +1,40 @@
+LEVEL: 3 ADVWEIGHT: 10 HEXWEIGHT: 0 SMARTGWM: 0 MOVE:0
+
+PROF: (LEVEL-1)/4+2 AC: LEVEL@{13,13,13,14,15,15,15,16,16,17,17,17,18,18,18,18,19,19,19,19} BOOMDIE: LEVEL@{0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3}
+function: X:n  STAT:n GWM:n ATTACKS:n HEX:n crit{
+if HEX { CRIT: 18 HEX: PROF } else { CRIT:19 }
+if ATTACKS < 2 { 
+ if MOVE {BOOM: MOVE *((BOOMDIE+1)d8)/10 + BOOMDIEd8} 
+ else { BOOM:BOOMDIEd8 }
+} else { BOOM: 0}
+DAMAGE: 0
+loop N over {1..ATTACKS}{
+ if X > CRIT {DAMAGE: DAMAGE + 4d6 + STAT + HEX + GWM*10 + 2d(BOOM)} else {
+  if X + STAT + PROF - GWM*5 >= AC {DAMAGE: DAMAGE + 2d6 + STAT + HEX + GWM*10 + BOOM}
+ }
+}
+result: DAMAGE
+}
+
+function: combine EA:n GWM:n ATTACKS:n HEX:n{
+NDIE: 2+EA 
+result: (ADVWEIGHT * [ 1@NDIEd20 STAT GWM ATTACKS HEX crit ] + (10 - ADVWEIGHT) * [ 1@1d20 STAT (GWM&SMARTGWM) ATTACKS HEX crit ])/10
+}
+
+function: combine EA:n GWM:n ATTACKS:n{
+if (ATTACKS-1) > LEVEL/5 { result: 0 }
+if LEVEL < (( EA + GWM ) * 4) { result: 0 }
+if ( LEVEL < 8 & !( EA & GWM )) { STAT: 4 } else {
+ if ( LEVEL < 12 & EA & GWM ) { STAT: 4 } else { STAT: 5 }
+}
+result: (HEXWEIGHT * [ combine EA GWM ATTACKS 1 ] + (10 - HEXWEIGHT) * [ combine EA GWM ATTACKS 0 ])/10
+}
+
+output [ combine 1 0 1 ] named "BB EA"
+output [ combine 1 1 1 ] named "BB EA+GWM"
+output [ combine 0 1 1 ] named "BB GWM"
+output [ combine 0 0 1 ] named "BB Stats"
+output [ combine 1 0 2 ] named "EA"
+output [ combine 1 1 2 ] named "EA+GWM"
+output [ combine 0 1 2 ] named "GWM"
+output [ combine 0 0 2 ] named "Stats"

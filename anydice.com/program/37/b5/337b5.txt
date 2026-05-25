@@ -1,0 +1,35 @@
+\Defining Variables\
+N:2 \Number of Dice Rolled\
+
+
+function: select INDICES:s from SEQUENCE:s {
+  RESULT: {}
+  loop INDEX over INDICES {
+    RESULT: {RESULT, INDEX@SEQUENCE}
+  }
+  result: RESULT
+}
+
+function: evaluate ROLL:s {
+  if (ROLL >= 8) >= 2 { result: 3 }  \ crit success \
+  if (ROLL >= 8) >= 1 { result: 2 }  \ normal success \
+  if (ROLL >= 5) >= 1 { result: 1 }  \ success with setback \
+  result: 0  \ failure \
+}
+
+function: evaluate ROLL:s with bonus BONUS:n {
+  ROLL_WITHOUT_LOWEST: [select {1 .. #ROLL-1} from ROLL]
+  LOWEST: (#ROLL)@ROLL
+  ROLL_WITH_BONUS: [sort {ROLL_WITHOUT_LOWEST, LOWEST + BONUS}]
+  result: [evaluate ROLL_WITH_BONUS]
+}
+
+
+\output [evaluate Nd8] named "normal [N]d8 (0=fail, 1=setback, 2=success, 3=crit)"
+
+loop BONUS over {1..5} {
+  output [evaluate Nd8 with bonus BONUS] named "[N]d8 with bonus [BONUS] (0=fail, 1=setback, 2=success, 3=crit)"
+}\
+
+output [evaluate 2@2d8 with bonus 1] named "0"
+

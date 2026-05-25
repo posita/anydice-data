@@ -1,0 +1,53 @@
+AC: 18                \Enemy AC\
+CRITRANGE: 20        \Crits on X to 20\
+
+HIT: 10                \Hit Bonus\
+ATR: 5                \Attribute Bonus\
+FLAT: 2               \Dueling Bonus\
+FLATDMG: ATR+FLAT     \Total Flat Damage\
+
+set "maximum function depth" to 999
+
+\Attack Miss, Hit, Crit\
+function: attack with ROLL:n and MOD:n{ 
+ if ROLL <=1 {result: 0}
+ if ROLL >= CRITRANGE {result: 2}
+ result: ROLL+HIT+MOD >= AC
+}
+
+\Setup Function\
+function: multiattack using D:d plus MOD:n N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst and I INIT initial damage{ 
+ result: [roll [attack with D and MOD] to multiattack using D plus MOD N times with a W weapon and C charges and B bonus and BURST burst and I INIT initial damage]
+}
+
+\Recursive Multiattack Function\
+function: roll HIT:n to multiattack using D:d plus MOD N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst and I INIT initial damage{
+
+ if N <= 0 {
+   result: 0
+ }
+ 
+ DAMAGE: HIT d (W + B) + (1-(0^HIT))*(FLATDMG+MOD)
+
+ if C > 0{
+  if HIT > 1 {
+   C: C-1
+   DAMAGE: DAMAGE + HIT d BURST
+  }
+ }
+ if I > 0{
+  if HIT > 0 {
+   I: I-1
+   DAMAGE: DAMAGE + HIT d INIT
+  }
+ }
+ result:  DAMAGE + [roll [attack with D and MOD] to multiattack using D plus MOD N-1 times with a W weapon and C charges and B bonus and BURST burst and I INIT initial damage]
+ 
+}
+
+\OUTPUTS\
+\Max 10 Attacks\
+output [multiattack using [highest 1 of 2d20] plus -1 4 times with a 1d8 weapon and 0 charges and 2d8 bonus and 9d6 burst and 0 0 initial damage] named "Umbrilim Midnight Feather"
+output [multiattack using [highest 1 of 3d20] plus 3 3 times with a 1d8 weapon and 0 charges and 1d8 bonus and 9d6 burst and 0 0 initial damage] named "Umbrilim Sprit Shroud CT"
+output [multiattack using [highest 1 of 2d20] plus -1 4 times with a 1d8 weapon and 0 charges and 2d8 bonus and 9d6 burst and 0 0 initial damage] named "Umbrilim Ruby Midnight Feather"
+output [multiattack using [highest 1 of 2d20] plus -1 6 times with a 1d8 weapon and 0 charges and 2d8 bonus and 9d6 burst and 0 0 initial damage] named "Umbrilim Lapis Midnight Feather"

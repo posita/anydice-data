@@ -1,0 +1,25 @@
+function: roll POOL:s with SKILL:s EXPLODE:s REROLL:s  {
+ EMPTY: {}
+ SUCCESS: 0
+ EXPLODES: 0
+ REROLLS: 0
+ loop P over {1..#SKILL} {
+  SUCCESS: SUCCESS + (P@SKILL = POOL)
+ }
+ loop Q over {1..#EXPLODE} {
+  EXPLODES: EXPLODES + (Q@EXPLODE = POOL)
+  SUCCESS: SUCCESS+[roll (EXPLODESd6) with SKILL EMPTY REROLL]
+ }
+ loop R over {1..#REROLL} {
+  REROLLS: REROLLS + (R@REROLL = POOL)
+  SUCCESS: SUCCESS+[roll REROLLSd6 with SKILL EXPLODE EMPTY]
+ }
+ result: [lowest of SUCCESS and 2*#(POOL)]
+}
+
+POOL: 7d6
+SKILL: {6}
+EXPLODE : {6}
+REROLL : {}
+
+output [roll POOL with SKILL EXPLODE REROLL]

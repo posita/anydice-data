@@ -1,0 +1,115 @@
+function: ataquecc DETALLE:n con ATAQUE:s superar ATAQUESUPERAR:n con defensa DEFENSA:s superar DEFENSASUPERAR:n cada herida vale HERIDAS:n{
+ CA: ATAQUE = 10
+ CD: DEFENSA = 10
+
+ NA: (ATAQUE > ATAQUESUPERAR) - CA
+ ND: (DEFENSA > DEFENSASUPERAR) - CD
+
+ if CA > CD {
+    CA: CA - CD
+    CD: 0
+ } else if CD > CA{
+    CD: CD - CA
+    CA: 0
+ } else {
+   CA: 0
+   CD: 0
+ }
+
+ if (CD > 0) { ND: ND + CD }
+
+ if NA >= ND {
+   NA: NA - ND
+ } else {
+   NA: 0
+ }
+
+ CRITICOS: CA
+ NORMALES: NA
+
+ RA: ((CRITICOS + NORMALES) * HERIDAS) + CRITICOS
+ RB: CRITICOS * 1000 + NORMALES
+
+ if DETALLE = 0 {
+   result: RA
+ } else {
+   result: RB
+ }
+}
+
+function: ataquecc con ATAQUE:s superar ATAQUESUPERAR:n con defensa DEFENSA:s superar DEFENSASUPERAR:n cada herida vale HERIDAS:n {
+  result: [ataquecc 0 con ATAQUE superar ATAQUESUPERAR con defensa DEFENSA superar DEFENSASUPERAR cada herida vale HERIDAS]
+}
+
+function: ataquedistancia DETALLE:n con ATAQUE:s superar ATAQUESUPERAR:n cada herida vale HERIDAS:n{
+ CA: ATAQUE = 10
+
+ CRITICOS: 0
+ NORMALES: 0
+
+ if CA > 0 {
+   CRITICOS: CA
+   A: (ATAQUE > ATAQUESUPERAR) - CA
+ } else {
+   A: (ATAQUE > ATAQUESUPERAR)
+ }
+
+ NORMALES: A
+
+ RA: ((CRITICOS + NORMALES) * HERIDAS) + CRITICOS
+ RB: CRITICOS * 1000 + NORMALES
+
+ if DETALLE = 0 {
+   result: RA
+ } else {
+   result: RB
+ }
+}
+
+function: ataquedistancia con ATAQUE:s superar ATAQUESUPERAR:n cada herida vale HERIDAS:n {
+   result: [ataquedistancia 0 con ATAQUE superar ATAQUESUPERAR cada herida vale HERIDAS]
+}
+
+function: enfrentada con ATAQUE:s superar ATAQUESUPERAR:n con DEFENSA:s superar DEFENSASUPERAR:n {
+ NA: (ATAQUE > ATAQUESUPERAR)
+ ND: (DEFENSA > DEFENSASUPERAR)
+
+ if NA >= ND {
+   NA: NA - ND
+ } else {
+   NA: 0
+ }
+
+ result: NA
+}
+
+function: enfrentada atributo ataque ATTA:n atributo defensa ATTD:n {
+ result: [enfrentada con ATTAd6 superar ATTD con ATTDd6 superar ATTA]
+}
+
+function: enfrentada atributo ataque ATTA:n dado ataque DATAQ:d atributo defensa ATTD:n dado defensa DDEF:d{
+ result: [enfrentada con ATTAdDATAQ superar ATTD con ATTDdDDEF superar ATTA]
+}
+
+DC: d{1,2,3,4,5,10}
+DCMAS: d{2,3,4,5,6,10}
+DCMENOS: d{0,1,2,3,4,10}
+DCMENOSDOS: d{0,0,1,2,3,10}
+
+DSEIS: d{1..6}
+DMAS: d{2,3,4,5,6,6}
+DMENOS: d{1,1,2,3,4,5}
+DMENOSDOS: d{1,1,1,2,3,4}
+
+
+function: tirada dificultad DIFICULTAD:n con ATT:n dados DADO:d obtener EXITOS exitos {
+   result: [ataquedistancia con ATTdDADO superar DIFICULTAD cada herida vale 1] >= EXITOS
+}
+
+function: tirada dificultad DIFICULTAD:n con DADOS:d obtener EXITOS exitos {
+   result: [ataquedistancia con DADOS superar DIFICULTAD cada herida vale 1] >= EXITOS
+}
+
+output d6 > 3 named "navegar"
+output [tirada dificultad 5 con 3dDSEIS obtener 1 exitos ] named "limpiar"
+

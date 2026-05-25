@@ -1,0 +1,36 @@
+function: roll ROLL:s {
+ if 1@ROLL < 1 & (#ROLL)@ROLL = -1 {
+  result: -1
+ }
+ result: [highest of 0 and ROLL]
+}
+
+function: exploding N:n {
+ if N = 10 { result: 2 }
+ if N = 1 { result: -1 }
+ result: N >= DIFFICULTY
+}
+
+function: compsplode N:n {
+ if N = 10 { result: 2 }
+ if N = 1 { result: -1 }
+ result: N >= COMPARE
+}
+
+function: roll ROLL:n with willpower {
+ result: [highest of 0 and ROLL + 1]
+}
+
+DIFFICULTY: 6
+COMPARE: 8
+
+NORMAL: d{-1:1, 0:(DIFFICULTY - 2), 1:(11 - DIFFICULTY)}
+
+EXPLODING: [exploding d10]
+COMPSPLODE: [compsplode d10]
+
+loop X over {4} {output [roll X d NORMAL] named "Normal"}
+loop X over {1..14} {output [roll X d EXPLODING] named "[X]d Exploding"}
+loop X over {5} {output [roll X d EXPLODING] named "[X]d Exploding Base"}
+loop X over {5} {output [roll X d COMPSPLODE] named "[X]d Exploding Compare"}
+\ automatic success is automatic, nothing to show \

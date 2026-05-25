@@ -1,0 +1,35 @@
+\output [count {5, 6} in 13d6]\
+\output (([count {5, 6} in 21d6] - [count {5, 6} in 22d6]) > 0) | (([count {5, 6} in 21d6] - [count {5, 6} in 22d6]) > 0)\
+
+ATTACK: 16
+DEFENSE: 11
+SOAK: 14
+BASEDAMAGE: 9
+
+function: hits {
+  result: [count {5, 6} in ATTACKd6] - [count {5, 6} in DEFENSEd6]
+}
+
+function: net hits H:n {
+  if H < 0 { result: 0 }
+  result: H
+}
+
+function: predamage NETHITS:n {
+  result: NETHITS + BASEDAMAGE - [count {5, 6} in SOAKd6]
+}
+
+function: damage NETHITS:n {
+  if NETHITS <= 0 { result: 0 }
+  result: [predamage NETHITS]
+}
+
+function: truedamage DAMAGE:n {
+  if DAMAGE <= 0 { result: 0 }
+  result: DAMAGE
+}
+
+output [damage [net hits [hits]]]
+
+\output [net hits [hits]]\
+\output 2*[truedamage [damage 3]]\

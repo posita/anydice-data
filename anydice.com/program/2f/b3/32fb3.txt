@@ -1,0 +1,27 @@
+RAW: [highest 1 of 1d20]
+ADV: [highest 1 of 2d20]
+DISADV: [lowest 1 of 2d20]
+PROF: {2:4,3:4,4:4,5:4,6:4}
+CASTER_MOD: 0
+
+\output ROLL + 10@PROF named "roll"\
+\output ADV + 10@PROF named "at advantage"\
+\output DISADV + 10@PROF named "at disadvantage"\
+
+function: R:n fails on one{
+  if( R > 1 ){
+    result: R
+  }
+  else{
+    result: -100
+  }
+}
+
+loop S over {1..9}{
+  loop L over {(S*2-1)..20}{
+    ROLL: [RAW fails on one]
+    HAD_FOR_LEVELS: (L-(S*2-1))
+    PROF_AT_LEVEL: L@PROF
+    output (ROLL + HAD_FOR_LEVELS + CASTER_MOD + PROF_AT_LEVEL/2) >= (10+S) named "casting a [S] at level [L]"
+  }
+}

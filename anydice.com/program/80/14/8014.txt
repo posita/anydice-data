@@ -1,0 +1,86 @@
+\
+Shadowrun Fifth Edition
+To Hit Chance and 
+Damage Probability Calculator Version 1.2
+By Insaniac99, modified from code by Slippery_Chicken
+\
+
+FALSE:0
+TRUE:1
+\ Attacker Diepool \   A: 12
+\ Use Edge? \   E: FALSE \ (Explode dice & remove limit) FALSE/TRUE\
+\Weapon Damage Value\  V: 14
+\Weapon Limit\        AL: 8
+\armor penetration\   AP: -8
+
+\ Defender Diepool \   D: 3
+\ Defender Limit \    DL: 6
+\ Defender's Body \   DB: 4
+\ Defender's Armor\   DA: 12
+
+function: explode N:n {
+ if N = 6 { result: 1 + [explode d6] }
+ result: N = 5
+}
+
+function: limit HITS:n by LIMIT:n{
+ if HITS > LIMIT {result: LIMIT}
+ result: HITS
+}
+
+function: hitslost HITS:n by LIMIT:n{
+ if HITS > LIMIT {result: (HITS-LIMIT)}
+ result: 0
+}
+
+function: calculatedamage DAMAGE:n plus NETHITS:n {
+ if NETHITS < 1 { result: 0 }
+ result: DAMAGE + NETHITS
+}
+
+function: rollsoak body BODY:n armor ARMOR:n armpen ARMPEN:n {
+ if ARMOR = 0 { result: (BODYd(d6>4)) }
+ TA: ARMOR + ARMPEN
+ if TA<0 { result: BODYd(d6>4)}
+ result: (BODYd(d6>4) + TAd(d6>4))
+}
+
+function: resistdamage DAMAGE:n minus SOAK:n {
+ if (DAMAGE < 1) {
+  result: 0
+ }
+ if (DAMAGE - SOAK) < 1 {
+  result: 0
+ }
+ result: DAMAGE - SOAK
+}
+
+\Attacker's Roll Result\ 
+AR:0
+if E {
+AR: Ad[explode d6]
+\Attacker's roll with Limit\ ARL: AR
+AOL: 0
+} else {
+AR: Ad(d6 > 4)
+\Attacker's roll with Limit\ARL: [limit AR by AL]
+AOL: [hitslost AR by AL]
+}
+
+
+
+
+\Defender's Roll Result\ DR: [limit Dd(d6 > 4) by DL]
+\Attacker Net Hits\       X: AR - DR
+\Damage to Soak \        SD: [calculatedamage V plus X]
+\Soak Roll Result \      SR: [rollsoak body DB armor DA armpen AP]
+\unsoaked damage \       US: [resistdamage SD minus SR]
+
+output ARL named "Attacker's Hits Rolled"
+output AOL named "Attacker's Hits wasted (over limit)"
+output DR  named "Defender's Hits Rolled"
+output X>0 named "Attacker's chance to hit"
+output X   named "Attacker's net hits"
+output SD  named "Damage before Soak Roll"
+output SR  named "Hits on soak test"
+output US  named "Damage after Soak Roll"

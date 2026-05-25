@@ -1,0 +1,32 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n using DIE:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: 2dDIE + HITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: DIE + HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 3 + 2
+HITDAMAGE: 4
+MISSDAMAGE: 0
+loop AC over {15} {
+ output 4d[damage for [attack d20 vs AC] using d8] named "[AC] using d8"
+ output 3d[damage for [attack [highest 1 of 2d20] vs AC] using d8] + [damage for [attack d20 vs AC] using d8] named "[AC] with ADV using d8"
+ output 4d[damage for [attack d20 vs AC] using 2d8] named "[AC] using 2d8"
+}

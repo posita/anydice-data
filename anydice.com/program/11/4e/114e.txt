@@ -1,0 +1,87 @@
+NOTHIT: 6
+NOTPEN: 7
+NOTKILL: 8
+
+function: rend N:n \Rending weapon quality\{
+ if N = 6 { result: 6 + d3 }
+ result:N
+}
+
+function: hit DICE:n BS:n TL:n \TL for twin-linked, it allows to re-roll the hit dice\{
+ BSRR: 0
+ if BS > 5 {
+  BSRR: BS-5
+  BS: 5
+ }
+ \If the Ballistic Skill is very high, you are granted a fixed re-roll. You need to roll 7-BS to hit (so with BS4 you need 3+), and if your BS is 6 you hit on 2+ and then on 6+ if failed.\
+ if TL = 1 {
+  BSRR: BS
+ }
+ if DICE >= 7-BS {
+  result: 1
+ }
+ else {
+  if BSRR > 0 {
+   result: [hit d6 BSRR TL]
+  }
+ result: 0
+ }
+}
+
+function: wrappen PEN:n { \Function to wrap up Penetration. If rolled under 10, you failed to penetrate any vehicle, if over 15 — it's enough to penetrate any vehicle.\
+ if PEN < 10 {
+  result: NOTPEN
+ }
+ if PEN > 15 {
+  result: 15
+ }
+ result: PEN
+}
+
+function: penetrate HIT:n S:n N:n REND:n { \S for Strength, N for the number of dice. Penetration roll is S+d6, if you roll equal to or higher than AV you get a result. Certain weapons may roll S+2d6.\
+ if HIT = 1 {
+  if REND = 1 {
+   result: [wrappen S+[rend d6]]
+  }
+  result: [wrappen S+Nd6]
+ }
+ else { result: NOTHIT }
+}
+
+function: destroy DIE:n PEN:n AV:n AP:n OT:n FO:n { \Various modifiers included. To destroy a vehicle, you need to roll 5+ with d6 on the vehicle damage chart. There are 4 modifiers here, 3 as parameters and the other is self-explanatory.\
+ if PEN = NOTHIT {
+  result: NOTHIT
+ }
+ if PEN < AV {
+  result: NOTPEN
+ }
+ if PEN = AV {
+  GLANCE: -2
+ }
+ if PEN > AV {
+  GLANCE: 0
+ }
+ if DIE+GLANCE+AP+OT+FO >= 5 {
+  result: AV
+ }
+ else { result: NOTKILL }
+}
+
+\To-hit shortcuts\
+HITMARINE: [hit d6 4 0]
+HITMARINETL: [hit d6 4 1]
+HITGUARD: [hit d6 3 0]
+HITGUARDTL: [hit d6 3 1]
+
+\output [penetrate [hit d6 8 0] 3 4 0] named "Vindicare Assassin"\
+\output [penetrate HITMARINE 7 1 1] named "GK Psycannon"\
+\output [penetrate HITMARINE 8 2 0] named "Marine meltagun"\
+\output [penetrate HITGUARD 8 2 0] named "Guard meltagun"\
+\output [penetrate HITMARINETL 8 1 0] named "GK TL autocannon"\
+\output [penetrate HITMARINETL 7 1 0] named "Marine TL autocannon"\
+\output [penetrate HITMARINE 9 1 0] named "Marine lascannon"\
+\output [penetrate HITMARINETL 9 1 0] named "Marine TL lascannon"\
+\output [penetrate HITMARINE 8 1 0] named "Marine krak missile"\
+\output [penetrate HITMARINE 7 1 0] named "Marine plasmagun"\
+\output [penetrate HITMARINETL 7 1 0] named "Marine TL plasmagun"\
+loop AV over {10..14}{ output [destroy d6 [penetrate [hit d6 4 0] 8 2 0] AV 1 0 0] named "Marine meltagun AV[AV]" }

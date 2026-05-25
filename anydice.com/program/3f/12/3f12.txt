@@ -1,0 +1,74 @@
+\ DW Red Dice. Example: [5red4]: roll 5d6, 4 and 5 is 1 hit, 6 is 2 hits and a reroll \
+function: N:n red H:n {
+  if H  < 1 {result: [Nred1]}
+  if H  > 6 {result: [Nblue6]}
+  result: Nd [explode d{0:H-1, 1:6-H,2}]
+}
+
+
+\ DW Blue Dice. Example: [5blue4]: roll 5d6, 4 and 5 is 1 hit, 6 is 2 hits\
+function: N:n blue H:n {
+  if H  < 1 {result: [Nblue]}
+  if H  > 6 {result: [Nblue6]}
+  result: Nd{0:H-1, 1:6-H,2}
+}
+
+\ High Payload Dice. (for covenant mines) Example: [5hp4]: roll 5d6, 4 and 5 is 2 hits, 6 is a reroll \
+function: N:n hp H:n {
+  result: Nd[hp [H between 1 and 6] exp d6]
+}
+
+\ auxilliary function for hp explosion thingie \
+function: hp H:n exp E:n{
+  INITIAL: d{0:H-1, 2:7-H}
+  if E = 6 {result: INITIAL + [hp H exp d6]}
+  result: INITIAL
+}
+
+\ covenant shields! Only red dice for now \
+function: N:n cshield H:n {
+  SHIELD: [NredH]
+  result: SHIELD+[reroll[lowest 1 of SHIELD] red H ]
+}
+
+\ auxilliary function for inventive scientists \
+function: reroll N:n red H:n  {
+  if N = 0 { result: [1redH] }
+  result: 0 
+}
+
+\ simple trim function \
+function: D:d between L:n and H:n {
+  result: [lowest of H and [highest of D and L]]
+}
+
+
+
+\output section. Best to set the date display mode to 'at least', and then focus on the values for a hit and a crit on your intended target.\
+output [[8red4] - [1red5] between 2 and 5] named "A squad of Diogenes attacks a 1CC frigate with torpedoes"
+
+
+\how many drones survive a counterattack?\
+function: N:n saw after AA:n aa {
+  result: N - [AAblue4]/2
+}
+output [[([5 saw after 6 aa]*3+2)red3 ] between 5 and 10] named "A bomb drone wing attack run on a 6AA battle or somesuch"
+
+
+\calculates the amount of damage caused to a target. Does not include double crits\
+function: N:n vs dr DR:n cr CR:n {
+  if N >= CR  {result: 2}
+  if N >= DR  {result: 1}
+  result:0
+}
+
+\Determining the best way for a plato energy turret squad to engage a group of frigates. 
+using the summary data option, you can see the 3rd option causes the most mean damage.
+However, take into account that sometimes, you don't care about damage, only destroyed frigates
+(bloody british). This obviously changes the calculations.\
+output [[11red4] vs dr 3 cr 5] named "Plato squad snipes a frigate"
+output 2d[[6red4]  vs dr 3 cr 5] named "Plato snipes two frigates"
+output 3d[[5red4]  vs dr 3 cr 5] named "Plato snipes three frigates"
+
+
+

@@ -1,0 +1,94 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+
+DEFENSE: d{15..19}
+MINCRIT: 20
+ROLL: d20
+
+function: attack ROLL:n vs DEFENSE:n {
+ ATTACK: ATKBONUS + PROF + DEX
+ if ROLL = 1 { result: MISS }
+ if ROLL >= MINCRIT {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: 2dBONUS
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: BONUS
+ }
+ result: 0
+}
+
+function: dualwield prof P:n dex D:n {
+ PROF: P
+ DEX: D
+ ATKBONUS: 0
+ HITDAMAGE: WEAPON + MARK + DEX
+ CRITDAMAGE: 2dWEAPON + 2dMARK + DEX
+ D: [damage for [attack ROLL vs DEFENSE]]
+ HITDAMAGE: WEAPON + MARK
+ CRITDAMAGE: 2dWEAPON + 2dMARK
+ result: D + [damage for [attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks dex D:n{
+ DEX: D
+ ATKBONUS: 2
+ HITDAMAGE: WEAPON + MARK + SHARP + DEX
+ CRITDAMAGE: 2dWEAPON + 2dMARK + SHARP + DEX
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+SHARP: 0
+LVL: 5
+BASEATK: 2
+PROF: 3
+\ Lucky Feat \
+\ ROLL: 2d20 \
+
+loop N over {11,15,19} {
+ DEFENSE: N
+ MARK: d6
+ BONUS: d8
+
+ WEAPON: d10
+ output [BASEATK attacks dex 5] named "[LVL] Hvy CE ([N])"
+
+ WEAPON: d8
+ \ output [BASEATK attacks dex 5] named "[LVL] Long DEX ([N])" \
+ SHARP: 10
+ ATKBONUS: -3
+ output [BASEATK attacks dex 5] named "[LVL] Long SS ([N])"
+
+ ATKBONUS: 2
+ WEAPON: d6
+ MARK: d6
+ SHARP: 0
+ BONUS: 0
+ \ output [BASEATK+1 attacks dex 5] named "[LVL] Hand CE ([N])" \
+}

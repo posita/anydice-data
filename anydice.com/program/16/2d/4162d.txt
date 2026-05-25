@@ -1,0 +1,42 @@
+set "explode depth" to 10
+
+RANGE: 40
+
+DTIE: d{0..1}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: luck N:n {
+  if N = 6 { result: 2 + [luck d6] }
+  if N = 5 { result: 2 }
+  if N > 2 { result: 1 }
+  result: 0
+}
+
+function: extend N:n {
+  if N = 1 { result: 1 - [luck d6] }
+  if N = 6 { result: 6 + [luck d6] }
+  result: N
+}
+
+function: expand N:n {
+  if N = 6 { result: 6 + [luck d6] }
+  result: N
+}
+
+\ Opposed roll \
+output [clamp [extend d6]-[extend d6]-DTIE between -RANGE and RANGE] named "d6Lx vs"
+
+\ Static action \
+output [clamp [extend d6] between -RANGE and RANGE] named "d6Lx"
+
+\ Simplified opposed roll \
+output [clamp [expand d6]-[expand d6]-DTIE between -RANGE and RANGE] named "d6L vs"
+
+\ Luck \
+output [clamp [luck d6] between -RANGE and RANGE] named "luck"
+

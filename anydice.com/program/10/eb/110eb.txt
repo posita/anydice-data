@@ -1,0 +1,44 @@
+function: hits ROLL:n plus BONUS:n vs AC {
+  if ROLL = 20 {
+    result: 2
+  }
+  if ROLL = 1 | ROLL + BONUS < AC {
+    result: 0
+  }
+  result: 1
+}
+
+function: damage HITS:n for DICE:d plus BONUS:n {
+  if HITS = 0 {
+    result: 0
+  }
+  result: (HITS d DICE) + BONUS
+}
+
+function: halvable damage HITS:n for DICE:d plus BONUS:n {
+  if HITS = 0 {
+    result: ((HITS d DICE) + BONUS) / 2
+  }
+  result: (HITS d DICE) + BONUS
+}
+
+function: fail save ROLL:n plus BONUS:n vs DC:n {
+  if ROLL = 20 {
+    result: 0
+  }
+  if ROLL = 1 | ROLL + BONUS < DC {
+    result: 1
+  }
+  result: 0
+}
+
+PROF: 3
+ABILITY: 5
+DC: 8+PROF+ABILITY
+
+SAVE: 3
+AC: 14
+
+output 2d[damage [hits 1d20 plus PROF+ABILITY vs AC] for 1d8 plus ABILITY] named "longsword"
+output [damage [hits 1d20 plus PROF+ABILITY vs AC] for 2d10 plus 0] named "firebolt"
+output [halvable damage [fail save 1d20 plus SAVE vs DC] for 8d6 plus 0] named "fireball"

@@ -1,0 +1,92 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: 2d6
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: d6
+ }
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: advattack {
+ result: [damage for [attack 1@2d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+MISSDAMAGE: 0
+DEFENSE: d{9..19}
+ATTACK: 5 + 3
+
+
+function: javelin {
+HITDAMAGE: 3d6 + 7
+CRITICALDAMAGE: 7d6 + 7
+A: [advattack]
+HITDAMAGE: d6 + 7
+CRITICALDAMAGE: 3d6 + 7
+A: A + [attack]
+HITDAMAGE: d6 + d8 + 7
+CRITICALDAMAGE: 2d6 + 3d8 + 7
+A: A + [attack]
+result: A }
+output [javelin] named "Thrown Javelin x3 w/ Hunter's Mark, Surprise Attack @ Adv, and Dread Ambusher, vs AC9-19"
+
+function: yklwa {
+HITDAMAGE: d8 + 2d6 + 7
+CRITICALDAMAGE: 3d8 + 4d6 + 7
+A: [advattack]
+HITDAMAGE: d8 + 7
+CRITICALDAMAGE: 3d8 + 7
+A: A + [attack]
+HITDAMAGE: 2d8 + 7
+CRITICALDAMAGE: 5d8 + 7
+A: A + [attack]
+result: A }
+output [yklwa] named "Thrown Yklwa x3 w/ Hunter's Mark, Surprise Attack @ Adv, and Dread Ambusher, vs AC9-19"
+
+function: lance {
+HITDAMAGE: d12 + 2d6 + 5
+CRITICALDAMAGE: 3d12 + 4d6 + 5
+A: [advattack]
+HITDAMAGE: d12 + 5
+CRITICALDAMAGE: 3d12 + 5
+A: A + [attack]
+HITDAMAGE: d12 + d8 + 5
+CRITICALDAMAGE: 3d12 + 2d8 + 5
+A: A + [attack]
+result: A }
+output [lance] named "Melee Lance x3 w/ Hunter's Mark, Surprise Attack @ Adv, and Dread Ambusher, vs AC9-19"

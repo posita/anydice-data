@@ -1,0 +1,157 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1                { result: MISS       }
+    else if ROLL >= CRIT_RANGE { result: HIT + CRIT }
+    else if ROLL + BONUS >= AC { result: HIT        }
+    else                       { result: MISS       }
+}
+
+
+\ Attack with default miss value \
+function: attack ROLL:n plus BONUS:n vs AC:n hit DMG:d crit CRIT:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit CRIT on CRIT_RANGE]
+}
+
+\ Attack with default crit range \
+function: attack ROLL:n plus BONUS:n vs AC:n hit DMG:d miss MISS:d crit CRIT:d {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss MISS crit CRIT on 20]
+}
+
+\ Attack with default miss value and crit range \
+function: attack ROLL:n plus BONUS:n vs AC:n hit DMG:d crit CRIT:d {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit CRIT on 20]
+}
+
+function: gwm BONUS_ACTION:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d hit DMG:d crit CRIT:d on CRIT_RANGE:d {
+    NO_CRIT: BONUS_ACTION
+    ALREADY_CRIT: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC hit DMG crit CRIT on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS} {
+        NO_CRIT: [attack ROLL plus BONUS vs AC 
+            hit  DMG + NO_CRIT
+            miss NO_CRIT
+            crit DMG + CRIT + ATTACK + ALREADY_CRIT on CRIT_RANGE
+        ]
+        ALREADY_CRIT: ATTACK + ALREADY_CRIT
+    }
+
+    result: NO_CRIT
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+\ Monster AC by CR \
+AC: {13:3, 14, 15:3, 16:2, 17:3, 18:4, 19:14}
+
+\ Proficiency bonus by level \
+PB: {2:4, 3:4, 4:4, 5:4, 6:4, 7:4, 8:4, 9:2}
+
+ADV: [highest 1 of 2d20]
+DIS: [lowest 1 of 2d20]
+EA: [highest 1 of 3d20]
+GWF_GS: 2d[gwf d6]
+GWF_GLAIVE: [gwf d10]
+GWF_GLAIVE_PAM: [gwf d4]
+
+\ Assumptions: \
+\ 15 in damage stat + 1/2 racial = +3 modifier starting \
+\ Attacks are vs. the expected AC for a monster of the CR of your current level \
+
+\ Warlock baseline \
+output   [attack d20 plus 3+ 1@PB vs  1@AC hit 1d10+1d6   crit 1d10+1d6] named "EB+Hex Warlock level 1  (+3 CHA) EB with Hex"
+output   [attack d20 plus 3+ 2@PB vs  2@AC hit 1d10+1d6+3 crit 1d10+1d6] named "EB+Hex Warlock level 2  (+3 CHA) + Agonizing"
+output   [attack d20 plus 4+ 4@PB vs  4@AC hit 1d10+1d6+4 crit 1d10+1d6] named "EB+Hex Warlock level 4  (+4 CHA) + ASI"
+output 2d[attack d20 plus 4+ 5@PB vs  5@AC hit 1d10+1d6+4 crit 1d10+1d6] named "EB+Hex Warlock level 5  (+4 CHA) + 2 rays"
+output 2d[attack d20 plus 5+ 8@PB vs  8@AC hit 1d10+1d6+5 crit 1d10+1d6] named "EB+Hex Warlock level 8  (+5 CHA) + ASI"
+output 3d[attack d20 plus 5+11@PB vs 11@AC hit 1d10+1d6+5 crit 1d10+1d6] named "EB+Hex Warlock level 11 (+5 CHA) + 3 rays"
+output 4d[attack d20 plus 5+17@PB vs 17@AC hit 1d10+1d6+5 crit 1d10+1d6] named "EB+Hex Warlock level 17 (+5 CHA) + 4 rays"
+
+\ Longbow fighter \
+output   [attack d20 plus 3+ 1@PB+2 vs  1@AC hit 1d8+3 crit 1d8] named "Longbow Archery fighter level 1"
+output   [attack d20 plus 4+ 4@PB+2 vs  4@AC hit 1d8+4 crit 1d8] named "Longbow Archery fighter level 4 + ASI"
+output 2d[attack d20 plus 4+ 5@PB+2 vs  5@AC hit 1d8+4 crit 1d8] named "Longbow Archery fighter level 5 + Extra Attack"
+output 2d[attack d20 plus 5+ 6@PB+2 vs  6@AC hit 1d8+5 crit 1d8] named "Longbow Archery fighter level 6 + ASI"
+output 3d[attack d20 plus 5+11@PB+2 vs 11@AC hit 1d8+5 crit 1d8] named "Longbow Archery fighter level 11 + Extra Attack (2)"
+output 4d[attack d20 plus 5+20@PB+2 vs 20@AC hit 1d8+5 crit 1d8] named "Longbow Archery fighter level 20 + Extra Attack (3)"
+
+\ Longbow sharpshooter fighter \
+output   [attack d20 plus 3+ 1@PB-5+2 vs  1@AC hit 1d8+3+10 crit 1d8] named "Longbow Archery SS fighter level 1"
+output   [attack d20 plus 4+ 4@PB-5+2 vs  4@AC hit 1d8+4+10 crit 1d8] named "Longbow Archery SS fighter level 4 + ASI"
+output 2d[attack d20 plus 4+ 5@PB-5+2 vs  5@AC hit 1d8+4+10 crit 1d8] named "Longbow Archery SS fighter level 5 + Extra Attack"
+output 2d[attack d20 plus 5+ 6@PB-5+2 vs  6@AC hit 1d8+5+10 crit 1d8] named "Longbow Archery SS fighter level 6 + ASI"
+output 3d[attack d20 plus 5+11@PB-5+2 vs 11@AC hit 1d8+5+10 crit 1d8] named "Longbow Archery SS fighter level 11 + Extra Attack (2)"
+output 4d[attack d20 plus 5+20@PB-5+2 vs 20@AC hit 1d8+5+10 crit 1d8] named "Longbow Archery SS fighter level 20 + Extra Attack (3)"
+
+\ Greatsword fighter \
+output   [attack d20 plus 3+ 1@PB vs  1@AC hit GWF_GS+3 crit GWF_GS] named "GS GWF fighter level 1"
+output   [attack d20 plus 4+ 4@PB vs  4@AC hit GWF_GS+4 crit GWF_GS] named "GS GWF fighter level 4 + ASI"
+output 2d[attack d20 plus 4+ 5@PB vs  5@AC hit GWF_GS+4 crit GWF_GS] named "GS GWF fighter level 5 + Extra Attack"
+output 2d[attack d20 plus 5+ 6@PB vs  6@AC hit GWF_GS+5 crit GWF_GS] named "GS GWF fighter level 6 + ASI"
+output 3d[attack d20 plus 5+11@PB vs 11@AC hit GWF_GS+5 crit GWF_GS] named "GS GWF fighter level 11 + Extra Attack (2)"
+output 4d[attack d20 plus 5+20@PB vs 20@AC hit GWF_GS+5 crit GWF_GS] named "GS GWF fighter level 20 + Extra Attack (3)"
+
+\ GWM greatsword variant human fighter \
+output [gwm 0 attacks 1 roll d20 plus 3+ 1@PB-5 vs  1@AC hit GWF_GS+3+10 crit GWF_GS on 20] named "GS GWF GWM fighter level 1"
+output [gwm 0 attacks 1 roll d20 plus 4+ 4@PB-5 vs  4@AC hit GWF_GS+4+10 crit GWF_GS on 20] named "GS GWF GWM fighter level 4"
+output [gwm 0 attacks 2 roll d20 plus 4+ 5@PB-5 vs  5@AC hit GWF_GS+4+10 crit GWF_GS on 20] named "GS GWF GWM fighter level 5"
+output [gwm 0 attacks 2 roll d20 plus 5+ 6@PB-5 vs  6@AC hit GWF_GS+5+10 crit GWF_GS on 20] named "GS GWF GWM fighter level 6"
+output [gwm 0 attacks 3 roll d20 plus 5+11@PB-5 vs 11@AC hit GWF_GS+5+10 crit GWF_GS on 20] named "GS GWF GWM fighter level 11"
+output [gwm 0 attacks 4 roll d20 plus 5+20@PB-5 vs 20@AC hit GWF_GS+5+10 crit GWF_GS on 20] named "GS GWF GWM fighter level 20"
+
+\ CBE sharpshooter fighter: SS first \
+output   [attack d20 plus 3+ 1@PB-5+2 vs  1@AC hit 1d6+3+10 crit 1d6] named "HC Archery SS+CBE fighter level 1 (16 DEX)"
+output 2d[attack d20 plus 3+ 4@PB-5+2 vs  4@AC hit 1d6+3+10 crit 1d6] named "HC Archery SS+CBE fighter level 4 + CBE"
+output 3d[attack d20 plus 3+ 5@PB-5+2 vs  5@AC hit 1d6+3+10 crit 1d6] named "HC Archery SS+CBE fighter level 5 + Extra Attack"
+output 3d[attack d20 plus 4+ 6@PB-5+2 vs  6@AC hit 1d6+4+10 crit 1d6] named "HC Archery SS+CBE fighter level 6 + ASI"
+output 3d[attack d20 plus 5+ 8@PB-5+2 vs  8@AC hit 1d6+5+10 crit 1d6] named "HC Archery SS+CBE fighter level 8 + ASI"
+output 4d[attack d20 plus 5+11@PB-5+2 vs 11@AC hit 1d6+5+10 crit 1d6] named "HC Archery SS+CBE fighter level 11 + Extra Attack (2)"
+output 5d[attack d20 plus 5+20@PB-5+2 vs 20@AC hit 1d6+5+10 crit 1d6] named "HC Archery SS+CBE fighter level 20 + Extra Attack (3)"
+
+\ CBE sharpshooter fighter: CBE first \
+output 2d[attack d20 plus 3+ 1@PB  +2 vs  1@AC hit 1d6+3    crit 1d6] named "HC Archery CBE+SS fighter level 1 (16 DEX)"
+output 2d[attack d20 plus 3+ 4@PB-5+2 vs  4@AC hit 1d6+3+10 crit 1d6] named "HC Archery CBE+SS fighter level 4 + SS"
+output 3d[attack d20 plus 3+ 5@PB-5+2 vs  5@AC hit 1d6+3+10 crit 1d6] named "HC Archery CBE+SS fighter level 5 + Extra Attack"
+output 3d[attack d20 plus 4+ 6@PB-5+2 vs  6@AC hit 1d6+4+10 crit 1d6] named "HC Archery CBE+SS fighter level 6 + ASI"
+output 3d[attack d20 plus 5+ 8@PB-5+2 vs  8@AC hit 1d6+5+10 crit 1d6] named "HC Archery CBE+SS fighter level 8 + ASI"
+output 4d[attack d20 plus 5+11@PB-5+2 vs 11@AC hit 1d6+5+10 crit 1d6] named "HC Archery CBE+SS fighter level 11 + Extra Attack (2)"
+output 5d[attack d20 plus 5+20@PB-5+2 vs 20@AC hit 1d6+5+10 crit 1d6] named "HC Archery CBE+SS fighter level 20 + Extra Attack (3)"
+
+\ PAM Dueling spear fighter \
+output   [attack d20 plus 3+ 1@PB vs  1@AC hit 1d6+3+2 crit 1d6] + [attack d20 plus 3+ 1@PB vs  1@AC hit 1d4+3+2 crit 1d4] named "Spear Dueling PAM fighter level 1"
+output   [attack d20 plus 4+ 4@PB vs  4@AC hit 1d6+4+2 crit 1d6] + [attack d20 plus 4+ 4@PB vs  4@AC hit 1d4+4+2 crit 1d4] named "Spear Dueling PAM fighter level 4 + ASI"
+output 2d[attack d20 plus 4+ 5@PB vs  5@AC hit 1d6+4+2 crit 1d6] + [attack d20 plus 4+ 5@PB vs  5@AC hit 1d4+4+2 crit 1d4] named "Spear Dueling PAM fighter level 5 + Extra Attack"
+output 2d[attack d20 plus 5+ 6@PB vs  6@AC hit 1d6+5+2 crit 1d6] + [attack d20 plus 5+ 6@PB vs  6@AC hit 1d4+5+2 crit 1d4] named "Spear Dueling PAM fighter level 6 + ASI"
+output 3d[attack d20 plus 5+11@PB vs 11@AC hit 1d6+5+2 crit 1d6] + [attack d20 plus 5+11@PB vs 11@AC hit 1d4+5+2 crit 1d4] named "Spear Dueling PAM fighter level 11 + Extra Attack (2)"
+output 4d[attack d20 plus 5+20@PB vs 20@AC hit 1d6+5+2 crit 1d6] + [attack d20 plus 5+20@PB vs 20@AC hit 1d4+5+2 crit 1d4] named "Spear Dueling PAM fighter level 20 + Extra Attack (3)"
+
+\ PAM GWM GWF glaive fighter: GWM first \
+output [gwm 0                                                                                attacks 1 roll d20 plus 3+ 1@PB-5 vs  1@AC hit GWF_GLAIVE+3+10 crit GWF_GLAIVE on 20] named "Glaive GWF GWM+PAM fighter level 1 (16 STR)"
+output [gwm [attack d20 plus 3+ 4@PB-5 vs  4@AC hit GWF_GLAIVE_PAM+3+10 crit GWF_GLAIVE_PAM] attacks 1 roll d20 plus 3+ 4@PB-5 vs  4@AC hit GWF_GLAIVE+3+10 crit GWF_GLAIVE on 20] named "Glaive GWF GWM+PAM fighter level 4 + PAM"
+output [gwm [attack d20 plus 3+ 5@PB-5 vs  5@AC hit GWF_GLAIVE_PAM+3+10 crit GWF_GLAIVE_PAM] attacks 2 roll d20 plus 3+ 5@PB-5 vs  5@AC hit GWF_GLAIVE+3+10 crit GWF_GLAIVE on 20] named "Glaive GWF GWM+PAM fighter level 5 + Extra Attack"
+output [gwm [attack d20 plus 4+ 6@PB-5 vs  6@AC hit GWF_GLAIVE_PAM+4+10 crit GWF_GLAIVE_PAM] attacks 2 roll d20 plus 4+ 6@PB-5 vs  6@AC hit GWF_GLAIVE+4+10 crit GWF_GLAIVE on 20] named "Glaive GWF GWM+PAM fighter level 6 + ASI"
+output [gwm [attack d20 plus 5+ 8@PB-5 vs  8@AC hit GWF_GLAIVE_PAM+5+10 crit GWF_GLAIVE_PAM] attacks 2 roll d20 plus 5+ 8@PB-5 vs  8@AC hit GWF_GLAIVE+5+10 crit GWF_GLAIVE on 20] named "Glaive GWF GWM+PAM fighter level 8 + ASI"
+output [gwm [attack d20 plus 5+11@PB-5 vs 11@AC hit GWF_GLAIVE_PAM+5+10 crit GWF_GLAIVE_PAM] attacks 3 roll d20 plus 5+11@PB-5 vs 11@AC hit GWF_GLAIVE+5+10 crit GWF_GLAIVE on 20] named "Glaive GWF GWM+PAM fighter level 11 + Extra Attack (2)"
+output [gwm [attack d20 plus 5+20@PB-5 vs 20@AC hit GWF_GLAIVE_PAM+5+10 crit GWF_GLAIVE_PAM] attacks 4 roll d20 plus 5+20@PB-5 vs 20@AC hit GWF_GLAIVE+5+10 crit GWF_GLAIVE on 20] named "Glaive GWF GWM+PAM fighter level 20 + Extra Attack (3)"
+
+\ PAM GWM GWF glaive fighter: PAM first \
+output [gwm [attack d20 plus 3+ 4@PB   vs  4@AC hit GWF_GLAIVE_PAM+3    crit GWF_GLAIVE_PAM] attacks 1 roll d20 plus 3+ 1@PB   vs  1@AC hit GWF_GLAIVE+3    crit GWF_GLAIVE on 20] named "Glaive GWF PAM+GWM fighter level 1 (16 STR)"
+output [gwm [attack d20 plus 3+ 4@PB-5 vs  4@AC hit GWF_GLAIVE_PAM+3+10 crit GWF_GLAIVE_PAM] attacks 1 roll d20 plus 3+ 4@PB-5 vs  4@AC hit GWF_GLAIVE+3+10 crit GWF_GLAIVE on 20] named "Glaive GWF PAM+GWM fighter level 4 + GWM"
+output [gwm [attack d20 plus 3+ 5@PB-5 vs  5@AC hit GWF_GLAIVE_PAM+3+10 crit GWF_GLAIVE_PAM] attacks 2 roll d20 plus 3+ 5@PB-5 vs  5@AC hit GWF_GLAIVE+3+10 crit GWF_GLAIVE on 20] named "Glaive GWF PAM+GWM fighter level 5 + Extra Attack"
+output [gwm [attack d20 plus 4+ 6@PB-5 vs  6@AC hit GWF_GLAIVE_PAM+4+10 crit GWF_GLAIVE_PAM] attacks 2 roll d20 plus 4+ 6@PB-5 vs  6@AC hit GWF_GLAIVE+4+10 crit GWF_GLAIVE on 20] named "Glaive GWF PAM+GWM fighter level 6 + ASI"
+output [gwm [attack d20 plus 5+ 8@PB-5 vs  8@AC hit GWF_GLAIVE_PAM+5+10 crit GWF_GLAIVE_PAM] attacks 2 roll d20 plus 5+ 8@PB-5 vs  8@AC hit GWF_GLAIVE+5+10 crit GWF_GLAIVE on 20] named "Glaive GWF PAM+GWM fighter level 8 + ASI"
+output [gwm [attack d20 plus 5+11@PB-5 vs 11@AC hit GWF_GLAIVE_PAM+5+10 crit GWF_GLAIVE_PAM] attacks 3 roll d20 plus 5+11@PB-5 vs 11@AC hit GWF_GLAIVE+5+10 crit GWF_GLAIVE on 20] named "Glaive GWF PAM+GWM fighter level 11 + Extra Attack (2)"
+output [gwm [attack d20 plus 5+20@PB-5 vs 20@AC hit GWF_GLAIVE_PAM+5+10 crit GWF_GLAIVE_PAM] attacks 4 roll d20 plus 5+20@PB-5 vs 20@AC hit GWF_GLAIVE+5+10 crit GWF_GLAIVE on 20] named "Glaive GWF PAM+GWM fighter level 20 + Extra Attack (3)"

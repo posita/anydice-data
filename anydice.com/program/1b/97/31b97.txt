@@ -1,0 +1,61 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+PROFICIENCY: 4
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+MAIN: 2 * ( 1@2d4 ) + 1@2d6 + 1@2d4
+OFF: 2 * ( 1@2d6 ) + 1@2d4 + 1@2d6 + 1@2d4
+GS: 1@2d6 + 1@2d6 + 1@2d4 + 1@2d6
+OH: 1d8 + 1d10 + 1d6 + 1d4
+
+loop TARGET_AC over { 14..22 } {
+
+   CRITICAL_THRESHOLD: 17
+   STR_MOD: 5
+   DMG_MAIN: STR_MOD + 2
+   DMG_OFF: STR_MOD + 2
+   HIT_MAIN: STR_MOD + PROFICIENCY + 2
+   HIT_OFF: STR_MOD + PROFICIENCY + 2
+   output [ attack with HIT_MAIN vs TARGET_AC rolling ADVANTAGE with MAIN and DMG_MAIN ] + [ attack with HIT_MAIN vs TARGET_AC rolling ADVANTAGE with MAIN and DMG_MAIN ] + [ attack with HIT_OFF vs TARGET_AC rolling ADVANTAGE with OFF and DMG_OFF ] + [ attack with HIT_OFF vs TARGET_AC rolling ADVANTAGE with OFF and DMG_OFF ] + [ attack with HIT_MAIN vs TARGET_AC rolling ADVANTAGE with MAIN and DMG_MAIN ] + [ attack with HIT_MAIN vs TARGET_AC rolling ADVANTAGE with MAIN and DMG_MAIN ] + [ attack with HIT_OFF vs TARGET_AC rolling ADVANTAGE with OFF and DMG_OFF ] named "TWF vs AC[TARGET_AC]"
+
+   CRITICAL_THRESHOLD: 17
+   DMG_GS: STR_MOD + STR_MOD + 10
+   HIT_GS: STR_MOD + PROFICIENCY - 5
+   output [ attack with HIT_GS vs TARGET_AC rolling ADVANTAGE with GS and DMG_GS ] + [ attack with HIT_GS vs TARGET_AC rolling ADVANTAGE with GS and DMG_GS ] + [ attack with HIT_GS vs TARGET_AC rolling ADVANTAGE with GS and DMG_GS ] + [ attack with HIT_GS vs TARGET_AC rolling ADVANTAGE with GS and DMG_GS ] + [ attack with HIT_GS vs TARGET_AC rolling ADVANTAGE with GS and DMG_GS ] + [ attack with HIT_GS vs TARGET_AC rolling ADVANTAGE with GS and DMG_GS ] + [ attack with HIT_GS vs TARGET_AC rolling ADVANTAGE with GS and DMG_GS ] named "GS vs AC[TARGET_AC]"
+
+   CRITICAL_THRESHOLD: 19
+   WIS_MOD: 3
+   DMG_OH: STR_MOD + STR_MOD + WIS_MOD + WIS_MOD
+   HIT_OH: STR_MOD + STR_MOD + PROFICIENCY
+   output [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] + [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] + [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] + [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] + [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] + [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] + [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] + [ attack with HIT_OH vs TARGET_AC rolling NORMAL_ROLL with OH and DMG_OH ] named "Open Hand vs AC[TARGET_AC]"
+
+   \ Group the results prettier. \
+   output {0} named ""
+}

@@ -1,0 +1,133 @@
+\ Calculate the integer square root of a number with Newton's method.
+  It returns 0 if N <= 0, so there are no empty values.
+  For N > 0, it returns the largest number S such that S * S <= N. \
+function: sqrt N:n {
+  if N <= 0 {
+    result: 0
+  } else {
+\ Figure out the initial guess. L is the length of the number in digits,
+  or in other words 1 + floor(log10(N)). \
+    L: #N
+\ This is a rather complex expression, so we'll go over it piece by piece.
+  10^((L-1)/2): N is equal to 10^(L-1) * a mantissa between 1 and 9, so
+                the square root is half the magnitude.
+  L=2*(L/2): Determines whether L is even, or alternatively whether L-1 is
+             odd.
+  1+2*(L=2*(L/2)): If L-1 is even, then this is sqrt(1) = 1. If L-1 is odd,
+                   this is sqrt(10) ~ 3 to clean up the extra factor of 10
+                   in the square root.
+  (1@N)@111222223: A factor based on the first digit of N, equal to
+                   floor(sqrt(1@N)). I'm not sure if this is faster or slower
+                   than (1@N)@{1,1,1,2,2,2,2,2,3}. \
+    X: 10^((L-1)/2)*(1+2*(L=2*(L/2)))*((1@N)@111222223)
+\ The core of Newton's method. Since we don't have while loops (except for
+  recursion, which I'd rather avoid due to function depth issues), I have to
+  guess a number of loops to use. Due to the N^2 convergence, L loops should
+  be enough to converge. \
+    loop K over {1..L} {
+      X: (X * X + N) / (2 * X)
+    }
+\ The method will either converge to sqrt(N) or sqrt(N)+1. Adjust it in the
+  all-too-likely case that it's the latter. \
+    if (X * X > N) { X: X - 1 }
+    result: X
+  }
+}
+
+\ Combine two non-negative integers into a single one.
+  This works by spiraling outward from the origin, like so:
+     ...
+    4 | 16 17 18 19 20
+    3 |  9 10 11 12 21
+    2 |  4  5  6 13 22
+    1 |  1  2  7 14 23
+    0 |  0  3  8 15 24
+      +--------------- ...
+         0  1  2  3  4
+
+  The result is roughly equal in magnitude to max(x, y)^2. \
+function: ucombine X:n and Y:n {
+  if (X >= 0) & (Y >= 0) {
+    if X <= Y {
+\ This is the top branch of the contour line. At X=0, result=Y^2, and it
+  increases with increasing Y. \
+      result: Y * Y + X
+    } else {
+\ This is the bottom branch of the contour line. At Y=0, result=(X+1)^2 - 1,
+  and it decreases with increasing Y. \
+      Z: X + 1
+      result: Z * Z - Y - 1
+    }
+  }
+}
+
+\ Get the unsigned X value from a combined value. It's a reversal of the
+  ucombine function. \
+function: ugetx N:n {
+  if N >= 0 {
+    if N = 0 { result: 0 }
+\ Find the contour line we're on. \
+    S: [sqrt N]
+\ R is the remainder. R <= S if max(X, Y) = Y. \
+    R: N - S * S
+    if R <= S {
+      result: R
+    } else {
+      result: S
+    }
+  }
+}
+
+\ Get the unsigned Y value from a combined value. It's a reversal of the
+  ucombine function. \
+function: ugety N:n {
+  if N >= 0 {
+    if N = 0 { result: 0 }
+\ Find the contour line we're on. \
+    S: [sqrt N]
+\ R is the remainder. R > S if max(X, Y) = X. \
+    R: N - S * S
+    if R <= S {
+      result: S
+    } else {
+      result: 2 * S - R
+    }
+  }
+}
+
+\ Combine two signed values. To do this, we map them both to unsigned values
+  by spiraling outward from the center of the number line, like so (0 -> 0):
+  ... 5 3 1 0 2 4 6 ...
+  We then simply pass them to combine. \
+
+function: combine X:n and Y:n {
+  if X >= 0 { U: 2 * X }
+  else { U: 1 - 2 * X }
+  if Y >= 0 { V: 2 * Y }
+  else { V: 1 - 2 * Y }
+  result: [ucombine U and V]
+}
+
+\ Get the signed value of X from a combined value. This involves ugetx and
+  reversing the original conversion to unsigned. \
+function: getx N:n {
+  U: [ugetx N]
+  X: U / 2
+  if 2 * X != U { X: (1 - U) / 2 }
+  result: X
+}
+
+\ Get the signed value of Y from a combined value. This involves ugety and
+  reversing the original conversion to unsigned. \
+function: gety N:n {
+  V: [ugety N]
+  Y: V / 2
+  if 2 * Y != V { Y: (1 - V) / 2 }
+  result: Y
+}
+
+\ And so we demonstrate. \
+C: [combine 1d6-3 and 1d8-4]
+
+output [getx C] named "X"
+output [gety C] named "Y"

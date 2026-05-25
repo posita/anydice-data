@@ -1,0 +1,62 @@
+
+function: reroll R:n under N:n {
+   if R < N { result: 1d6 } else {result: R}
+}
+
+function: rerolll R:n under N:n {
+   if R < N { result: 1d12 } else {result: R}
+}
+
+function: treat R:n as N:n {
+   if R < N { result: N } else {result: R}
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+A:0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 19 {result: CRITICALHIT 
+}
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: eaattack {
+ result: [damage for [attack [highest 1 of 3d20] vs DEFENSE]]
+} 
+function: adattack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+} 
+
+function: attack {
+ result: [damage for [attack [highest 1 of 1d20] vs DEFENSE]]
+}
+
+DEFENSE: d{15..25}
+ATTACK: 19
+
+HITDAMAGE:1d10+11
+CRITICALDAMAGE: 2d10+11
+MISSDAMAGE:0
+A: [attack]
+B: [adattack] 
+C: [eaattack]
+
+output A+A+A+A+A+A+A+A named "normal"
+output B+B+B+B+B+B+B+B named "Advantage"
+output C+C+C+C+C+C+C+C named "elven" 
+output B+B+B+A+A+B+B+B+B named "samurai"
+output C+C+C+A+A+C+C+C+C named "elven samurai" 

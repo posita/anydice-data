@@ -1,0 +1,33 @@
+
+
+function: dfs S DA:d DB:d DC:d {
+ if S = 1 {
+  result: DA
+ } else {
+  if S = 2 {
+   result: DB
+  } else {
+   result: DC
+  }
+ }
+}
+
+function: pcalc PDC FB DA:d DB:d DC:d S TL {
+ if S = 0 {
+  result: 0
+ } else {
+  if TL = 0 {
+   result: [dfs S DA DB DC]
+  } else {
+   CH: d20+FB>=PDC
+   result: [dfs S DA DB DC] + CH*[pcalc PDC FB DA DB DC S-1 TL-1] + (1 - CH)*[pcalc PDC FB DA DB DC S+1 TL-1]
+  }
+ }
+}
+
+function: dopoison PDC FB DA:d DB:d DC:d TL {
+ result: (d20 + FB < PDC)*[pcalc PDC FB DA DB DC 1 TL]
+}
+
+DC: 28
+output [dopoison 26 13 5d6 6d6 8d6 6]

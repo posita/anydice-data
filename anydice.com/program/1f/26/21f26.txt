@@ -1,0 +1,64 @@
+\
+\\ 6 Piece Polyhedral Dice Pool 
+\
+
+
+\ Variables \
+\DICE: {6,8,10,10,12}\
+DICE: {4,6,8,10,10, 12}
+\DICE: {12,10,10,8,6,4}\
+
+\ What dice results are counted as \
+PLUS: {4..12}
+MINUS: {}
+
+\ Numbers to reroll \
+REROLL: 0
+
+
+\ Function for rolling all the dice \
+function: check NUM:n reroll RE:n {
+
+  TOTAL: 0
+  loop N over {1..NUM} {
+      ROLL: [reroll {1..RE} on d(N@DICE) to d(N@DICE)]
+      TOTAL: TOTAL + [evaluate ROLL]
+  }
+
+  result: [flatten TOTAL]
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+\ Function evaluate a dice result \
+function: evaluate X:n {
+  if X = PLUS { result: 1 }
+  if X = MINUS { result: -1 }
+  result: 0
+}
+
+\ Flattens negatives to zero \
+function: flatten X:n {
+ if X < 0 { result:0}
+ else { result: X}
+}
+
+DIE: d4
+
+\ Loops to test a variety of combinations \
+loop N over {1..#DICE} {
+  loop M over {0..REROLL}{
+    if M = 0 {
+      DIE: N@DICE
+      output [check N reroll M] named "[N]: d[DIE], No Rerolls"
+    }
+    else{
+     output [check N reroll M] named "[N] Reroll [M]s and lower"
+    }
+  }
+}

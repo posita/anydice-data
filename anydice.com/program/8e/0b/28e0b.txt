@@ -1,0 +1,32 @@
+
+function: flip A:n B:n C:n D:n {
+   SORTED: [sort {A, B, C, D}]
+   result: {1,2,3}@SORTED + 21 - {2,3,4}@SORTED
+}
+
+function: higher flip A:n B:n C:n D:n  {
+   SORTED: [sort {A, B, C, D}]
+   HIGH: [sort {{1,2,3}@SORTED, 21 - {2,3,4}@SORTED}]
+   result: 1@HIGH
+}
+
+function: lower flip A:n B:n C:n D:n  {
+   SORTED: [sort {A, B, C, D}]
+   HIGH: [sort {{1,2,3}@SORTED, 21 - {2,3,4}@SORTED}]
+   result: 2@HIGH
+}
+
+TWENTIES: 8d20
+THREEF: 3d[higher flip 1d6 1d6 1d6 1d6]
+THREEFF: 3d[lower flip 1d6 1d6 1d6 1d6]
+
+loop I over {1..6} {
+ output I@TWENTIES named "Best [I] d20"
+ if (I <= 3) {
+   output I@THREEF named "Best [I] 4d6F"
+ } else {
+   output (I-3)@THREEFF named "Best [I] 4d6F"
+ }
+}
+
+output (1@THREEFF - 3@THREEF) named "Misorder"

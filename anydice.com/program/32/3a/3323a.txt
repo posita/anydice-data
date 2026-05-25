@@ -1,0 +1,186 @@
+\
+-- SSC Mourning Cloak @ LL6 --
+[ LICENSES ]
+  IPS-N Tortuga 1, SSC Mourning Cloak 2, SSC Dusk Wing 2, HORUS Goblin 1
+[ CORE BONUSES ]
+  Integrated Weapon, Overpower Caliber
+[ TALENTS ]
+  Combined Arms 3, Vanguard 3, Skirmisher 2, Hunter 1
+[ STATS ]
+  HULL:4 AGI:0 SYS:2 ENGI:2
+  STRUCTURE:4 HP:19 ARMOR:0
+  STRESS:4 HEATCAP:6 REPAIR:5
+  TECH ATK:+2 LIMITED:+1
+  SPD:5 EVA:12 EDEF:8 SENSE:15 SAVE:13
+[ WEAPONS ]
+  INTEGRATED WEAPON: Fold Knife
+  FLEX MOUNT: Deck-Sweeper Automatic Shotgun
+  MAIN/AUX MOUNT: Deck-Sweeper Automatic Shotgun / Fold Knife // Overpower Caliber
+[ SYSTEMS ]
+  Flicker Field Projector, Hunter Logic Suite, Singularity Motivator, Armament Redundancy, H0R_OS System Upgrade I, Neurospike
+\
+
+EVASION: 15
+ARMOR: 0
+SOLO: 1
+
+function: hitroll AD:n {
+  if (AD < 0) {
+    N: -[highest 1 of (-AD)d6]
+  } else if (AD > 0) {
+    N: [highest 1 of ADd6]
+  } else {
+    N: 0
+  }
+
+  result: 1d20+3+N
+}
+
+function: tohitwith D:n {
+  result: (D >= EVASION) + (D >= 20)
+}
+
+function: tohit AD {
+  result: [tohitwith [hitroll AD]]
+}
+
+THZ: [tohit 0]
+THO: [tohit 1]
+THT: [tohit 2]
+
+DF: [highest of 1d3 - ARMOR and 0]
+CF: [highest of [highest 1 of 2d3] - ARMOR and 0]
+DFS: [highest of 1d3 + SOLOd6 - ARMOR and 0]
+CFS: [highest of [highest 1 of 2d3] + [highest SOLO of 2d6] - ARMOR and 0]
+DSF: [highest of 3d6 - ARMOR and 0]
+CSF: [highest of [highest 3 of 6d6] - ARMOR and 0]
+DSS: [highest of 2d6 - ARMOR and 0]
+CSS: [highest of [highest 2 of 4d6] - ARMOR and 0]
+
+\ Skirmish, beginning with the Main/Aux knife. \
+function: skirmish D:n {
+  if (D < 1) {
+    result: [skirmfm THO]
+  } else if (D < 2) {
+    result: DF + [skirmsh THO]
+  } else {
+    result: CF + [skirmsh THO]
+  }
+}
+
+\ Missed with the first knife. Attack with the second before the shotgun. \
+function: skirmfm D:n {
+  if (D < 1) {
+    result: [skirmsm THZ]
+  } else if (D < 2) {
+    result: DFS + [skirmsm THO]
+  } else {
+    result: CFS + [skirmsm THO]
+  }
+}
+
+\ Attack with the shotgun after missing with the first knife. \
+function: skirmsm D:n {
+  if (D < 1) {
+    result: 0
+  } else if (D < 2) {
+    result: DSF
+  } else {
+    result: CSF
+  }
+}
+
+\ Hit with the first knife. Attack with the shotgun before the second knife. \
+function: skirmsh D:n {
+  if (D < 1) {
+    result: [skirmfh THO]
+  } else if (D < 2) {
+    result: DSF + [skirmfh THT]
+  } else {
+    result: CSF + [skirmfh THT]
+  }
+}
+
+\ Attack with the second knife after the shotgun. \
+function: skirmfh D:n {
+  if (D < 1) {
+    result: 0
+  } else if (D < 2) {
+    result: DFS
+  } else {
+    result: CFS
+  }
+}
+
+\ Start the barrage with the Main/Aux knife. \
+function: barrage D:n {
+  if (D < 1) {
+    result: [barrfm THO]
+  } else if (D < 2) {
+    result: DF + [barrsh THO]
+  } else {
+    result: CF + [barrsh THO]
+  }
+}
+
+\ Missed with the first knife. Attack with the second knife before both shotguns. \
+function: barrfm D:n {
+  if (D < 1) {
+    result: [barrsm THZ]
+  } else if (D < 2) {
+    result: DFS + [barrsm THO]
+  } else {
+    result: CFS + [barrsm THO]
+  }
+}
+
+\ Attack with the first shotgun before the second. \
+function: barrsm D:n {
+  if (D < 1) {
+    result: [barrss THZ]
+  } else if (D < 2) {
+    result: DSF + [barrss THZ]
+  } else {
+    result: CSF + [barrss THZ]
+  }
+}
+
+\ Hit with the first knife. Attack with the first shotgun before the second knife. \
+function: barrsh D:n {
+  if (D < 1) {
+    result: [barrfh THO]
+  } else if (D < 2) {
+    result: DSF + [barrfh THT]
+  } else {
+    result: CSF + [barrfh THT]
+  }
+}
+
+\ Attack with the second knife before the shotgun. \
+function: barrfh D:n {
+  if (D < 1) {
+    result: [barrss THZ]
+  } else if (D < 2) {
+    result: DFS + [barrss THO]
+  } else {
+    result: CFS + [barrss THO]
+  }
+}
+
+\ Attack with the second shotgun last always. \
+function: barrss D:n {
+  if (D < 1) {
+    result: 0
+  } else if (D < 2) {
+    result: DSS
+  } else {
+    result: CSS
+  }
+}
+
+if (SOLO) {
+  output [skirmish THO] named "Skirmish (Evasion [EVASION], Armor [ARMOR], Solo)"
+} else {
+  output [skirmish THO] named "Skirmish (Evasion [EVASION], Armor [ARMOR])"
+}
+output [barrage THO] named "Barrage"

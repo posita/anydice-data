@@ -1,0 +1,92 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {  
+  if (ROLL = 1) { result: 0 }
+  if (ROLL = 20){ result: [threat d20] }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [threat d20] }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: threat ROLL:n {
+  if (ROLL + ATTACK >= AC) | (ROLL = 20) {
+    result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA
+  }
+  result: DAMAGE + EXTRA
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Here are some examples: \
+\output [{17,14,13,11,17,12} vs 30 crit 19 2 dmg 1d6+14] named "Kamas"
+output [{19,16,15,13} vs 30 crit 19 2 dmg 1d10+14] named "Fists"
+output [{19,14,19,14} vs 30 crit 15 2 dmg 1d6+16] named "DWShortSword"
+output [{19,14} vs 30 crit 15 2 dmg 2d6+30] named "greatsword"
+output [{19,14,19,14} vs 30 crit 15 2 dmg 1d6+16+5] named "DWShortSwordFW"
+output [{19,14} vs 30 crit 15 2 dmg 2d6+30+10] named "greatswordFW"
+
+output [{19,14,19,14} vs 30 crit 15 2 dmg 1d6+16-10] named "DWShortSwordvDR"
+output [{19,14} vs 30 crit 15 2 dmg 2d6+30-10] named "greatswordvDR"\
+
+\output [15 vs 17 crit 19 2 1d10 dmg 3d6+20 1d6] named "flaming burst greatsword raging bull strength enlarged"
+output [{10,10} vs 17 crit 20 2 dmg 1d6+10] named "2 claw attacks"
+output [6 vs 17 crit 20 2 dmg 1d6+1 1d6] named "javelin sneak attack"\
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \
+
+output [{29,29} vs 30 crit 20 2 dmg 1d8+10+5+3+1d12+1d10]+36 named "SW Fighter"  
+output [{23,23} vs 30 crit 20 2 dmg 2d6+20+10+6+2d12+2d10]+6 named "GW Fighter"  
+output [{22,22,22,22} vs 30 crit 20 2 dmg 1d6+10+5+3+1d12+1d10]+2 named "DW Fighter" 
+output [{29,29,29} vs 30 crit 20 2 dmg 1d8+10+5+3+1d12+1d10]+54 named "SW Fighter - Haste or Action Surge"  
+output [{23,23,23} vs 30 crit 20 2 dmg 2d6+20+10+6+2d12+2d10]+10 named "GW Fighter - Haste or Action Surge"  
+output [{23,23,23,23,23,23} vs 30 crit 20 2 dmg 1d6+10+5+3+1d12+1d10]+3 named "DW Fighter - Haste or Action Surge" 
+output [{29,29,29,29} vs 30 crit 20 2 dmg 1d8+10+5+3+1d12+1d10]+72 named "SW Fighter - Haste and Action Surge"  
+output [{23,23,23,23} vs 30 crit 20 2 dmg 2d6+20+10+6+2d12+2d10]+13 named "GW Fighter - Haste and Action Surge"  
+output [{23,23,23,23,23,23,23,23} vs 30 crit 20 2 dmg 1d6+10+5+3+1d12+1d10]+4 named "DW Fighter - Haste and Action Surge"  
+output [{0} vs 30 crit 15 2 dmg 1d6+16-10] named "-----"    
+output [{29,29,29} vs 30 crit 20 2 dmg 1d8+10+5+3+1d12+1d10+10]+66 named "(Avg 42.5 + 22) SW Vanquisher"
+output [{23,23,23} vs 30 crit 20 2 dmg 2d6+20+10+6+2d12+2d10+20]+10 named "(Avg 87) GW Vanquisher"
+output [{23,23,23,23,23,23} vs 30 crit 20 2 dmg 1d6+10+8+3+1d12+1d10+27]+3 named "(Avg 41.5) DW Vanquisher" 
+output [{23,23,23,23,23,23,23,23,23,23} vs 30 crit 20 2 dmg 1d6+10+8+3+1d12+1d10+10]+3 named "(Avg 41.5) DW Vanquisher - Action Surge"
+output [{26,26,26,26} vs 30 crit 20 2 dmg 1d6+8+3+3+1d12+1d10+10] named "DW Marshal" 
+output [{26,26,26,26,26,26,26,26} vs 30 crit 20 2 dmg 1d6+8+3+3+1d12+1d10+10] named "DW Marshal - Action Surge" 
+output [{29,29,29,29} vs 30 crit 20 2 dmg 1d8+10+5+3+1d12+1d10+8]+88 named "SW Vanquisher - +1 APR"  
+output [{23,23,23,23} vs 30 crit 20 2 dmg 2d6+20+10+6+2d12+2d10+16]+13 named "GW Vanquisher - +1 APR"  
+output [{23,23,23,23,23,23,23,23} vs 30 crit 20 2 dmg 1d6+10+5+3+1d12+1d10+8] named "DW Vanquisher- +1 APR"  
+output [{27,27,27} vs 30 crit 20 2 dmg 1d8+9+5+3+1d12+1d10]+33 named "(Avg 42.5 + 22) SW Vanquisher - L4"
+output [{21,21,21} vs 30 crit 20 2 dmg 2d6+18+10+6+2d12+2d10]+12 named "(Avg 83) GW Vanquisher - L4"
+output [{21,21,21,21,21,21} vs 30 crit 20 2 dmg 1d6+9+5+3+1d12+1d10] named "(Avg 41.5) DW Vanquisher - L4"             
+output [{0} vs 30 crit 15 2 dmg 1d6+16-10] named "-----"

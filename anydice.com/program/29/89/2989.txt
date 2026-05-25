@@ -1,0 +1,41 @@
+function: ROLL:s hilo absdiff { 
+\ *****
+Take the difference between the highest two dice and subtract the difference between the lowest two dice.
+e.g. On 3d6 you roll 6, 4, 1.  
+     6-4 = 2
+     4-1 = 3
+     2-3 = -1 is the result
+***** \
+ result: 1@ROLL + #ROLL@ROLL - (2 * ({1..#ROLL}@ROLL - 1@ROLL - #ROLL@ROLL))
+}
+function: ROLL:s hilo minus mid { 
+\ *****
+Sum the highest and lowest dice values together, and subtract from that the sum of the remaining dice.
+e.g.  On 4d6 you roll  5, 5, 3, 2
+      5 + 2 = 7   hi/lo sum
+      5 + 3 = 8   remaining dice sum
+      7 - 8 = -1  result
+***** \
+ result: 1@ROLL + #ROLL@ROLL - (({1..#ROLL}@ROLL - 1@ROLL - #ROLL@ROLL))
+}
+
+function: compare A:n B:n {
+  if A = B {
+    result: 0
+  } else if A < B {
+    result : A
+  } else {
+    result : B * -1
+  }
+}
+
+output 4d{-1..1} named "4dF"
+
+set "position order" to "lowest first"
+output [compare 1@2d6 1@2d6] named "Lowest"
+set "position order" to "highest first" \ default \
+
+output 1d6 - 1d6 named "d6 - d6"
+output [3d6 hilo absdiff] named "3d6 HiLo Rel Dif"
+output [highest 1 of 2d6] - [highest 1 of 2d6] named "H2d6 - H2d6"
+output [4d6 hilo minus mid] named "4d6 HiLo - Mid"

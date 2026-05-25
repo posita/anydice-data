@@ -1,0 +1,69 @@
+DICETYPE: 1d8
+EXPLODE: 8
+REROLL: 1
+
+DICETOROLL: 5
+TRAINING: 7
+DC: 3
+
+set "maximum function depth" to 5
+
+function: roll ROLL:n {
+ result: ROLL >= TRAINING
+}
+
+function: rollexploding ROLL:n {
+ if ROLL >= EXPLODE {result: 1 + [rollexploding DICETYPE]}
+ result: [roll ROLL]
+}
+
+function: rerollones ROLL:n {
+ if ROLL <= REROLL {result: 0 + [rerollones DICETYPE]}
+ result: [roll ROLL]
+}
+
+function: rerollall RESULT:n under TARGET:n else FALLBACK:n {
+ if RESULT < TARGET {
+  result: FALLBACK
+ }
+ else {
+  result: RESULT
+ }
+}
+
+function: normal DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [roll DICETYPE]
+ }
+ result: RES
+}
+
+function: vigor DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [rollexploding DICETYPE]
+ }
+ result: RES
+}
+
+function: instinct DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [rerollones DICETYPE]
+ }
+ result: RES
+}
+
+function: focus DICE:n {
+ FIRSTROLL: [normal DICE]
+ SECONDROLL: [normal DICE]
+ result: [rerollall FIRSTROLL under DC else SECONDROLL]
+}
+
+
+output [normal DICETOROLL] named "[DICETOROLL][DICETYPE] Normal dice against [TRAINING]+"
+output [vigor DICETOROLL] named "[DICETOROLL][DICETYPE] Vigor (explode [EXPLODE]+) dice against [TRAINING]+"
+output [instinct DICETOROLL] named "[DICETOROLL][DICETYPE] Instinct (reroll [REROLL]-) dice against [TRAINING]+"
+output [focus DICETOROLL] named "[DICETOROLL][DICETYPE] Focus (reroll once if did not meet DC) dice against [TRAINING]+"
+

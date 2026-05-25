@@ -1,0 +1,27 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n with ATTACK:n critting CRIT:n {
+ if ROLL = CRITROLL { result: ATTACK+CRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS > AC { result: ATTACK }
+ result: 0
+}
+
+\looped against enemy AC from 13-15\
+ENEMYAC: d{13..15}
+
+ATTACKMOD: 3
+DMGBONUS: 2
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+CRIT_LANCE: 10
+CRIT_POLE: 4
+DMG_PIERCER: {1}@2d10 + ATTACKMOD + DMGBONUS
+DMG_GWM: 1d10 + ATTACKMOD + DMGBONUS + PROFICIENCY
+DMG_PAM: 1d4 + ATTACKMOD + DMGBONUS
+ATK_PIERCER: [attackroll d20 vs ENEMYAC with DMG_PIERCER critting CRIT_LANCE]
+ATK_PAM: [attackroll d20 vs ENEMYAC with DMG_PAM critting CRIT_POLE]
+ATK_GWM: [attackroll d20 vs ENEMYAC with DMG_GWM critting DMG_GWM+CRIT_LANCE]
+output ATK_PIERCER + ATK_PIERCER named "Piercer"
+output ATK_GWM + ATK_GWM named "Great Weapon Master"

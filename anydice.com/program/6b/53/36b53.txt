@@ -1,0 +1,126 @@
+\\\ *** Weapon vs Spell Damage Calculator *** \\\
+
+\\\*** INPUTS & GENERAL INFO ***; P = Physical, M = Magic \\\
+
+\\\ ENEMY INFO \\\
+ENEMY_AC: d{14..18}\ d{14..18} = looped against enemy AC from 14-18, DMG suggested AC from CR4-16\
+STR_SAVE: 3        \ Monster ave: 2.81 \
+DEX_SAVE: 3        \ Monster ave: 2.39 \
+CON_SAVE: 4        \ Monster ave: 3.77 \
+INT_SAVE: 1        \ Monster ave: 0.36 \
+WIS_SAVE: 3        \ Monster ave: 2.57 \
+CHA_SAVE: 2        \ Monster ave: 1.41 \
+
+P_DMG_RESIST: 0    \ Resistant to type of physical damage;; 0 = Physical resist off, 1 = Physical resist on \
+P_ADV: 0           \ Advantage on attack;; 0 = no advantage, 1 = advantage, 2 = show both \
+M_DMG_RESIST: 0    \ Resistant to type of magic damage;; 0 = Magic resist off, 1 = Magic resist on \
+M_RESIST: 0        \ Advantage on SAVE;; 0 = Magic resist off, 1 = Magic resist on \
+M_PERCENTS: 0      \ Likelyhood of failing SAVE;; 0 = Save fail % off, 1 = Save fail % on \
+
+\\\ PLAYER INFO \\\
+LEVEL: 5
+P_STAT_MOD: 3
+M_STAT_MOD: 3
+PROF: (LEVEL+7)/4
+SPELL_DC: 8 + PROF + M_STAT_MOD
+
+\\\ Weapon - Greatsword \\\
+ATTACK_DICE: 2d6
+BONUS_DAM_MOD: 10
+BONUS_DICE: 0
+HIT_BONUS: -5
+MAGIC_BONUS: 0
+SINGLE_HIT: 0
+N_ATTACKS: 2
+
+\\\ Spell - Sacred Flame \\\
+FAIL_SAVE_DMG: 2d8
+SUCC_SAVE_DMG: 0
+SAVE: DEX_SAVE
+
+
+
+\\\*** DO NOT ADJUST BELOW ***\\\
+
+
+
+\\\*** Functions ***\\\
+NORMAL: 1d20
+ADV: [highest 1 of 2d20]
+CRIT_RANGE: 20
+CRIT_BONUS: 0 \Any additional dice used specifically for a critical\
+
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT_RANGE { result: CRITICALDAMAGE }
+ if ROLL + ATTACK >= ENEMY_AC { result: HITDAMAGE }
+ result: 0
+}
+function: single ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACK >= ENEMY_AC { result: SINGLEDAMAGE }
+ result: 0
+}
+function: spell ROLL:n vs SPELL_DC:n {
+ if ROLL + SAVE >= SPELL_DC {result: SUCC_SAVE}
+ if ROLL + SAVE < SPELL_DC {result: FAIL_SAVE}
+}
+
+\\\ WEAPON DMG \\\
+ATTACK: P_STAT_MOD + PROF + MAGIC_BONUS + HIT_BONUS
+if P_DMG_RESIST = 0 {
+HITDAMAGE: ATTACK_DICE + P_STAT_MOD + MAGIC_BONUS + BONUS_DAM_MOD + BONUS_DICE
+CRITICALDAMAGE: 2dATTACK_DICE + P_STAT_MOD + MAGIC_BONUS + BONUS_DAM_MOD + 2dBONUS_DICE + CRIT_BONUS
+SINGLEDAMAGE: SINGLE_HIT
+}
+else { 
+if P_DMG_RESIST = 1 {
+HITDAMAGE: (ATTACK_DICE + P_STAT_MOD + MAGIC_BONUS + BONUS_DAM_MOD + BONUS_DICE)/2
+CRITICALDAMAGE: (2dATTACK_DICE + P_STAT_MOD + MAGIC_BONUS + BONUS_DAM_MOD + 2dBONUS_DICE + CRIT_BONUS)/2
+SINGLEDAMAGE: (SINGLE_HIT)/2
+}
+}
+
+if P_ADV = 0 {
+  output N_ATTACKSd[attack NORMAL vs ENEMY_AC] + [single NORMAL vs ENEMY_AC] named "Weapon"
+}
+else {
+if P_ADV = 1 {
+  output N_ATTACKSd[attack ADV vs ENEMY_AC] + [single ADV vs ENEMY_AC] named "Adv Weapon"
+}
+else {
+  if P_ADV = 2 {
+  output N_ATTACKSd[attack NORMAL vs ENEMY_AC] + [single NORMAL vs ENEMY_AC] named "Weapon"
+  output N_ATTACKSd[attack ADV vs ENEMY_AC] + [single ADV vs ENEMY_AC] named "Adv Weapon"
+}
+}
+}
+
+\\\ SPELL DMG \\\
+SAVE: SAVE
+SUCC_SAVE: SUCC_SAVE_DMG
+FAIL_SAVE: FAIL_SAVE_DMG
+if M_RESIST = 0 {
+ if M_DMG_RESIST = 0 {
+ output [spell NORMAL vs SPELL_DC] named "Spell Dmg"
+ }
+ if M_DMG_RESIST = 1 {
+ output [spell NORMAL vs SPELL_DC]/2 named "Spell Dmg"
+ }
+ if M_PERCENTS = 1 {
+   output (SPELL_DC > NORMAL + SAVE)*100 named "Spell_Fail %"
+ }
+}
+else {
+if M_RESIST = 1 {
+ if M_DMG_RESIST = 0 {
+ output [spell ADV vs SPELL_DC] named "Spell Dmg"
+ }
+ if M_DMG_RESIST = 1 {
+ output [spell ADV vs SPELL_DC]/2 named "Spell Dmg"
+ }
+ if M_PERCENTS = 1 {
+   output (SPELL_DC > ADV + SAVE)*100 named "M.Resist Fail %"
+ }
+}
+}

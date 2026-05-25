@@ -1,0 +1,42 @@
+function: dist A:n {
+    NEG: A-1
+    POS: [absolute A-20]
+    if NEG>POS {result: NEG}
+    result: POS
+}
+
+function: emphasis ROLLS:s {
+    MAX_ROLLS: {}
+    MAX_DIST: 0
+    loop R over ROLLS {
+        DIST: [dist R]
+        if DIST = MAX_DIST { MAX_ROLLS: {MAX_ROLLS, R} }
+        if DIST > MAX_DIST{
+            MAX_DIST: DIST
+            MAX_ROLLS: {R}
+        }
+    }
+    result: d MAX_ROLLS
+}
+
+
+function: disregard ROLLS:s {
+    MIN_ROLLS: {}
+    MIN_DIST: 8^8
+    loop R over ROLLS {
+        DIST: [dist R]
+        if DIST = MIN_DIST { MIN_ROLLS: {MIN_ROLLS, R} }
+        if DIST < MIN_DIST{
+            MIN_DIST: DIST
+            MIN_ROLLS: {R}
+        }
+    }
+    result: d MIN_ROLLS
+}
+
+output [emphasis 2d20] named "Emphasis (2d20)"
+output [emphasis 3d20] named "Emphasis (3d20)"
+output [emphasis 4d20] named "Emphasis (4d20)"
+output [disregard 2d20] named "Disregard (2d20)"
+output [disregard 3d20] named "Disregard (3d20)"
+output [disregard 4d20] named "Disregard (4d20)"

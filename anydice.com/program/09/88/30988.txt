@@ -1,0 +1,23 @@
+TURNS: 5
+
+POWER: 10
+SHARPNESS: 20
+
+HEALTH: 50
+CRUMBLE_MAX: 50
+
+CRUMBLE: 0
+CRUMBLE_INCR: POWER - SHARPNESS
+function: positive NUMBER:n{
+ if NUMBER < 0 { result: 0}
+ result: NUMBER
+}
+DAMAGE: 0
+loop N over {1..TURNS}{
+  DAMAGE: DAMAGE + POWER + 2d6
+  CRUMBLE: CRUMBLE + [positive CRUMBLE_INCR + 2d6]
+  CRUMBLE_CH: (CRUMBLE*100)/CRUMBLE_MAX
+  RES: (DAMAGE >= HEALTH) - (CRUMBLE_CH > 1d100)*2
+  WIN: [absolute RES]
+  output WIN named "WIN on Turn [N]"
+}

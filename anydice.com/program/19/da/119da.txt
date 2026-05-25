@@ -1,0 +1,45 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: concentration ROLL:n vs DAMAGE:n {
+ if ROLL + SAVE >= 10 & ROLL + SAVE >= DAMAGE/2 {
+  result: 0
+ }
+ result: 1
+}
+
+SAVE: 3
+
+AC: 18
+
+ATTACK: 2
+HITDAMAGE: 2d4+2
+CRITICALDAMAGE: 4d4+2
+MISSDAMAGE: 0
+
+output [damage for [attack [highest 1 of 2d20] vs AC]] + [damage for [attack [highest 1 of 2d20] vs AC]] named "Normal"
+
+HITDAMAGE: 4d4+4
+CRITICALDAMAGE: 8d4+4
+
+output [damage for [attack [highest 1 of 2d20] vs AC]] named "Fast"

@@ -1,0 +1,48 @@
+function: hit VALUE:n SHAKEN:n {
+  if VALUE + ATTACK_MOD < PARRY { result: -1 }
+  if VALUE + ATTACK_MOD < PARRY + 4 { result: [damage DAMAGE_DIE SHAKEN] }
+  result: [damage DAMAGE_DIE + [explode d6] SHAKEN]
+}
+
+function: damage VALUE:n SHAKEN:n {
+  if VALUE < TOUGHNESS {result: -1}
+  if VALUE < TOUGHNESS + 4 {
+    if SHAKEN {result: 1}
+    result: 0
+  }
+  result: (VALUE-TOUGHNESS)/4
+}
+
+function: N:n attacks {
+  WOUNDS: 0
+  SHAKEN: 0
+  loop I over {1..N} {
+    ATTACK_RESULT: [hit ATTACK SHAKEN > 0]
+    SHAKEN: ATTACK_RESULT >= 0 | SHAKEN
+    WOUNDS: WOUNDS + [highest of 0 and ATTACK_RESULT]
+  }
+  result: WOUNDS
+}
+
+PARRY: 5
+TOUGHNESS: 5
+WILD_DIE: [explode d6]
+DAMAGE_DIE: 2d [explode d6]
+
+ATTACK: [highest of WILD_DIE and [explode d6]]
+ATTACK_MOD: 0
+output [1 attacks] named "single attack k6"
+
+output [2 attacks] named "two attacks k6 both hands"
+
+ATTACK_MOD: 4
+DAMAGE_DIE: DAMAGE_DIE + 4
+output [1 attacks] named "advantage"
+
+ATTACK_MOD: -2
+DAMAGE_DIE: [explode d4] + [explode d6]
+output [1 attacks] named "improvised"
+
+ATTACK_MOD: 4
+DAMAGE_DIE: [explode d8] + [explode d8] + 8
+output [1 attacks] named "prepared sniper"

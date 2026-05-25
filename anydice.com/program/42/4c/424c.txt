@@ -1,0 +1,41 @@
+function: rr N:n of D:n {
+if N<D {result: D}
+else {result: d6}}
+
+function: gwf {result: 2d[rr 2 of d6]}
+
+function: atk WP:d abil AB:n prof PR:n vs ac AC:n roll R:n crit CR:n rmod RM:n magic MG:n {
+if R=20 {result: 2dWP+AB+MG}
+else {if (R>=CR & R+AB+PR+RM+MG>=AC) {result: 2dWP+AB+MG}
+else {if R=1 {result: 0}
+      else {if R+AB+PR+RM+MG>=AC {result: WP+AB+MG}
+            else {result: 0}
+           }
+     }
+}
+}
+
+function: adv {result: [highest 1 of 2d20]}
+function: normal {result: d20}
+function: disadv {result: [lowest 1 of 2d20]}
+
+
+\loop AC over {8..23}{
+output 4d[atk [gwf] abil 5 prof 6 vs ac AC roll [normal] crit 18 rmod 0 magic 0] named "gwf [AC]"
+output 4d[atk d8+2 abil 5 prof 6 vs ac AC roll [normal] crit 18 rmod 0 magic 0] named "duel [AC]"
+output 5d[atk d6 abil 5 prof 6 vs ac AC roll [normal] crit 18 rmod 0 magic 0] named "twf [AC]"
+output 4d[atk d8 abil 5 prof 6 vs ac AC roll [normal] crit 18 rmod 2 magic 0] named "arch [AC]"
+}\
+
+function: stat {result: [highest 3 of 4d6]}
+function: nstat N:n {if N>7 {result: N}} 
+
+\
+loop N over {1..6}{
+output N@6d[nstat [stat]] named "[N] nstat"
+output N@6d[stat] named "[N] stat"
+}
+\
+
+output 6d[stat]
+output 6d[nstat [stat]]

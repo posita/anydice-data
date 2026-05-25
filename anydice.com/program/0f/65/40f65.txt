@@ -1,0 +1,37 @@
+\ Aumenta o limite de 'explosões' \
+set "maximum function depth" to 6
+
+\ --- PARTE 1: A ROLAGEM CODIFICADA --- \
+\ Cada Sucesso vale 100. Cada face '1' vale 1. \
+function: verificar R:n {
+  \ Se cair 6: Conta 1 sucesso (100) E rola de novo \
+  if R = 6 { result: 100 + [verificar d6] } 
+  
+  \ Se cair 4 ou 5: Conta 1 sucesso (100) \
+  if R >= 4 { result: 100 } 
+  
+  \ Se cair 1: Conta 1 ponto de penalidade (1) \
+  if R = 1 { result: 1 }
+  
+  \ Se cair 2 ou 3: Conta 0 \
+  result: 0 
+}
+
+\ --- PARTE 2: A DECODIFICAÇÃO E PENALIDADE --- \
+\ Transforma o número grande no resultado final \
+function: calcular penalidade VALOR_TOTAL:n {
+  \ Descobre quantos sucessos existem (divisão inteira por 100) \
+  SUCESSOS: VALOR_TOTAL / 100
+  
+  \ O que sobra são as faces '1' \
+  FACES_UM: VALOR_TOTAL - (SUCESSOS * 100)
+  
+  \ A cada duas faces '1', perde 1 sucesso \
+  PENALIDADE: FACES_UM / 2
+  
+  result: SUCESSOS - PENALIDADE
+}
+
+\ --- EXECUÇÃO --- \
+\ Rola os dados codificados e passa pela calculadora final \
+output [calcular penalidade 3d[verificar d6]] named "Sucessos Finais (com penalidade)"

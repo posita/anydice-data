@@ -1,0 +1,95 @@
+\gargoyle\
+GHP: 37
+GAC: 16
+GPA: 4
+
+\harpy\
+HHP: 31
+HAC: 13
+HPA: 4
+
+\minotaur\
+MHP: 39
+MAC: 14
+MPA: 4
+
+\elf fighter 4\
+EHP: 26
+EAC: 10 +5 \ chainmail \ +2 \ dex \
+EPA: 3
+
+\human fighter 4\
+FHP: 30
+FAC: 10 +5 \ chainmail \ +2 \ dex \
+FPA: 3
+
+\elf wizard 4\
+WHP: 14
+WAC: 10 +3 \ dex \ +4 \ mage armor \ +4 \ shield \
+WPA: 1
+
+MISS: 0
+NORMALHIT: 1
+
+function: ROLL:n plus ATTACK:n vs AC:n th THREAT:n x MUL:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= AC {
+  result: [threat d20 plus ATTACK vs AC for MUL]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n plus ATTACK:n vs AC:n for MUL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: MUL
+ }
+ result: NORMALHIT
+}
+
+function: HIT:n for DAMAGE:d from HP:n {
+  if HIT > MISS {
+    RESULT: DAMAGE
+    loop N over {2..HIT} {
+      RESULT: RESULT + DAMAGE
+    }
+    result: HP - RESULT
+  }
+  else {
+    result: HP
+  }
+}
+
+\ anydice, why must I hack you so? \
+function: rounds HITPOINTS:n survived past CURROUND:n {
+  if HITPOINTS < 0 {
+    result: CURROUND
+  }
+  result: CURROUND + 1
+}
+
+function: rounds at PA:n to kill HP:n past AC:n {
+  ATK: 10-PA+2  \ charging \
+  CHP: HP
+  R: 1
+  loop N over {1..6} {
+    CHP: [[d20 plus ATK vs AC th 19 x 2] for 2d6+7+PA*2 from CHP]
+    R: [rounds CHP survived past R]
+    ATK: 10-PA  \ not charging anymore \
+  }
+  result: R
+}
+
+output [rounds at GPA to kill GHP past GAC] named "gargoyle, full PA"
+output [rounds at 0 to kill GHP past GAC] named "gargoyle, no PA"
+output [rounds at HPA to kill HHP past HAC] named "harpy, full PA"
+output [rounds at 0 to kill HHP past HAC] named "harpy, no PA"
+output [rounds at MPA to kill MHP past MAC] named "minotaur, full PA"
+output [rounds at 0 to kill MHP past MAC] named "minotaur, no PA"
+output [rounds at EPA to kill EHP past EAC] named "elf fighter, full PA"
+output [rounds at 0 to kill EHP past EAC] named "elf fighter, no PA"
+output [rounds at FPA to kill FHP past FAC] named "human fighter 4, full PA"
+output [rounds at 0 to kill FHP past FAC] named "human fighter 4, no PA"
+output [rounds at WPA to kill WHP past WAC] named "elf wizard 4, shield/mage armor, full PA"
+output [rounds at 0 to kill WHP past WAC] named "elf wizard 4, shield/mage armor, no PA"

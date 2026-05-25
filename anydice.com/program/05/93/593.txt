@@ -1,0 +1,39 @@
+function: explode N:n at TN exploding EXN {
+ if N <= EXN {
+  result: 1 + [explode 1d10 at TN exploding EXN]
+ } else {
+  if N <= TN {
+   result: 1
+  } else {
+   result: 0
+  }
+ }
+}
+
+function: roll DICE at TN {
+ A: 0
+ EXN: 1
+ ATN: TN
+ if TN >= 10 {
+  EXN: 2
+  ATN: 9
+ } else {
+  if TN < 1 {
+   EXN: 0
+   ATN: 1
+  }
+ }
+ loop X over {1..DICE} {
+  B: A + [explode 1d10 at ATN exploding EXN]
+  A: B
+ }
+ result: A
+}
+
+set "maximum function depth" to 5
+
+loop DICE over {1..10} {
+ loop TN over {0..10} {
+  output [roll DICE at TN] named "[DICE]d10, TN [TN]"
+ }
+}

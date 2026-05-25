@@ -1,0 +1,598 @@
+\function: attack with OFF:n against DEF:n {
+ result: [highest of [count {1,2,3} in OFFd6] - [count {4,5} in DEFd6] and 0]
+}
+
+function: defend with DEF:n against OFF:n {
+ result: [highest of [count {1,2,3} in OFFd6] - [count {6} in DEFd6] and 0]
+}
+
+output [attack with  9 against  8]
+output [defend with 28 against 14]
+output [attack with  9 against 12]
+output [defend with 28 against 17]\
+
+\Depth 1\
+function: A:n is even {
+ result: (A / 2) = (A - A / 2)
+}
+
+function: S:s to number {
+ R: 0
+ X: 1
+ loop N over {1..#S}
+ {
+  R: R + N@S * X
+  X: X * 2
+ }
+ result: R
+}
+
+function: class C:s {
+ result: 1@C
+}
+
+function: level C:s {
+ result: 2@C
+}
+
+function: strength C:s {
+ result: 3@C
+}
+
+function: agility C:s {
+ result: 4@C
+}
+
+function: vitality C:s {
+ result: 5@C
+}
+
+function: evasion C:s {
+ result: 6@C
+}
+
+\TODO: Accuracy likely no longer depends on level!\
+function: accuracy CLS:n LV:n {
+ result: CLS@{15,15,10,20,20,20} + LV * CLS@{3,2,3,2,1,1}
+}
+
+function: weapon attack W:s {
+ result: 1@W
+}
+
+function: weapon accuracy W:s {
+ result: 2@W
+}
+
+function: weapon crit W:s {
+ result: 3@W
+}
+
+function: weapon type W:s {
+ result: 4@W
+}
+
+function: weapon element W:s {
+ result: 5@W
+}
+
+function: armor defense A:s {
+ result: 1@A
+}
+
+function: armor weight A:s {
+ result: 2@A
+}
+
+function: armor element A:s {
+ result: 3@A
+}
+
+function: attack for E:s {
+ result: 1@E
+}
+
+function: defense E:s {
+ result: 2@E
+}
+
+function: hit percent E:s {
+ result: 3@E
+}
+
+function: evasion percent E:s {
+ result: 4@E
+}
+
+function: hit count E:s {
+ result: 5@E
+}
+
+function: critical rate E:s {
+ result: 6@E
+}
+
+function: enemy type E:s {
+ result: 7@E
+}
+
+function: enemy weakness E:s {
+ result: 8@E
+}
+
+function: enemy resistance E:s {
+ result: 9@E
+}
+
+function: enemy element E:s {
+ result: 10@E
+}
+
+function: enemy special E:s {
+ result: 11@E
+}
+
+function: standard attack CLS:n STR:n WATK:n {
+ result: WATK + STR / 2 + (CLS = 6 | CLS = 3 & WATK > 0)
+}
+
+\TODO: Attack likely no longer depends on level!\
+function: master attack LV:n STR:n {
+ result: LV * 2 + STR
+}
+
+function: defense CLS:n VIT:n ADEF:n {
+ if (CLS = 3)
+ {
+  if (ADEF = 0)
+  {
+   result: VIT / 2
+  } else {
+   result: VIT / 4 + ADEF
+  }
+ } else {
+  result: ADEF
+ }
+}
+
+function: static hit percent ACC:n WACC:n {
+ result: WACC + ACC
+}
+
+function: evasion percent EVA:n AGL:n WGT:n {
+ result: EVA + 2 * AGL - WGT
+}
+
+function: hit count HITP:n CLS:n WATK:n {
+ HITS: (1 + HITP / 32)
+ if (CLS = 3 & WATK = 0)
+ {
+  HITS: HITS * 2
+ }
+ result: HITS
+}
+
+\TODO: Crit rate likely no longer depends on level! (But how to determine?)\
+function: critical rate LV:n CLS:n WATK:n WCRIT:n {
+ if (WATK = 0)
+ {
+  if (CLS = 3)
+  {
+   result: LV * 2
+  } else {
+   result: 0
+  }
+ } else {
+  result: WCRIT
+ }
+}
+
+function: static damage ATK:n DEF:n {
+ result: [highest of (1d{ATK..(2*ATK)} - DEF) and 1]
+}
+
+function: base hit chance WEAK:n {
+ result: 168 + WEAK * 40
+}
+
+\Depth 2\
+function: A:n is odd {
+ result: ![A is even]
+}
+
+function: A:s sand B:s {
+ R: {}
+ loop N over {1..[highest of #A and #B]}
+ {
+  R: {R, N@A & N@B}
+ }
+ result: R
+}
+
+function: accuracy C:s {
+ result: [accuracy [class C] [level C]]
+}
+
+function: attack for LV:n CLS:n STR:n WATK:n {
+ if (CLS = 3 & WATK = 0)
+ {
+  result: [master attack LV STR]
+ } else {
+  result: [standard attack CLS STR WATK]
+ }
+}
+
+function: defense C:s DEFS:s {
+ result: [defense [class C] [vitality C] DEFS]
+}
+
+function: evasion percent C:s WGTS:s {
+ result: [evasion percent [evasion C] [agility C] WGTS]
+}
+
+function: critical rate C:s W:s {
+ result: [critical rate [level C] [class C] [weapon attack W] [weapon crit W]]
+}
+
+function: static damage ATK:n CRIT:n DEF:n WEAK:n {
+ if (WEAK)
+ {
+  ATK: ATK + 4
+ }
+ result: [static damage ATK ((1 - CRIT) * DEF)]
+}
+
+function: static hit chance HITP:n EVA:n WEAK:n {
+ result: [base hit chance WEAK] + HITP - EVA
+}
+
+function: is hit ROLL:n HITC:n {
+ result: ROLL = 0 | ROLL <= [lowest of 199 and HITC]
+}
+
+function: is crit ROLL:n CRITR:n {
+ result: ROLL = 0 | ROLL <= [lowest of 199 and CRITR]
+}
+
+\Depth 3\
+function: A:n to bitfield {
+ R: {}
+ loop N over {1..8}
+ {
+  R: {R, [A is odd]}
+  A: A / 2
+ }
+ result: R
+}
+
+function: attack for C:s W:s {
+ result: [attack for [level C] [class C] [strength C] [weapon attack W]]
+}
+
+function: defense C:s H:s G:s S:s A:s {
+ result: [defense C {[armor defense H],[armor defense G],[armor defense S],[armor defense A]}]
+}
+
+function: hit percent C:s W:s {
+ result: [static hit percent [accuracy C] [weapon accuracy W]]
+}
+
+function: evasion percent C:s H:s G:s S:s A:s {
+ result: [evasion percent C {[armor weight H],[armor weight G],[armor weight S],[armor weight A]}]
+}
+
+function: static hit chance HITP:n EVA:n WEAK:n DISABLED:n {
+ result: [static hit chance HITP ((1 - DISABLED) * EVA) WEAK]
+}
+
+function: final damage ROLL:n HITC:n CRITR:n ATK:n DEF:n WEAK:n {
+ result: [is hit ROLL HITC] * [static damage ATK [is crit ROLL CRITR] DEF WEAK]
+}
+
+\Depth 4\
+function: A:n band B:n {
+ result: [[[A to bitfield] sand [B to bitfield]] to number]
+}
+
+function: hit count C:s W:s {
+ result: [hit count [hit percent C W] [class C] [weapon attack W]]
+}
+
+function: pain chance C:s H:s G:s S:s A:s DISABLED:n E:s {
+ result: [static hit chance [hit percent E] [evasion percent C H G S A] 0 DISABLED]
+}
+
+\Depth 5\
+function: is weak WT:n ET:n WE:n EW:n {
+ result: [WT band ET] | [WE band EW]
+}
+
+function: total pain HITS:n C:s H:s G:s S:s A:s DISABLED:n E:s {
+ HITC: [pain chance C H G S A DISABLED E]
+ CRITR: [critical rate E]
+ ATK: [attack for E]
+ DEF: [defense C H G S A]
+ WEAK: 0
+ R: 0
+ loop N over {1..HITS}
+ {
+  R: R + [final damage 1d{0..200} HITC CRITR ATK DEF WEAK]
+ }
+ result: -R
+}
+
+\Depth 6\
+function: is weak W:s E:s {
+ result: [is weak [weapon type W] [enemy type E] [weapon element W] [enemy weakness E]]
+}
+
+function: expected pain C:s H:s G:s S:s A:s DISABLED:n E:s {
+ result: [total pain [hit count E] C H G S A DISABLED E]
+}
+
+\Depth 7\
+function: hit chance C:s W:s E:s DISABLED:n {
+ result: [static hit chance [hit percent C W] [evasion percent E] [is weak W E] DISABLED]
+}
+
+function: complete pain C:s H:s G:s S:s A:s DISABLED:n ELIST:s {
+ ECOUNT: #ELIST / 11
+ R: 0
+ loop N over {0..(ECOUNT - 1)}
+ {
+  I: (N * 11) + 1
+  E: {}
+  loop X over {I..(I + 10)}
+  {
+   E: {E, X@ELIST}
+  }
+  R: R + [expected pain C H G S A DISABLED E]
+ }
+ result: R / ECOUNT
+}
+
+\Depth 8\
+function: total damage HITS:n C:s W:s E:s DISABLED:n {
+ HITC: [hit chance C W E DISABLED]
+ CRITR: [critical rate C W]
+ ATK: [attack for C W]
+ DEF: [defense E]
+ WEAK: [is weak W E]
+ R: 0
+ loop N over {1..HITS}
+ {
+  R: R + [final damage 1d{0..200} HITC CRITR ATK DEF WEAK]
+ }
+ result: R
+}
+
+\Depth 9\
+function: expected damage C:s W:s E:s DISABLED:n {
+ result: [total damage [hit count C W] C W E DISABLED]
+}
+
+\Depth 10\
+function: complete damage C:s W:s ELIST:s DISABLED:n {
+ ECOUNT: #ELIST / 11
+ R: 0
+ loop N over {0..(ECOUNT - 1)}
+ {
+  I: (N * 11) + 1
+  E: {}
+  loop X over {I..(I + 10)}
+  {
+   E: {E, X@ELIST}
+  }
+  R: R + [expected damage C W E DISABLED]
+ }
+ result: R / ECOUNT
+}
+
+\Characters\
+\{CLS,LV,STR,AGL,VIT,EVA}\
+DESH:   {1,4,12,10,16,45}
+ZEZA:   {1,4,12, 9,16,45}
+DROGAN: {3,4,13, 7,11,45}
+LOLA:   {4,4, 7,11, 6,43}
+
+\Weapons\
+\{WATK,WACC,WCRIT,WTYPE,WELEM}\
+UNARMED:   { 0, 0, 0,0,0}
+NUNCHAKU:  {12, 0,10,0,0}
+KNIFE:     { 5,10, 5,0,0}
+STAFF:     { 6, 0, 1,0,0}
+RAPIER:    { 9, 5,10,0,0}
+HAMMER:    { 9, 0, 1,0,0}
+LONGSWORD: {20,10, 5,0,0}
+
+\Armors\
+\{ADEF,AWGT,AELEM}\
+NONE:         {0,0,0}
+CLOTHES:      {1,2,0}
+LEATHERARMOR: {4,8,0}
+CHAINMAIL:    {15,15,0}
+\Helmets\
+CAP:          {1,1,0}
+
+\Elements 1: Status, 2: Poison/Stone, 4: Time, 8: Death, 16: Fire, 32: Ice, 64: Lightning, 128: Earth\
+\Statuses 1: Ded, 2: Pet, 4: Psn, 8: Bln, 16: Par, 32: Asl, 64: Sil, 128: Con \
+\Types 1: Magical, 2: Dragon, 4: Giant, 8: Undead, 16: Were, 32: Aquatic, 64: Mage, 128: Regenerative\
+
+\Enemies\
+\{ATK,DEF,ACC,EVA,HITS,CRIT,TYPE,WEAK,RESI,ELEM,SATK}\
+NONE:    { 0, 0, 0, 0,0,0,  0, 0,  0, 0, 0}
+IMP:     { 4, 4, 2, 6,1,1,  4, 0,  0, 0, 0}
+GRIMP:   { 8, 6, 4, 9,1,1,  4, 0,  0, 0, 0}
+WOLF:    { 8, 0, 5,36,1,1,  0, 0,  0, 0, 0}
+MADPONY: {10, 2,16,22,2,1,  0, 0,  0, 0, 0}
+BONE:    {10, 0, 2,12,1,1,  8,16, 43, 0, 0}
+SPIDER:  {10, 0, 7,30,1,1,  0, 0,  0, 0, 0}
+CREEP:   {17, 8,14,24,1,1,  0,16,  0, 0, 0}
+GRWOLF:  {14, 0,18,54,1,1,  0, 0,  0, 0, 0}
+WRWOLF:  {14, 6,17,42,1,1,145, 0,  0, 2, 4}
+ZOMBIE:  {10, 0, 5, 6,1,1,  8,16,171, 0, 0}
+GHOUL:   { 8, 6,12,12,3,1,  8,16, 43, 1,16}
+GARLAND: {15,10,27,12,1,1,  0, 0,  0, 0, 0}
+
+BOSS:  GARLAND
+ELIST: {IMP,GRIMP,WOLF,SPIDER,MADPONY,GHOUL,CREEP,BONE,GRWOLF,WRWOLF,ZOMBIE}
+
+\Desh Weapons\
+\
+output [expected damage DESH KNIFE BOSS 0]
+output [expected damage DESH RAPIER BOSS 0]
+output [expected damage DESH LONGSWORD BOSS 0]
+\
+\
+output [complete damage DESH KNIFE ELIST 0]
+output [complete damage DESH RAPIER ELIST 0]
+output [complete damage DESH LONGSWORD ELIST 0]
+\
+
+\Desh Armor\
+\
+output [expected pain DESH NONE NONE NONE NONE 0 BOSS]
+output [expected pain DESH NONE NONE NONE CLOTHES 0 BOSS]
+output [expected pain DESH NONE NONE NONE LEATHERARMOR 0 BOSS]
+output [expected pain DESH NONE NONE NONE CHAINMAIL 0 BOSS]
+output [expected pain DESH CAP NONE NONE NONE 0 BOSS]
+output [expected pain DESH CAP NONE NONE CLOTHES 0 BOSS]
+output [expected pain DESH CAP NONE NONE LEATHERARMOR 0 BOSS]
+output [expected pain DESH CAP NONE NONE CHAINMAIL 0 BOSS]
+\
+\
+output [complete pain DESH NONE NONE NONE NONE 0 ELIST]
+output [complete pain DESH NONE NONE NONE CLOTHES 0 ELIST]
+output [complete pain DESH NONE NONE NONE LEATHERARMOR 0 ELIST]
+output [complete pain DESH NONE NONE NONE CHAINMAIL 0 ELIST]
+output [complete pain DESH CAP NONE NONE NONE 0 ELIST]
+output [complete pain DESH CAP NONE NONE CLOTHES 0 ELIST]
+output [complete pain DESH CAP NONE NONE LEATHERARMOR 0 ELIST]
+output [complete pain DESH CAP NONE NONE CHAINMAIL 0 ELIST]
+\
+
+\Zeza Weapons\
+\
+output [expected damage ZEZA KNIFE BOSS 0]
+output [expected damage ZEZA RAPIER BOSS 0]
+output [expected damage ZEZA LONGSWORD BOSS 0]
+\
+\
+output [complete damage ZEZA KNIFE ELIST 0]
+output [complete damage ZEZA RAPIER ELIST 0]
+output [complete damage ZEZA LONGSWORD ELIST 0]
+\
+
+\Zeza Armor\
+\
+output [expected pain ZEZA NONE NONE NONE NONE 0 BOSS]
+output [expected pain ZEZA NONE NONE NONE CLOTHES 0 BOSS]
+output [expected pain ZEZA NONE NONE NONE LEATHERARMOR 0 BOSS]
+output [expected pain ZEZA NONE NONE NONE CHAINMAIL 0 BOSS]
+output [expected pain ZEZA CAP NONE NONE NONE 0 BOSS]
+output [expected pain ZEZA CAP NONE NONE CLOTHES 0 BOSS]
+output [expected pain ZEZA CAP NONE NONE LEATHERARMOR 0 BOSS]
+output [expected pain ZEZA CAP NONE NONE CHAINMAIL 0 BOSS]
+\
+\
+output [complete pain ZEZA NONE NONE NONE NONE 0 ELIST]
+output [complete pain ZEZA NONE NONE NONE CLOTHES 0 ELIST]
+output [complete pain ZEZA NONE NONE NONE LEATHERARMOR 0 ELIST]
+output [complete pain ZEZA NONE NONE NONE CHAINMAIL 0 ELIST]
+output [complete pain ZEZA CAP NONE NONE NONE 0 ELIST]
+output [complete pain ZEZA CAP NONE NONE CLOTHES 0 ELIST]
+output [complete pain ZEZA CAP NONE NONE LEATHERARMOR 0 ELIST]
+output [complete pain ZEZA CAP NONE NONE CHAINMAIL 0 ELIST]
+\
+
+\Drogan Weapons\
+\
+output [expected damage DROGAN UNARMED BOSS 0]
+output [expected damage DROGAN NUNCHAKU BOSS 0]
+\
+\
+output [complete damage DROGAN UNARMED ELIST 0]
+output [complete damage DROGAN NUNCHAKU ELIST 0]
+\
+
+\Drogan Armor\
+\
+output [expected pain DROGAN NONE NONE NONE CLOTHES 0 BOSS]
+output [expected pain DROGAN NONE NONE NONE NONE 0 BOSS]
+output [expected pain DROGAN NONE NONE NONE LEATHERARMOR 0 BOSS]
+\
+\
+output [complete pain DROGAN NONE NONE NONE CLOTHES 0 ELIST]
+output [complete pain DROGAN NONE NONE NONE NONE 0 ELIST]
+output [complete pain DROGAN NONE NONE NONE LEATHERARMOR 0 ELIST]
+\
+
+\Lola Weapons\
+\
+output [expected damage LOLA KNIFE BOSS 0]
+output [expected damage LOLA RAPIER BOSS 0]
+output [expected damage LOLA LONGSWORD BOSS 0]
+\
+\
+output [complete damage LOLA KNIFE ELIST 0]
+output [complete damage LOLA RAPIER ELIST 0]
+output [complete damage LOLA LONGSWORD ELIST 0]
+\
+
+\Lola Armor\
+\
+output [expected pain LOLA NONE NONE NONE NONE 0 BOSS]
+output [expected pain LOLA NONE NONE NONE CLOTHES 0 BOSS]
+output [expected pain LOLA NONE NONE NONE LEATHERARMOR 0 BOSS]
+output [expected pain LOLA NONE NONE NONE CHAINMAIL 0 BOSS]
+output [expected pain LOLA CAP NONE NONE NONE 0 BOSS]
+output [expected pain LOLA CAP NONE NONE CLOTHES 0 BOSS]
+output [expected pain LOLA CAP NONE NONE LEATHERARMOR 0 BOSS]
+output [expected pain LOLA CAP NONE NONE CHAINMAIL 0 BOSS]
+\
+\
+output [complete pain LOLA NONE NONE NONE NONE 0 ELIST]
+output [complete pain LOLA NONE NONE NONE CLOTHES 0 ELIST]
+output [complete pain LOLA NONE NONE NONE LEATHERARMOR 0 ELIST]
+output [complete pain LOLA NONE NONE NONE CHAINMAIL 0 ELIST]
+output [complete pain LOLA CAP NONE NONE NONE 0 ELIST]
+output [complete pain LOLA CAP NONE NONE CLOTHES 0 ELIST]
+output [complete pain LOLA CAP NONE NONE LEATHERARMOR 0 ELIST]
+output [complete pain LOLA CAP NONE NONE CHAINMAIL 0 ELIST]
+\
+
+\Group Weapons\
+\
+output [expected damage DESH RAPIER BOSS 0] + [expected damage ZEZA RAPIER BOSS 0] + [expected damage DROGAN UNARMED BOSS 0] + [expected damage LOLA LONGSWORD BOSS 0]
+
+output [expected damage DESH RAPIER BOSS 0] + [expected damage ZEZA LONGSWORD BOSS 0] + [expected damage DROGAN UNARMED BOSS 0] + [expected damage LOLA RAPIER BOSS 0]
+
+output [expected damage DESH LONGSWORD BOSS 0] + [expected damage ZEZA RAPIER BOSS 0] + [expected damage DROGAN UNARMED BOSS 0] + [expected damage LOLA RAPIER BOSS 0]
+\
+\
+output [complete damage DESH RAPIER ELIST 0] + [complete damage ZEZA RAPIER ELIST 0] + [complete damage DROGAN UNARMED ELIST 0] + [complete damage LOLA LONGSWORD ELIST 0]
+\
+output [complete damage DESH RAPIER ELIST 0] + [complete damage ZEZA LONGSWORD ELIST 0] + [complete damage DROGAN UNARMED ELIST 0] + [complete damage LOLA RAPIER ELIST 0]
+
+output [complete damage DESH LONGSWORD ELIST 0] + [complete damage ZEZA RAPIER ELIST 0] + [complete damage DROGAN UNARMED ELIST 0] + [complete damage LOLA RAPIER ELIST 0]
+
+
+\Group Armors\
+\
+output [expected pain DESH NONE NONE NONE CHAINMAIL 0 BOSS] + [expected pain ZEZA NONE NONE NONE CHAINMAIL 0 BOSS] + [expected pain DROGAN NONE NONE NONE LEATHERARMOR 0 BOSS] + [expected pain LOLA NONE NONE NONE CHAINMAIL 0 BOSS]
+
+output [expected pain DESH NONE NONE NONE CHAINMAIL 0 BOSS] + [expected pain ZEZA NONE NONE NONE CHAINMAIL 0 BOSS] + [expected pain DROGAN NONE NONE NONE LEATHERARMOR 0 BOSS] + [expected pain LOLA CAP NONE NONE CHAINMAIL 0 BOSS]
+
+output [expected pain DESH NONE NONE NONE CHAINMAIL 0 BOSS] + [expected pain ZEZA CAP NONE NONE CHAINMAIL 0 BOSS] + [expected pain DROGAN NONE NONE NONE LEATHERARMOR 0 BOSS] + [expected pain LOLA NONE NONE NONE CHAINMAIL 0 BOSS]
+
+output [expected pain DESH CAP NONE NONE CHAINMAIL 0 BOSS] + [expected pain ZEZA NONE NONE NONE CHAINMAIL 0 BOSS] + [expected pain DROGAN NONE NONE NONE LEATHERARMOR 0 BOSS] + [expected pain LOLA NONE NONE NONE CHAINMAIL 0 BOSS]
+\
+\
+output [complete pain DESH NONE NONE NONE CHAINMAIL 0 ELIST] + [complete pain ZEZA NONE NONE NONE CHAINMAIL 0 ELIST] + [complete pain DROGAN NONE NONE NONE LEATHERARMOR 0 ELIST] + [complete pain LOLA NONE NONE NONE CHAINMAIL 0 ELIST]
+
+output [complete pain DESH NONE NONE NONE CHAINMAIL 0 ELIST] + [complete pain ZEZA NONE NONE NONE CHAINMAIL 0 ELIST] + [complete pain DROGAN NONE NONE NONE LEATHERARMOR 0 ELIST] + [complete pain LOLA CAP NONE NONE CHAINMAIL 0 ELIST]
+
+output [complete pain DESH NONE NONE NONE CHAINMAIL 0 ELIST] + [complete pain ZEZA CAP NONE NONE CHAINMAIL 0 ELIST] + [complete pain DROGAN NONE NONE NONE LEATHERARMOR 0 ELIST] + [complete pain LOLA NONE NONE NONE CHAINMAIL 0 ELIST]
+
+output [complete pain DESH CAP NONE NONE CHAINMAIL 0 ELIST] + [complete pain ZEZA NONE NONE NONE CHAINMAIL 0 ELIST] + [complete pain DROGAN NONE NONE NONE LEATHERARMOR 0 ELIST] + [complete pain LOLA NONE NONE NONE CHAINMAIL 0 ELIST]
+\

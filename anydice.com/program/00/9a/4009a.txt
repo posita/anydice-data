@@ -1,0 +1,73 @@
+\ Show a modified PbtA graph of success/failure ratios.
+  Use graph & transposed to get data that's good to look at.
+  0 means failure, 1 means success with a cost, 2 means success, 3 means spectacular success
+\
+
+function: pbta with spectacular X:n  {
+ if X < 7 {
+    result: 0
+ }
+ if X >= 7 & X <= 9 {
+    result: 1
+ }
+ if X >= 10 & X < 12 {
+    result: 2
+ }
+ result: 3
+}
+
+function: pbta X:n  {
+ if X < 7 {
+    result: 0
+ }
+ if X >= 7 & X <= 9 {
+    result: 1
+ }
+ result: 2
+}
+
+
+function: pbta any success X:n  {
+ if X < 7 {
+    result: 0
+ }
+ result: 1
+}
+
+function: pbta full success X:n  {
+ if X < 10 {
+    result: 0
+ }
+ result: 1
+}
+
+function: modified roll N:n {
+  if N < 1 {
+    P: 2 - N
+    result: [lowest 2 of Pd6]
+  }
+  P: 2 + N
+  result: [highest 2 of Pd6]
+}
+
+function: more modified roll N:n {
+  if N < 0 {
+    P: -N+1
+    result: d6 + [lowest 1 of Pd6]
+  }
+  if N > 0 {
+    P: N+1
+    result: d6 + [highest 1 of Pd6]
+  }
+  result: 2d6
+}
+
+
+loop P over {-3..3} {
+ ROLL: 2d6+P
+ ROLL: [more modified roll P]
+ output [pbta with spectacular ROLL] named "[P]"
+ \ output [pbta ROLL] named "[P]" \
+ \ output [pbta any success ROLL] named "[P] any" \
+ \output [pbta full success ROLL] named "[P] full"\
+}

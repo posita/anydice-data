@@ -1,0 +1,25 @@
+output 3d6 - 1d{10,11} named "Baseline, -10.5"
+  \ 3d6 minus 10.5 on average \
+
+output {3,2}@3d6 - {3,2}@3d6 named "Drop highest" 
+output {1,2}@3d6 - {1,2}@3d6 named "Drop lowest"
+  \ These two have identical curves because their components are symmetrical curves \
+  \ Basically, roll 3d6 - 3d6, but discard the highest/lowest of each side to get 2d6-2d6 with a bias \
+
+output 2d6-2d6 named "2d6-2d6"
+  \ Simpler than previous, but not much, and the curve is different \
+
+FF: {0, 0, 1, -1, 2, -2}
+output 6dFF named "Modified dF"
+  \ These are basically simply modified FATE or Fudge dice. Just add some markings on two of the faces (on one minus and one plus) to get +2 and -2 faces \
+
+function: fudge hack pos POS:n neg NEG:n {  \ The 1d6-1d6 Fudge/Fate scale hack \
+ if POS < NEG { result: POS }  \ Designate one side positive, the other negative, roll them \
+ if NEG < POS { result: -NEG } \ The result is the side with the result closer to 0 \
+ result: 0                     \ If the sides are equal, result is 0 \
+}                              \ This works best with pyramid curves: 1dX - 1dX has the same curve as this \
+
+output 2@2d10-2@2d10 named "Lowest of 2d10 - lowest of 2d10"
+output [fudge hack pos 2@2d10 neg 2@2d10]
+  \ I had high hopes for using the old dFudge pyramid curve hack with other curves, but they result in these funky one with double peaks. :( \
+  \ Although 2@2d10-2@2d10 is pretty good, it's still subtraction \

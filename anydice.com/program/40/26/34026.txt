@@ -1,0 +1,44 @@
+\ Situational inputs \
+AC: 14
+SACRED_WEAPON: 0
+GREAT_WEAPON: 0
+
+\ Character attributes \
+STR: 2
+CHAR: 3
+PROF: 3
+
+\ Hit calculation \
+MOD: STR + PROF
+
+if SACRED_WEAPON {
+  MOD: MOD + CHAR
+}
+
+if GREAT_WEAPON {
+  MOD: MOD - 5
+}
+
+HIT_ROLL: 1d20 + MOD
+HIT: HIT_ROLL > AC
+
+\ Damage calculation \
+function: great weapon N {
+  result: {{1..2}, {3..N}:N/2+1}
+}
+
+DMG_MOD: 0
+
+if GREAT_WEAPON {
+  DMG_MOD: DMG_MOD + 10
+}
+
+DMG: 2d[great weapon 6] + DMG_MOD
+
+\ Damage given hit calculation \
+DGH: DMG
+
+\ Outputs \
+output HIT named "hit"
+output DMG named "damage"
+output DGH named "damage given hit"

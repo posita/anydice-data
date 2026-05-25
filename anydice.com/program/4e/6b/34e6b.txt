@@ -1,0 +1,53 @@
+function: add N:n to S:s {
+ if #S = 0 { result: {N} }
+ if #S > 0 { result: {S, N} }
+}
+function: reroll each in SEQ:s as DICE:n if less than MIN:n {
+ NEWSEQ: {}
+ loop N over SEQ {
+  if N >= MIN {NEWSEQ: [add N to NEWSEQ]}
+  else {NEWSEQ: [add 1dDICE to NEWSEQ]}
+ }
+ result: NEWSEQ
+}
+function: reroll each in SEQ:s as DICE:n and take highest {
+ NEWSEQ: {}
+ loop N over SEQ {
+  NEWSEQ: [add [highest of N and 1dDICE] to NEWSEQ]
+ }
+ result: NEWSEQ
+}
+function: reroll each in SEQ:s as DICE:n if less than MIN:n then reroll again and take highest {
+ NEWSEQ: {}
+ loop N over SEQ {
+  if N >= MIN {
+   NEWSEQ: [add [highest of N and 1dDICE] to NEWSEQ]
+  }
+  else {
+   NEWSEQ: [add [highest of 1dDICE and 1dDICE] to NEWSEQ]}
+  }
+ result: NEWSEQ
+}
+function: gwm NUMBER:n of DICE:n {
+ result: [reroll each in NUMBERdDICE as DICE if less than 3]
+}
+
+function: savage NUMBER:n of DICE:n {
+ result: [reroll each in NUMBERdDICE as DICE and take highest]
+}
+function: savage and gwm NUMBER:n of DICE:n {
+ result: [reroll each in NUMBERdDICE as DICE if less than 3 then reroll again and take highest]
+}
+
+N: 1
+D: 12
+MOD: 4
+output NdD+MOD + NdD+MOD
+output [gwm N of D]+MOD + [gwm N of D]+MOD
+output [savage N of D]+MOD + [savage N of D]+MOD
+output [savage N of D]+MOD + [savage N of D]+MOD + 1d6
+output [savage and gwm N of D]+MOD + [savage and gwm N of D]+MOD
+output [savage and gwm N of D]+MOD + [savage and gwm N of D]+MOD + 1d6
+output [savage 1 of 8]+MOD+2 + [savage 1 of 8]+MOD+2
+output [savage 1 of 8]+MOD + [savage 1 of 8]+MOD + [savage 1 of 8]
+output [savage 1 of 6]+MOD + [savage 1 of 6]+MOD + [savage 1 of 6]

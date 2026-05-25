@@ -1,0 +1,79 @@
+\ Root Attack Function \
+function: attack ATT:n atbns ABONUS:n crange CRNG:n cmod CMOD:n dmg DMG:d dgbns DBONUS:n ac AC:n {
+ if {ATT + ABONUS < AC & ATT != 20} | ATT = 0 { result: 0 }
+ DMG_RESULT: DMG+DBONUS
+ if ATT >= CRNG | ATT = 20 {
+  loop P over {2..CMOD} {
+   DMG_RESULT: DMG_RESULT+DMG
+  }
+ }
+ result: DMG_RESULT
+}
+
+AC: 18
+ATTACK: d20
+
+\ Multiple Attacks Function \
+function: attack ATT:d atbns ABONUS:n crange CRNG:n cmod CMOD:n dmg DMG:d dgbns DBONUS:n ac AC:n count COUNT:n {
+ DMG_RESULT: 0
+ loop P over {1..COUNT} {
+  DMG_RESULT: DMG_RESULT+[attack ATT atbns ABONUS crange CRNG cmod CMOD dmg DMG dgbns DBONUS ac AC]
+ }
+ result: DMG_RESULT
+}
+
+\ Fighter Stuff \
+output [attack ATTACK atbns 4 crange 18 cmod 2 dmg 2d6 dgbns 4 ac AC count 5] named "L20 Champion Fighter with Greatsword"
+output [attack ATTACK atbns 5 crange 18 cmod 2 dmg 2d6 dgbns 5 ac AC count 5] named "L20 Champion Fighter with Greatsword, with +1 STR Modifier"
+output [attack ATTACK atbns 5 crange 18 cmod 2 dmg 2d7 dgbns 4 ac AC count 5] named "L20 Champion Fighter with Claymore, Exotic Weapon Proficient"
+output [attack ATTACK atbns 4 crange 18 cmod 2 dmg d12 dgbns 4 ac AC count 5] named "L20 Champion Fighter with Greataxe"
+output [attack ATTACK atbns 5 crange 18 cmod 2 dmg d12 dgbns 5 ac AC count 5] named "L20 Champion Fighter with Greataxe, with +1 STR Modifier"
+output [attack ATTACK atbns 5 crange 18 cmod 2 dmg d14 dgbns 4 ac AC count 5] named "L20 Champion Fighter with Dwarven Axe, Exotic Weapon Proficient"
+
+\ Baseline level 20 Attack, dual weilding rogue \
+
+function: rogueattwaitcrit ATT:n atbns ABONUS:n crange CRNG:n dmg DMG:d dgbns DBONUS:n cdmg CDMG:d cmod CMOD:n ac AC:n {
+ DMGTOTAL: 0
+ CRITUSED: 0
+ if ATT >= CRNG | ATT = 20 {
+  DMGTOTAL: [attack ATT atbns ABONUS crange CRNG cmod CMOD dmg DMG + CDMG dgbns DBONUS ac AC]
+  CRITUSED: 1
+ } else {
+  DMGTOTAL: [attack ATT atbns ABONUS crange CRNG cmod CMOD dmg DMG dgbns DBONUS ac AC]
+ }
+
+ if CRITUSED = 0 {
+  DMGTOTAL: DMGTOTAL + [attack ATTACK atbns ABONUS crange CRNG cmod CMOD dmg DMG + CDMG dgbns DBONUS ac AC]
+ } else {
+  DMGTOTAL: DMGTOTAL + [attack ATTACK atbns ABONUS crange CRNG cmod CMOD dmg DMG dgbns DBONUS ac AC]
+ }
+ result: DMGTOTAL
+}
+
+function: rogueattfirsthit ATT:n atbns ABONUS:n crange CRNG:n dmg DMG:d dgbns DBONUS:n cdmg CDMG:d cmod CMOD:n ac AC:n {
+ DMGTOTAL: 0
+ CRITUSED: 0
+ if ATT + ABONUS >= AC & ATT != 0 {
+  DMGTOTAL: [attack ATT atbns ABONUS crange CRNG cmod CMOD dmg DMG + CDMG dgbns DBONUS ac AC]
+  CRITUSED: 1
+ } else {
+  DMGTOTAL: 0
+ }
+
+ if CRITUSED = 0 {
+  DMGTOTAL: DMGTOTAL + [attack ATTACK atbns ABONUS crange CRNG cmod CMOD dmg DMG + CDMG dgbns DBONUS ac AC]
+ } else {
+  DMGTOTAL: DMGTOTAL + [attack ATTACK atbns ABONUS crange CRNG cmod CMOD dmg DMG dgbns DBONUS ac AC]
+ }
+ result: DMGTOTAL
+}
+
+\ Rogue waits to use damage on the second hit if the first does not crit \
+output [rogueattwaitcrit ATTACK atbns +4 crange 20 dmg d8 dgbns +4 cdmg 10d6 cmod 2 ac AC] named "Baseline L20 Rogue dual wielding Rapiers, Waits to use sneak damage with critical"
+output [rogueattwaitcrit ATTACK atbns +5 crange 20 dmg d8 dgbns +5 cdmg 10d6 cmod 2 ac AC] named "Baseline L20 Rogue dual wielding Rapiers, Uses sneak damage on first hit, +1 to DEX"
+output [rogueattwaitcrit ATTACK atbns +5 crange 20 dmg d10 dgbns +4 cdmg 10d6 cmod 2 ac AC] named "Baseline L20 Rogue dual wielding Katanas, Waits to use sneak damage with critical"
+
+\ Uses sneak attack damage on first hit \
+output [rogueattfirsthit ATTACK atbns +4 crange 20 dmg d8 dgbns +4 cdmg 10d6 cmod 2 ac AC] named "Baseline L20 Rogue dual wielding Rapiers, Uses sneak damage on first hit"
+output [rogueattfirsthit ATTACK atbns +5 crange 20 dmg d8 dgbns +5 cdmg 10d6 cmod 2 ac AC] named "Baseline L20 Rogue dual wielding Rapiers, Uses sneak damage on first hit, +1 to DEX"
+output [rogueattfirsthit ATTACK atbns +5 crange 20 dmg d10 dgbns +4 cdmg 10d6 cmod 2 ac AC] named "Baseline L20 Rogue dual wielding Katanas, Waits to use sneak damage with critical"

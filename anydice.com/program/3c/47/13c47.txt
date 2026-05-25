@@ -1,0 +1,84 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+GWF: 1d{{1..2}, {3..6}:4}
+ATTACK: 6 + 5 + 1
+HITDAMAGE: 4dGWF + 5 + 6
+CRITICALDAMAGE: 8dGWF + 5 + 6
+MISSDAMAGE: 0
+AC: 20
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL >= 18 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [d20 vs AC ATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 2d20] vs AC ATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 3d20] vs AC ATTACK]]
+  }
+  result: TOTAL
+}
+
+output [multiattackdoubleadvantage 7] named "Level 20 crit fisher(18+) w/o GWM vs AC[AC] over 1 turn"
+
+ATTACK: 6 + 5 + 1 - 5
+HITDAMAGE: 4dGWF + 5 + 6 + 10
+CRITICALDAMAGE: 8dGWF + 5 + 6 + 10
+output [multiattackdoubleadvantage 7] named "Level 20 crit fisher(18+) w/ GWM vs AC[AC] over 1 turn"
+
+output [multiattackdoubleadvantage 14] named "Level 20 crit fisher(18+) w/ GWM vs AC[AC] over 2 turns"
+
+ATTACK: 6 + 5 + 1
+HITDAMAGE: 4dGWF + 5 + 6
+CRITICALDAMAGE: 8dGWF + 5 + 6
+output [multiattackdoubleadvantage 14] named "Level 20 crit fisher(18+) w/o GWM vs AC[AC] over 2 turn"
+
+ATTACK: 6 + 9 + 1
+HITDAMAGE: 4dGWF + 9 + 6
+CRITICALDAMAGE: 8dGWF + 9 + 6
+output [multiattackadvantage 7] named "Level 20 crit fisher(18+) w/o GWM vs AC[AC] using str/belt"
+
+ATTACK: 6 + 9 + 1 - 5
+HITDAMAGE: 4dGWF + 9 + 6 + 10
+CRITICALDAMAGE: 8dGWF + 9 + 6 + 10
+output [multiattackadvantage 7] named "Level 20 crit fisher(18+) w/ GWM vs AC[AC] using str/belt"
+
+ATTACK: 6 + 5 + 1
+HITDAMAGE: 5dGWF + 5 + 6
+CRITICALDAMAGE: 10dGWF + 5 + 6
+output [multiattackdoubleadvantage 7] named "Level 20 crit fisher(18+) w/o GWM vs AC[AC] using cloak of invis"
+
+ATTACK: 6 + 5 + 1 - 5
+HITDAMAGE: 5dGWF + 5 + 6 + 10
+CRITICALDAMAGE: 10dGWF + 5 + 6 + 10
+output [multiattackdoubleadvantage 7] named "Level 20 crit fisher(18+) w/ GWM vs AC[AC] using cloak of invis"

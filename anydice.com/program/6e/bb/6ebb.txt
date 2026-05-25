@@ -1,0 +1,48 @@
+function: longer straight VALS:s OTHERVALS: s STRATEGY:n {
+ TMPVALS: {VALS, OTHERVALS}
+ VALUES: [sort TMPVALS]
+ CURRENTVAL: 0
+ SEQ: {}
+ MAXSEQ: {}
+ loop P over {1..#VALUES} {
+  VAL: P@VALUES
+  NEXTVAL: CURRENTVAL - 1
+  if VAL = NEXTVAL {
+   COUNT: COUNT + 1
+   SEQ: {SEQ, P@VALUES}
+   if (#SEQ > #MAXSEQ) {
+    MAXSEQ: SEQ
+   }
+  }
+  else {
+   if VAL != CURRENTVAL {
+    COUNT: 1
+    SEQ: {P@VALUES}
+    if (#SEQ > #MAXSEQ) {
+     MAXSEQ: SEQ
+    }
+   }
+  }
+  CURRENTVAL: VAL
+ }
+ if STRATEGY = 0 {
+   result: #MAXSEQ
+ }
+ else {
+  if STRATEGY = 1 {
+   N: #VALUES - #MAXSEQ
+   if N = 0 {
+    result: #MAXSEQ
+   }
+   else {
+    result: [longer straight Nd6 MAXSEQ 0]
+   }
+  }
+ }
+}
+
+loop N over {5}{
+\ output [longer straight Nd6 {} 0] named "[N]D longer straight no reroll"\
+ output [longer straight Nd6 {} 1] named "[N]D longer straight reroll non straight"
+\ output [longer straight Nd6 {} 2] named "[N]D longer straight reroll duplicates"\
+}

@@ -1,0 +1,37 @@
+MISS: 0
+NORMALHIT: 1
+
+function: ROLL:n plus ATTACK:n vs AC:n th THREAT:n x MUL:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= AC {
+  result: [threat d20 plus ATTACK vs AC for MUL]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n plus ATTACK:n vs AC:n for MUL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: MUL
+ }
+ result: NORMALHIT
+}
+
+function: HIT:n for DAMAGE:d plus BONUS:n {
+  if HIT > MISS {
+    RESULT: DAMAGE + BONUS
+    loop N over {2..HIT} {
+      RESULT: RESULT + DAMAGE
+    }
+    result: RESULT
+  }
+  else {
+    result: 0
+  }
+}
+
+output [[d20 plus 1 vs 15 th 19 x 2] for 1d6+3 plus 1d6] + [[d20 plus 1 vs 15 th 19 x 2] for 1d6+1 plus 1d6] named "Rogue 1 rapier/shortsword TWF"
+output [[d20 plus 3 vs 15 th 19 x 2] for 2d6+4 plus 1d6] named "Rogue 1 with greatsword"
+output [[d20 plus 4 vs 15 th 19 x 2] for 2d6+4 plus 0] named "Fighter 1 with greatsword PA 0"
+output [[d20 plus 3 vs 15 th 19 x 2] for 2d6+6 plus 0] named "Fighter 1 with greatsword PA 1"

@@ -1,0 +1,93 @@
+DEX: 18
+CHA: 16
+
+DUAL_WIELD: 1
+MAIN_HAND: d6
+OFF_HAND: d6
+
+ROGUE_LEVELS: {1..4,13..20}
+WARLOCK_LEVELS: {5..9}
+RANGER_LEVELS: {10..12}
+
+FEAT_LEVELS: {4}
+
+\----------------------------------------------------------------------------\
+
+DEX_MOD: (DEX-10)/2
+CHA_MOD: (CHA-10)/2
+
+ROGUE_SNEAK_ATTACK: {1:2,2:2,3:2,4:2,5:2,6:2,7:2,8:2,9:2,10:2}
+
+ROGUE: 0
+WARLOCK: 0
+RANGER: 0
+
+ASI: 0
+
+loop N over {1..20} {
+
+  if ([ROGUE_LEVELS contains N]) {
+    ROGUE: ROGUE + 1
+    if ([{4,8,10,12,16,20} contains ROGUE]) {
+      ASI: ASI + 1
+    }
+  }
+
+  if ([WARLOCK_LEVELS contains N]) {
+    WARLOCK: WARLOCK + 1
+    if ([{4,8,12,16,20} contains WARLOCK]) {
+      ASI: ASI + 1
+    }
+  }
+
+  if ([RANGER_LEVELS contains N]) {
+    RANGER: RANGER + 1
+    if ([{4,8,12,16,20} contains RANGER]) {
+      ASI: ASI + 1
+    }
+  }
+
+  if ([FEAT_LEVELS contains N]) {
+    ASI: ASI - 1
+  }
+
+  if (ASI > 0 & DEX < 20) {
+    DEX: DEX + 2
+    ASI: ASI - 1
+  }
+
+  SNEAK_ATTACK: (ROGUE@ROGUE_SNEAK_ATTACK)d6
+  HEX: 0
+  THIRSTING_BLADE: 0
+  LIFEDRINKER: 0
+  HUNTERS_MARK: 0
+  COLOSSUS_SLAYER: 0
+
+  if (WARLOCK > 0) {
+    HEX: HEX + 1d6
+  }
+  if (WARLOCK > 4) {
+    THIRSTING_BLADE: 1
+  }
+  if (WARLOCK > 11) {
+    LIFEDRINKER: CHA_MOD
+  }
+  if (RANGER > 1) {
+   HUNTERS_MARK: 1d6
+  }
+  if (RANGER > 2) {
+   COLOSSUS_SLAYER: 1d8
+  }
+
+  MAIN: MAIN_HAND + DEX_MOD + SNEAK_ATTACK + HEX + LIFEDRINKER + HUNTERS_MARK + COLOSSUS_SLAYER
+  EXTRA: THIRSTING_BLADE * (MAIN_HAND + DEX_MOD + HEX + LIFEDRINKER + HUNTERS_MARK)
+  OFF: DUAL_WIELD * (OFF_HAND + HEX + HUNTERS_MARK)
+
+  SHOW_DETAILS: 0
+  if (DUAL_WIELD & SHOW_DETAILS) {
+    output MAIN+EXTRA named "Rogue[ROGUE] Warlock[WARLOCK] Ranger[RANGER] Main Hand Damage"
+    output OFF named "Rogue[ROGUE] Warlock[WARLOCK] Ranger[RANGER] Off Hand Damage"
+  }
+  
+  output MAIN + EXTRA + OFF named "Rogue[ROGUE] Warlock[WARLOCK] Ranger[RANGER] Total Damage"
+}

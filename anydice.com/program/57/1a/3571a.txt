@@ -1,0 +1,34 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{0}
+
+ATTACK: 5 + 2
+HITDAMAGE: [highest 8 of 16d6]
+CRITICALDAMAGE: HITDAMAGE
+MISSDAMAGE: HITDAMAGE
+output [attack] named "Battleaxe"

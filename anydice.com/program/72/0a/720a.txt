@@ -1,0 +1,95 @@
+\ in this one, a negative number means special effects for the defender \
+\ and a positive number means special effects for the attacker \
+\ a -4 indicates a miss and a lack of defense together \
+
+ATT: 50
+ATTCRIT: 5
+DEF: 50
+DEFCRIT: 5
+FUM: 99
+
+function: attacker A:n vs defender B:n {
+  \ if attacker succeeds attacking\
+  if A <= ATT{
+    \ and defender succeeds defending\
+    if B <= DEF {
+      \ if the attacker crits and the defender defends \
+      if A <= ATTCRIT {
+        \ if the defender crits \
+        if B <= DEFCRIT { result: 0 }
+        \ or the defender doesn't crit \
+        else { result: 1 }
+      \ the attacker doesn't crit, and the defender defends \
+      } else {
+        \ if the defender crits \
+        if B <= DEFCRIT { result: -1 }
+        \ or the defender doesn't crit \
+        else { result: 0 }
+      }
+    \ the defender fails to defend \
+    } else {
+       if A <= ATTCRIT {
+         \ if the defender fumbles \
+         if B >= FUM { result: 3 }
+         \ or the defender doesn't fumble but still fails \
+         else { result: 2 }
+       }
+       else {
+         \ if the defender fumbles \
+         if B >= FUM { result: 2 }
+         \ or the defender doesn't fumble but still fails \
+         else { result: 1 }
+       }
+    }
+  }
+  \ if attacker fails to attack \ 
+  else {
+    \ defender must defend or it all goes to 0 \
+    if B <= DEF {
+      \ if defender crits \
+      if B <= DEFCRIT {
+        \ attacker fumbles \
+        if A >= FUM { result: -3 }
+        else { result: -2 }
+      }
+      \ defender didn't crit \
+      else {
+        \ attacker fumbles\
+        if A >= FUM { result: -2 }
+        else { result: -1 }
+      }
+    }
+    \ both failed \
+    \ made this well out of normal range \
+    \ so it would spike nicely in the graph \
+    else { result: -4 }
+  }
+}
+
+output [attacker d100 vs defender d100] named "attack"
+output [attacker [highest of d100 and d100] vs defender d100 ] named "dis. attack"
+output [attacker [lowest of d100 and d100] vs defender [lowest of d100 and d100] ] named "adv. attack"
+output [attacker [highest of d100 and d100] vs defender [highest of d100 and d100] ] named "dis. attack vs dis. def"
+output [attacker [lowest of d100 and d100] vs defender [highest of d100 and d100] ] named "adv. attack vs dis. def"
+output [attacker [highest of d100 and d100] vs defender [lowest of d100 and d100] ] named "dis. attack vs adv. def"
+
+ATT: 37
+ATTCRIT: 4
+DEF: 75
+DEFCRIT: 8
+
+output [attacker d100 vs defender d100] named "hard attack vs easy def"
+
+ATT: 25
+ATTCRIT: 3
+DEF: 75
+DEFCRIT: 8
+
+output [attacker d100 vs defender d100] named "form. attack vs easy def"
+
+ATT: 75
+ATTCRIT: 8
+DEF: 25
+DEFCRIT: 3
+
+output [attacker d100 vs defender d100] named "easy attack vs form def"

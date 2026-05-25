@@ -1,0 +1,50 @@
+function: aurora vampire on BENIJAKE_HP:n{
+    if BENIJAKE_HP <= 0{
+        result: -100
+    }
+    if BENIJAKE_HP <= 10{
+        result: [limit cap on BENIJAKE_HP + 35 to 53]
+    }
+    result: [limit cap on BENIJAKE_HP + 10 to 53]
+}
+
+function: vampire on BENIJAKE_HP:n{
+    if BENIJAKE_HP <= 0{
+        result: -100
+    }
+    if BENIJAKE_HP <= 10{
+        result: [limit cap on BENIJAKE_HP + 30 to 53]
+    }
+    result: [limit cap on BENIJAKE_HP + 5 to 53]
+}
+
+function: kami dice on DMG:n over HP:n then REROLL:d {
+    if HP <= 0 {
+        result: [minus cap on -100]
+    }
+    if HP <= DMG {
+        result: [minus cap on HP - REROLL]
+    }
+    result: [minus cap on HP - DMG]
+}
+
+function: minus cap on HP:n {
+    if HP <= 0 {
+        result: -100
+    }
+    result: HP
+}
+
+function: limit cap on HP:n to MAX:n{
+    if HP > MAX {
+        result: MAX
+    }
+    result: [minus cap on HP]
+}
+function: missshot ROLL:n on MISS_BORDER:n{
+    if ROLL <= MISS_BORDER {
+        result: 0
+    }
+    result: ROLL
+}
+output [minus cap on [vampire on 53 - [missshot 1d46 on 15]] - [missshot 1d40 on 13] - [missshot 1d46 on 20] - [missshot 1d46 on 20]] >= 1 named "4ターン終了時の紅鮭生存率"

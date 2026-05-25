@@ -1,0 +1,78 @@
+WS:0
+STRENGTH:8
+TOUGHNESS:4
+AS:3
+INVULN:7
+WOUNDS:1
+AP:0
+DAM:1
+DAMTOTAL:0
+DAMAGEPER:0
+DAMROLL:(DAM)d6
+ATTACKS:1d6
+DAMAGETOTAL:0
+OOACHANCE:0
+
+
+
+function: armor save {
+      result: [highest of [lowest  of [lowest of AS + AP  and INVULN] - 1d6 and 1] and 0]
+    }  
+
+function: wound roll {
+    if STRENGTH = TOUGHNESS  {
+      result: [highest of [lowest of 1d6 - 4 + 1 and 1] and 0] 
+     } 
+    if STRENGTH > TOUGHNESS & STRENGTH < (TOUGHNESS * 2) {
+      result: [highest of [lowest of 1d6 - 3 + 1 and 1] and 0] 
+     } 
+    if STRENGTH < TOUGHNESS & STRENGTH > (TOUGHNESS / 2) {
+      result: [highest of [lowest of 1d6 - 5 + 1 and 1] and 0] 
+     } 
+if STRENGTH >= (TOUGHNESS * 2) {
+      result: [highest of [lowest of 1d6 - 2 + 1 and 1] and 0] 
+     } 
+    } 
+
+function: injury roll {
+      result: [highest of [lowest of [highest 1 of DAMROLL] - 4+1 and 1] and 0]
+    } 
+
+function: total attack A:n {
+    DAMAGETOTAL:0
+    loop N over {1..A} {
+    DAMAGEPER:[attack roll] *DAM
+    DAMAGETOTAL: DAMAGETOTAL + DAMAGEPER
+     } 
+    result: [lowest of [highest of (DAMAGETOTAL - WOUNDS +1) and 0] and 1] * [injury roll]         
+} 
+
+function: hit roll {
+    result:[highest of [lowest of 1d6 - WS + 1 and 1] and 0]
+    } 
+
+function: total attack test {
+    DAMAGETOTAL:0
+    loop N over {1..ATTACKS} {
+    DAMAGEPER:[attack roll] *DAM
+    DAMAGETOTAL: DAMAGETOTAL + DAMAGEPER
+     } 
+    result: DAMAGETOTAL        
+} 
+
+
+function: attack roll {
+    result: [hit roll] * [wound roll] * [injury roll] * [armor save]
+    } 
+
+
+output [total attack ATTACKS] named "Chance to take out of action" 
+
+output [hit roll] named "hit roll" 
+
+output [wound roll] named "wound roll"
+
+output [injury roll] named "injury roll"
+
+output [armor save] named "armor save"
+

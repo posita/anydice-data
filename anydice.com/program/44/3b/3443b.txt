@@ -1,0 +1,75 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+PROFICIENCY: 2
+CRITICAL_THRESHOLD: 20
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+GUN: 1
+
+loop TARGET_AC over { 10..22 } {
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ] named "Base vs AC[TARGET_AC]"
+
+   STR_MOD: 5
+   DAMAGE_BONUS: STR_MOD
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ] named "ASI vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 1d6
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ] named "Sneak Attack vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2 - 5
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ] named "Sharpshooter vs AC[TARGET_AC]"
+
+   STR_MOD: 5
+   DAMAGE_BONUS: STR_MOD
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ] named "Level 5 ASI vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD + 10
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2 - 5
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ]  named "Level 5 Sharpshooter vs AC[TARGET_AC]"
+
+   STR_MOD: 4
+   DAMAGE_BONUS: STR_MOD
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS + 1d6 ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GUN and DAMAGE_BONUS ]  named "Level 6 Sneak Attack vs AC[TARGET_AC]"
+
+   \ Group the results prettier. \
+   output {0} named ""
+}

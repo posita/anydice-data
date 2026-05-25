@@ -1,0 +1,25 @@
+N: 20 \- number of independent trials -\
+P: 5  \- success rate per trial (percent, assumed to be <= 50) -\
+
+output Nd(d100 <= P) named "exact binomial with N=[N], P=[P]%"
+
+NP: N*P
+if NP <= 100 { output d100 <= NP named "d100 <= [NP] approximation (for N*P < 1)" }
+
+function: round A:n per B:n { result: (A + B/2) / B }
+AVG: [round NP per 100]
+
+F: d{-1,0,+1} \- a Fudge die -\
+if NP >= 100 { output AVG + AVGdF named "[AVG] + [AVG]dF approximation (for N*P > 1)" }
+
+X: [round NP per 1000]
+if NP >= 1000 { output AVG + 3 * XdF named "[AVG] + 3 * [X]dF approximation (for N*P > 10)" }
+X: [round NP per 10000]
+if NP >= 10000 { output AVG + 10 * XdF named "[AVG] + 10 * [X]dF approximation (for N*P > 100)" }
+
+X: [round NP per 10]
+if NP >= 10 & NP <= 200 { output 2d(d20 <= X) named "count 1-[X] in 2d20 approximation (for 0.1 < N*P < 2)" }
+X: [round N*P per 25]
+if NP >= 25 & NP <= 500 { output 5d(d20 <= X) named "count 1-[X] in 5d20 approximation (for 0.25 < N*P < 5)" }
+X: [round N*P per 50]
+if NP >= 50 & NP <= 1000 { output 10d(d20 <= X) named "count 1-[X] in 10d20 approximation (for 0.5 < N*P < 10)" }

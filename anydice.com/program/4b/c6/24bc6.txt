@@ -1,0 +1,43 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+ADVANTAGE: [highest 1 of 2d20]
+
+DISADVANTAGE: [lowest 1 of 2d20]
+
+output
+ [attack d20 plus 6 vs 15 for 1d10+1d6+15 crit 1d10 on 20]
++ [attack d20 plus 6 vs 15 for 1d10+1d6+15 crit 1d10 on 20]
++ [attack d20 plus 6 vs 15 for 1d10+1d6+15 crit 1d10 on 20]
+

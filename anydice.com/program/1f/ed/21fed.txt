@@ -1,0 +1,41 @@
+TOHIT: 3
+TOWOUND: 3
+TOSAVE: 4
+REND: 2
+DAMAGE: 3
+ATTACKS: 6
+HITROLL: [highest 1 of 2d6]
+WOUNDROLL: [highest 1 of 2d6]
+SAVEROLL: 1d6
+
+function: attack {
+    DEALT: 0
+    loop N over {1..ATTACKS}{
+        DEALT: DEALT + [check hit HITROLL WOUNDROLL]
+    }
+    result: DEALT
+}
+
+function: check hit HIT:n WOUND:n {
+    if HIT >= TOHIT & WOUND >= TOWOUND {
+        result: [check damage SAVEROLL] + [rune damage HIT 1d6]
+    }
+    result: 0
+}
+
+function: rune damage HIT:n BONUSDAMAGE:n {
+    if HIT = 6 {
+        result: BONUSDAMAGE
+    }
+
+    result: 0
+}
+
+function: check damage SAVE:n {
+    if SAVE - REND <= TOSAVE {
+        result: DAMAGE
+    }
+    result: 0
+}
+
+output [attack]

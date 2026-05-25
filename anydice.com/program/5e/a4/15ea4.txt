@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 19 { result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ if ROLL + ATTACK <= AC { result: MISS }
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ if ATTACKRESULT = MISS {
+  result: MISSDAMAGE
+ }
+}
+
+function: weaponattack {
+ result: [damage for [attack [highest 1 of 2d20] vs AC]]
+}
+
+AC: d{12..31}
+
+ATTACK: 5 + 6
+HITDAMAGE: 2d{{1..2}, {3..6}:4} + 8
+CRITICALDAMAGE: 7d{{1..2}, {3..6}:4} + 8
+MISSDAMAGE: 0
+output [weaponattack] named "Maul"
+
+ATTACK: 5 + 6
+HITDAMAGE: 1d{{1..2}, {3..12}:7} + 8
+CRITICALDAMAGE: 5d{{1..2}, {3..12}:7} + 8
+MISSDAMAGE: 0
+output [weaponattack] named "Greataxe"

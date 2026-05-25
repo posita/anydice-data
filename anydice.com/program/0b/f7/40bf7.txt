@@ -1,0 +1,27 @@
+function: wild R:n {
+ \ IF 6: Add 1 success and roll again (explode) \
+ if R = 6 { result: 1 + [wild d6] }
+ 
+ \ IF 1: Subtract 1 success (Critical Failure rule) \
+ if R = 1 { result: -1 }
+ 
+ \ IF 2: Simple failure (0 successes) \
+ if R = 2 { result: 0 }
+ 
+ \ IF 3, 4, 5: Simple success (1 success) \
+ result: 1
+}
+
+\ Define the Wild Die using the function above \
+\ Set recursion depth limit for exploding dice \
+set "maximum function depth" to 10
+W: [wild d6]
+
+\ Define the Standard Die (1-2 Fail, 3-6 Success) \
+S: {0:2, 1:4}
+
+\ Calculate Probabilities for Dice Pools from 2D to 10D \
+loop N over {2..10} {
+ \ The pool is (N-1) Standard Dice + 1 Wild Die \
+ output (N-1)dS + W named "[N]D Successes"
+}

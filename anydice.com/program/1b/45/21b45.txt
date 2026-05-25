@@ -1,0 +1,46 @@
+
+F: {-1,0,1}
+BASE: 4dF
+SPEC:{1,0,-1}
+output 4dF + [count {1,-1} in BASE]dSPEC named "4dF"
+
+F: {-1,0,1}
+BASE: 4dF
+SPEC:{0,0,-1}
+SPECI:{1,0,0}
+output 4dF + [count {1} in BASE]dSPECI + [count {-1} in BASE]dSPEC named "4dF"
+
+F: d{-1..1}
+EF: d{0,0,1}
+
+function: merge A:s and B:s mod M:n extra E:n {
+ if M { R: [sort {A, B}] }
+ else { R: A }
+ result: {1..4}@R + EdEF
+}
+
+function: system one A:s and B:s mod M:n {
+ result: [merge A and B mod M extra (A = 1) + (B = 1)]
+}
+
+function: system two A:s and B:s mod M:n {
+ result: [merge A and B mod M extra [lowest of (A = 1) + (B = 1) and M]]
+}
+
+function: system three A:s and B:s mod M:n {
+ result: [merge A and B mod M extra (B = 1)]
+}
+
+function: system four A:s and B:s mod M:n {
+ result: [merge A and B mod M extra ((B = 1) > 0) * M]
+}
+
+
+MODIFIER_RANGE: {1..10}
+
+loop M over MODIFIER_RANGE {
+ output -1*[system one 4dF and MdF mod M] named "S4 +[M]"
+}
+loop M over MODIFIER_RANGE {
+ output [system one 4dF and MdF mod M] named "S4 +[M]"
+}

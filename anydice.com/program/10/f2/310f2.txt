@@ -1,0 +1,85 @@
+function: mothership PCR_A:n PCR_B:n PCS:n NPCR_A:n NPCR_B:n NPCS:n {
+\ 
+ PCR_A  = First digit of PC roll
+ PCR_B  = Second digit of PC roll
+ PCS    = PC stat
+ NPCR_A = First digit of NPC roll
+ NPCR_B = Second digit of NPC roll
+ NPCS   = NPC Stat as a percent
+\
+
+\
+ Rolls must be passed in as two separate d10, otherwise Anydice will order them by value (i.e. a roll of 16 would become 61)
+
+ First, build the actual rolls from the digits
+\
+ PCR: 10*(PCR_A-1) + PCR_B-1
+ NPCR: 10*(NPCR_A-1) + NPCR_B-1
+
+
+\
+ Next, determine successes
+\
+ if PCR < PCS {PC: 1}
+ else {PC: 0}
+
+ if NPCR < NPCS {NPC: 1}
+ else {NPC: 0}
+
+\
+ Finally, check for crits
+\
+ if PCR_A = PCR_B {PCC: 1}
+ else {PCC: 0}
+
+ if NPCR_A = NPCR_B {NPCC: 1}
+ else {NPCC: 0}
+
+
+\
+ Now we're ready for the resolution logic
+
+ Both failing is still failure
+\
+ if PC = 0 & NPC = 0 {result: 0}
+
+\
+ Simple results, success beats failure
+\
+ if PC = 0 & NPC = 1 {result: 0}
+ if PC = 1 & NPC = 0 {result: 1}
+
+\
+ The only remaining case is both characters succeed
+
+ Tied success triggers a reroll
+\
+ if PCR = NPCR {result: [mothership PCR_A PCR_B PCS NPCR_A NPCR_B NPCS] }
+
+\
+ Critical success beats simple success, regardless of which is greater
+\
+ if PCC = 0 & NPCC = 1 {result: 0}
+ if PCC = 1 & NPCC = 0 {result: 1}
+
+\
+ In this last step we know both parties succeeded, they did not tie, and either they both crit or neither did
+ 
+ Higher roll wins
+\
+ if PCR < NPCR {result: 0}
+ if PCR > NPCR {result: 1}
+}
+
+
+
+function: vaarn PCR:n PCS:n NPCA:n {
+\
+ PCR  = PC roll
+ PCS  = PC stat bonus
+ NPCA = NPC armor defense
+\
+
+ if PCR + PCS <= NPCA {result: 0}
+ else {result: 1}
+}

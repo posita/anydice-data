@@ -1,0 +1,44 @@
+function: ROLL:s tn TARG:n { result: (ROLL >= TARG) }
+
+function: N:n sets of VALS:s in SEQ:s {
+  SETS: 0
+  loop I over VALS {
+    if [count I in SEQ] >= N {
+      SETS: SETS + 1
+    }
+  }
+  result: SETS
+}
+function: full house of VALS:s in SEQ:s {
+  result: ([3 sets of VALS in SEQ] >= 1) & ([2 sets of VALS in SEQ] >=2)
+}
+\ counts number of "short straights" in a sequence; e.g. 2-in-a-row, 3-in-a-row, etc. \
+\ includes superior straigths in results; e.g. 3-in-a-row counts as 2 instances of 2-in-a-row \
+\ LENGTH: length of straight to search for (2 to find 2-in-a-rows, etc.) \
+\ VALUES: the numbers that can legally START a straight; e.g. {2, 4} will count only 2-5 and 4-7 as "4-in-a-rows" \
+\ DICE: the sequence to search \
+function: LENGTH:n straight from VALUES:s in DICE:s {
+    STRAIGHTS: 0
+    loop I over VALUES {
+        FOUND: 0
+        loop J over {1..LENGTH} {
+            if [count (I+J-1) in DICE] >= 1 {
+                FOUND: FOUND + 1
+            }
+        }
+        if FOUND >= LENGTH {
+            STRAIGHTS: STRAIGHTS + 1
+        }
+    }
+    result: STRAIGHTS
+}
+
+
+output [count 6 in 6d6] named "rolling 6s"
+output [2 sets of {1..6} in 6d6] named "pairs"
+output [3 sets of {1..6} in 6d6] named "three-of-a-kinds"
+output [4 sets of {1..6} in 6d6] named "four-of-a-kinds"
+output [full house of {1..6} in 6d6] named "full house"
+output [3 straight from {1..6} in 6d6] named "3-long straight"
+output [4 straight from {1..6} in 6d6] named "4-long straight"
+output [5 straight from {1..6} in 6d6] named "5-long straight"

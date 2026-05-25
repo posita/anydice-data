@@ -1,0 +1,31 @@
+function: add B:n to any die in POOL:s {
+  SUCCESSES: 0
+  BOONS: B
+  loop X over {1..#POOL} {
+    if X@POOL >= 4 {SUCCESSES: SUCCESSES+1}
+    else if X@POOL+BOONS>=4 {
+      BOONS: BOONS-(4-X@POOL)
+      SUCCESSES: SUCCESSES+1
+    }
+  }
+  result: SUCCESSES
+}
+
+function: count top N:n in POOL:s {
+  SUCCESSES: 0
+  loop X over {1..N} {
+    if X@POOL >= 4 {SUCCESSES: SUCCESSES+1}
+  }
+  result: SUCCESSES
+}
+
+output [add 1 to any die in 4d6] > [count {4..6} in 3d6] named "add 1 to any die in 4d6 vs enemy"
+output [count {4..6} in (4+1)d6] > [count {4..6} in 3d6] named "roll 5d6 vs enemy"
+output [count top 4 in (4+1)d6] > [count {4..6} in 3d6] named "reroll 1 die in 4d6 vs enemy"
+output 4d6>3d6 named "4d6 vs 3d6 using the sum instead of success counting"
+
+loop X over {1..10} {
+  output [add 1 to any die in Xd6] named "add 1 to any die in [X]d6"
+  output [count {4..6} in (X+1)d6] named "roll [X]d6 plus 1 extra d6"
+  output [count top X in (X+1)d6] named "reroll 1 die in [X]d6"
+}

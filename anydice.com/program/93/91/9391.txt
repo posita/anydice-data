@@ -1,0 +1,57 @@
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Options - change these if you want \
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+\ The number of dice to roll \
+NUM_DICE: 6
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Don't change things below here \
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+\ This rolls ROLL number of dice using the Scion rules: \
+\ * 10s count as 2 successes \
+\ * 7-9 count as 1 success \
+\ * If a 1 is rolled with no successes it's a botch (-1) \
+function: scion roll ROLL:s {
+ SUCCESSES: [count 1 in ROLL]
+ ONES: [count -1 in ROLL]
+ \ If the highest dice isn't a success and the lowest dice is a 1 \
+ if SUCCESSES = 0 & ONES >= 1 {
+  result: -1
+ }
+ \ If it's not a botch we don't care about 1s \
+ result: [highest of 0 and ROLL]
+}
+
+\ This rolls ROLL number of dice using our current rules: \
+\ * 6-10 count as 1 success \
+\ * 1s cancel out successes \
+\ * If more 1s are rolled than successes it's a botch (-1) \
+function: current roll ROLL:s {
+ SUCCESSES: [count 1 in ROLL]
+ ONES: [count -1 in ROLL]
+ if ONES > SUCCESSES {
+  result: -1
+ }
+ result: ROLL
+}
+
+\ 10s count as 2 successes, 7-9 are one success, 1s might be a botch \
+function: scion N:n {
+ if N = 10 { result: 2 }
+ if N = 1 { result: -1 }
+ result: N >= 7
+}
+
+\ 6-10 is a success, 1 costs a success \
+function: current N:n {
+ if N = 1 { result: -1 }
+ result: N >= 6
+}
+
+CURRENT: [current d10]
+SPECIALTY: [scion d10]
+
+output [current roll NUM_DICE d CURRENT] named "current"
+output [scion roll NUM_DICE d SPECIALTY] named "scion"

@@ -1,0 +1,59 @@
+TN:10
+
+function: crit VALUES:s in SEQUENCE:s plus BONUS:n {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ if ((SEQUENCE+BONUS)>=TN) {
+  result: COUNT + ((SEQUENCE+BONUS)>=TN)
+ }
+ else {
+  result: 0
+ }
+ \result: (SEQUENCE+BONUS)>=TN\
+}
+
+function: count VALUES:s in SEQUENCE:s plus BONUS:n {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ result: COUNT + ((SEQUENCE+BONUS)>=TN)
+}
+
+function: explode N:n {
+ if N = MAGICNUMBER { result: N + [explode d6] }
+ result: N
+}
+
+set "maximum function depth" to 5
+
+\*
+loop N over {1..5} {
+ loop X over {0..2} {
+  output Nd6+X >= TN named "[N]d6+[X] w/o explosion"
+  loop MAGICNUMBER over {1,6} {
+   output ((Nd [explode d6])+X)>= TN named "[N]d6+[X] explode on [MAGICNUMBER]"
+  }
+ }
+}
+*\
+loop C over {1,6} {
+ loop N over {2..5} {
+  loop X over {0..2} {
+   output [crit C in Nd6 plus X]-[crit C in Nd6 plus X] named "opposed Crit [C] in [N]d6+[X]"
+  }
+ }
+}
+
+\*
+set "maximum function depth" to 3
+
+loop N over {1..5}{
+ loop X over {0..2}{
+  MAGICNUMBER:6 
+  output [crit 1 in Nd [explode d6] plus X] named "[N]d6+[X] crit 1 exploding on 6" 
+ }
+}
+*\

@@ -1,0 +1,38 @@
+\ Definitions \
+ARCHERY_STYLE: 2
+SHARPSHOOTER_ATTACK_PENALTY: 5
+SHARPSHOOTER_DAMAGE_BONUS: 10
+
+\ Enemy \
+TARGET_AC: 15
+TARGET_STR: 14
+
+function: trip attack N:n times HIT:n {
+ if N = 0 {result: 0}
+ if HIT {result: HIT_DMG + [trip TRIP_SAVE with N - 1 attacks]}
+ result: [trip attack N - 1 times NORMAL]
+}
+
+function: trip S:n with N:n attacks {
+ if S { result: [trip attack N times NORMAL] }
+ result: [attack N times with advantage]
+}
+
+function: attack N:n times with advantage {
+ result: (NdADVANTAGE)dHIT_DMG
+}
+
+function: battlemaster sharpshooter nova N:n attacks with DEX:n dex at level LEVEL:n {
+    DEX_MODIFIER: (DEX-10)/2
+    PROFICIENCY: ((LEVEL-1)/4) + 2
+    TRIP_DC: 8 + PROFICIENCY + DEX_MODIFIER
+
+    NORMAL: d20 + DEX_MODIFIER + PROFICIENCY + ARCHERY_STYLE - SHARPSHOOTER_ATTACK_PENALTY >= TARGET_AC
+    ADVANTAGE: 1@2d20 + DEX_MODIFIER + PROFICIENCY + ARCHERY_STYLE - SHARPSHOOTER_ATTACK_PENALTY >= TARGET_AC
+    TRIP_SAVE: d20 >= TRIP_DC
+
+    HIT_DMG: 1d6 + DEX_MODIFIER + SHARPSHOOTER_DAMAGE_BONUS
+    result: [trip attack N times NORMAL]
+}
+
+output [battlemaster sharpshooter nova 3 attacks with 18 dex at level 4]

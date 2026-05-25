@@ -1,0 +1,32 @@
+set "maximum function depth" to 5
+
+\ OLD SCRIPT STARS HERE \
+
+function: keep and reroll NUM:n of DIE:d RR:n times {
+  MAX: [maximum of DIE]
+  result: [keep helper NUMdDIE 0]
+}
+
+function: keep helper SEQ:s T:n {
+  if T < RR {      \ Countdown \
+   SUCS: SEQ = MAX \ Count successes \
+   if SUCS = #SEQ { result: SUCS }
+                   \ Nothing to reroll \
+   result: SUCS + [keep helper ((#SEQ - SUCS)dDIE) (T+1)]
+                   \ Successes + the remainder of the dice rerolled, increase the timer \
+   }
+  result: 0
+}
+
+output 7d(1d6=6)
+
+output [keep and reroll 7 of (1d6=6) 3 times]
+
+\ NEW SCRIPT STARTS HERE\
+
+function: SEQ:s contains N:n {
+ if (SEQ = N) > 0 { result: 1 }
+ result: 0
+}
+
+output 7d[3d6 contains 6] named "Yeah..."

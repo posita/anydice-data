@@ -1,0 +1,123 @@
+function: successes SUM:n step STEP:n {
+  if SUM > 35 {result: 35/STEP}
+  if SUM > 2 {result: SUM/STEP}
+  result: 0
+}
+function: successes SUM:n {
+  result: [successes SUM step 5]
+}
+
+function: roll ATTR:d with SKILL:d mod DIFFICULTY:n step STEP:n  {
+  SUM: [explode ATTR] + [explode SKILL] - DIFFICULTY
+  result: [successes SUM step STEP]
+}
+function: roll ATTR:d with SKILL:d mod DIFFICULTY:n  {
+  result: [roll ATTR with SKILL mod DIFFICULTY step 5]
+}
+
+function: aid A:n with B:n {
+  H: [highest of A and B]
+  if A > 0 & B > 0 { result: H + 1 }
+  result: H
+}
+function: aid A :n with B:n and C:n {
+  H: [highest of FST and [highest of B and C]]
+  if ((A > 0) + (B > 0) + (C > 0)) > 1 {
+    result: H + 1
+  }
+  result: H
+}
+
+function: is success A:n {
+  if A > 0 {result: 1}
+  result: 0
+}
+
+function: spread A:n {
+  if A < 2 {result: A}
+  X: 1
+  loop N over {1..A}{
+     X: X*2
+  }
+  if X > 64 {result: 64}
+  result: X
+}
+
+function: add half N:n to ATTR:d with SKILL:d vs D:n {
+  X: 0
+  if N = 1 {X: 1}
+  if N = 2 {X: 1}
+  if N = 3 {X: 2}
+  if N = 4 {X: 2}
+  if N = 5 {X: 3}
+  result: [roll ATTR with SKILL mod D] + X
+}
+
+function: attack A:n with D:n step S:n armor AR:n {
+  if A > 0 {
+    R: [explode dD] + (A-1)d6 - AR
+    result: [successes R step S] + 1
+  }
+  result: 0
+}
+
+function: attackk A:n with D:n step S:n armor AR:n {
+  R: 0
+  if A > 0 {
+    R: [explode dD] - AR
+    loop N over {1..A-1}{
+      C: D - (N*2)
+      if (C < 6) {
+        C: 6
+      }
+      R: R + 1dC
+    }
+    
+    result: [successes R step S] + 1
+  }
+  result: 0
+}
+
+
+
+X:0
+
+\
+output [roll d10 with d10 mod X step 5] named "average roll"
+output [attack [roll d10 with d10 mod X step 5] with d10 step 5 armor 0] named "average damage"
+\
+
+\
+output [roll d6  with d6  mod 4] named "0, d6, d6, 4"
+output [roll d6  with d6  mod 3] named "0, d6, d6, 3"
+output [roll d6  with d6  mod 2] named "0, d6, d6, 2"
+output [roll d6  with d6  mod 1] named "0, d6, d6, 1"
+
+output [roll d6  with d6  mod X] named "0, d6, d6, 0"
+output [roll d8  with d6  mod X] named "0, d8, d6, 0"
+output [roll d8  with d8  mod X] named "0, d8, d8, 0"
+output [roll d10 with d8  mod X] named "0, d10, d8, 0"
+output [roll d10 with d10 mod X] named "0, d10, d10, 0"
+output [roll d12 with d10 mod X] named "0, d12, d10, 0"
+output [roll d12 with d12 mod X] named "0, d12, d12, 0"
+output [roll d14 with d12 mod X] named "0, d14, d12, 0"
+output [roll d14 with d14 mod X] named "0, d14, d14, 0"
+
+output [roll d10 with d10 mod X] + 1 named "1, d10, d10, 0"
+output [roll d12 with d10 mod X] + 1 named "1, d12, d10, 0"
+output [roll d12 with d12 mod X] + 1 named "1, d12, d12, 0"
+output [roll d14 with d12 mod X] + 1 named "1, d14, d12, 0"
+output [roll d14 with d14 mod X] + 1 named "1, d14, d14, 0"
+
+output [roll d10 with d10 mod X] + 2 named "2, d10, d10, 0"
+output [roll d12 with d10 mod X] + 2 named "2, d12, d10, 0"
+output [roll d12 with d12 mod X] + 2 named "2, d12, d12, 0"
+output [roll d14 with d12 mod X] + 2 named "2, d14, d12, 0"
+output [roll d14 with d14 mod X] + 2 named "2, d14, d14, 0"
+\
+
+output [roll d10 with d8 mod 0 step 5]
+output [attackk [roll d10 with d8 mod 0 step 5] with d10 step 5 armor 1] named "bad"
+
+
+

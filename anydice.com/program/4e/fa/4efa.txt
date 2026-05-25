@@ -1,0 +1,69 @@
+\ Comparing existing crit model vs. enoch's \
+\ (stat values could be outside of functions, but YOLO) \
+\ also magic numbers, but this is a fantasy setting after all \
+
+\ baddy w/ a scimitar and mediocre strength \
+BADDY_WEAPON     : 1d6
+BADDY_MAX_DAMAGE : 6
+BADDY_STR        : 2
+
+\ PC w/ a two-handed quarterstaff and high strength \
+VELDRIK_WEAPON     :1d8
+VELDRIK_MAX_DAMAGE : 8
+VELDRIK_STR        : 3
+
+\ existing critical hit model: double damage die \
+function: ATK:n CREATURE:n oldcrit {
+  \ baddy = 0, Veldrik = 1 \
+  if CREATURE = 0 {
+    WEAPON     : BADDY_WEAPON
+    MAX_DAMAGE : BADDY_MAX_DAMAGE
+    MODIFIER   : BADDY_STR
+  }
+
+  if CREATURE = 1 {
+    WEAPON     : VELDRIK_WEAPON
+    MAX_DAMAGE : VELDRIK_MAX_DAMAGE
+    MODIFIER   : VELDRIK_STR
+  }
+
+  if ATK = 20 {
+    result: WEAPON+WEAPON+MODIFIER
+  }
+
+  result: WEAPON+MODIFIER
+}
+
+\ proposed critical hit model: double damage die + max damage \
+function: ATK:n CREATURE:n newcrit {
+  \ baddy = 0, Veldrik = 1 \
+  if CREATURE = 0 {
+    WEAPON     : BADDY_WEAPON
+    MAX_DAMAGE : BADDY_MAX_DAMAGE
+    MODIFIER   : BADDY_STR
+  }
+
+  if CREATURE = 1 {
+    WEAPON     : VELDRIK_WEAPON
+    MAX_DAMAGE : VELDRIK_MAX_DAMAGE
+    MODIFIER   : VELDRIK_STR
+  }
+
+  if ATK = 20 {
+    result: WEAPON+WEAPON+MAX_DAMAGE+MODIFIER
+  }
+  
+  result: WEAPON+MODIFIER
+}
+
+output [d20 0 oldcrit] named "existing avg. damage (scimitar baddy)"
+output [d20 0 newcrit] named "proposed avg. damage (scimitar baddy)"
+
+output [d20 1 oldcrit] named "existing avg. damage (Veldrik)"
+output [d20 1 newcrit] named "proposed avg. damage (Veldrik)"
+
+output [20 0 oldcrit] named "existing avg. crit damage (scimitar baddy)"
+output [20 0 newcrit] named "proposed avg. crit damage (scimitar baddy)"
+
+output [20 1 oldcrit] named "existing avg. crit damage (Veldrik)"
+output [20 1 newcrit] named "proposed avg. crit damage (Veldrik)"

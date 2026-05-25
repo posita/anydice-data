@@ -1,0 +1,57 @@
+AC: 24
+DR: 0
+
+function: iterattack DIE:s DMG:n EXDMG:n DMGMULT:n ATK:n ITER:n CRIT:n MULT:n BURST:n{
+  if(ITER=3){
+    result: [attack DIE DMG EXDMG DMGMULT 1d20 ATK 1d20 CRIT MULT BURST] + [attack DIE DMG EXDMG DMGMULT 1d20 ATK-5 1d20 CRIT MULT BURST] + [attack DIE DMG EXDMG DMGMULT 1d20 ATK-10 1d20 CRIT MULT BURST]
+  }
+  else if(ITER=2){
+    result: [attack DIE DMG EXDMG DMGMULT 1d20 ATK 1d20 CRIT MULT BURST] + [attack DIE DMG EXDMG DMGMULT 1d20 ATK-5 1d20 CRIT MULT BURST]
+  }
+  else{
+    result: [attack DIE DMG EXDMG DMGMULT 1d20 ATK 1d20 CRIT MULT BURST]
+  }
+}
+
+function: attack DIE:s DMG:n EXDMG:n DMGMULT:n ROLL:n ATKBONUS:n CONFIRM:n CRIT:n MULT:n BURST:n{
+  TOTDMG: DIE+DMG
+  if(ROLL = 1){
+    result: 0
+  }
+  else if(ROLL >= CRIT){
+    result: [crit TOTDMG EXDMG DMGMULT CONFIRM ATKBONUS CRIT MULT BURST]-DR
+  }
+  else if(ROLL+ATKBONUS >= AC){
+    result: TOTDMG*DMGMULT+EXDMG-DR
+  }
+  else{
+    result: 0
+  }
+}
+
+function: crit DMG:n EXDMG:n DMGMULT:n CONFIRM:n ATKBONUS:n CRIT:n MULT:n BURST:n{
+  if(CONFIRM = 1){
+    result: DMG*DMGMULT+EXDMG
+  }
+  else if(CONFIRM+ATKBONUS >= AC) {
+    result: DMG*(MULT+DMGMULT-1) + EXDMG + BURST
+  }
+  else{
+    result: DMG*DMGMULT+EXDMG
+  }
+}
+
+\Iterative attack  DIE     DMG    EXDMG DMGMULT  AB Count CR x BURST\
+\output [iterattack 1d10    22     1d6      1     15   2   20 2 0]    named "Boomstick"\
+\output [iterattack 1d8     23     0        1     16   2   20 2 0]    named "Morningstar"\
+\output [iterattack 1d8+10d6 23     0       1     21   2   15 2 0]    named "Black Blade"\
+
+
+\Attack        DIE     DMG  EXDMG DMGMULT Roll AB CONF CR x BURST\
+\output [attack 1d10    22   1d6      1    1d20 15 1d20 20 2 0]    named "Boomstick 1st"\
+\output [attack 1d10    22   1d6      1    1d20 9  1d20 20 2 0]    named "Boomstick 2nd"\
+\output [attack 1d8     20     0      1    1d20 15 1d20 20 2 0]    named "Morningstar 1st"\
+\output [attack 2d6     6    4+5d6    1    1d20 17 1d20 20 3 0]    named "Shortbow"\
+\output [attack 1d6     19+4   0      2    1d20 21 1d20 20 3 0]    named "Lance Charge"\
+output [attack 1d8+10d6 23    0      1    1d20 21 1d20 15 2 0]    named "Black Blade Intensified Shocking Grasp"
+output [attack 1d8+5d6  23    0      1    1d20 21 1d20 15 2 0]    named "Black Blade Shocking Grasp"

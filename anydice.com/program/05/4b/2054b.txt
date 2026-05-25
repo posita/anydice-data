@@ -1,0 +1,41 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 5 + 3
+HITDAMAGE: d8+5
+CRITICALDAMAGE: 2d8+5
+MISSDAMAGE: 0
+ output [damage for [attack d20 vs 20]]+[damage for [attack d20 vs 20]]+[damage for [attack d20 vs 20]]+[damage for [attack d20 vs 20]] named "Expected Damage for Four Mal Attacks vs 20AC"
+
+ATTACK: 3+3
+HITDAMAGE: 2d4+1d8+4d6+3
+CRITICALDAMAGE: 4d4+2d8+8d6+3
+MISSDAMAGE: 0
+ output [damage for [attack [highest 1 of 2d20] vs 20]] named "Expected Damage for One Chaussa Attack vs 20AC"
+
+ATTACK: 0
+HITDAMAGE: 8d6
+CRITICALDAMAGE: 8d6
+MISSDAMAGE: 4d6
+ output [damage for [attack d20 vs 12]] named "Expected Damage for One Fireball Attack vs +3 Dex"

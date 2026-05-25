@@ -1,0 +1,24 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+MISSDMG: 0
+HITDMG: 2d8 + 10
+CRITDMG: 4d8 + 10
+AC: 0
+ATK: 10
+HITS: 0
+DMG: 0
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT { result: CRITDMG }
+ if ATTACKRESULT = HIT { result: HITDMG }
+ result: MISSDMG
+}
+loop AC over {15..23} {
+ output [damage for [attack d20 vs AC]]*2 named "[AC]"
+}

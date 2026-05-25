@@ -1,0 +1,87 @@
+\Performs a fitness check. Success will add 1 to the highest die rolled.\
+function: check fitness
+{
+ result: 2d6 < FIT
+}
+
+\Calculates damage from a die roll\
+function: damage O:s D:s F:n
+{
+ if ((1@O + F) > 1@D)
+ {
+  result: O
+ } else {
+  result: 0
+ }
+}
+
+\Calculates the results of a player defense. Then proceeds to the player attack, if the player is still alive.\
+function: defensive round EVIT:n UFIT:n DEPTH:n
+{
+ if (EVIT <= 0) \Enemy is dead.\
+ {
+  result: VIT \Player's vitality at the end of combat.\
+ } else {
+  if (DEPTH <= 0)
+  {
+   VIT: [highest of (VIT - [maximum of EOFFd6]) and 0]
+  } else {
+   if (UFIT)
+   {
+    BONUS: [check fitness]
+    FIT: FIT - 1
+   } else {
+    BONUS: 0
+   }
+   \On defense, bonus should be applied to the defensive roll, or, equivalently, *subtracted* from the offensive roll.\
+   VIT: [highest of (VIT - [damage EOFFd6 DEFd6 (-BONUS)]) and 0] 
+  }
+  result: [offensive round VIT (1 - UFIT) (DEPTH - 1)]
+ }
+}
+
+\Calculates the results of a player attack. Then proceeds to the enemy attack, if the enemy is still alive.\
+function: offensive round VIT:n UFIT:n DEPTH:n
+{
+ if (VIT <= 0) \Player is dead.\
+ {
+  result: 0 \Player's vitality at the end of combat.\
+ } else {
+  if (DEPTH <= 0)
+  {
+   EVIT: [highest of (EVIT - [maximum of OFFd6]) and 0]
+  } else {
+   if (UFIT) \Fitness can only be used for *either* offense *or* defense, each round. But not both.\
+   {
+    BONUS: [check fitness]
+    FIT: FIT - 1 \Every fitness check reduces fitness by 1, for the battle.\
+   } else {
+    BONUS: 0 \No fitness check = no bonus to the combat roll.\
+   }
+   EVIT: [highest of (EVIT - [damage OFFd6 EDEFd6 BONUS]) and 0]
+  }
+  result: [defensive round EVIT (1 - UFIT) DEPTH]
+ }
+}
+
+\Calculates combat accurately up to a maximum # of full rounds, then estimates by using max values.\
+function: combat DEPTH:n
+{
+ result: [offensive round VIT ((OFF - EDEF) <= (DEF - EOFF)) DEPTH]
+}
+
+\Alias for [combat <default depth>]\
+function: combat
+{
+ result: [combat 2]
+}
+
+VIT: 48
+OFF: 2
+DEF: 2
+FIT: 12
+EVIT: 14
+EOFF: 2
+EDEF: 1
+
+output [combat]

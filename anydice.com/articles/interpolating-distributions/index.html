@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head prefix="og: http://ogp.me/ns#">
+		<meta charset="utf-8">
+		<meta property="og:url" content="https://anydice.com/articles/interpolating-distributions/">
+		<meta property="og:type" content="article">
+		<meta property="og:image" content="https://anydice.com/articles/interpolating-distributions/d20-3d6.png">
+		<meta property="og:description" content="It is possible to mix dice mechanics, interpolating between their probability distributions.">
+		<meta property="og:title" content="Interpolating Distributions">
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:creator" content="@catlikecoding">
+		<meta name="viewport" content="width=768">
+		<title>Interpolating Distributions</title>
+		<link href="../articles.css" rel="stylesheet">
+		<link rel="manifest" href="../../site.webmanifest.html">
+
+		<script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "WebPage",
+			"mainEntity": {
+				"@type": "Article",
+				"@id": "https://anydice.com/articles/interpolating-distributions/#article",
+				"headline": "Interpolating Distributions",
+				"alternativeHeadline": "Mixing Probabilities",
+				"description": "It is possible to mix dice mechanics, interpolating between their probability distributions.",
+				"datePublished": "2009-10-23",
+				"author": { "@type": "Person", "name": "Jasper Flick", "@id": "https://catlikecoding.com/jasper-flick/#person" },
+				"publisher": { "@type": "Organization", "name": "Catlike Coding", "@id": "https://catlikecoding.com/#organization" },
+				"image": "https://anydice.com/articles/interpolating-distributions/d20-3d6.png"
+			},
+			"breadcrumb": {
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{ "@type": "ListItem", "position": 1, "item": { "@id": "https://anydice.com", "name": "AnyDice" }},
+					{ "@type": "ListItem", "position": 2, "item": { "@id": "https://anydice.com/articles/", "name": "Articles" }}
+				]
+			}
+		}</script>
+	</head>
+	<body>
+		<header>
+			<a href="../../program/cd3f/graph/rolling-within-a-range.html"><img src="../../anydice-logo.svg" alt="AnyDice" width="45" height="45"></a>
+			<nav>
+				<ol>
+					<li><a href="../../index.html">AnyDice</a></li>
+					<li><a href="../index.html">Articles</a></li>
+				</ol>
+			</nav>
+		</header>
+		
+		<main>
+			<article>
+				<header>
+					<h1>Interpolating Distributions</h1>
+					<p>Mixing Probabilities</p>
+				</header>
+				
+				<p>Suppose you're using a 1d20 mechanic, but would like to curve the distribution, while keeping the same 1&ndash;20 value range. Taking the middle of 3d20 is a nice solution for that. You can do that with AnyDice by using <code>2@3d20</code>. But what if that curves too much for your taste?</p>
+				
+				<figure>
+					<img src="m3d20.png" width="500" height="400">
+					<figcaption>Taking the middle of 3d20.</figcaption>
+				</figure>
+				
+				<p>You can interpolate between dice mechanics! You do this by varying which dice mechanic you use, either by alternating between then or by rolling a die to decide which to use each time. You can do this in one roll, for example:</p>
+				
+				<p>Roll a d4, a red (or whatever that distinguishes it) d20, and two additional d20. If the d4 shows a 1 or a 2, your result is the value of the red d20. Otherwise, your result is the middle value of the three d20.</p>
+				
+				<p>You can adjust the flatness of the distribution by changing how the d4 dictates which mechanic to use. With a d4, you can produce a 3:1, a 1:1, or a 1:3 selection ratio.</p>
+				
+				<pre>function: switch S:n {
+ if S > 0 { result: d20 }
+ result: 2@3d20
+}
+
+output d20 named "d20"
+output [switch d4 - 1] named "3:1"
+output [switch d4 - 2] named "1:1"
+output [switch d4 - 3] named "1:3"
+output 2@3d20 named "2@3d20"</pre>
+				
+				<figure>
+					<img src="d20-m3d20.png" width="500" height="400">
+					<figcaption>From 1d20 to middle of 3d20.</figcaption>
+				</figure>
+				
+				<p>By interpolating mechanics you can find distributions that are otherwise hard or impossible to get. For example, by rolling 3d20 and picking either the highest or the lowest value with a 1:1 ratio, you get a distribution where the extremes are more likely to be rolled than the average.</p>
+				
+				<pre>function: switch S:n {
+ if S > 0 { result: 1@3d20 }
+ result: 3@3d20
+}
+
+output 1@3d20 named "1@3d20"
+output [switch d4 - 1] named "3:1"
+output [switch d4 - 2] named "1:1"
+output [switch d4 - 3] named "1:3"
+output 3@3d20 named "3@3d20"</pre>
+				
+				<figure>
+					<img src="h3d20-l3d20.png" width="500" height="400">
+					<figcaption>From highest to lowest of 3d20.</figcaption>
+				</figure>
+				
+				<p>You can interpolate between any two mechanics, they needn't have the same value range. So, in a way, you can compromise between using 1d20 and 3d6.</p>
+				
+				<pre>function: switch S:n {
+ if S > 0 { result: d20 }
+ result: 3d6
+}
+
+output d20 named "d20"
+output [switch d4 - 1] named "3:1"
+output [switch d4 - 2] named "1:1"
+output [switch d4 - 3] named "1:3"
+output 3d6 named "3d6"</pre>
+				
+				<figure>
+					<img src="d20-3d6.png" width="500" height="400">
+					<figcaption>From 1d20 to 3d6.</figcaption>
+				</figure>
+				
+				<p>You can modify this approach in multiple ways (one of which is actually exploding dice), but take care that the final mechanic is still playable!</p>
+				
+			</article>
+		</main>
+
+		<footer>
+			<p>made by <a href="https://catlikecoding.com/jasper-flick/" rel="author">Jasper Flick</a></p>
+		</footer>
+		
+		<script src="../articles.js"></script>
+	</body>
+</html>

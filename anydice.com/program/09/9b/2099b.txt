@@ -1,0 +1,38 @@
+function: adjust RESULT_SL:n for ROLL:n {
+  if ROLL >= 96 {
+    result: [lowest of RESULT_SL and -1]
+  } else if ROLL <= 5 {
+    result: [highest of RESULT_SL and 1]
+  } else {
+    result: RESULT_SL
+  }
+}
+
+function: opposed ATTACK_SKILL:n vs DEFEND_SKILL:n {
+  ATTACK_ROLL: d100
+  ATTACK_SUCCESS_LEVEL: [adjust ((ATTACK_SKILL / 10) - (ATTACK_ROLL / 10)) for ATTACK_ROLL]
+  DEFEND_ROLL: d100
+  DEFEND_SUCCESS_LEVEL: [adjust ((DEFEND_SKILL / 10) - (DEFEND_ROLL / 10)) for DEFEND_ROLL]
+  result: ATTACK_SUCCESS_LEVEL - DEFEND_SUCCESS_LEVEL
+}
+
+output [opposed 35 vs 75] named "Opposed roll - attacker wins by"
+
+function: fastsl ROLL:n vs SKILL:n {
+  if ROLL <= SKILL {
+    result: [adjust (ROLL / 10) for ROLL]
+  } else { 
+    result: [adjust ((SKILL / 10) - (ROLL / 10)) for ROLL]
+  }
+}
+
+function: fastopposed ATTACK_SKILL:n vs DEFEND_SKILL:n {
+  ATTACK_ROLL: d100
+  ATTACK_SUCCESS_LEVEL: [fastsl ATTACK_ROLL vs ATTACK_SKILL]
+  DEFEND_ROLL: d100
+  DEFEND_SUCCESS_LEVEL: [fastsl DEFEND_ROLL vs DEFEND_SKILL]
+  result: ATTACK_SUCCESS_LEVEL - DEFEND_SUCCESS_LEVEL
+}
+
+output [opposed 35 vs 140] named "opposed roll - 35v140"
+output [fastopposed 35 vs 140] named "Fast opposed roll - 35v140"

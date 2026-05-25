@@ -1,0 +1,33 @@
+function: test VIGOR:s MOD:n {
+    if (VIGOR + MOD) >= 4 {
+        result: 0
+    }
+    result: 1
+}
+
+function: attack ATTACK_DICE:s TN:n VIGOR:s MOD:n RAISE_MOD:n {
+    if ATTACK_DICE >= (TN + 4) {
+        result: [test VIGOR RAISE_MOD]
+    }
+    if ATTACK_DICE >= TN {
+        result: [test VIGOR MOD]
+    }
+
+    result: 0
+}
+
+WILD_DICE: [explode d6]
+FIGHTING_ATTACK: [highest of WILD_DICE and [explode d6 + 2]]
+SHOOTING_ATTACK: [highest of WILD_DICE and [explode d6]]
+
+PARRY_TN: 2
+DODGE_TN: 4
+VIGOR: [highest of WILD_DICE and [explode d8]]
+
+MELEE_VIGOR_MOD: 0
+MELEE_VIGOR_MOD_RAISE: (-2)
+RANGED_VIGOR_MOD: (-2)
+RANGED_VIGOR_MOD_RAISE: (-2)
+
+output [attack FIGHTING_ATTACK PARRY_TN VIGOR MELEE_VIGOR_MOD  MELEE_VIGOR_MOD_RAISE] named "Melee Stun Gun"
+output [attack SHOOTING_ATTACK DODGE_TN VIGOR RANGED_VIGOR_MOD RANGED_VIGOR_MOD_RAISE] named "Ranged Stun Gun"

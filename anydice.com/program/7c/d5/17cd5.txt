@@ -1,0 +1,31 @@
+function: remove N:n from SEQUENCE:s {
+  RESULT:{}
+  REMOVED: 0
+  loop C over SEQUENCE {
+    if (REMOVED = 0) & (C=N) { REMOVED: 1 } else { RESULT: {RESULT,C} }
+  }
+  result: RESULT
+}
+
+function: draw from SEQUENCE:s with X:n and RESULT:s C:n more times{
+  if C = 0 {
+   result: RESULT
+  } else {
+    SEQUENCE: [remove X from SEQUENCE]
+    result: [draw from SEQUENCE with dSEQUENCE and {RESULT,X} C-1 more times]
+  }
+}
+
+function: draw from SEQUENCE:s N:n times {
+  result: [draw from SEQUENCE with dSEQUENCE and {} N more times]
+}
+
+
+\ throw 1d12 and accept the result \
+output 1d12 named "1d12"
+\ classic 2d6 roll \
+output 2d6 named "classic 2d6"
+\ grab 3 tokens out of a bag containing tokens labeled 1, 2, 4, 6, 0, 0 \
+output [draw from {1,2,4,6,0:2} 3 times] named "grab 3 tokens out of (1,2,4,6,0,0)"
+\ grab a token from a bag containing 12 tokens labeled 1 and 8 tokens labeled 0, 12 times, replenish each time \
+output 12d{1:12,0:8} named "extract 12 times out of 12 1s and 8 0s, replenish each time"

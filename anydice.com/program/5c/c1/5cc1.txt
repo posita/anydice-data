@@ -1,0 +1,46 @@
+function: degree ROLL:s at TN:n {
+ if 1@ROLL + 2@ROLL = 20 {
+  result: 0
+ }
+ if 1@ROLL + 2@ROLL = 2 {
+  result: 2
+ }
+ if 1@ROLL + 2@ROLL <= TN {
+  if 1@ROLL = 2@ROLL {
+   result: 2 * 1@ROLL
+  }
+  result: 1@[sort ROLL]
+ }
+ result: 0
+}
+
+function: degree ROLL:s at TN:n advantage one {
+ SORT: [sort ROLL]
+ X: 0
+ if 1@SORT + 2@SORT + 3@SORT = 30 {
+  result: 0
+ }
+ if (1@SORT + 2@SORT) <= TN & (1@SORT + 2@SORT < 20) {
+  if 1@SORT = 2@SORT {
+   result: 2 * 1@SORT
+  }
+  X: 1@SORT
+ }
+ if 2@ROLL + 3@ROLL <= TN {
+  if (2@SORT = 3@SORT) & (2 * 2@SORT) > X {
+   X: 2 * 2@SORT
+  }
+  if 2@SORT > X {
+   X: 2@SORT
+  }
+ }
+ if (2@SORT + 3@SORT = 2) & (X < 2) {
+  X: 2
+ }
+ result: X
+}
+
+loop N over {0..20}{
+ output [degree 2d10 at N] named "TN [N] normal"
+ output [degree 3d10 at N advantage one] named "TN [N] advantage 1"
+}

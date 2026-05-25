@@ -1,0 +1,52 @@
+\DO NOT CHANGE ANY CODE BETWEEN THE TWO ROWS OF =========\
+\=========================================================================================================================\
+
+\if a dice roll contains more than the limit number of dice rolling a value, it sets the result to zero\
+\otherwise it just returns the original roll\
+\with Oathsworn, the Limit number is 2 and the Value is 0, so it returns 0 if 2 or more zeroes get rolled\
+function: fail on L:n or more dice rolling V:n in DICE:s{
+if [count V in DICE] >= L{
+ result: 0
+}
+else{
+ result: DICE
+}
+}
+
+\explodes the "n-th face" (top face) of a die, regardless of its value compared to other faces\
+\so it would explode a 4 on a d{1,6,6,4}, which would be defined as "{1,6,6,1000} with explode on 4" \
+\the value of X in "with explode on X" replaces the 1000, which is a placeholder that identifies explosions\
+function: top face explode BANGDICE:s with explode on BANGVAL:n{
+BANGS: BANGDICE/1000
+result: BANGDICE - (BANGS * 1000) + (BANGS * BANGVAL)
+}
+
+\Oathsworn WHITE dice are {0,0,1,1,2,1000} with explode on 2\
+\Oathsworn YELLOW dice are {0,0,1,2,3,1000} with explode on 3\
+\Oathsworn RED dice are {0,0,2,3,3,1000} with explode on 4\
+\Oathsworn BLACK dice are {0,0,3,3,4,1000} with explode on 5\
+
+\***EXAMPLE MODEL FROM OATHSWORN***\
+\say you want to see what sort of results you might get from rollling a bunch of White dice in Oathsworn: Into the Deepwood\
+\perhaps you are interested in seeing the differences between rolling 2, 3, 4, 5 or 6 white dice. The following example does that\
+\loop N over {2..6}{\
+\output [top face explode [fail on 2 or more dice rolling 0 in N d [explode d{E}]] with explode on F] named "[N] exploding custom dice"\
+\}\
+
+\***INSTRUCTIONS FOR USE***\
+\creates output for a series of sets of dice\
+\To use this model you will need to replace the following variables with the appropriate number values\
+\A - the smallest set of dice that is of interest to you (e.g. 2d6, A=2)\
+\B - the largest set of dice that is of interest to you (e.g. 6d6, B=6) BE CAREFUL, if B is too large, anydice will terminate the run\
+\C - the minimum number of "fail" or "miss" values rolled to cause a miss or fail\
+\D - the "fail" or "miss" value on the die. If your model generates a fail if you get a minimum number of a certain value, set C to the value\
+\E - this is the pattern of numbers on your die. If your die explodes don't set that value, it will be proxied with 1000, replace each exploding face with 1000, this model only works dice that explode on a single value, regardless of how many faces have that value. See above for examples from Oathsworn\
+\F - this is the value of the face that explodes, so if your d6 explodes on a 6, set F to 6\
+\N - is not a "user variable", you can leave it alone, it's used in creating the titles of the output graphs and tables\
+
+\=========================================================================================================================\
+THE CODE BELOW THIS LINE IS THE CODE YOU CAN CHANGE. INSTRUCTIONS AND AN EXAMPLE ARE JUST ABOVE THIS LINE
+
+loop N over {A..B}{
+output [top face explode [fail on C or more dice rolling D in N d [explode d{E}]] with explode on F] named "[N] exploding custom dice"
+}

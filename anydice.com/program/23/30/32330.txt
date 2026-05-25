@@ -1,0 +1,28 @@
+loop N over {1, 2, 3, 4, 5, 7, 9, 10} {
+  DADOS_BASE: 3
+  DIFICULDADE: N + 10
+  NIVEL_PERSONAGEM: N-1
+  PROFICIENCIA: [highest of 1 and [lowest of 5 and NIVEL_PERSONAGEM]]
+  PERICIA: [highest of 0 and [lowest of 5 and PROFICIENCIA+1]]
+  DOMINIO: [highest of 0 and [lowest of 5 and PROFICIENCIA+1]]
+
+  if DOMINIO = 1 | DOMINIO = 2{
+   RERROLAGENS: 1
+  }
+  else{
+   if DOMINIO = 3 | DOMINIO = 4 | DOMINIO = 5{
+    RERROLAGENS: 2
+   }
+   else{
+    RERROLAGENS: DOMINIO
+   }
+  }
+  N_DADOS: DADOS_BASE 
+  if DOMINIO = 5{
+   N_DADOS: N_DADOS + 1
+  }
+
+  X: (N_DADOS+RERROLAGENS)d(d20 >= DIFICULDADE)
+  Y: (N_DADOS+RERROLAGENS)d([count {DIFICULDADE-PERICIA-1..DIFICULDADE-1} in d20])
+  output [lowest of N_DADOS and (X + [lowest of 1 and Y])] named "Desafio [N]"
+}

@@ -1,0 +1,38 @@
+\Calculates the chance to hit of a non-piercing monster spell. Accounts for AC and EV.\
+HD: 27
+EV: 35
+SH: 0
+NUMBEROFBLOCKSSINCELASTINPUT: 0
+\Spell Details:
+You can find these in zap-data.h, in the monster_tohit field. They typically look like 
+new tohit_calculator<FLATACCURACY, POWERNUMERATOR, POWERDENOMINATOR>. \
+FLATACCURACY: 22
+POWERNUMERATOR: 1
+POWERDENOMINATOR: 20
+\This is special-cased in monscast.cc::_mons_power_hd_factor() for a few spells; 12 is the default.\
+SPELLPOWERMULT: 12 \Almost always 12\
+
+\Calculations:\
+
+TOHIT: HD*SPELLPOWERMULT*POWERNUMERATOR/POWERDENOMINATOR+FLATACCURACY
+
+SHTOHIT: TOHIT*13/10+4*NUMBEROFBLOCKSSINCELASTINPUT*NUMBEROFBLOCKSSINCELASTINPUT
+
+EVROLL: (1d(EV+1)-1 + 1d(EV+1)-1)/2
+
+SHBYPASS: 1d(SHTOHIT+1)-1 >= SH
+
+EVBYPASS: (1d(TOHIT+1)-1) >= EVROLL
+
+EVRMSLBYPASS: (1d(TOHIT+1)-1)*(1d101-1)/100 >= EVROLL
+
+EVDMSLBYPASS: (1d(TOHIT+1)-1)*(1d101-1)/200 >= EVROLL
+
+output SHBYPASS named "SH"
+
+output [lowest of SHBYPASS and EVBYPASS] named "SH and EV"
+
+output [lowest of SHBYPASS and EVRMSLBYPASS] named "SH and EV with Repel Missles"
+
+output [lowest of SHBYPASS and EVDMSLBYPASS] named "SH and EV with Deflect Missles"
+

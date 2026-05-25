@@ -1,0 +1,60 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: save ROLL:n vs DC:n {
+  if ROLL < DC {result: HIT}
+  result: MISS
+}
+
+function: attack {
+ result: [damage for [attack ROLL vs DEFENSE]]
+}
+
+function: dccheck {
+ result: [damage for [save ROLL vs DC]]
+}
+
+MISSDAMAGE: 0
+DEFENSE: d{12..22}
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 1d6+5+2
+CRITICALDAMAGE: 2d6+5+2
+MISSDAMAGE: 0
+output [attack] named "Unarmed Strike"
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 1d6+5+2
+CRITICALDAMAGE: 2d6+5+2
+MISSDAMAGE: 0
+output [attack] named "Hungry Jaws"
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 1d6+5
+CRITICALDAMAGE: 2d6+5
+MISSDAMAGE: 0
+output [attack] named "Shortbow"

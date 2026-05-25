@@ -1,0 +1,33 @@
+function: explode N:n with M:n {
+ if N = M { result: M + [explode dM with M] }
+ result: N
+}
+
+function: minsplode N:n with M:n {
+ if N = M { result: M - 1 + [minsplode dM with M] }
+ result: N
+}
+
+function: maxplode N:n {
+ if N >= 2 { result: 1 + [maxplode dN] }
+ result: N
+}
+
+set "maximum function depth" to 10
+\ loop X over {2..4} { \
+\  output [explode dX with X] named "explode d[X]" \
+\  output [minsplode dX with X] named "minsplode d[X]" \
+\  output [maxplode dX] named "maxplode d[X]" \
+\ } \
+
+function: dimsplode N:n with M:n {
+ if N = M & M > 2 { result: N + [dimsplode d(M - 1) with M - 1] }
+ result: N
+}
+
+function: dinsplode N:n with M:n {
+ if N >= 2 & M > 2 { result: 1 + [dinsplode d(M - 1) with M - 1] }
+ result: N
+}
+
+output [dinsplode d6 with 6] named "dinsplode d6"

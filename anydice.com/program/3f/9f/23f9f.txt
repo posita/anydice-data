@@ -1,0 +1,69 @@
+\***GWMMMM vs. Fighter Damage***\
+
+NUMFIGHTS: 2
+NUMROUNDS: 4
+TOTALROUNDS: NUMFIGHTS*NUMROUNDS
+
+ATTACKMOD: 5
+PROFICIENCY: 4
+ENEMYAC: 15
+GWMPENALTY: -5
+
+FOCUSEDAIM: 4 \***Spending 2 Ki for a +4 Attack Roll***\
+
+\***Monk GWM Damage***\
+function: monk gwm damage given ROLL:n {
+if ROLL + ATTACKMOD + PROFICIENCY + FOCUSEDAIM + GWMPENALTY >= ENEMYAC
+{result: (2d6+5+10)*2*TOTALROUNDS}
+else {result: 0}
+}
+
+\***Flurry Damage***\
+function: monk flurry damage given ROLL:n {
+if ROLL + ATTACKMOD + PROFICIENCY >= ENEMYAC
+  {result: (1d8+5)*2*TOTALROUNDS}
+else {result:0}
+}
+
+\***Harm Damage***\
+function: monk harm damage given ADVROLL:n {
+if ADVROLL + ATTACKMOD + PROFICIENCY >= ENEMYAC
+  {result: (1d8+5)*TOTALROUNDS}
+else {result:0}
+}
+
+\***Expected Ki Usage***\
+function: ki used over X:n turns given ROLL:n {
+if ROLL + ATTACKMOD + PROFICIENCY + FOCUSEDAIM >= ENEMYAC & ROLL + ATTACKMOD + PROFICIENCY < ENEMYAC 
+{result: X*(2+1)} \*** 2 from our focused aim, and 1 from our flurry. ***\
+else 
+{result: X*1} \*** 1 from our flurry, focused aim not used.***\
+}
+
+GWM: [monk gwm damage given 1d20]
+FLURRY: [monk flurry damage given 1d20]
+HARM: [monk harm damage given [highest 1 of 2d20]]
+
+\***Fighter Damage***\
+\***Fighter GWM Damage***\
+function: fighter gwm damage given ROLL:n {
+if ROLL + ATTACKMOD + PROFICIENCY + GWMPENALTY >= ENEMYAC
+{result: (2d{{1..2}, {3..6}:4}+5+10)*3*(TOTALROUNDS+3)} \***TOTALROUNDS+3 includes action surge***\
+else {result: 0}
+}
+
+\***Warlock Damage***\
+\***Warlock Agonizing EB + Hex + Maddening Hex Damage***\
+function: warlock eb damage given ROLL:n {
+if ROLL + ATTACKMOD + PROFICIENCY >= ENEMYAC
+{result: ((1d10+5+1d6)*3+ATTACKMOD)*TOTALROUNDS}
+else {result: ATTACKMOD*TOTALROUNDS}
+}
+
+
+output GWM+FLURRY+HARM named "GWMMMM Damage over two 4-round combats"
+output [ki used over 8 turns given 1d20] named "Expected Ki usage over two 4-round combats"
+
+output [fighter gwm damage given 1d20] named "Fighter Damage over two 4-round combats"
+
+output [warlock eb damage given 1d20] named "Warlock Damage over two 4-round combats"

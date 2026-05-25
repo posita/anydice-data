@@ -1,0 +1,55 @@
+\ reroll the current die if result was 1 \
+function: reroll SIDES:n ones ROLL:n {
+ if 1 < ROLL { result: ROLL }
+ else { result: dSIDES }
+}
+
+\ Roll specified die given number of times, rerolling ones; total the result \
+function: roll TIMES:n keep KEEP:n reroll SIDES:n {
+ SUM: 0
+ SEQ: {}
+ SSEQ: {}
+ loop N over {1..TIMES} {
+  \ SUM: SUM + [reroll SIDES ones 1dSIDES] \
+  SEQ: {SEQ, [reroll SIDES ones 1dSIDES]}
+ }
+ SSEQ: [sort SEQ]
+ loop N over {1..KEEP} {
+  SUM: SUM + KEEP@SSEQ 
+ }
+ result: SUM
+}
+
+\ roll indicated die the specified number of times
+  3 roll 6 corresponds to the anydice command 3d6 \
+function: TIMES:n roll SIDES:n {
+ SUM: 0
+ loop N over {1..TIMES} {
+  SUM: SUM + 1dSIDES
+ }
+ result: SUM
+}
+
+function: ROLLS:n keep KEEP:n reroll ones SIDES:n {
+ \ Create a sequence \
+ DIESEQ: {}
+ SORTEDSEQ: {}
+ loop COUNT over {1..KEEP}
+ {
+  DIESEQ: { DIESEQ, [reroll 6 ones d6] }
+ }
+ SORTEDSEQ: [sort DIESEQ]
+ SUM: 0
+ loop COUNT over {1..KEEP}
+ {
+  SUM: SUM + COUNT@SORTEDSEQ
+ }
+ result: SUM
+}
+
+output [4 keep 3 reroll ones 6] named "4d6 reroll 1's drop lowest"
+
+output {1..3}@4d6 named "4d6 drop lowest"
+
+output [roll 3 keep 3 reroll 6] named "3d6 reroll 1's"
+output [3 roll 6] named "3d6"

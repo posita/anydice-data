@@ -1,0 +1,239 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\ ******* Calculates if an attack is a miss, hit, or crit ******* \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE {
+  if ROLL + ATTACKBONUS >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACKBONUS >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\ ******* Calculates the damage for a sequence of attacks ******* \
+function: damage for ATTACKS:s {
+  D: 0
+  loop A over {1..#ATTACKS} {
+    if A@ATTACKS = CRITICALHIT { D: D + [maximum of ATTACKDAMAGE] + CRITDAMAGE }
+    else if A@ATTACKS = HIT { D: D + ATTACKDAMAGE }
+    else if A@ATTACKS = MISS { D: D + MISSDAMAGE }
+  }
+  result: D + [extra damage for ATTACKS]
+}
+
+\ ******* Calculates the damage for a burst or blast attack ******* \
+function: area damage for ATTACKS:s {
+  HITS: 0
+  CRITS: 0
+  MISSES: 0
+  D: 0
+  loop A over {1..#ATTACKS} {
+    if A@ATTACKS = CRITICALHIT { CRITS: CRITS + 1 }
+    else if A@ATTACKS = HIT { HITS: HITS + 1 }
+    else if A@ATTACKS = MISS { MISSES: MISSES + 1 }
+  }
+  D: D + ATTACKDAMAGE * HITS
+  D: D + ([maximum of ATTACKDAMAGE] + CRITDAMAGE) * CRITS
+  D: D + (MISSDAMAGE) * MISSES
+  result: D + [extra damage for ATTACKS]
+}
+
+\ ******* Applies all sorts of extra damage that might be applied after all attacks are rolled (IE quarry) ******* \
+function: extra damage for ATTACKS:s {
+  D: 0
+  if USEQUARRY {
+    if [ATTACKS contains CRITICALHIT] {
+      D: D + [maximum of QUARRYDAMAGE]
+    } else {
+      if [ATTACKS contains HIT] { D: D + QUARRYDAMAGE }
+    }
+  }
+  
+  if USEONEHITBONUS {
+    if (ATTACKS >= HIT) >= 1 { D: D + ONEHITBONUSDAMAGE }
+  }
+  if USETWOHITBONUS {
+    if (ATTACKS >= HIT) >= 2 { D: D + TWOHITBONUSDAMAGE }
+  }
+  if USETHREEHITBONUS {
+    if (ATTACKS >= HIT) >= 3 { D: D + THREEHITBONUSDAMAGE }
+  }
+  result: D
+}
+
+\ ******** DEFINE DEFAULTS ******** \
+USEQUARRY: 0
+ATTACKBONUS: 0
+QUARRYDAMAGE: 0
+ATTACKDAMAGE: 0
+CRITDAMAGE: 0
+CRITRANGE: 20
+MISSDAMAGE: 0
+USEONEHITBONUS: 0
+ONEHITBONUSDAMAGE: 0
+USETWOHITBONUS: 0
+TWOHITBONUSDAMAGE: 0
+USETHREEHITBONUS: 0
+THREEHITBONUSDAMAGE: 0
+
+
+
+
+
+\ ******** CUSTOM ATTACKS ******* \
+MONSTERLEVEL: 18
+AC: MONSTERLEVEL + 14
+NAD: MONSTERLEVEL + 12
+
+SHOWHUGH: 1
+SHOWWRENN: 1
+SHOWARORA: 1
+SHOWBRANDIS: 1
+
+SHOWATWILL: 0
+SHOWENCOUNTER: 0
+SHOWDAILY: 1
+
+AREATARGETS: 3
+
+
+if SHOWHUGH {
+  \ *** Hugh *** \
+  USEQUARRY: 1
+  QUARRYDAMAGE: 2d8
+  CRITRANGE: 20
+  
+  ATTACKBONUS: 23
+  CRITDAMAGE: 3d6
+
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d12+7
+    output [damage for 2d[attack d20 vs AC]] named "At-Will: Twin Strike"
+
+    ATTACKDAMAGE: 1d12+13
+    output [damage for 1d[attack d20 vs AC]] named "At-Will: Nimble Strike"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKDAMAGE: 1d12+13
+    CRITRANGE: 18
+    output [damage for 2d[attack d20 vs AC]] named "Encounter: Biting Volley"
+    CRITRANGE: 20
+
+    ATTACKDAMAGE: 1d12+13
+    USETWOHITBONUS: 1
+    TWOHITBONUSDAMAGE: 1d6
+    output [damage for 3d[attack d20 vs AC]] named "Encounter: Pounding Barrage"
+    USETWOHITBONUS: 0
+  }
+
+  if SHOWDAILY {
+    ATTACKDAMAGE: 1d12+13
+    USETHREEHITBONUS: 1
+    THREEHITBONUSDAMAGE: 2d12+14
+    output [damage for 3d[attack d20 vs AC]] named "Daily: Confounding Arrows"
+    USETHREEHITBONUS: 0
+  }
+  
+  USEQUARRY: 0
+}
+
+if SHOWWRENN {
+  \ *** Wrenn *** \
+  CRITRANGE: 20
+
+  ATTACKBONUS: 20
+  CRITDAMAGE: 4d6
+  
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d8+17+13
+    output [damage for 1d[attack d20 vs NAD]] named "At-Will: Lightning Strike"
+    
+    ATTACKDAMAGE: 1d8+19
+    output [damage for AREATARGETSd[attack d20 vs NAD]] named "At-Will: Burning Spray vs [AREATARGETS] Targets"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKDAMAGE: 3d8+17
+    output [damage for 3d[attack d20 vs NAD]] named "Encounter: Thunder Summons"
+  }
+  
+  if SHOWDAILY {
+    ATTACKDAMAGE: 3d8+17
+    MISSDAMAGE: ATTACKDAMAGE / 2
+    output [damage for 1d[attack d20 vs NAD]] named "Daily: Reeling Torment"
+    MISSDAMAGE: 0
+
+    ATTACKDAMAGE: 2d6+17
+    output [area damage for AREATARGETSd[attack d20 vs NAD]] named "Daily: Howling Tempest vs [AREATARGETS] Targets"
+  }
+}
+
+if SHOWARORA {
+  \ *** Arora *** \
+  CRITRANGE: 20
+  
+  ATTACKBONUS: 22
+  CRITDAMAGE: 3d6
+  
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d{3..10}+11
+    output [damage for 1d[attack d20 vs AC]] named "At-Will: Enfeebling or Ardent Strike"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKBONUS: 20
+    ATTACKDAMAGE: 2d8+11
+    output [area damage for AREATARGETSd[attack d20 vs NAD]] named "Encounter: Just Radiance vs [AREATARGETS] Targets"
+  }
+  
+  if SHOWDAILY {
+    ATTACKBONUS: 20
+    ATTACKDAMAGE: 2d6+11
+    output [damage for AREATARGETSd[attack d20 vs NAD]] named "Daily: Hallowed Circle vs [AREATARGETS] targets"
+    
+    ATTACKBONUS: 20
+    ATTACKDAMAGE: 2d10+11
+    output [damage for 3d[attack d20 vs NAD]] named "Daily: True Nemesis with 2 followup attacks"
+  }
+}
+
+if SHOWBRANDIS {
+  \ *** Brandis *** \
+  
+  ATTACKBONUS: 27
+  CRITDAMAGE: 5d8+2d12
+  
+  if SHOWATWILL {
+    ATTACKDAMAGE: 1d12+16
+    output [damage for 1d[attack d20 vs AC]] named "At-Will: Footwork Lure"
+  }
+  
+  if SHOWENCOUNTER {
+    ATTACKBONUS: 29
+    ATTACKDAMAGE: 2d12+16
+    output [damage for 1d[attack d20 vs AC]] named "Encounter: Masterstroke"
+    ATTACKBONUS: 27
+    
+    ATTACKBONUS: 27
+    ATTACKDAMAGE: 2d12+16+6
+    output [damage for 1d[attack d20 vs AC]] named "Encounter: Masterstroke Power Attack"
+    ATTACKBONUS: 27
+    
+    ATTACKDAMAGE: 1d12+16
+    output [damage for 3d[attack d20 vs AC]] named "Encounter: Storm of Blows"
+    
+    ATTACKBONUS: 25
+    ATTACKDAMAGE: 1d12+16+6
+    output [damage for 3d[attack d20 vs AC]] named "Encounter: Storm of Blows Power Attack"
+    ATTACKBONUS: 27
+  }
+  
+  if SHOWDAILY {
+    ATTACKDAMAGE: 3d12+16
+    output [damage for 1d[attack d20 vs AC]] named "Daily: Jackal Strike (Free Action)"
+  }
+}

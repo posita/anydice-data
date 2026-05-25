@@ -1,0 +1,153 @@
+\ Old Storyteller rules (Original World of Darkness) die rolling       \
+
+\ Created by Alan De Smet in 2014. Released into the public domain to  \
+\ the fullest extent possible.  This comes WITHOUT ANY WARRANTY.  You  \
+\ are asked, but not required, to credit Alan De Smet.                 \
+
+\ Input:                                                               \
+\ ROLL - Dice to roll. Only "<something>d10" is meaningful.            \
+\ TARGET - the target number. Only "2-10" are meaningful.              \
+\ SPECIALIZED - "1" if specialized, "0" if not                         \
+\ WILLPOWER - "1" if willpower is spent, "0" if not                    \
+
+\ Output:                                                              \
+\ -1    Botch. No successes, at least one 1                            \
+\  0    Failure                                                        \
+\  1+   Number of successes after subtracting a success for each       \
+\             1 rolled.  If at least one success was rolled, 1s cannot \
+\             take this below 0.                                       \
+
+
+\ Example:                                                             \
+\ [owod roll 5d10 target 8 specialized 0]                              \
+
+\ Limitations:                                                         \
+\ Scales poorly to large numbers of dice. 9d10 takes about 30 seconds. \
+\ 10d10 may not work at all.                                           \
+function: twod roll ROLL:s target TARGET:n specialized SPECIALIZED:n willpower WILLPOWER:n secondroll SECONDROLL:n {
+
+  \ I use "BOTCH" to mean a roll of 1, which isn't how  Storyteller    \
+  \ defines it. A super success is a roll of 10 when specialized.      \
+
+  \ Build up lists of which numbers are successes, botches, and  \
+  \ super successes.                                             \
+  MAXSUCCESS: 10
+  SUPERSUCCESSROLLS: {11}
+  if SPECIALIZED {
+    MAXSUCCESS: 9
+    SUPERSUCCESSROLLS: {10}
+  }
+  SUCCESSROLLS: {TARGET..MAXSUCCESS}
+  BOTCHROLLS: {1}
+
+  \ Count how many of each type (successes, botches, super successes) \
+  SUPERSUCCESSES: [count SUPERSUCCESSROLLS in ROLL]
+  SUCCESSES: [count SUCCESSROLLS in ROLL]
+  BOTCHES: [count BOTCHROLLS in ROLL]
+
+  \ How many successes does this count as? \
+  FINALSUCCESSES: SUCCESSES+(SUPERSUCCESSES*2)+WILLPOWER
+if SECONDROLL {
+  if (FINALSUCCESSES = 0) & (BOTCHES > 0) {
+	\ If you want to know how badly you botched, uncomment the \
+	\ next line: \
+	\ result: -BOTCHES \
+    result: SECONDROLL
+  }
+  if BOTCHES > FINALSUCCESSES {
+    \ If there are more botches than successes, then we simply fail \
+    result: SECONDROLL
+  }
+  if FINALSUCCESSES - BOTCHES < 1 {
+    result: SECONDROLL
+  }
+  if FINALSUCCESSES - BOTCHES > 0 {
+    result: FINALSUCCESSES 
+  }
+}
+if !SECONDROLL {
+  if (FINALSUCCESSES = 0) & (BOTCHES > 0) {
+	\ If you want to know how badly you botched, uncomment the \
+	\ next line: \
+	\ result: -BOTCHES \
+    if SECONDROLL {
+        result: SECONDROLL
+    }
+    if !SECONDROLL {
+        result: -1
+    }
+  }
+  if BOTCHES > FINALSUCCESSES {
+    \ If there are more botches than successes, then we simply fail \
+    if SECONDROLL {
+        result: SECONDROLL
+    }
+    if !SECONDROLL {
+        result: 0
+    }
+  }
+  if FINALSUCCESSES - BOTCHES < 1 {
+    result: SECONDROLL
+  }
+  if FINALSUCCESSES - BOTCHES > 0 {
+    result: FINALSUCCESSES 
+  }
+}
+}
+
+function: owod roll ROLL:s target TARGET:n specialized SPECIALIZED:n willpower WILLPOWER:n secondroll SECONDROLL:n {
+
+  \ I use "BOTCH" to mean a roll of 1, which isn't how  Storyteller    \
+  \ defines it. A super success is a roll of 10 when specialized.      \
+
+  \ Build up lists of which numbers are successes, botches, and  \
+  \ super successes.                                             \
+  MAXSUCCESS: 10
+  SUPERSUCCESSROLLS: {11}
+  if SPECIALIZED {
+    MAXSUCCESS: 9
+    SUPERSUCCESSROLLS: {10}
+  }
+  SUCCESSROLLS: {TARGET..MAXSUCCESS}
+  BOTCHROLLS: {1}
+
+  \ Count how many of each type (successes, botches, super successes) \
+  SUPERSUCCESSES: [count SUPERSUCCESSROLLS in ROLL]
+  SUCCESSES: [count SUCCESSROLLS in ROLL]
+  BOTCHES: [count BOTCHROLLS in ROLL]
+
+  \ How many successes does this count as? \
+  FINALSUCCESSES: SUCCESSES+(SUPERSUCCESSES*2)+WILLPOWER
+if SECONDROLL {
+  if (FINALSUCCESSES = 0) & (BOTCHES > 0) {
+	\ re-roll if botched the roll \
+    result: SECONDROLL
+  }
+  if BOTCHES > FINALSUCCESSES {
+    \ If there are more botches than successes, then we simply fail \
+    \ result: SECONDROLL if re-roll is needed on fails also \
+    result: SECONDROLL
+  }
+  result: FINALSUCCESSES-BOTCHES
+}
+else {
+  if (FINALSUCCESSES = 0) & (BOTCHES > 0) {
+	\ If you want to know how badly you botched, uncomment the \
+	\ next line: \
+	\ result: -BOTCHES \
+    result: -1
+  }
+  if BOTCHES > FINALSUCCESSES {
+    \ If there are more botches than successes, then we simply fail \
+    result: 0
+  }
+  result: FINALSUCCESSES-BOTCHES
+}
+}
+DICE: 5
+DIFFICULTY: 8
+SPECIALIZED: 0
+WILLPOWER: 0
+SECONDROLL: [twod roll DICEd10 target DIFFICULTY specialized SPECIALIZED willpower WILLPOWER secondroll 0]
+output SECONDROLL named "Without Luck"
+output [owod roll DICEd10 target DIFFICULTY specialized SPECIALIZED willpower WILLPOWER secondroll SECONDROLL] named "With Luck"

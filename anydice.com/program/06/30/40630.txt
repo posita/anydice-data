@@ -1,0 +1,229 @@
+\Player Stats\
+PP: 0
+PC: 0
+AP: 3
+MC: 1
+
+\Enemy Stats\
+EC: 0
+EA: 2
+
+
+function: highst B:s{
+ L: 0
+ M: 0
+ loop N over B{
+  if L = 0{
+   L: N
+  }else if M = 0{
+   M: N
+  }else if N>L{
+   if L>M{
+    M: N
+   }else{
+    L: N
+   }
+  }else if N>M{
+   M:N
+  }
+ }
+ result: L+M
+}
+
+
+function: lowst B:s{
+ L: 0
+ M: 0
+ loop N over B{
+  if L = 0{
+   L: N
+  }else if M = 0{
+   M: N
+  }else if N<L{
+   if L<M{
+    M: N
+   }else{
+    L: N
+   }
+  }else if N<M{
+   M:N
+  }
+ }
+ result: L+M
+}
+
+
+function: min N:n{
+ if N < 1{
+  result: 0 
+ }else{
+  result: N
+ }
+}
+
+
+function: roll A:n B:n{
+ C: 0
+ if (A = 6){
+  C:1
+ } 
+ if (B = 6){
+  C: C+1
+ }
+ S: 10*(A + B)+ C
+ result: S
+}
+
+function: roll ac A:n B:n C:n{
+ X: 0
+ if (A = 6){
+  X:1
+ } 
+ if (B = 6){
+  X: X+1
+ }
+ if (C = 6){
+  X: X+1
+ }
+ S: 10*[highst {A, B, C}] + X
+ result: S
+}   
+
+\Roll Inaccuracy\
+function: roll in A:n B:n C:n{
+ X: 0
+ if (A = 6){
+  if (B = 6){
+   if (C = 6){
+    X: 2
+   }else{
+    X: 1
+   }
+  }else if (C = 6){
+   X: 1
+  }else if (B = 6){
+   if (C = 6){
+    X: 1
+   }
+  }
+ }
+ S: 10*[lowst {A, B, C}] + X
+ result: S
+}  
+
+\Parses for Sum\
+function: parser N:n{
+ R: N/10
+ result: R
+}
+
+\Parses for Crits\
+function: parsec N:n{
+ R: N/10
+ C: N-R*10
+ result: C
+}
+
+D: [roll 1d6 1d6]
+DA: [roll ac 1d6 1d6 1d6]
+DI: [roll in 1d6 1d6 1d6]
+DR: [parser D]
+DC: [parsec D]
+DAR: [parser DA]
+DAC: [parsec DA]
+DIR: [parser DI]
+DIC: [parsec DI]
+
+HIT: (10*(DR+PC >= DR+EC))/2+5
+ARM: -10*(EA+DC)
+
+function: dmg N:n a D:n b B:d c C:n{
+ result: [highest (N+C) of ((1+C)dD) and B]
+}
+
+FIS: [min HIT*([dmg 1 a 3 b d3 c DC]+PP)+ARM]
+DAGF: [min HIT*([dmg 1 a 4 b d3 c DC]+PP)+ARM]
+DAG: [min HIT*[dmg 1 a 4 b 0 c DC]+ARM]
+DDAG: [min HIT*[dmg 1 a 4 b d4 c DC]+ARM]
+SHI: [min HIT*([dmg 1 a 6 b 0 c DC]+PP)+ARM]
+SHIF: [min HIT*([dmg 1 a 6 b d3 c DC]+PP)+ARM]
+SHID: [min HIT*([dmg 1 a 6 b d4 c DC]+PP)+ARM]
+DSHI: [min HIT*([dmg 1 a 6 b d6 c DC]+PP)+ARM]
+SWD: [min HIT*([dmg 1 a 8 b 0 c DC]+PP)+ARM]
+SWDF: [min HIT*([dmg 1 a 8 b d3 c DC]+PP)+ARM]
+SWDD: [min HIT*([dmg 1 a 8 b d4 c DC]+PP)+ARM]
+SWDS: [min HIT*([dmg 1 a 8 b d6 c DC]+PP)+ARM]
+DSWD: [min HIT*([dmg 1 a 8 b d8 c DC]+PP)+ARM]
+SPE: [min HIT*([dmg 1 a 8 b d0 c DC]+PP)+ARM]
+BOW: [min HIT*([dmg 1 a 12 b d0 c DC]+PP)+ARM]
+GSW: [min HIT*([dmg 1 a 12 b 0 c DC]+2*PP)+ARM]
+GSWF: [min HIT*([dmg 1 a 12 b d3 c DC]+2*PP)+ARM]
+GSWD: [min HIT*([dmg 1 a 12 b d4 c DC]+2*PP)+ARM]
+GSWSI: [min HIT*([dmg 1 a 12 b d6 c DC]+2*PP)+ARM]
+GSWSW: [min HIT*([dmg 1 a 12 b d8 c DC]+2*PP)+ARM]
+DGSW: [min HIT*([dmg 1 a 12 b d12 c DC]+2*PP)+ARM]
+
+output FIS*((AP-MC)/2) named "Fist DPR"
+output DAGF*((AP-MC)/2) named "Dagger and Fist DPR"
+output DAG*((AP-MC)/1) named "Dagger DPR"
+output DDAG*((AP-MC)/1) named "Double Dagger DPR"
+output SHI*((AP-MC)/2) named "Shield DPR"
+output SHIF*((AP-MC)/2) named "Shield and Fist DPR"
+output SHID*((AP-MC)/2) named "Shield and Dagger DPR"
+output DSHI*((AP-MC)/2) named "Double Shield DPR"
+output SWD*((AP-MC)/2) named "Sword DPR"
+output SWDF*((AP-MC)/2) named "Sword and Fist DPR"
+output SWDD*((AP-MC)/2) named "Sword and Dagger DPR"
+output SWDS*((AP-MC)/2) named "Sword and Shield DPR"
+output DSWD*((AP-MC)/2) named "Double Sword DPR"
+output SPE*((AP-MC)/2) named "Spear DPR"
+output BOW*((AP-MC)/2) named "Bow DPR"
+output GSWF*((AP-MC)/3) named "Gsword and Fist DPR"
+output GSWD*((AP-MC)/3) named "Gsword and Dagger DPR"
+output GSWSI*((AP-MC)/3) named "Gsword and Shield DPR"
+output GSWSW*((AP-MC)/3) named "Gsword and Sword DPR"
+output DGSW*((AP-MC)/3) named "Double Gsword DPR"
+
+output FIS*((AP)/2) named "Fist SDPR"
+output DAGF*((AP)/2) named "Dagger and Fist SDPR"
+output DAG*((AP)/1) named "Dagger SDPR"
+output DDAG*((AP)/1) named "Double Dagger SDPR"
+output SHI*((AP)/2) named "Shield SDPR"
+output SHIF*((AP)/2) named "Shield and Fist SDPR"
+output SHID*((AP)/2) named "Shield and Dagger SDPR"
+output DSHI*((AP)/2) named "Double Shield SDPR"
+output SWD*((AP)/2) named "Sword SDPR"
+output SWDF*((AP)/2) named "Sword and Fist SDPR"
+output SWDD*((AP)/2) named "Sword and Dagger SDPR"
+output SWDS*((AP)/2) named "Sword and Shield SDPR"
+output DSWD*((AP)/2) named "Double Sword SDPR"
+output SPE*((AP)/2) named "Spear SDPR"
+output BOW*((AP)/2) named "Bow SDPR"
+output GSW*((AP)/3) named "Gsword SDPR"
+output GSWF*((AP)/3) named "Gsword and Fist SDPR"
+output GSWD*((AP)/3) named "Gsword and Dagger SDPR"
+output GSWSI*((AP)/3) named "Gsword and Shield SDPR"
+output GSWSW*((AP)/3) named "Gsword and Sword SDPR"
+output DGSW*((AP)/3) named "Double Gsword SDPR"
+
+output FIS/2 named "Fist DE"
+output DAGF/2 named "Dagger and Fist DE"
+output DAG named "Dagger DE"
+output DDAG named "Double Dagger DE"
+output SHI/2 named "Shield DE"
+output SHIF/2 named "Shield and Fist DE"
+output SHID/2 named "Shield and Dagger DE"
+output DSHI/2 named "Double Shield DE"
+output SWD/2 named "Sword DE"
+output SWDF/2 named "Sword and Fist DE"
+output SWDD/2 named "Sword and Dagger DE"
+output SWDS/2 named "Sword and Shield DE"
+output DSWD/2 named "Double Sword DE"
+output SPE/2 named "Spear DE"
+output BOW/2 named "Bow DE"
+output GSW/3 named "Gsword DE"
+output GSWF/3 named "Gsword and Fist DE"
+output GSWD/3 named "Gsword and Dagger DE"
+output GSWSI/3 named "Gsword and Shield DE"
+output GSWSW/3 named "Gsword and Sword DE"
+output DGSW/3 named "Double Gsword DE"

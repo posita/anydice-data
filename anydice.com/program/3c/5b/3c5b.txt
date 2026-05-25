@@ -1,0 +1,52 @@
+function: keep NUMBER:n out of DFOUR:s and DSIX:s and DEIGHT:s and DTEN:s and DTWELVE:s {
+  POT: {1@DFOUR,2@DFOUR,1@DSIX,2@DSIX,1@DEIGHT,2@DEIGHT,1@DTEN,2@DTEN,1@DTWELVE,2@DTWELVE}
+  result: {1..NUMBER}@[sort POT]
+}
+
+function: keeps NUMBER:n out of DFOUR:s and DSIX:s and DEIGHT:s and DTEN:s and DTWELVE:s {
+  POT: {1@DFOUR,2@DFOUR,1@DSIX,2@DSIX,1@DEIGHT,2@DEIGHT,1@DTEN,2@DTEN,1@DTWELVE,2@DTWELVE}
+  loop P over {1..#POT} {
+    if P@POT = 1 {
+\      POT: {1..(P-1),(P+1)..#POT}@POT\
+      POT: {{0..(P-1)}@POT,{(P+1)..#POT}@POT}
+    }
+  }
+  result: {1..NUMBER}@[sort POT]
+}
+
+function: keepss NUMBER:n out of DFOUR:s and DSIX:s and DEIGHT:s and DTEN:s and DTWELVE:s {
+  POT: {1@DFOUR,2@DFOUR,1@DSIX,2@DSIX,1@DEIGHT,2@DEIGHT,1@DTEN,2@DTEN,1@DTWELVE,2@DTWELVE}
+  loop P over {1..#POT} {
+    if P@POT = 1 {
+      POT: {1..(P-1),(P+1)..#POT}@POT
+\      POT: {{0..(P-1)}@POT,{(P+1)..#POT}@POT}\
+    }
+  }
+  result: {1..NUMBER}@[sort POT]
+}
+
+function: drop all VALUE:n in DFOUR:s and DSIX:s and DEIGHT:s and DTEN:s and DTWELVE:s {
+  POT: {1@DFOUR,2@DFOUR,1@DSIX,2@DSIX,1@DEIGHT,2@DEIGHT,1@DTEN,2@DTEN,1@DTWELVE,2@DTWELVE}
+  loop P over {1..#POT} {
+    if P@POT = VALUE {
+      POT: {{0..(P-1)}@POT,{(P+1)..#POT}@POT}
+    }
+  }
+  result: POT
+}
+
+FOUR: {0,2..4}
+SIX: {0,2..6}
+EIGHT: {0,2..8}
+TEN: {0,2..10}
+TWELVE: {0,2..12}
+
+\output [highest 1 of 1d{SIX}+1d{EIGHT}+1d{EIGHT}+1d{TEN}]  named "jinxless"\
+\output 1d{SIX}+2d{EIGHT}+0d{EIGHT}+1d{TEN}  named "jinxless"\
+\output [highest 1 of {1d6,1d8,1d8,1d10}] named "normal"\
+\output [keep 2 out of 0d4 and 1d6 and 2d8 and 1d10 and 0d12] named "normal"\
+output [keeps 2 out of 0d4 and 1d6 and 2d8 and 1d10 and 0d12] named "jinxless"
+output [keepss 2 out of 0d4 and 1d6 and 2d8 and 1d10 and 0d12] named "jinxless2"
+\output [keep 2 out of 0d4 and 1d{SIX} and 2d{EIGHT} and 1d{TEN} and 0d12] named "jinxless2"\
+\output [keeps 2 out of 1d4 and 1d6 and 2d8 and 1d10 and 0d12] named "jinxless"\
+\output [drop all 1 in  1d4 and 1d6 and 0d8 and 0d10 and 0d12] named "dropped"\

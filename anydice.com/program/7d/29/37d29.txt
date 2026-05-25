@@ -1,0 +1,34 @@
+DIESIZE: 6
+TARGET: 16
+MINCOUNT: 3
+MAXCOUNT: 8
+INCLUDEMODS: 1
+
+function: failureby TOTAL:n DIESIZE:n TARGET:n CURRENT:n {
+ if CURRENT = 4 {
+  result: -4
+ }
+ if TOTAL < TARGET {
+  result: [failureby TOTAL+1dDIESIZE DIESIZE TARGET CURRENT+1]
+ }
+ result: -CURRENT
+}
+
+function: levels DICE:s DIESIZE:n TARGET:n {
+ RESULTS: [sort DICE]
+ loop I over {1..#DICE} {
+  if {1..I}@RESULTS >= TARGET {
+   result: #RESULTS-I
+  }
+ }
+ result: [failureby {1..#DICE}@DICE DIESIZE TARGET 0]
+}
+
+loop I over {MINCOUNT..MAXCOUNT} {
+ output [levels IdDIESIZE DIESIZE TARGET] named "[I]D"
+ if INCLUDEMODS {
+  loop J over {1..DIESIZE/2-1} {
+   output [levels IdDIESIZE DIESIZE TARGET-J] named "[I]D+[J]"
+  }
+ }
+}

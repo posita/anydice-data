@@ -1,0 +1,32 @@
+\input\
+DMG_BONUS: 0
+DMG_ROLLS: 4d6
+ATTACK_MOD: 11
+DEFENSE: 18
+ADVANTAGE:0
+\input\
+
+HITDAMAGE: DMG_ROLLS + DMG_BONUS
+CRITICALDAMAGE: DMG_ROLLS + DMG_ROLLS + DMG_BONUS
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+output [damage for [attack [highest 1 of (1+ADVANTAGE)d20] vs DEFENSE]]

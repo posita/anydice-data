@@ -1,0 +1,74 @@
+\**** Damage calculator ****\
+
+\global vars\
+ATTACKMOD: 5
+DICEDMGBONUS: 0
+DMGBONUS: 0
+BASEWPNDMG: 1d8
+ENEMYAC: d{15..23}
+
+\calculator function\
+
+function: differentattackroll vs AC:n atknum ATKTIMES:n DICESTORE:n{
+	SAUSED: 0 \boolean have you crit yet\
+	CRNTDMG: 0 \storing total damage\
+
+	loop CRNTATTK over {1..ATKTIMES}{ \loop over every attack\
+
+		if CRNTATTK@DICESTORE >= CRITROLL { \if it's a crit\
+			if SAUSED = 0 { \and sneak attack hasn't been used yet\
+				CRNTDMG: CRNTDMG + SACRITDAMAGE \do a sneak attack crit\
+				SAUSED: 1 \set sneak attack as used\
+			} else { \if sneak attack has been used already\
+				CRNTDMG: CRNTDMG + CRITDAMAGE \do a crit with no sneak attack damage\
+			}
+		}
+
+		if CRNTATTK@DICESTORE > 1 { \if it's not a nat 1\
+			if CRNTATTK@DICESTORE + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { \if it beats ac\
+				if CRNTATTK = ATKTIMES { \if it's the last attack\
+					if SAUSED = 0 { \if sneak attack has not been used\
+						CRNTDMG: CRNTDMG + SADAMAGE \do non crit sneak attack\
+					} else {
+						CRNTDMG: CRNTDMG + DAMAGE \if you have used sneak attack just do normal damage\
+					}
+				} else { \if it's not the last attack\
+					CRNTDMG: CRNTDMG + DAMAGE \just do normal damage\
+				}
+			}
+		}
+
+
+	}
+	result: CRNTDMG
+}
+
+\setting up flat rogue\
+
+SNEAKATTACKDICE: 10d6
+ATACKSINTURN: 1
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 20
+DAMAGE: BASEWPNDMG + ATTACKMOD + DMGBONUS + DICEDMGBONUS
+CRITDAMAGE: ((BASEWPNDMG + DICEDMGBONUS) * 2) + ATTACKMOD + DMGBONUS
+SADAMAGE: BASEWPNDMG + ATTACKMOD + DMGBONUS + DICEDMGBONUS + SNEAKATTACKDICE
+SACRITDAMAGE: ((BASEWPNDMG + SNEAKATTACKDICE + DICEDMGBONUS) * 2) + ATTACKMOD + DMGBONUS
+
+\displaying\
+output [differentattackroll vs ENEMYAC atknum ATACKSINTURN {[highest 1 of 3d20],[highest 1 of 3d20],[highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20]}] named "Rogue 20 longbow 20 dex elven accuracy"
+
+\setting up for champion rogue\
+
+ATACKSINTURN: 2
+SNEAKATTACKDICE: 7d6
+PROFICIENCY: 6
+ACCBONUS: 2
+CRITROLL: 19
+DAMAGE: BASEWPNDMG + ATTACKMOD + DMGBONUS + DICEDMGBONUS
+CRITDAMAGE: ((BASEWPNDMG + DICEDMGBONUS) * 2) + ATTACKMOD + DMGBONUS
+SADAMAGE: BASEWPNDMG + ATTACKMOD + DMGBONUS + DICEDMGBONUS + SNEAKATTACKDICE
+SACRITDAMAGE: ((BASEWPNDMG + SNEAKATTACKDICE + DICEDMGBONUS) * 2) + ATTACKMOD + DMGBONUS
+
+\displaying\
+output [differentattackroll vs ENEMYAC atknum ATACKSINTURN {[highest 1 of 3d20],[highest 1 of 3d20],[highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20], [highest 1 of 3d20]}] named "Champion fighter 6 + Rogue 14 longbow 20 dex elven accuracy archery fighting style"

@@ -1,0 +1,62 @@
+ATKMOD: 4 \Dexterity modifier for non-improvised ranged weapons, Strength modifier for melee and improvised attacks, spellcasting modifier if you're a caster using spells.\
+
+PROF: 3 \Just your proficiency bonus. +2 below level 5, +3 below level 9, +4 below level 13, +5 below 17, +6 for 17 and higher.\ 
+
+WEPBONUS: 0 \Any bonus to hit from your weapon or spellcasting focus. +1 focus or +1 weapon is a 1 bonus, archery fighting style is a +2 bonus, archery (+2 to-hit with ranged attacks) with a +2 longbow is a 4 bonus, etc.\
+
+ENEMYAC: 16 \The AC of the enemy.\
+
+BONUSDIEAMOUNT: 0 \Number of bonus dice. Must all be of the same value (no 1d4+1d8, sorry. You need another variable for that and this code is already spaghetti.)\
+
+BONUSDIEVALUE: 4 \The number of faces on your bonus die/dice. 4 is for d4(s), 6 for d6(s), etc.\
+
+PENALTYDIEAMOUNT: 0 \The number of penalty dice. Also must all be of the save value.\
+
+PENALTYDIEVALUE: 4 \The number of faces on your penalty die/dice.\
+
+
+TOHIT: ATKMOD + PROF + WEPBONUS
+MISS: 0
+HIT: 1
+CRIT: 10
+
+function: TOHIT ROLL:n vs ENEMYAC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRIT }
+  if ROLL + TOHIT >= ENEMYAC { result: HIT }
+   result: MISS
+ }
+
+
+\This is the more complicated bit. 
+
+Each letter has a different number of d20s being rolled, A being with disadvantage, B being a straight roll, C being advantage, D being Elven Accuracy advantage or a single luck point, etc. Reasonably no one would spend 3 luck points on a single roll, so I've capped this at 2 Luck points and Elven Accuracy for the highest of 4d20.
+In the output section you simply add another appropriate variable. A for disadvantage, B for straight roll, C for advantage. Add B before the letter to add a bonus die, add P before the letter to subtract the penalty die, and add BP before the letter to both add the bonus and subtract the penalty.\
+
+BPA: [TOHIT [lowest 1 of 2d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+BPB: [TOHIT 1d20 vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+BPC: [TOHIT [highest 1 of 2d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+BPD: [TOHIT [highest 1 of 3d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+BPE: [TOHIT [highest 1 of 4d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+
+BA: [TOHIT [lowest 1 of 2d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE]
+BB: [TOHIT 1d20 vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE]
+BC: [TOHIT [highest 1 of 2d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE]
+BD: [TOHIT [highest 1 of 3d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE]
+BE: [TOHIT [highest 1 of 4d20] vs ENEMYAC - BONUSDIEAMOUNTdBONUSDIEVALUE]
+
+PA: [TOHIT [lowest 1 of 2d20] vs ENEMYAC + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+PB: [TOHIT 1d20 vs ENEMYAC + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+PC: [TOHIT [highest 1 of 2d20] vs ENEMYAC + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+PD: [TOHIT [highest 1 of 3d20] vs ENEMYAC + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+PE: [TOHIT [highest 1 of 4d20] vs ENEMYAC + PENALTYDIEAMOUNTdPENALTYDIEVALUE]
+
+A: [TOHIT [lowest 1 of 2d20] vs ENEMYAC]
+B: [TOHIT 1d20 vs ENEMYAC]
+C: [TOHIT [highest 1 of 2d20] vs ENEMYAC]
+D: [TOHIT [highest 1 of 3d20] vs ENEMYAC]
+E: [TOHIT [highest 1 of 4d20] vs ENEMYAC]
+
+output B + B \This is standard extra attack. Two straight rolls. By changing it to "output BB + B" you will get the first attack with the bonus to hit, such as from the single use Bardic Inspiration. Meanwhile if you were hit with Vicious Mockery you would have disadvantage on the first attack, which could be shown with "output A + B" where A is the disadvantage roll and B is a straight roll. If you instead had four attacks per turn you would have four letters, such as "output B + B + B + B" for four attacks made without disadvantage or advantage. The order of the attacks doesn't matter during this section, as long as it's the right letter(s).\
+
+\Last note, how to read the results. The tens value is how many crits were scored from your attacks, while the ones value is how many regular attacks landed. I'm sorry this exists.\

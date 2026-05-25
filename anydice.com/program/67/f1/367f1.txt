@@ -1,0 +1,84 @@
+Q: d{0..3}      \Custom D4 Dice\
+D: d{1,1,2,3}   \Custom Dice for Damages in Anydice\
+
+
+function: window crop SEQUENCE:n {                  \ limit the display range between [-1;100] \
+ MIN: 0
+ MAX: 100
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+
+function: roll hits HITS:n { result: HITS dQ }       \ roll Hits Roll \
+
+function: compare X:n and Y:n {          \ Find nbr of dices for Saves Roll from comparison table using -1/0/+1 \
+ if(X > Y){ result: 1 }
+ if(X < Y){ result: -1 }
+ result: 0 }
+function: compare doubled X:n and Y:n {   \ Find nbr of dices for Saves Roll from comparison table using -1/0/+1 \
+ if(X > 2*Y){ result: -1 }
+ if(X < Y/2){ result: 1 }            \ !warning! in AnyDice its rounded down ! \
+ result: 0 }
+
+function: saves dices from HITSROLL:s using ATT:s and DEF:s {     \find nbr of dices used to roll the saves\
+ SOURCES: [compare 4@DEF and 6@ATT]               \ Compare Def_SizeUnit vs Att_SizeUnit \
+ WEIGHT: [compare doubled 1@DEF and 2@DEF]        \ Compare Def_Body vs Def_Spirit \
+ result: (#HITSROLL)+SOURCES+WEIGHT }
+
+function: saves bonus using ATT_V:n and DEF_V:n {    \ find the save modifier = Attacks Velocity - Defender Velocity \
+ result: DEF_V-ATT_V }
+
+function: roll saves SAVES:n { result: SAVES dQ }    \ roll Saves Roll \
+
+function: unsaved hits from HITSROLL:s and SAVESROLL:s {                 \ get Unsaved Hits \
+ result: HITSROLL-[window crop SAVESROLL] }
+
+function: apply basebonuses HITSBON:n and SAVESBON:n to SEQ:s {          \ apply All Bonuses from Statlines \
+ result: SEQ+HITSBON-SAVESBON }
+
+function: roll damages DAMAGES:n { result: DAMAGES dQ }       \ roll Damages Roll \
+
+
+function: do combat up to step NBR:n with ATT:s and DEF:s {
+ S_UN: [roll hits 1@ATT]
+ S_DEUX: [saves dices from S_UN using ATT and DEF]
+ S_TROIS: [roll saves S_DEUX]
+ S_QUATRE: [unsaved hits from S_UN and S_TROIS]
+ S_CINQ: [apply basebonuses (2@ATT) and [saves bonus using 3@ATT and 3@DEF] to S_QUATRE]
+ S_SIX: S_CINQ*([roll damages 4@ATT]+(5@ATT))
+ if(NBR=1){result: S_UN}                          \roll hits-roll\
+ if(NBR=2){result: S_DEUX}                        \find save\
+ if(NBR=3){result: S_TROIS}                       \roll save\
+ if(NBR=4){result: [window crop S_QUATRE]}        \get the Unsaved Hits (limited from 0 to 100)\
+ if(NBR=5){result: [window crop S_CINQ]}          \apply modifiers\
+ if(NBR=6){result: [window crop S_SIX]}           \add bonus Damages\
+ result: 0
+}
+
+\ATT_STATS: {ATTACKS_POOL, ATTACKS_BONUS, ATT_VELOCITY, ATT_LETHALITY, ATT_LETHALITY_BONUS, ATT_UNITSIZE}
+DEF_STATS: {DEF_BODY, DEF_SPIRIT, DEF_VELOCITY, DEF_UNITSIZE}\
+
+\Callidus Assassin with Phase sword VS Great Unclean One\
+ATT_STATS: {2, -1, 10, 3, 2, 1}
+DEF_STATS: {80, 39, 5, 1}
+
+\output [do combat up to step 1 with ATT_STATS and DEF_STATS] named "roll hits"
+output [do combat up to step 2 with ATT_STATS and DEF_STATS] named "find save"             output POOLd(dQ>=3)
+output [do combat up to step 3 with ATT_STATS and DEF_STATS] named "roll save"
+output [do combat up to step 4 with ATT_STATS and DEF_STATS] named "get unsaved hits"
+output [do combat up to step 5 with ATT_STATS and DEF_STATS] named "get final hits modified"
+output [do combat up to step 6 with ATT_STATS and DEF_STATS] named "get final damages"\
+
+
+\************************* TESTS AREA ****************************************\
+\Callidus Assassin with Phase sword\
+ATT_CA: {2, -1, 10, 3, 2, 1}                  DEF_CA: {15, 31, 10, 1}
+\Great Unclean One with Putrid vomit\
+ATT_GUO: {10, 7, 5, 2, -2, 1}                 DEF_GUO: {80, 39, 5, 1}
+
+output [do combat up to step 6 with ATT_GUO and DEF_GUO] named "Great Unclean One with Putrid vomit VS Great Unclean One"
+output [do combat up to step 6 with ATT_GUO and DEF_CA] named "Great Unclean One with Putrid vomit VS Callidus Assassin"
+output [do combat up to step 6 with ATT_CA and DEF_GUO] named "Callidus Assassin with Phase sword VS Great Unclean One"
+output [do combat up to step 6 with ATT_CA and DEF_CA] named "Callidus Assassin with Phase sword VS Callidus Assassin"
+

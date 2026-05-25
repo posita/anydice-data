@@ -1,0 +1,43 @@
+function: savethrow SAVE:n dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+output [attack 1d20 plus 7 vs ac 16 for 2d6 plus 4] named "Attack roll (Greatsword)"
+
+output [attack 1d20 plus 7 vs ac 16 for 2d[reroll 1d6 as 1d6 if less than 3] plus 4] named "Attack roll with rerolls (HWF greatsword)"
+
+output [savethrow 1d20+3 dc 15 for 8d6 half] named "Save or half spell (Fireball)"
+
+output [savethrow 1d20+3 dc 15 for 2d12 suck] named "Save or suck spell (Toll the Dead)"
+
+output [attack 1d20 plus 7 vs 16 hit 3d6+4+[attack 1d20 plus 7 vs ac 16 for 1d6 plus 4] miss [attack 1d20 plus 7 vs ac 16 for 4d6 plus 4] crit 6d6+4+[attack 1d20 plus 7 vs ac 16 for 1d6 plus 4]] named "Multiple attacks with first hit effect (Sneak attack crossbow expert)"

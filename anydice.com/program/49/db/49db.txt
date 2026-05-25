@@ -1,0 +1,61 @@
+\ Savage Attacker Feat \
+function: savage DMG:d {
+ result: [highest of DMG and DMG]
+}
+
+\ Root Attack Function \
+function: attack ATT:n crange CRNG:n cmod CMOD:n dmg DMG:d ac AC:n {
+ if ATT < AC { result: 0 }
+ DMG_RESULT: DMG
+ if ATT >= CRNG {
+  loop P over {2..CMOD} {
+   DMG_RESULT: DMG_RESULT+DMG
+  }
+ }
+ result: DMG_RESULT
+}
+
+\ Multiple Attacks Function \
+function: attack ATT:n crange CRNG:n cmod CMOD:n dmg DMG:d ac AC:n count COUNT:n {
+ DMG_RESULT: 0
+ loop P over {1..COUNT} {
+  DMG_RESULT: DMG_RESULT+[attack ATT crange CRNG cmod CMOD dmg DMG ac AC]
+ }
+ result: DMG_RESULT
+}
+
+\ Basic Attacks Function \
+function: attack ATT:n dmg DMG:d ac AC:n count COUNT:n {
+ result: [attack ATT crange 20 cmod 2 dmg DMG ac AC count COUNT]
+}
+
+\ Basic Attack Function \
+function: attack ATT:n dmg DMG:d ac AC:n {
+ result: [attack ATT crange 20 cmod 2 dmg DMG ac AC]
+}
+
+\ Keen Weapon Attack Function \
+function: attack ATT:n keen CRNG:n dmg DMG:d ac AC:n {
+ result: [attack ATT crange CRNG cmod 2 dmg DMG ac AC]
+}
+
+\ Impact Weapon Attack Function \
+function: attack ATT:n keen CRNG:n dmg DMG:d ac AC:n {
+ result: [attack ATT crange CRNG cmod 2 dmg DMG ac AC]
+}
+
+AC: 10
+ATTACK: d20
+
+\ Simple Weapons \
+
+\ Martial Weapons \
+output [attack ATTACK dmg d12 ac AC] named "Greatsword"
+output [attack ATTACK dmg [savage d12] ac AC] named "Greatsword with Savage Attacker"
+output [attack ATTACK dmg d8 ac AC] named "Longsword"
+
+\ Exotic Weapons \
+output [attack ATTACK keen 19 dmg d10 ac AC] named "Bastard Sword"
+output [attack ATTACK keen 19 dmg [savage d10] ac AC] named "Bastard Sword with Savage Attacker"
+
+

@@ -1,0 +1,76 @@
+\REMEMBER TO SET [Data] BUTTON TO "At Least"\
+output -1 named "remember to set Data button to At Least"
+
+\SET ME:\
+
+USING_GUIDANCE_POTION:  0  \0 or 1\
+CURSEDNESS:             0  \0 to 10\
+HEADBAND_BONUS:         1  \may be borrowed\
+
+NUM_GEMS_TO_SIM:        {1,2,3,4}
+ADVANTAGES_TO_SIM:      {0,1,2,3}    \prayer DC15,   Enhance Mind spell (2mp/hr Astral, 5-6mp for 8-16hr Rowan,   and/or Guidance Potion at 400g/16hr~=25g/hr\
+
+ASTRAL_BASE_CMI_BONUS:  5
+ROWAN_BASE_CMI_BONUS:   9
+
+DC_ADJUST:              -5  \assumes item is well-paired\
+
+\------------------------------------------------------- Advantage\
+
+function: POWER x adv DICE {
+  if POWER=0 {
+    result: DICE
+  } else {
+    result: [highest of DICE and [POWER-1 x adv DICE]]
+  }
+}
+function: adv DICE {
+  result: [1 x adv DICE]  \or [highest of X and X]\
+}
+function: double adv DICE {
+  result: [2 x adv DICE]
+}
+
+\------------------------------------------------------- Game logic\
+
+ROWAN:1 \enum\
+ASTRAL:2
+
+GUIDANCE_DICE: USING_GUIDANCE_POTION * 1d4   \1d4 if using potion, else 0\
+
+function: collapse X:n below THRESHOLD {  \sets all negative results to FAILURE\
+  if X>=THRESHOLD {result: X} else {result: -1}
+}
+
+function: NUM_GEMS:n gems by CRAFTER with ADV advantage {
+  if CRAFTER=ROWAN {
+    TOTAL_ADV: ADV
+    CURSEBUFFED_CMI: ROWAN_BASE_CMI_BONUS + CURSEDNESS
+  }
+  if CRAFTER=ASTRAL {
+    TOTAL_ADV: 1+ADV
+    CURSEBUFFED_CMI: ASTRAL_BASE_CMI_BONUS
+  }
+  DIE: [TOTAL_ADV x adv d20]
+  
+  SUCCESSES: (CURSEBUFFED_CMI+HEADBAND_BONUS) + DIE + GUIDANCE_DICE
+  DC: 10 + DC_ADJUST
+  loop N over {2..NUM_GEMS} {
+    SUCCESSES: SUCCESSES + DIE
+    DC: DC + 20
+  }
+  EXCESS_SUCCESSES: SUCCESSES - DC
+  result: [collapse EXCESS_SUCCESSES/3 below NUM_GEMS]
+}
+
+loop NUMGEMS over NUM_GEMS_TO_SIM {
+loop ADV over ADVANTAGES_TO_SIM {
+loop CRAFTER over {ROWAN,ASTRAL} {
+  RESULT: [NUMGEMS gems by CRAFTER with ADV advantage]
+  if CRAFTER=ROWAN {
+    output RESULT named "(boundMana,%P(succ)) -- #gems=[NUMGEMS] gems, #praySpellPotion=+[ADV](of +3adv), crafter=Rowan🟣"
+  }
+  if CRAFTER=ASTRAL {
+    output RESULT named "(boundMana,%P(succ)) -- #gems=[NUMGEMS] gems, #praySpellPotion=+[ADV](of +3adv), crafter=Astral🔵"
+  }
+}}}

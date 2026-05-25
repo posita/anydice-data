@@ -1,0 +1,26 @@
+function: damage ROLL:n BONUS AC DMG {
+  if (ROLL = 20 & ROLL+BONUS >= AC) | (ROLL+BONUS >= AC+10) {
+    result: DMG*2
+  }
+  if (ROLL+BONUS >= AC) | (ROLL+BONUS >= AC-10 & ROLL = 20) {
+    result: DMG 
+  }
+  result: 0
+}
+
+BONUS: 0
+BASEAC: 22
+REFLEXSAVE: 14
+ATHLETICS: 2
+
+output [damage 1d20 BONUS BASEAC 1d6+1] + [damage 1d20 BONUS-5 BASEAC 1d6+1] + [damage 1d20 BONUS-10 BASEAC 1d6+1] + [damage 1d20 BONUS BASEAC 1d6+1] + [damage 1d20 BONUS-5 BASEAC 1d6+1] + [damage 1d20 BONUS-10 BASEAC 1d6+1]
+
+function: damagetrip X:n {
+TRIPPED: (X+ATHLETICS) >= REFLEXSAVE
+CRIT: (X+ATHLETICS >= (REFLEXSAVE+10)) | (X+ATHLETICS >= REFLEXSAVE & X = 20)
+TRIPDMG: CRIT*1d6
+AC: BASEAC-(TRIPPED*2)
+result: TRIPDMG + [damage 1d20 BONUS-5 AC 1d6+1] + [damage 1d20 BONUS-10 AC 1d6+1] + [damage 1d20 BONUS AC 1d6+1] + [damage 1d20 BONUS-5 AC 1d6+1] + [damage 1d20 BONUS-10 AC 1d6+1]
+}
+
+output [damagetrip 1d20]

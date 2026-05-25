@@ -1,0 +1,56 @@
+set "explode depth" to 10
+
+RANGE: 20
+DIE: d12
+DIEMAX: [maximum of DIE]
+DIEMID: DIEMAX / 2 + 1
+DTIE: d{0,1}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: extend {
+  result: [extend DIE]
+}
+function: extend N:n {
+  if N = 1 { result: N - [luck] }
+  if N = DIEMAX{ result: N + [luck] }
+  result: N
+}
+
+function: luck {
+  result: [luck d6]
+}
+function: luck N:n {
+  if N = 6 { result: 5 + [luck d6] }
+  result: N - 1
+}
+
+function: roll {
+  result: [roll DIE]
+}
+function: roll N:n {
+  if N = DIEMAX { result: N + [luck] }
+  result: N
+}
+
+\ Opposed roll \
+output [clamp [roll]-[roll]-DTIE between -RANGE and RANGE] named "[DIE]L vs"
+\output [clamp [extend]-[extend]-DTIE between -RANGE and RANGE] named "[DIE]X vs"\
+
+\ Static action \
+output [clamp [roll]-DIEMID between -RANGE and RANGE] named "[DIE]L-[DIEMID]"
+\output [clamp [extend]-DIEMID between -RANGE and RANGE] named "[DIE]X-[DIEMID]"\
+
+\ Static alternate \
+output [clamp [roll]-2d6 between -RANGE and RANGE] named "[DIE]L vs 2d6"
+\output [clamp [extend]-2d6 between -RANGE and RANGE] named "[DIE]X vs 2d6"\
+
+\ Luck \
+output [clamp [luck] between -RANGE and RANGE] named "luck"
+
+\ Alternate vs w/ two dice \
+output [clamp d8+[explode d8]-d8-[explode d8]-DTIE between -RANGE and RANGE] named "d8+d8! vs"

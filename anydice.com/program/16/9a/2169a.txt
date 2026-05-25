@@ -1,0 +1,57 @@
+function: best match in ROLL:s {
+ BEST: 0
+ MATCH: 0
+ CURRENT: 0
+ 
+ loop V over ROLL {
+  if V = CURRENT {
+   MATCH: MATCH + V
+  }
+  else {
+   if MATCH > BEST {
+    BEST: MATCH
+   }
+   MATCH: V
+   CURRENT: V
+  }
+ }
+ if MATCH > BEST {
+  result: MATCH
+ }
+ result: BEST
+}
+
+function: best sequence in ROLL:s {
+ BEST: 0
+ SEQ: 0
+ LENGTH: 0
+ PREVIOUS: 0
+ 
+ loop V over ROLL {
+  if V = PREVIOUS - 1 {
+   SEQ: SEQ + V
+   LENGTH: LENGTH + 1
+  }
+  else {
+   if LENGTH >= 3 & SEQ > BEST {
+    BEST: SEQ
+   }
+   SEQ: V
+   LENGTH: 1
+  }
+  PREVIOUS: V
+ }
+ if LENGTH >= 3 & SEQ > BEST {
+  result: SEQ
+ }
+ result: BEST
+}
+
+function: ctech ROLL:s {
+ result: [highest of [best match in ROLL] and [best sequence in ROLL]]
+}
+
+output [ctech 3d10]
+output [ctech 4d10]
+output [ctech 5d10]
+output [ctech 6d10]

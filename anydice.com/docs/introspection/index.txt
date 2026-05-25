@@ -1,0 +1,75 @@
+   AnyDice
+    1. AnyDice
+    2. Documentation
+
+                                 Introspection
+
+   AnyDice provides two operations that allow you to query a value about
+   its contents.
+
+  Length
+
+   You can perform the unary # operation to get the length of a value.
+   What that means depends on the type of value involved.
+
+   Sequences
+          The length of a sequence is equal to how many numbers is
+          contains. So #{2,4,6} yields 3.
+
+   Collections of dice
+          The length of a collection of dice is equal to the number of
+          dice it contains. So #(3d6) yields 3. Note the parentheses,
+          without them it would be intepreted as (#3)d6, which would yield
+          1d6.
+
+   A single die
+          A single die is considered to be a collection containing one
+          die, so its length will always be 1.
+
+   Numbers
+          The length of a number is equal to how many digits it has.
+
+  Accessing
+
+   Using the @ operation, you can retrieve individual numbers stored
+   inside a value. You can either provide the position of a single value
+   to retrieve, or a sequence of positions, in which case the retrieved
+   values are summed. If you ask for a position that does not exist, the
+   result for that position will be 0.
+
+   Sequences
+          For sequences, the number at the indicated position will be
+          retrieved. So 1@{2,4,6} yields 2, 3@{2, 4, 6} yields 6,
+          {1,3}@{2,4,6} yields 8, and {1,2,2}@{2,4,6} yields 10.
+
+   Collections of dice
+          When accessing collection of dice, the dice will be order from
+          highest value to lowest value. So 1@3d6 will select the highest
+          rolled value, while 3@3d6 will select the lowest rolled value.
+          {1,2}@3d6 will sum the highest two of the rolled values,
+          discarding the lowest rolled value. The result of the operation
+          is a new die containing the selected values of all possible
+          rolls and their appropriate odds.
+
+   A single die
+          A single die is considered to be a collection containing one
+          die, so only the first positions will contain a useful value.
+
+   Numbers
+          For numbers, the digit at the indicated position will be
+          retrieved, starting at the most significant - the leftmost -
+          digit. So 1@246 yields 2, while {1..3}@246 yields 12.
+
+   If you want to, you can configure AnyDice to reverse the positions of
+   dice in collections and of digits in numbers.
+set "position order" to "lowest first"
+
+output 1@3d6 named "lowest die"
+output 1@246 named "least significant digit"
+
+set "position order" to "highest first" \ the default behavior \
+
+output 1@3d6 named "highest die"
+output 1@246 named "most significant digit"
+
+   made by Jasper Flick

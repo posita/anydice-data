@@ -1,0 +1,35 @@
+ATB: 7
+DMG: 6
+AC: 15
+
+function: X:n gwf {
+  if X > 2 {result: X}
+  result: 1d10
+}
+
+function: X:n hit{
+  if X = 20 {result: [1d10 gwf]+[1d10 gwf]+DMG}
+  else if (X+ATB) >= AC {result: [1d10 gwf]+DMG}
+  result: 0
+}
+
+function: X:n hitgwm{
+  if X = 20 {result: [1d10 gwf]+[1d10 gwf]+DMG+10}
+  else if (X+ATB-5) >= AC {result: [1d10 gwf]+DMG+10}
+  result: 0
+}
+
+function: X:n calcavg{
+  SUM:0
+  AC:10
+  loop N over {10..20} {
+    AC: N
+    if X = 0 {SUM: SUM + [1d20 hit]}
+    else {SUM: SUM + [highest of [1d20 hitgwm] and [1d20 hitgwm]]}
+  }
+  result: SUM/11
+}
+
+output [1d20 hit] named "against AC [AC]"
+output [0 calcavg] named "average"
+output [1 calcavg] named "average with rage"

@@ -1,0 +1,57 @@
+MODELS:5
+A:2
+BS:4
+S:5
+AP:1
+D:1
+
+ENEMYMODELS:10
+T:4
+SV:3
+W:2
+LD:6
+
+HITMOD:0
+CRITICAL_HIT:6
+RAPID_FIRE:0
+BLAST:0
+HEAVY:0
+LETHAL_HITS:0
+TORRENT:0
+SUSTAINED_HITS:0
+WOUNDMOD:0
+CRITICAL_WOUND:6
+DEVASTATING_WOUNDS:0
+TWIN_LINKED:0
+ANTI:0
+LANCE:0
+MELTA:0
+IGNORES_COVER:0
+IN_COVER:0
+INVULNERABLE_SAVE:0
+FEEL_NO_PAIN:0
+HAZARDOUS:0
+
+function: hit roll ATTACKS:n {
+  DICE: ATTACKS d6
+  HITS: [count {BS-HITMOD..6} in DICE]
+  CRITS: [count {CRITICAL_HIT..6} in DICE]
+  result:[wound roll HITS with CRITS]
+}
+
+function: wound roll HITS:n with CRITHITS:n {
+  DICE: HITS d6
+  if (S*2<=T){WOUNDS:[count {6} in DICE]}
+  if (S<T & S*2>T){WOUNDS: [count {5..6} in DICE]}
+  if (S=T){WOUNDS:[count {4..6} in DICE]}
+  if (S>T & S<T*2){WOUNDS: [count {3..6} in DICE]}
+  if (S>=T*2){WOUNDS: [count {2..6} in DICE]}
+  result:[save roll WOUNDS]
+}
+
+function: save roll WOUNDS:n {
+  DICE: WOUNDS d6
+  result:[count {SV..6} in DICE]
+}
+
+output [hit roll (MODELS*A)] named "Unsaved Wounds"

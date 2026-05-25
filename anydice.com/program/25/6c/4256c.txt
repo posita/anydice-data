@@ -1,0 +1,42 @@
+function: tirar ATRIBUTO:n {
+   PLAYER: ATRIBUTO d6
+   OPPONENT: 2d6
+   
+   function: comparar P:s O:s {
+      P_MAX: [maximum of P]
+      O_MIN: 1@O
+      O_MAX: 2@O
+      
+      ES_DOBLE: O_MIN = O_MAX
+      GANA_A_AMBOS: P_MAX > O_MAX
+      GANA_A_UNO: P_MAX > O_MIN
+      
+      if ES_DOBLE {
+         if GANA_A_AMBOS { result: 4 } 
+         else { result: 3 } 
+      }
+      else {
+         if GANA_A_AMBOS { result: 2 } 
+         else if GANA_A_UNO { result: 1 } 
+         else { result: 0 } 
+      }
+   }
+   
+   result: [comparar PLAYER OPPONENT]
+}
+
+\ Función auxiliar para agrupar: 0 es Fallo (o Crítico Contra), 1 es Éxito (Parcial, Total o Crítico Favor) \
+function: agrupar_exitos R:n {
+   if R = 0 | R = 3 { result: 0 } \ Fallo normal o Crítico en Contra
+   else { result: 1 } \ Parcial, Total o Crítico a Favor
+}
+
+\ RESULTADOS DETALLADOS \
+output [tirar 1] named "Detalle Atrib 1"
+output [tirar 2] named "Detalle Atrib 2"
+output [tirar 3] named "Detalle Atrib 3"
+
+\ RESULTADOS DE ÉXITO GLOBAL (0 = Fallo, 1 = Éxito) \
+output [agrupar_exitos [tirar 1]] named "¿Éxito? (Atrib 1)"
+output [agrupar_exitos [tirar 2]] named "¿Éxito? (Atrib 2)"
+output [agrupar_exitos [tirar 3]] named "¿Éxito? (Atrib 3)"

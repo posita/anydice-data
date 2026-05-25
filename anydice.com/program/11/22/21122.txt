@@ -1,0 +1,29 @@
+SK_ONE: 50
+SK_TWO: 0
+RL_ONE: 1d100
+RL_TWO: 1d100
+
+ONE_CS: [count {01,11,22,33,44,55,66,77,88,99,100} in RL_ONE] * (RL_ONE <= SK_ONE)
+TWO_CS: [count {01,11,22,33,44,55,66,77,88,99,100} in RL_TWO] * (RL_TWO <= SK_TWO)
+
+ONE_WW: (RL_ONE <= SK_ONE) * (RL_TWO <= SK_TWO) * (RL_ONE <= RL_TWO)
+ONE_WL: (RL_ONE <= SK_ONE) * (RL_TWO > SK_TWO)
+ONE_LL: (RL_ONE > SK_ONE) * (RL_TWO > SK_TWO) * (RL_ONE <= RL_TWO)
+
+TWO_WW: (RL_TWO <= SK_TWO) * (RL_ONE <= SK_ONE) * (RL_TWO <= RL_ONE)
+TWO_WL: (RL_TWO <= SK_TWO) * (RL_ONE > SK_ONE)
+TWO_LL: (RL_TWO > SK_TWO) * (RL_ONE > SK_ONE) * (RL_TWO <= RL_ONE)
+
+output ONE_CS named "One Critical Success"
+output ONE_WW named "One Succeeds better than Two Succeeds (CS Not Included)"
+output ONE_WL named "One Succeeds, Two Fails"
+output ONE_LL named "One Fails better than Two Fails (CS Not Included)"
+
+output (ONE_WW + ONE_WL + ONE_LL) > 0 named "One Wins"
+
+output TWO_CS named "Two Critical Success"
+output TWO_WW named "Two Succeeds better than One Succeeds (CS Not Included)"
+output TWO_WL named "Two Succeeds, One Fails"
+output TWO_LL named "Two Fails better than One Fails (CS Not Included)"
+
+output (TWO_WW + TWO_WL + TWO_LL) > 0 named "Two Wins"

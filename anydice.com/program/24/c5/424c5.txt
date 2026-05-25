@@ -1,0 +1,69 @@
+NB: {0..6}
+SEUIL: {13..18}
+
+function: lit destin X:n {
+  if X = 11 { result: 0}
+  if X = 12 { result: 20}
+  result: X
+}
+
+function: avantage X:n vs Y:n avec AV:n {
+  if AV = 0 {result: X}
+  if AV = 1 {result: [highest of X and Y]}
+  result: [lowest of X and Y]
+}
+
+function: destin AV:n {
+  X: [lit destin d12]
+  Y: [lit destin d12]
+  result: [avantage X vs Y avec V]
+}
+
+function: epuise X:n {
+  if X = 1 | X = 2 | X = 3 {result: 0}
+  result: X
+}
+
+function: expertise NB:n {
+  if E = 0 {result: Nd6} else {result: Nd[epuise d6]}
+}
+
+function: lire DT:n CP:n vs SE:n{
+  if (DT = 20) | (DT + CP >= SE) {
+    result: 1
+  }
+  result: 0
+}
+
+function: final RX:n pour LS:s{
+  if RX > 0 {
+    XY: [count {6} in LS]
+    result: XY+1
+  }
+  result: 0
+}
+
+function: test XX:s {
+  ZZ: 0
+  loop YY over {1..(#XX)}{
+    ZZ: ZZ + YY@(XX)
+  }
+  result: ZZ
+}
+
+loop N over {0..6} {
+ loop V over {-1..1} {
+  loop E over {0,1} {
+   PREC: {}
+   loop S over SEUIL { 
+    D: [destin V]
+    C: [expertise N]
+    R: [lire D C vs S]
+
+    RF: [final R pour C]
+    \if ( (RF = PREC) & (S > 13)) | (S = 13) {\
+
+      output RF named "Comp: [N] Avtg: [V] Epuis: [E] Seuil: [S]"  
+    PREC: RF
+}}}}
+

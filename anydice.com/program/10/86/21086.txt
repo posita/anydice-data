@@ -1,0 +1,682 @@
+function: save  RESULT:n {
+ if NOSAVE = 1 { result: 1 }
+ if RESULT >= ARMOR{
+   if VULNERABLE = 1 { 
+     VULNERABLE: 0
+     result: [save d6] 
+   }
+   result: 0
+ }
+ result: 1
+}
+
+function: hit RESULT:n {
+ if RESULT >= TOHIT {
+   if WEAKEN = 1{ 
+    WEAKEN: 0
+    result: [hit d6]
+   }
+   if RESULT = 6 {
+     if PRECISION = 1 {
+        if CRITBLOW = 1 {result: 1 + [save d6] }
+        result: 1
+     }
+     if CRITBLOW  = 1 { result: [save d6] + [save d6] }
+   }
+   result: [save d6]
+ }
+ if REROLL = 1 {
+   REROLL : 0
+   result: [hit d6]
+ }
+ result: 0
+}
+
+function: moral DICEONE:n and DICETWO:n damage DAMAGE:d{
+  if DICEONE+DICETWO-MORALMALUS >= MORAL {
+    if PANIKED = 1 {
+      PANIKED: 0
+      if DICEONE >= 4 {
+        if DICETWO >= 4 {
+          if DAMAGE = 1 {
+            result: [moral d6 and d6 damage d3]
+          }
+          result: [moral d6 and d6 damage DAMAGE]
+        }
+
+        if DAMAGE = 1 {
+          result: [moral d6 and DICETWO damage d3]
+        }
+          result: [moral d6 and DICETWO damage DAMAGE]
+      }
+      if DICETWO >= 4 {
+        if DAMAGE = 1 {
+          result: [moral d6 and DICEONE damage d3]
+        }
+        result: [moral d6 and DICEONE damage DAMAGE]
+      }
+      if DAMAGE = 1 {
+        result: [moral DICEONE and DICETWO damage d3]
+      }
+    }
+    result: 0
+  }
+  if PANIKED = 1 {
+    PANIKED: 0
+    if DAMAGE = 1 {
+      result: [moral d6 and DICETWO damage d3]
+    }
+  }
+  result : DAMAGE + MORALWOUND
+}
+
+function: takemoral WOUND:n {
+   if WOUND >=1 {
+      result: WOUND + [moral d6 and d6 damage d3]
+   }
+   result: 0 
+}
+
+function: attack {
+   WOUND: DICEd[hit d6] + BONUSHITd[save d6]
+   result : [takemoral WOUND]
+}
+
+function: doattack {
+  TOHIT : TOHIT - TOHITMALUS
+  if TOHIT > 6 {TOHIT: 6}
+  if TOHIT < 2 {TOHIT: 2}
+  DICE: DICE+ BONUSDICE
+  if REAR= 1 {
+     ARMORMALUS: ARMORMALUS + 2
+     MORALMALUS: MORALMALUS + 2
+  }
+  else {
+    if FLANK = 1 {
+       ARMORMALUS: ARMORMALUS + 1
+       MORALMALUS: MORALMALUS + 1
+    }
+  }
+  ARMOR: ARMOR + ARMORMALUS
+  if ARMOR > 6 {ARMOR: 6}
+  if ARMOR < 2 {ARMOR: 2}
+  if CHARGE = 1 {
+     if DISORDERLY = 0 {
+       REROLL : 1
+     }
+  }
+  result: [attack]
+}
+
+\FF related function\
+function: thenn{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: cavedweller{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     TOHIT: 3
+     DICE: 7
+  }
+  if RANK = 1{
+     TOHIT: 2
+     DICE: 8
+  }
+  result: [doattack]
+} 
+
+function: folowerofbonnes{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+
+function: spearwifes{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  if CHARGE = 1{
+     BONUSHIT: BONUSHIT + RANK
+  }
+  result: [doattack]
+} 
+
+function: spearwifesspeartoss{
+  TOHIT: 4
+  DICE: 4
+  CHARGE: 0
+  result: [doattack]
+} 
+
+function: raider {
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+\Stark related function\
+function: swornsword {
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  if USINGORDER = 1 {
+    CRITBLOW: 1
+    ARMORMALUS: ARMORMALUS + 1
+  }
+  result: [doattack]
+} 
+
+function: greataxes{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     MORALWOUND: MORALWOUND + 1
+     DICE: 6
+  }
+  if RANK = 1{
+     MORALWOUND: MORALWOUND + 2
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: berserker {
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+    TOHIT: 3
+    DICE: 8
+  }
+  if RANK = 1{
+    TOHIT: 2
+    DICE: 9
+  }
+  result: [doattack]
+} 
+
+function: greywind {
+  TOHIT: 3
+  DICE: 4
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+\Lannister related function\
+
+function: haleberdier{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: guardsmen{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: pyromancer{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 7
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  NOSAVE: 1
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: poorfellow{
+  TOHIT: 5
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  if USINGORDER = 1 {
+    PRECISION: 1
+    REROLL: 1
+  }
+  result: [doattack]
+} 
+
+\Neutral related function\
+function: flayedmen{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  CRITBLOW: 1
+  MORALMALUS: MORALMALUS + 3
+  MORALWOUND: MORALWOUND + 1
+  result: [doattack]
+} 
+
+function: blackguard{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: cutthroat{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: bastardgirls{
+  TOHIT: 3
+  DICE: 6
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: bastardgirlsbow{
+  TOHIT: 3
+  DICE: 4
+  CHARGE: 0
+  result: [doattack]
+} 
+
+function: skirmisher{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: zorse{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  if FLANK = 1 {
+     DICE: DICE + 1
+     CRITBLOW: 1
+  }
+  if REAR= 1 {
+     DICE: DICE + 1
+     CRITBLOW: 1
+  }
+  REAR: 0
+  result: [doattack]
+} 
+
+\Targ related function\
+function: veterans{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  result: [doattack]
+} 
+
+function: veteransbow{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  CHARGE: 0
+  result: [doattack]
+} 
+
+function: screamer{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 1{
+     DICE: 5
+  }
+  if CHARGE = 1 {
+     VULNERABLE : 1
+  }
+  result: [doattack]
+} 
+
+function: outrider{
+  TOHIT: 4
+  DICE: 5
+  if RANK = 1{
+     DICE: 4
+  }
+  result: [doattack]
+} 
+
+function: outriderbow{
+  TOHIT: 4
+  DICE: 5
+  if RANK = 1{
+     DICE: 4
+  }
+  CHARGE: 0
+  result: [doattack]
+} 
+
+function: hrakkars{
+  TOHIT: 3
+  DICE: 6
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: jorah{
+  TOHIT: 3
+  DICE: 2
+  result: [doattack]
+} 
+
+\NW related function\
+function: swornbrother {
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  if USINGORDER = 1 {
+    REROLL: 7
+    VULNERABLE: 1
+  }
+  result: [doattack]
+} 
+
+\Baratheon related function\
+function: sentinel{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: stagknight{
+  TOHIT: 3
+  DICE: 7
+  if ROUND >= 2{
+     CRITBLOW: 1
+  }
+  if ROUND >= 3{
+     MORALMALUS: MORALMALUS + 2
+  }
+  if ROUND >= 4{
+     ARMORMALUS: ARMORMALUS + 1
+  }
+  if ROUND >= 5{
+     BONUSHIT: RANK
+  }
+  result: [doattack]
+} 
+
+\Greyjoy related function\
+function: reaver{
+  TOHIT: 4
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+
+  if PILLAGETOCKEN = 1{
+     TOHIT: 3
+  }
+  if PILLAGETOCKEN >= 2{
+     TOHIT: 2
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: reaper{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+
+  if PILLAGETOCKEN = 1{
+     MORALWOUND: MORALWOUND + 1
+  }
+  if PILLAGETOCKEN >= 2{
+     MORALWOUND: MORALWOUND + 2
+  }
+  MORALMALUS: MORALMALUS + 2
+  result: [doattack]
+} 
+
+function: ironbornbowmen{
+  TOHIT: 4
+  DICE: 5
+  if RANK = 2{
+     DICE: 4
+  }
+  if RANK = 1{
+     DICE: 3
+  }
+  result: [doattack]
+} 
+
+function: ironbornbowmenbow{
+  TOHIT: 4
+  DICE: 6
+  if RANK = 2{
+     DICE: 6
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  ARMORMALUS: ARMORMALUS + 1
+  result: [doattack]
+} 
+
+function: ironmakers{
+  TOHIT: 3
+  DICE: 7
+  if RANK = 2{
+     DICE: 5
+  }
+  if RANK = 1{
+     DICE: 4
+  }
+  CRITBLOW: 1
+  result: [doattack]
+} 
+function: hassurvive WOUND:n health WOUNDTOTAL:n{
+    result: WOUND < WOUNDTOTAL
+}
+function: survival chance up to ATTACKNUMBER{
+  VAR : [hassurvive [doattack] health 12]
+  loop N over {2..ATTACKNUMBER}{
+    VAR : VAR + [hassurvive Nd[doattack] health 12]
+  }
+  result: VAR 
+} 
+
+\start to input after this\
+\Start of variable declaration\
+\NB: All must be declared but you can make them vary between function calls\
+
+\ATTACKER STATS nb those will be overwrite if calling a unit related function\
+TOHIT: 4
+DICE: 7
+
+\target stats\
+ARMOR: 4 
+MORAL: 7
+
+\Common Situational bonus-malus some might be overwriten by unit function\
+CHARGE: 1
+DISORDERLY: 0
+WEAKEN: 0
+PANIKED : 0
+VULNERABLE : 0
+REROLL: 0
+CRITBLOW: 0
+PRECISION: 0
+RANK: 3
+NOSAVE: 0
+FLANK: 0
+REAR: 0
+
+\Other bonus-malus if case need be it will addition with unit bonus malus if calling a unit related function\
+\attachement effect should be set here\
+BONUSDICE: 0
+BONUSHIT: 0
+TOHITMALUS: 0
+ARMORMALUS: 0 
+MORALMALUS: 0
+MORALWOUND: 0
+USINGORDER: 1
+ROUND : 1
+PILLAGETOCKEN : 0
+\End of variable declaration\
+
+\
+This is how you set a variable value :
+VARIABLE: VALUE_INTENDED
+
+Variable available : 
+TOHIT, DICE, ARMOR, MORAL, CHARGE, DISORDERLY, WEAKEN, PANIKED, VULNERABLE, REROLL, CRITBLOW, PRECISION, RANK, NOSAVE, FLANK, REAR
+
+Following variable are intended add attachment to existing unit simulate flanc attack...
+BONUSDICE, BONUSHIT, TOHITMALUS, ARMORMALUS, MORALMALUS, MORALWOUND, USINGORDER, ROUND, PILLAGETOCKEN
+
+This is a sample to how you declare attack : 
+output [NAME_OF_THE_ATTACK] named "OUTPUT_NAME"
+
+NB: You can combine several attack into one output for instance: 
+output [spearwifes]+[spearwifesspeartoss] named "Spearwifes charging volley"
+
+Available attacks :
+doattack => attack using variable as define at the moment of the execution
+survival chance up to X => replace X by the number of attack max, compute the chance of a unit to survive up to X attack (use default parameter same as doattack)
+
+Free Folk related : 
+spearwifes, spearwifesspeartoss, cavedweller, thenn, folowerofbonnes, raider
+
+Stark related :
+swornsword, greataxes, berserker, greywind
+
+Lannister related :
+haleberdier, guardsmen, pyromancer, poorfellow
+
+Neutral related :
+flayedmen, blackguard, cutthroat, bastardgirls, bastardgirlsbow, skirmisher, zorse
+
+Targ related :
+veterans, veterans, screamer, outrider, outriderbow, hrakkars, jorah
+
+NW related :
+swornbrother 
+
+Baratheon related : 
+stagknight, sentinel
+
+Greyjoy related : 
+ironmakers, ironbornbowmenbow, ironbornbowmen, reaper, reaver
+\
+
+\start putting your script here\
+TOHIT: 4 
+DICE: 6
+ARMOR: 5 
+MORAL: 8
+CHARGE: 0
+MORALWOUND: 2
+output [survival chance up to 6] named "Cowardly"
+MORALWOUND: 1
+output [survival chance up to 6] named "Cowardly at -1"
+MORALWOUND: 0
+output [survival chance up to 6] named "Non Cowardly"
+\end of your script\
+

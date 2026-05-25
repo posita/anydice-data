@@ -1,0 +1,19 @@
+set "explode depth" to 1
+function: met R:n threshold N:n plus M:n {
+ if N = 1 { result: 0 }
+ if (N - 10*(M / 10)) = 1 { result: [met R threshold (N-1) plus M] }
+ if (N + M) >= 10 { result: 1 + ((N + M) - 10) / R }
+ result: 0
+}
+
+function: chance N:n max R:n {
+ if R = 0 { result: 0 }
+ if N < 10 { result: 0 }
+ result: 1 + [chance d10 max R-1]
+}
+
+output [chance d10 max 5] named "+0"
+
+loop N over {1..10} {
+ output [met 3 threshold [explode d10] plus N] named "+[N]"
+}

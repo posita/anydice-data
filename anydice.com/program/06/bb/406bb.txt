@@ -1,0 +1,73 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITTRESH { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT { result: CRITICALDAMAGE }
+ if ATTACKRESULT = HIT { result: HITDAMAGE }
+ if ATTACK = 20 { result: HITDAMAGE }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: damagepally for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT { result: CRITICALDAMAGE + 10d8 }
+ if ATTACKRESULT = HIT { result: HITDAMAGE + 5d8 }
+ if ATTACK = 20 { result: HITDAMAGE + 5d8 }
+ result: MISSDAMAGE
+}
+function: attackpally {
+ TEMP: [damagepally for [attack d20 vs DEFENSE]]
+ result: TEMP
+}
+
+
+
+DEFENSE: 17
+
+CRITTRESH: 19
+ATTACK: 8
+MISSDAMAGE: 0
+HITDAMAGE: 4d[highest of 3 and 1d6] + 8
+CRITICALDAMAGE: 8d[highest of 3 and 1d6] + 8
+output 4d[attack] named "warrior_ondef"
+ATTACK: 20
+output 4d[attack] named "warrior_allhit"
+
+CRITTRESH: 20
+ATTACK: 8
+MISSDAMAGE: 0
+HITDAMAGE: 1d10 + 1d6 + 5
+CRITICALDAMAGE: 2d10 + 2d6 + 5
+output 5d[attack] named "monk_ondef"
+ATTACK: 20
+output 5d[attack] named "monk_allhit"
+
+
+CRITTRESH: 20
+ATTACK: 8
+MISSDAMAGE: 0
+HITDAMAGE: 1d6 + 1d8 + 5
+CRITICALDAMAGE: 2d6 + 2d8 + 5
+output [attackpally] + [attack] named "pal_ondef"
+ATTACK: 20
+output [attackpally] + [attack] named "pal_allhit"
+
+CRITTRESH: 20
+ATTACK: 8
+MISSDAMAGE: 0
+HITDAMAGE: 1d6 + 5
+CRITICALDAMAGE: 2d6 + 5
+output 1d[attack] named "bard_ondef"
+ATTACK: 20
+output 1d[attack] named "bard_allhit"

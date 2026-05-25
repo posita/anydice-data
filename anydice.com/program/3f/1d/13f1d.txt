@@ -1,0 +1,42 @@
+AC: 15
+HIT_MOD: 6
+DMG_MOD: 4
+SNEAK_ATTACK: 1d6
+
+function: ATK:n rapier {
+  if ATK + HIT_MOD >= AC {
+    result: 1d8 + SNEAK_ATTACK + DMG_MOD
+  } else {
+    result: 0
+  }
+}
+
+function: ATK:n dagger {
+  if ATK + HIT_MOD >= AC {
+    result: 1d4 + SNEAK_ATTACK + DMG_MOD
+  } else {
+    result: 0
+  }
+}
+
+function: ATK:n FIRST_ATTACK:n bonusdagger {
+  if FIRST_ATTACK + HIT_MOD > AC {
+    if ATK + HIT_MOD >= AC {
+      result: 1d4 + DMG_MOD
+    } else {
+      result: 0
+    }
+  } else {
+    if ATK + HIT_MOD >= AC {
+      result: 1d4 + SNEAK_ATTACK + DMG_MOD
+    } else {
+      result: 0
+    }
+  }
+}
+
+FIRST_ATTACK: 1d20
+BONUS_ATTACK: 1d20
+output [FIRST_ATTACK rapier] named "rapier"
+output [FIRST_ATTACK dagger] + [BONUS_ATTACK FIRST_ATTACK bonusdagger] named "daggers"
+

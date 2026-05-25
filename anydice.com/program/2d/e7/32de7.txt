@@ -1,0 +1,55 @@
+function: reroll R:n under N:n {
+   if R <= N { result: 1d6 } else {result: R}
+}
+MISS:0
+HIT:1
+CRITICALHIT:2
+
+function: attack ROLL:n vs DEFENSE:n crit CRIT:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL>= CRIT {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+AC:13
+
+ATTACK: 5+2+1
+HITDAMAGE: d6 + 3+1
+CRITICALDAMAGE: 2d6+3+1
+MISSDAMAGE: 0
+
+ output 7d([damage for [attack d20 vs AC crit 20]]) named "Z3r0"
+
+ATTACK: 7
+HITDAMAGE: 2d([reroll 1d6 under 2]) + 5
+CRITICALDAMAGE: 4d([reroll 1d6 under 2])+5
+MISSDAMAGE: 0
+ output 4d([damage for [attack d20 vs AC crit 19]]) named "Fighter"
+
+ATTACK: 6
+HITDAMAGE: d6+d10 + 4
+CRITICALDAMAGE: 2d6+2d10+4
+MISSDAMAGE: 0
+
+ output 3d([damage for [attack d20 vs AC crit 20]]) named "Warlock"
+
+ATTACK: 6
+HITDAMAGE: 1d12 + 6
+CRITICALDAMAGE: 2d12+6
+MISSDAMAGE: 0
+
+ output 3d([damage for [attack [highest1 of 2 d20] vs AC crit 20]]) named "Barbarian"
+

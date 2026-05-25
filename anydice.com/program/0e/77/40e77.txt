@@ -1,0 +1,44 @@
+function: c R:s H:n M:n L:n {
+ if M@R >= 4 & M@R <= H@R - L@R { result: M@R }
+ result: 0
+}
+output [c 4d12 1 2 3] named "Advantage 4D12"
+output [c 4d12 2 3 4] named "Disadvantage 4D12"
+output [c 3d12 1 2 3] named "Normal 3D12"
+function: div R:s H:n M:n L:n {
+ if M@R >= 4 & H@R = L@R { result: 1 }
+ result: 0
+}
+output [div 3d4 1 2 3] named "3D4 Divine intervention"
+output [div 3d6 1 2 3] named "3D6 Divine intervention"
+output [div 3d8 1 2 3] named "3D8 Divine intervention"
+output [div 3d10 1 2 3] named "3D10 Divine intervention"
+output [div 3d12 1 2 3] named "3D12 Divine intervention"
+
+\ 0=Fail, 1=Fumble, 2=Success, 3=Controlled Mastery, 4=Divine Intervention, 5=Critical \
+
+function: evaluate POOL:s H:n M:n L:n {
+  PH: H@POOL
+  PM: M@POOL
+  PL: L@POOL
+  
+  IS_STRAIGHT: (PH = PM + 1) & (PM = PL + 1)
+  IS_TRIPLE: (PH = PL)
+  IS_CONTROLLED: (PM <= PH - PL)
+  
+  if PM >= 4 {
+    if IS_STRAIGHT { result: 5 }
+    if IS_TRIPLE { result: 4 }
+    if IS_CONTROLLED { result: 3 }
+    result: 2
+  }
+  
+  if IS_STRAIGHT { result: 1 }
+  result: 0
+}
+
+output [evaluate 3d4 1 2 3] named "d4 Results"
+output [evaluate 3d6 1 2 3] named "d6 Results"
+output [evaluate 3d8 1 2 3] named "d8 Results"
+output [evaluate 3d10 1 2 3] named "d10 Results"
+output [evaluate 3d12 1 2 3] named "d12 Results"

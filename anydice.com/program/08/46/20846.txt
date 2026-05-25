@@ -1,0 +1,188 @@
+RAY: 4d{{1..2}, {3..8}:5}+7
+BLIZ: 7d{{1..2}, {3..10}:6}+7
+DRAG: 7d{{1..2}, {3..6}:4}+7
+FS: 10d{{1..2}, {3..6}:4}+7
+CC: 8d{{1..2}, {3..8}:5}+7
+
+HD: [highest of d6 and 3]
+T: 6+(14*17)
+C: 0
+loop N over {1..16} {
+ T: T+HD
+}
+THORHP: T
+
+THORINNDPR: (11d{{1..2}, {3..6}:4}+12)*3 + (5d{{1..2}, {3..8}:5}+12)*12
+output THORINNDPR/3 named "Thorinn DPR"
+output THORHP named "Thorinn HP"
+
+PROF: 5  \ Paw Stars Proficiency Bonus \
+COUNTCRITS: 1 \ 1 = yes, 0 = no \
+
+\ Donnovan \
+DONLDR: 18 \ Inspiring Leader Temp HP bonus \
+DONSTR: 10 \ Strength Bonus \
+DONEAC: 23 \ Effective AC \
+DONSAVE: 15 \ Effective Save Bonus \
+DONHP: 210 \ normal form hp \
+DONWEPBON: 2
+DONLOWHPDMG: 2d8 \ Drengskapr hp damage 1 die per 1/4th hp missing \
+DONIDS: 1d8 \ Improved Divine Smite \
+DONGWMDMG: PROFd6
+DONWEP: 1d{{1..2}, {3..12}:7}+DONWEPBON+DONLOWHPDMG+DONIDS+DONSTR \ 1d12 gwf+wep bonus+hp damage+ids+str \
+DONATTNOR: DONWEP \ normal attack \
+DONATTGWM: DONWEP+DONGWMDMG \ gwm attack \
+DONATT: DONATTNOR \ set attack calc to type \ 
+DONSMT: 135+1d8 \ 31d8 3-3-3 3-3-2 2-2-1 max smites 3 turns \
+DONSMTFIEND: 36+1d8 \ extra smith vs fiend/undead for 9 smites in 3 turns \ 
+DONSMTTOT: DONSMT+DONSMTFIEND \ total smite in 3 turns \
+DONCRTPER: 14 \ crit percentage: 14% for 3d20kh1 \
+DONNUMATT: 9 \ number attacks in 3 rounds \ 
+DONCRTDMG: DONATT-DONSTR-DONWEPBON+1d{{1..2}, {3..12}:7} \ crit = weapon damage - mods + savage attacker \
+DONNUMCRT: (DONNUMATT * DONCRTPER) / 100 \ number crits per 3 turns \
+DONCRT: DONNUMCRT*DONCRTDMG \ crit damage per 3 rounds \
+DONRND: DONATT+DONATT+DONATT \ attack, extra attack, hasted attack \
+DONDPR: ((3*DONRND)+(DONNUMCRT*DONATT)+DONSMTTOT) / 3 \ 3 rounds of attacks, gwm bonus, smites \
+if (COUNTCRITS = 1) {
+   DONDPR: DONDPR+(DONCRT/3)
+}
+DONHEAL: 45
+
+output DONDPR named "Donnovan DPR"
+output [highest 1 of 3d20]+DONSTR+PROF+DONWEPBON named "Donnovan Hit%"
+
+\ Elion \
+ELDEX: 8 \ dexterity bonus \
+ELEAC: 28 \ effective ac \ 
+ELSAVE: 20 \ effective save bonus \
+ELHP: 232 \ normal form hp \
+ELWEPBON: 3 \ weapon +hit/dmg \ 
+ELSSR: PROFd6 \ sharpshooter damage \
+ELFVE: 1d12 \ favored enemy \
+ELHTM: 2d6 \ hunters mark \
+ELPLW: 2d8 \ planar warrior \
+ELWEP: 3d8+ELWEPBON+ELDEX \ fey'irra \
+ELATTNOR: ELWEP \ standard weapon attack \
+ELATTSSR: ELWEP+ELSSR \ sharpshooter shot \
+ELATT: ELATTNOR \ set attack type \
+ELISFAV: 1 \ is enemy favored \
+if (ELISFAV = 1) {
+   ELATT: ELATT+ELFVE
+}
+ELSRND: ELATT+ELATT+ELATT+ELPLW+(3*ELHTM) \ s target, attack, extra attack, haste attack, planar warrior, hunters mark \
+ELMRND: ELATT+ELATT+ELATT+ELATT+ELATT+ELATT+ELATT+ELPLW \ 6 aoe attacks, haste attack, planar warrior \
+ELCRTPER: 38 \ crit percentage \
+ELNUMATTS: 9 \ number single target attacks 3 rounds \
+ELNUMATTM: 21 \ number multi target attacks 3 rounds \
+ELCRTDMG: ELATT-ELWEPBON-ELDEX \ crit damage is weapon attack minus mods \
+ELNUMCRTS: (ELNUMATTS*ELCRTPER)/100 \ number single target crits in 3 rounds \
+ELNUMCRTM: (ELNUMATTM*ELCRTPER)/100 \ number multi target crits in 3 rounds \
+ELCRTS: ELNUMCRTS*ELCRTDMG \ single target crit damage in 3 rounds \
+ELCRTM: ELNUMCRTM*ELCRTDMG \ multi target crit damage in 3 rounds \
+ELSDPR: ELSRND
+if (COUNTCRITS = 1) {
+   ELSDPR: ELSDPR+(ELCRTS/3)
+}
+ELHEAL: 35
+
+output ELSDPR named "Elion Single DPR"
+output [highest 1 of 3d20]+ELDEX+PROF+ELWEPBON named "Elion Hit%"
+
+JONINT: 9
+JONEAC: 31
+JONSAVE: 11
+JONDPR: 1d10+11
+JONAWD: 43
+JONHP: 208+JONAWD
+JONHEAL: 2+JONINT
+
+output JONDPR named "Jonas Single DPR"
+output 8+PROF+JONINT named "Jonas Save DC"
+
+VALDEX: 9
+VALCON: 2
+VALEAC: 35
+VALSAVE: 8
+VALWEP: 1d8+9+3
+VALSAT: 50
+VALATT: VALWEP+VALDEX
+VALRND: VALATT+VALATT+VALSAT
+VALCRT: VALATT+VALATT+VALSAT+VALSAT-VALDEX-VALDEX-6
+VALDPR: VALRND
+VALHP: 130
+VALHEAL: 0
+
+output VALDPR named "Valiente DPR"
+output [highest 1 of 3d20]+PROF+VALDEX+3 named "Valiente Hit%"
+
+XIASTR: 9
+XIACON: 5
+XIAEAC: 24
+XIASAVE: 13
+XIAWEP: 9+5+9
+XIAOFF: 1d8+3
+XIARGE: 1d6
+XIAATT: XIAWEP+XIASTR+XIAOFF+XIASTR+XIARGE+XIARGE
+XIARND: XIAATT+XIAATT+XIAWEP+XIASTR+XIARGE
+XIABRU: 2d8
+XIACRT: XIAWEP+XIARGE+XIABRU+XIAWEP+XIARGE+XIABRU-XIASTR-XIASTR-10
+XIADPR: XIARND
+XIAHP: 226
+XIAHEAL: 6
+
+output XIADPR named "Xia DPR"
+output [highest 1 of 3d20]+PROF+XIASTR+5 named "Xia Hit%"
+
+PSHP: DONHP+ELHP+JONHP+VALHP+XIAHP
+output DONDPR+ELSDPR+JONDPR+VALDPR+XIADPR named "Paw Stars DPR"
+output PSHP named "Paw Stars HP"
+
+DRAGONHP: 365
+PLANETARHP: 300
+PSDHP: DRAGONHP+PLANETARHP*3+PSHP
+output PSDHP named "Paw Stars DHP"
+
+
+GALHP: 300
+GALHEAL: (15*12)+(4*192)+700
+
+output (PSDHP-(PLANETARHP*3)+GALHP+GALHEAL)/6 named "Target Sigurd DPR"
+output (DONEAC+ELEAC+JONEAC+VALEAC+XIAEAC)/5 named "Effective AC"
+
+
+SIGSTR: 11
+SIGCON: 10
+SIGEAC: 32
+SIGSAVE: 17
+SIGWEP: 6d8+9d8+5+SIGSTR
+SIGBITE: 1d8
+SIGCLAW: 1d8
+SIGATT: SIGWEP
+SIGIMP: (2d10)/2
+SIGHW: 45/2
+SIGHUMHF: (63+1d8)*2
+SIGHUMRND: SIGATT+SIGATT+SIGATT+SIGATT+SIGATT+SIGHW*6+SIGIMP*6+(SIGHUMHF/3)
+SIGCRT: SIGWEP
+SIGDPR: SIGHUMRND
+SIGHP: 2600
+
+output 1d20+SIGSTR+6+5 named "Sigurd Human Hit%"
+output SIGHUMRND named "Sigurd Human dpr"
+
+HF: 27
+HFR: 1d8+63
+THF: HF+HF+HF+HF+HF+HF+HF+HF+HF+HF+HFR
+
+output THF named "total hellfire"
+
+SH: 27+56+14
+SHPR: 20+63
+SHFR: 27+14+28
+SHFW: 45
+SDT: 90
+SIMP: 1d10
+
+output SH*5+SHFW*5+SIMP*5 named "Sigurd dpr"
+output SHFR*5+(SHFW/2)*5+(SIMP*5)/2 named "Sigurd dpr fire resist"
+output SHPR*5 named "sigurd dpr physical resist"
+

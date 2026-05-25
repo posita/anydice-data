@@ -1,0 +1,24 @@
+\ count successes of opposed pools, discarding initial ties \
+\ continue adding success until failing to beat loser's highest \
+
+function: A:s vs B:s {
+ \ find die position that determines winner \
+ loop P over {1..[highest of #A and #B]} {
+  if P@A > P@B { result: [A beats P@B] }
+  if P@A < P@B { result: -[B beats P@A] }
+ }
+ \ a draw \
+ result: 0
+}
+
+function: A beats N {
+ S: 1
+ \ count dice of winner beating loser \
+ loop P over {P + 1..#A} {
+  if P@A <= N { result: S }
+  S: S + 1
+ }
+ result: S
+}
+
+output [4d6 vs 3d8]

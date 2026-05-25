@@ -1,0 +1,56 @@
+\ Dual Hand XBow Math \
+
+AC: 14
+DEX: 3
+PROF: 2
+HG: 1
+ARCHERY: 0
+DW: 1
+MISS: 0
+HIT: 1
+CRIT: 2
+
+DWBONUS: DEX * DW
+HGBONUS: 2 * HG
+ARCHERYBONUS: 2 * ARCHERY
+
+CRITDMG: 2d6+DEX
+HITDMG: 1d6+DEX
+MISSDMG: 0
+
+ATTACK: DEX+PROF+HGBONUS+ARCHERYBONUS
+
+function: attack ROLL:n vs DEF:n {
+	if ROLL = 1 { result: MISS }
+	if ROLL = 20 { result: CRIT }
+	if ROLL + ATTACK >= DEF { result: HIT }
+	result: MISS
+}
+
+function: damage for R:n {
+	if R > 1 {
+		if R = CRIT {
+			result: CRITDMG
+		}
+		else if R = HIT {
+			result: HITDMG
+		}
+		else {
+			result: MISSDMG
+		}
+	}
+}
+
+function: damages for ATTACKRESULTS:s {
+	D: 0
+	loop A over ATTACKRESULTS {
+		D: D+[damage for A]	
+	}
+	result: D
+}
+
+function: N:n attacks{
+	result: [damage for Nd[attack d20 vs AC]]
+}
+
+output [2 attacks]

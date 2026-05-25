@@ -1,0 +1,90 @@
+\ Vex Fenthras vs Longbow of the Sky Sentinel \
+
+DEX: +5         \ Dexterity Modifier (for DEX=20) \
+PRO: +5         \ Proficiency Bonus  (for level 15) \
+
+\ Weapon bonus \
+FENTHRASBONUS: +3
+SENTINELBONUS: +1 \ not sure if it's +1 or +2 \
+
+\ To hit bonus \
+FENTHRASATK: FENTHRASBONUS + DEX + PRO
+SENTINELATK: SENTINELBONUS + DEX + PRO
+
+\ Hunters Mark Damage (or set to zero) \
+HUNTERSMARK:     1d6
+
+\ Damage \
+FENTHRASDMG:     1d8 + 1d4 + HUNTERSMARK
+SENTINELDMG:     1d8       + HUNTERSMARK
+FENTHRASDMGBONUS: FENTHRASBONUS + DEX
+SENTINELDMGBONUS: SENTINELBONUS + DEX
+
+
+\ output 1d20+FENTHRASATK named "Fenthras To-Hit" \
+\ output 1d20+SENTINELATK named "Sentinel To-Hit" \
+\ output FENTHRASDMG+FENTHRASDMGBONUS named "Fenthras Damage" \
+\ output SENTINELDMG+SENTINELDMGBONUS named "Sentinel Damage" \
+
+\
+[From http://criticalrole.wikia.com/wiki/Longbow_of_the_Sky_Sentinel]
+
+Once per long rest, the wielder can use a Storm Arrow, which splits 
+the next arrow fired from the bow into three separate arrows. 
+Each arrow that hits deals an extra 1d6 Lightning damage.
+\
+function: stormarrow AC:n {
+  result: [attack 3 AC SENTINELATK SENTINELDMG+1d6 SENTINELDMGBONUS]
+}
+
+\
+[From http://criticalrole.wikia.com/wiki/Fenthras,_Wrath_of_the_Fey_Warden]
+
+Bramble Shot: deals an additional 4d8 piercing damage 
+and the target must make a Strength saving throw or 
+they are restrained.
+[Assumed to also be once per long rest.]
+\
+function: bramble AC:n {
+  result: [attack 1 AC FENTHRASATK FENTHRASDMG+4d8 FENTHRASDMGBONUS]
+}
+
+
+\ Make NUM attacks vs AC with
+     * BONUS attack bonus
+     * DMG damage roll (doubled on critical)
+     * DMGBONUS bonus to damage
+\
+function: attack NUM:n AC:n BONUS:n DMG:d DMGBONUS:n {
+  SUM: 0
+  loop N over {1..NUM} {
+    SUM: SUM + [atkdmg AC BONUS 1d20 DMG DMGBONUS]
+  }
+  result: SUM
+}
+function: atkdmg AC:n BONUS:n ATK:n DMG:n DMGBONUS:n {
+  R: 0
+  if ATK > 1 & ATK+BONUS >= AC {
+    R: R + DMG + DMGBONUS
+  }
+  if ATK = 20 {
+    \ Note: this follows Matt Mercer's house rule of
+      doubling the dice total rather that doubling
+      the number of damage dice.
+      E.g. it's 2(1d8+1d6) vs. 2d8+2d6 on critical. \
+    R: R + DMG
+  }
+  result: R
+}
+
+TARGETAC: 25
+\ loop TARGETAC over {15,20,25,30} { \
+
+NUM: 1
+output [attack NUM TARGETAC FENTHRASATK FENTHRASDMG FENTHRASDMGBONUS] named "[NUM]*Fenthras (no Bramble) Damage vs AC=[TARGETAC]"
+output [attack NUM TARGETAC SENTINELATK SENTINELDMG SENTINELDMGBONUS] named "[NUM]*Sentinel (no Storm Arrow) Damage vs AC=[TARGETAC]"
+output [bramble TARGETAC]+[attack NUM TARGETAC FENTHRASATK FENTHRASDMG FENTHRASDMGBONUS] named "[NUM]*Fenthras Damage vs AC=[TARGETAC]"
+output [stormarrow TARGETAC]+[attack NUM-1 TARGETAC SENTINELATK SENTINELDMG SENTINELDMGBONUS] named "[NUM]*Sky Sentinel Damage vs AC=[TARGETAC]"
+
+
+

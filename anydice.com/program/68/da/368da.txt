@@ -1,0 +1,90 @@
+\
+  General Idea for Skill Checks:
+  0: Critical fail.
+  1: Success, but with complications.
+  2: Success.
+  3: Critical success!
+  If you end up rolling zero dice, roll 2d6 and keep the lowest value if you would still like to roll
+\
+
+\
+  The number of base dice used in the system
+\
+START_DIE_N: 3
+
+\
+  The minimum number of dice before rolling 2d6, keep lowest
+\
+MIN: 2
+
+\
+  Represents the Ability Mod range.
+  Assuming the following:
+  The lowest stat for a player is 8 (equating to a -1 bonus)
+  The highest stat for a player is 20 (equating to a +5 bonus)
+\
+ABILITY_MOD: {-1..5}
+
+\
+  Represents the Proficiency Bonus range.
+\
+PROF_TIER: {
+  0, \ Not proficient - No additional d6. \
+  1, \ Proficient - 1 additional d6. \
+  2  \ Expert - 2 additional d6. \
+}
+
+\
+  Represents the difficulty classes for skill checks.
+  Each difficulty class corresponds to a specific level of task difficulty.
+  The number of dice removed from the roll pool is based on the difficulty class.
+\
+
+DIFFICULTY_CLASSES: {
+  0, \ Very Easy - Minimal difficulty, suitable for simple tasks. \
+  1, \ Easy - Low difficulty, generally achievable with little effort. \
+  2, \ Medium - Moderate difficulty, requires some skill or effort. \
+  3, \ Hard - High difficulty, challenging but feasible for skilled individuals. \
+  4, \ Very Hard - Very high difficulty, requires exceptional skill or effort. \
+  5  \ Nearly Impossible - Extremely high difficulty, almost impossible to succeed without extraordinary means. \
+}
+
+\
+  Determines the outcome of a skill roll.
+  ROLL - The roll result.
+  result - The result of the skill roll.
+\
+function: skill ROLL:s {
+ if 1@ROLL = 6 {                        
+  result: 2 + (2@ROLL = 6)              
+ }
+ result: 1@ROLL >= 4                    
+}
+
+\
+  Adds two numbers together.
+  A - The first number.
+  B - The second number.
+  result - The sum of A and B.
+\
+function: add A to B {
+ result: A + B                          
+}
+
+\
+  Outputs skill results based on ability modifiers and proficiency bonuses.
+\
+loop AM over ABILITY_MOD {
+ loop PT over PROF_TIER {
+  loop DC over DIFFICULTY_CLASSES {
+   if MIN <= (([add START_DIE_N to ([add PT to AM])]) - DC){
+  }
+   else {
+    output [skill 2@2d6]
+     named "DC[DC] would mean rolling [MIN] or fewer dice, roll 2d6 and keep the lowest."
+   }
+    output [skill ([add START_DIE_N to [add PT to AM]] - DC)d6]
+     named "Raw Die: [START_DIE_N] | Ability Mod: [AM] | Prof Level: [PT] | Vs DC[DC] (-[DC]d6)"
+  }
+ }
+}

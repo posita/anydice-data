@@ -1,0 +1,34 @@
+function: luck LDIE:d {
+ LUCK: [maximum of LDIE]
+ result: [luck LDIE helper]
+}
+
+function: luck LVAL:n helper {
+ if LVAL = 1 { result: -1 + [luck LDIE helper] }
+ if LVAL = LUCK { result: 1 + [luck LDIE helper] }
+ result: 0
+}
+
+function: wild WDIE:d {
+ WILD: [maximum of WDIE]
+ result: [wild WDIE helper]
+}
+
+function: wild WVAL:n helper {
+ if WVAL = WILD { result: 1 + [wild WDIE] }
+ result: 0
+}
+
+function: success SN:n {
+ if SN = 12 { result: 3 + [wild d6] }
+ if SN = 1 { result: 0 }
+ if SN >= 6 { result: 2 }
+ result: 1
+}
+
+loop N over {12}
+{
+ output [luck d6] named "luck"
+ output [success dN] named "d[N]*"
+ output [success dN] + [luck d6] named "d[N]* + luck"
+}

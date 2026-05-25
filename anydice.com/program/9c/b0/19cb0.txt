@@ -1,0 +1,80 @@
+\ https://rpg.stackexchange.com/questions/97265/implementing-multiattack-in-anydice \
+\roll inside multiattack\
+function: multiattack X:n times AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [d20 attack AC with BONUS deal DAMAGE extra CRITBONUSDAMAGE with critrange CRITRANGE]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+\roll outside multiattack, but still passed as die\
+function: ROLL:d multiattackalternative X:n times AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [ROLL attack AC with BONUS deal DAMAGE extra CRITBONUSDAMAGE with critrange CRITRANGE]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+\roll outside multiattack, passed as number\
+function: ROLL:n multiattackaltalternative X:n times AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [ROLL attack AC with BONUS deal DAMAGE extra CRITBONUSDAMAGE with critrange CRITRANGE]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+function: ROLL:n attack AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n {
+   if(ROLL >= CRITRANGE){ \crit and autohit\
+      result: DAMAGE + CRITBONUSDAMAGE 
+   }
+   if(ROLL = 1) { result:0 } \nat 1 -> miss\
+   if(ROLL + BONUS < AC) { result: 0 } \miss\
+   result: DAMAGE \hit\
+}
+\This fixes ROLL to a value and uses it each time - should be the same as *2? \
+function: ROLL:n multiattackdirect X:n times AC:n with BONUS:n deal DAMAGE:d extra CRITBONUSDAMAGE:d with critrange CRITRANGE:n{
+  TOTAL: 0
+  loop N over {1..X} {
+     if(ROLL >= CRITRANGE){ \crit and autohit\
+        TOTAL: TOTAL + DAMAGE + CRITBONUSDAMAGE 
+     }
+     if(ROLL = 1) { result:0 } \nat 1 -> miss\
+     if(ROLL + BONUS < AC) { result: 0 } \miss\
+     TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+
+AC: 16
+
+HITBONUS: 3+4
+output 
+[d20 attack AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20] + 
+[d20 attack AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20]
+named "Addition"
+
+output 
+[multiattack 2 times AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20]
+named "Multiattack"
+
+output 
+[d20 multiattackalternative 2 times AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20]
+named "Multiattack ALT"
+
+output 
+[d20 multiattackaltalternative 2 times AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20]
+named "Multiattack ALT ALT"
+
+output [d20 multiattackdirect 2 times AC with (HITBONUS) deal 1d4+3+d6 extra 1d4+d6 with critrange 20]
+named "Multiattack Direct (certainly not correct, here for comparison)"
+
+
+output 
+[d20 attack AC with (HITBONUS) deal 1d4+3+d6 extra d4+1d6 with critrange 20]*2
+named "Times 2 (certainly not correct, here for comparison)"

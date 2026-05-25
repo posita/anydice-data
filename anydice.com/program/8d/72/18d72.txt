@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs AC:n {
+ SUBDMG: 0
+ if ROLL=1 {result:MISS}
+ if ROLL=20 {
+  if 20+ATK>AC {
+   result: CRIT}
+ result: HIT}
+ if ROLL>AC {
+  result:HIT}
+ result:MISS}
+
+function: damage ROLL:n {
+ SUBDMG: 0
+ if GWM = 1 {
+  if ROLL<=2 {
+   SUBDMG: SUBDMG+12+ABILITYMOD}
+  SUBDMG: SUBDMG+ROLL+ABILITYMOD}
+ result: SUBDMG}
+
+ABILITYMOD: 0
+PROFICIENCY: 0
+MULTIATTACK: 2
+DICE: 12
+POW: 1
+
+ATK: ABILITYMOD+PROFICIENCY-POW*5
+TOTDMG:0
+
+loop N over {1..MULTIATTACK}{
+ AHIT: [attack d20 vs 15]
+ if AHIT=1 {
+  TOTDMG: TOTDMG+[damage d12]}
+
+}
+
+output 1

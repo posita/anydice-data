@@ -1,0 +1,22 @@
+output [count 1 in 3d4] named "d4"
+output [count 1 in 3d6] named "d6"
+output [count 1 in 3d8] named "d8"
+output [count 1 in 3d20] named "d20"
+
+function: count_unique_pairs POOL:s TARGET_SUM:n {
+  COUNT: 0
+  
+  loop I over 1 to floor((TARGET_SUM - 1) / 2) {
+    J: TARGET_SUM - I
+    
+    COUNT: COUNT + [lowest of [count I in POOL] and [count J in POOL]]
+  }
+  
+  if TARGET_SUM % 2 = 0 {
+    CENTER_VALUE: TARGET_SUM / 2
+    
+    COUNT: COUNT + floor([count CENTER_VALUE in POOL] / 2)
+  }
+  
+  result: COUNT
+}

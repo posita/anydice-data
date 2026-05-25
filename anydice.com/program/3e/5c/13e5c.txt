@@ -1,0 +1,72 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+STAFFATTACK: 5 + 5 + 3
+STAFFHITDAMAGE: 1d8 + 5 + 3
+STAFFCRITICALDAMAGE: 2d8 + 5 + 3
+STAFFHITDAMAGEPOMMEL: 1d4 + 5 + 3 
+STAFFCRITICALDAMAGEPOMMEL: 2d4 + 5 + 3
+MISSDAMAGE: 0
+AC: 15
+
+function: rolling ROLL:n vs ac of DEFENSE:n with attack of ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: STAFFCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: STAFFHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: staff damage for ATTACKRESULTMAIN:n and ATTACKRESULTPOMMEL:n {
+  TOTAL: 0
+  if ATTACKRESULTMAIN = CRITICALHIT {
+    TOTAL: TOTAL + STAFFCRITICALDAMAGE
+  }
+  if ATTACKRESULTMAIN = HIT {
+    TOTAL: TOTAL + STAFFHITDAMAGE
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  if ATTACKRESULTPOMMEL = CRITICALHIT {
+    TOTAL: TOTAL + STAFFCRITICALDAMAGEPOMMEL
+  }
+  if ATTACKRESULTPOMMEL = HIT {
+    TOTAL: TOTAL + STAFFHITDAMAGEPOMMEL
+  }
+  else {TOTAL: TOTAL + MISSDAMAGE}
+  result: TOTAL
+}
+
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [rolling d20 vs ac of AC with attack of STAFFATTACK]]
+  }
+  result: TOTAL
+}
+
+output [staff damage for [rolling d20 vs ac of AC with attack of STAFFATTACK] and [rolling d20 vs ac of AC with attack of STAFFATTACK]] + [staff damage for [rolling d20 vs ac of AC with attack of STAFFATTACK] and [rolling d1 vs ac of AC with attack of 0]] named "staff attack w/o smite and GWM vs ac [AC]"
+
+output [staff damage for [rolling [highest 1 of 3d20] vs ac of AC with attack of STAFFATTACK] and [rolling [highest 1 of 3d20] vs ac of AC with attack of STAFFATTACK]] + [staff damage for [rolling [highest 1 of 3d20] vs ac of AC with attack of STAFFATTACK] and [rolling d1 vs ac of AC with attack of 0]] named "staff attack w/o smite and GWM w/ advantage vs ac [AC]"
+
+function: rolling ROLL:n vs ac of DEFENSE:n with attack of ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL >= 19 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+STAFFATTACK: 5 + 5 + 3 - 5
+STAFFHITDAMAGE: 1d8 + 3d6 + 3d8 + 5 + 3 + 10 + 6
+STAFFCRITICALDAMAGE: 2d8 + 6d6 + 6d8 + 5 + 3 + 10 + 6
+STAFFHITDAMAGEPOMMEL: 1d4 + 3d6 + 5 + 3 + 10 + 6
+STAFFCRITICALDAMAGEPOMMEL: 2d4 + 6d6 + 5 + 3 + 10 + 6
+output [staff damage for [rolling [highest 1 of 3d20] vs ac of AC with attack of STAFFATTACK] and [rolling [highest 1 of 3d20] vs ac of AC with attack of STAFFATTACK]] + [staff damage for [rolling [highest 1 of 3d20] vs ac of AC with attack of STAFFATTACK] and [rolling d1 vs ac of AC with attack of 0]] named "staff attack w/ smite and GWM w/ advantage vs ac [AC]"

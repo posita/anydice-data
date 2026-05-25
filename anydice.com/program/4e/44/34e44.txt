@@ -1,0 +1,38 @@
+set "explode depth" to 10
+
+RANGE: 40
+DIE: d12 
+DIEMID: [maximum of DIE] / 2 + 1
+
+ZFIVE: d{0..5}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: minimum of DIE:d {
+ result: 1@{DIE}
+}
+
+function: extend D:d {
+  result: [extend D on [minimum of D] and [maximum of D]]
+}
+
+function: extend N:n on MIN:n and MAX:n {
+  if N = MIN { result: N - [explode ZFIVE] }
+  if N = MAX { result: N + [explode ZFIVE] }
+  result: N
+}
+
+\ Opposed roll \
+output [clamp [extend d12]-[extend d12]-d{0..1} between -RANGE and RANGE] named "[DIE]X vs"
+
+\ Dynamic action \
+output [clamp [extend d12]-2d6 between -RANGE and RANGE] named "[DIE]X vs 2d6"
+
+\ Static action \
+output [clamp [extend d12]-DIEMID between -RANGE and RANGE] named "[DIE]X vs [DIEMID]"
+
+output [clamp [extend ZFIVE]-3 between -RANGE and RANGE] named "z5X vs 3"

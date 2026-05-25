@@ -1,0 +1,44 @@
+function: assign S:s pos I:n to X:n {
+  R: {}
+  loop P over {1..#S} {
+    if P = I {
+      R: {R, X}
+    }
+    else {
+      R: {R, P@S}
+    }
+  }
+  if I > #S {
+    loop P over {#S..(I-1)} {
+      R: {R, 0}
+    }
+    R: {R, X}
+  }
+  result: R
+}
+
+function: S:s only less than N:n {
+  R: {}
+  loop C over {1..#S} {
+    if C@S < N {
+      R: {R, C@S}
+    }
+  }
+  result: R
+}
+
+function: stats with N:n points {
+  STATS: {0:6}
+  loop C over {1..N} {
+    D: d[STATS only less than 18] + 0
+    STATS: [assign STATS pos D to (D@STATS + 1)]
+  }
+  result: STATS
+}
+
+STATS_ONE: [stats with 75 points]
+STATS_TWO: [stats with 80 points]
+loop I over {1..6} {
+  output (I@STATS_ONE) named "75p s[I]"
+  output (I@STATS_TWO) named "80p s[I]"
+}

@@ -1,0 +1,68 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Natural Attacks builds: \
+output [{24,24,24,24,24} vs 25 crit 20 2 dmg 3d6+28 3d6] named "Natural Attack build Draconic Bloodrager"
+output [{26,26,26,26,26,21} vs 25 crit 20 2 dmg 2d6+32 2d6] named "Natural Attack build Sphinx Bloodrager"
+output [{20,20} vs 25 crit 20 2 dmg 2d6+23 4d6]+[{20,20,20} vs 25 crit 20 2 dmg 1d8+23 4d6]+[{15} vs 25 crit 20 2 dmg 1d8+18 4d6] named "Pounce Alchemist"
+output [{21,21,21,21} vs 25 crit 20 2 dmg 1d8+23 4d6]+[{21,21,21,21,21,21} vs 25 crit 20 2 dmg 1d6+23 4d6]+[{16} vs 25 crit 20 2 dmg 1d6+18 4d6] named "Pounce Alchemist w/ MP I (Euryale)"
+output [{21,21} vs 25 crit 20 2 dmg 3d6+24 4d6]+[{21,21,21} vs 25 crit 20 2 dmg 2d6+24 4d6]+[{16,16,16} vs 25 crit 20 2 dmg 1d8+19 4d6] named "Pounce Alchemist w/ MP II (Vouivre)"
+output [{23,23,23,23,23,23,23,23} vs 25 crit 20 2 dmg 1d6+27 4d6]+[{18} vs 25 crit 20 2 dmg 1d6+21 4d6] named "Natural Attack Eldritch Knight w/ MP I (Euryale)"
+output [{23,23} vs 25 crit 20 2 dmg 3d6+29 4d6]+[{23,23} vs 25 crit 20 2 dmg 2d6+29 4d6]+[{29} vs 25 crit 20 2 dmg 1d8+29 4d6]+[{18,18,18} vs 25 crit 20 2 dmg 1d8+23 4d6] named "Natural Attack Eldritch Knight w/ MP II (Vouivre)"
+output [{23,23,23,23,23} vs 25 crit 20 2 dmg 2d8+21 1d6] named "Natural Attack Warpriest"
+output [{23,23,23,23,23} vs 25 crit 20 2 dmg 1d3+19 3d6] named "Natural Attack Brawler"
+output [{24,24,24,24,24,24,24} vs 25 crit 20 2 dmg 1d8+35 2d6] named "Natural Attack Shifter"
+output [{25,25,20,15,20,20,20,20,20} vs 25 crit 20 2 dmg 1d8+27 3d6] named "Natural Attack Shifter Flurry"
+output [{25,25,25,25,25,20} vs 25 crit 20 2 dmg 1d6+20 5d6] named "Natural Attack Ratfolk Slayer"
+output [{25,25,25,25,25,20} vs 25 crit 20 2 dmg 1d4+18 7d6] named "Natural Attack Ratfolk Rogue"
+output [{21,21,21,21,21,21} vs 25 crit 20 2 dmg 1d3+26 6d6] named "Natural Attack Halfling Ninja"
+output [{23,23,23,23,23} vs 25 crit 20 2 dmg 1d3+20 4d6]+[{18,18,18,18} vs 25 crit 20 2 dmg 1d2+17 4d6] named "Natural Attack Ratfolk Shaman"
+output [{26,26,26,26,26,21} vs 25 crit 20 2 dmg 1d3+25 2d6] named "Natural Attack Ratfolk Investigator"
+output [{21,21} vs 25 crit 20 2 dmg 2d8+25 6d6]+[{21,21,21} vs 25 crit 20 2 dmg 2d6+25 6d6] named "Goliath Druid"
+output [{19,19} vs 25 crit 20 2 dmg 2d6+25 5d6]+[{19,19,19} vs 25 crit 20 2 dmg 1d8+25 6d6] named "Natural Attack Oracle"
+output [{20,20} vs 25 crit 20 2 dmg 2d6+25 5d6]+[{20,20} vs 25 crit 20 2 dmg 1d8+25 6d6]+[{15} vs 25 crit 20 2 dmg 1d4+19 6d6]+[{15,15} vs 25 crit 20 2 dmg 1d8+19 6d6] named "Natural Attack Oracle Dragon Form"
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \

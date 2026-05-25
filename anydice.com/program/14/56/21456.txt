@@ -1,0 +1,68 @@
+\ Jeff -5 +10\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+HITDAMAGE: 1d8 + 16
+SNEAKDAMAGE: 2d6
+CRITDAMAGE: 2d8 + 16
+MISSDAMAGE: 0
+ATKMOD:6
+
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 
+ {
+   result: CRITICALHIT
+ }
+ if ROLL + ATTACK>= DEFENSE 
+ {
+   result: HIT 
+ }
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for ATTACKRESULT:n {
+ 	 if ATTACKRESULT = CRITICALHIT {
+		 result: CRITDAMAGE
+	  }
+	  if ATTACKRESULT = HIT {
+		 result: HITDAMAGE
+	  }
+	 result: MISSDAMAGE
+ }
+
+function: finaltotal VALUE:n {
+  if VALUE = 0
+  {
+      result:0
+  }
+  else
+  {
+      result:VALUE + SNEAKDAMAGE
+  }
+}
+
+function: attack {
+  TOTAL: 0
+  loop N over {1..3} {
+    TOTAL: TOTAL + [damage for [d20 vs AC ATKMOD]]
+  }
+  TOTAL: [finaltotal TOTAL]
+  result: TOTAL
+  
+}
+
+AC: 10
+output [attack] named "Sneak ATK vs AC[AC]"
+
+AC:15
+output [attack] named "Sneak ATK vs AC[AC]"
+
+AC:20
+output [attack] named "Sneak ATK vs AC[AC]"
+
+AC:25
+output [attack] named "Sneak ATK vs AC[AC]"

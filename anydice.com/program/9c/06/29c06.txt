@@ -1,0 +1,27 @@
+HP: (3d6*5 + 3d6*5)/10
+
+
+DEEP_ONE_HP: 13
+DEEP_ONE_HIT: 45
+DEEP_ONE_DMG: 1d7+1d4 \ d7 = average of d6 and d8 weapons \
+PLAYER_HIT: 50 \ rough average player combat skill \
+PLAYER_DMG: 1d8+1d2 \ d2 = average of 0 and 1d4 dmgbonus \
+ROUNDS: 3
+
+function: combat P D N H {
+ PDMG: PLAYER_HIT * PLAYER_DMG  / 100    \ anydice only does integers so we divide rolls by 100 \
+ DDMG:  N * DEEP_ONE_DMG / 2
+ result: ROUNDSdDDMG > H \ likelihood of 1 = TPK \
+}
+
+loop PARTYSIZE over {1..5} {
+ TOTAL_HP: HP * PARTYSIZE
+
+ loop ENEMIES over {1..10} {
+  PLAYER_HP: TOTAL_HP
+  ENEMY_HP: ENEMIES * DEEP_ONE_HP
+  
+  output [combat PLAYER_HP ENEMY_HP ENEMIES TOTAL_HP] named "[ROUNDS] rounds of party of [PARTYSIZE] fighting [ENEMIES] deep ones"
+ }
+}
+

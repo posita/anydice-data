@@ -1,0 +1,53 @@
+\ A straight of 3 can be 1-2-3, 2-3-4, 3-4-5, or 4-5-6 \
+function: sthree ROLL:s {
+  if [ROLL contains 1] & [ROLL contains 2] & [ROLL contains 3] {
+    result: 1
+  } else if [ROLL contains 2] & [ROLL contains 3] & [ROLL contains 4] {
+    result: 1
+  } else if [ROLL contains 3] & [ROLL contains 4] & [ROLL contains 5] {
+    result: 1
+  } else if [ROLL contains 4] & [ROLL contains 5] & [ROLL contains 3] {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+\ A straight of 4 can be 1-2-3-4, 2-3-4-5, or 3-4-5-6 \
+
+function: sfour ROLL:s {
+  if [ROLL contains 1] & [ROLL contains 2] & [ROLL contains 3] & [ROLL contains 4] {
+    result: 1
+  } else if [ROLL contains 2] & [ROLL contains 3] & [ROLL contains 4] & [ROLL contains 5] {
+    result: 1
+  } else if [ROLL contains 3] & [ROLL contains 4] & [ROLL contains 5] & [ROLL contains 6] {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+\ Probability of AT LEAST X duplicates in roll \
+function: dup X:n in ROLL:s {
+  if [count 1 in ROLL] > X | [count 2 in ROLL] > X | [count 3 in ROLL] > X | [count 4 in ROLL] > X | [count 5 in ROLL] > X | [count 6 in ROLL] > X {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+\ Lets reroll X times and take the best result, stopping if we get a duplicate or straight \
+function: ROLL:s reroll X:n {
+  R: 0
+  loop N over {1..X} {
+    if [dup 2 in ROLL] = 1 { R: 1 }
+    else if [sthree ROLL] = 1 { R: 1 }
+  }
+  result: R
+}
+
+output [5d6 reroll 2]
+\output [sthree 5d6] named "Probability of a run of 3"\
+\output [sfour 5d6]  named "Probability of a run of 4"\
+\output [dup 2 in 5d6] named "Probability of at least a pair"\
+\output [dup 3 in 5d6] named "Probability of at least three of a kind"\

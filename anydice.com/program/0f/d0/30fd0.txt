@@ -1,0 +1,32 @@
+ROLL: 0 \ Holder for rolled number \
+NUMBER: 2 \ Number of Die \
+SIZE: 6 \ Size of Die \
+BONUS: 0 \ Added to Result \
+STRESS: 2 \ Subtracted from Result \
+RESULT: 0 \ Used to hold final result \
+CHALLENGE: 7 \ The desired minimum \
+IMPROVISE: 1 \ should always be 0 or 1 \
+ADAPT: 0 \ should always be 0 or 2 \
+OVERCOME: 0 \ should always be 0 or 3 \
+
+function: fail ROLL:n {
+ if IMPROVISE = 1 {
+  IMPROVISE: 0
+  result: [roll NUMBERdSIZE CHALLENGE]
+ }else{
+  result: ROLL
+ } 
+}
+
+function: roll ROLL:n CHALLENGE:n {
+ RESULT: ROLL + BONUS - STRESS
+ if CHALLENGE > RESULT {
+  result: [fail ROLL]
+ }
+ result: ROLL
+}
+
+output [roll NUMBERdSIZE CHALLENGE] + BONUS - STRESS named "Rolled [NUMBER]d[SIZE] added [BONUS] subtracted [STRESS]"
+
+output CHALLENGE named "Challenge"
+output {IMPROVISE,ADAPT,OVERCOME} named "Modifiers"

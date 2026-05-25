@@ -1,0 +1,25 @@
+set "explode depth" to 10
+
+RANGE: 20
+DIE: d12
+DIEMAX: [maximum of DIE]
+DIEMID: DIEMAX / 2 + 1
+
+DZFIVE: d{0..5}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: roll {
+  result: [roll DIE]
+}
+function: roll N:n {
+  if N = DIEMAX { result: N + [explode DZFIVE] }
+  if N = 1 { result: N - [explode DZFIVE] }
+  result: N
+}
+
+output [clamp [roll]-DIEMID between -RANGE and RANGE] named "test x[DIE]-[DIEMID]"

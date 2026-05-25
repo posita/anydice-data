@@ -1,0 +1,58 @@
+function: report SUCCESSES:n MISHAPS:n {
+  result: (10 * SUCCESSES) - MISHAPS
+}
+
+function: push ROLL:s {
+  SUCCESSES: ROLL >= 4
+  MISHAPS: [count 1 in ROLL]
+  result: [report SUCCESSES MISHAPS]
+}
+
+function: pushable ROLL:s {
+  SUCCESSES: ROLL >= 4
+  FAILURES: [count {2, 3} in ROLL]
+  result: (10 * SUCCESSES) + (FAILURES)
+}
+
+function: roll ROLL:s {
+  result: ROLL >= 4
+}
+
+function: reroll ROLL:s for TARGET:n with PREVIOUS:s {
+  SUCCESSES: (ROLL >= 4) + (PREVIOUS >= 4)
+  MISHAPS: [count 1 in PREVIOUS] + [count 1 in ROLL]
+  result: [report (SUCCESSES >= TARGET) MISHAPS]
+}
+
+function: roll ROLL:s for TARGET:n push PUSH:n {
+  SUCCESSES: ROLL >= 4
+  FAILURES: [count {2, 3} in ROLL]
+  if SUCCESSES >= TARGET
+  {
+    result: [report 1 0]
+  }
+  else if [ROLL contains 1] & (PUSH <= #ROLL) {
+    result: [report 0 0]
+  }
+
+  if FAILURES > PUSH {
+    REROLL: PUSH
+  }
+  else {
+    REROLL: FAILURES
+  }
+
+  if (SUCCESSES + REROLL) < TARGET {
+    result: [report 0 0]
+  }
+  else {
+    result: [reroll REROLLd6 for TARGET with ROLL]
+  }
+}
+
+function: roll ROLL_A:s vs ROLL_B:s {
+  result: (ROLL_A >= 4) - (ROLL_B >= 4)
+}
+
+output [roll 5d6 for 3 push 5]
+ 

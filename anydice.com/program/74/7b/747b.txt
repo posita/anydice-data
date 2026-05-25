@@ -1,0 +1,34 @@
+function: breakdown WILD:n REST:n FAILREST:n{
+if WILD = 1 {result: FAILREST}
+if WILD = 6 {result: REST + 6 + [explode 1d6]}
+result: REST + WILD
+}
+
+function: sw SKILLDICE:d pips PIPS:n{
+SKILL: #SKILLDICE
+TAME: SKILL-1
+LAME: TAME-1
+TAMEROLLED: TAMEd6
+if LAME < 1 { LAMETOTAL: 0 + PIPS }
+else { LAMETOTAL: [lowest LAME of TAMEROLLED] + PIPS }
+TAMETOTAL: TAMEROLLED + PIPS
+result: [breakdown 1d6 TAMETOTAL LAMETOTAL]
+}
+
+function: woundeval DIFF:n {
+if DIFF > 0 {H: 0}
+if DIFF <= 0 & DIFF >= -3 {H: 1}
+if DIFF <= -4 & DIFF >= -8 {H: 2}
+if DIFF <= -9 & DIFF >= -12 {H: 3}
+if DIFF <= -13 & DIFF >= -15 {H: 4}
+if DIFF <= -16 {H: 5}
+result: H
+}
+
+PLAYER: [sw 7d6 pips 0]
+TARGETNUM: [sw 5d6 pips 0]
+
+COMPARE: PLAYER - TARGETNUM
+
+output [woundeval COMPARE]
+\ output COMPARE >=0 \

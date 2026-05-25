@@ -1,0 +1,42 @@
+FAIL: 0
+SUCC: 1
+
+function: sancheck ROLL:n vs SAN:n {
+ if ROLL > SAN { result: FAIL}
+ result: SUCC
+}
+
+FAIL_SAN_CHECK: -1d10
+SUCC_SAN_CHECK: -1d4
+
+function: sancheckresult for RESULT:n and SAN:n {
+ if RESULT = FAIL { result: FAIL_SAN_CHECK + SAN}
+ result: SUCC_SAN_CHECK + SAN
+}
+
+FAIL_SAN_IMPROV: -1
+SUCC_SAN_IMPROV: 1d10
+
+function: sanimprovresult for RESULT:n and SAN:n {
+ if RESULT = FAIL { result: FAIL_SAN_IMPROV + SAN}
+ result: SUCC_SAN_IMPROV + SAN
+}
+
+SAN_CAP: 98
+
+function: sancap of SAN_CAP:n on N:n {
+ if N > SAN_CAP { result: SAN_CAP }
+ result: N
+}
+
+function: nextsession for OLDSAN:n {
+ result: [sancap of SAN_CAP on [sanimprovresult for [sancheck 2@2d100 vs OLDSAN] and OLDSAN]]
+}
+
+function: lastsession for SAN:n {
+ result: [sancheckresult for [sancheck 1d100 vs SAN] and SAN]
+}
+
+loop SAN over {70} {
+ output [nextsession for [lastsession for [nextsession for [lastsession for [nextsession for [lastsession for SAN]+1d10]]+1d10]]+1d10] named "[SAN],Session 1"
+}

@@ -1,0 +1,33 @@
+DMG: 2
+BOOST: 2
+AP: 0
+CRITBONUS: 5
+MULTI: 3
+
+SP: 8
+RES: 0
+
+TOTAL: DMG + BOOST
+
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: spank DICE:s SP:n RES:n{
+   ESP: [highest of 0 and (SP - [highest of 0 and (AP-RES)])]
+   ROLL:[if (2@DICE = 6) then [cull DICE ESP] + CRITBONUS else [cull DICE ESP]]
+   result: ROLL
+}
+
+function: cull DICE:s ESP:n {
+ TOTALER: 0
+ loop P over {1..DMG} {
+  TOTALER: TOTALER + P@DICE
+ }
+ AFTERSP: [highest of 0 and TOTALER - ESP]*MULTI
+ result: AFTERSP
+}
+
+
+output [spank (TOTAL d 6) 10 2] named "[DMG]+[BOOST]+AP[AP]/10 2"
+

@@ -1,0 +1,54 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+PROF: 5
+ATTR: 4
+SNEAK: 5d6
+WEAPON: 1d8
+
+ATTACK: PROF + ATTR
+HITDAMAGE: WEAPON + SNEAK + ATTR 
+CRITICALDAMAGE: WEAPON + WEAPON + SNEAK + SNEAK + ATTR
+MISSDAMAGE: 0
+
+TARGET_AC: {18} \{10..25}\
+
+loop AC over TARGET_AC {
+ output [damage for [attack d20 vs AC]] named "Normal Attack [AC]"
+}
+
+loop AC over TARGET_AC {
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "Adv Normal Attack [AC]"
+}
+
+HITDAMAGE: HITDAMAGE + 10
+ATTACK: ATTACK - 5
+
+loop AC over TARGET_AC {
+ output [damage for [attack d20 vs AC]] named "SharpShooter Attack [AC]"
+}
+
+loop AC over TARGET_AC {
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "Adv SharpShooter Attack [AC]"
+}

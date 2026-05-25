@@ -1,0 +1,28 @@
+SIDES: 6
+
+function: reroll N:n TARGET:n {
+ if N = TARGET { result: 1 + [reroll 1dSIDES TARGET] }
+ result: 0
+}
+
+function: shift ROLL:s with POSITION:n {
+ MAX: [count SIDES in ROLL]
+ MIN: [count 1 in ROLL]
+ if POSITION >= 0 & MAX > 0 {
+  loop N over {1..MAX} {
+   MAX: MAX + [reroll 1dSIDES SIDES]
+  }
+ }
+ if POSITION <= 0 & MIN > 0 {
+  loop N over {1..MIN} {
+   MIN: MIN + [reroll 1dSIDES 1]
+  }
+ }
+ result: MAX - MIN
+}
+
+loop NUM over {1..4} {
+ output [shift NUMdSIDES with -1] named "[NUM]d[SIDES] risky"
+ output [shift NUMdSIDES with 0] named "[NUM]d[SIDES] balanced"
+ output [shift NUMdSIDES with 1] named "[NUM]d[SIDES] advantage"
+}

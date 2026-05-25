@@ -1,0 +1,87 @@
+\**** Damage calculator full basic damage dealing list ****\
+
+\Typical Attack\
+function: attackroll ROLL:n vs AC:n {
+ if ROLL = CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+\Two-Weapon Fighting + Sneak Attack\
+function: first A:n second B:n {
+ if A = CRIT & B = CRIT {result: 2dDAMAGE + 2dTWOWEP + 2dSA + DEX}
+ if A = CRIT & B + DEX + PROF >= 16 & B!= 1 {result: 2dDAMAGE + 2dSA + TWOWEP + DEX}
+ if A + TOHIT >= 16 & A!= 1 & B = CRIT {result: DAMAGE + SA + 2dTWOWEP + DEX}
+ if A + TOHIT >= 16 & A!= 1 & B + TOHIT >= 16 & B!= 1 {result: DAMAGE + SA + TWOWEP + DEX}
+ if A + TOHIT >= 16 & A!= 1 {result: DAMAGE + SA + DEX}
+ if B + TOHIT >= 16 & B!= 1 {result: TWOWEP + SA}
+ if A = CRIT {result: 2dDAMAGE + 2dSA + DEX}
+ if B = CRIT {result: 2dTWOWEP + 2dSA}
+ result: 0
+}
+
+\Extra Attack + Night Lord + Assassin's Mark @ Level 5\
+function: eigth E:n ninth F:n tenth H:n{
+ if E = CRIT & H = CRIT & F = CRIT {result: 4dDAMAGE + 2dTWOWEP + 2dMARK + DEX + DEX}
+ if E = CRIT & H = CRIT & F + TOHIT >= 16 & F!= 1 {result: 4dDAMAGE + 2dMARK + TWOWEP + DEX + DEX}
+ if E = CRIT & F = CRIT & H + TOHIT >= 16 & H!= 1 {result: 3dDAMAGE + 2dMARK + 2dTWOWEP + DEX + DEX}
+ if H = CRIT & F = CRIT & E + TOHIT >= 16 & E!= 1 {result: 3dDAMAGE + MARK + 2dTWOWEP + DEX + DEX}
+ if F = CRIT & E + TOHIT >= 16 & E!= 1 & H + TOHIT >= 16 & H!= 1 {result: 2dDAMAGE + 2dTWOWEP + 2dMARK + DEX + DEX}
+ if E + TOHIT >= 16 & E!= 1 & H + TOHIT >= 16 & H!= 1 & F + TOHIT >= 16 & F!= 1 {result: 2dDAMAGE + TWOWEP + MARK + DEX + DEX} 
+ if E = CRIT & F = CRIT {result: 2dDAMAGE + 2dTWOWEP + 2dMARK + DEX}
+ if H = CRIT & F = CRIT {result: 2dDAMAGE + 2dTWOWEP + 2dMARK + DEX}
+ if E = CRIT & F + TOHIT >= 16 & F!= 1 {result: 2dDAMAGE + 2dMARK + TWOWEP + DEX}
+ if H = CRIT & F + TOHIT >= 16 & F!= 1 {result: 2dDAMAGE + 2dMARK + TWOWEP + DEX}
+ if E + TOHIT >= 16 & E!= 1 & F = CRIT {result: DAMAGE + MARK + 2dTWOWEP + DEX}
+ if H + TOHIT >= 16 & H!= 1 & F = CRIT {result: DAMAGE + MARK + 2dTWOWEP + DEX}
+ if E + TOHIT >= 16 & E!= 1 & F + TOHIT >= 16 & F!= 1 {result: DAMAGE + MARK + TWOWEP + DEX}
+ if H + TOHIT >= 16 & H!= 1 & F + TOHIT >= 16 & F!= 1 {result: DAMAGE + MARK + TWOWEP + DEX}
+ if E + TOHIT >= 16 & E!= 1 & H + TOHIT >= 16 & H!= 1 {result: 2dDAMAGE + MARK + DEX + DEX}
+ if E + TOHIT >= 16 & E!= 1 {result: DAMAGE + MARK + DEX}
+ if H + TOHIT >= 16 & H!= 1 {result: DAMAGE + MARK + DEX}
+ if F + TOHIT >= 16 & F!= 1 {result: TWOWEP + MARK}
+ if E = CRIT {result: 2dDAMAGE + 2dMARK + DEX}
+ if H = CRIT {result: 2dDAMAGE + 2dMARK + DEX}
+ if F = CRIT {result: 2dTWOWEP + 2dMARK}
+ result: 0
+}
+
+
+\looped against enemy AC from 15-20\
+ENEMYAC: 16
+
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 1
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS + 3d6
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS + 6d6
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "5 Rogue (Mastermind) Sneak Attack Shortsword"
+
+DEX: 4
+DMGBONUS: 0
+PROF: 3
+ACCBONUS: 0
+SA: 2d6
+CRIT: 20
+DAMAGE: 1d4
+TWOWEP: 1d4
+TOHIT: DEX + PROF
+output [first d20 second d20] named "5 Rogue (Mastermind) (Two-Weapon Fighting) Sneak Attack Daggers"
+
+
+
+DEX: 4
+DMGBONUS: 0
+PROF: 3
+ACCBONUS: 0
+MARK: 1d6
+CRIT: 7 | 20
+DAMAGE: 1d4
+TWOWEP: 1d4
+TOHIT: DEX + PROF
+output [eigth d20 ninth d20 tenth d20] named "5 Night Lord (Assassin's Mark) Darts"

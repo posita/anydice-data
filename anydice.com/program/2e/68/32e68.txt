@@ -1,0 +1,44 @@
+function: roll ROLL:n threshold T {
+  if ROLL >= T {
+   result: 1
+  }
+
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T {
+  if ROLL = 6 {
+   result: 1 + [rollexploding 1d6 threshold T]
+  }
+
+  result: [roll ROLL threshold T]
+}
+
+function: wrapper DICE:n threshold T explode E {
+  RESULT: 0
+
+  loop N over {1..DICE} {
+    if E {
+     RESULT: RESULT + [rollexploding 1d6 threshold T]
+    } else {
+     RESULT: RESULT + [roll 1d6 threshold T]
+    }
+  }
+
+  result: RESULT
+}
+
+
+function: p DICE:n {
+  result: [wrapper DICE threshold 4 explode 0]
+}
+
+function: pe DICE:n {
+ result: [wrapper DICE threshold 4 explode 1]
+}
+
+set "maximum function depth" to 7
+
+loop DICE over {1..6} {
+ output [pe DICE] named "pool of [DICE]d6"
+}

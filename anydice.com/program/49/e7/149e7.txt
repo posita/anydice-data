@@ -1,0 +1,34 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+MOD: 3
+DMG_DICE: 8
+DMG_MISS: 0
+DMG_HIT: dDMG_DICE + MOD
+DMG_CRIT: DMG_DICE + MOD
+
+function: attack ATT:n vs DEF:n {
+ if ATT = 1 { result: MISS }
+ else if ATT = 20 {
+  if ATT + MOD >= DEF { result: CRIT }
+  result: HIT
+ }
+ else if ATT + MOD >= DEF { result: HIT }
+ else { result: MISS }
+}
+
+function: damage for ATT:n {
+ if ATT = CRIT {
+  result: DMG_CRIT
+ } else if ATT = HIT {
+  result: DMG_HIT
+ } else {
+  result: DMG_MISS
+ }
+}
+
+output [damage for [attack d20 vs d{8..20}]] named "attack then damage"
+output [damage for [attack [highest 2 of 3d10] vs d{8..20}]] named "attack then damage (high 2d10)"
+output [damage for [attack [highest 1 of 2d20] vs d{8..20}]] named "attack then damage (high d20)"
+output 1dDMG_DICE named "damage only"

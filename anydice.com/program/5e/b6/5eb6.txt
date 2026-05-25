@@ -1,0 +1,67 @@
+\Combien un dé contient-il de réussites critiques ?\
+function: critic D:d {
+ result:[count 10 in D]
+}
+\Combien un dé contient-il d'échecs critiques ?\
+function: fumble D:d {
+ result:[count 1 in D]
+}
+
+\Combien de réussites critiques dans les dés aux positions indiqués ?\
+function: critic D:s at S:s {
+ R:0
+ loop N over S{
+  R:R+[critic N@D]
+ }
+ result:R
+}
+\Combien un dé contient-il d'échecs critiques ?\
+function: fumble D:s at S:s {
+ R:0
+ loop N over S{
+  R:R+[fumble N@D]
+ }
+ result:R
+}
+
+
+\Par défaut, 2d10\
+TWO:2d10
+output TWO named "default 2d10"
+output [critic TWO] named "default critics"
+output [fumble TWO] named "default fumbles"
+
+
+\Cas + : 2 meilleurs de 3d10\
+THREE:3d10
+output [highest 2 of THREE] named "3d10+"
+output [critic THREE at {1,2}] named "3d10+ critics"
+output [fumble THREE at {1,2}] named "3d10+ fumbles"
+
+
+\Cas - : les 2 pires de 3d10\
+output [lowest 2 of THREE] named "3d10-"
+output [critic THREE at {2,3}] named "3d10- critics"
+output [fumble THREE at {2,3}] named "3d10- fumbles"
+
+
+\Cas +- : le pire et le meilleur de 4d10\
+FOUR:4d10
+output {1,4}@FOUR named "4 +-"
+output [critic FOUR at {1,4}] named "4d10+- critics"
+output [fumble FOUR at {1,4}] named "4d10+- fumbles"
+
+
+\Cas ++ : les 2 meilleurs de 4d10\
+FOUR:4d10
+output {1,2}@FOUR named "4d10++"
+output [critic FOUR at {1,2}] named "4d10++ critics"
+output [fumble FOUR at {1,2}] named "4d10++ fumbles"
+
+
+\Cas -- : les 2 meilleurs de 4d10\
+FOUR:4d10
+output {3,4}@FOUR named "4d10--"
+output [critic FOUR at {3,4}] named "4d10-- critics"
+output [fumble FOUR at {3,4}] named "4d10-- fumbles"
+

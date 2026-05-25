@@ -1,0 +1,40 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: HIT + CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: 0
+}
+
+set "explode depth" to 100
+
+ATTACK: 1@3d20
+MOD: 5
+AC: 16
+
+output [attack ATTACK plus MOD vs AC
+  hit 2d8+MOD
+  crit 2d8 on 19
+] named "d8 no exploding dice"
+
+output [attack ATTACK plus MOD vs AC
+  hit [explode 2d8]+MOD
+  crit [explode 2d8] on 19
+] named "d8 with exploding dice"
+
+output [attack ATTACK plus MOD vs AC
+  hit [explode 2d[reroll {1} on d8 to d8]]+MOD
+  crit [explode 2d[reroll {1} on d8 to d8]] on 19
+] named "d8 with exploding dice rerolling 1s"

@@ -1,0 +1,109 @@
+
+\Ragnar GWF dice\
+DS: d{d6,d6,3,4,5,6}
+DE: d{d8,d8,3,4,5,6,7,8}
+DT: d{d10,d10,3,4,5,6,7,8,9,10}
+
+\Ragnar attack bonuses\
+P: 1d10
+B: 1d4
+AB: 10
+ABP: AB+P
+ABB: AB+B
+ABPB: AB+P+B
+ABGWM: AB-5
+ABGWMP: ABP-5
+ABGWMB: ABB-5
+ABGWMPB: ABPB-5
+
+\Ragnar damage\
+SD: DT
+MAXSD: 10
+TF: DS+DS+6
+TFM: TF+DT
+TFGWM: TF+10
+TFGWMM: TFM+10
+TFHW:TF+DE+DE
+TFHWM: TFHW+DT
+TFHWGWM: TFHW+10
+TFHWGWMM: TFHWGWM+DT
+
+\Dragon stats\
+AC: 18 \testing with 18 to compare with Rag\
+DEX: 2 \testing with 2 to compare with Rag\
+
+function: bm ROLL:n AB:n PREC:n DMG {
+
+  ATTACK: ROLL + AB
+  MISSBY: AC - ATTACK
+
+  \ critical hit \
+  if ROLL = 20 {
+    result: 2*DMG
+  }
+
+  \ normal hit \
+  if ATTACK >= AC {
+    result: DMG + SD
+  }
+
+  \ precision attack only if success possible\
+  if MISSBY <= MAXSD {
+    if ATTACK + PREC >= AC {
+      result: DMG
+    }
+  }
+
+  result: 0
+}
+
+function: savespell SAVE:n SAVEDC:n DMG:n {
+   if SAVE < SAVEDC {
+      result: DMG
+   }
+   
+   result: DMG/2
+}
+
+function: seekingspell ROLL:n AB:n DMG:n{
+
+  ATTACK: ROLL + AB
+  SEEK: ROLL + AB
+
+  \ critical hit \
+  if ROLL = 20 {
+    result: 2*DMG
+  }
+
+  \ normal hit \
+  if ATTACK >= AC {
+    result: DMG
+  }
+  else {
+    if SEEK >= AC {
+      result: DMG
+    }
+  }
+
+  result: 0
+}
+
+output [seekingspell 1d20 8 6d8]
+
+output [savespell 1d20+DEX 16 8d6] named "flamestrike/fireball DEX5"
+
+output [bm 1d20 AB 1d10 TF] named "Battlemaster attack"
+output [bm 1d20 ABGWM 1d10 TFGWM] named "Battlemaster attack + GWM"
+output [bm 1d20 ABGWM 1d10 TFHWGWM] named "Battlemaster attack + HW + GWM"
+output [bm 1d20 ABGWMB 1d10 TFGWM] named "Battlemaster attack + bless + GWM"
+output [bm 1d20 ABGWMB 1d10 TFHWGWM] named "Battlemaster attack + bless + HW + GWM"
+
+SCHIT: 1d20+8 > AC
+SCDMG: 1d10+8
+
+output SCHIT*SCDMG + SCHIT*SCDMG named "summon celestial damage"
+
+output [bm 1d20 ABGWMB 1d10 TFHWGWM]+[bm 1d20 ABGWMB 1d10 TFHWGWM]+[bm 1d20 ABGWMB 1d10 TFHWGWM]+[bm 1d20 ABGWMB 1d10 TFHWGWM] + (1d20 = 20 | 1d20 = 20 | 1d20 = 20 | 1d20 = 20)*[bm 1d20 ABGWMB 1d10 TFHWGWM] 
+output [bm 1d20 ABGWMB 1d10 TFGWM]+[bm 1d20 ABGWMB 1d10 TFGWM]+[bm 1d20 ABGWMB 1d10 TFGWM]+[bm 1d20 ABGWMB 1d10 TFGWM] + (1d20 = 20 | 1d20 = 20 | 1d20 = 20 | 1d20 = 20)*[bm 1d20 ABGWMB 1d10 TFGWM] 
+
+

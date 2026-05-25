@@ -1,0 +1,33 @@
+ROLL: d20
+ROLL: [highest 1 of 2d20]
+
+function: death save R:n P:n {
+  if (R = 1) { result: -2 }
+  else if (R + P >= 18) { result: 2 }
+  else if (R + P >= 10) { result: 1 }
+  else { result: -1 }
+}
+
+function: death saves R:n S:n F:n {
+  if (R = 2) { result: 2 }
+  else if (R = 1) {
+    if (S >= 2) { result: 1 }
+    else { result: [death saves DS (S + 1) F] } }
+  else if (R = -1) {
+    if (F >= 2) { result: -2 }
+    else { result: [death saves DS S (F + 1)] } }
+  else if (R = -2) {
+    if (F >= 1) { result: -2 }
+    else { result: [death saves DS S (F + 2)] } }
+  else { result: -100 }
+}
+
+function: death saves P:n {
+  DS: [death save ROLL P]
+  result: [death saves DS 0 0]
+}
+
+output [death saves 2] named "Prof 2"
+output [death saves 3] named "Prof 3"
+output [death saves 4] named "Prof 4"
+output [death saves 5] named "Prof 5"

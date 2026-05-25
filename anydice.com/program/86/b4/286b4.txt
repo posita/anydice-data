@@ -1,0 +1,43 @@
+\Kingdom Death: Monster - Attack Probability\
+
+\Character Stats\
+SPD: 0
+STR: 4
+ACC: 1
+LCK: 0
+
+\Weapon Stats\
+WPN_SPD: 2
+WPN_ACC: 5
+WPN_STR: 3
+
+\Monster Stats\
+M_EVA: 0
+M_TGH: 8
+M_LCK: 0
+
+function: attack ROLL:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL = 10 { result: 2 }
+ if (ROLL + ACC) >= (WPN_ACC + M_EVA) { result: 1}
+ result: 0
+}
+
+function: wound ROLL:n {
+ if ROLL = 1 { result: 0 }
+ if (ROLL + LCK) >= (10 + M_LCK) { result: 2 }
+ if (ROLL + WPN_STR + STR) >= M_TGH { result: 1 }
+ result: 0
+}
+
+\Hit Count\
+D_HITS: (SPD+WPN_SPD)d[count {1,2} in [attack d10]]
+D_PERFECTS: (SPD+WPN_SPD)d[count {2} in [attack d10]]
+output D_HITS named "Hit Count Probability"
+output D_PERFECTS named "Perfect Hit Count Probability"
+
+\Wound Count\
+D_WOUNDS: (D_HITS)d[count {1,2} in [wound d10]]
+D_CRITS: (D_HITS)d[count {2} in [wound d10]]
+output D_WOUNDS named "Wound Count Probability"
+output D_CRITS named "Crit Count Probability"

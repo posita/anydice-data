@@ -1,0 +1,40 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ if ROLL + ATTACK <= AC { result: MISS }
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ if ATTACKRESULT = MISS {
+  result: MISSDAMAGE
+ }
+}
+
+function: weaponattack {
+ result: [damage for [attack [highest 1 of 2d20] vs AC]]
+}
+
+AC: 12
+
+ATTACK: 3 + 2
+HITDAMAGE: 1d8 + 5
+CRITICALDAMAGE: 2d8 + 5
+MISSDAMAGE: 0
+output [weaponattack] named "Dueling"
+
+ATTACK: 3 + 2
+HITDAMAGE: 1d{{1..2}, {3..10}:6} + 3
+CRITICALDAMAGE: 2d{{1..2}, {3..10}:6} + 3
+MISSDAMAGE: 0
+output [weaponattack] named "Great Weapon Fighting"

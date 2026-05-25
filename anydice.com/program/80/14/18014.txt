@@ -1,0 +1,66 @@
+function: gwfb DIE:d {
+  result: [reroll DIE as DIE if under 3]
+}
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL < LIMIT { result: DIE }
+  else { result: ROLL }
+}
+
+GWF: [gwfb d6]
+GWFTEN: [gwfb d10]
+
+function: attack ROLL:n vs DEFENSE:n{
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+AC: 12
+MISSDAMAGE: 0
+
+CHA: 4
+ROD: 1
+PROF: 3
+MAG: 1
+SUN: 2
+DIV: 2d8
+HEX: 0
+
+ATTACK: CHA + PROF + MAG
+HITDAMAGE: 2dGWF + CHA + MAG + DIV + HEX
+CRITICALDAMAGE: 4dGWF + CHA + MAG + DIV + HEX + DIV + HEX
+output [damage for [attack d20 vs AC]] named "[AC] One Maul"
+
+output 2d[damage for [attack d20 vs AC]] named "[AC] Double Maul"
+
+ATTACK: CHA + PROF + SUN
+HITDAMAGE: 1dGWFTEN + CHA + SUN + DIV + HEX
+CRITICALDAMAGE: 2dGWFTEN + CHA + SUN + DIV + HEX + DIV + HEX
+output [damage for [attack d20 vs AC]] named "[AC] Sunblade"
+
+output 2d[damage for [attack d20 vs AC]] named "[AC] Double Sunblade"
+
+ATTACK: CHA + PROF + ROD
+HITDAMAGE: 1d10 + CHA + HEX
+CRITICALDAMAGE: 2d10 + CHA + HEX + HEX
+output [damage for [attack d20 vs AC]] named "[AC] Single Blast"
+output 2d[damage for [attack d20 vs AC]] named "[AC] Double Blast"
+output 3d[damage for [attack d20 vs AC]] named "[AC] Triple Blast"
+output 4d[damage for [attack d20 vs AC]] named "[AC] Triple Blast"

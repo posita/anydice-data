@@ -1,0 +1,145 @@
+function: regular {
+  result: d20
+}
+
+function: advantage DIE {
+  result: 1@2dDIE
+}
+
+function: reroll DIE:n as REROLL if lower than N {
+  if DIE < N { result: REROLL }
+  result: DIE
+}
+
+function: gwf T x DIE {
+  result: Td[reroll DIE as DIE if lower than 3]
+}
+
+function: halfling {
+  result: [reroll [regular] as [regular] if lower than 2]
+}
+
+function: advantage {
+  result: [advantage [regular]]
+}
+
+function: elven DIE {
+  result: 1@3dDIE
+}
+
+function: elven {
+  result: [elven [regular]]
+}
+
+function: clockwork {
+  result: 10
+}
+
+function: strike ATK_DICE:n plus ATK_MOD:n for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT vs AC {
+  if ATK_DICE = 1 { result: 0 }
+  else if ATK_DICE >= CRIT { result: 2d(DMG_DICE+CRIT_DICE)+DMG_MOD+CRIT_MOD }
+  else if ATK_DICE+ATK_MOD >= AC { result: DMG_DICE+DMG_MOD }
+  result: 0
+}
+
+function: flurry DMG:n attack ATK_DICE:n reroll ATK_REROLL plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT first hit FH_DICE plus FH_MOD vs AC {
+  if DMG > 0 {
+    FH_DICE: 0
+    FH_MOD: 0
+  }
+
+  if ATK_DICE = 1 { result: DMG+[strike ATK_REROLL plus ATK_MOD for DMG_DICE+FH_DICE plus DMG_MOD+FH_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT vs AC] }
+  else if ATK_DICE+ATK_MOD < AC { result: DMG+[strike ATK_REROLL plus ATK_MOD for DMG_DICE+FH_DICE plus DMG_MOD+FH_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT vs AC] }
+  result: DMG
+}
+
+function: resolve DMG:n attack ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT first hit FH_DICE plus FH_MOD vs AC {
+  if DMG > 0 {
+    result: DMG+[strike ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT vs AC]
+  } else {
+    result: DMG+[strike ATK_DICE plus ATK_MOD for DMG_DICE+FH_DICE plus DMG_MOD+FH_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT vs AC]
+  }
+}
+
+function: attack T x ATK_DICE plus ATK_MOD flurry FLURRY for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT first hit FH_DICE plus FH_MOD vs AC {
+  DMG: 0
+  loop N over {1..T} {
+    DMG: [resolve DMG attack ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT first hit FH_DICE plus FH_MOD vs AC]
+  }
+  if FLURRY > 0 {
+    DMG: [flurry DMG attack T@TdATK_DICE reroll ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT first hit FH_DICE plus FH_MOD vs AC]
+  }
+
+  result: DMG
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT first hit FH_DICE plus FH_MOD vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD flurry 0 for DMG_DICE plus DMG_MOD crit bonus CRIT_DICE plus CRIT_MOD threshold CRIT first hit FH_DICE plus FH_MOD vs AC]
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 plus 0 threshold 20 first hit 0 plus 0 vs AC]
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD first hit FH_DICE vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 plus 0 threshold 20 first hit FH_DICE plus 0 vs AC]
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit threshold CRIT vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 plus 0 threshold CRIT first hit 0 plus 0 vs AC]
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit threshold CRIT first hit static FH_DICE vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 plus 0 threshold CRIT first hit 0 plus FH_DICE vs AC]
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD first hit static FH_DICE vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 plus 0 threshold 20 first hit 0 plus FH_DICE vs AC]
+}
+
+function: flurry T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD flurry 1 for DMG_DICE plus DMG_MOD crit bonus 0 plus 0 threshold 20 first hit 0 plus 0 vs AC]
+}
+
+function: spell dc DC on success FACTOR damage DMG save SAVE:n {
+  if SAVE >= DC { result: DMG * FACTOR / 2 }
+  else { result: DMG }
+}
+
+function: spell dc DC save for half DMG save SAVE {
+  result: [spell dc DC on success 1 damage DMG save SAVE]
+}
+
+function: cantrip dc DC damage DMG save SAVE {
+  result: [spell dc DC on success 0 damage DMG save SAVE]
+}
+
+ARCHERY: 2
+DUELING: 2
+UC: 1
+RARE: 2
+VR: 3
+HILL: 5
+STONE: 6
+FIRE: 7
+STORM: 9
+POWERHIT: -5
+POWERDMG: 10
+BLESS: 1d4
+FT: 2d6
+CB: 1d8
+SS: 1d8
+IDS: 1d8
+HW: 2d8
+
+AC: 17
+PB: 4
+STAT: 5
+
+output
+  [attack 2x [regular] plus PB+STAT+RARE for d10+d6 plus STAT vs AC]
+  named "ab/eb/hex (t2)"
+
+output
+  [attack 2x [regular] plus PB+STAT+RARE for d10+3d8 plus STAT vs AC]
+  named "ab/eb/ss5 (t2)"

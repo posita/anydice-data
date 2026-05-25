@@ -1,0 +1,113 @@
+\ Stats and skills both have value ranges of d0,d2,d4,d6,d8,d10,d12 \
+\ d6 is the average value of a stat, and d0 is untrained in a skill \
+STAT: d8
+SKILL: d6
+MOD: 1
+
+\ Difficulty check ranks are 1-7 (named Effortless, Easy, Average, Difficult, Challenging, Ambitious, and Improbable) \
+\ Use a difficulty of 0 for a custom DC (just set the modifier to whatever; even dice) \
+DCDIFF: 0
+DCMOD: d8+d6+1
+
+
+
+
+
+
+
+
+
+
+
+function: check SCORE:n vs DC:n {
+ \ Critical Failure \
+ if SCORE <= DC / 2 {
+  result: -2
+ }
+ \ Failure \
+ if SCORE < DC {
+  result: -1
+ }
+ \ Tie AKA Partial AKA Graze \
+ if SCORE = DC {
+  result: 0
+ }
+ \ Critical Success \
+ if SCORE >= DC * 2 {
+  result: 2
+ }
+ \ Success \
+ if SCORE > DC {
+  result: 1
+ }
+}
+
+\ Unfortunately AnyDice cannot CEIL() AFAIK, so the table below was used instead \
+DCT: { 1, 2, 3, 4, 5, 6, 7,
+       2, 3, 4, 6, 7, 8,10,
+       2, 4, 5, 7, 9,10,12,
+       2, 4, 6, 8,10,12,14,
+       3, 5, 7,10,12,14,17,
+       3, 6, 8,11,14,16,19,
+       3, 6, 9,12,15,18,21}
+
+SCORE: STAT+SKILL+MOD
+
+FULLDATA: 0
+
+if FULLDATA=1 {
+loop NSKILL over {0,2,4,6,8,10,12}{
+ loop NDIFF over {1..7}{
+  DCR: (NDIFF+(NSKILL/2)*7)@DCT
+  if NDIFF = 1 {
+   output [check SCORE vs DCR+DCMOD] named "DC [DCR]+[DCMOD] for d[NSKILL] Skill (Effortless DC)"
+  }
+  if NDIFF = 2 {
+   output [check SCORE vs DCR+DCMOD] named "DC [DCR]+[DCMOD] for d[NSKILL] Skill (Easy DC)"
+  }
+  if NDIFF = 3 {
+   output [check SCORE vs DCR+DCMOD] named "DC [DCR]+[DCMOD] for d[NSKILL] Skill (Average DC)"
+  }
+  if NDIFF = 4 {
+   output [check SCORE vs DCR+DCMOD] named "DC [DCR]+[DCMOD] for d[NSKILL] Skill (Difficult DC)"
+  }
+  if NDIFF = 5 {
+   output [check SCORE vs DCR+DCMOD] named "DC [DCR]+[DCMOD] for d[NSKILL] Skill (Challenging DC)"
+  }
+  if NDIFF = 6 {
+   output [check SCORE vs DCR+DCMOD] named "DC [DCR]+[DCMOD] for d[NSKILL] Skill (Ambitious DC)"
+  }
+  if NDIFF = 7 {
+   output [check SCORE vs DCR+DCMOD] named "DC [DCR]+[DCMOD] for d[NSKILL] Skill (Improbable DC)"
+  }
+ }
+}
+}
+
+if FULLDATA=0 {
+DCR: (DCDIFF+([maximum of SKILL]/2)*7)@DCT
+if DCDIFF = 0 {
+ output [check SCORE vs DCMOD] named "Score vs Custom DC"
+}
+if DCDIFF = 1 {
+ output [check SCORE vs DCR+DCMOD] named "Score vs DC [DCR]+[DCMOD] (Effortless DC)"
+}
+if DCDIFF = 2 {
+ output [check SCORE vs DCR+DCMOD] named "Score vs DC [DCR]+[DCMOD] (Easy DC)"
+}
+if DCDIFF = 3 {
+ output [check SCORE vs DCR+DCMOD] named "Score vs DC [DCR]+[DCMOD] (Average DC)"
+}
+if DCDIFF = 4 {
+ output [check SCORE vs DCR+DCMOD] named "Score vs DC [DCR]+[DCMOD] (Difficult DC)"
+}
+if DCDIFF = 5 {
+ output [check SCORE vs DCR+DCMOD] named "Score vs DC [DCR]+[DCMOD] (Challenging DC)"
+}
+if DCDIFF = 6 {
+ output [check SCORE vs DCR+DCMOD] named "Score vs DC [DCR]+[DCMOD] (Ambitious DC)"
+}
+if DCDIFF = 7 {
+ output [check SCORE vs DCR+DCMOD] named "Score vs DC [DCR]+[DCMOD] (Improbable DC)"
+}
+}

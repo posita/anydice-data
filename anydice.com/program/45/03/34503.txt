@@ -1,0 +1,53 @@
+function: report SUCCESSES:n MISHAP:n {
+  result: (10 * SUCCESSES) - MISHAP
+}
+
+function: push ROLL:s {
+  SUCCESSES: ROLL >= 4
+  MISHAP: [ROLL contains 1]
+  result: [report SUCCESSES MISHAP]
+}
+
+function: pushable ROLL:s {
+  SUCCESSES: ROLL >= 4
+  FAILURES: [count {2, 3} in ROLL]
+  result: (10 * SUCCESSES) + (FAILURES)
+}
+
+function: roll ROLL:s {
+  result: ROLL >= 4
+}
+
+function: reroll ROLL:s for TARGET:n with PREVIOUS:s {
+  SUCCESSES: (ROLL >= 4) + (PREVIOUS >= 4)
+  MISHAP: [PREVIOUS contains 1] | [ROLL contains 1]
+  result: [report (SUCCESSES >= TARGET) MISHAP]
+}
+
+function: roll ROLL:s for TARGET:n push PUSH:n {
+  SUCCESSES: ROLL >= 4
+  FAILURES: [count {2, 3} in ROLL]
+  if SUCCESSES >= TARGET
+  {
+    result: [report 1 0]
+  }
+  else if [ROLL contains 1] & (PUSH <= #ROLL) {
+    result: [report 0 0]
+  }
+
+  if FAILURES > PUSH {
+    REROLL: PUSH
+  }
+  else {
+    REROLL: FAILURES
+  }
+
+  if (SUCCESSES + REROLL) < TARGET {
+    result: [report 0 0]
+  }
+  else {
+    result: [reroll REROLLd6 for TARGET with ROLL]
+  }
+}
+
+output [roll 4d6 for 3 push 0]

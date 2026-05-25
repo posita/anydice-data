@@ -1,0 +1,54 @@
+GRIT:3
+ACCURACY:0 \negative if difficulty\
+DMG:3d6+3
+
+RELIABLE:0
+
+
+EVASION:10   
+ARMOUR:0  
+INVISIBLE:1
+
+
+function: attack ROLL:n vs EVASION:n for DMG:d crit CRIT_DMG:d {
+
+    if ROLL + GRIT >= 20 {
+        result: CRIT_DMG
+    }
+    if ROLL + GRIT>= EVASION {
+        result: DMG
+    }
+    result: RELIABLE
+
+}
+
+function: invis CLOAK:n {
+
+if CLOAK = 1 {
+        result: d2
+    }
+    
+    result: 5
+}
+
+function: miss COIN:n{
+
+if COIN = 1 {
+        result: 0
+    }
+    if COIN = 2 {
+        result: 1
+    }
+    result: 1
+}
+
+function: acc DIFF:n{
+
+if DIFF >= 0 {
+        result: [highest 1 of ACCURACYd6]
+    }
+    result: [lowest 1 of ACCURACYd6]
+}
+
+output[attack d20 + GRIT + [acc ACCURACY] vs EVASION for (DMG-ARMOUR)*[miss [invis INVISIBLE]] crit ([highest 1 of 2d DMG]-ARMOUR)*[miss [invis INVISIBLE]] ]
+named "DMG/chance"

@@ -1,0 +1,26 @@
+function: cut R:n at T:n {
+  if R <= T { result: R }
+  result: 0
+}
+
+function: decide R:s {
+  if 1@R = 0 { result: 0 }
+  result: 1@R + (R > 0) - 1
+}
+
+D: [ cut 1d6 at 3 ]
+E: [ cut 1d10 at 4 ]
+
+loop M over { 1..10 } {
+   loop N over { 0..10 } {
+       R: [ highest of N-2 and 1 ]
+       P: [ lowest of N-3 and 0 ]
+       S: M + R
+       T: M + N
+       output [ decide MdD ] named "[M]d6 (Reference)"
+       output [ decide SdD ] + P named "[S]d6: Borrow -2, Penalty=[P]"
+       output [ decide MdD ] + [ decide RdD ] + P named "[M]d6 +[R]d6: Sum -2, Penalty=[P]"
+       output [ decide TdD ] named "[T]d6: Borrow full"
+       output [ decide MdD ] + [ decide NdD ] named "[M]d6 + [N]d6: Sum full"
+   }
+}  

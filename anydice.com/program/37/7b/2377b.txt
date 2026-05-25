@@ -1,0 +1,34 @@
+\set the following four variable to your stats, POOL refers to your explode pool, Spirit, or Rot if corrupted\
+FIGHT: 8
+SWORDS: 2
+SHIELDS: 1
+POOL: 5
+
+
+MFD:POOL+2
+set "maximum function depth" to MFD 
+
+function: roll SW SH M {
+  SUCCESSES: 0
+  DIE: 1d6
+  loop N over {1..FIGHT} {
+    SUCCESSES: SUCCESSES + [DIE explode]
+  }
+  result: SUCCESSES
+}
+
+
+function: N:n explode  {
+  SUCCESSES: 0
+  if SW & N >= 4 { SUCCESSES: 1 }
+  if SW & N >= 6 { SUCCESSES: SUCCESSES + [DIE explode] }
+  if SH & N = 1 { SUCCESSES: 1 }
+  if SH & N >= 6 { SUCCESSES: SUCCESSES + [DIE explode] }
+  if M & N > 1 & N < 4 { SUCCESSES: 1 }
+  if M & N >= 6 { SUCCESSES: SUCCESSES + [DIE explode] }
+  result: SUCCESSES
+}
+
+output SWORDS+[roll 1 0 0] named "Swords"
+output SHIELDS+[roll 0 1 0] named "Shields"
+output [roll 0 0 1] named "Misses"

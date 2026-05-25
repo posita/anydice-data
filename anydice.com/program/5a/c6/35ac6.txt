@@ -1,0 +1,72 @@
+\------------------------------------------------------------\
+\SCROLL TO THE BOTTOM, DON'T CHANGE ANYTHING BELOW UNTIL TOLD\
+\------------------------------------------------------------\
+
+RED: {0, 0, 0, 1, 1, 1}
+BLACK: {0, 1, 1, 1, 1, 2}
+WHITE: {1, 1, 2, 2, 3, 3}
+EVASIONDICE: 0
+DIFFICULTY: 0
+DANGER_PER_HIT: 0
+
+function: roundup D:n {
+  if (D < 0){
+    result: 0
+  }
+  result: D 
+}
+
+function: rounddown D:n {
+  if (D > EVASIONDICE * DANGER_PER_HIT){
+    result: EVASIONDICE * DANGER_PER_HIT
+  }
+  result: D 
+}
+
+function: danger gained with armor A:d evasion E:n {
+  RESULT: 1d0
+  ROLL: d10 + E < DIFFICULTY
+  loop X over {1..EVASIONDICE}{
+    RESULT: RESULT + (ROLL * DANGER_PER_HIT)
+  }
+  RESULT: RESULT - A
+
+  RESULT: [roundup RESULT]
+
+  result: RESULT
+}
+
+function: danger prevented with armor A:d evasion E:n {
+  RESULT: 1d0
+  ROLL: d10 + E >= DIFFICULTY
+  loop X over {1..EVASIONDICE}{
+    RESULT: RESULT + (ROLL * DANGER_PER_HIT)
+  }
+  RESULT: RESULT + A
+
+  RESULT: [rounddown RESULT]
+
+  result: RESULT
+}
+
+\----------------------\
+\ Only edit below here \
+\----------------------\
+
+\Incoming Attack Details\
+EVASIONDICE: 3
+DIFFICULTY: 10
+DANGER_PER_HIT: 3
+
+\these output the odds that a certain set of armor stats will effectively reduce danger gained by X\
+output [danger prevented with armor 0 evasion 0] named "No Armor"
+output [danger prevented with armor 0 evasion 1] named "Evasion Armor"
+output [danger prevented with armor 2dRED evasion 0] named "Armor Dice Armor"
+output [danger prevented with armor 0 evasion 1] > [danger prevented with armor 1dRED evasion 0] named "Odds that left armor receives less danger than right"
+
+\these output the odds that a certain set of armor stats net you X danger from the attack\
+\the below are commented out, to see their output, remove the backslashes from the beginning and end of the line\
+\output [danger gained with armor 0 evasion 0] named "No Armor"\
+\output [danger gained with armor 0 evasion 1] named "Evasion Armor"\
+\output [danger gained with armor 2dRED evasion 0] named "Armor Dice Armor"\
+\output [danger gained with armor 0 evasion 1] < [danger gained with armor 1dRED evasion 0] named "Odds that left armor receives less danger than right"\

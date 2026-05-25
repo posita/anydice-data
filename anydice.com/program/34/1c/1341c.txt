@@ -1,0 +1,115 @@
+\Global Variables\
+\looped against enemy AC from 12-20\
+ENEMYAC: d{12..20}
+
+SNEAKATTACKCOUNT: 1
+ATTACKTIMES: 1
+ABILITYMOD: 4
+PROFICIENCYMOD: 2
+CRITROLL: 20
+
+\Boolean Variables\
+DUALWIELD: 1
+SNEAKATTACK: 1
+
+\Weapon Dice\
+LIGHTCROSSBOW: 1d8
+SHORTSWORD: 1d6
+DAGGER: 1d4
+SHORTBOW: 1d6
+LONGBOW: 1d8
+NOTHING: 0
+
+TOTALDAMAGE: 0
+
+function: ishit ROLL:n vs AC:n {
+	if ROLL = 20 { result: 3 } 
+	if ROLL = 1 { result: 0 }
+	if ROLL + PROFICIENCYMOD + ABILITYMOD < AC { result: 0 }
+	result: 1
+}
+
+function: damagetotal A:n and B:n {
+	TOTALDAMAGE: 0
+	if A + B != 0 {
+		if A = 1 {
+			TOTALDAMAGE: TOTALDAMAGE + WEAPONA + ABILITYMOD
+		}
+		else if A = 3{
+			TOTALDAMAGE: TOTALDAMAGE + WEAPONA + WEAPONA + ABILITYMOD
+		}
+		if DUALWIELD = 1{
+			if B = 1 {
+				TOTALDAMAGE: TOTALDAMAGE + WEAPONB
+			}
+			else if B = 3{
+				TOTALDAMAGE: TOTALDAMAGE + WEAPONB + WEAPONB
+			}
+		}
+                else{
+                    B: 0
+                }
+		if SNEAKATTACK = 1{
+			if A + B > 2 {
+				TOTALDAMAGE: TOTALDAMAGE + SNEAKATTACKCOUNTd6
+			}
+			else if A + B > 0{
+				TOTALDAMAGE: TOTALDAMAGE + (2 * SNEAKATTACKCOUNT)d6
+			}
+		}
+		result: TOTALDAMAGE
+	}
+	
+	result: 0
+} 
+
+WEAPONA: LIGHTCROSSBOW
+WEAPONB: NOTHING
+output ATTACKTIMESd[damagetotal [ishit d20 vs ENEMYAC] and [ishit d20 vs ENEMYAC]] named "Light Crossbow Sneak Attack"
+
+WEAPONA: SHORTSWORD
+WEAPONB: SHORTSWORD
+output ATTACKTIMESd[damagetotal [ishit d20 vs ENEMYAC] and [ishit d20 vs ENEMYAC]] named "Short Sword x2 Sneak Attack"
+
+WEAPONA: SHORTSWORD
+WEAPONB: DAGGER
+output ATTACKTIMESd[damagetotal [ishit d20 vs ENEMYAC] and [ishit d20 vs ENEMYAC]] named "Short Sword and Dagger Sneak Attack"
+
+WEAPONA: LIGHTCROSSBOW
+WEAPONB: NOTHING
+output ATTACKTIMESd[damagetotal [ishit [highest 1 of 2d20] vs ENEMYAC] and [ishit [highest 1 of 2d20] vs ENEMYAC]] named "Light Crossbow Sneak Attack and Advantage"
+
+WEAPONA: SHORTSWORD
+WEAPONB: SHORTSWORD
+output ATTACKTIMESd[damagetotal [ishit [highest 1 of 2d20] vs ENEMYAC] and [ishit [highest 1 of 2d20] vs ENEMYAC]] named "Short Sword x2 Sneak Attack and Advantage"
+
+WEAPONA: SHORTSWORD
+WEAPONB: DAGGER
+output ATTACKTIMESd[damagetotal [ishit [highest 1 of 2d20] vs ENEMYAC] and [ishit [highest 1 of 2d20] vs ENEMYAC]] named "Short Sword and Dagger Sneak Attack and Advantage"
+
+SNEAKATTACK: 0
+
+WEAPONA: LIGHTCROSSBOW
+WEAPONB: NOTHING
+output ATTACKTIMESd[damagetotal [ishit d20 vs ENEMYAC] and [ishit d20 vs ENEMYAC]] named "Light Crossbow"
+
+WEAPONA: SHORTSWORD
+WEAPONB: SHORTSWORD
+output ATTACKTIMESd[damagetotal [ishit d20 vs ENEMYAC] and [ishit d20 vs ENEMYAC]] named "Short Sword x2"
+
+WEAPONA: SHORTSWORD
+WEAPONB: DAGGER
+output ATTACKTIMESd[damagetotal [ishit d20 vs ENEMYAC] and [ishit d20 vs ENEMYAC]] named "Short Sword and Dagger"
+
+
+WEAPONA: LIGHTCROSSBOW
+WEAPONB: NOTHING
+output ATTACKTIMESd[damagetotal [ishit [highest 1 of 2d20] vs ENEMYAC] and [ishit [highest 1 of 2d20] vs ENEMYAC]] named "Light Crossbow and Advantage"
+
+WEAPONA: SHORTSWORD
+WEAPONB: SHORTSWORD
+output ATTACKTIMESd[damagetotal [ishit [highest 1 of 2d20] vs ENEMYAC] and [ishit [highest 1 of 2d20] vs ENEMYAC]] named "Short Sword x2 and Advantage"
+
+WEAPONA: SHORTSWORD
+WEAPONB: DAGGER
+output ATTACKTIMESd[damagetotal [ishit [highest 1 of 2d20] vs ENEMYAC] and [ishit [highest 1 of 2d20] vs ENEMYAC]] named "Short Sword and Dagger and Advantage"

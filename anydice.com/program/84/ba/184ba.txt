@@ -1,0 +1,35 @@
+function: attack defence DEF:n with ATT:n on miss MISS on hit HIT on crit CRIT {
+	if ATT < DEF {result: MISS}
+	if ATT < 20 {result: HIT}
+	result: CRIT
+}
+
+function: attack roll with grit GRIT:n and accuracy ACC:n {
+	if ACC < 0 {result: 1d20 + [lowest 1 of (ACC)d6] + GRIT}
+	result: 1d20 + [highest 1 of (ACC)d6] + GRIT
+}
+
+GRIT: 1
+loop ACCURACY over {-1, 0, 1, 2}{
+	loop DEF over {6, 8, 10, 12}{
+		RELIABLE: 2
+		HIT_DAMAGE: [highest of RELIABLE and 1d6]
+		CRIT_DAMAGE: [highest 1 of 2dHIT_DAMAGE]
+		output [attack defence DEF with [attack roll with grit GRIT and accuracy ACCURACY] on miss RELIABLE on hit HIT_DAMAGE on crit CRIT_DAMAGE] named "AR with ACC [ACCURACY] against DEF [DEF]"
+		
+		RELIABLE: 0
+		HIT_DAMAGE: [highest of RELIABLE and 2d6 + 4]
+		CRIT_DAMAGE: [highest 1 of 2dHIT_DAMAGE]
+		output [attack defence DEF with [attack roll with grit GRIT and accuracy (ACCURACY - 1)] on miss RELIABLE on hit HIT_DAMAGE on crit CRIT_DAMAGE] named "HMG with ACC [ACCURACY] against DEF [DEF]"
+		
+		RELIABLE: 0
+		HIT_DAMAGE: [highest of RELIABLE and 1d3]
+		CRIT_DAMAGE: [highest 1 of 2dHIT_DAMAGE]
+		output 2d[attack defence DEF with [attack roll with grit GRIT and accuracy (ACCURACY + 1)] on miss RELIABLE on hit HIT_DAMAGE on crit CRIT_DAMAGE] named "2x LMG-I with ACC [ACCURACY] against DEF [DEF]"
+		
+		RELIABLE: 5
+		HIT_DAMAGE: [highest of RELIABLE and 3d6 + 3]
+		CRIT_DAMAGE: [highest 1 of 2dHIT_DAMAGE]
+		output ([attack defence DEF with [attack roll with grit GRIT and accuracy (ACCURACY + 1)] on miss RELIABLE on hit HIT_DAMAGE on crit CRIT_DAMAGE] / 2) named "1/2 GMS CPR with ACC [ACCURACY] against DEF [DEF]"
+	}
+}

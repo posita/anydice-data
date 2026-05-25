@@ -1,0 +1,45 @@
+DICE: 6
+AUTOSUC: 1
+MAXDEPTH: 3
+\Calculate successes for <name>, with Glitch probabilities (ones > hits)\
+\set MAXDEPTH to 1 unless you are "spending adrenaline"\
+\The "mean" is really wrong\
+\MAXDEPTH is otherwise how many recursions of Exploding Dice are allowed\
+\A result of -999 means a Critical Glitch (0 hits)\
+\Negative results mean X hits but with a Glitch\
+\Positive results are numbers of hits and no glitch\
+\With high pools, use lower MAXDEPTH but still >1 if explosions ok (loss of precision, but less risk of timing out)\
+\With low pools, you can increase the MAXDEPTH if modeling an explosion\
+\This doesn't model the "explosions don't increment 1s" because I can't figure out how to do that.\
+
+function: explode N:n plus X {
+ if N = 6 { result: [explode d6 plus X + 1] }
+ if N = 5 { result: X + 1 }
+ if N = 1 {
+  if X { result: -X }
+  result: -100
+ }
+ result: X
+}
+
+function: parse ROLL:s {
+ ONES: 0
+ HITS: AUTOSUC
+ loop N over ROLL {
+  if N > 0 { HITS: HITS + N }
+  else if N = -100 { ONES: ONES + 1 }
+  else if N < 0 {
+   HITS: HITS - N
+   ONES: ONES + 1
+  }
+ }
+ if ONES > HITS {
+  if HITS { result: -HITS }
+  result: -999
+ }
+ result: HITS
+}
+
+set "maximum function depth" to MAXDEPTH
+D: [explode d6 plus 0]
+output [parse DICEdD]

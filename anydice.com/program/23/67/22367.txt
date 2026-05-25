@@ -1,0 +1,38 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n crit on CRIT:s {
+ if ROLL = 1 { result: MISS }
+ if ROLL = CRIT {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE crit on CRITRANGE]]
+}
+
+DEFENSE: d{12..18}
+
+ATTACK: +9
+HITDAMAGE: 1d6+6
+CRITICALDAMAGE: 1d6+6+6
+CRITRANGE: {20}
+MISSDAMAGE: 0
+
+output [attack] named "Normal Damage"
+
+CRITICALDAMAGE: 1d6+6+6+7
+output [attack] named "Extra Crit Damage"

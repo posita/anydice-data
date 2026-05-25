@@ -1,0 +1,127 @@
+DISPLAY_MISSES: 0
+
+DISPLAY_SINGLE_ATTACK: 0
+DISPLAY_TWO_HAND_ATTACK: 1
+DISPLAY_BOOMING_BLADE: {0, 100}
+
+DISPLAY_CURSED_SINGLE_ATTACK: 0
+DISPLAY_CURSED_TWO_HAND_ATTACK: 1
+DISPLAY_CURSED_BOOMING_BLADE: {0, 100}
+
+\ ------------------------------------------- COMMON STATS \
+
+PROFICIENCY: 3
+DEX_MOD: 4
+ATTACK: DEX_MOD + PROFICIENCY
+DEFENSE: d{8..18}
+MISSDAMAGE: 0
+
+\ ------------------------------------------- WEAPONS and DMGs \
+
+RAPPIER: 1d8
+SWORD: 1d6
+
+\ ------------------------------------------- ABILITIES \
+
+SNEAK: 3d6
+BOOMING: 1d8
+BOOMING_MOVE: 2d8
+BOOMING_CHANCE: 0
+
+\ ------------------------------------------- GAME RULES  \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n with ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: cursedattack ROLL:n with ATTACK:n vs DEFENSE:n {
+ if ROLL = 19 { result: [attack 20 with ATTACK vs DEFENSE] }
+ result: [attack ROLL with ATTACK vs DEFENSE]
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT { result: DICE_DMG + DICE_DMG + EXTRA_DMG }
+ if ATTACKRESULT = HIT { result: DICE_DMG + EXTRA_DMG }
+ if DISPLAY_MISSES = 1 { result: MISSDAMAGE }
+}
+
+function: attack {
+ result: [damage for [attack d20 with ATTACK vs DEFENSE]]
+}
+
+function: cursedattack {
+ result: [damage for [cursedattack d20 with ATTACK vs DEFENSE]]
+}
+
+function: boomingmove ROLL:n CHANCE:n {
+ if (ROLL <= CHANCE) { result: BOOMING_MOVE }
+ result: 0
+}
+
+function: boommovedmg {
+ result: [boomingmove d100 BOOMINGCHANCE]
+}
+
+\ ------------------------------------------- REGULAR 1 ATTACK \
+
+if (DISPLAY_SINGLE_ATTACK = 1) {
+  DICE_DMG: RAPPIER + SNEAK
+  EXTRA_DMG: DEX_MOD
+  output [attack] named "Regular - 1 attack"
+}
+
+\ ------------------------------------------- REGULAR 2 ATTACK \
+
+if (DISPLAY_TWO_HAND_ATTACK = 1) {
+  DICE_DMG: SWORD + SNEAK
+  EXTRA_DMG: DEX_MOD
+  ATTACK_ONE: [attack]
+  DICE_DMG: SWORD
+  ATTACK_TWO: [attack]
+  output (ATTACK_ONE + ATTACK_TWO) named "Regular - 2 attack"
+}
+
+\ ------------------------------------------- CURSED 1 ATTACK \
+
+if (DISPLAY_CURSED_SINGLE_ATTACK = 1) {
+  DICE_DMG: RAPPIER + SNEAK
+  EXTRA_DMG: DEX_MOD
+  output [cursedattack] named "Cursed - 1 attack"
+}
+
+\ ------------------------------------------- CURSED 2 ATTACK \
+
+if (DISPLAY_CURSED_TWO_HAND_ATTACK = 1) {
+  DICE_DMG: SWORD + SNEAK
+  EXTRA_DMG: DEX_MOD
+  ATTACK_ONE: [cursedattack]
+  DICE_DMG: SWORD
+  ATTACK_TWO: [cursedattack]
+  output (ATTACK_ONE + ATTACK_TWO) named "Cursed - 2 attack"
+}
+
+
+\ ------------------------------------------- BOOMING BLADE \
+
+loop N over DISPLAY_BOOMING_BLADE {
+  BOOMINGCHANCE: N
+  DICE_DMG: RAPPIER + SNEAK + BOOMING
+  EXTRA_DMG: [boommovedmg] + DEX_MOD
+  output [attack] named "Booming Blade - [BOOMINGCHANCE]% moving"
+}
+
+\ ------------------------------------------- CURSED BOOMING BLADE \
+
+loop N over DISPLAY_CURSED_BOOMING_BLADE {
+  BOOMINGCHANCE: N
+  DICE_DMG: RAPPIER + SNEAK + BOOMING
+  EXTRA_DMG: [boommovedmg] + DEX_MOD + PROFICIENCY
+  output [cursedattack] named "Cursed Booming Blade - [BOOMINGCHANCE]% moving"
+}

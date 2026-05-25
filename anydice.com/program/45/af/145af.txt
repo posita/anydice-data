@@ -1,0 +1,83 @@
+CRIT: 20
+AC: 11
+NORMAL: 1d20
+ADV: 1@2d20
+DISADV: 2@2d20
+
+
+function: roll ROLL:n plus MOD:n {
+  if ROLL <= 1 { result: 0 }
+  if ROLL >= CRIT { result: 2 }
+  result: ROLL + MOD >= AC
+}
+
+function: multiattack N:n times DIE:d MOD:n NORMDMG:d CRITDMG:d{
+  result: [damage [roll DIE plus MOD] N DIE MOD NORMDMG CRITDMG 0 0]
+}
+
+function: multiattack N:n times DIE:d MOD:n NORMDMG:d CRITDMG:d FIRSTBONUS:d FIRSTCRITBONUS:d {
+  result: [damage [roll DIE plus MOD] N DIE MOD NORMDMG CRITDMG FIRSTBONUS FIRSTCRITBONUS]
+}
+
+function: gw multiattack N:n times DIE:d MOD:n X:n x Y:n plus B:n{
+  result: [gw damage [roll DIE plus MOD] N DIE MOD X x Y plus B]
+}
+
+function: damage HIT:n N:n DIE:d MOD:n NORMDMG:d CRITDMG:d FIRSTBONUS:d FIRSTCRITBONUS:d {
+  if N <= 0 { result: 0 }
+
+  if HIT = 1 {
+    result: NORMDMG + FIRSTBONUS + [damage [roll DIE plus MOD] N-1 DIE MOD NORMDMG CRITDMG 0 0]
+  }
+ 
+  if HIT = 2 {
+    result: CRITDMG + FIRSTCRITBONUS + [damage [roll DIE plus MOD] N-1 DIE MOD NORMDMG CRITDMG 0 0]
+  }
+
+  result: [damage [roll DIE plus MOD] N-1 DIE MOD NORMDMG CRITDMG FIRSTBONUS FIRSTCRITBONUS]
+}
+
+function: gw damage HIT:n N:n DIE:d MOD:n X:n x Y:n plus B:n {
+  if N <= 0 { result : 0 }
+
+  if HIT = 1 {
+    result: [reroll X x Y less than 3] + B + [gw damage [roll DIE plus MOD] N-1 DIE MOD X x Y plus B]
+  }
+ 
+  if HIT = 2 {
+    result: [reroll 2*X+1 x Y less than 3] + B + [gw damage [roll DIE plus MOD] N-1 DIE MOD X x Y plus B]
+  }
+
+  result: [gw damage [roll DIE plus MOD] N-1 DIE MOD X x Y plus B]
+}
+
+function: reroll X:n x Y:n less than Z:n {
+  SUM: 0
+  loop I over {1..X} {
+    SUM: SUM + [reroll 1dY of Y less than Z]
+  }
+  result: SUM
+}
+
+function: reroll W:n of Y:n less than Z:n {
+  if W < Z { result: 1dY}
+  result: W
+}
+
+\
+output [gw multiattack 4 times ADV 7 2x6 plus 4] named "gw orc 2d6"
+output [multiattack 4 times ADV 7 2d6+4 5d6+4] named "orc 2d6"
+
+output [gw multiattack 4 times ADV 7 1x12 plus 4] named "gw orc 1d12"
+output [multiattack 4 times ADV 7 1d12+4 3d12+4] named "orc 1d12"
+\
+
+loop AC over {11..18} {
+  output [gw multiattack 4 times ADV 7 1x12 plus 4] named "chris best against ac [AC]"
+  \output [multiattack 1 times ADV 9 1d12+6 2d12+6] + [multiattack 2 times NORMAL 7 1d4+9 2d4+9] named "fox best against ac [AC]"\
+  \output [multiattack 3 times ADV 7 1d12+6 2d12+6] named "correy best against ac [AC]"\
+  \output [multiattack 2 times NORMAL 7 1d6 2d6 3d6+4 6d6+4] named "aj best against ac [AC]"\
+  \output [multiattack 2 times NORMAL 7 1d10+4 2d10+4] + [multiattack 2 times NORMAL 7 1d6+4 2d6+4] named "ben best against ac [AC]"\
+}
+
+

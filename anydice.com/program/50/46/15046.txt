@@ -1,0 +1,33 @@
+set "maximum function depth" to 3
+
+function: agone N:n with EXPL or IMPL {
+ if N = 10 {
+  result: 10 + EXPL
+ }
+ if N = 1 {
+  result: 1 - IMPL
+ }
+ result: N
+}
+
+function: explode N:n with A or B {
+ if N = 10 { result: 10 + [explode A with A or B] }
+ if N = 1 { result: 1 + [explode B with A or B] }
+ result: N
+}
+
+N: d10
+H: 1@2d10
+L: 2@2d10
+
+NORMAL: [explode N with N or N]
+
+EXPL_ADV: [explode H with H or N]
+IMPL_ADV: [explode N with L or N]
+
+EXPL_DIS: [explode N with N or L]
+IMPL_DIS: [explode H with N or H]
+
+output [agone d10 with EXPL_DIS or IMPL_DIS] named "Weak Flame"
+output [agone d10 with NORMAL or NORMAL] named "Normal"
+output [agone d10 with EXPL_ADV or IMPL_ADV] named "Blazing Flame"

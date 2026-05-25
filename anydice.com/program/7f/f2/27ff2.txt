@@ -1,0 +1,52 @@
+function: remove VALUES:s from SEQUENCE:s {
+  KEPT: {}
+  loop N over SEQUENCE {
+    if !(N = VALUES) {
+      KEPT: {KEPT, N}
+    }
+  }
+  result: KEPT
+}
+
+function: count times highest above Y:n of ROLL:s {
+  KEPT: [remove {1..Y} from ROLL]
+  result: #KEPT * 1@KEPT
+}
+
+function: count times lowest above Y:n of ROLL:s {
+  KEPT: [remove {1..Y} from ROLL]
+  result: #KEPT * (#KEPT)@KEPT
+}
+
+function: most common value in SEQUENCE:s {
+  MODE: 0
+  MAX: 0
+  loop N over SEQUENCE {
+    COUNT: N = SEQUENCE
+    if COUNT > MAX {
+      MODE: N
+      MAX: COUNT
+    }
+  }
+  result: MODE
+}
+
+function: count times most common above Y:n of ROLL:s {
+  KEPT: [remove {1..Y} from ROLL]
+  result: #KEPT * [most common value in KEPT]
+}
+
+function: count times most common above Y:n of ROLL:s prefer lowest {
+  KEPT: [remove {1..Y} from ROLL]
+  result: #KEPT * [most common value in [reverse KEPT]]
+}
+
+X: 4
+Y: 2
+
+D: d{1:Y, Y+1 .. 6}  \ use relabeled die for faster calculation! \ 
+
+output [count times highest above Y of XdD] named "[X]d6 > [Y], count * highest"
+output [count times lowest above Y of XdD] named "[X]d6 > [Y], count * lowest"
+output [count times most common above Y of XdD] named "[X]d6 > [Y], count * most common"
+output [count times most common above Y of XdD prefer lowest] named "[X]d6 > [Y], count * most common (prefer lowest)"

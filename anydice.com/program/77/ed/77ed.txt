@@ -1,0 +1,47 @@
+function: gun N:n ar AR:n ap AP:n dm W:n{
+ COUNT: 0
+ loop P over {1..N} {
+  COUNT: COUNT + [checkhit 2d6]
+ }
+ result: COUNT*W
+}
+function: miss N:n ar AR:n ap AP:n dm W:n{
+ COUNT: 0
+ loop P over {1..N} {
+  COUNT: COUNT + [checkmiss 3d6]
+ }
+ result: COUNT*W
+}
+function: checkmiss HH:n {
+ if HH >= 15 {result: [checksv 1]}
+ if HH + AR > DR {result: [checksv 0]}
+ result: 0
+}
+function: checkhit HH:n {
+ if HH >= 11 {result: [checksv 1]}
+ if HH + AR > DR+DRM {result: [checksv 0]}
+ result: 0
+}
+function: checksv VV:n {
+ result: (d6 < SV+AP+VV)
+}
+
+output (2d6 >= 11) named "crit chance guns"
+output (3d6 >= 15) named "crit chance missiles"
+
+DR: 5
+DRM: 2
+SV: 4
+
+
+output [gun 2 ar 6-2 ap 1 dm 1] named "MG57"
+output [gun 1 ar 6-2+2 ap 2 dm 1] named "HFlame+HIF"
+
+output [gun 2 ar 4-2 ap 1 dm 1]+[gun 2 ar 2-2 ap 1 dm 1] named "MG57+MG57* no TArray"
+
+output [gun 5 ar 5-2+1 ap 1 dm 1]+[miss 4 ar 2 ap 6 dm 1] named "MG+APMissile"
+output [gun 5 ar 5-2+1 ap 1 dm 1]+[gun 10 ar 3-2+1 ap 1 dm 1] named "MG+MG+MG"
+
+
+output [gun 5 ar 6-2+1 ap 3 dm 1] named "Shredder+AP"
+output [gun 10 ar 6-2+1 ap 1 dm 1] named "Shredder+Buckshot"

@@ -1,0 +1,114 @@
+
+
+\ COMPARING the DPR of TWO ATTACKERS AGAINST THE SAME ENEMY IN WEIRD WIZARD \
+
+ENEMYDEFENSE: 16
+
+\ ATTACK SECTION attacker A \
+ABOONS: 1                   \ number of boons \
+ABANES: 0                   \ number of banes \
+AATKBONUS: 5                \ stat bonus + other flat bonuses \
+
+\ ATTACK SECTION attacker B \
+BBOONS: 1                   \ number of boons \
+BBANES: 0                   \ number of banes \
+BATKBONUS: 5                \ stat bonus + other flat bonuses \
+
+\ DAMAGE SECTION attacker A \
+ADMGDICE: 19                 \ the number of damage dice \
+ADMGBONUS: 0                \ flat bonus to damage \
+ABRUTAL: 1                  \ 1 if you reroll 1s, otherwise 0 \
+AREROLLDMG: 0               \ 1 to roll all damage dice twice and take higher sum \
+ACRITDICE: d6               \ whatever extra you get when crit'ing \
+ANUMCRITDICE: 1
+
+\ DAMAGE SECTION attacker B \
+BDMGDICE: 19                 \ the number of damage dice \
+BDMGBONUS: 0                \ Some paths/spells give flat bonuses to damage \
+BBRUTAL: 0                  \ 1 if you reroll 1s, otherwise 0 \
+BREROLLDMG: 1               \ 1 to roll all damage dice twice and take higher sum \
+BCRITDICE: d6               \ whatever extra you get when crit'ing \
+BNUMCRITDICE: 1
+
+\ DO NOT EDIT BELOW THIS LINE \
+
+ABOONSBANES: ABOONS - ABANES
+BBOONSBANES: BBOONS - BBANES
+
+\ reroll 1's if BRUTAL is 1. Thanks to Vilarinof of stackexchange! \
+function: reroll DICE:n as REROLL:d if BRUTAL:n {
+  if BRUTAL=1 {
+    if DICE=1 {
+      result: REROLL
+    }
+    result: DICE
+  }
+  result: DICE
+}
+
+\ REROLL whole dice set if HIGHEST is 1, thanks to Vilarinof of stackexchange! \
+function: highest of two DICE:d if HIGHEST {
+  if HIGHEST=1 {
+    result: [highest of DICE and DICE]
+  }
+  result: DICE
+}
+
+\ This is the attack function. Returns the damage including crits if applicable. \
+\ Thanks to stealth_elephant on reddit! \
+
+function: attack ROLL:n plus ATKBONUS:n vs DEFENSE:n for DMG:d plus DMGBONUS:n crit CRIT_DMG:d{
+    if ROLL + ATKBONUS >= 20 {
+        if ROLL + ATKBONUS >= DEFENSE + 5 {
+            result: DMG + DMGBONUS + CRIT_DMG
+        }
+    }
+    if ROLL + ATKBONUS >= DEFENSE {
+        result: DMG + DMGBONUS
+    }
+    result: 0
+}
+
+
+\ START DOING \
+
+\ redefine attack dice according to their boons/banes \
+A_ATKDICE: d20 + [highest 1 of ABOONSBANESd6]
+B_ATKDICE: d20 + [highest 1 of BBOONSBANESd6]
+
+\ redefine damage dice as brutal dice if they are \
+AREROLLED: [reroll d6 as d6 if ABRUTAL]  \ now we got the new dAREROLLED for attacker A \
+BREROLLED: [reroll d6 as d6 if BBRUTAL]  \ and dBREROLLED for attacker B. If they don't have brutal, it's just d6 \
+
+\ reroll the set of dmg dice if that’s what you do \
+A_DMGDICE: [highest of two ADMGDICE d AREROLLED if AREROLLDMG]
+B_DMGDICE: [highest of two BDMGDICE d BREROLLED if BREROLLDMG]
+
+A_CRITD: [highest of two ANUMCRITDICE d AREROLLED if AREROLLDMG]
+B_CRITD: [highest of two BNUMCRITDICE d BREROLLED if BREROLLDMG]
+
+\ Hit Probabilities. Thanks to stealth_elephant on reddit! \
+AHITPROB: [highest of [lowest of ((d20) + AATKBONUS + [highest 1 of ABOONSBANESd6] -ENEMYDEFENSE + 1) and 1] and 0]
+BHITPROB: [highest of [lowest of ((d20) + BATKBONUS + [highest 1 of BBOONSBANESd6] -ENEMYDEFENSE + 1) and 1] and 0] 
+
+\ Pure damage, unaffected by tohit probabilities. Thanks to Vilarinof of stackexchange! \
+\ split off the bonus dmg? \
+ADMG: [highest of two ADMGDICE d AREROLLED if AREROLLDMG] + ADMGBONUS
+BDMG: [highest of two BDMGDICE d BREROLLED if BREROLLDMG] + BDMGBONUS
+
+
+\ DPR \
+output ADMG * AHITPROB named "A's DPR v. defense [ENEMYDEFENSE]. ATK: d20 + [AATKBONUS] with [ABOONSBANES] boons. DMG: [ADMGDICE]d6 + [ADMGBONUS]. Brutal: [ABRUTAL] Reroll: [AREROLLDMG]"
+output BDMG * BHITPROB named "B's DPR v. defense [ENEMYDEFENSE]. ATK: d20 + [BATKBONUS] with [BBOONSBANES] boons. DMG: [BDMGDICE]d6 + [BDMGBONUS]. Brutal: [BBRUTAL] Reroll: [BREROLLDMG]"
+
+output [attack A_ATKDICE plus AATKBONUS vs ENEMYDEFENSE for A_DMGDICE plus ADMGBONUS crit ACRITDICE] named "A Including Crit"
+output [attack A_ATKDICE plus AATKBONUS vs ENEMYDEFENSE for A_DMGDICE plus ADMGBONUS crit d0] named "A Excluding Crit"
+output [attack B_ATKDICE plus BATKBONUS vs ENEMYDEFENSE for B_DMGDICE plus BDMGBONUS crit BCRITDICE] named "B including Crit"
+output [attack B_ATKDICE plus BATKBONUS vs ENEMYDEFENSE for B_DMGDICE plus BDMGBONUS crit d0] named "B excluding Crit"
+
+output [attack A_ATKDICE plus AATKBONUS vs ENEMYDEFENSE for A_DMGDICE plus ADMGBONUS crit ANUMCRITDICE d AREROLLED] named "A Including Crit and brut on crit"
+output [attack B_ATKDICE plus BATKBONUS vs ENEMYDEFENSE for B_DMGDICE plus BDMGBONUS crit [highest of two BNUMCRITDICE d BREROLLED if BREROLLDMG]] named "B Including Crit, brut on crit, highest of 2 crit"
+
+output [attack A_ATKDICE plus AATKBONUS vs ENEMYDEFENSE for A_DMGDICE plus ADMGBONUS crit A_CRITD] named "A Including Crit, brut on crit, highest of 2 crit shortform"
+
+output [attack B_ATKDICE plus BATKBONUS vs ENEMYDEFENSE for B_DMGDICE plus BDMGBONUS crit B_CRITD] named "B Including Crit, brut on crit, highest of 2 crit shortform"

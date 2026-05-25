@@ -1,0 +1,99 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+ADVANTAGE: [highest 1 of 2d20]
+
+DISADVANTAGE: [lowest 1 of 2d20]
+
+function: sim BONUS_ACTION:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT_DMG:d on CRIT_RANGE:d {
+
+    DMG_TOTAL: 0
+
+    loop N over {1 .. ATTACKS}{
+        DMG_TOTAL: [attack ROLL plus BONUS vs AC for DMG + DMG_TOTAL crit CRIT_DMG on CRIT_RANGE]
+    }
+
+    result: DMG_TOTAL
+}
+
+
+output
+[sim 0 attacks 1 roll d20 plus 8 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4 crit [reroll {1,2,3,4,5,6} on 1d12] on 20] named "[8] Piercer"
+
+output
+[sim 0 attacks 1 roll ADVANTAGE plus 8 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4d6 + 4 crit [reroll {1,2,3,4,5,6} on 1d12] + 4d6 on 20] named "[8] Piercer ADV"
+
+output
+[sim 0 attacks 1 roll DISADVANTAGE plus 8 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4 crit [reroll {1,2,3,4,5,6} on 1d12] on 20] named "[8] Piercer DIS"
+
+output
+[sim 0 attacks 1 roll d20 plus 3 vs 16 for 1d12 + 14 crit 1d12 on 20] named "[8] Sharpshooter"
+
+output
+[sim 0 attacks 1 roll ADVANTAGE plus 3 vs 16 for 1d12 + 4d6 + 14 crit 1d12 + 4d6 on 20] named "[8] Sharpshooter ADV"
+
+output
+[sim 0 attacks 1 roll DISADVANTAGE plus 8 vs 16 for 1d12 + 4 crit 1d12 on 20] named "[8] Sharpshooter DIS"
+
+output
+[sim 0 attacks 1 roll d20 plus 10 vs 16 for 1d12 + 4 crit 1d12 on 20] named "[8] Fighting Initiate"
+
+output
+[sim 0 attacks 1 roll ADVANTAGE plus 10 vs 16 for 1d12 + 4d6 + 4 crit 1d12 + 4d6 on 20] named "[8] Fighting Initiate ADV"
+
+output
+[sim 0 attacks 1 roll DISADVANTAGE plus 10 vs 16 for 1d12 + 4 crit 1d12 on 20] named "[8] Fighting Initiate DIS"
+
+output
+[sim 0 attacks 1 roll d20 plus 4 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 14 crit [reroll {1,2,3,4,5,6} on 1d12] on 20] named "[8] All"
+
+output
+[sim 0 attacks 1 roll ADVANTAGE plus 4 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4d6 + 14 crit [reroll {1,2,3,4,5,6} on 1d12] + 4d6 on 20] named "[8] All ADV"
+
+output
+[sim 0 attacks 1 roll DISADVANTAGE plus 9 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4 crit [reroll {1,2,3,4,5,6} on 1d12] on 20] named "[8] All DIS"
+
+output
+[sim 0 attacks 1 roll d20 plus 10 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4 crit [reroll {1,2,3,4,5,6} on 1d12] on 20] named "[8] Piercer & FI"
+
+output
+[sim 0 attacks 1 roll ADVANTAGE plus 10 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4d6 + 4 crit [reroll {1,2,3,4,5,6} on 1d12] + 4d6 on 20] named "[8] Piercer & FI ADV"
+
+output
+[sim 0 attacks 1 roll DISADVANTAGE plus 10 vs 16 for [reroll {1,2,3,4,5,6} on 1d12] + 4 crit [reroll {1,2,3,4,5,6} on 1d12] on 20] named "[8] Piercer & FI DIS"

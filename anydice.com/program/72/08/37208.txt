@@ -1,0 +1,29 @@
+MINSKILL: 2
+MAXSKILL: 6
+DIFFICULTY: 3
+
+\
+ Result Interpretation:
+ "0" is a catastrophe (0 dice were 4+ and at least 1 dice was a 1)
+ "1" is a failure (0 dice were 4+)
+ "2" is an incomplete success (at least 1 die was 4+, but total successes did not meet difficulty)
+ "3" is a complete success (there were at least as many 4+ dice as difficulty)
+ "4" is a triumph (there were at least as many 4+ dice as difficult and at least 1 was a 6)
+\
+
+function: parse ROLL:s vs DIFF{
+ HITS: [count {4..6} in ROLL]
+ ONES: [count {1} in ROLL]
+ SIXES: [count {6} in ROLL]
+ CARD: [count {1..6} in ROLL]
+
+ if HITS >= DIFF & SIXES = CARD  {result: 4}
+ else if HITS >= DIFF {result: 3}
+ else if HITS > 0 {result: 2}
+ else if HITS = 0 & ONES = CARD {result: 0}
+ result: 1
+}
+
+loop DICE over {MINSKILL..MAXSKILL} {
+ output [parse DICEd6 vs DIFFICULTY] named "[DICE] dice pool vs Diff [DIFFICULTY]"
+}

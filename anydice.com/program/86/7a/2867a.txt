@@ -1,0 +1,95 @@
+\\\ *** Spell Damage Calculator *** \\\
+
+\\\ Basic Save Info \\\
+SPELL_DC: 16
+STR_SAVE: 14/5 \\\ Monster ave: 2.81, 14/5 \\\
+DEX_SAVE: 12/5 \\\ Monster ave: 2.39, 12/5 \\\
+CON_SAVE: 19/5 \\\ Monster ave: 3.77, 19/5 \\\
+INT_SAVE:  2/5 \\\ Monster ave: 0.36,  2/5 \\\
+WIS_SAVE: 13/5 \\\ Monster ave: 2.57, 13/5 \\\
+CHA_SAVE:  7/5 \\\ Monster ave: 1.41,  7/5 \\\
+SPELL_B:  1   \\\ 0 = Spell_B off, 1 = Spell_B on \\\
+M_RESIST: 0   \\\ 0 = Magic resist off, 1 = Magic resist on, 2 = Show both \\\
+PERCENTS: 0   \\\ 0 = Save fail % off, 1 = Save fail % on \\\
+
+\\\*** Spell A ***\\\
+FAIL_SAVE_A: 15d10
+SUCC_SAVE_A: 5d10
+SAVE_A: INT_SAVE
+N_TURNS_A: 1
+
+\\\*** Attack B ***\\\
+FAIL_SAVE_B: 10d6+40
+SUCC_SAVE_B: 0
+SAVE_B: DEX_SAVE
+N_TURNS_B: 1
+
+\\\*** General Info ***\\\
+NORMAL: d20
+RESIST: [highest 1 of 2d20]
+
+\\\*** Functions ***\\\
+function: spell ROLL:n vs SPELL_DC:n {
+ if ROLL + SAVE >= SPELL_DC{ result: SUCC_SAVE}
+ if ROLL + SAVE < SPELL_DC{ result: FAIL_SAVE}
+}
+
+\\\ SPELL_A \\\
+SAVE: SAVE_A
+SUCC_SAVE: SUCC_SAVE_A
+FAIL_SAVE: FAIL_SAVE_A
+if M_RESIST = 0 {
+ output N_TURNS_Ad[spell NORMAL vs SPELL_DC] named "Spell A Dmg"
+ if PERCENTS = 1 {
+   output (SPELL_DC > NORMAL + MOD)*100 named "Fail_A %"
+ }
+}
+else {
+ if M_RESIST = 1 {
+  output N_TURNS_Ad[spell RESIST vs SPELL_DC] named "M.Resist Spell A Dmg"
+ if PERCENTS = 1 {
+   output (SPELL_DC > RESIST + MOD)*100 named "M.Resist Fail_A %"
+ }
+}
+else {
+   if M_RESIST = 2 {
+   output N_TURNS_Ad[spell NORMAL vs SPELL_DC] named "Spell A Dmg"
+   output N_TURNS_Ad[spell RESIST vs SPELL_DC] named "M.Resist Spell A Dmg"
+ if PERCENTS = 1 {
+   output (SPELL_DC > NORMAL + MOD)*100 named "Fail_A %"
+   output (SPELL_DC > RESIST + MOD)*100 named "M.Resist Fail_A %"
+ }
+}
+}
+}
+
+\\\ SPELL_B \\\
+if SPELL_B = 1 {
+SAVE: SAVE_B
+SUCC_SAVE: SUCC_SAVE_B
+FAIL_SAVE: FAIL_SAVE_B
+if M_RESIST = 0 {
+ output N_TURNS_Bd[spell NORMAL vs SPELL_DC] named "Spell B Dmg"
+ if PERCENTS = 1 {
+   output (SPELL_DC > NORMAL + MOD)*100 named "Fail_B %"
+ }
+}
+else {
+ if M_RESIST = 1 {
+  output N_TURNS_Bd[spell RESIST vs SPELL_DC] named "M.Resist Spell B Dmg"
+ if PERCENTS = 1 {
+   output (SPELL_DC > RESIST + MOD)*100 named "M.Resist Fail_B %"
+ }
+}
+else {
+   if M_RESIST = 2 {
+   output N_TURNS_Bd[spell NORMAL vs SPELL_DC] named "Spell B Dmg"
+   output N_TURNS_Bd[spell RESIST vs SPELL_DC] named "M.Resist Spell B Dmg"
+ if PERCENTS = 1 {
+   output (SPELL_DC > NORMAL + MOD)*100 named "Fail_B %"
+   output (SPELL_DC > RESIST + MOD)*100 named "M.Resist Fail_B %"
+ }
+}
+}
+}
+}

@@ -1,0 +1,103 @@
+LVL: 10
+DEFENSE: d{10..20}
+CURSE: 1
+ADV: 0
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 0 { result: MISS }
+ if CURSE!=0 {if ROLL > 18 {result: CRITICALHIT}}
+ if CURSE=0 {if ROLL = 20 {result: CRITICALHIT}}
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: advattack {
+ result: [damage for [attack 1@2d20 vs DEFENSE]]
+}
+function: disattack {
+ result: [damage for [attack 2@2d20 vs DEFENSE]]
+}
+
+if LVL<5 {PB: 2 CHA: 3 DEX: 2 PW: 1 LD: 0 }
+if LVL>=5 {PB: 3 CHA: 3 DEX: 2 PW: 1 LD: 0 }
+if LVL=10 {PB: 4 CHA: 3 DEX: 2 PW: 1 LD: 0 }
+if LVL=11 {PB: 4 CHA: 4 DEX: 2 PW: 1 LD: 0 }
+if LVL=12 {PB: 4 CHA: 4 DEX: 2 PW: 2 LD: 0 }
+if LVL>=13 {PB: 5 CHA: 4 DEX: 2 PW: 2 LD: 0 }
+if LVL>=15 {PB: 5 CHA: 4 DEX: 2 PW: 2 LD: CHA }
+if LVL=17 {PB: 6 CHA: 4 DEX: 2 PW: 2 LD: CHA }
+if LVL=18 {PB: 6 CHA: 5 DEX: 2 PW: 3 LD: CHA }
+if LVL>=19 {PB: 6 CHA: 5 DEX: 3 PW: 3 LD: CHA }
+if CURSE!=0 {CURSE:PB}
+
+ATTACK: PB+CHA+PW
+HITDAMAGE: d8+CHA+PW+CURSE+LD
+CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD
+MISSDAMAGE: 0
+if ADV=0 {output [attack] named "Pact Weapon"}
+if ADV=1 {output [advattack] named "Pact Weapon"}
+if ADV=-1 {output [disattack] named "Pact Weapon"}
+
+ATTACK: PB+DEX
+if LVL<5 {HITDAMAGE: 2d8+CURSE CRITICALDAMAGE: 4d8+PB}
+if LVL=5 {HITDAMAGE: 3d8+CURSE CRITICALDAMAGE: 6d8+PB}
+if LVL>5 {HITDAMAGE: 3d8+CURSE+DEX CRITICALDAMAGE: 6d8+CURSE+DEX}
+if LVL>11 {HITDAMAGE: 4d8+CURSE+DEX CRITICALDAMAGE: 8d8+CURSE+DEX}
+if ADV=0 {output [attack] named "Shadowblade"}
+if ADV=1 {output [advattack] named "Shadowblade"}
+if ADV=-1 {output [disattack] named "Shadowblade"}
+
+ATTACK: PB+PW+CHA
+if LVL<5 {HITDAMAGE: 0 CRITICALDAMAGE: 0}
+if LVL>=5 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+4d8 CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+8d8}
+if LVL>=10 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+5d8 CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+10d8}
+if LVL>=12 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+6d8 CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+12d8}
+if ADV=0 {output [attack] named "Pact Smite"}
+if ADV=1 {output [advattack] named "Pact Smite"}
+if ADV=-1 {output [disattack] named "Pact Smite"}
+
+ATTACK: PB+PW+CHA
+if LVL<5 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+1d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+1d8+CURSE}
+if LVL>=5 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+1d8+2d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+2d8+2d8+CURSE}
+if LVL>=11 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+2d8+3d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+4d8+3d8+CURSE}
+if LVL>=17 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+3d8+4d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+6d8+4d8+CURSE}
+if ADV=0 {output [attack] named "Pact Boom"}
+if ADV=1 {output [advattack] named "Pact Boom"}
+if ADV=-1 {output [disattack] named "Pact Boom"}
+
+ATTACK: PB+DEX
+if LVL<5 {HITDAMAGE: 2d8+CURSE+1d8+CURSE CRITICALDAMAGE: 4d8+CURSE+1d8+CURSE}
+if LVL=5 {HITDAMAGE: 3d8+CURSE+1d8+2d8+CURSE CRITICALDAMAGE: 6d8+CURSE+2d8+2d8+CURSE}
+if LVL>5 {HITDAMAGE: 3d8+CURSE+DEX+1d8+2d8+CURSE CRITICALDAMAGE: 6d8+CURSE+DEX+2d8+2d8+CURSE}
+if LVL=11 {HITDAMAGE: 3d8+CURSE+DEX+2d8+3d8+CURSE CRITICALDAMAGE: 6d8+CURSE+DEX+4d8+3d8+CURSE}
+if LVL>11 {HITDAMAGE: 4d8+CURSE+DEX+2d8+3d8+CURSE CRITICALDAMAGE: 8d8+CURSE+DEX+4d8+3d8+CURSE}
+if LVL>=17 {HITDAMAGE: 4d8+CURSE+DEX+3d8+4d8+CURSE CRITICALDAMAGE: 8d8+CURSE+DEX+6d8+4d8+CURSE}
+if ADV=0 {output [attack] named "Shadowblade Boom"}
+if ADV=1 {output [advattack] named "Shadowblade Boom"}
+if ADV=-1 {output [disattack] named "Shadowblade Boom"}
+
+ATTACK: PB+PW+CHA
+if LVL<5 {HITDAMAGE: 0 CRITICALDAMAGE: 0}
+if LVL>=5 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+4d8+1d8+2d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+8d8+2d8+2d8+CURSE}
+if LVL=10 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+5d8+1d8+2d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+10d8+2d8+2d8+CURSE}
+if LVL=11 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+5d8+2d8+3d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+10d8+4d8+3d8+CURSE}
+if LVL>=12 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+6d8+2d8+3d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+12d8+4d8+3d8+CURSE}
+if LVL>=17 {HITDAMAGE: 1d8+CHA+PW+CURSE+LD+6d8+3d8+4d8+CURSE CRITICALDAMAGE: 2d8+CHA+PW+CURSE+LD+12d8+6d8+4d8+CURSE}
+if ADV=0 {output [attack] named "Pact Boom Smite"}
+if ADV=1 {output [advattack] named "Pact Boom Smite"}
+if ADV=-1 {output [disattack] named "Pact Boom Smite"}

@@ -1,0 +1,31 @@
+TARGET: 10
+PROF: 2
+MOD: 3
+DAM: d8
+WOCO: 1
+
+function: hit D:n{
+ if D = 20 {result: DAM + DAM + MOD}
+ result: DAM + MOD
+}
+
+function: hitw D:n{
+ if D = 20 {result: D + D + MOD + MOD}
+ result: D + MOD
+}
+
+function: atk D:n{
+ if D + PROF + MOD >= TARGET & D > 1 {
+  if WOCO = 1 {result: [hitw D]}
+  result: [hit D]
+ }
+ result: 0
+}
+
+loop I over {10..18}{
+ TARGET: I
+ WOCO: 1
+ output [atk [lowest 1 of 2d20]] named "AC [TARGET] woco"
+ WOCO: 0
+ output [atk d20] named "AC [TARGET]"
+}

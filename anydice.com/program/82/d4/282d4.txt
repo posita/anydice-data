@@ -1,0 +1,41 @@
+EIGHTREROLL: 1d{1d8,1d8,3:8,4:8,5:8,6:8,7:8,8:8}
+SIXREROLL: 1d{1d6,1d6,3:6,4:6,5:6,6:6}
+ELVENACCURACY: [highest 1 of 3d20]
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MISSDAMAGE: 0
+HITDAMAGE: 2d(SIXREROLL)+8
+CRITICALDAMAGE: 4d(SIXREROLL)+8
+
+function: attack ROLL:n ATKMOD:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATKMOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n with BONUS:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE + BONUS
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE + BONUS
+ }
+ result: MISSDAMAGE
+}
+
+function: compare ATKROLL:n ATKMOD:n ATKBONUS:n vs DEFENSE:n {
+ VANILLA: [damage for [attack ATKROLL ATKMOD vs DEFENSE] with ATKBONUS]
+ GREATWEAPON: [damage for [attack ATKROLL (ATKMOD-5) vs DEFENSE] with (ATKBONUS+10)]
+ result: VANILLA >= GREATWEAPON
+}
+
+
+
+loop AC over {5..25} {
+ output [compare 1d20 13 0 vs AC] named "[AC]"
+ \output [compare ELVENACCURACY 13 0 vs AC] named "[AC]"\
+}

@@ -1,0 +1,67 @@
+ATTACK: 8
+DEFENSE: 15
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: glaive damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGEB + 4d8
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEB + 2d8
+ }
+ result: MISSDAMAGE
+}
+
+function: extra damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE + 4d8
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE + 2d8
+ }
+ result: MISSDAMAGE
+}
+
+function: glaive attack {
+ result: [extra damage for [attack d20 vs DEFENSE]] + [extra damage for [attack d20 vs DEFENSE]] + [glaive damage for [attack d20 vs DEFENSE]]
+}
+
+function: scimitar attack {
+ result: [extra damage for [attack d20 vs DEFENSE]] + [extra damage for [attack d20 vs DEFENSE]] + [damage for [attack d20 vs DEFENSE]]
+}
+
+ATTACK: 2 + 4
+HITDAMAGE: d10 + 2
+HITDAMAGEB: d4 + 2
+CRITICALDAMAGE: 2d10 + 2
+CRITICALDAMAGEB: 2d4 + 2
+MISSDAMAGE: 0
+output [glaive attack] named "Glaive"
+
+ATTACK: 3 + 4
+HITDAMAGE: d8 + 3
+CRITICALDAMAGE: 2d8 + 3
+output [scimitar attack] named "Scimitar"
+

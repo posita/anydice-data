@@ -1,0 +1,39 @@
+function : attack res DC:n
+{
+ CRIT     : (10 - DC) * (DC < 10) + (DC + 8) * (DC < -8) + (DC < 21)*1
+ SUCC     : ((20 - DC) * (DC < 20) + (DC - 2) * (DC < 2)) + (DC < 10) * (-10 + DC) + (DC < -8) * (-DC - 8) + (30 > DC) * (DC > 20) * 1 + (DC < - 8) * 1
+ FAIL     : (DC - 2) * (DC > 2) + (DC > 11) * (11 - DC) + (DC > 20) * (20 - DC) + (DC > 29) * (DC - 29) + (DC > 29)*1 + (DC >= -8) * (DC < 2) * 1
+ CRITFAIL : (DC > 11) * (DC - 11) + (DC > 29) * (29 - DC) + (DC > 1) * 1
+ result : 1d{0:CRITFAIL,0:FAIL,1:SUCC,2:CRIT}
+}
+
+function : save res DC:n
+{
+ CRIT     : (10 - DC) * (DC < 10) + (DC + 8) * (DC < -8) + (DC < 21)*1
+ SUCC     : ((20 - DC) * (DC < 20) + (DC - 2) * (DC < 2)) + (DC < 10) * (-10 + DC) + (DC < -8) * (-DC - 8) + (30 > DC) * (DC > 20) * 1 + (DC < - 8) * 1
+ FAIL     : (DC - 2) * (DC > 2) + (DC > 11) * (11 - DC) + (DC > 20) * (20 - DC) + (DC > 29) * (DC - 29) + (DC > 29)*1 + (DC >= -8) * (DC < 2) * 1
+ CRITFAIL : (DC > 11) * (DC - 11) + (DC > 29) * (29 - DC) + (DC > 1) * 1
+ result : 1d{4:CRITFAIL,2:FAIL,1:SUCC,0:CRIT}
+}
+
+function : save duration DC:n
+{
+ SUCC : 1 + (20 - DC) * (DC < 20) + (DC-2) * (DC < 2)
+ FAIL : 20 - SUCC
+ result : 1d{1:FAIL,0:SUCC}
+}
+
+function : multi attacks res DC:n N:n PEN:n
+{
+ P : 0
+ loop I over {1..N}
+ {
+  P : P + [attack res DC + (I-1)*PEN]
+ }
+ result : P
+}
+
+D : 5
+output (4d4+3)*[multi attacks res D   3 4]
+output (2d4 + 8)
+output [multi attacks res D-2 2 4]

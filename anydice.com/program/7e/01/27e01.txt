@@ -1,0 +1,41 @@
+\ Attack Sequence \
+
+\ Hit Values \
+A: 1 	\ # Attacks \
+H: 3 	\ Hit Roll Target \
+HR: 0   \ Hit Re-Roll \
+W: 3 	\ Wound Roll Target \
+WR: 0   \ Wound Re-Roll \
+R: -1 	\ Save Roll Target \
+D: 2 	\ Damage \
+F: 7	\ Feel No Pain Roll Target \
+
+
+function: hit TO_HIT:s HREROLL:s {
+	if TO_HIT <= HR {result: HREROLL >= H} 
+        result: TO_HIT >= H
+}
+
+function: wound TO_WOUND:s WREROLL:s {
+	if TO_WOUND <= WR {result: WREROLL >= W} 
+        result: TO_WOUND >= W
+}
+
+function: save TO_SAVE:s {
+	result: TO_SAVE < S-R
+}
+
+function: gate HR:s WR:s SR:s D:s {
+	result: HR * WR * SR * D
+}
+
+function: fnp DICE:s{
+	if DICE < F {result: 1}
+	result: 0
+}
+
+loop S over {2..7}{
+
+output Ad[gate [hit 1d6 1d6] [wound 1d6 1d6] [save 1d6] D]d[fnp  1d6] named "[A] Attacks, [H]+ To Hit w/ Re-Roll at <=[HR], [W]+ To Wound w/ Re-Roll at <=[WR], [S]+ Save w/ Rend [R], [D] Damage, [F]+ FNP"
+
+}

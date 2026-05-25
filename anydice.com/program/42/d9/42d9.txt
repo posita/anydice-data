@@ -1,0 +1,118 @@
+function: rolls ROLL:s with REROLL:s{
+COUNTONES: [count 1 in ROLL]
+COUNTSIXES: [count 6 in ROLL]
+REROLLCOUNTONE : [count 1 in REROLL]
+RESERVE: COUNTONES
+
+if COUNTONES > 0 {
+ D : ROLL - 1 + REROLL
+ if REROLLCOUNTONE > 0 { 
+  RESERVE : RESERVE + 1
+  if COUNTSIXES > 0 { 
+   D: D - 5 
+   RESERVE : RESERVE + 1
+  }
+ }
+}
+
+else {D : ROLL}
+
+result: D
+}
+
+function: magic number hack ROLL:s
+{
+COUNTONE : [count 1 in ROLL]
+COUNTSIX : [count 6 in ROLL]
+COUNTONE : ((COUNTONE > 0) * -2) + 1
+COUNTSIX : ((COUNTSIX > 0) * 20)
+D : COUNTONE * (ROLL + COUNTSIX)
+result : D
+}
+
+function: last three ROLL:n confirm CONFIRM:n prior best PRIOR:d magic number hack
+{
+HIGH : [highest 1 of 3dPRIOR]
+if [absolute ROLL] = 3 {
+ if [absolute CONFIRM] < 36 {
+  ROLL : HIGH
+ }
+}
+result : ROLL
+}
+
+function: first three ROLL:n confirm CONFIRM:n magic number hack
+{
+if [absolute ROLL] = 38 {
+ if [absolute CONFIRM] < 36 {
+  ROLL : CONFIRM
+ }
+}
+result : ROLL
+}
+
+function: first three ROLL:n confirm CONFIRM:n
+{
+if ROLL = 18 {
+ if CONFIRM < 16 {
+  ROLL : CONFIRM
+ }
+}
+result : ROLL
+}
+
+function: rolls ROLL:n with REROLL:s magic number output hack { 
+REROLLCOUNTONE : [count 1 in REROLL]
+\RESERVE: COUNTONES\
+
+if ROLL < 0 {
+ D : [absolute ROLL] - 1 + REROLL
+ if REROLLCOUNTONE > 0 { 
+  \RESERVE : RESERVE + 1\
+  if [absolute ROLL] > 20 { 
+   D: D - 25 
+   \RESERVE : RESERVE + 1\
+  }
+ }
+ 
+ if [absolute ROLL] > 20 { D : D - 20 }
+}
+
+else {
+ if ROLL > 20 { D : ROLL - 20 }
+ else { D : ROLL }
+}
+
+result: D
+}
+
+function: rolls ROLL:n with REROLL:s magic number hack { 
+REROLLCOUNTONE : [count 1 in REROLL]
+\RESERVE: COUNTONES\
+
+if ROLL < 0 {
+ D : [absolute ROLL] - 1 + REROLL
+ if REROLLCOUNTONE > 0 { 
+  \RESERVE : RESERVE + 1\
+  if [absolute ROLL] > 20 { 
+   D: D - 5 
+   \RESERVE : RESERVE + 1\
+  }
+ }
+ 
+ if [absolute ROLL] > 20 { D : D - 20 }
+}
+
+else {
+ if ROLL > 20 { D : ROLL - 20 }
+ else { D : ROLL }
+}
+
+result: D
+}
+
+output [last three [magic number hack 3d6] confirm [magic number hack 3d6] prior best [rolls [first three [magic number hack 3d6] confirm [magic number hack 3d6] magic number hack] with 1d6 magic number hack] magic number hack]
+\output [magic number hack 3d6]\
+\output [rolls [first three [magic number hack 3d6] confirm [magic number hack 3d6] magic number hack] with 1d6 magic number hack]\
+\output [rolls 3d6 with 1d6] named "reroll only rules"
+output 3d6\

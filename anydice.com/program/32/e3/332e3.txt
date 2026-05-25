@@ -1,0 +1,96 @@
+\ Dual Hand XBow Math \
+
+AC: 14
+DEX: 3
+PROF: 2
+HG: 1
+ARCHERY: 0
+DW: 0
+MISS: 0
+HIT: 1
+CRIT: 2
+SHARPSHOOTER: 1
+SADICE: 2
+SUP: 0
+
+HGBONUS: 2 * HG
+ARCHERYBONUS: 2 * ARCHERY
+SSDMG: 10 * SHARPSHOOTER
+SSATK: -5 * SHARPSHOOTER
+SNEAKATK: SADICEd6
+CRITDMG: 2d6+DEX+SSDMG
+HITDMG: 1d6+DEX+SSDMG
+MISSDMG: 0
+
+ATTACK: DEX+PROF+HGBONUS+ARCHERYBONUS+SSATK
+
+function: attack ROLL:n vs DEF:n {
+	if ROLL = 1 { result: MISS }
+	if ROLL = 20 { result: CRIT }
+	if ROLL + ATTACK >= DEF { result: HIT }
+	result: MISS
+}
+
+function: damage for R:n {
+	if R = CRIT {
+		result: CRITDMG
+	}
+	else if R = HIT {
+		result: HITDMG
+	}
+	else {
+		result: MISSDMG
+	}
+}
+
+function: dw damage for RD:n {
+	if RD = CRIT {
+		result: CRITDMG-DEX
+	}
+	else if RD = HIT {
+		result: HITDMG-DEX
+	}
+	else {
+		result: MISSDMG-DEX
+	}
+}
+
+function: damages for ATTACKRESULTS:s {
+	D: 0
+	loop A over ATTACKRESULTS {
+		if A > 0 & DW = 0 {
+			D: D+[dw damage for A]	
+		}
+		else {
+			D: D+[damage for A]	
+		}
+	}
+	D: D+[single rider for ATTACKRESULTS]
+	result: D
+}
+
+function: single rider for ATTACKRESULTS:s {
+	if [ATTACKRESULTS contains HIT] | [ATTACKRESULTS contains CRIT]{
+		result: SNEAKATK+SUP
+	}
+}
+
+function: N:n attacks{
+	result: [damages for Nd[attack d20 vs AC]]
+}
+
+output [3 attacks] named "rogue"
+
+DW: 1
+SADICE: 0
+SNEAKATK: SADICEd6
+SUP: 1d8
+
+output [2 attacks] named "dw fighter"
+
+DW: 0
+ARCHERY: 1
+ARCHERYBONUS: 2 * ARCHERY
+ATTACK: DEX+PROF+HGBONUS+ARCHERYBONUS+SSATK
+
+output [2 attacks] named "archery fighter"

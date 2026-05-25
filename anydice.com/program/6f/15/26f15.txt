@@ -1,0 +1,56 @@
+\ FUNCTIONS (DON'T CHANGE) \
+
+function: rate ROLL:s vs TN:n {
+ if ROLL >= TN+10 { result: 2 }
+ else if ROLL >= TN { result: 1 }
+ else if ROLL <= TN-5 { result: -1 }
+ else { result: 0 }
+}
+
+function: rate ROLL:s vs TN:n bypass BP:n {
+ if BP > 10 { BPC: 10 }
+ else { BPC: BP }
+ if ROLL >= TN+10-BPC*2 { result: 2 }
+ else if ROLL >= TN-BP { result: 1 }
+ else if ROLL <= TN-5-BP { result: -1 }
+ else { result: 0 }
+}
+
+function: roll value VALUE:n {
+ VALUE: (VALUE/2)*2
+ if VALUE < 4 { VALUE: 4 }
+ TENS: VALUE/10
+ REM: VALUE-10*TENS
+ if REM = 2 { result: d12+(TENS-1)d10 }
+ else { result: TENSd10+dREM }
+}
+
+\ SETTINGS \
+
+ROLL:   {  8, 10, 10, 12, 14, 16, 18, 20, 20, 22, 24, 26 }
+BONUS:  {  0,  0,  1 }
+
+DIFF:   { 10, 10, 10, 10, 10, 10, 10, 10, 14 }
+BYPASS: {  0 }
+
+\ OUTPUT (DON'T CHANGE) \
+
+loop N over {1..#ROLL} {
+ RVN: N@ROLL
+ RV: [roll value N@ROLL]
+
+ if N > #BONUS { B: #BONUS@BONUS }
+ else { B: N@BONUS }
+ if N > #DIFF { TN: #DIFF@DIFF }
+ else { TN: N@DIFF }
+ if N > #BYPASS { BP: #BYPASS@BYPASS }
+ else { BP: N@BYPASS }
+
+ if B != 0 {
+  if BP > 0 { output [rate RV+B vs TN bypass BP] named "Roll r[RVN]+[B] vs [TN] Bypass [BP]" }
+  else { output [rate RV+B vs TN] named "Roll r[RVN]+[B] vs [TN]" }
+ } else {
+  if BP > 0 { output [rate RV vs TN bypass BP] named "Roll r[RVN] vs [TN] Bypass [BP]" }
+  else { output [rate RV vs TN] named "Roll r[RVN] vs [TN]" }
+ }
+}

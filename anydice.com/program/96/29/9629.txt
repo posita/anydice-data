@@ -1,0 +1,23 @@
+function: comp ANY:n TARGET:n {
+  if (ANY = TARGET) { result: ANY }
+  result: 0
+}
+
+function: makepool ONE:n TWO:n THREE:n FOUR:n FIVE:n TARGET:n {
+\  POOL: [comp ONE TARGET] + [comp TWO TARGET] + [comp THREE TARGET] + [comp FOUR TARGET] + [comp FIVE TARGET]\
+  POOL: (ONE = TARGET)*ONE + (TWO = TARGET)*TWO + (THREE = TARGET)*THREE + (FOUR = TARGET)*FOUR + (FIVE = TARGET)*FIVE
+
+  result: POOL
+}
+
+function: roll ONE:n TWO:n THREE:n FOUR:n FIVE:n {
+  ONEPOOL: [makepool ONE TWO THREE FOUR FIVE 1]
+  TWOPOOL: [makepool ONE TWO THREE FOUR FIVE 2]
+  THREEPOOL: [makepool ONE TWO THREE FOUR FIVE 3]
+  FOURPOOL: [makepool ONE TWO THREE FOUR FIVE 4]
+  FIVEPOOL: [makepool ONE TWO THREE FOUR FIVE 5]
+  SIXPOOL: [makepool ONE TWO THREE FOUR FIVE 6]
+
+  result: [highest of [highest of [highest of [highest of [highest of ONEPOOL and TWOPOOL] and THREEPOOL] and FOURPOOL] and FIVEPOOL] and SIXPOOL]
+}
+output [roll 1d6 1d6 1d6 1d6 1d6] named "tirada"

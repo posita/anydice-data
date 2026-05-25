@@ -1,0 +1,54 @@
+BLANK: 0
+FOCUS: 1
+HIT: 10
+ATTACK_DIE: {BLANK, BLANK, FOCUS, FOCUS, HIT, HIT, HIT, HIT}
+NUM_DICE: 4
+
+function: A:n modulo B:n {
+    result: A-(A/B)*B
+}
+
+function: hits ROLL:n {
+    result: ROLL / 10
+}
+
+function: focuses ROLL:n {
+    result: [ROLL modulo HIT]
+}
+
+function: blanks ROLL:n {
+    result: NUM_DICE - [hits ROLL] - [focuses ROLL]
+}
+
+function: focus ROLL:n {
+    result: ([hits ROLL] + [focuses ROLL]) * HIT
+}
+
+function: target lock N:n dice ROLL:n {
+    HITS: [hits ROLL]
+    NOT_HITS: N - HITS
+    result: HITS * HIT + NOT_HITSdATTACK_DIE
+}
+
+function: target lock blanks ROLL:n {
+    BLANKS: [blanks ROLL]
+    TL_ROLL: [target lock BLANKS dice BLANKSdATTACK_DIE]
+    result: ROLL + TL_ROLL
+}
+
+function: proton torpedoes ROLL:n {
+    if [focuses ROLL] > 0 {result: ROLL - FOCUS + HIT}
+    result: ROLL
+}
+
+function: concussion missiles ROLL:n {
+    if [blanks ROLL] > 0 {result: ROLL + HIT}
+    result: ROLL
+}
+
+function: guidance chips HITS:n {
+    if HITS < NUM_DICE * HIT { result: HITS + HIT }
+    result: HITS
+}
+
+output [hits [guidance chips [focus [proton torpedoes NUM_DICEdATTACK_DIE]]]]

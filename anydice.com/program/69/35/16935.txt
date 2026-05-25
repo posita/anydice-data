@@ -1,0 +1,47 @@
+AC: 18                \Enemy AC\
+CRITRANGE: 20         \Crits on X or Above\
+
+HIT: 8                \Hit Bonus\
+DEX: 4                \Dex Bonus\
+FLAT: 2               \Dueling Bonus\
+FLATDMG: DEX+FLAT     \Total Flat Damage\
+
+set "maximum function depth" to 999
+
+\Attack Miss, Hit, Crit\
+function: attack with ROLL:n { 
+ if ROLL <=1 {result: 0}
+ if ROLL >=CRITRANGE {result: 2}
+ result: ROLL+HIT >= AC
+}
+
+\Setup Function\
+function: multiattack using D:d N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst{ 
+ result: [roll [attack with D] to multiattack using D N times with a W weapon and C charges and B bonus and BURST burst]
+}
+
+\Recursive Multiattack Function\
+function: roll HIT:n to multiattack using D:d N:n times with a W:d weapon and C:n charges and B:d bonus and BURST:d burst{
+
+ if N <= 0 {
+   result: 0
+ }
+ 
+ DAMAGE: HIT d (W + B) + (1-(0^HIT))*FLATDMG
+
+ if C > 0{
+  if HIT > 1 {
+   C: C-1
+   DAMAGE: DAMAGE + HIT d BURST
+  }
+ }
+ result:  DAMAGE + [roll [attack with D] to multiattack using D N-1 times with a W weapon and C charges and B bonus and BURST burst]
+ 
+}
+
+\OUTPUTS\
+\Max 10 Attacks\
+output [multiattack using [highest 1 of 3d20] 6 times with a 2d8 weapon and 1 charges and 1 bonus and 6d6 burst] named "Shadow Blade Rush"
+output [multiattack using [highest 1 of 3d20] 4 times with a 2d8 weapon and 1 charges and 1 bonus and 6d6 burst] named "Shadow Blade Standard"
+output [multiattack using [highest 1 of 3d20] 6 times with a 1d8+1 weapon and 1 charges and 1 bonus and 6d6 burst] named "Coral Thorn Rush"
+output [multiattack using [highest 1 of 3d20] 4 times with a 1d8+1 weapon and 1 charges and 1 bonus and 6d6 burst] named "Coral Thorn Standard"

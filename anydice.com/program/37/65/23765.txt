@@ -1,0 +1,66 @@
+HALF: 1
+FULL: 2
+DOUBLEATTACK: 4
+
+NONE: 0
+SHIELD: 1
+TWOSHIELD: 2
+DOUBLESHIELD: -1
+
+function: attackdie ROLL:n {
+  if ROLL = {1,2,3} {result: HALF}
+  if ROLL = {4,5} {result: FULL}
+  result: DOUBLEATTACK
+}
+
+function: attack AMOUNT:n {
+  result: AMOUNTd[attackdie d6]/2
+}
+
+function: defensedie ROLL:n {
+  if ROLL = {1,2} {result: NONE}
+  if ROLL = {3,4} {result: SHIELD}
+  if ROLL = {5} {result: TWOSHIELD}
+  result: DOUBLESHIELD
+}
+
+function: calculatedefense ROLLS:s {
+  TOTAL: 0
+  loop N over ROLLS {
+    if N = DOUBLESHIELD {
+      TOTAL: TOTAL*2
+    }
+    else {
+      TOTAL: TOTAL+N
+    }
+  }
+  result: TOTAL
+}
+
+function: defend AMOUNT:n {
+  result: [calculatedefense AMOUNTd[defensedie d6]]
+}
+
+function: win AR:n vs DR:n plus WARBANDS:n {
+  if AR > DR+WARBANDS {result:1}
+  result:0
+}
+
+function: campaign ATTACK:n vs DEFENSE:n plus WARBANDS:n {
+  AR: [attack ATTACK]
+  DR: [defend DEFENSE]
+  result: [win AR vs DR plus WARBANDS]
+}
+
+function: campaign ATTACK:n vs DEFENSE:n plus WARBANDS:n sac AMOUNT:n {
+  AR: [attack ATTACK]+AMOUNT
+  DR: [defend DEFENSE]
+  result: [win AR vs DR plus WARBANDS]
+}
+ATTACKERS: 9
+BONUS: -3
+DEFENDERS: 2
+DICE: 3
+loop N over {0..ATTACKERS} {
+  output [campaign ATTACKERS+BONUS vs DEFENDERS plus DICE sac N] named "Sacrifice [N]"
+}

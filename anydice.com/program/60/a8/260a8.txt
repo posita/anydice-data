@@ -1,0 +1,33 @@
+function: dpa AT:s atack AC:n hit NORM:d and crit CRIT:d {
+ if AT=20 {
+  result: CRIT 
+ }
+ if AT>=AC {
+  result: NORM 
+ }
+ result: 0  
+}
+MOD: +3 PROF: +2 N:1
+ATTACKS: 1
+LH_ATKS: 0
+AC:0 
+GWN: 6 GWD:{{1..2}, {3..GWN}:GWN/2+1}
+OHD: d6 O_N:2 O_C:3
+RHD: d6
+LHD: d6 
+CALLED_R:1
+CALLED_L:0
+CALLED_O:1
+TWFS:0
+RHB:MOD RDB:0 if CALLED_R {RHB:-5 RDB:RDB+10}
+LHB:MOD LDB:0 if CALLED_L {LHB:-5 LDB:LDB+10}
+OHB:MOD/2 ODB:0 if CALLED_O {OHB:-5 ODB:ODB+10}
+ACF:AC-PROF if TWFS {TWFS:MOD}
+RHW: [dpa [highest 1 of Nd20] atack [highest of ACF-RHB and 2] hit (RHD+MOD+RDB) and crit (2dRHD+MOD+RDB)]
+LHW: [dpa [highest 1 of Nd20] atack [highest of ACF-LHB and 2] hit (LHD+TWFS+LDB) and crit (2dLHD+TWFS+LDB)]
+OHW: [dpa [highest 1 of Nd20] atack [highest of ACF-OHB and 2] hit (O_NdOHD+MOD+ODB) and crit (O_CdOHD+MOD+ODB)]
+output ATTACKSdRHW+LH_ATKSdLHW-ATTACKSdOHW named "Two weapon - One weapon"
+output ATTACKSdRHW+LH_ATKSdLHW named "Two weapon dpa"
+output ATTACKSdOHW named "One weapon dpa"
+output ATTACKSdRHW named "Main hand attacks"
+output LH_ATKSdLHW named "Off hand attack"

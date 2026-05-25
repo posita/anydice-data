@@ -1,0 +1,36 @@
+GWFS:{1,2,{3..6}:4} GWFTE:{1,2,{3..10}:6} GWFTW:{1,2,{3..12}:7} \in order, great weapon fighting d6, d10, d12\
+
+ATTACK_BONUS:8
+ATTACK_BONUS_DIE:0 \1d4 for bless\
+TARGET_AC:13
+ADVANTAGE:0  \-1 is disadvantage, 0 is normal, 1 is advantage, 2 is trivantage\
+DAMAGE: 1d12+1
+CRIT_RANGE:20 \20 for most people, 19/18 for champions\
+MULTIATTACK:1
+
+
+TOTAL:0
+
+if ADVANTAGE=0 {ROLL:1d20}
+if ADVANTAGE=1 {ROLL:1@2d20}
+if ADVANTAGE=2 {ROLL:1@3d20}
+if ADVANTAGE=-1 {ROLL:2@2d20}
+
+ROLL:ROLL+ATTACK_BONUS_DIE
+
+
+function: attack ROLL:n {
+ if ROLL = 1 {result:0 }
+ if ROLL >=CRIT_RANGE {result:DAMAGE+CRIT_DAMAGE }
+ if ROLL + ATTACK_BONUS >= TARGET_AC { result:DAMAGE }
+ result:0
+}
+
+function: multiattack MULTIATTACK:n {
+TOTAL:0
+loop N over {1..MULTIATTACK} {
+ TOTAL:TOTAL+[attack ROLL]
+ }
+result:TOTAL
+}
+output [multiattack MULTIATTACK]

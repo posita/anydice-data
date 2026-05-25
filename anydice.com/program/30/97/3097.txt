@@ -1,0 +1,46 @@
+function: pickhelper SEQ:s {
+  CRITS: 0
+  CRITS: CRITS + (SEQ = 20)
+  CRITS: CRITS - (SEQ = 1)
+  result: CRITS
+}
+
+function: critmiddle DICE:s {
+  CRITTING: [pickhelper DICE]
+  if CRITTING > 0 {result: 1@DICE }
+  if CRITTING < 0 {result: 3@DICE}
+  result: 2@DICE}
+
+function: pick NTH:n of SEQ:s {
+  NTH: #SEQ - NTH + 1
+  result: NTH@SEQ}
+
+function: splodehelper SEQ:s target TAR:n{
+  CRITS: 0
+  CRITS: CRITS + (SEQ < TAR)
+  \CRITS: CRITS - (SEQ = 1)\
+  result: CRITS
+}
+
+function: critsplode DICE:s middle MID:n adder ADD:n crit on TAR:n{
+  CRITTING: [splodehelper DICE target TAR]
+  if CRITTING > 0 {result: MID@DICE + ADD@DICE}
+  \if CRITTING < 0 {result: 2@DICE - 3@DICE}\
+  result: MID@DICE
+}
+
+
+\output [pick 2 of 3d20]\
+DIE: 10
+\output [critsplode 9dDIE middle 5 adder 9 crit on DIE]
+output [critsplode 7dDIE middle 4 adder 7 crit on DIE]
+output [critsplode 5dDIE middle 3 adder 5 crit on DIE]
+output [critsplode 3dDIE middle 2 adder 3 crit on DIE]\
+
+output [critsplode 5dDIE middle 3 adder 5 crit on 9]
+output [critsplode 5dDIE middle 3 adder 5 crit on DIE]
+output [critsplode 5dDIE middle 3 adder 5 crit on 3]
+
+\output [pick 2 of 3dDIE]
+output [pick 3 of 5dDIE]
+output [pick 4 of 7dDIE]\

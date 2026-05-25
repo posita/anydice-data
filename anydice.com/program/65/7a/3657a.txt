@@ -1,0 +1,84 @@
+\
+  Represents the Proficiency Bonus range used in System 1.
+\
+PROF_LEVEL: {2..6}
+
+\
+  Represents the Expertise Bonus range used in System 1.
+\
+EXP_LEVEL: {7..12}
+
+\
+  Represents the Ability Mod range used in System 2 and 3.
+\
+ABILITY_MOD: {-1..5}
+
+\
+  Represents the Proficiency Bonus range used in System 3.
+  If not proficient: 0 extra die, if proficient: 1 extra die, if expertise: 2 extra dice.
+\
+PROF_TIER: {0..2}
+
+\
+  Determines the outcome of a skill roll.
+  @param {Roll} ROLL - The roll result.
+  @returns {number} - The result of the skill roll.
+\
+function: skill ROLL:s {
+ if 1@ROLL = 6 {                        
+  result: 2 + (2@ROLL = 6)              
+ }
+ result: 1@ROLL >= 4                    
+}
+
+\
+  Adds two numbers together.
+  @param {number} A - The first number.
+  @param {number} B - The second number.
+  @returns {number} - The sum of A and B.
+\
+function: add A to B {
+ result: A + B                          
+}
+
+\
+  General Idea for Skill Checks:
+  0: Critical fail.
+  1: Success, but with complications.
+  2: Success.
+  3: Critical success!
+ \
+
+\
+  System Idea 1: Outputs skill results based on proficiency and expertise bonuses.
+\
+output 0d0 named "System idea 1 | 1d6 if not proficient, Xd6 if proficient or expert where X is your modifier"
+output [skill 2@2d6] named "0d6"         
+output [skill 1d6] named "Not Proficient" 
+loop P over PROF_LEVEL {                
+  output [skill Pd6] named "Prof Bonus:[P] | Dice:[P]d6" 
+}
+loop P over EXP_LEVEL {                 
+  output [skill Pd6] named "Exp Bonus:[P] | Dice:[P]d6" 
+}
+
+\
+  System Idea 2: Outputs skill results based on ability modifiers.
+\
+output 0d0 named "System idea 2 | Xd6 depending on your Ability Modifier" 
+output [skill 2@2d6] named "0d6"        
+loop P over ABILITY_MOD {               
+  output [skill Pd6] named "Ability Mod:[P] | Dice:[P]d6" 
+}
+
+\
+  System Idea 3: Outputs skill results based on ability modifiers and proficiency bonuses.
+\
+START_DIE_N: 3
+output 0d0 named "System idea 3 | a pool of Xd6 where X is the base (3) plus your Ability Modifier and an additional 1d6 if proficient or 2d6 if expert"   
+output [skill 2@2d6] named "0d6"      
+loop AM over ABILITY_MOD {               
+ loop PT over PROF_TIER {                       
+  output [skill [add START_DIE_N to [add PT to AM]]d6] named "Raw Die: [START_DIE_N] | Ability Mod: [AM] | Skill Level: [PT]" 
+ }
+}

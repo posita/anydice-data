@@ -1,0 +1,27 @@
+\ not actually infinite, but close enough! \
+INFINITY: 99
+
+\ replaces the lowest value of DIE with -INFINITY and the highest value with +INFINITY \
+function: modify DIE:d {
+  MAX: 1@[sort {DIE}]
+  MIN: 1@[reverse [sort {DIE}]]
+  result: [modify DIE min MIN max MAX]
+}
+
+\ helper function for [modify DIE] \
+function: modify ROLL:n min MIN:n max MAX:n {
+  if ROLL = MIN { result: -INFINITY }
+  if ROLL = MAX { result: +INFINITY }
+  result: ROLL
+}
+
+ATTACKER: [modify d12 + 11]
+DEFENDER: [modify d20 + 3]
+
+output ATTACKER > DEFENDER named "1 = attacker wins, 0 = defender wins"
+
+output (ATTACKER > DEFENDER) | (ATTACKER > DEFENDER)
+  named "1 = attacker wins, 0 = defender wins (with attacker reroll)"
+
+output (ATTACKER > DEFENDER) & (ATTACKER > DEFENDER)
+  named "1 = attacker wins, 0 = defender wins (with defender reroll)"

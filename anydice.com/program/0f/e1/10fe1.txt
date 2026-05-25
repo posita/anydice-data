@@ -1,0 +1,49 @@
+V: d{0:5,1:4,2}
+
+function: vampire ROLL:s {
+ TENS: ROLL = 2
+ PAIRS: TENS / 2
+ result: ROLL - (TENS - PAIRS * 2)
+}
+
+loop N over {1..15} {
+ output [vampire NdV] named "[N]d"
+}
+
+
+\To see different types of outcomes, use the next program. The comments describe what the output number represent. Best used with transposed view. In this case, you use a fixed pool size (N) and get the results for using from zero to maximum hunger dice.
+\
+
+\
+ result -1: bestial failure
+ result 0: failure
+ result 1: success
+ result 2: critical success
+ result 3: messy critical
+\
+
+V: d{0:5, 1:4, 2}
+H: d{-1, 0:4, 1:4, 2}
+
+function: vampire ROLL:s hunger HROLL:s {
+ TENS: ROLL = 2
+ HTENS: HROLL = 2
+ if (TENS + HTENS > 1) {
+  result: 2 + (HTENS > 0)
+ }
+ if HTENS > 1 {
+  result: 3
+ }
+ if (ROLL > 0) | (HROLL > 0) {
+  result: 1
+ }
+ if HROLL = -1 {
+  result: -1
+ }
+ result: 0
+}
+
+N: 10
+loop X over {0..[lowest of N and 5]} {
+ output [vampire (N - X)dV hunger XdH] named "[N]d ([X] hunger)"
+}

@@ -1,0 +1,51 @@
+function: explode DIE:d
+{ 
+MAX: [maximum of DIE] 
+result: [explode DIE helper]
+}
+function: explode N:n helper
+{
+if N = MAX { result: N-1 + [explode DIE helper] } 
+result: N
+}
+set "maximum function depth" to 5
+
+\ Here we emulate ceiling for our (caster level)/2 \
+function: ceil A{
+if(A=0) {result: 0}
+else if(A=1) {result: 1}
+else if(A=2) {result: 1}
+else if(A=3) {result: 2}
+else if(A=4) {result: 2}
+else if(A=5) {result: 3}
+else if(A=6) {result: 3}
+else if(A=7) {result: 4}
+else if(A=8) {result: 4}
+else if(A=9) {result: 5}
+else if(A=10) {result: 5}
+}
+
+\Enemy MR stat and pen boost from items\
+TARGETMR: 10
+PEN: 0
+\3 boolean values, only 1 should be true at a time.\
+\They are used to specify resistance level of spell.\
+MRNE: 0
+MRN: 1
+HTR: 1 
+
+\Two integers that range from 0-10. \
+\CPATHS is caster skill in path and DPATHS is the targets.\
+CPATHS: 1
+DPATHS: 0
+SPATHREQ: 1
+CBOOST: CPATHS - SPATHREQ
+
+if(MRNE=0){
+  BP: 8
+} else if (MRN=0) {
+  BP: 12
+} else if (HTR=0) {
+  BP: 16
+}
+output BP + PEN + 2d[explode d6] + [ceil CBOOST] > TARGETMR + 2d[explode d6] + (DPATHS/2)

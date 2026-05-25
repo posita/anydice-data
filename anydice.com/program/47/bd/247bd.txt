@@ -1,0 +1,54 @@
+STR: 21
+INT: 28
+STRROLL: [highest 1 of 2d20]+5 >= STR
+
+function: oneround strh STRHELP:n strb STRBONUS:n inth INTHELP:n intb INTBONUS:n  {
+  PERCENT: {}
+  STRBASE: 1d20+5
+  if STRHELP {
+    STRBASE: [highest 1 of 2d20]+5
+  }
+  if STRBONUS {
+    STRBASE: STRBASE+1d4
+  }
+  STRROLL: STRBASE >= STR
+  result: [strroll STRROLL INTHELP INTBONUS]
+
+}
+
+function: strroll STRROLL:s INTHELP:n INTBONUS:n {
+  INTBASE: [lowest 1 of 2d20]+9
+
+  if STRROLL = 1 & INTHELP {
+    INTBASE: [highest 1 of 2d20]+9
+  }
+  if (STRROLL = 1 & !INTHELP) | (STRROLL = 0 & INTHELP) {
+    INTBASE: 1d20+9
+  } 
+  if INTBONUS {
+    INTBASE: INTBASE+1d4
+  }
+  INTROLL: INTBASE >= INT
+  result: INTROLL
+}
+
+function: allrounds N:n strh STRHELP:n strb STRBONUS:n inth INTHELP:n intb INTBONUS:n {
+  TOTAL: 0
+  loop Y over {1..N}{
+    CHANCE: [oneround strh STRHELP strb STRBONUS inth INTHELP intb INTBONUS]
+    TOTAL: TOTAL | CHANCE
+  }
+  result: TOTAL
+}
+
+
+output [oneround strh 1 strb 1 inth 0 intb 0] named "one round str help and bonus"
+output [oneround strh 1 strb 0 inth 0 intb 1] named "one round str help and int bonus"
+output [oneround strh 1 strb 0 inth 1 intb 0] named "one round double help"
+output [oneround strh 0 strb 0 inth 1 intb 1] named "one round int help and bonus"
+
+output [allrounds 13 strh 1 strb 1 inth 0 intb 0] named "all rounds str help and bonus"
+output [allrounds 8 strh 1 strb 0 inth 0 intb 1] named "all rounds str help and int bonus"
+output [allrounds 8 strh 1 strb 0 inth 1 intb 0] named "all rounds double help"
+output [allrounds 6 strh 0 strb 0 inth 1 intb 1] named "all rounds int help and bonus"
+

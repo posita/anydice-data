@@ -1,0 +1,28 @@
+\ Weird Wizard: Ability rolls and Luck rolls \
+\ 1=success, 0=failure, 2=critical success, -1=critical failure \
+
+BOONS: -2      \ negative number if banes \
+FLATBONUS: 5  \ statbonus and other bonuses combined \
+DC: 15
+DAMAGEDICE: 2
+
+CRIT: 5       \ what you need to exceed to get a crit. 5 unless something special \
+LUCKDC: 10    \ to get a success on a luck roll. 10 unless something special \
+
+function: ability ROLL:n against DC:n {
+    if ROLL < 1 { result: -1 } \ critical failure \
+    if ROLL >= DC { 
+        if ROLL >= 20 {
+            \ possible crit \
+            if ROLL - DC >= CRIT { result: 2 }
+        }       
+        result: 1 \ over 20 but not critical success \
+    }
+    result: 0     \ miss \
+}
+
+ROLL: (d20 + [highest 1 of BOONSd6]) + FLATBONUS
+LUCKROLL: (d20 + [highest 1 of BOONSd6])  \ assuming no flat bonus for luck. But see Order tradition \
+
+output [ability ROLL against DC] named "WW: Ability roll with [BOONS] boons and +[FLATBONUS] stat v. DC [DC]"
+output [ability LUCKROLL against LUCKDC] named "WW: Luck roll with [BOONS] boons v. DC [LUCKDC]"

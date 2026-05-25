@@ -1,0 +1,57 @@
+MAX_SYM: 50
+ADV_THR_POS: 1
+SUC_FAI_POS: 100
+TRIUMPH_POS: 10000
+DESPAIR_POS: 1000000
+
+DB: d{0, 0, 1*SUC_FAI_POS, 1*SUC_FAI_POS + 1*ADV_THR_POS, 2*ADV_THR_POS, 1*ADV_THR_POS}
+DS: d{0, 0, -1*SUC_FAI_POS, -1*SUC_FAI_POS, -1*ADV_THR_POS, -1*ADV_THR_POS}
+
+DA: d{0, 1*SUC_FAI_POS, 1*SUC_FAI_POS, 2*SUC_FAI_POS, 1*ADV_THR_POS, 1*ADV_THR_POS, 1*SUC_FAI_POS + 1*ADV_THR_POS, 2*ADV_THR_POS}
+DD: d{0, -1*SUC_FAI_POS, -2*SUC_FAI_POS, -1*ADV_THR_POS, -1*ADV_THR_POS, -1*ADV_THR_POS, -2*ADV_THR_POS, -1*SUC_FAI_POS - 1*ADV_THR_POS}
+
+DP: d{0, 1*SUC_FAI_POS, 1*SUC_FAI_POS, 2*SUC_FAI_POS, 2*SUC_FAI_POS, 1*ADV_THR_POS, 1*SUC_FAI_POS + 1*ADV_THR_POS, 1*SUC_FAI_POS + 1*ADV_THR_POS, 1*SUC_FAI_POS + 1*ADV_THR_POS, 2*ADV_THR_POS, 2*ADV_THR_POS, 1*TRIUMPH_POS + 1*SUC_FAI_POS}
+DC: d{0, -1*SUC_FAI_POS, -1*SUC_FAI_POS, -2*SUC_FAI_POS, -2*SUC_FAI_POS, -1*ADV_THR_POS, -1*ADV_THR_POS, -1*SUC_FAI_POS - 1*ADV_THR_POS, -1*SUC_FAI_POS - 1*ADV_THR_POS, -2*ADV_THR_POS, -2*ADV_THR_POS, -1*DESPAIR_POS - 1*SUC_FAI_POS}
+
+
+function: extract POS:n from POOL:n returning it BOOL:n {
+  DICE: POOL
+  
+  SYMBOL: DICE / POS
+  DICE: DICE - (POS * SYMBOL)
+  if DICE < 0 { SIGN: -1 } else { SIGN: 1 }
+  if DICE * SIGN > MAX_SYM * (POS / 100) {
+    DICE: DICE - (POS * SIGN)
+    SYMBOL: SYMBOL + SIGN
+  }
+  
+  if BOOL { result: SYMBOL }
+  result: DICE
+}
+
+function: despair in POOL:n {  
+  result: [extract DESPAIR_POS from POOL returning it 1]
+}
+
+function: triumphs in POOL:n {
+  DICE: [extract DESPAIR_POS from POOL returning it 0]
+  
+  result: [extract TRIUMPH_POS from DICE returning it 1]
+}
+
+function: successes in POOL:n {
+  DICE: [extract DESPAIR_POS from POOL returning it 0]
+  DICE: [extract TRIUMPH_POS from DICE returning it 0]
+  
+  result: [extract SUC_FAI_POS from DICE returning it 1]
+}
+
+function: advantages in POOL:n {
+  DICE: [extract DESPAIR_POS from POOL returning it 0]
+  DICE: [extract TRIUMPH_POS from DICE returning it 0]
+  DICE: [extract SUC_FAI_POS from DICE returning it 0]
+
+  result: [extract ADV_THR_POS from DICE returning it 1]
+}
+
+output [successes in (3dDP + 2dDA + 4dDD)] > 0 named "Augment Spell"

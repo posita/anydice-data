@@ -1,0 +1,37 @@
+\
+\\ 6 Piece Polyhedral Dice Pool 
+\
+
+
+\ Variables \
+DICE: {4,6,8,10,10,12}
+
+\ Function for rolling all the dice \
+function: check NUM:n reroll RE:n {
+
+  TOTAL: 0
+  loop N over {1..NUM} {
+      TOTAL: TOTAL + ([reroll {1..RE} on d(N@DICE) to d(N@DICE)] > 3)
+  }
+
+  result: TOTAL
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+\ Loops to test a variety of combinations \
+loop N over {1..#DICE} {
+  loop M over {0..1}{
+    if M = 0 {
+      output [check N reroll M] named "[N] No Rerolls"
+    }
+    else{
+     output [check N reroll M] named "[N] Reroll [M]s and lower"
+    }
+  }
+}

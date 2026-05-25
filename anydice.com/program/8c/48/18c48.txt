@@ -1,0 +1,35 @@
+\Calculates expected values of damage for the LANCER RPG\
+loop N over {1..8}{
+ X: 2 * N
+ output [highest N of Xd6] named "[N]d6 crit"
+}
+
+\output d{4,2,3,4,5,6} named "one Overkill d6"\
+
+function: overkill N:n {
+ if N = 1 { result: [overkill d6] }
+ result: N
+}
+
+function: drill N:n {
+ if N = 1 { result: N + [drill d6] }
+ result: N
+}
+
+set "maximum function depth" to 5
+
+loop I over {1..8}{
+ T: {}
+ loop N over {1..I}{
+  T: T + [overkill d6]
+ }
+ output T named "overkill [I]"
+}
+
+loop I over {1..8}{
+ T: {}
+ loop N over {1..I}{
+  T: T + [drill d6]
+ }
+ output T named "drill [I]"
+}

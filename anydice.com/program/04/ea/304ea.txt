@@ -1,0 +1,96 @@
+\
+ #######################
+ ### BASIC FUNCTIONS ###
+ #######################
+\
+
+\### AVERAGE CHANCE OF POWS ###\
+function: white pows in SEQUENCE:s {
+  result: [count {4,5,6} in SEQUENCE]
+}
+function: blue and red pows in SEQUENCE:s {
+  result: [count {4,5} in SEQUENCE] + ([count {6} in SEQUENCE] * 2)
+}
+\### AVERAGE CHANCE OF OOFS ###\
+function: white oofs in SEQUENCE:s {
+  result: [count {1} in SEQUENCE] 
+} 
+function: blue oofs in SEQUENCE:s {
+  result: [count {1} in SEQUENCE] 
+} 
+function: red oofs in SEQUENCE:s {
+  result: [count {1,2} in SEQUENCE] 
+} 
+
+\### SUCCESS CHANCE FOR TARGET NUMBER ###\
+function: white success chance for TN:n in SEQUENCE:s {
+  result: [white pows in SEQUENCE] >= TN
+}
+function: blue and red success chance for TN:n in SEQUENCE:s {
+  result: [blue and red pows in SEQUENCE] >= TN
+}
+\### STRESS CHANCE FOR TARGET NUMBER ###\
+function: white stress chance for TN:n in SEQUENCE:s {
+  result: [white oofs in SEQUENCE] >= TN
+}
+function: blue stress chance for TN:n in SEQUENCE:s {
+  result: [blue oofs in SEQUENCE] >= TN
+}
+function: red stress chance for TN:n in SEQUENCE:s {
+  result: [red oofs in SEQUENCE] >= TN
+}
+function: mixed stress chance for TN:n in DICEPOOLSIZE:n {
+  WHITE: (DICEPOOLSIZE/2)d6
+  RED: (DICEPOOLSIZE/2)d6
+
+  result: ([white oofs in WHITE] + [red oofs in RED]) >= TN
+}
+\### CRITICAL FAILURE CHANCE FOR TARGET NUMBER ###\
+function: crit fail chance for SEQUENCE:s {
+  result: [get white successes in SEQUENCE] < [count 1 in SEQUENCE]
+}
+\### DIFFERENCE BETWEEN WHITE AND BLUE/RED CHANCE FOR TARGET NUMBER ###\
+function: difference between doubles and singles chance for TN:n in SEQUENCE:s {
+  result: [get doubles success chance for TN in SEQUENCE] - [get success chance for TN in SEQUENCE]
+}
+
+
+\
+ #######################
+ ###### VARIABLES ######
+ #######################
+\
+
+\
+WHITEDIE: 6d{-1,0,0,1,1,1}
+BLUEDIE: 6d{-1,0,0,1,1,2}
+REDDIE: 6d{-1,-1,0,1,1,2}
+\
+
+DICEPOOLSIZE: 6
+DICEPOOL: 6d6
+TN: 3
+
+\
+ #######################
+ ####### OUTPUT ########
+ #######################
+\
+
+
+output [white stress chance for TN in DICEPOOL] named "White Chance to lose control (TN=[TN])"
+output [blue stress chance for TN in DICEPOOL] named "Blue Chance to lose control (TN=[TN])"
+output [red stress chance for TN in DICEPOOL] named "Red Chance to lose control (TN=[TN])"
+
+output [mixed stress chance for TN in DICEPOOLSIZE] named "Mixed Chance to lose control ([DICEPOOLSIZE]d6 TN=[TN])"
+
+output [white success chance for TN in DICEPOOL] named "White success % (TN=[TN])"
+output [blue and red success chance for TN in DICEPOOL] named "Red/Blue success % (TN=[TN])"
+
+output [white pows in DICEPOOL] named "White Pows"
+output [white oofs in DICEPOOL] named "White Oofs"
+
+output [blue and red pows in DICEPOOL] named "Blue Pows"
+output [blue oofs in DICEPOOL] named "Blue Oofs"
+
+output [red oofs in DICEPOOL] named "Red Oofs"

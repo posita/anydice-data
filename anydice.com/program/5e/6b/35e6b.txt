@@ -1,0 +1,34 @@
+L: 12     \Desired level\
+H: 8      \Desired Hit Die size\
+M: 10     \Maximum no. of hit dice\ 
+
+function: depth { result: 1 + [depth] }
+set "maximum function depth" to L+1       \Best not to go past level 20, it takes ages\
+
+function: std X:n hd Y:n {
+ if X > M { result: [highest of [std X-1 hd Y] and MdY] }
+ if X > 1 { result: [highest of [std X-1 hd Y] and XdY] }
+ result: 1dY
+}
+
+function: adv X:n hd Y:n {
+ if X > M { result: [highest of [adv X-1 hd Y] and MdY] }
+ if X > 1 { result: [highest of [adv X-1 hd Y] and XdY] }
+ result: [highest 1 of 2dY]
+}
+
+function: max X hd Y {
+ if X > M { result: [highest of [max X-1 hd Y] and MdY] }
+ if X > 1 { result: [highest of [max X-1 hd Y] and XdY] }
+ result: Y
+}
+
+function: cap X hd Y {
+ if X > M {result: MdY}
+ result: XdY
+}
+
+output [std L hd H] named "1st level flat HP"
+output [adv L hd H] named "1st lvl Adv. HP"
+output [max L hd H] named "1st level max HP"
+output [cap L hd H] named "LdH (for reference)"

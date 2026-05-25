@@ -1,0 +1,62 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+MISS:0
+HIT:1
+CRITICALHIT:2
+
+function: attack ROLL:n vs DEFENSE:n crit CRIT:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL>= CRIT {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+
+if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT{
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+AC:15
+
+ATTACK: 9-5
+HITDAMAGE:d6+14
+CRITICALDAMAGE: 2d6+14
+MISSDAMAGE: 0
+A:9d([damage for [attack [highest 1 of 2d20] vs AC crit 20]])
+ATTACK: 9-5+2
+HITDAMAGE:d6+14+d8
+CRITICALDAMAGE: 2d6+14+2d8
+MISSDAMAGE: 0
+B:1d([damage for [attack [highest 1 of 2d20] vs AC crit 20]])
+
+output A+B named "CBE+SS"
+
+
+
+ATTACK:9
+HITDAMAGE:2d[reroll {1..2} on d6 to d6]+16
+CRITICALDAMAGE: 4d[reroll {1..2} on d6 to d6]+16
+MISSDAMAGE: 0
+output 9d([damage for [attack [highest 1 of 1d20] vs AC crit 19]]) named "GWM"
+
+ATTACK:9
+HITDAMAGE:2d[reroll {1..2} on d6 to d6]+6
+CRITICALDAMAGE: 4d[reroll {1..2} on d6 to d6]+6
+MISSDAMAGE: 0
+output 8d([damage for [attack [highest 1 of 2d20] vs AC crit 19]]) named "GWF"
+
+
+

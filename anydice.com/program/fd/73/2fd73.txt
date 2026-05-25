@@ -1,0 +1,59 @@
+LIMIT: 3
+
+function: convertc C:s LIMIT:n {
+  loop I over C {
+    if I <= LIMIT {
+      C: C - 1
+      result: 1
+    }
+  }
+  result: 0
+}
+
+
+function: outcome ROLL:s {
+  A: 0
+  B: 0
+  C: 0
+
+  \ FACES \
+  loop I over ROLL {  
+    if I = 1 { A: A + 1 }
+    if I = 2 { B: B + 1 }
+    if I = 3 { C: C + 1 }
+    if I = 4 { C: C + 1 }
+    if I = 5 { C: C + 1 }
+    if I = 6 { 
+               A: A + 1
+               C: C + 1
+             }
+  }
+
+  \ Conversion of Cs to Bs to represent bonuses \
+  if LIMIT > 0 {
+    B: B + [convertc C LIMIT]
+  }
+
+ \ Sorting outcomes \
+  if C = 0 {
+    if B = 0 { result: -100 } \ Only As rolled \
+    if A = 0 { result:  100 } \ Only Bs rolled \
+    if B >= (A * 2) { result: 100 }
+    if A >= (B * 2) { result: -100 }
+    if B = A { result: 0 }
+  }
+  if B > 0 {
+    if A = 0 { result: 100 }
+    if B >= (A * 2) { result: 100 } 
+    }
+  if A > 0 {
+    if B = 0 { result: -100 }
+    if A >= (B * 2) { result: -100 }
+    }
+  if B = A { result: 0 }
+
+  result: 999 \ Default result \
+
+}
+
+output [outcome 2d6]

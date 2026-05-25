@@ -1,0 +1,36 @@
+WIN_RATIO: 54
+WIN_AMOUNT: 16
+LOSS_AMOUNT: 13
+
+function: play RNG:n {
+  if RNG > WIN_RATIO { result: -LOSS_AMOUNT }
+  result: +WIN_AMOUNT
+}
+
+function: zero adjust CUR:n {
+  if CUR < 0 { result: 0 }
+  result: CUR
+}
+
+function: finish adjust TMP:n {
+  if TMP >= 400 { result: 400 }
+  result: TMP
+}
+
+function: adjust NXT:n CUR:n {
+  if NXT < 0 { result: 0 }
+  if NXT < 100 { if CUR > 100 { result: 100 } }
+  if NXT < 200 { if CUR > 200 { result: 200 } }
+  if NXT < 300 { if CUR > 300 { result: 300 } }
+  if CUR >= 400 { result: 400 }
+  result: NXT
+}
+
+LP: 89
+loop N over {1..15}{
+  TMP: LP + [play d100]
+  TMP: [adjust TMP LP]
+  LP: TMP
+}
+
+output LP

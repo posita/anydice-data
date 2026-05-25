@@ -1,0 +1,28 @@
+\ DO NOT TOUCH \
+function: for ROLL:s count crit condition equal to A:n then sum success condition gte B:n and fail condition lte C:n  {
+  if {1,2}@ROLL = 20 { 
+    result: 99 }
+  else { result: (ROLL >= B) - (ROLL <= C)}
+}
+
+function: for ROLL:s count crit condition equal to A:n then sum success discounting first nine with success condition gte nine and fail condition lte one {
+  if {1,2}@ROLL = 20 { 
+    result: 99 }
+  else { S: (ROLL = 10) 
+         P: (ROLL = 9) 
+         L: (ROLL = 1)
+         if P > 0 { P: P - 1}
+         result: S + P - L}
+}
+\ DO NOT TOUCH \
+
+
+
+\ Can only run one at a time -- please delete others prior to running \
+loop N over {8..8} {
+  X: N
+
+  output [for Xd10 count crit condition equal to 20 then sum success condition gte 10 and fail condition lte 1] named "Distribution[X]d10 @ success = 10)"
+  output [for Xd10 count crit condition equal to 20 then sum success condition gte 9 and fail condition lte 1] named "Distribution[X]d10 @ success >= 9)"
+  output [for Xd10 count crit condition equal to 20 then sum success discounting first nine with success condition gte nine and fail condition lte one] named "Distribution[X]d10 @ success >= 9 discount first 9)"
+}

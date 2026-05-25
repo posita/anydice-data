@@ -1,0 +1,58 @@
+\Current System: Low Variance High Dice Amount\
+function: currenttest {
+ result: [roll I]
+}
+
+\Modified Deca System: Higher Variance Lower Dice Amount\
+function: decatest {
+ result: [decaroll A  D]
+}
+
+function: roll DIE:d {
+ result: [rollrec DIE 0]
+}
+
+function: rollrec DIE:d MOD:n {
+ MAX: [maximum of DIE]
+ if MOD = MAX {result: 0}
+ result: [rollhelper DIE MAX MOD]
+}
+
+function: rollhelper ROLL:n MAX:n MOD:n {
+ if ROLL - MOD < 0 {result: 0}
+ if ROLL = MAX {result: (ROLL + [rollrec ROLL MOD + 1] - MOD)}
+ if MOD > 0 {result: ROLL - MOD}
+ result: ROLL
+}
+
+function: decaroll DECADIE:d MODDIE:d {
+ result: [decarollrec DECADIE MODDIE 0]
+}
+
+function: decarollrec DECADIE:d MODDIE:d DECAMOD:n {
+ DECAMAX: [maximum of DECADIE]
+ MODMAX: [maximum of MODDIE]
+ if DECAMOD = DECAMAX {result: 0}
+ if DECAMOD = 1 {result: DECADIE}
+ result: [decarollhelper DECADIE MODDIE DECAMAX MODMAX DECAMOD]
+}
+
+function: decarollhelper DECAROLL:n MODROLL:n DECAMAX:n MODMAX:n DECAMOD:n {
+ if DECAROLL - DECAMOD < 0 {result: 0}
+ if DECAROLL = DECAMAX & MODROLL = MODMAX {result: ((DECAROLL - DECAMOD) * 10 + [decarollrec DECAROLL MODROLL DECAMOD + 1])}
+ if DECAMOD > 0 {result: (DECAROLL - DECAMOD) * 10 + MODROLL - 10}
+ result: DECAROLL * 10 + MODROLL - 10
+}
+
+A: d4
+B: d6
+C: d8
+D: d10
+E: d12
+F: d14
+G: d16
+H: d18
+I: d20
+
+output [currenttest]
+output [decatest]

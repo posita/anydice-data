@@ -1,0 +1,51 @@
+\******** DEFINITIONS ********\
+NO: 0
+YES: 1
+ARCHERY_STYLE: 2
+SHARPSHOOTER_ATTACK_PENALTY: 5
+SHARPSHOOTER_DMG_BONUS: 10
+
+\******** ENEMY ********\
+AC: 15
+CON: 20
+
+\******** ATTACK FUNCTIONS ********\
+function: sharpshooter at level LEVEL:n with DEX:n dex for DMG:d crit CRIT_DMG:d roll ROLL:n against AC:n{
+    ATTACK_MODIFIER: (DEX - 10)/2
+    PROFICIENCY: ((LEVEL - 1)/4) + 2
+    DMG_WITH_BONUS: DMG + ATTACK_MODIFIER + SHARPSHOOTER_DMG_BONUS
+	
+    if ROLL = 1 {result:0}
+    if ROLL = 20 {result: DMG_WITH_BONUS + CRIT_DMG}
+    if ROLL + ATTACK_MODIFIER + ARCHERY_STYLE >= AC {result: DMG_WITH_BONUS}
+
+    result: 0
+}
+
+function: beast attack plus ATTACK_MODIFIER:n to hit for DMG:d crit CRIT_DMG:d roll ROLL:n against AC:n{
+    if ROLL = 1 {result:0}
+    if ROLL = 20 {result: DMG + CRIT_DMG}
+    if ROLL + ATTACK_MODIFIER >= AC {result: DMG}
+
+    result: 0
+}
+
+function: poison attack plus ATTACK_MODIFIER:n to hit for DMG:d crit CRIT_DMG:d roll ROLL:n against AC:n with dc POISON_SAVE_DC:n poison for POISON_DMG:d against CON:n con roll CON_ROLL:n with half damage on save HALF_ON_SAVE:n{
+    CON_MODIFIER: (CON-10)/2
+
+    if CON_ROLL + CON_MODIFIER < POISON_SAVE_DC { DMG: DMG + POISON_DMG}
+    else if HALF_ON_SAVE {DMG: DMG + (POISON_DMG/2)}
+
+    result: [beast attack plus ATTACK_MODIFIER to hit for DMG crit CRIT_DMG roll ROLL against AC]
+}
+
+
+output 
+ 2d[sharpshooter at level 8 with 20 dex for 1d8 crit 1d8 roll 1@3d20 against AC] 
+ named "Sharpshooter Samurai w/ Fighting Spirit, Elven Accuracy, 20 Dex"
+
+
+output 8d[poison attack plus 4 to hit for 1d4+2 crit 1d4 roll d20 against AC with dc 11 poison for 3d6 against CON con roll 1d20 with half damage on save NO] named "Giant Centipedes"
+output 8d[poison attack plus 3 to hit for 1d6+1 crit 1d4 roll d20 against AC with dc 11 poison for 2d6 against CON con roll 1d20 with half damage on save YES] named "Giant Wolf Spider"
+output 8d[poison attack plus 6 to hit for 1d4+4 crit 1d4 roll d20 against AC with dc 11 poison for 3d6 against CON con roll 1d20 with half damage on save YES] named "Giant Poisonous Snakes"
+output 8d[poison attack plus 6 to hit for 1 crit 1d4 roll d20 against AC with dc 11 poison for 3d4 against CON con roll 1d20 with half damage on save YES] named "Flying Snakes"

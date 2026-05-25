@@ -1,0 +1,28 @@
+
+function : dres N:n DC:n
+{
+ OUT : N > {DC - 10,DC - 10,DC-1,DC+9}
+ result : OUT
+}
+
+function : pf flat DC:n
+{
+
+ NORM : [dres 1d{1-10,2..19,20+10} DC]
+ result : NORM
+}
+
+function : pf basic save POWER:d DC:n
+{
+ EVALS : 4 - [pf flat DC]
+ result : (POWER * 1d(EVALS))/2
+}
+
+SAVES : 1d{0,1:4,2:6,3:4,4} + 1d{8,10,10}
+output 24 - SAVES
+P : 2 * (([dres 1d{-9,2..19,30} 24-SAVES]<4) + ([dres 1d{-9,2..19,30} 24-SAVES]<3))
+PB : 2 * (([dres 1d{-9,2..19,30} P+24-SAVES]<4) + ([dres 1d{-9,2..19,30} P+24-SAVES]<3))
+output P
+output PB
+output [pf basic save 2 24 - SAVES]
+output ([pf basic save 2 P + 24 - SAVES] + [pf basic save 2 PB + 24 - SAVES])/2

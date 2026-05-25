@@ -1,0 +1,60 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: 10d6+6
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: SNEAK
+ }
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs AC]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs AC]]
+}
+
+function: N:n advantage {
+ result: [damage for Nd[attack [highest 1 of 2d20] vs AC]]
+}
+
+AC: 15
+MISSDAMAGE: 0
+HITDAMAGE: d8+2+3+5
+CRITICALDAMAGE: 4d8+2+3+5
+ATTACK: 5+6+2
+SNEAK: 4d6+1d6+6
+
+output [2 advantage]

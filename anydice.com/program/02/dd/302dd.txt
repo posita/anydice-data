@@ -1,0 +1,90 @@
+\ DnD 5e Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+\GWF Code\
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+
+\ Here are some examples: \
+\1-4\
+output [2 vs 14 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+15]+[2 vs 14 crit 20 1 1d[reroll {1,2} on d4 to d4] dmg 1d[reroll {1,2} on d4 to d4]+15] named "GRM+GWF+PAM"
+
+output [7 vs 14 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[7 vs 14 crit 20 1 1d8+1d6 dmg 1d8+5+1d6] named "DW+TWF+HM"
+
+
+
+\5-8\
+output [3 vs 16 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[3 vs 16 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[3 vs 16 crit 20 1 1d[reroll {1,2} on d4 to d4] dmg 1d[reroll {1,2} on d4 to d4]+15] named "GRM+GWF+PM"
+
+output [8 vs 16 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[8 vs 16 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[8 vs 16 crit 20 1 1d8+1d6 dmg 1d8+5+1d6] named "DW+TWF+HM"
+
+
+
+\9-12\
+output [4 vs 17 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[4 vs 17 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[4 vs 17 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[4 vs 17 crit 20 1 1d[reroll {1,2} on d4 to d4] dmg 1d[reroll {1,2} on d4 to d4]+15] named "GRM+GWF+PM"
+
+output [9 vs 17 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[9 vs 17 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[9 vs 17 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[9 vs 17 crit 20 1 1d8+1d6 dmg 1d8+5+1d6] named "DW+TWF+HM"
+
+
+
+\13-16\
+output [5 vs 18 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[5 vs 18 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[5 vs 18 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[5 vs 18 crit 20 1 1d[reroll {1,2} on d4 to d4] dmg 1d[reroll {1,2} on d4 to d4]+15] named "GRM+GWF+PM"
+
+output [10 vs 18 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[10 vs 18 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[10 vs 18 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[10 vs 18 crit 20 1 1d8+1d6 dmg 1d8+5+1d6] named "DW+TWF+HM"
+
+
+
+\17-20\
+output [6 vs 19 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[6 vs 19 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[6 vs 19 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[6 vs 19 crit 20 1 2d[reroll {1,2} on d6 to d6] dmg 2d[reroll {1,2} on d6 to d6]+17]+[6 vs 19 crit 20 1 1d[reroll {1,2} on d4 to d4] dmg 1d[reroll {1,2} on d4 to d4]+15] named "GRM+GWF+PM"
+
+output [11 vs 19 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[11 vs 19 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[11 vs 19 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[11 vs 19 crit 20 1 1d8+1d6 dmg 1d8+5+1d6]+[11 vs 19 crit 20 1 1d8+1d6 dmg 1d8+5+1d6] named "DW+TWF+HM"
+
+
+
+
+

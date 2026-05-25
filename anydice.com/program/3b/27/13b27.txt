@@ -1,0 +1,35 @@
+X: 14 \ Dicepool \
+CHECKGLITCH:     1 \Check for Glitches (More than half of dicepool is 1s and at least one hit was scored)\
+CHECKCRITGLITCH: 1 \Check for Critical Glitches (More than half of dicepool is 1s and no hits scored)\
+CHECKBOTH:       1 \Check for both (More than half of dicepool is 1s, don't care how many hits were scored\
+
+function: ROLL:s glitch
+{
+ result: ((ROLL >= 5)>0) & ((ROLL = 1)=G)
+}
+
+function: ROLL:s critical glitch
+{
+ result: ((ROLL >= 5)=0) & ((ROLL = 1)>=G)
+}
+
+function: ROLL:s glitch or critical glitch
+{
+ result: ((ROLL = 1)>=G)
+}
+
+loop N over {3..X}{
+G: N - (N/2)
+if G = (N/2) {
+ G: G+1
+}
+
+if CHECKGLITCH = 1{
+output [N d6 glitch] named "Probability of glitch ([G] 1s) with [N] dice"}
+if CHECKCRITGLITCH = 1{
+output [N d6 critical glitch] named "Probability of critical glitch ([G] 1s) with [N] dice"}
+if CHECKBOTH = 1{
+output [N d6 glitch or critical glitch] named "Probability of glitch or critical glitch ([G] 1s) with [N] dice"}
+}
+
+

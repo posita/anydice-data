@@ -1,0 +1,33 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+} MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{20}
+
+ATTACK: 5 + 3 +1
+HITDAMAGE: d10 +11+
+CRITICALDAMAGE: 2dHITDAMAGE +d10
+MISSDAMAGE: 0
+output [attack] named "One Attack"
+output 2d[attack] named "Twin Strike"
+output 3d[attack] named "frenzy Strike"

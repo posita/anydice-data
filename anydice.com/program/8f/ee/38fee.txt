@@ -1,0 +1,27 @@
+ATTACK_MOD: 14
+HITDAMAGE: 1d8+3d4 + 15
+CRITICALDAMAGE: 2d8+6d4 + 15
+MISSDAMAGE: 0
+DEFENSE: 18
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 18 { result: CRITICALHIT }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+output [damage for [attack d20 vs DEFENSE]]*3

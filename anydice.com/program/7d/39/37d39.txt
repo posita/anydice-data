@@ -1,0 +1,30 @@
+set "explode depth" to 100
+set "maximum function depth" to 20
+
+function: downgrade D:d {
+  ORIG_SIZE: [maximum of D]
+  if ORIG_SIZE = 30 {
+    result: d20
+  }
+  if ORIG_SIZE = 20 {
+    result: d12
+  } else {
+    result: d(ORIG_SIZE - 2)
+  }
+}
+
+function: usagedie D:d keep on TN:n smallest size S:n {
+ SIZE: [maximum of D]
+ if SIZE <= S {
+  result: 1 + [explode D>=TN]
+ } else {
+  result: 1 + [explode D>=TN] + [usagedie [downgrade D] keep on TN smallest size S]
+ }
+}
+
+output [lowest of [usagedie d6 keep on 3 smallest size 6] and 25] named "# of d6 rolls smallest d6"
+output [lowest of [usagedie d8 keep on 3 smallest size 6] and 40] named "# of d8 rolls smallest d6"
+output [lowest of [usagedie d10 keep on 3 smallest size 6] and 60] named "# of d10 rolls smallest d6"
+output [lowest of [usagedie d12 keep on 3 smallest size 6] and 70] named "# of d12 rolls smallest d6"
+output [lowest of [usagedie d20 keep on 3 smallest size 6] and 100] named "# of d20 rolls smallest d6"
+output [lowest of [usagedie d30 keep on 3 smallest size 6] and 150] named "# of d30 rolls smallest d6"

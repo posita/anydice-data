@@ -1,0 +1,33 @@
+LEVEL: 5
+ITR: 3
+\1 5 9 12 17 20\
+
+PB: [lowest of 6 and 2 + [highest of 0 and (LEVEL - 1) / 4]]
+PSL: [lowest of 5 and 1 + (LEVEL - 1) / 2]
+MOD: [lowest of 5 and 3 + (LEVEL / 4)]
+EATK: [lowest of 2 and 1 + (LEVEL / 5)]
+BATK: [lowest of 3 and EATK + LEVEL / 12]
+CATK: [lowest of 4 and [lowest of 3 and EATK + LEVEL / 11] + LEVEL / 17]
+GWM: [lowest of 1 and LEVEL / 4] * PB
+
+HEX: 1 * 1d6
+FEY: (1 + (PSL / 4)) * (2d6 + 3 + PSL)
+output (ITR-1) * (CATK * (1d10 + MOD) + FEY) + FEY named "BLAST FEY"
+HUNGER: 1 * (2d6 + [highest of 0 and (PSL - 3)] * 1d6)
+output (ITR-1) * (CATK * (1d10 + MOD) + HUNGER) + HUNGER named "BLAST HUNGER"
+output ITR * (CATK * (1d10 + MOD + HEX)) named "BLAST HEX"
+\output ITR * (BATK * (1d10 + [highest of MOD - 1 and 3] + GWM + HEX)) named "GLAIVE GWM HEX"\
+output (ITR-1) * (BATK * (1d10 + [highest of MOD - 1 and 3] + GWM) + FEY) + FEY named "GLAIVE GWM FEY"
+\output ITR * (BATK * (2d6 + [highest of MOD - 1 and 3] + GWM + HEX)) named "GS GWM HEX"\
+output (ITR-1) * (BATK * (2d6 + [highest of MOD - 1 and 3] + GWM) + FEY) + FEY named "GS GWM FEY"
+\output [lowest of 2 and ITR] * (2 * 10d6) + [highest of 0 and ITR - 2] * (CATK * (1d10 + MOD + HEX)) named "FIREBALLS FIRST"\
+
+function: mdie { if LEVEL < 5 { result: 1d6 } else { if LEVEL < 11 { result: 1d8 } else { if LEVEL < 17 { result: 1d10 } else {result: 1d12 } } } }
+MDIE: [mdie]
+FOBATK: [highest of 2 and 1 + LEVEL / 10]
+output ITR * ((EATK + 1) * (MDIE + MOD)) named "MONK"
+output ITR * ((EATK + 1 + FOBATK) * (MDIE + MOD)) named "MONK FoB"
+
+RAGE: 2 + [lowest of 1 and LEVEL / 9] + [lowest of 1 and LEVEL / 16]
+BRUTAL: ([lowest of 1 and LEVEL / 9] + [lowest of 1 and LEVEL / 17]) * 1d10
+output ITR * (EATK * (2d6 + MOD + RAGE + GWM) + (RAGE * 1d6) + BRUTAL) named "BERSERKER GS"

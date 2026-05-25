@@ -1,0 +1,78 @@
+\adeline's waaacky damage-per-turn calculator!\
+
+AC:10             \AC of target\
+ACHIGH:20         \20 by default; set to 0 to disable a range, or anything other than 0 to change it\
+
+CRIT:20           \critical range: default is 20\
+ADVANTAGE:0       \boolean: 0 if none, 1 if advantage\
+ATTACKCOUNT:1     \your number of attacks per turn\
+TOHIT:5           \your bonus to hit\
+function: init C{ \ -- ignore -- \
+DAMAGE:1d12+3      \your normal damage\
+CRITDAMAGE:2d12+3  \your crit damage\
+
+
+if C = 0 {result: DAMAGE}
+else {result: CRITDAMAGE}
+}
+
+COMPARE:0 \set to 1 to compare the first stats vs all of those B-stats below this line\
+
+BCRIT:20           
+BADVANTAGE:0       
+BATTACKCOUNT:1       
+BTOHIT:6           
+function: init alt C{ 
+BDAMAGE:1d8+4
+BCRITDAMAGE:2d8+4
+
+
+
+if C = 0 {result: BDAMAGE}
+else {result: BCRITDAMAGE}
+}
+
+function: A:n against B:n{
+result: (A|B)*[init B]
+}
+function: A:n alt B:n{
+result: (A|B)*[init alt B]
+}
+
+function: attack N times against A {
+ACCUMULATOR: 0
+loop L over {1..N}{
+CC: (1@(ADVANTAGE+1)d20) >= CRIT
+HIT: ((1@(ADVANTAGE+1)d(CRIT-1))+TOHIT)>=A
+ACCUMULATOR:ACCUMULATOR+[HIT against CC]
+}
+result:ACCUMULATOR
+}
+
+function: alt attack N times against A {
+ACCUMULATOR: 0
+loop L over {1..N}{
+CC: (1@(BADVANTAGE+1)d20) >= BCRIT
+HIT: ((1@(BADVANTAGE+1)d(BCRIT-1))+BTOHIT)>=A
+ACCUMULATOR:ACCUMULATOR+[HIT alt CC]
+}
+result:ACCUMULATOR
+}
+if COMPARE = 0 {
+    if ACHIGH = 0 
+    {output [attack ATTACKCOUNT times against AC] named "AC[AC]"}
+    else{ 
+        loop ITER over {AC..ACHIGH} {
+        output [attack ATTACKCOUNT times against ITER] named "AC[ITER]"
+        }
+    }
+}
+else {
+    if ACHIGH = 0 
+    {output [attack ATTACKCOUNT times against AC]-[alt attack BATTACKCOUNT times against AC] named "1-2 vs. AC[AC]"}
+    else{ 
+        loop ITER over {AC..ACHIGH} {
+            output [attack ATTACKCOUNT times against ITER]-[alt attack BATTACKCOUNT times against ITER] named "1-2 vs. AC[ITER]"
+        }
+    }
+}    

@@ -1,0 +1,63 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MINCRIT: 20
+DEFENSE: d{15..19}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= MINCRIT {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: [maximum of BONUS]
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: BONUS
+ }
+ result: 0
+}
+
+ROLL: d20
+function: attack {
+ result: [damage for [attack ROLL vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack ROLL vs DEFENSE]]
+}
+
+ATTACK: 4 + 3 + 2
+HITDAMAGE: d8 + d6 + 4
+CRITICALDAMAGE: 2d8 + 2d6 + 4
+MISSDAMAGE: 0
+BONUS: d8
+
+output [3 attacks] named "Gloom 1st"
+output [2 attacks] named "Horizon 2nd"
+
+ROLL: d20
+BONUS: 0
+output [2 attacks] named "Gloom 2nd/Hor 1st"

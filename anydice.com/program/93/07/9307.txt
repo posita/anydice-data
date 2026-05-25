@@ -1,0 +1,33 @@
+\ Sorcerer \
+
+function: A:s vs B:s {
+ loop P over {1..[lowest of #A and #B]} {
+  if P@A > P@B { result: [A beats P@B at P] }
+  if P@B > P@A { result: -[B beats P@A at P] }
+ }
+
+\ Here's the bit I added (until the end of the function- the bit I removed is below) \
+\ I am assuming we only end up here if there is a tie \
+\ Desired result is 0 for all ties, except iff one player only had a single die - then that player lose by one \
+\ result: #A - #B \
+
+ if {#A, #B} = 1 {
+  if (#A - #B) > 0 {result: 1}
+  if (#A - #B) < 0 {result: -1}
+ } else { result: 0}
+
+
+}
+
+function: A:s beats T:n at W:n {
+ V: 1
+ loop P over {W + 1 .. #A} {
+  if P@A > T { V: V + 1 }
+  else { result: V }
+ }
+ result: V
+}
+
+
+\ total victory stuff \
+output [2d2 vs 2d2]

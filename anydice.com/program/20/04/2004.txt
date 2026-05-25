@@ -1,0 +1,49 @@
+MISS: 0
+NORMALHIT: 1
+
+CRITICALCONFIRM: 0
+
+function: ROLL:n plus ATTACK:n vs AC:n th THREAT:n x MUL:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= AC {
+  result: [threat d20 plus ATTACK vs AC for MUL]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n plus ATTACK:n vs AC:n for MUL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK + CRITICALCONFIRM >= AC | ROLL = 20 {
+  result: MUL
+ }
+ result: NORMALHIT
+}
+
+function: HIT:n for DAMAGE:d {
+  if HIT > MISS {
+    RESULT: DAMAGE
+    loop N over {2..HIT} {
+      RESULT: RESULT + DAMAGE
+    }
+    result: RESULT
+  }
+  else {
+    result: 0
+  }
+}
+
+function: DIE:n vs AC:n {
+  result: [[DIE plus 3 vs AC th 20 x 3] for 1d8]
+}
+
+output [d20 vs 17]+[d20 vs 17]+[d20 vs 17]+[d20 vs 17]+[d20 vs 17]+[d20 vs 17] named "attacks vs wolf, no barding or barkskin"
+output [d20 vs 21]+[d20 vs 21]+[d20 vs 21]+[d20 vs 21]+[d20 vs 21]+[d20 vs 21] named "attacks vs wolf, barding, no barkskin"
+output [d20 vs 23]+[d20 vs 23]+[d20 vs 23]+[d20 vs 23]+[d20 vs 23]+[d20 vs 23] named "attacks vs wolf, barding and barkskin"
+output [d20 vs [highest of 14 and d20+7]]+[d20 vs 14]+[d20 vs 14]+[d20 vs 14]+[d20 vs 14]+[d20 vs 14] named "attacks vs horse, no barding or barkskin"
+output [d20 vs [highest of 18 and d20+7]]+[d20 vs 18]+[d20 vs 18]+[d20 vs 18]+[d20 vs 18]+[d20 vs 18] named "attacks vs horse, barding, no barkskin"
+output [d20 vs [highest of 20 and d20+7]]+[d20 vs 20]+[d20 vs 20]+[d20 vs 20]+[d20 vs 20]+[d20 vs 20] named "attacks vs horse, barding and barkskin"
+output [d20 vs 19]+[d20 vs 19]+[d20 vs 19]+[d20 vs 19]+[d20 vs 19]+[d20 vs 19] named "attacks vs fighter, no shield or barkskin"
+output [d20 vs 21]+[d20 vs 21]+[d20 vs 21]+[d20 vs 21]+[d20 vs 21]+[d20 vs 21] named "attacks vs fighter, heavy shield, no barkskin"
+output [d20 vs 23]+[d20 vs 23]+[d20 vs 23]+[d20 vs 23]+[d20 vs 23]+[d20 vs 23] named "attacks vs fighter, heavy shield and barkskin"
+output [d20 vs 17]+[d20 vs 17]+[d20 vs 17]+[d20 vs 17]+[d20 vs 17]+[d20 vs 17] named "attacks vs fighter, banded mail, no shield or barkskin"

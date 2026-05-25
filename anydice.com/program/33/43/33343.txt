@@ -1,0 +1,15 @@
+function: attack ROLL:n ATKBONUS:n CRIT:n AC:n DAM:d CRITDAM:d {
+ if ROLL >= CRIT { result: 2 d DAM + CRITDAM }
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATKBONUS >= AC { result: DAM }
+ result: 0
+}
+loop AC over {1,15,21} {
+ loop BRUTALCRITICAL over {1,2,3} {
+  output 2d[attack 1@1d20 9 20 AC 1d12 BRUTALCRITICAL d 12] named "Reckless, Brutal Critical [BRUTALCRITICAL], AC [AC]"
+ }
+ loop BRUTALSTRIKE over {1, 2} {
+  output 2d[attack 1d20 9 20 AC (1d12 + BRUTALSTRIKE d10) 0d12] named "Both Brutal Strike [BRUTALSTRIKE], AC [AC]"
+  output [attack 1@2d20 9 20 AC 1d12 0d12] + [attack 1d20 9 20 AC (1d12 + BRUTALSTRIKE d10) 0d12] named "Single Brutal Strike [BRUTALSTRIKE], AC [AC]"
+ }
+}

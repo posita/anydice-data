@@ -1,0 +1,91 @@
+BOOST: 0
+SETBACK: 1
+ABILITY: 2
+DIFFICULTY: 3
+PROFICIENCY: 4
+CHALLENGE: 5
+
+ADVANTAGE: 1
+SUCCESS: 2
+TRIUMPH: 3
+
+function: get TYPE dice FACE
+{
+  if (TYPE = BOOST)
+  {
+    if (FACE = SUCCESS) {
+      result: {0,0,1,1,0,0}
+    } else if (FACE = ADVANTAGE) {
+      result: {0,0,0,1,2,1}
+    }
+  }
+  if (TYPE = ABILITY)
+  {
+    if (FACE = SUCCESS) {
+      result: {0,1,1,2,0,0,1,0}
+    } else if (FACE = ADVANTAGE) {
+      result:{0,0,0,0,1,1,1,2}
+    }
+  }
+  if (TYPE = PROFICIENCY)
+  {
+    if (FACE = SUCCESS) {
+      result: {0,1,1,2,2,0,1,1,1,0,0,1}
+    } else if (FACE = ADVANTAGE) {
+      result: {0,0,0,0,0,1,1,1,1,2,2,0}
+    } else if (FACE = TRIUMPH) {
+      result: {0,0,0,0,0,0,0,0,0,0,0,1}
+    }
+  }
+  if (TYPE = SETBACK)
+  {
+    if (FACE = SUCCESS) {
+      result: {0,0,-1,-1,0,0}
+    } else if (FACE = ADVANTAGE) {
+      result: {0,0,0,0,-1,-1}
+    }
+  }
+  if (TYPE = DIFFICULTY)
+  {
+    if (FACE = SUCCESS) {
+      result: {0,-1,-2,0,0,0,0,-1}
+    } else if (FACE = ADVANTAGE) {
+      result: {0,0,0,-1,-1,-1,-2,-1}
+    }
+  }
+  if (TYPE = CHALLENGE)
+  {
+    if (FACE = SUCCESS) {
+      result: {0,-1,-1,-2,-2,0,0,-1,-1,0,0,-1}
+    } else if (FACE = ADVANTAGE) {
+      result: {0,0,0,0,0,-1,-1,-1,-1,-2,-2,0}
+    } else if (FACE = TRIUMPH) {
+      result: {0,0,0,0,0,0,0,0,0,0,0,-1}
+    }
+  }
+  result: {}
+}
+
+function: roll DIE:s TYPE
+{
+  B_DIE: [get BOOST dice TYPE]
+  A_DIE: [get ABILITY dice TYPE]
+  P_DIE: [get PROFICIENCY dice TYPE]
+  D_DIE: [get DIFFICULTY dice TYPE]
+  S_DIE: [get SETBACK dice TYPE]
+  C_DIE: [get CHALLENGE dice TYPE]
+ 
+  result: (1@DIE) d B_DIE + (2@DIE) d A_DIE + (3@DIE) d P_DIE + (4@DIE) d D_DIE + (5@DIE) d S_DIE + (6@DIE) d C_DIE
+}
+
+BOOST_DICE: 0
+ABILITY_DICE: 2
+DIFF: 2
+CHALLENGE_DICE: 0
+SETBACK_DICE: 0
+
+loop N over {0..ABILITY_DICE}
+{
+  C: ABILITY_DICE-N
+  output [roll {BOOST_DICE, C, N, DIFF, SETBACK_DICE, CHALLENGE_DICE} SUCCESS] named "Success [C]/[N] - Diff [DIFF]"
+}

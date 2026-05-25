@@ -1,0 +1,34 @@
+set "maximum function depth" to 4
+
+function: roll VAL:n explode X:n {
+     if VAL < 8 { result: 0 }
+     if VAL < X { result: 1 }
+     result: 1 + [roll 1d10 explode X]
+}
+
+function: ten again POOL:n {
+    result: POOL d [roll 1d10 explode 10]
+}
+function: nine again POOL:n {
+    result: POOL d [roll 1d10 explode 9]
+}
+
+function: eight again POOL:n {
+    result: POOL d [roll 1d10 explode 8]
+}
+
+
+function: attack SUCCESSES:n for DAMAGE:n {
+    if SUCCESSES = 0 {result: 0}
+    result: SUCCESSES + DAMAGE
+}
+
+DAMAGE:0
+\loop DAMAGE over {0..3} {\
+loop POOL over {1..10} {
+    output [attack [ten again POOL] for DAMAGE] named "[POOL] for [DAMAGE]"
+\    output [attack [nine again POOL] for DAMAGE] named "9-again [POOL] for [DAMAGE]"
+    output [attack [eight again POOL] for DAMAGE] named "8-again [POOL] for [DAMAGE]"\
+
+  }
+\}\

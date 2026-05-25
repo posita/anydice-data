@@ -1,0 +1,19 @@
+APOOL: 18
+ALIMIT: 3
+DPOOL: 8
+DLIMIT: 8
+
+function: limitedhits LIMIT:n in SEQUENCE:s {
+ COUNT: 0
+ HITS: {5,6}
+ loop P over {1..#HITS} {
+  COUNT: COUNT + (P@HITS = SEQUENCE)
+  if COUNT>LIMIT {
+   COUNT : LIMIT
+  }
+ }
+ result: COUNT
+}
+
+output [limitedhits ALIMIT in APOOLd6] - [limitedhits DLIMIT in DPOOLd6] named "Hit chance with limits"
+output [count{5,6} in APOOLd6] - [count{5,6} in DPOOLd6] named "Hit chance without limits"

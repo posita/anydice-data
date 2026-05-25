@@ -1,0 +1,98 @@
+function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+
+function: DIE:d reroll FILTER:s {
+  result: [DIE replace FILTER with DIE]
+}
+
+function: kind DIE:d {
+  result: [DIE reroll 1@{DIE}]
+}
+
+function: heavenly DIE:d {
+  MAX: [maximum of DIE]
+  HALF: MAX / 2
+  result: [DIE reroll {1@{DIE}..HALF}]
+}
+
+function: cruel DIE:d {
+  result: [DIE reroll [maximum of DIE]]
+}
+
+function: deadly DIE:d {
+  MAX: [maximum of DIE]
+  HALF: MAX / 2
+  result: [DIE reroll {(HALF + 1)..MAX}]
+}
+
+function: DIE:d keep K:n {
+  result: [highest K of DIE]
+}
+
+function: DIE:d lose L:n {
+  result: [lowest (#(DIE)-L) of DIE]
+}
+
+function: DIE:d keep lowest N:n {
+  result: [lowest N of DIE]
+}
+
+function: DIE:d keep highest N:n {
+  result: [highest N of DIE]
+}
+
+MISS: 0
+GLANCE: 1
+HIT: 2
+CRIT: 3
+
+function: ROLL:n with BONUS:n hits AC:n {
+  if ROLL = 1 {
+    result: MISS
+  }
+  if ROLL = 20 {
+    if ROLL + BONUS > AC {
+      result: CRIT
+    }
+
+    result: HIT
+  }
+  if ROLL + BONUS > AC {
+    result: HIT
+  }
+  if ROLL + BONUS = AC {
+    result: GLANCE
+  }
+  result: MISS
+}
+
+function: do DAMAGE:d with BONUS:n for RESULT:n {
+  if RESULT = CRIT {
+    result: [maximum of DAMAGE] + DAMAGE + BONUS
+  }
+  if RESULT = HIT {
+    result: DAMAGE + BONUS
+  }
+  if RESULT = GLANCE {
+    result: (DAMAGE + BONUS) / 2
+  }
+
+  result: 0
+}
+
+\HIT_RESULT: [d20 with HIT_BONUS hits TARGET_AC]\
+\output HIT_RESULT\
+\output [do DAMAGE_DICE with DAMAGE_BONUS for HIT_RESULT]\
+
+TARGET_AC: 17
+CARSON: [do [2d12 keep highest 1] with +6 for [d20 with +6 hits TARGET_AC]]
+MISHA: [do 1d8 with +5 for [d20 with +9 hits TARGET_AC]]
+MISHA_FIRST_TURN: 2dMISHA
+OWEN: [do 5d6 with +0 for [d20 with +6 hits TARGET_AC]]
+
+\output CARSON named "Carson"\
+\output MISHA_FIRST_TURN named "Misha (First Turn)"\
+\output OWEN named "Owen"\
+output CARSON + MISHA_FIRST_TURN + OWEN + 4 named "Collective (First Turn)"

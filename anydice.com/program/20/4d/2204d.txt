@@ -1,0 +1,87 @@
+function: roll ROLL:n {
+  if ROLL <= 6 { result: -1 }
+  else if ROLL <= 9 { result: 0 }
+  else if ROLL < 12 { result: 1 }
+  else { result: 2 }
+}
+
+function: dreadfall ROLL:n {
+  if ROLL <= 6 { result: -1 }
+  else if ROLL <= 9 { result: 0 }
+  else if ROLL <= 12 { result: 1 }
+  else if ROLL <= 15 { result: 2 }
+  else if ROLL <= 18 { result: 3 }
+}
+
+function: wod ROLL:n {
+  if ROLL <= 6 { result: 0 }
+  else if ROLL <= 9 { result: 1 }
+  else if ROLL < 12 { result: 2 }
+  else { result: 3 }
+}
+
+function: som ROLL:n {
+  if ROLL <= 2 { result: -1 }
+  else if ROLL <= 6 { result: 0 }
+  else if ROLL <= 9 { result: 1 }
+  else if ROLL <= 11 { result: 2 }
+  else if ROLL <= 12 { result: 3 }
+}
+
+function: less than V:n in ROLL:d times T:n {
+  R: 1
+  loop I over {1..T} {
+    R: R & (ROLL < V)
+  }
+
+  result: R
+}
+
+function: defense ROLL:s of ATR:n against ATK:n {
+  S: {1, 2}@ROLL + ATR
+  if S <= 6 { result: [lowest 1 of ROLL] + ATK }
+  else if S <= 10 { result: [highest 1 of ROLL] }
+}
+
+function: fullhit ROLL:s ATR:n DMG:n {
+  R: {1, 2}@ROLL
+  if R + ATR <= 6 { result: 1@ROLL + DMG }
+}
+
+function: partialhit ROLL:s ATR:n {
+  R: {1, 2}@ROLL
+  if R + ATR > 6 & R + ATR < 10 { result: 2@ROLL }
+}
+
+output [roll 2d6 + 2]
+output [roll [highest 2 of 3d6] + 2]
+
+ATR: [dreadfall 3d6]
+DMG: 2
+output [fullhit 2d6 ATR DMG] named "Full Hit + [ATR] (DMG = [DMG])"
+output [partialhit 2d6 ATR] named "Partial Hit + [ATR]"
+
+output [dreadfall 3d6] named "Dreadfall"
+output [roll 2d6 + [dreadfall 3d6]] named "2d6 + Dreadfall"
+output 2d6 + 2 >= 12
+output 2d6 + 2 >= 13
+
+output [wod 2d6] named "World of Dungeons"
+output [roll 2d6 + [wod 2d6]] named "2d6 + WOD"
+
+output [som 2d6] named "Streets of Marienburg"
+output [roll 2d6 + [som 2d6]] named "2d6 + SOM"
+
+output [lowest 1 of 3d6] named "Knave"
+output [roll 2d6 + 3@3d6] named "2d6 + Knave"
+
+function: param ROLL:n A:n B:n C:n D:n E:n BIAS:n {
+  if ROLL <= A + BIAS { result: -1 }
+  else if ROLL <= A+B + BIAS { result: 0 }
+  else if ROLL <= A+B+C + BIAS { result: 1 }
+  else if ROLL <= A+B+C+D + BIAS { result: 2 }
+  else if ROLL <= A+B+C+D+E + BIAS { result: 3 }
+}
+
+output [param 3d6 4 4 3 3 2 3] named "4 4 3 3 2"
+output 2d6 + [param 3d6 4 4 3 3 2 3] >= 10

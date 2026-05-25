@@ -1,0 +1,50 @@
+YES: 1
+NO: 0
+
+SPEED: 3
+ACCURACY: 6
+STRENGTH: 3
+LUCK: 0
+SHARP: NO
+EARLYIRON: YES
+
+PLAYERSPEED: 0
+PLAYERACCURACY: 0
+PLAYERSTRENGTH: 0
+PLAYERLUCK: 0
+
+TOUGHNESS: {8, 10, 12, 14, 16}
+
+function: earlyiron ROLL:s {
+ if [count 1 in ROLL] { result: 1 } \ cancel all wounds\
+ result: 0 \ wound as normal \
+}
+
+HITCHANCE: (1d10 >= (ACCURACY-PLAYERACCURACY))
+
+WOUNDROLL: 1d10
+if SHARP = YES {
+  SHARPSTR: 1d10
+} else {SHARPSTR: 0}
+
+loop T over TOUGHNESS
+{
+  WOUNDRESULT: (WOUNDROLL + STRENGTH + SHARPSTR + PLAYERSTRENGTH) >= T
+
+  WOUNDCHANCE: HITCHANCE*WOUNDRESULT
+
+  CRITICALCHANCE: (WOUNDROLL+LUCK+PLAYERLUCK) >= 10
+  CRITICALHIT: CRITICALCHANCE*HITCHANCE
+
+  WOUNDS: 0
+  CRITS: 0
+  loop N over {1..(SPEED+PLAYERSPEED)}
+  {
+    WOUNDS: WOUNDS+WOUNDCHANCE
+    CRITS: CRITS+CRITICALHIT
+  }
+  output WOUNDS named "Chance to Wound Toughness [T]"
+  
+}
+output CRITS named "Chance to Crit"
+\Calculate Criticals\

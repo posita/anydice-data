@@ -1,0 +1,43 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack {
+ result: [damage for [attack [highest 1 of  2d20] vs DEFENSE]]
+}
+
+function: rattack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{15}
+
+ATTACK:  3+1+5
+HITDAMAGE: 11+d10
+CRITICALDAMAGE: 2dHITDAMAGE+d10
+MISSDAMAGE: 0
+output 2d[attack] named "dragonslayer"
+ATTACK:  8
+HITDAMAGE: d8+d4+3+d6
+CRITICALDAMAGE: 2dHITDAMAGE
+MISSDAMAGE: 0
+output 2d[rattack] named "Relphinren"

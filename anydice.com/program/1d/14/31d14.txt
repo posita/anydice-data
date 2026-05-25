@@ -1,0 +1,45 @@
+function: interpret ROLL:s {
+  DHITS: 0 
+  SHITS: 0 
+  DMISS: 0 
+  SMISS: 0 
+  CRIT: 0
+  HITS:  0   \ Variable to store the total number of hits \
+  RROLL: [sort ROLL]  \ Sort the input sequence of dice rolls in ascending order \
+  loop I over {1 .. #RROLL} {
+    if I@RROLL = 1 {SMISS: SMISS + 0
+                    CRIT: CRIT - 1 }
+    if I@RROLL = 2 {SMISS: SMISS + 1}
+    if I@RROLL = 3 {SMISS: SMISS + 1
+                    SHITS: SHITS + 0}
+    if I@RROLL = 4 { SMISS: SMISS + 1
+                     SHITS: SHITS + 2}
+    if I@RROLL = 5 {SHITS: SHITS + 1 }
+    if I@RROLL = 6 {SHITS: SHITS + 1
+                    CRIT: CRIT + 1 }
+  }
+
+  HITS: (SHITS - (SMISS/2))
+
+  if HITS <= 0 { HITS: -1 }
+  if HITS = 1 { HITS: 0 }
+  if HITS = 2 | HITS = 3 { HITS: 1 }
+  if HITS > 3 { HITS: 2 }
+  if CRIT >= 2 { HITS: 100 }
+
+
+  result: HITS \ Set the result of the function to HITS \
+}
+
+loop I over {1 .. 3} {
+  output [interpret Id6] named "[I] dice" 
+}
+
+\ Chart 
+
+-1: failure
+0: mixed
+1: success
+2: strained success
+100: crit
+\

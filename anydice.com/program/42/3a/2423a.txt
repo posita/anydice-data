@@ -1,0 +1,72 @@
+function: urelixattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + URELIXATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: urelixdamage RESULT:n {
+  if RESULT = MISS {result : 0}
+  if RESULT = HIT {result : URELIXHITDAMAGE}
+  if RESULT = CRITICALHIT {result: URELIXCRITDAMAGE}
+}
+
+function: golemdamage RESULT:n {
+  if RESULT = MISS {result : 0}
+  if RESULT = HIT {result : GOLEMHITDAMAGE}
+  if RESULT = CRITICALHIT {result: GOLEMCRITDAMAGE}
+}
+
+function: rougeattack ROLL:n vs DEFENSE:n sneak ROUGESNEAK:n {
+ if ROUGESNEAK = 1 { result: SNEAK}
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ROUGEATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: rougedamage RESULT:n {
+  if RESULT = SNEAK {result: ROUGECRITDAMAGE + ROUGESNEAKDAMAGE}
+  if RESULT = MISS {result : 0}
+  if RESULT = HIT {result : ROUGEHITDAMAGE}
+  if RESULT = CRITICALHIT {result: ROUGECRITDAMAGE}
+}
+
+function: advantage ROLLONE:n and ROLLTWO:n {
+  if ROLLONE >= ROLLTWO {result: ROLLONE}
+  result : ROLLTWO
+}
+
+MISS: -1
+HIT: -2
+CRITICALHIT: -3
+SNEAK: -4
+
+DEFENSE: 15
+
+URELIXATTACK: 7
+URELIXHITDAMAGE: 1d8 + 4
+URELIXCRITDAMAGE: 2d8 + 4
+
+GOLEMHITDAMAGE: 1d8 + 3
+GOLEMCRITDAMAGE: 2d8 + 3
+
+ROUGEATTACK: 7
+ROUGEHITDAMAGE: 1d8 + 4
+ROUGECRITDAMAGE: 2d8 + 4
+ROUGESNEAKDAMAGE: 3d6
+ROUGESNEAK: 1
+
+loop DEFENSE over {10..15} {
+ output [urelixdamage [urelixattack d20 vs DEFENSE]] + [urelixdamage [urelixattack d20 vs DEFENSE]] + [golemdamage [urelixattack d20 vs DEFENSE]] named "Urelix [DEFENSE]"
+}
+
+loop DEFENSE over {10..15} {
+ loop ROUGESNEAK over {0..1} {
+   output [rougedamage [rougeattack d20 vs DEFENSE sneak ROUGESNEAK]] named "Squiggs [DEFENSE]"
+ }
+}

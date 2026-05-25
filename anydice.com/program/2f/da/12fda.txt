@@ -1,0 +1,90 @@
+set "explode depth" to 4
+set "maximum function depth" to 1
+function: A:n base {
+if A = 1 {
+result: 1d2 - 1
+}
+if A = 6 {
+result: 6 + [explode 1d6 - 1]
+}
+else {
+result: A}
+}
+function: A:n sub {
+B: 1d{-2, -1, 0, 0, 1, 2}
+B: [B recursion]
+result: A + B
+
+}
+function: A:n recursion {
+if (A = -2){
+B: 1d{-2, -1, 0, 0, 1, 2}
+B: [B recursion]
+result: A + B
+}
+if (A = -1){
+result: A
+}
+if (A = 0){
+result: A
+}
+if (A = 1){
+result: A
+}
+if (A = 2){
+B: 1d{-2, -1, 0, 0, 1, 2}
+B: [B recursion]
+result: A + B
+}
+}
+function: avoidnegative A:n {
+if A < 0{
+result: 0
+}
+else {
+result: A
+}
+}
+function: A:n wild{
+if A = 1 {
+result: 1d2 - 1
+}
+if A >= 18 {
+result: A + [explode 1d6 - 1]
+}
+else {
+result: A
+}
+}
+INTELLIGENCE: [1d6 base] + [1d6 base] + [1d6 base]
+PREA: [INTELLIGENCE sub]
+APTITUDE: [avoidnegative PREA]
+WILLPOWER: [1d6 base] + [1d6 base] + [1d6 base]
+PREMR: [WILLPOWER sub]
+MAGICRESISTANCE: [avoidnegative PREMR]
+PREPR: [WILLPOWER sub]
+PSIONICRESISTANCE: [avoidnegative PREPR]
+BASEMA: [1d20 wild] + APTITUDE - MAGICRESISTANCE
+BASEPA: [1d20 wild] + WILLPOWER - PSIONICRESISTANCE
+function: truemagic M:n P:n{
+if M < 15 | P < 15 {
+result: M
+}
+else {
+R: [1d20 wild] + APTITUDE - MAGICRESISTANCE
+result: [lowest of M and R]
+}
+}
+function: truepsionic M:n P:n{
+if M < 15 | P < 15 {
+result: P
+}
+else {
+R: [1d20 wild] + WILLPOWER - PSIONICRESISTANCE
+result: [lowest of P and R]
+}
+}
+MATWO: [truemagic BASEMA BASEPA]
+PATWO: [truepsionic BASEMA BASEPA]
+output [avoidnegative MATWO]
+output [avoidnegative PATWO]

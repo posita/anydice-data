@@ -1,0 +1,26 @@
+AC: 18
+TO_HIT: 5
+ATTACKS: 24
+ADVANTAGE: 0
+DISADVANTAGE: 1
+
+NEED_TO_ROLL: AC - TO_HIT
+if NEED_TO_ROLL > 20 {
+    NEED_TO_ROLL: 20
+}
+
+X: 0
+loop N over {1..ATTACKS}{
+    if ADVANTAGE & !DISADVANTAGE {
+        ROLL: [highest 1 of 2d20]
+    } else {
+        if DISADVANTAGE & !ADVANTAGE {
+            ROLL: [lowest 1 of 2d20]
+        } else {
+            ROLL: 1d20
+        }
+    }
+    X: X + [count {NEED_TO_ROLL..20} in ROLL]
+    X: X + [count {20} in ROLL]
+}
+output X named "number of hits"

@@ -1,0 +1,96 @@
+   AnyDice
+    1. AnyDice
+    2. Documentation
+
+                                   Functions
+
+   AnyDice allows you to define functions, which you can then invoke using
+   any values you like. The name of a function can consist of any amount
+   of lowercase words and variables. You invoke a function by writing its
+   name between brackets, replacing the variables in its name with
+   whatever you want it to operate on.
+
+   Inside the block of a function, you can define its result at any time.
+   Whenever a function's result is defined, its execution is finished. If
+   you do not define the result of a function then it will be the empty
+   die.
+function: add A to B {
+ result: A + B
+}
+
+output [add 1 to 2] named "3"
+output [add d4 to 1] named "d4 + 1"
+output [add d4 to d6] named "d4 + d6"
+
+   The variables that are defined inside a function only exist while that
+   function is being invoked. If a variable with the same name already
+   existed, then its old value will become available again after the
+   function invocation is finished.
+
+   It is not possible to provide output or to configure AnyDice while
+   inside a function.
+
+  Parameter types
+
+   The variables inside a function's name are the parameters it operates
+   on. It is possible to constrain these parameters to a specific type.
+   You do this by following a variable with a colon, then a character
+   indicating its type. Use n for numbers, d for dice, and s for
+   sequences. The behavior of a function depends on what type of value it
+   expects and what type of value it actually receives.
+
+   Expecting a number
+          If a sequence is provided, then the sequence will be summed. If
+          a die is provided, then the function will be invoked for all
+          numbers on the die - or the sums of a collection of dice - and
+          the result will be a new die.
+
+   Expecting a die
+          If a number is provided, then it will be converted to a die that
+          can roll only that number. If a sequence is provided, then the
+          sequence will be summed and treated the same as a number.
+
+   Expecting a sequence
+          If a number is provided, then it will be converted to a sequence
+          containing only that number. If dice are provided, then the
+          function will be invoked for all possible sequences that can be
+          made by rolling those dice. In that case the result will be a
+          new die.
+
+function: double A:n if above B:n {
+ if A > B { result: A + A }
+ result: A
+}
+
+output [double d6 if above 3] named "1, 2, 3, 8, 10, 12"
+
+function: ROLL:s count fives and above and subtract ones {
+ result: (ROLL >= 5) - (ROLL = 1)
+}
+
+output [3d6 count fives and above and subtract ones] named "-3 .. 3"
+
+   While it is possible to assign a value to a variable used as a
+   parameter, you should not do so yourself.
+
+  Recursion
+
+   It is possible to invoke a function inside another function. It is even
+   possible to invoke a function inside itself. Theoretically, it is
+   possible to make a function invoke itself indefinitely. However,
+   AnyDice is only able to support a limited number of nested function
+   calls. Whenever this limit is exceeded, the invoked function's result
+   will automatically be the empty die and a warning will be issued.
+
+   If you want to, you can adjust the maximum nesting level - called the
+   maximum function depth - to any number you want. However, this might
+   cause AnyDice to fail as it tries to claim more machine resources that
+   it is allowed to.
+function: depth { result: 1 + [depth] }
+
+output [depth] named "default maximum function depth"
+
+set "maximum function depth" to 5
+output [depth] named "custom maximum function depth"
+
+   made by Jasper Flick

@@ -1,0 +1,43 @@
+N: 1
+D: 8
+M: N*(D/2 - 1)
+A: 6
+O: 12
+T: 20
+
+function: pf ROLL:s with P:n E:n {
+ R: 1
+ if 1@ROLL + O - P >= T {
+  R: 2 + (1@ROLL + O - P >= (T + 10))
+ }
+ else {
+  if 1@ROLL + O - P <= (T - 10) {
+   R: 0
+  }
+ }
+ if 1@ROLL = 1 {
+  R: [highest of 0 and R - 1]
+ }
+ if 1@ROLL = 20 {
+  R: [lowest of 3 and R + 1]
+ }
+ if R = 0 {
+  result: 0
+ }
+ if R = 1 {
+  result: M + [lowest of E and E/2]
+ }
+ if R = 2 {
+  result: NdD + M + E
+ }
+ result: N*D + NdD + 2*(M + E) 
+}
+
+output [pf 1d20 with 0 A] + [pf 1d20 with 4 A] + [pf 1d20 with 8 A] named "Melee (Agile)"
+output [pf 1d20 with 0 A] + [pf 1d20 with 5 A] + [pf 1d20 with 10 A] named "Melee (Standard)"
+output [pf 1d20 with 0 A] + [pf 1d20 with 6 A] + [pf 1d20 with 12 A] named "Melee (Unwieldy)"
+output [pf 1d20 with 0 0] + [pf 1d20 with 4 0] + [pf 1d20 with 8 0] named "Ranged (Agile)"
+output [pf 1d20 with 0 0] + [pf 1d20 with 5 0] + [pf 1d20 with 10 0] named "Ranged (Standard)"
+output [pf 1d20 with 0 0] + [pf 1d20 with 6 0] + [pf 1d20 with 12 0] named "Ranged (Unwieldy)"
+output [pf 1d20 with 0 A] named "Single Melee"
+output [pf 1d20 with 0 0] named "Single Ranged"

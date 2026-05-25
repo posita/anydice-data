@@ -1,0 +1,23 @@
+SCALE: 5
+DICE: d10
+ATR: d{25..50}/10
+FOR: ATR
+ABS: SCALE+ATR
+WPN: d{0..SCALE}
+ARM: d{0..SCALE}
+
+function: damage A:n {
+ if A < 0 {
+  result: [lowest 1 of (1-A)d[explode DICE]]
+ } else {
+  result: [highest 1 of (1+A)d[explode DICE]]
+ }
+}
+
+function: wounds from A:n {
+ result: [highest of 0 and (A+(SCALE-1))/SCALE]
+}
+
+output [wounds from [damage -1]+(FOR+WPN)-(ABS+ARM)] named "Dmg: Weak"
+output [wounds from [damage 0]+(FOR+WPN)-(ABS+ARM)] named "Dmg: Normal"
+output [wounds from [damage 1]+(FOR+WPN)-(ABS+ARM)] named "Dmg: Strong"

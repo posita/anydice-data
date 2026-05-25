@@ -1,0 +1,69 @@
+function: regular {
+  result: d20
+}
+
+function: advantaged DIE {
+  result: 1@2dDIE
+}
+
+function: reroll DIE:n as REROLL if lower than N {
+  if DIE < N { result: REROLL }
+  else { result: DIE }
+}
+
+function: halfling {
+  result: [reroll [regular] as [regular] if lower than 2]
+}
+
+function: advantaged {
+  result: [advantaged [regular]]
+}
+
+function: elven {
+  result: [highest of [advantaged [regular]] and [regular]]
+}
+
+function: swing ATK_DICE:n plus ATK_MOD:n for DMG_DICE plus DMG_MOD crit bonus CRIT_DMG threshold CRIT vs AC {
+  if ATK_DICE = 1 { result: 0 }
+  else if ATK_DICE >= CRIT { result: 2dDMG_DICE+DMG_MOD+CRIT }
+  else if ATK_DICE+ATK_MOD >= AC { result: DMG_DICE+DMG_MOD }
+  else { result: 0 }
+}
+
+function: resolve DMG:n attack ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DMG threshold CRIT first hit FH_DICE plus FH_MOD vs AC {
+  if DMG > 0 {
+    result: [swing ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DMG threshold CRIT vs AC]
+  } else {
+    result: [swing ATK_DICE plus ATK_MOD for DMG_DICE+FH_DICE plus DMG_MOD+FH_MOD crit bonus CRIT_DMG threshold CRIT vs AC]
+  }
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DMG threshold CRIT first hit FH_DICE plus FH_MOD vs AC {
+  DMG: 0
+  loop N over {1..T} {
+    DMG: DMG + [resolve DMG attack ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus CRIT_DMG threshold CRIT first hit FH_DICE plus FH_MOD vs AC]
+  }
+  result: DMG
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 threshold 20 first hit 0 plus 0 vs AC]
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD first hit FH_DICE vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 threshold 20 first hit FH_DICE plus 0 vs AC]
+}
+
+function: attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit threshold CRIT vs AC {
+  result: [attack T x ATK_DICE plus ATK_MOD for DMG_DICE plus DMG_MOD crit bonus 0 threshold CRIT first hit 0 plus 0 vs AC]
+}
+
+AC: 19
+STAT: 5
+PB: 6
+
+output [attack 4 x [regular] plus PB+STAT for d10+d6 plus STAT vs AC] named "baseline, lv. 17"
+output [attack 4 x [regular] plus PB+STAT+2-5 for d6+d10 plus STAT+10 vs AC] named "xbe/ss+improved superiority, lv. 17"
+output [attack 4 x [advantaged] plus PB+STAT+2-5 for d6+d10 plus STAT+10 vs AC] named "xbe/ss+improved superiority (advantage), lv. 17"
+
+output [attack 1 x [elven] plus PB+STAT for 5d8+8d6 plus 13 crit threshold 19 vs AC] named "edgelord, lv. 17"

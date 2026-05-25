@@ -1,0 +1,249 @@
+\ 100% Orange Juice Battle Simulator \
+
+\ Attacker's ATK \
+AATK: 0
+\ Attacker's DEF \
+ADEF: +2
+\ Attacker's EVD \
+AEVD: +1
+\ Attacker's HP \
+AHP: 1
+\ Attacker's dice status (0 = Normal, 1 = Extraordinary Specs, 2 = Accelerator) \
+ASTAT: 0
+\ Can attacker use Evade? 0 = No (Rbits or Kyoko), 1 = Yes \
+ADODGE: 1
+
+\ Defender's ATK \
+DATK: -1
+\ Defender's DEF \
+DDEF: +2
+\ Defender's EVD \
+DEVD: -2
+\ Defender's HP \
+DHP: 2
+\ Defenders dice status (0 = Normal, 1 = Extraordinary Specs, 2 = Accelerator) \
+DSTAT: 0
+\ Can defender dodge? 0 = No, 1 = Yes \
+DDODGE: 1
+
+\ Do not edit below this line! \
+SNORM: {1..6}
+SSPECS: {6}
+SACC: {2, 3:2, 4:3, 5:4, 6:5, 7:6, 8:5, 9:4, 10:3, 11:2, 12}
+
+DNORM: 1d6
+DSPECS: 1d{6}
+DACC: 2d6
+
+SQRTF: {1, 1, 1, 2, 2, 2, 2, 2, 3}
+SQRTD: {3, 4, 5, 6, 7, 7, 8, 8, 9}
+
+function: sqrt N:n {
+  if (N <= 0) {
+    result: 0
+  } else {
+    LEN: #N
+    SLEN: LEN / 2
+    if (SLEN * 2 = LEN) {
+      SQ: (1@N)@SQRTD * 10^(SLEN - 1)
+    } else {
+      SQ: (1@N)@SQRTF * 10^SLEN
+    }
+
+    loop I over {1..LEN} {
+      NSQ: (SQ + (N / SQ)) / 2
+      if (SQ = NSQ) {
+        if (SQ * SQ > N) {
+          result: SQ - 1
+        } else {
+          NSQ: SQ + 1
+          if (NSQ * NSQ <= N) {
+            result: NSQ
+          } else {
+            result: SQ
+          }
+        }
+      } else {
+        SQ: NSQ
+      }
+    }
+
+    if (SQ * SQ > N) {
+      result: SQ - 1
+    } else {
+      NSQ: SQ + 1
+      if (NSQ * NSQ <= N) {
+        result: NSQ
+      } else {
+        result: SQ
+      }
+    }
+  }
+}
+
+\ Pair two non-negative numbers \
+function: pair X:n and Y:n {
+  if (X >= Y) {
+    result: X * X + Y
+  } else {
+    NY: Y + 1
+    result: NY * NY - X - 1
+  }
+}
+
+\ Get the first value of a pair number \
+function: fst P:n {
+  if (P <= 0) {
+    result: 0
+  } else {
+    N: [sqrt P]
+    R: P - N * N
+    if (R <= N) {
+      result: N
+    } else {
+      result: 2 * N - R
+    }
+  }
+}
+
+\ Get the second value of a pair number \
+function: snd P:n {
+  if (P <= 0) {
+    result: 0
+  } else {
+    N: [sqrt P]
+    R: P - N * N
+    if (R <= N) {
+      result: R
+    } else {
+      result: N
+    }
+  }
+}
+
+\ Figure out whether it's better to evade or defend an attack.
+  "Better" is defined as: first, minimize the odds of a KO;
+  second, maximize the average number of HP remaining.
+  Returns a die with the result of the attack. \
+function: bestevade DAM:n against HP:n def DEF:n evd EVD:n with STAT:n and DODGE:n {
+  if (STAT = 2) {
+    SEQ: SACC
+    D: DACC
+  } else if (STAT = 1) {
+    SEQ: SSPECS
+    D: DSPECS
+  } else {
+    SEQ: SNORM
+    D: DNORM
+  }
+
+  if (DODGE = 0) {
+    TRYD: 0
+  } else if (DAM <= 1 | DAM < EVD + 1@SEQ) {
+    TRYD: 1
+  } else {
+    GKO: 0
+    GHP: 0
+    EKO: 0
+    EHP: 0
+
+    loop R over SEQ {
+      GRES: HP - [highest of 1 and DAM - [highest of 1 and R + DEF]]
+      ERES: HP - DAM * (DAM >= R + EVD)
+      if GRES <= 0 {
+        GKO: GKO + 1
+      } else {
+        GHP: GHP + GRES
+      }
+      if ERES <= 0 {
+        EKO: EKO + 1
+      } else {
+        EHP: EHP + ERES
+      }
+    }
+
+    if EKO < GKO {
+      TRYD: 1
+    } else if EKO > GKO {
+      TRYD: 0
+    } else {
+      TRYD: ERES >= GRES
+    }
+  }
+  if TRYD {
+    result: [highest of 0 and HP - DAM * (DAM >= D + EVD)]
+  } else {
+    result: [highest of 0 and HP - [highest of 1 and DAM - [highest of 1 and D + DEF]]]
+  }
+}
+
+function: counterattack DHP:n {
+  if (DHP <= 0) {
+    result: [pair AHP and 0]
+  } else {
+    if (DSTAT = 2) {
+      D: DACC
+    } else if (DSTAT = 1) {
+      D: DSPECS
+    } else {
+      D: DNORM
+    }
+
+    result: [pair [bestevade [highest of 1 and D + DATK] against AHP def ADEF evd AEVD with ASTAT and ADODGE] and DHP]
+  }
+}
+
+function: abbresult P:n {
+  if (P = 0) {
+    result: 0
+  } else {
+    N: [sqrt P]
+    R: P - N * N
+    if (R <= N) {
+      AHP: N
+      DHP: R
+    } else {
+      AHP: 2 * N - R
+      DHP: N
+    }
+
+    if (DHP = 0) {
+      result: 1
+    } else {
+      result: -(AHP = 0)
+    }
+  }
+}
+
+function: fullresult P:n {
+  if (P = 0) {
+    result: 0
+  } else {
+    N: [sqrt P]
+    R: P - N * N
+    if (R <= N) {
+      AHP: N
+      DHP: R
+    } else {
+      AHP: 2 * N - R
+      DHP: N
+    }
+
+    result: AHP * 100 + DHP
+  }
+}
+
+if (ASTAT = 2) {
+  AD: DACC
+} else if (ASTAT = 1) {
+  AD: DSPECS
+} else {
+  AD: DNORM
+}
+
+PRES: [counterattack [bestevade [highest of 1 and AD + AATK] against DHP def DDEF evd DEVD with DSTAT and DDODGE]]
+
+output [abbresult PRES] named "1 = Attacker wins, -1 = Defender wins"
+output [fst PRES] named "Attacker HP"
+output [snd PRES] named "Defender HP"
+output [fullresult PRES] named "Full HP results"

@@ -1,0 +1,115 @@
+function: successes SUM:n step STEP:n {
+  if SUM > 30 {result: 1 + 30/STEP}
+  if SUM >= 0 {result: 1 + SUM/STEP}
+  result: 0
+}
+
+function: roll ATTR:d with SKILL:d vs D:n step STEP:n  {
+  SUM: [explode ATTR] + [explode SKILL] - D
+  result: [successes SUM step STEP]
+}
+
+function: with R:n add D:n {
+  if R > 0 & D > 0 {
+    result: [highest of R and D] + 1
+  }
+  if R > 0 { result: R }
+  result: 0
+}
+
+function: sum of A:n and B:n {
+  if A = B & A > 0 {
+    result: A + 1
+  }
+  if A > B {
+    result: A
+  }
+  result: B
+}
+
+function: sum of A:n and B:n and C:n {
+  M: [highest of A and [highest of B and C]]
+  L: [lowest of A and [lowest of B and C]]
+  if L > 0 {
+    if A = M {result: [sum of A and [sum of B and C]]}
+    if B = M {result: [sum of B and [sum of A and C]]}
+    if C = M {result: [sum of C and [sum of B and A]]}
+  }
+  if A = M & B = M {result: M + 1}
+  if A = M & C = M {result: M + 1}
+  if C = M & B = M {result: M + 1}
+  result: M
+}
+
+
+function: best of A:n and B:n {
+  H: [highest of A and B]
+  if A > 0 & B > 0 { result: H + 1 }
+  result: H
+}
+
+function: best of A:n and B:n and C:n {
+  H: [highest of [highest of A and B] and C]
+  if A > 0 & B > 0 & C > 0 { result: H + 1 }
+  if A > 0 & B > 0 { result: H + 1 }
+  if A > 0 & C > 0 { result: H + 1 }
+  if C > 0 & B > 0 { result: H + 1 }
+  result: H
+}
+
+function: support A:n with B:n for D:n damage {
+  X: [higher of A and B]
+  if X > 0 {
+    result: [higher of X and D]
+  }
+  result: 0
+}
+
+function: is success A:n {
+  if A > 0 {result: 1}
+  result: 0
+}
+
+function: spread A:n {
+  if A < 2 {result: A}
+  X: 1
+  loop N over {1..A}{
+     X: X*2
+  }
+  if X > 64 {result: 64}
+  result: X
+}
+
+function: add half N:n to ATTR:d with SKILL:d vs D:n {
+  X: 0
+  if N = 1 {X: 1}
+  if N = 2 {X: 1}
+  if N = 3 {X: 2}
+  if N = 4 {X: 2}
+  if N = 5 {X: 3}
+  result: [roll ATTR with SKILL vs D] + X
+}
+
+function: attack A:n with D:n step S:n armor AR:n {
+  if A > 0 {
+    R: [explode dD] + (A-1)d[explode d6] - AR
+    result: [successes R step S]
+  }
+  result: 0
+}
+
+
+X:10
+
+\
+output [attack [roll d10 with d10 vs X step 4] with d6 step 5 armor 0] named "fast attack, normal effect, weak damage"
+output [attack [roll d10 with d10 vs X step 5] with d6 step 4 armor 0] named "normal attack, strong effect, weak damage"
+output [attack [roll d10 with d10 vs X step 5] with d10 step 5 armor 0] named "normal attack, normal effect, normal damage"
+output [attack [roll d10 with d10 vs X step 5] with d14 step 6 armor 0] named "normal attack, weak effect, high damage"
+output [attack [roll d10 with d10 vs X step 6] with d14 step 5 armor 0] named "weak attack, normal effect, high damage"
+\
+
+
+output [attack [roll d10 with d10 vs X step 5] with d10 step 5 armor 0] named "a 0"
+output [attack [roll d10 with d10 vs X step 5] with d12 step 5 armor 1] named "a 1"
+output [attack [roll d10 with d10 vs X step 5] with d14 step 5 armor 2] named "a 2"

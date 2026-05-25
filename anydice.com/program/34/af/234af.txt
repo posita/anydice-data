@@ -1,0 +1,44 @@
+YES: 1
+NO: 0
+\--------------------------------------------------\
+\-------------| Set Variables Below |--------------\
+\--------------------------------------------------\
+
+NUM_ATTACKS: 1
+ENEMY_AC: 15
+
+STR: 19
+PROF_BONUS: 3
+WPN_BONUS: 1
+
+ADVANTAGE: YES
+GWM: YES           \ Great Weapon Master (-5 atk, +10 dmg)    \
+GWF: YES            \ Great Weapon Fighting (reroll 1s and 2s) \
+HALF_ORC: YES      \ Adds an extra die on crits               \
+
+WPN_DIE_COUNT: 2
+WPN_DIE: d6
+
+\--------------------------------------------------\
+\------------------| Code Below |------------------\
+\--------------------------------------------------\
+
+TO_HIT: (STR-10)/2 + PROF_BONUS + WPN_BONUS - (5 * GWM)
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+
+TOTAL_DMG: 0
+
+loop N over {1..NUM_ATTACKS} {
+  NAT_ATK: [highest 1 of (1 + ADVANTAGE)d20]
+  ATK: NAT_ATK + TO_HIT
+  DMG: (WPN_DIE_COUNT + (WPN_DIE_COUNT + HALF_ORC)*(NAT_ATK = 20))d[WPN_DIE reroll {0..GWF*2} as WPN_DIE]
+  DMG: DMG + (STR-10)/2 + WPN_BONUS + (10 * GWM)
+
+  TOTAL_DMG: TOTAL_DMG + (DMG * (ATK >= ENEMY_AC))
+}
+
+output TOTAL_DMG

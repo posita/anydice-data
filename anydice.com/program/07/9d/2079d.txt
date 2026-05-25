@@ -1,0 +1,76 @@
+
+function : dice map PLUS:n vs AC:n
+{
+ CUTOFF : AC - PLUS - 1
+ MISS : [lowest of [highest of 1 and CUTOFF] and 19]
+ result : 1d{0:MISS,1:(19-MISS),2}
+}
+
+function : save map PLUS:n vs DC:n
+{
+ CUTOFF : DC - PLUS - 1
+ MISS : [lowest of [highest of 1 and CUTOFF] and 19]
+ result : 1d{1:MISS,2:(19-MISS),2}
+}
+
+function : attack MAP:s with DICE:d DPLUS:n
+{
+ O : 0
+ if MAP > 0
+ {
+  O : DPLUS + MAPdDICE
+ }
+ result : O
+}
+
+function : save MAP:s with DAMAGE:d
+{
+ result : (MAP * DAMAGE)/2
+}
+
+function : hp HP:n MHP:n vs DAMAGE:s
+{
+ if HP < 0
+ {
+  if (DAMAGE > 0)
+  {
+   result : [highest of -3 and HP - 1]
+  }
+  else
+  {
+   result : HP
+  }
+ }
+ else
+ {
+  if DAMAGE < HP + MHP
+  {
+   result : [highest of 0 and HP - DAMAGE]
+  }
+  else
+  {
+   result : -3
+  }
+ }
+}
+
+ENEMYCOUNT : 5
+
+H : {6,8,10,12}
+A : {12,16,18,14}
+T : d{0:(#H-1),1}
+loop Q over {1..#H}
+{
+ D : [dice map 0 vs Q@A]
+ O : Q@H
+ loop PEE over {1..ENEMYCOUNT}
+ {
+  O : [hp O Q@H vs Td[attack D with 1d6+1d6 2]]
+ }
+ output O named "Player [Q] TURN 1"
+ loop PEE over {1..ENEMYCOUNT}
+ {
+  O : [hp O Q@H vs Td[attack D with 1d6 2]]
+ }
+ output O named "Player [Q] TURN 2"
+}

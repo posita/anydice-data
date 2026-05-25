@@ -1,0 +1,49 @@
+function: roll D:n on attribute A:n mod M:n{
+  if D < A + M { result: 0 }
+  result: A - D + M
+}
+
+function: roll A:n B:n C:n on skill S:n with attributes X:n Y:n Z:n mod M:n {
+  N: S + M
+  if N > 0 { N: 0 }
+  R: -([roll A on attribute X mod N] + [roll B on attribute Y mod N] + [roll C on attribute Z mod N])
+  if R > S + M { result: -1 }
+  if R = S + M { result: 1 }
+  if N < 0 { result: 1 }
+  if S + M - R > S { result: S }
+  result: S + M - R
+}
+
+function: middle of X:n Y:n Z:n {
+  M: X
+  if X > Y {
+    if Y > Z { M: Y }
+    else { if X > Z { M: Z } }
+  } else {
+    if Z > Y { M: Y }
+    else { if Z > X { M: Z } }
+  }
+  result: M 
+}
+
+function: roll A:n on skill S:n with attributes X:n Y:n Z:n mod M:n{
+  D: 2
+  W: (X + Y + Z) / 3
+  T: (W * 2 + S)/3
+  if A - M/D > T { result: -1 }
+  result: (S/4)d4 - M/D
+}
+
+function: roll A:n B:n on skill S:n with attributes X:n Y:n Z:n mod M:n{
+  R: A
+  if B < R { R: B }
+  result: [roll R on skill S with attributes X Y Z mod M]
+}
+
+X: 12
+Y: 13
+Z: 14
+S: 8
+M: -4
+output [roll 1d20 1d20 1d20 on skill S with attributes X Y Z mod M]
+output [roll 1d20 on skill S with attributes X Y Z mod M]

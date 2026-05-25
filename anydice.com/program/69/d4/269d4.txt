@@ -1,0 +1,51 @@
+\ Roll Calculations. Do Not Change \
+
+function: roll ROLL:s {
+ if 1@ROLL < 1 & (#ROLL)@ROLL = -1 {
+  result: -1
+ }
+ result: [highest of 0 and ROLL]
+}
+
+function: roll ROLL:n with willpower {
+ result: [highest of 0 and ROLL + 1]
+}
+
+function: exploding N:n {
+ if N = 10 { result: 2 }
+ if N = 1 { result: -1 }
+ result: N >= DIFFICULTY
+}
+
+function: compsplode N:n {
+ if N = 10 { result: 2 }
+ if N = 1 { result: -1 }
+ result: N >= COMPARE
+}
+
+\ Roll Difficulties. To change difficulties for normal rolls change the top number, the bottom number only changes the difficulty on compared rolls. \
+DIFFICULTY: 6
+COMPARE: 8
+
+\ Function Names. Do Not Change \
+NORMAL: d{-1:1, 0:(DIFFICULTY - 2), 1:(11 - DIFFICULTY)}
+EXPLODING: [exploding d10]
+COMPSPLODE: [compsplode d10]
+
+
+\ Result Examples. Adding additional loops and outputs can grab different results. Example outputs are shown below. \
+X: 4
+output [roll X d NORMAL] named "normal"
+output [roll X d EXPLODING] named "exploding"
+output [roll X d NORMAL with willpower] named "normal willpower"
+output [roll X d EXPLODING with willpower] named "exploding willpower"
+
+loop X over {4} {
+ output [roll X d NORMAL] named "[X]d Normal"
+ output [roll X d NORMAL with willpower] named "[X]d Normal with Willpower"
+}
+loop X over {1..14} {output [roll X d EXPLODING] named "[X]d Exploding"}
+loop X over {5} {
+ output [roll X d EXPLODING] named "[X]d Exploding Base"
+ output [roll X d COMPSPLODE] named "[X]d Exploding Compare"
+}

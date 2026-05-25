@@ -1,0 +1,18 @@
+\ Custom function to explode and count for one die. \
+function: explode N:n and count from T:n {
+ if N = 6 { result: 1 + [explode d6 and count from T] }
+ result: N >= T
+}
+
+\ Success or score die definition for counting 5 and 6. \
+SD: [explode d6 and count from 5]
+
+output 2dSD named "Base (Crits): 2 Att 5+ Me"
+output 2d[explode d6 and count from 4] named "2 Att 4+ Me"
+output 2d[explode d6 and count from 3] named "2 Att 3+ Me"
+output 2d[explode d6 and count from 2] named "2 Att 2+ Me"
+
+loop N over {3..5} {
+ \ Clamped to 20 to prevent long tail up to 50. \
+ output [lowest of 20 and NdSD] named "[N] Att 5+ Me"
+}

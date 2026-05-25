@@ -1,0 +1,47 @@
+ACCURACY: 8
+DAMAGE: 0
+MINIMUMDAMAGE: 1
+TARGETNUMBER: 7
+DAMAGETARGETNUMBER: 7
+
+HARDNESS: 0
+DEFENCE: 7
+SOAK: 5
+
+function: threshold over A:n of B:n {
+  if A > B {
+    result: 0
+  }
+  else {
+    result: B - A
+  }
+}
+
+function: damage with threshold T:n and extra D:n {
+  if T=0 {
+    result: 0
+  } else {
+    result: T+D
+  }
+}
+
+function: damage D:n after soak S:n and hardness H:n with minimum M:n {
+  if D<=H {
+    result: 0
+  } else {
+    X: D - S
+    if X > M {
+      result: X
+    } else {
+      result: M
+    }
+  }
+}
+loop DEXTERITY over {1..5} {
+X: DEXTERITY + ACCURACY
+DICEPOOL:Xd{0: (TARGETNUMBER-1), 1: (10-TARGETNUMBER), 2: 1}
+STRENGTH: 6 - DEXTERITY
+
+
+output [damage [damage with threshold [threshold over DEFENCE of DICEPOOL] and extra (STRENGTH + DAMAGE)] after soak SOAK and hardness HARDNESS with minimum MINIMUMDAMAGE]d{0:(DAMAGETARGETNUMBER - 1),1:(11 - DAMAGETARGETNUMBER)} named "Dex [DEXTERITY], Str [STRENGTH]"
+}

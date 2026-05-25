@@ -1,0 +1,32 @@
+FIRST:  1d8 
+SECOND: 1d8  
+DMG:    1d6  
+REROLL:   4  \ CHA mod. \
+EXTRA: 0
+
+
+function: roll FIRST:n and SECOND:n {
+  if FIRST < SECOND { result: EXTRA:0 }     
+  if FIRST > SECOND { result: EXTRA:0 }  
+  result: EXTRA:1
+}
+
+function: multiattack N:n times {
+  result: [roll [attack ATK] to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  if FIRSTHIT > 0 {
+    DAMAGE: FIRSTHIT d (DMG + BONUS)
+    loop I over {2..N} {
+      DAMAGE: DAMAGE + [attack ATK] d DMG
+    }
+    result: DAMAGE
+  } else {
+    result: [roll [attack ATK] to multiattack N-1 times]
+  }
+}
+
+output [multiattack 3 times]

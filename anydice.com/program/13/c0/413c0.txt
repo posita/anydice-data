@@ -1,0 +1,37 @@
+function: run test A:n B:n C:n D:n E:n R:n Q:n {
+ Y: {A,B,C,D,E}
+ A: 1@[sort Y]
+ B: 2@[sort Y]
+ C: 3@[sort Y]
+ D: 4@[sort Y]
+ E: 5@[sort Y]
+ S: {1..5}@Y
+ if R <= 0 {
+  result: d{}
+ }
+ if S >= Q & B>=1 {
+  result: Y
+ }
+ if S >= Q & B<=0 {
+  result: Y*100000 + (A+B)*1000 + C*100 + (D+E)*1
+ }
+ if S = 6 {
+  result: [run test A B C D+1d(8-D) E+1d(8-E) R-1 B]
+ }
+ if S = 5 {
+  result: [run test A B C+1d(8-C) D+1d(8-D) E+1d(8-E) R-1 B]
+ }
+ result: [run test A B C D E+1d(8-E) R-1 B]
+}
+function: test X:s {
+ A: [highest of 4 and 1@[sort X]]
+ B: [highest of 4 and 2@[sort X]]
+ C: [highest of 2 and 3@[sort X]]
+ D: [highest of 1 and 4@[sort X]]
+ E: [highest of 1 and 5@[sort X]]
+ result: [run test A B C D E 15-3 23]
+}
+set "maximum function depth" to 15
+
+output [highest 6 of 7d[highest 3 of 4d6]]
+output [highest 3 of 4d[test 5d8]]

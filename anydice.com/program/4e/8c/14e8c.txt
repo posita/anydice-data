@@ -1,0 +1,34 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+ATTACK_BONUS: 4
+HITDAMAGE: d8 + 4
+CRITICALDAMAGE: 2d8 + 4
+MISSDAMAGE: 0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK_BONUS >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK_BONUS >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+output [ damage for [attack d20 vs 15]] named "CA 15"
+output [ damage for [attack d20 vs 14]]-1 named "CA 13"
+output [ damage for [attack d20 vs 14]] named "CA 13"
+

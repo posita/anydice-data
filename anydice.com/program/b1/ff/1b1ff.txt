@@ -1,0 +1,25 @@
+\ This function returns +1 if A wins, -1 if B wins and 0 if it's a draw: \
+function: ATTR_A:n versus ATTR_B:n {
+  \ make relabeled d10s where anything above the target becomes zero: \
+  DA: 2d{1..ATTR_A, 0:(10-ATTR_A)}
+  DB: 2d{1..ATTR_B, 0:(10-ATTR_B)}
+
+  \ call a helper function to freeze the rolls: \
+  result: [roll DA versus DB]
+}
+
+function: roll ROLL_A:s versus ROLL_B:s {
+  SUCC_A: ROLL_A > 0
+  SUCC_B: ROLL_B > 0
+
+  \ higher number of successes wins: \
+  if SUCC_A > SUCC_B { result: +1 }
+  if SUCC_A < SUCC_B { result: -1 }
+
+  \ otherwise do a lexicographic comparison: \
+  result: (ROLL_A > ROLL_B) - (ROLL_A < ROLL_B)
+}
+
+A: 6
+B: 5
+output [A versus B] named "[A] vs. [B]"

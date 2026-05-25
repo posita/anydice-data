@@ -1,0 +1,90 @@
+\
+--------------------------------------------------------------------------------
+CALCULADORA DE PROBABILIDAD DE HERIDAS WHR
+
+Manual de uso:
+1. Modificar los valores más abajo para ataques, salvaciones, etc
+2. Clickar en "Calculate"
+3. En el modo de View "Table" y Data "Normal" aparece la probabilidad de causar
+   impactos/heridas para cada uno de los pasos.
+
+Cómo leer los resultados:
+Las tablas muestran 2 columnas a su izquierda de las barras. La columna de más
+a la izquierda indica la cantidad de impactos/heridas, y el valor a su derecha
+indica la probabilidad de causar esa cantidad de impactos/heridas.
+
+A la derecha del título de cada paso aparece la media y la desviación estándar
+de impactos/heridas para ese paso. Por ejemplo para el ejemplo que viene con la
+configuración por defecto (10 ataques, todo impacta/hiere/salva a 4, HM1) el
+título es "Impactos (5.00 / 1.58)", donde la media es 5.
+
+Para ver el resultado final se puede pasar directamente a la última tabla,
+llamada "Heridas multiplicadas no salvadas por regeneración"
+
+También se puede cambiar a modo Data "Summary" para ver en el apartado "mean"
+la media de impactos/heridas en cada paso de forma más resumida.
+
+Los cálculos muestran los siguientes pasos, en este orden:
+1. Impactos realizados
+2. Heridas realizadas
+3. Heridas realizadas después de aplicar salvación por armadura
+4. Heridas realizadas después de aplicar salvación especial
+5. Heridas realizadas después de multiplicar por heridas múltiples
+7. Heridas realizadas después de multiplicar y aplicar regeneración.
+Como funciona en WHR, cada paso usa el resultado del anterior.
+--------------------------------------------------------------------------------
+\
+
+\Cantidad de ataques\
+ATAQUES: 10
+
+\Valor al que impacta la tirada para impactar.
+ Por ejemplo 5 si va a 5+, 3 si va a 3+\
+IMPACTA_A: 4
+
+\Valor al que hiere el ataque.
+ Por ejemplo 5 si va a 5+, 3 si va a 3+\
+HIERE_A: 4
+
+\Salvación por armadura del defensor después de aplicarle modificadores.
+ Por ejemplo 5 = 5+, 1 = 1+, 7=7+ (no tiene), etc\
+SVA: 4
+
+\Salvación especial del defensor después de aplicarle modificadores.
+ Por ejemplo 5 = 5+, 1 = 1+, 7=7+ (no tiene), etc\
+SVE: 4
+
+\Heridas Múltiples del atacante.
+ Si los ataques no tienen heridas múltiples se puede usar "1".
+ Si usan dado se puede usar un valor como "1d3" o "1d6"\
+HM: 1 
+
+\Regeneración del defensor después de aplicarle modificadores.
+ Por ejemplo 5 = 5+, 1 = 1+, 7=7+ (no tiene), etc\
+REG: 4
+
+
+\
+--------------------------------------------------------------------------------
+FIN DE LA CONFIGURACIÓN
+
+Lo que sigue son las fórmulas de cálculo.
+Se recomienda no modificar nada a partir de aquí.
+--------------------------------------------------------------------------------
+\
+
+
+
+IMPACTOS: ATAQUESd(d6 >= IMPACTA_A)
+HERIDAS: IMPACTOSd(d6 >= HIERE_A)
+HERIDAS_SVA: HERIDASd(d6 > [lowest of (7-SVA) and 5])
+HERIDAS_SVE: HERIDAS_SVAd(d6 > [lowest of (7-SVE) and 5])
+HERIDAS_MUL: HM * HERIDAS_SVE
+HERIDAS_REG: HERIDAS_MULd(d6 > [lowest of (7-REG) and 5])
+
+output IMPACTOS named "Impactos"
+output HERIDAS named "Heridas"
+output HERIDAS_SVA named "Heridas no salvadas por armadura"
+output HERIDAS_SVE named "Heridas no salvadas por especial"
+output HERIDAS_MUL named "Heridas multiplicadas"
+output HERIDAS_REG named "Heridas multiplicadas no salvadas por regeneración"

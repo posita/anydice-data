@@ -1,0 +1,44 @@
+AC: 20
+ATTACK: 12
+ROLL: 1d20
+DAMAGE: (1d6 + 6)
+CRIT: (DAMAGE * 2 + 1d10)
+
+function: strike ROLL:n ATTACK:n AC:n DAMAGE CRIT {
+  if (ROLL = 1) {
+    result: 0
+  }
+  if ((ROLL = 20) | (ROLL + ATTACK >= AC + 10)) {
+    result: CRIT
+  } else {
+    if (ROLL + ATTACK >= AC) {
+      result: DAMAGE
+    }
+  }
+  result: 0
+}
+
+output [strike ROLL ATTACK AC DAMAGE CRIT] named "Strike"
+output [strike ROLL ATTACK AC DAMAGE CRIT] + [strike ROLL ATTACK-5 AC DAMAGE CRIT] named "2 Strikes"
+
+DC: 19
+SAVE: 11
+SPELL_FAILURE_DAMAGE: (3d4)*2
+SPELL_CRIT_FAILURE_DAMAGE: (SPELL_FAILURE_DAMAGE * 2)
+SPELL_SUCCESS_DAMAGE: (SPELL_FAILURE_DAMAGE / 2)
+SPELL_CRIT_SUCCESS_DAMAGE: 0
+
+function: spellcheck ROLL:n DC SAVE SCFD SFD SSD SCSD {
+  if (ROLL = 1) {
+    result: SCSD
+  }
+  if ((ROLL = 20) | (ROLL + SAVE >= DC + 10)) {
+    result: SCFD
+  }
+  if (ROLL + SAVE >= DC) {
+    result: SSD
+  }
+  result: SFD
+}
+
+output [spellcheck 1d20 DC SAVE SPELL_CRIT_FAILURE_DAMAGE SPELL_FAILURE_DAMAGE SPELL_SUCCESS_DAMAGE SPELL_CRIT_SUCCESS_DAMAGE] named "Spell Check"

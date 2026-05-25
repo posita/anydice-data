@@ -1,0 +1,54 @@
+function: ROLL:s hits vs DC:n{
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ CRITICAL: (ROLL=12)
+ MODS: SUCCESSES-BADONES+CRITICAL
+ if (MODS>8) {result: 8}
+ if (MODS<-3) {result: -3}
+ result: MODS
+}
+
+
+function: ROLL:n dimyrn DC:n{
+result:(ROLL >= DC)+(ROLL=12)-(ROLL=1)
+}
+
+function: ROLL:n dimyrm DC:n{
+result:(ROLL >= DC)+(ROLL=12)
+}
+
+function: N:n dice DC:n dc and ADV:n mastery M:n{
+if M{
+if ADV=1{result: [highest N of (N+1)d[d12 dimyrm DC]]}
+if ADV=-1{result: [lowest N of (N+1)d[d12 dimyrm DC]]}
+result: Nd[d12 dimyrm DC]
+}
+if ADV=1{result: [highest N of (N+1)d[d12 dimyrn DC]]}
+if ADV=-1{result: [lowest N of (N+1)d[d12 dimyrn DC]]}
+result: Nd[d12 dimyrn DC]
+}
+
+
+ATTR:3
+ADV:1
+RANKS:0
+DICE:ATTR
+HDICE:DICE+1
+LDICE:DICE-1
+MAST:1
+
+loop RANKS over {1..5}{
+DC:9-RANKS
+\output [LDICE dice DC dc and 0 mastery MAST] named "[LDICE]d12 vs [DC]"\
+\output [DICE dice DC dc and -1 mastery MAST] named "[DICE]d12 vs [DC] and -1"\
+\output [DICE dice DC dc and 0 mastery MAST] named "[DICE]d12 vs [DC] and 0"\
+\output [DICE dice DC dc and 1 mastery MAST] named "[DICE]d12 vs [DC] and 1"\
+\output [HDICE dice DC dc and 0 mastery MAST] named "[HDICE]d12 vs [DC]"\
+
+OP:[DICE dice DC dc and -1 mastery MAST]
+ON:[DICE+1 dice 9 dc and 1 mastery MAST]
+\output 2dOP-2dON named "[RANKS] Ranks vs Noob"\
+\output 4dOP-4dON named "[RANKS] Ranks vs 3 Noobs"\
+\output 2dOP-2dON named "[DICE]d12 vs [DICE]d12 for [RANKS] Ranks"\
+output dOP-dON named "ADV vs DISADV for [RANKS] Ranks"
+}

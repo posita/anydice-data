@@ -1,0 +1,129 @@
+ROGUE_LEVEL: 5
+WIZARD_LEVEL: 2
+
+
+function: stat STAT ROGUE WIZARD SLOT {
+  PLAYER_LEVEL: WIZARD+ROGUE
+  
+  WPN_DAGGER: 1d4 + 3 + 1
+  WPN_BOW: 1d6 + 3 + 1
+  
+  SHADOW_CASTLEVEL: MAXSLOT
+  SPHERE_CASTLEVEL: MAXSLOT
+  DAGGER_CASTLEVEL: MAXSLOT
+  
+  SNEAK_DIE: ((ROGUE+1) / 2)
+  SNEAK: SNEAK_DIEd6
+  CANTRIP: (PLAYER_LEVEL + 1) / 6
+  
+  SHORTBOW: WPN_BOW
+  BOOMINGBLADE: WPN_DAGGER + CANTRIPd8
+  PROC: CANTRIPd8 + 1d8
+  SHADOWBLADE: 2d8 + (SHADOW_CASTLEVEL-2)d8 + 3
+  FIREBOLT: CANTRIPd10 + 1d10
+  SLIVER: CANTRIPd6 + 1d6
+  SPHERE: (SPHERE_CASTLEVEL-2)d6 + 2d6
+  DAGGERS: (2*(DAGGER_CASTLEVEL-2))d4 + 4d4
+  WEAPON: WPN_DAGGER
+  
+  if STAT = 1 { result: SNEAK }
+  if STAT = 2 { result: BOOMINGBLADE }
+  if STAT = 3 { result: PROC }
+  if STAT = 4 { result: SHADOWBLADE }
+  if STAT = 5 { result: FIREBOLT }
+  if STAT = 6 { result: SLIVER }
+  if STAT = 7 { result: SPHERE }
+  if STAT = 8 { result: DAGGERS }
+  if STAT = 9 { result: SHORTBOW }
+  if STAT = 10{ result: WEAPON }
+}
+function: stat STAT ROGUE WIZARD {
+  PLAYER_LEVEL: WIZARD+ROGUE
+  CASTER_LEVEL: (PLAYER_LEVEL-2)/3 + 2
+  MAXSLOT: (CASTER_LEVEL+1) / 2
+  result: [stat STAT ROGUE WIZARD MAXSLOT]
+}
+function: stat STAT SLOT {
+  result: [stat STAT ROGUE_LEVEL WIZARD_LEVEL SLOT]
+}
+function: stat STAT {
+  result: [stat STAT ROGUE_LEVEL WIZARD_LEVEL]
+}
+
+function: sneak R W { result: [stat 1 R W] }
+function: boomingblade R W { result: [stat 2 R W] }
+function: proc R W { result: [stat 3 R W] }
+function: shadowblade S { result: [stat 4 S]}
+function: shadowblade R W { result: [stat 4 R W]}
+function: shadowblade sneak R W { result: [stat 4 R W] + [stat 1 R W]}
+function: shadowblade sneak R W S { result: [stat 4 R W S] + [stat 1 R W S] }
+function: firebolt R W { result: [stat 5 R W]}
+function: sliver R W { result: [stat 6 R W]}
+function: sphere S { result: [stat 7 S]}
+function: sphere R W { result: [stat 7 R W]}
+function: daggers S { result: [stat 8 S]}
+function: daggers R W { result: [stat 8 R W]}
+function: boomingblade proc R W { result: [boomingblade R W] + [proc R W]}
+function: boomingblade sneak R W { result: [boomingblade R W] + [sneak R W]}
+function: boomingblade sneak proc R W { result: [boomingblade R W] + [sneak R W] + [proc R W]}
+function: boomingblade proc sneak R W { result: [boomingblade sneak proc R W]}
+function: boomingblade max R W { result: [boomingblade sneak proc R W]}
+function: shortbow R W { result: [stat 9 R W] }
+function: shortbow sneak R W { result: [stat 9 R W] + [stat 1 R W] }
+function: weapon R W { result: [stat 10 R W] }
+function: weapon sneak R W { result: [stat 10 R W] + [sneak R W]}
+
+function: sneak { result: [stat 1] }
+function: boomingblade { result: [stat 2] }
+function: proc { result: [stat 3] }
+function: shadowblade { result: [stat 4] }
+function: shadowblade sneak { result: [stat 4] + [stat 1] }
+function: firebolt { result: [stat 5]}
+function: sliver { result: [stat 6]}
+function: sphere { result: [stat 7]}
+function: daggers { result: [stat 8]}
+function: boomingblade proc { result: [boomingblade] + [proc]}
+function: boomingblade sneak { result: [boomingblade] + [sneak]}
+function: boomingblade sneak proc { result: [boomingblade] + [sneak] + [proc]}
+function: boomingblade proc sneak { result: [boomingblade sneak proc]}
+function: boomingblade max { result: [boomingblade sneak proc]}
+function: shortbow { result: [stat 9]}
+function: shortbow sneak { result: [stat 9] + [stat 1] }
+function: weapon { result: [stat 10] }
+function: weapon sneak { result: [stat 10] + [stat 1] }
+
+PR: ROGUE_LEVEL-1
+PREV_LEVEL: WIZARD_LEVEL+PR
+CUR_LEVEL: ROGUE_LEVEL+WIZARD_LEVEL
+CW: ROGUE_LEVEL
+W: WIZARD_LEVEL
+
+
+KRONK: (2d6 + 3 + 2 + 1)
+STORM: 1d6
+STRIKE: 1d6
+GWM: 10
+
+SNEAK: [sneak]
+BONUS: 0
+WEAPON: [weapon]+BONUS
+SHADOW: [shadowblade]
+BOOMING: [boomingblade]
+PROC: [proc]
+SPHERE: [sphere]
+DAGGERS: [daggers]
+
+KRONK_TURN: KRONK+KRONK+STORM
+
+
+output KRONK_TURN named "Attack + Attack + Storm"
+output KRONK_TURN+GWM named "GWM + Attack + Storm"
+output KRONK_TURN+GWM+GWM named "GWM + GWM + Storm"
+
+output KRONK+WEAPON+STRIKE named "Kronk + Combo"
+output KRONK+WEAPON+SNEAK+STRIKE named "Kronk + Sneaking Combo"
+output KRONK+SHADOW+SNEAK+STRIKE named "Kronk + Shadowblade Combo"
+
+output KRONK+GWM+WEAPON+STRIKE named "GWM + Combo"
+output KRONK+GWM+WEAPON+SNEAK+STRIKE named "GWM + Sneaking Combo"
+output KRONK+GWM+SHADOW+SNEAK+STRIKE named "GWM + Shadowblade Combo"

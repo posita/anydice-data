@@ -1,0 +1,109 @@
+function: player countnormalhits with PCRITS:n crits{
+result: [count {1..(PSKILL-PLUCK)} in (DICE+PEXTRADICE-PCRITS)d(20-PLUCK)]
+}
+function: opponent countnormalhits with OCRITS:n crits{
+result: [count {1..(OSKILL-OLUCK)} in (DICE+OEXTRADICE-OCRITS)d(20-OLUCK)]
+}
+function: battle with pcrits PCRITS:n ocrits OCRITS:n{
+    PNORMALHITSDIE: [player countnormalhits with PCRITS crits]
+    ONORMALHITSDIE: [opponent countnormalhits with OCRITS crits]
+    result: [calculatewinner PCRITS OCRITS PNORMALHITSDIE ONORMALHITSDIE]
+}
+function: calculatewinner PCRITS:n OCRITS:n PNORMALHITS:n ONORMALHITS:n {
+    PSCORE: PCRITS * 2 + PNORMALHITS
+    OSCORE: OCRITS * 2 + ONORMALHITS
+    if PSCORE > OSCORE {
+        result: 1
+    }
+    if OSCORE > PSCORE {
+        result: 0
+    }
+    else {
+        result: [rematch [count {1..PLUCK} in d20] [count {1..OLUCK} in d20] [count {1..(PSKILL-PLUCK)} in d(20-PLUCK)] [count {1..(OSKILL-OLUCK)} in d(20-OLUCK)]]
+    }
+}
+function: rematch PCRITROLL:n OCRITROLL:n PROLL:n OROLL:n {
+    if PCRITROLL = 1 & OCRITROLL = 1 {
+        result: [rematch [count {1..PLUCK} in d20] [count {1..OLUCK} in d20] [count {1..(PSKILL-PLUCK)} in d(20-PLUCK)] [count {1..(OSKILL-OLUCK)} in d(20-OLUCK)]]
+    }
+    if PCRITROLL = 1 {
+        result: 1
+    }
+    if OCRITROLL = 1 {
+        result: 0
+    }
+    if PROLL = 1 & OROLL = 1 {
+        result: [rematch [count {1..PLUCK} in d20] [count {1..OLUCK} in d20] [count {1..(PSKILL-PLUCK)} in d(20-PLUCK)] [count {1..(OSKILL-OLUCK)} in d(20-OLUCK)]]
+    }
+    if PROLL = 1 {
+        result: 1
+    }
+    if OROLL = 1 {
+        result: 0
+    }
+    else {
+        result: [rematch [count {1..PLUCK} in d20] [count {1..OLUCK} in d20] [count {1..(PSKILL-PLUCK)} in d(20-PLUCK)] [count {1..(OSKILL-OLUCK)} in d(20-OLUCK)]]
+    }
+    result: [rematch [count {1..PSKILL} in 1d20] [count {1..OSKILL} in 1d20]]
+}
+
+
+
+
+\-------------------------------------------------------------------------------------------inputs go here!\
+\skill score of 20 should be marked as 19\
+PSKILL: 10
+PLUCK: 3
+OSKILL: 10
+OLUCK: 0
+DICE: 3
+PEXTRADICE: 0
+OEXTRADICE: 0
+
+PCRITSDIE: [count {1..PLUCK} in  (DICE+PEXTRADICE)d20]
+OCRITSDIE: [count {1..OLUCK} in (DICE+OEXTRADICE)d20]
+
+
+
+set "maximum function depth" to 5
+
+OSKILL: 1
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 2
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 3
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 4
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 5
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 6
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 7
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 8
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 9
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 10
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 11
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 12
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 13
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 14
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 15
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 16
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 17
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 18
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 19
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]
+OSKILL: 20
+output [battle with pcrits PCRITSDIE ocrits OCRITSDIE]

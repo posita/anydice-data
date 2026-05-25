@@ -1,0 +1,20 @@
+function: roll ROLL:s vs TARGET:n with optional REROLL:d reroll {
+  SUM: ROLL + 0  \ force the sequence to be summed into a single number! \
+  if SUM >= TARGET {
+    \ no need to reroll, since we've already met the target \
+    result: 1
+  } else {
+    \ see if switching lowest die to 4 would succeed \
+    
+    REST: {1..#ROLL-1}@ROLL
+    if REST + 4 >= TARGET 
+    { 
+       result: 1
+    }
+    result: REROLL >= TARGET
+  }
+}
+
+loop TARGET over {3 .. 18} {
+  output [roll 3d6 vs TARGET with optional 3d6 reroll] named "3d6 vs [TARGET] with optional reroll"
+}

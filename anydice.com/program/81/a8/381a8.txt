@@ -1,0 +1,78 @@
+EMPHASIS_TIES_LOWEST: -1
+EMPHASIS_TIES_HIGHEST: 1
+EMPHASIS_TIES_REROLL: 0
+EMPHASIS_TIES_DEFAULT: EMPHASIS_TIES_REROLL
+
+\\\                                      \\\
+\\\ Return the mean value of a sequence. \\\
+\\\ DOES NOT WORK WHEN GIVEN DICE        \\\
+\\\                                      \\\                                       
+
+function: mean of SEQUENCE:s {
+ \\\  A:Sequence / B:Number == Sum(A) / B ==> MEAN:Number \\\
+ result: {SEQUENCE / #SEQUENCE} 
+}
+
+
+
+\\\                                                                    \\\
+\\\ Roll provided die twice and take the value furthest from the mean. \\\
+\\\ Use the Default tie breaking rule (EMPHASIS_TIES_DEFAULT)          \\\
+\\\                                                                    \\\
+
+function: DICE:d with emphasis {
+ result: [DICE with emphasis EMPHASIS_TIES_DEFAULT]
+}
+
+
+
+\\\                                                                    \\\
+\\\ Roll provided die twice and take the value furthest from the mean. \\\
+\\\ Use the provided tie breaking rule                                 \\\
+\\\                                                                    \\\
+
+function: DICE:d with emphasis TIES:n{
+ \\\ Convert DICE to Sequence before calling function \\\
+ MEAN: [mean of {DICE}]
+ result: [emphasis sequence 2dDICE MEAN TIES]
+}
+
+
+
+\\\    \\\
+\\\  \\\
+\\\\
+
+function: emphasis sequence ROLLS:s MEAN:n TIES:n {
+ A: [absolute 1@ROLLS - MEAN]
+ B: [absolute 2@ROLLS - MEAN]
+ if A > B {
+  result: 1@ROLLS 
+ }
+ if A < B {
+  result: 2@ROLLS 
+ }
+
+ if A = B {
+  if TIES = EMPHASIS_TIES_LOWEST {
+   result: [lowest of 1@ROLLS and 2@ROLLS]
+  }
+  if TIES = EMPHASIS_TIES_HIGHEST {
+   result: [highest of 1@ROLLS and 2@ROLLS]
+  }
+  if TIES = EMPHASIS_TIES_REROLL {
+   \\\                  \\\
+   \\\ DO NOTHING HERE? \\\
+   \\\                  \\\
+  }
+ }
+
+}
+
+output d20 named "Straight Roll"
+output [highest 1 of 2d20] named "Roll with Advantage"
+output [lowest 1 of 2d20] named "Roll with Disadvantage"
+
+output [d20 with emphasis EMPHASIS_TIES_HIGHEST] named "Roll with Emphasis, ties go to highest"
+output [d20 with emphasis EMPHASIS_TIES_LOWEST] named "Roll with Emphasis, ties go to lowest"
+output [d20 with emphasis EMPHASIS_TIES_REROLL] named "Roll with Emphasis, ties are rerolled"

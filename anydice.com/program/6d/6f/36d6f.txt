@@ -1,0 +1,131 @@
+\The instruction for this program is in the bottom.\
+
+\By the link below is this program (or, possibly, it’s updated version) on Google Docs. If you are reading this elsewhere, it has probably had some changes since it had been mirrored.\
+\ docs.google.com/document/d/13mQZmddA8hjiuwpHQgpCKYzfkFiYFgLEgZ72lWVrPZo/edit?usp=sharing \
+\Comments are in Italics, like this text. Variables to be used as input are underlined. You won’t be able to see the formatting on AnyDice, although comments are still enclosed in two backslashes.\
+\If you want to contact me for any reason, you’ll have to use a Russian social network VK.COM: vk.com/id9239513 \
+\You are free to use, change and distribute this program as you wish without asking for permission.\
+\I have put a lot of comments out there and named variables as obviously as possible, so I hope it is easy to understand my code.\
+\However, if you happen to miss anything, feel free to ask me. \
+\I ask you to credit me, Baskakov_Dmitriy, for writing it, but it is purely up to your conscience to do so.\
+
+set "maximum function depth" to 5
+\Limits the depth of recursive functions to 5. Not used at the moment. The only recursive function in here could be the explosive roll for old editions of oWoD that make you reroll all “10”s for possible additional successes.\
+\The odds of having to roll the same die 5 times are actually one in hundred thousand, and the odds of having to roll 6 times are one in a million: AnyDice can’t give you such precise data anyway, and I doubt anybody could ever need such accuracy.\
+
+\Here is the list of functions used in this program or its supplements:\
+
+function: diceroll DIE:n vs DIFFICULTY:n {
+\This function sets rules for rolling one die in a given dice pool. \
+\DIFFICULTY is the target number, the die is... the die that you want to use. It’s supposed to be a D10\
+\if DIE = 10 {result: 2}\
+\Uncomment the line above if rolling for a trait in which the character is specialized or rolling a 10 grants two successes for any other reason.\
+\Alternatively, use the other function provided below.\
+if DIE >= DIFFICULTY {result: 1}
+\If the number on a die matches the target number or is greater, we score a success.\
+if DIE = 1 {result: -1}
+\If we roll a 1, we lose a success.\
+result: 0
+\If we roll anything else, the number of successes doesn’t change.\
+}
+\This sets the rule for rolling a die in oWoD, specifically the V20 edition. Read the rule book to find them out.\
+\For technical reasons, the die is not specified yet. But it only works with D10 if you use the specialty roll.\
+\The result of 1 means a success, -1 means rolling a “1” and losing a success, 0 means neither (a fail).\
+
+function: specialtyroll DIE:n vs DIFFICULTY:n {
+if DIE = 10 {result: 2}
+if DIE >= DIFFICULTY {result: 1}
+if DIE = 1 {result: -1}
+result: 0
+}
+\Same as above, but gives 2 successes if a “10” is rolled, used for rolls within one’s specialty.\
+
+function: clampatzero NUMBER:n {
+if (NUMBER < 0) {result: 0}
+result: NUMBER
+}
+\If the number is less than 0, makes it equal 0\
+
+
+
+
+\The function below is the core of this program.\
+\The way different types of data work on AnyDice is heavily abused. You may read about this in the Documentation tab of AnyDice.com\
+
+\It took me a lot of time to create and optimize.\
+
+function: smartevaluate ROLL:s {
+\It accepts a sequence of numbers that are roll results from the function(s) above: 1s being success dice, -1s being botch dice, 0s being neither, and 2s indicating rolling a 10 for a roll within specialty.\
+if (ROLL > 0) > 0 {
+\First, in the line above, it checks if there are successes (results of >0, namely 1 or 2) in a given sequence, basically if the number of such results is greater than zero\
+EVALUATION: [clampatzero ROLL]
+result: EVALUATION
+\If there are any, it feeds the sequence variable to a function that accepts numbers. This means summing up all of its numbers, returned as a roll result and fed to a function. As we announce the result, the function is stopped.\
+\Since there is no in-game difference between rolling a negative number of successes or zero, provided that you rolled at least one success, we clamp the number of successes rolled at zero. This is the thing that the “clampatzero” function does, besides actually clamping it.\
+\Positive values of this sum are different numbers of successes, 0 and negatives are Fails, but again, negatives are displayed as zero for calculation purposes.\
+}
+if (ROLL = -1) > 0 {
+\If no successes are found, it checks for “1”s, or botch dice.\
+result: -2
+\If there are any, as we already know that there are no successes, it declares a Botch (results in -1000)\
+\Because of the possible result of -1000, this is not usable for calculating the average number of successes in any given situation. The number of -1000 was used to make the average OBVIOUSLY wrong.\
+}
+result: 0
+\If neither “1”s nor successes are rolled, it announces 0 as the only possible result. The roll result is a Fail.\
+}
+
+\The rules for applying automatic successes to botched rolls or losing them due to 1s are not specified in the core book.\
+\If you have an automatic success granted by spending Willpower, you can just use this program as it is, counting all the botches and fails as marginal successes (one success acquired), and adding one success to any Success results. Consult your Storyteller if auto successes provided by Potence and Projectile (Celerity 6) can or cannot get canceled out by 1s, and if they deny a botch.\
+
+function: nobotchevaluate ROLL:n {
+if (ROLL < 0) {result: 0}
+result: ROLL
+}
+
+\You can’t botch in some combat situations, like a damage roll. Or a botch can simply not bother you in some cases.\
+\So the function above can’t return less than 0, this result covers all botches and all fails.\
+\Other results are different degrees of success.\
+\The main usage of this function is to calculate average number of successes per roll with a given dice pool against a given difficulty.\
+
+function: clampatten NUMBER:n {
+if NUMBER > 10 {result: 10}
+result: NUMBER
+}
+\If the target number is bigger than 10, makes it 10\
+
+
+\This function below checks if the number is odd or even, abusing the integer division.\
+function: oddoreven NUMBER:n {
+POINT: NUMBER / 2
+\We divide the number by 2, if it’s odd, the result is rounded down.\
+POINT: NUMBER * 2
+\Then we multiply it by 2\
+if POINT = NUMBER {
+\If it was even, it returns to the original value.\
+result: 0
+}
+else {result: 1}
+\If it was odd, we lost 1 in the process.\
+}
+\Output of 1 is odd, 0 is even\
+
+\END OF LIST OF FUNCTIONS\
+
+loop DIFFICULTY over {3..8} {
+loop DICEPOOL over {6..20} {
+DICEROLL: [diceroll d10 vs DIFFICULTY]
+output [smartevaluate DICEPOOL d DICEROLL] named "Dicepool of [DICEPOOL] vs difficulty of [DIFFICULTY]"}
+\We calculate things for given ranges.\
+output 0 named "_______________________________________"
+\Just a gap inserted here so that outputs invoked for different difficulties are more distinct\
+}
+
+\Specify the ranges of the DICEPOOL (between 1 and ~250) and the DIFFICULTY (between 2 and 10)\
+\Every dice pool within range will be rolled against every difficulty within range. \
+\The loops roll a given number of dice against a given difficulty, evaluating the sequences for  possible Botches, then return the result of a roll.\
+\If -1000 is returned, it is a Botch. Positive numbers are different degrees of success, 0 is a fail.\
+\You can change the smartevaluate function to nobotchevaluate if you are interested in averages, standard deviations etc.\
+
+\What else you can do with AnyDice.com:\
+\”Normal” gives you the odds of every possible result. “At least” and “At most” give the odds of getting at least or at most this amount of points respectively, useful when, for example, you need at least a given amount of successes. “Summary” contains some useful statistical things like calculated mean and standard deviation, but check if it is representative.\
+

@@ -1,0 +1,62 @@
+\Expects all flags, creates TOHIT sequence\
+function: attack COUNT:n times for DICE:d plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n gwm GWM:n pam PAM:n bonus actions BONUS_ACTIONS:n {
+	result: [attack COUNT times for DICE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC rolling COUNTd20 gwm GWM pam PAM bonus actions BONUS_ACTIONS]
+}
+
+\All flags off, creates TOHIT sequence\
+function: attack COUNT:n times for DICE:d plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n {
+	result: [attack COUNT times for DICE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC rolling COUNTd20 gwm 0 pam 0 bonus actions 0]
+}
+
+
+function: attack COUNT:n times for DICE:d plus BONUS_DAMAGE:n crit on CRIT_RANGE:n add CRIT_DAMAGE:d against AC:n rolling TOHIT:s gwm GWM:n pam PAM:n bonus actions BONUS_ACTIONS:n {
+	RET: 0
+	
+	loop I over {1..COUNT} {
+		ATTACK_ROLL: I@TOHIT
+		
+		if GWM {
+			ATTACK_ROLL: [highest of 1 and ATTACK_ROLL-5]
+			BONUS_DAMAGE: BONUS_DAMAGE + 10
+		}
+		
+		CRIT: ATTACK_ROLL >= CRIT_RANGE
+		HIT: CRIT | ATTACK_ROLL >= AC
+			
+		if HIT {
+			RET: RET + DICE + BONUS_DAMAGE
+			
+			if CRIT {
+				if (GWM & BONUS_ACTIONS > 0) {
+					RET: RET + [attack 1 times for DICE plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC]
+					BONUS_ACTIONS: BONUS_ACTIONS - 1
+				}
+				
+				\adds a single dice from the set specified, e=.g. #2d6 -> 1d6)\
+				RET: RET + CRIT_DAMAGE + #DICE
+			}
+			
+			if (PAM & BONUS_ACTIONS > 0) {
+				RET: RET + [attack 1 times for d4 plus BONUS_DAMAGE crit on CRIT_RANGE add CRIT_DAMAGE against AC]
+				BONUS_ACTIONS: BONUS_ACTIONS - 1
+			}
+		}
+	}
+
+	
+	result: RET
+}
+
+BONUS_DAMAGE: 0
+CRIT_RANGE: 21
+AC: 0
+
+\output [attack 1 times for 1d10 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "Longsword 2H"\
+\output [attack 1 times for 2d6 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "GreatSword"\
+\output [attack 1 times for 2d6 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 0 bonus actions 1] named "GreatSword+GWM"\
+\output [attack 1 times for 1d12 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 0 bonus actions 1] named "GreatAxe"\
+\output [attack 1 times for 1d12 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 0 bonus actions 1] named "GreatAxe+GWM"\
+\output [attack 1 times for 1d8 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 1 bonus actions 1] named "Spear+PAM"\
+output [attack 1 times for 1d10 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 0 bonus actions 1] named "Halberd+GWM"
+output [attack 1 times for 1d10 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 0 pam 1 bonus actions 1] named "Halberd+PAM"
+output [attack 1 times for 1d10 plus BONUS_DAMAGE crit on CRIT_RANGE add 0 against AC gwm 1 pam 1 bonus actions 1] named "Halberd+PAM+GWM"

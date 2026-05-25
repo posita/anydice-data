@@ -1,0 +1,74 @@
+\***Using the WM/H Probability Calculator***
+Hit [Calculate], select [Graph], and [At Least] to 
+   get a nice visualization of probability that a 
+   series of attacks will cause at least X damage 
+   to a given target.
+Scroll down through the code below to learn how to 
+   make your own attack strings for your models.\
+
+\Skip this function section, it's on top because it
+   has to be!\
+function: A:n vs B:n C:n vs D:n { if A >= B { if C > D { result: C - D  } result: 0 } result: 0 }
+function: AA:n AB:n vs B:n C:n vs D:n { if AA >= AB { if AA >= B { if C > D { result: C - D  } result: 0 } result: 0 } if AB >= B { if C > D { result: C - D  } result: 0 } result: 0 }
+function: initial A:n reroll hit { result: [XAT XATB vs DEF A vs ARM ] }
+function: initial A:n { result: [XAT vs DEF A vs ARM] }
+function: initial A:n boost dmg { result: [XAT vs DEF A + 1d6 vs ARM] }
+function: initial A:n boost hit { result: [XAT + 1d6 vs DEF A vs ARM] }
+function: initial A:n boost hit boost dmg { result: [XAT + 1d6 vs DEF A + 1d6 vs ARM] }
+
+\Begin making your changes here:
+XAT is for MAT or RAT of the attacker plus however
+   many d6 are involved in this attack. This 
+   handles extra d6 for things like Deadeye & 
+   feats. Boosting is covered later. XATB is used for 
+   setting up a reroll to hit set (Squire, eMorv)\
+
+
+
+\Weapons POW added here, again add the non-boosted 
+   amount of d6s needed to the weapon stat line. 
+You can technically rename these weapons as well, 
+   so long as they stay in all caps, contain no
+   numbers, and you call them by the right name in 
+   your attack string.\
+
+
+
+\Two ways to modify DEF & ARM of the target
+The easy way is to simply specify an ARM & DEF like 
+   the weapon stats above. This works fine for
+   calculating attacks vs. a single target 
+The hard way (shown below) shows you how to set up
+   a sliding scale of DEF vs. ARM values to compare
+   your attacks against. The loop default length 
+   0..3 can be changed to a larger set like 0..6 for
+   instance. If the loop is used, the attack outputs 
+   must be placed within the loop brackets {}\
+
+\Finally, specify a string of attacks to compare vs. 
+   DEF and ARM. Use the example below to suit your 
+   attacker. The important bits are to start your 
+   line with output, put the attack inside of 
+   brackets, put a + between attacks, and then name 
+   your attack string with named\
+
+DEF: 20
+ARM: 14
+
+XAT: 6 + {1..3}@4d6
+XATB: 6 + {1..3}@4d6
+WEAPONA: 14 + 4d6
+output [initial WEAPONA reroll hit] named "Squire Charm-hit vs [DEF]/[ARM]"
+
+XAT: 6 + 3d6
+XATB: 6 + 3d6
+WEAPONA: 14 + {1..4}@5d6
+output [initial WEAPONA reroll hit] named "Squire Charm-damage vs [DEF]/[ARM]"
+
+XAT: 6 + {1..3}@5d6
+WEAPONA: 14 + {1..4}@5d6
+output [initial WEAPONA] named "Wysh Charm-hit vs [DEF]/[ARM]"
+
+XAT: 6 + {1..3}@4d6
+WEAPONA: 14 + {1..4}@6d6
+output [initial WEAPONA] named "Wysh Charm-damage vs [DEF]/[ARM]"

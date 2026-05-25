@@ -1,0 +1,424 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BASEATTACK: 2 + 3 + 2
+BASEDAMAGE: 1d6 + 3
+BASECRITDAMAGE: 2d6 + 3
+BARDATTACK: BASEATTACK
+OBJECTATTACK: 8
+GRIFFONATTACK: 6
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+MISSDAMAGE: 0
+GRIFFONDAMAGEBEAK: 1d8 + 4
+GRIFFONCRITICALDAMAGEBEAK: 2d8 + 4
+GRIFFONDAMAGECLAWS: 2d6 + 4 
+GRIFFONCRITICALDAMAGECLAWS: 4d6 + 4
+OBJECTDAMAGE: 1d4 + 4
+OBJECTCRITICALDAMAGE: 2d4 + 4
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+
+\ Damage functions \
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: griffon beak damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: GRIFFONCRITICALDAMAGEBEAK
+ }
+ if ATTACKRESULT = HIT {
+  result: GRIFFONDAMAGEBEAK
+ }
+ result: MISSDAMAGE
+}
+
+function: griffon claws damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: GRIFFONCRITICALDAMAGECLAWS
+ }
+ if ATTACKRESULT = HIT {
+  result: GRIFFONDAMAGECLAWS
+ }
+ result: MISSDAMAGE
+}
+
+function: object damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: OBJECTCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: OBJECTDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [d20 vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+
+function: multiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 2d20] vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for [[highest 1 of 3d20] vs AC BARDATTACK]]
+  }
+  result: TOTAL
+}
+
+function:object multiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [object damage for [d20 vs AC OBJECTATTACK]]
+  }
+  result: TOTAL
+}
+
+\ Level 1 - 3 \
+
+output [multiattack 2] named "level 1-3 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:15
+output [multiattack 2] named "level 1-3 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:20
+output [multiattack 2] named "level 1-3 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:25
+output [multiattack 2] named "level 1-3 w/ hand xbow w/o SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: 1d10 + 3 +10
+CRITICALDAMAGE: 2d10 + 3 + 10
+AC:10
+output [multiattack 1] named "level 1-3 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:15
+output [multiattack 1] named "level 1-3 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:20
+output [multiattack 1] named "level 1-3 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:25
+output [multiattack 1] named "level 1-3 w/ hvy xbow w/ SS vs AC[AC]"
+
+\ Level 4 \
+
+BARDATTACK: BASEATTACK
+HITDAMAGE: 1d10 + 3
+CRITICALDAMAGE: 2d10 + 3
+AC:10
+output [multiattack 1] + 2d8 named "level 4 w/ hvy xbow w/o SS w/HM vs AC[AC]"
+
+AC:15
+output [multiattack 1] + 2d8 named "level 4 w/ hvy xbow w/o SS w/HM vs AC[AC]"
+
+AC:20
+output [multiattack 1] + 2d8 named "level 4 w/ hvy xbow w/o SS w/HM vs AC[AC]"
+
+AC:25
+output [multiattack 1] + 2d8 named "level 4 w/ hvy xbow w/o SS w/HM vs AC[AC]"
+
+\ Level 8 \
+
+BASEATTACK: 3 + 3 + 2
+BASEDAMAGE: 1d6 + 3
+BASECRITDAMAGE: 2d6 + 3
+BARDATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+AC:10
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/o SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 10
+AC:10
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 3] named "level 8 w/ hand xbow w/ SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK
+HITDAMAGE: 1d10 + 3
+CRITICALDAMAGE: 2d10 + 3
+AC:10
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/o SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/o SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/o SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/o SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: 1d10 + 3 + 10
+CRITICALDAMAGE: 2d10 + 3 + 10
+AC:10
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 2] named "level 8 w/ hvy xbow w/ SS vs AC[AC]"
+
+\ Level 9 \
+
+BASEATTACK: 4 + 4 + 2
+BASEDAMAGE: 1d6 + 4
+BASECRITDAMAGE: 2d6 + 4
+BARDATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+AC:10
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/o SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 10
+AC:10
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 3] named "level 9 w/ hand xbow w/ SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK
+HITDAMAGE: 1d10 + 4
+CRITICALDAMAGE: 2d10 + 4
+AC:10
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/o SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/o SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/o SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/o SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: 1d10 + 4 + 10
+CRITICALDAMAGE: 2d10 + 4 + 10
+AC:10
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/ SS vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 2] named "level 9 w/ hvy xbow w/ SS vs AC[AC]"
+
+\ level 10 \
+
+BASEATTACK: 4 + 4 + 2
+BASEDAMAGE: 1d6 + 4
+BASECRITDAMAGE: 2d6 + 4
+BARDATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+AC:10
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:15
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:20
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/o SS vs AC[AC]"
+
+AC:25
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/o SS vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 10
+AC:10
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:15
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:20
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/ SS vs AC[AC]"
+
+AC:25
+output [multiattack 3] + [object multiattack 10] named "level 10 w/ hand xbow w/ SS vs AC[AC]"
+
+\ level 11-12 \
+
+BASEATTACK: 4 + 4 + 2
+BASEDAMAGE: 1d6 + 4
+BASECRITDAMAGE: 2d6 + 4
+BARDATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+AC:10
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:15
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:20
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:25
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 10
+AC:10
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:15
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:20
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:25
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 11-12 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+\ level 13-14 \
+
+BASEATTACK: 5 + 5 + 2
+BASEDAMAGE: 1d6 + 5
+BASECRITDAMAGE: 2d6 + 5
+BARDATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+AC:10
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:15
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:20
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:25
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 10
+AC:10
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:15
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:20
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+AC:25
+output [multiattack 3] + [object multiattack 10] + [griffon claws damage for [d20 vs AC GRIFFONATTACK]] + [griffon beak damage for [d20 vs AC GRIFFONATTACK]] named "level 13-14 w/ hand xbow w/o SS w/griffon vs AC[AC]"
+
+\ level 15 \
+
+BASEATTACK: 5 + 5 + 2
+BASEDAMAGE: 1d6 + 2d12 + 5
+BASECRITDAMAGE: 2d6 + 4d12 + 5
+BARDATTACK: BASEATTACK
+HITDAMAGE: BASEDAMAGE
+CRITICALDAMAGE: BASECRITDAMAGE
+GRIFFONDAMAGEBEAK: 1d8 + 2d12 + 4
+GRIFFONCRITICALDAMAGEBEAK: 2d8 + 4d12 + 4
+GRIFFONDAMAGECLAWS: 2d6 + 2d12 + 4 
+GRIFFONCRITICALDAMAGECLAWS: 4d6 + 4d12 + 4
+AC:10
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+
+BARDATTACK: BASEATTACK - 5
+HITDAMAGE: BASEDAMAGE + 10
+CRITICALDAMAGE: BASECRITDAMAGE + 10
+AC:10
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+
+AC:15
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+
+AC:20
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+
+AC:25
+output [multiattackadvantage 3] + [griffon claws damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] + [griffon beak damage for [[highest 1 of 2d20] vs AC GRIFFONATTACK]] named "level 15 w/ hand xbow w/o SS w/griffon w/simulacrum w/TT vs AC[AC]"
+

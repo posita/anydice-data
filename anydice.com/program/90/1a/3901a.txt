@@ -1,0 +1,96 @@
+
+
+\ COMPARING the DPR of TWO ATTACKERS AGAINST THE SAME ENEMY IN WEIRD WIZARD \
+
+ENEMYDEFENSE: 16
+
+\ ATTACK SECTION attacker A \
+A_BOONS: 1                   \ number of boons \
+A_BANES: 0                   \ number of banes \
+A_ATKBONUS: 4                \ stat bonus + other flat bonuses \
+
+\ ATTACK SECTION attacker B \
+B_BOONS: 1                   \ number of boons \
+B_BANES: 0                   \ number of banes \
+B_ATKBONUS: 5                \ stat bonus + other flat bonuses \
+
+\ DAMAGE SECTION attacker A \
+A_DMGDICE: 5                 \ the number of damage dice \
+A_DMGBONUS: 0                \ flat bonus to damage \
+A_BRUTAL: 1                  \ 1 if you reroll 1s, otherwise 0 \
+A_REROLLDMG: 0               \ 1 to roll all damage dice twice and take higher sum \
+A_NUMCRITDICE: 0             \ extra dmg dice you get when crit'ing \
+
+\ DAMAGE SECTION attacker B \
+B_DMGDICE: 4                \ the number of damage dice \
+B_DMGBONUS: 3               \ Some paths/spells give flat bonuses to damage \
+B_BRUTAL: 0                  \ 1 if you reroll 1s, otherwise 0 \
+B_REROLLDMG: 1               \ 1 to roll all damage dice twice and take higher sum \
+B_NUMCRITDICE: 1             \ extra dmg dice you get when crit'ing \
+
+\ DO NOT EDIT BELOW THIS LINE \
+
+\ reroll 1's if BRUTAL is 1. \ 
+\ Thanks to Vilarinof of stackexchange! \
+
+function: reroll DICE:n as REROLL:d if BRUTAL:n {
+  if BRUTAL=1 {
+    if DICE=1 {
+      result: REROLL
+    }
+    result: DICE
+  }
+  result: DICE
+}
+
+\ REROLL whole dice set if HIGHEST is 1 \ 
+\ Thanks to Vilarinof of stackexchange! \
+
+function: highest of two DICE:d if HIGHEST {
+  if HIGHEST=1 {
+    result: [highest of DICE and DICE]
+  }
+  result: DICE
+}
+
+\ This is the attack function. Returns the damage including crits if applicable. \
+\ Thanks to stealth_elephant on reddit! \
+
+function: attack ROLL:n plus ATKBONUS:n vs DEFENSE:n for DMG:d plus DMGBONUS:n crit CRIT_DMG:d{
+    if ROLL + ATKBONUS >= 20 {
+        if ROLL + ATKBONUS >= DEFENSE + 5 {
+            result: DMG + DMGBONUS + CRIT_DMG
+        }
+    }
+    if ROLL + ATKBONUS >= DEFENSE {
+        result: DMG + DMGBONUS
+    }
+    result: 0
+}
+
+\ START DOING \
+
+A_BOONSBANES: A_BOONS - A_BANES
+B_BOONSBANES: B_BOONS - B_BANES
+
+\ redefine attack dice according to their boons/banes \
+A_ATKDICE: d20 + [highest 1 of A_BOONSBANESd6]
+B_ATKDICE: d20 + [highest 1 of B_BOONSBANESd6]
+
+\ redefine damage dice as brutal dice if they are \
+A_REROLLED: [reroll d6 as d6 if A_BRUTAL]  \ now we got the new dA_REROLLED for attacker A \
+B_REROLLED: [reroll d6 as d6 if B_BRUTAL]  \ and dB_REROLLED for attacker B. If they don't have brutal, it's just d6 \
+
+\ reroll the set of dmg dice if that’s what you do \
+A_DMGDICEF: [highest of two A_DMGDICE d A_REROLLED if A_REROLLDMG]
+B_DMGDICEF: [highest of two B_DMGDICE d B_REROLLED if B_REROLLDMG]
+
+\ do the same exercise for the crit dice \
+A_CRITD: [highest of two A_NUMCRITDICE d A_REROLLED if A_REROLLDMG]
+B_CRITD: [highest of two B_NUMCRITDICE d B_REROLLED if B_REROLLDMG]
+
+output [attack A_ATKDICE plus A_ATKBONUS vs ENEMYDEFENSE for A_DMGDICEF plus A_DMGBONUS crit A_CRITD] 
+named "A's DPR v. def. [ENEMYDEFENSE]. atk: d20+[A_ATKBONUS] with [A_BOONSBANES] boons. dmg: [A_DMGDICE]d6+[A_DMGBONUS]. Brutal: [A_BRUTAL] Reroll: [A_REROLLDMG] Crit: +[A_NUMCRITDICE]d6"
+
+output [attack B_ATKDICE plus B_ATKBONUS vs ENEMYDEFENSE for B_DMGDICEF plus B_DMGBONUS crit B_CRITD] 
+named "B's DPR v. def. [ENEMYDEFENSE]. atk: d20+[B_ATKBONUS] with [B_BOONSBANES] boons. dmg: [B_DMGDICE]d6+[B_DMGBONUS]. Brutal: [B_BRUTAL] Reroll: [B_REROLLDMG] Crit: +[B_NUMCRITDICE]d6"

@@ -1,0 +1,63 @@
+
+function : damage DAMAGE:d DPLUS:n attack DICE:s APLUS:n vs AC:n
+{
+	MULTIPLIER : 0
+	OUT : 0
+	if (DICE = 20) {MULTIPLIER : 2}
+	else if (DICE + APLUS >= AC) {MULTIPLIER : 1}
+	
+	if (MULTIPLIER > 0)
+	{
+		OUT : DPLUS
+		loop N over {1..MULTIPLIER}
+		{
+			OUT : OUT + DAMAGE
+		}
+	}
+	
+	result : OUT
+}
+
+function : subtract HP:n MHP:n with DAMAGE:s
+{
+	if (HP <= 0)
+	{
+		if (DAMAGE > 0)
+		{
+			result : [highest of HP - 2 and -3]
+		}
+		else
+		{
+			result : HP
+		}
+	}
+	else if (DAMAGE >= MHP + HP)
+	{
+		result : -3
+	}
+	else
+	{
+		result : [highest of HP - DAMAGE and 0]
+	}
+}
+
+function : blood frenzy die HP:n MHP:n
+{
+	if (HP <= 0) {result : 20}
+	if (HP < MHP) {result : [highest 1 of 2d20]}
+	else {result : 1d20}
+}
+
+
+H : {12,10,8,6}
+
+A : {15,18,15,12}
+loop N over {1..4}
+{
+Q : N@H
+	Q : [subtract Q N@H with [damage 1d6 1 attack [blood frenzy die Q N@H] 3 vs N@A]]
+	output Q
+	Q : [subtract Q N@H with [damage 1d4 1 attack [blood frenzy die Q N@H] 3 vs N@A]]
+	output Q
+}
+

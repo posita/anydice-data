@@ -1,0 +1,24 @@
+\ Savage Worlds Damage Success Rate with Bennies \
+
+\ "A" is weapon die, "B" is raise, "C" is other die added, "MOD" is modifier, and "TN" is target number \
+
+A: [explode d8] + [explode d4]
+B: 0
+C: 0
+MOD: 0
+TN: 8
+
+
+function: reroll ROLL:n as REROLL:d if under TARGET:n and take highest {
+  if ROLL >= TARGET {
+    result: ROLL  \ don't waste a benny if it's already a success \
+  } else {
+    result: [highest of ROLL and REROLL]
+  }
+}
+
+ROLL: A + B + C + MOD
+output ROLL named "no reroll"
+output [reroll ROLL as ROLL if under TN and take highest] named "reroll if less than TN"
+output [highest of ROLL and ROLL] named "always reroll"
+output [reroll ROLL as ROLL + 2 if under TN and take highest] named "reroll if less than TN with Elan"

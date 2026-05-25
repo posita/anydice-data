@@ -1,0 +1,56 @@
+function: add over VALUE:n in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..# SEQUENCE} {
+  if P@SEQUENCE > VALUE {
+   COUNT: (COUNT + P@SEQUENCE)
+  }
+ }
+ result: COUNT
+}
+
+function: add over VALUE:n in SEQUENCE:s with advantage{
+ LOW: 0
+ COUNT: 0
+ loop P over {1..# SEQUENCE} {
+  if LOW = 0{
+   LOW: P@SEQUENCE
+  }
+  else if P@SEQUENCE < LOW {
+   if LOW  > VALUE {
+    COUNT: (COUNT + LOW )
+   }
+   LOW: P@SEQUENCE
+  }
+  else if P@SEQUENCE > VALUE {
+   COUNT: (COUNT + P@SEQUENCE)
+  }
+ }
+ result: COUNT
+}
+
+function: add over VALUE:n in SEQUENCE:s with disadvantage{
+ HIGH: 0
+ COUNT: 0
+ loop P over {1..# SEQUENCE} {
+  if HIGH= 0{
+   HIGH: P@SEQUENCE
+  }
+  else if P@SEQUENCE > HIGH{
+   if HIGH > VALUE {
+    COUNT: (COUNT + HIGH)
+   }
+   HIGH: P@SEQUENCE
+  }
+  else if P@SEQUENCE > VALUE {
+   COUNT: (COUNT + P@SEQUENCE)
+  }
+ }
+ result: COUNT
+}
+
+output [add over 2 in 2d8] named "Ignore 7s and lower"
+output [add over 2 in 3d8 with advantage] named "Ignore 7s and lower with Advantage" 
+output [add over 2 in 2d8 with disadvantage] named "Ignore 7s and lower with Disadvantage" 
+output 2d8 named "Normal Roll"
+output [highest 2 of 3d8] named "Advantage" 
+output [lowest 1 of 2d8] named "Disadvantage" 

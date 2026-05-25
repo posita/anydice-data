@@ -1,0 +1,315 @@
+AC:  30
+BAB: 6
+DEX: 6
+WIS: 3
+STR: 2
+
+\ Pre-combat Buffs \
+BLESS: 1 \ +1 to-hit \
+HASTE: 1 \ +1 to-hit \
+FLAMING: d6
+FROST: d6
+SHOCK: d6
+CORROSIVE: d6
+BANE_BONUS: 2
+BANE_DAMAGE: 2d6
+WEAPON_OF_AWE: 2
+
+\ Standard action buffs \
+PRAYER: 2 \ +2 to-hit, +2 dmg \
+
+\ Swift action buffs \
+DIVINE_FAVOR: 3 \ +3 to-hit, +3 dmg \
+DIVINE_POWER: 6 \ +6 to-hit, +6 dmg \
+JUDGMENT_JUSTICE: 3 \ +3 to-hit \
+JUDGMENT_DESTRUCTION: 3 \ +3 dmg \
+CONTAGIOUS_ZEAL: 2 \ +2 to-hit, +2 dmg \
+EVOKER: +2d4 \ +2d4 dmg \
+INVISIBILITY_BONUS: 2
+DENY_DEX: 5
+
+\ Permanent buffs \
+ENHANCEMENT: 2
+WEAPON_FOCUS: 1
+GREATER_WEAPON_FOCUS: 2
+MARTIAL_FOCUS: 1
+WEAPON_TRAINING: 4
+WEAPON_SPECIALIZATION: 2
+METEOR_STYLE: 4 \ +4 dmg \
+
+\ Situational \
+FLANK: 2
+
+\ Penalties \
+PENALTY_RAPID_SHOT: -2
+PENALTY_DEADLY_AIM: -2
+
+\ St. Dalius \
+SMITE_ATTACK: 6
+SMITE_DAMAGE: 10
+PRECISE_STRIKE: 10
+PRECISE_FLANK: d6
+
+\ Xarron \
+SNEAK_ATTACK: 5d6
+
+\ Ranger \
+FAVORED_ENEMY: 6
+MARKED_PREY: 5
+
+\ Other \
+HOLY: 2d6
+GRAYFLAME: d6
+ELEMENTAL_BOLT: d4
+HOLY_WATER: d4
+HOLY_ICE: 10
+DEADLY_AIM: 4
+
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+
+  result: SUM
+}
+
+\ TODO: confirm crits \
+function: attack AC:n ac roll ROLL:n plus BONUS:n for DAMAGE:d and EXTRA_DAMAGE:d crit CRIT_MULTI:n on CRIT_THREAT:n {
+  TO_HIT: ROLL + BONUS
+
+  if (ROLL = 1 | TO_HIT < AC) {
+    result: 0
+  } else if (ROLL >= CRIT_THREAT) {
+    result: [crit CRIT_MULTI DAMAGE] + EXTRA_DAMAGE
+  } else {
+    result: DAMAGE + EXTRA_DAMAGE
+  }
+}
+
+ENHANCEMENT: 3
+output 
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + FLANK
+    for 2d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and FLAMING + SNEAK_ATTACK
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 2 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + FLANK
+    for 2d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and FLAMING + SNEAK_ATTACK
+    crit 2 on 20
+  ]
+named "Spiked Chain (+)"
+
+output 
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + HASTE + FLANK
+    for 2d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and FLAMING + SNEAK_ATTACK + HOLY
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + HASTE + FLANK
+    for 2d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and FLAMING + SNEAK_ATTACK + HOLY
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 2 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + HASTE + FLANK
+    for 2d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and FLAMING + SNEAK_ATTACK + HOLY
+    crit 2 on 20
+  ]
+named "Spiked Chain (*)"
+
+output 
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + HASTE + FLANK
+    for 2d6 + ENHANCEMENT + DIVINE_FAVOR
+    and SNEAK_ATTACK
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + HASTE + FLANK
+    for 2d6 + ENHANCEMENT + DIVINE_FAVOR
+    and SNEAK_ATTACK
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus 2 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + HASTE + FLANK
+    for 2d6 + ENHANCEMENT + DIVINE_FAVOR
+    and SNEAK_ATTACK
+    crit 2 on 19
+  ]
+named "Crosbow (*)"
+
+ENHANCEMENT: 2
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + BLESS + PENALTY_RAPID_SHOT
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE
+    and SHOCK + FLAMING
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + BLESS + PENALTY_RAPID_SHOT
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE
+    and SHOCK + FLAMING
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 2 + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + BLESS + PENALTY_RAPID_SHOT
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE
+    and SHOCK + FLAMING
+    crit 2 on 20
+  ]
+named "The Book"
+
+ENHANCEMENT: 5
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + JUDGMENT_JUSTICE + BANE_BONUS + BLESS + PENALTY_RAPID_SHOT
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE + DIVINE_FAVOR + BANE_BONUS
+    and SHOCK + FLAMING + BANE_DAMAGE
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + JUDGMENT_JUSTICE + BANE_BONUS + BLESS + PENALTY_RAPID_SHOT
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE + DIVINE_FAVOR + BANE_BONUS
+    and SHOCK + FLAMING + BANE_DAMAGE
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 2 + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + JUDGMENT_JUSTICE + BANE_BONUS + BLESS + PENALTY_RAPID_SHOT
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE + DIVINE_FAVOR + BANE_BONUS
+    and SHOCK + FLAMING + BANE_DAMAGE
+    crit 2 on 20
+  ]
+named "The Book (+)"
+
+ENHANCEMENT: 5
+output
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_POWER + CONTAGIOUS_ZEAL + JUDGMENT_JUSTICE + BANE_BONUS + HASTE + PENALTY_RAPID_SHOT + PENALTY_DEADLY_AIM
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE + DIVINE_POWER + CONTAGIOUS_ZEAL + BANE_BONUS + DEADLY_AIM
+    and SHOCK + FLAMING + BANE_DAMAGE + EVOKER
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_POWER + CONTAGIOUS_ZEAL + JUDGMENT_JUSTICE + BANE_BONUS + HASTE + PENALTY_RAPID_SHOT + PENALTY_DEADLY_AIM
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE + DIVINE_POWER + CONTAGIOUS_ZEAL + BANE_BONUS + DEADLY_AIM
+    and SHOCK + FLAMING + BANE_DAMAGE + EVOKER
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus BAB + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_POWER + CONTAGIOUS_ZEAL + JUDGMENT_JUSTICE + BANE_BONUS + HASTE + PENALTY_RAPID_SHOT + PENALTY_DEADLY_AIM
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE + DIVINE_POWER + CONTAGIOUS_ZEAL + BANE_BONUS + DEADLY_AIM
+    and SHOCK + FLAMING + BANE_DAMAGE + EVOKER
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 2 + DEX + ENHANCEMENT + GREATER_WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_POWER + CONTAGIOUS_ZEAL + JUDGMENT_JUSTICE + BANE_BONUS + HASTE + PENALTY_RAPID_SHOT + PENALTY_DEADLY_AIM
+    for d6 + STR + ENHANCEMENT + WEAPON_TRAINING + METEOR_STYLE + DIVINE_POWER + CONTAGIOUS_ZEAL + BANE_BONUS + DEADLY_AIM
+    and SHOCK + FLAMING + BANE_DAMAGE + EVOKER
+    crit 2 on 20
+  ]
+named "The Book (*)"
+
+ENHANCEMENT: 2
+DEX: 8
+output
+  [attack AC ac
+    roll d20 plus 10 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + SMITE_ATTACK
+    for d4 + DEX + ENHANCEMENT
+    and PRECISE_STRIKE + SMITE_DAMAGE
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus 5 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + SMITE_ATTACK
+    for d4 + DEX + ENHANCEMENT
+    and PRECISE_STRIKE + SMITE_DAMAGE
+    crit 2 on 19
+  ]
+  named "Hand of Redemption"
+
+DEX: 8
+ENHANCEMENT: 5
+output
+  [attack AC ac
+    roll d20 plus 10 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + SMITE_ATTACK
+    for d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and PRECISE_STRIKE + SMITE_DAMAGE + HOLY
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus 5 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + SMITE_ATTACK
+    for d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and PRECISE_STRIKE + SMITE_DAMAGE + HOLY
+    crit 2 on 19
+  ]
+  named "Hand of Redemption (+)"
+
+DEX: 8
+ENHANCEMENT: 6
+output
+  [attack AC ac
+    roll d20 plus 10 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + SMITE_ATTACK + HASTE
+    for d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and PRECISE_STRIKE + PRECISE_STRIKE + GRAYFLAME + SMITE_DAMAGE + HOLY
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus 10 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + SMITE_ATTACK + HASTE
+    for d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and PRECISE_STRIKE + GRAYFLAME + SMITE_DAMAGE + HOLY
+    crit 2 on 19
+  ] +
+  [attack AC ac
+    roll d20 plus 5 + DEX + ENHANCEMENT + WEAPON_FOCUS + BLESS + DIVINE_FAVOR + SMITE_ATTACK + HASTE
+    for d4 + DEX + ENHANCEMENT + DIVINE_FAVOR
+    and PRECISE_STRIKE + GRAYFLAME + SMITE_DAMAGE + HOLY
+    crit 2 on 19
+  ]
+  named "Hand of Redemption (*)"
+
+AC: 43
+output
+  [attack AC ac
+    roll d20 plus 36
+    for 4d6+19 \6d6\ -5
+    and 0
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 35
+    for 2d8+13 -5
+    and 0
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 35
+    for 2d8+13 -5
+    and 0
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 33
+    for 2d6+6
+    and 0
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 33
+    for 2d6+6
+    and 0
+    crit 2 on 20
+  ] +
+  [attack AC ac
+    roll d20 plus 33
+    for 2d8+19
+    and 0
+    crit 2 on 20
+  ] named "Black Dragon"

@@ -1,0 +1,43 @@
+STR: 4
+PROF: 3
+LVL: 5
+RAGE: 2
+DMG_MOD: STR + RAGE
+EXTRA_DMG: d6 + LVL/2
+
+AC: 10
+
+if LVL >= 5 {NUM_ATTACKS: 2} else {NUM_ATTACKS: 1}
+
+NORMAL_HIT: d20 + STR + PROF
+GWM_HIT: NORMAL_HIT - 5
+RECKLESS_HIT: [highest of d20 and d20] + STR + PROF
+RECKLESS_GWM_HIT: RECKLESS_HIT - 5
+
+NORMAL_DMG: d12 + d6 + DMG_MOD
+NORMAL_FIRSTHIT_DMG: NORMAL_DMG + EXTRA_DMG
+GWM_DMG: NORMAL_DMG + 10
+GWM_FIRSTHIT_DMG: NORMAL_FIRSTHIT_DMG + 10
+
+function: average damage HIT:s hit and DMG:s damage  {
+ if HIT >= AC {
+  result: DMG
+ }
+ else {
+  result: 0
+ }
+}
+
+function: multi attack damage ATTACKS:n with HIT:s to hit and FIRSTDMG:s and SECONDDMG:s damages {
+ if ATTACKS = 2 {
+  result: [average damage HIT hit and FIRSTDMG damage] + [average damage HIT hit and SECONDDMG damage]
+ }
+ else {
+  result: [average damage HIT hit and FIRSTDMG damage]
+ }
+}
+
+output [multi attack damage NUM_ATTACKS with NORMAL_HIT to hit and NORMAL_FIRSTHIT_DMG and NORMAL_DMG damages] named "Normal"
+output [multi attack damage NUM_ATTACKS with GWM_HIT to hit and GWM_FIRSTHIT_DMG and GWM_DMG damages] named "GWM"
+output [multi attack damage NUM_ATTACKS with RECKLESS_HIT to hit and NORMAL_FIRSTHIT_DMG and NORMAL_DMG damages] named "Reckless"
+output [multi attack damage NUM_ATTACKS with RECKLESS_GWM_HIT to hit and GWM_FIRSTHIT_DMG and GWM_DMG damages] named "GWM & Reckless"

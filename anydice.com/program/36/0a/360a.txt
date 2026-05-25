@@ -1,0 +1,21 @@
+\ wizard level \
+WL: 0
+\ casting value of spell \
+CV: 25
+\ #power dice 1-12 \
+NPD: 6
+
+\ DO NOT CHANGE ANYTHING BELOW THIS LINE \
+
+function: wizard with WL:n chance of success with power dice PD:s for spell with casting value CV:n {
+ \ critical failure if a natural roll of 1 or 2, ie. 1 or 2 on 1d6 or double 1's on 2d6 \
+ if #{PD} = 1 & PD <= 2 {result: 0}
+ if #{PD} = 2 & {1,2}@PD = 2 {result: 0}
+ if {1,2}@PD = 12 {result: 1}
+ result: (PD+WL) >= CV
+}
+
+loop N over {1..NPD}{
+ PD: Nd6
+ output [wizard with WL chance of success with power dice PD for spell with casting value CV] named "Chance to beat spell with casting value [CV] on [N]d6+[WL]"
+}

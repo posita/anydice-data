@@ -1,0 +1,49 @@
+\ Rolling function for the Agora RPG, by Seraaron. \\ GNU General Public License. \
+
+function: agora ROLL:s grade G:n kiss K:n ego E:n {
+
+ SUCCESS: ROLL >= G \ count base successes the main roll \
+ FAILURE: ROLL < G \ count the number of failures too \
+
+ TOTAL: SUCCESS \ track running total of all successes \
+ DOUBLE: 0 \ empty tracker to add 6s to if you used ego \
+
+ if K > 0 {
+  \ make sure you don't re-roll more dice than there are failures \
+  if K > FAILURE { 
+   REROLLS: FAILURE
+  } else {
+   REROLLS: K
+  }
+  loop I over {1..REROLLS} {
+   KISS: d6 \ roll a die for each kiss \
+   TOTAL: TOTAL + (KISS >= G)
+   \ then check for ego \
+   if 1@E { 
+    DOUBLE: DOUBLE + (KISS = 6) \ if the kiss was a 6 then add it to double \
+   }
+  }
+ }
+
+ if 1@E {
+  \ check for ego again \ 
+  loop I over {1..6} {
+   DOUBLE: DOUBLE + (I@{6} = REMAIN) \ using modified [count] function \
+  }
+ }
+
+ result: TOTAL + DOUBLE \ add any doubled 6s to total \
+
+}
+
+\ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~INSTRUCTIONS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+\ change the output grade G to: \
+\   - 6 for 'copper', 5 for 'bronze', 4 for 'silver', 3 for 'gold', or 2 for 'platinum' \
+\ change the output kiss K to re-roll that many failed dice, typical maximum is 4 \ 
+\   - note that K is how many dice you could *potentially* kiss, not how many you *will* kiss \
+\ change the output ego E from 0 to 1 to count all rolled 6s as double-successes \
+\ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+
+loop N over {1..8} {
+ output [agora N d6 grade 5 kiss 2 ego 0] named "[N]D"
+}

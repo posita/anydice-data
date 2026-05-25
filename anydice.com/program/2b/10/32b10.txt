@@ -1,0 +1,76 @@
+TORPEDONUM: 4
+LANCENUM: 1
+
+TURRETNUM: 2
+TURRETHIT: {0:5,1:1}
+ARMORHIT: {0:4,1:2}
+LANCEHIT: {0,1}
+
+
+function: compare A:n B:n {
+  if A >= B {
+    result: 1
+  }
+  result: 0
+}
+
+function: torpedo survival {
+  result: TORPEDONUM - TURRETNUMdTURRETHIT
+}
+
+function: eldar torpedoes SURVIVED:n{
+  HITS: 0
+
+  loop I over {1..TORPEDONUM} {
+    if [compare SURVIVED I] {
+      HITS: HITS + [highest of 1dARMORHIT and 1dARMORHIT]
+    }
+  }
+
+  result: HITS
+}
+
+function: torpedoes SURVIVED:n{
+  HITS: 0
+
+  loop I over {1..TORPEDONUM} {
+    if [compare SURVIVED I] {
+      HITS: HITS + 1dARMORHIT
+    }
+  }
+
+  result: HITS
+}
+
+function: no permute A:n B:n C:n {
+  result: A + A*B + A*B*C
+}
+
+function: eldar lances {
+  HITS: 0
+
+  loop I over {0..LANCENUM-1} {
+    ATTACKONE: 1dLANCEHIT
+    ATTACKTWO: 1dLANCEHIT
+    ATTACKTHREE: 1dLANCEHIT
+
+    HITS: [no permute ATTACKONE ATTACKTWO ATTACKTHREE]
+  }
+
+  result: HITS
+}
+
+function: lances {
+  HITS: 0
+
+  loop I over {0..LANCENUM-1} {
+    HITS: HITS + 1dLANCEHIT
+  }
+
+  result: HITS
+}
+
+output [eldar torpedoes [torpedo survival]] named "Eldar Torpedoes"
+output [torpedoes [torpedo survival]] named "Regular Torpedoes"
+output [eldar lances] named "Eldar Lances"
+output [lances] named "Lances"

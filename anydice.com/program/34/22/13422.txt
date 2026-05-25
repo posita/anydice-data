@@ -1,0 +1,40 @@
+DICE_TYPES: {4, 6, 8, 10, 12}
+
+function: compare A:n and B:n with C:n and D:n {
+  YOUR_HIGHEST: 1@{A, B}
+  YOUR_LOWEST: 2@{A, B}
+
+  OPPONENTS_HIGHEST: 1@{C, D}
+  OPPONENTS_LOWEST: 2@{C, D}
+
+  if YOUR_HIGHEST = OPPONENTS_HIGHEST {
+    if YOUR_LOWEST = OPPONENTS_LOWEST { result: 0 }
+    result: [compare YOUR_LOWEST and OPPONENTS_LOWEST]
+  }
+
+  if YOUR_HIGHEST > OPPONENTS_HIGHEST {
+    result: 1 + (YOUR_LOWEST > OPPONENTS_HIGHEST)
+  }
+
+  result: -1 - (OPPONENTS_LOWEST > YOUR_HIGHEST)
+}
+
+function: compare A:n and B:n {
+   result: (A > B) * 2 - 1
+}
+
+output 0 named "•— Negative outcome means you fail, Equal that both rolled the same, and Positive that you won! —•"
+
+loop YOU over DICE_TYPES {
+  loop YOURSKILL over DICE_TYPES {
+  output 0 named "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  output 0 named "~~~~~~~~~~~~~~ d[YOU]+d[YOURSKILL] ~~~~~~~~~~~~~~"
+  output 0 named "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    loop OPPONENT over DICE_TYPES {
+      loop OPPONENTSSKILL over DICE_TYPES {
+        output [compare dYOU and dYOURSKILL with dOPPONENT and dOPPONENTSSKILL] named "Your skill: d[YOU]+d[YOURSKILL], opponent skill: d[OPPONENT]+d[OPPONENTSSKILL]"
+      }
+    }
+  }
+}

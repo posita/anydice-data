@@ -1,0 +1,74 @@
+\ Implementation details \
+MISS: 0
+NORMAL_HIT: 1
+CRITICAL_HIT: 2
+
+function: hit with BONUS:n vs AC:n rolling ROLL:n {
+   if ROLL >= CRITICAL_THRESHOLD { result: CRITICAL_HIT }
+
+   if ROLL = 1 { result: MISS }
+
+   if ROLL + BONUS - AC >= 0 { result: NORMAL_HIT }
+
+   result: MISS
+}
+
+
+function: attack with BONUS:n vs AC:n rolling ROLL:n with DICE:d and MOD:n {
+   HIT: [ hit with BONUS vs AC rolling ROLL ]
+
+   if HIT = MISS { result: 0 }
+   
+   if HIT = CRITICAL_HIT { result: DICE + DICE + MOD }
+   
+   result: DICE + MOD
+}
+\ End implementation details \
+
+PROFICIENCY: 2
+STR_MOD: 3
+
+NORMAL_ROLL: 1d20
+ADVANTAGE: [ highest 1 of 2d20 ]
+
+PAM_MAIN: 1d10
+PAM_BA: 1d4
+GS: 2d6 + 1d6
+GS_SAVAGE: 1@2d6 + 1@2d6 + 1@2d6
+TWF_MAIN: 1d6
+TWF_OFF: 1d6
+
+loop TARGET_AC over { 12..20 } {
+
+   CRITICAL_THRESHOLD: 20
+   DAMAGE_BONUS: STR_MOD + 10 + 3
+   HIT_BONUS: STR_MOD + PROFICIENCY - 5 + 3
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GS and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GS and DAMAGE_BONUS ] named "Greatsword GWM vs AC[TARGET_AC]"
+
+   CRITICAL_THRESHOLD: 20
+   DAMAGE_BONUS: STR_MOD + 3
+   HIT_BONUS: STR_MOD + PROFICIENCY + 3
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GS_SAVAGE and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with GS_SAVAGE and DAMAGE_BONUS ] named "Greatsword Savage vs AC[TARGET_AC]"
+
+   CRITICAL_THRESHOLD: 20
+   DAMAGE_BONUS: STR_MOD + 1
+   HIT_BONUS: STR_MOD + PROFICIENCY + 1
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PAM_MAIN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PAM_MAIN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with PAM_BA and DAMAGE_BONUS ] named "PAM vs AC[TARGET_AC]"
+
+   CRITICAL_THRESHOLD: 19
+   DAMAGE_BONUS: STR_MOD + 2
+   DAMAGE_OFF: STR_MOD + 1
+   HIT_BONUS: STR_MOD + PROFICIENCY + 2
+   HIT_OFF: STR_MOD + PROFICIENCY + 1
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with TWF_MAIN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with TWF_MAIN and DAMAGE_BONUS ] + [ attack with HIT_OFF vs TARGET_AC rolling NORMAL_ROLL with TWF_OFF and DAMAGE_OFF ] named "TWF vs AC[TARGET_AC]"
+
+   CRITICAL_THRESHOLD: 19
+   DAMAGE_BONUS: STR_MOD + 3
+   DAMAGE_OFF: STR_MOD + 2
+   HIT_BONUS: STR_MOD + PROFICIENCY + 3
+   HIT_OFF: STR_MOD + PROFICIENCY + 2
+   output [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with TWF_MAIN and DAMAGE_BONUS ] + [ attack with HIT_BONUS vs TARGET_AC rolling NORMAL_ROLL with TWF_MAIN and DAMAGE_BONUS ] + [ attack with HIT_OFF vs TARGET_AC rolling NORMAL_ROLL with TWF_OFF and DAMAGE_OFF ] named "TWF vs AC[TARGET_AC]"
+
+   \ Group the results prettier. \
+   output {0} named ""
+}

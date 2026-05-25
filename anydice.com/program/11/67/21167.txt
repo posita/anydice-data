@@ -1,0 +1,41 @@
+MOD: 0
+TARGET: 4
+RAISE: 4
+DICE: 1d8
+SKILLMOD: 2
+WILD: 1d6
+DAMAGE: [explode 1d6]+[explode 1d6]+[explode 1d6]
+RAISEDAMAGE: [explode 1d6]
+FLATBONUS: 0
+ENEMYTOUGHNESS: 6
+ENEMYARMOR: 2
+ARMORPIERCING: 0
+
+function: roll skill A:n 
+{
+ if A - SKILLMOD = 1 {result: -1}
+ result: (A - TARGET + MOD+RAISE)/RAISE
+
+}
+
+function: ARMOR:n pierced ARMORP:n
+{
+ OUT: ARMOR - ARMORP
+ if OUT<0
+ {
+  OUT:0
+ }
+ result: OUT
+}
+
+function: countraises A:n
+{
+ if (A - (ENEMYTOUGHNESS + [ENEMYARMOR pierced ARMORPIERCING])) <0 {result: 0}
+ result: (A - (ENEMYTOUGHNESS + [ENEMYARMOR pierced ARMORPIERCING])+RAISE)/RAISE
+}
+
+
+output [roll skill [highest of [explode DICE] and [explode WILD]] + SKILLMOD] named "Single Skill: [DICE] + [SKILLMOD], Wild die: [WILD], Target: [TARGET], Raise every: [RAISE], Mod: [MOD]"
+
+
+output [countraises ((([roll skill [highest of [explode DICE] and [explode WILD]] + SKILLMOD])*(RAISEDAMAGE))>0)*(DAMAGE + FLATBONUS)] named "Attack: [DICE] + [SKILLMOD], Wild die: [WILD], Target: [TARGET], Raise every: [RAISE], Mod: [MOD], Target Toughness:[ENEMYTOUGHNESS]([ENEMYARMOR]), AP: [ARMORPIERCING]"

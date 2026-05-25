@@ -1,0 +1,67 @@
+\
+Cyberpunk RED Combat Analysis Tool
+----------------------------------
+Input Values:
+ ATTR:   Attribute (REF for Shooting, DEX for Melee and Throwing)
+ SKILL:  Appropriate skill (Shoulder Arms, Melee Weapon, etc.)
+ MISC:   Catch-all to-hit bonus (Smartlink, Targeting Scope, etc.)
+         NOTE: Do not input Aimed Shot penalty, that is determined by the AIMED modifier
+ ROF:    Rate of Fire
+         NOTE: ROF is automatically reduced to 1 for Aimed Shots
+ DAMAGE: Weapon Damage (e.g. 3d6)
+ MELEE:  Whether the attack is Melee or not. Boolean (0 for no, 1 for yes)
+ AIMED:  Input 0 for a standard Body Shot
+         Input 1 for a Head Shot
+         Input 2 for a Leg/Held Item Shot
+ DV:     Input value from Range Table. For a dodging target, input 5+DEX+Evasion
+         NOTE: Dodging simulations will be inaccurate because they use a flat value instead of modeling a die
+ SP:     Target's highest armour values, by location
+\
+
+\Input Values\
+ATTR: 8
+SKILL: 6
+MISC: 2
+ROF: 1
+DAMAGE: 5d6
+MELEE: 0
+AIMED: 0
+DV: 5+8+6
+\Target SP\
+BODY: 11
+HEAD: 11
+
+\PROGRAM STARTS HERE\
+
+if MELEE {
+BODY: BODY-BODY/2
+HEAD: HEAD-HEAD/2 }
+
+function: cyberdie ROLL:s {
+if ROLL = 1 {result: 1-1d10}
+else if ROLL = 10 {result: 10+1d10}
+else {result: ROLL}}
+
+function: expected damage ROLL:s DAM:s {
+HIT: ROLL + ATTR + SKILL + MISC + PEN > DV
+HURT: DAM - SP > 0
+if HIT & HURT {result: (DAM - SP)*MUL}
+else {result: 0} }
+
+function: attack PEN:n MUL:n SP:n {
+WOUNDS: [expected damage [cyberdie 1d10] DAMAGE]
+HURT: {WOUNDS} > 0
+if HURT {result: WOUNDS + [attack PEN MUL SP-1]}
+else {result: [attack PEN MUL SP]}}
+
+if AIMED{
+set "maximum function depth" to 2
+if AIMED = 1{output [attack -8 2 HEAD] named "Expected Damage (Head)"}
+else{output [attack -8 1 BODY] named "Expected Damage (Aimed Body)"}
+}
+else{
+set "maximum function depth" to (ROF + 1)
+output [attack 0 1 BODY] named "Expected Damage (Body)"
+}
+
+\Freedom's Flame\

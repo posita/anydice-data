@@ -1,0 +1,36 @@
+ATK: 1d20
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MOB_CA: 10
+
+SELCIL_WEAPON: 1d8+2
+SELCIL_TOUCH: +2
+SELENA_WEAPON: 1d6+1
+SELENA_TOUCH: +1
+RONDHA_WEAPON: 1d8
+RONDHA_TOUCH: +1
+REBECCA_WEAPON: 1d8+1
+REBECCA_TOUCH: +2
+
+function: attack ROLL:n TOUCHE:s {
+ \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= 20{ result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + TOUCHE >= MOB_CA
+}
+
+function: damage HIT:n WEAPON:n {
+ if HIT = 0 { result : 0 }
+ if HIT = 1 { result : WEAPON }
+ if HIT = 2 { result: 1@[reverse{WEAPON}] }
+ else { result: 0}
+}
+
+output [damage [attack ATK SELCIL_TOUCH] SELCIL_WEAPON] named "Selcil"
+
+output [damage [attack ATK SELENA_TOUCH] SELENA_WEAPON] named "Selena"
+
+output [damage [attack ATK RONDHA_TOUCH] RONDHA_WEAPON] named "Rondha"
+
+output [damage [attack ATK REBECCA_TOUCH] REBECCA_WEAPON] named "Rebecca"

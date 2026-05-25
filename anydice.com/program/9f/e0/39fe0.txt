@@ -1,0 +1,25 @@
+function: large X:n by Y:n {
+ if X > 0 { result: X*(2*Y) }
+ else {result: X}
+}
+function: small X:n {
+ if X>=0 { result: X }
+ else {result:-30}
+}
+
+output ([large (11-3d6) by 1])<([small(14-3d6)]) named "ST 11 SM 1 vs ST 14 SM 0"
+output [large(11-3d6) by 1] named "ST 11 Large by 1"
+output [small(14-3d6)] named "ST 14 small unmodified"
+
+function: quick contest st STA:n sm SMA:n vs st STB:n sm SMB:n {
+ DIFF: SMA-SMB
+ if DIFF = 0 {result: (STA-3d6)-(STB-3d6)}
+ if DIFF > 0 {result: ([large ((STA+DIFF)-3d6) by DIFF]-[small ((STB-DIFF)-3d6)])}
+ if DIFF < 0 {result: ([small ((STA-DIFF)-3d6)]-[large ((STB+DIFF)-3d6) by DIFF])}
+ else {result: 0}
+}
+
+output [quick contest st 10 sm 1 vs st 13 sm 0]<0 named "ST 10 SM 1 vs ST 13 sm 0 ODDS"
+output [quick contest st 13 sm 1 vs st 15 sm 0]<0 named "st 13 sm 1 vs st 15 sm 0 ODDS"
+output [quick contest st 13 sm 0 vs st 10 sm 1]>=0 named "st 13 sm 0 vs st 10 sm 1 ODDS"
+ 

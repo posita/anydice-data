@@ -1,0 +1,48 @@
+PROF: 3
+BONUS: 4
+GWMDMG: 10
+GWMHIT: -5
+
+function: gwmbonus ROLL:n vs DEFENSE:n {
+ if ROLL = {19,20} { result: 2d10 + (PROF + BONUS + GWMDMG) }
+ if ROLL >= {DEFENSE - PROF - BONUS - GWMHIT} & ROLL != 1 { result: 1d10 + (PROF + BONUS + GWMDMG) }
+ result: 0
+}
+
+function: gwmattack MAIN:n and THIRSTING:n vs DEFENSE:n {
+if MAIN & THIRSTING = {19,20} {result: 4d10 + (PROF + BONUS + GWMDMG)*2 + [gwmbonus 1@3d20 vs DEFENSE]}
+if MAIN = {19,20} {
+ if THIRSTING >= {DEFENSE - PROF - BONUS - GWMHIT} & THIRSTING != 1 {result: 3d10 + (PROF + BONUS + GWMDMG)*2 + [gwmbonus 1@3d20 vs DEFENSE]}
+ result:  2d10 + (PROF + BONUS + GWMDMG) + [gwmbonus 1@3d20 vs DEFENSE]
+}
+if THIRSTING = {19,20} {
+ if MAIN >= {DEFENSE - PROF - BONUS - GWMDMG} & MAIN != 1 {result: 3d10 + (PROF + BONUS + GWMDMG)*2 + [gwmbonus 1@3d20 vs DEFENSE]}
+ result:  2d10 + (PROF + BONUS + GWMDMG) + [gwmbonus 1@3d20 vs DEFENSE]
+}
+if MAIN >= {DEFENSE - PROF - BONUS - GWMHIT} & MAIN != 1 {
+ if THIRSTING >= {DEFENSE - PROF - BONUS - GWMDMG} & THIRSTING != 1 {result: 2d10 + (PROF + BONUS + GWMDMG)*2}
+ result: 1d10 + (PROF + BONUS + GWMDMG)
+}
+if THIRSTING >= {DEFENSE - PROF - BONUS - GWMHIT} & THIRSTING != 1 {result: 1d10 + (PROF + BONUS + GWMDMG)}
+result: 0
+}
+ 
+
+function: pamattack ROLL:n vs DEFENSE:n {
+if ROLL = {19,20} { result: 2d10 + (PROF + BONUS) }
+ if ROLL >= {DEFENSE - PROF - BONUS} { result: 1d10 + (PROF + BONUS) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+function: bonusattack ROLL:n vs DEFENSE:n {
+if ROLL = {19,20} { result: 2d4 + (PROF + BONUS) }
+ if ROLL >= {DEFENSE - PROF - BONUS} { result: 1d4 + (PROF + BONUS) }
+ if ROLL = 1 { result: 0 }
+ result: 0
+}
+
+loop ENEMYAC over {10..20} {
+ output [gwmattack 1@3d20 and 1@3d20 vs ENEMYAC] named "GWM+EA vs [ENEMYAC]"
+ output [pamattack 1@3d20 vs ENEMYAC] + [pamattack 1@3d20 vs ENEMYAC] + [bonusattack 1@3d20 vs ENEMYAC] named "PAM+EA vs [ENEMYAC]"
+}

@@ -1,0 +1,60 @@
+\ Shathys' Gloaming Cut at Level 21 \
+
+DEXMOD  : 7
+INTMOD  : 7
+PROF    : 3
+WEAPENH : 4
+MISCHIT : 13	\ half level + feats \
+ATTACK  : MISCHIT + WEAPENH + PROF + DEXMOD
+
+W       : 1d10
+MISCDMG : 4
+PWRDMG  : 1dW + WEAPENH + MISCDMG
+
+DEFENSE : 34
+
+MISS    : 0
+HIT     : 1
+CRIT    : 2
+CRITRNG : 20
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Make an attack roll using the supplied       \
+\ Attack (ATT), Defense (DEF), and Roll (ROLL) \
+function: attack ATT ROLL:n vs DEF:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRNG {
+  if ROLL + ATT >= DEF { result: CRIT }
+  result: HIT
+ }
+ if ROLL + ATT >= DEF { result: HIT }
+
+ result: MISS
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Deal damage using method HITMODE             \
+function: deal HITMODE:n damage {
+ if HITMODE=0 {result: [deal miss damage]}
+ if HITMODE=1 {result: [deal hit damage]}
+ if HITMODE=2 {result: [deal crit damage]}
+ result: 99999
+}
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\ Damage functions                             \
+function: deal miss damage {
+ result: 0
+}
+
+function: deal hit damage {
+ BONUS: 0
+ result: PWRDMG + BONUS
+}
+
+function: deal crit damage {
+ BONUS: 4d6
+ result: [maximum of [deal hit damage]] + BONUS
+}
+
+output [deal [attack ATTACK 1d20 vs DEFENSE] damage] named "Gloaming Cut +[ATTACK] vs AC [DEFENSE]"

@@ -1,0 +1,48 @@
+
+function: atlomic DICE:s{
+  CRIT: 0
+  \if [count {6} in DICE] > 1 {CRIT: 10}\
+  result: [count {4,5,6} in DICE ] + CRIT
+}
+
+function: atlomicopp A:s vs B:s{
+  AS: [count {4,5,6} in A ]
+  BS: [count {4,5,6} in B ]
+  RES: AS-BS
+  if RES > 4 {RES:4}
+  if RES < -4 {RES: -4}
+  result: RES
+}
+
+function: yze DICE:s{
+  result: [count {6} in DICE ] 
+}
+
+function: blades ROLL:s {
+ if 1@ROLL = 6 {
+  result: 1 + [count {6} in ROLL]
+  \result: 2 + (2@ROLL = 6)\
+ }
+ result: 1@ROLL >= 4
+}
+function: pbta ROLL:n and BONUS:n{
+ if ROLL + BONUS >= 13 {
+  result: 3
+ }
+ if ROLL + BONUS >= 10 {
+  result: 2
+ }
+ result: ROLL + BONUS >= 7
+}
+
+
+loop P over {1..6}{
+  N: 5
+  R: P
+  B: 3
+  \output [pbta 2d6 and N] named "pbta [N]"\
+  \if P = 0 {output [atlomic [lowest 1 of 2d6]] named "atlomic 0"}else{output [atlomic Pd6] named "atlomic [P]"}\
+  if P = 0 {output [atlomicopp [lowest 1 of 2d6] vs Bd6] named "atlomic opposed 0 vs [B]"}else{output [atlomicopp Pd6 vs Bd6] named "atlomic opposed [P] vs [B]"}
+  \if P = 0 {output [yze [lowest 1 of 2d6]] named "yze 0"}else{output [yze Pd6] named "yze [P]"}\
+  \if R = 0 {output [blades [lowest 1 of 2d6]] named "blades 0"}else{output [blades Rd6] named "blades [R]"}\
+}

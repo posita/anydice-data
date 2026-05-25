@@ -1,0 +1,128 @@
+TRUE: 1
+FALSE: 0
+
+   COMMON: 1     COMMON_MAX: 80
+ UNCOMMON: 2   UNCOMMON_MAX: 400
+     RARE: 3       RARE_MAX: 4000
+VERY_RARE: 4  VERY_RARE_MAX: 40000
+LEGENDARY: 5  LEGENDARY_MAX: 200000
+
+   COMMON_REQ: -2     COMMON_BASE: 1
+ UNCOMMON_REQ: 2    UNCOMMON_BASE: 5
+     RARE_REQ: 6        RARE_BASE: 50
+VERY_RARE_REQ: 10  VERY_RARE_BASE: 500
+LEGENDARY_REQ: 14  LEGENDARY_BASE: 2500
+
+   COMMON_DC: 10     COMMON_INC: 1
+ UNCOMMON_DC: 15   UNCOMMON_INC: 5
+     RARE_DC: 20       RARE_INC: 50
+VERY_RARE_DC: 25  VERY_RARE_INC: 500
+LEGENDARY_DC: 30  LEGENDARY_INC: 2500
+
+HOURS_SPENT_DIE: 1d8
+HOURS_SPENT_TARGET: 8
+
+SKILL_DIE: 1d20
+
+SHOP_MULT: 2
+
+function: itemtocostmax ITEM:n {
+ if ITEM = COMMON { result: COMMON_MAX }
+ else if ITEM = UNCOMMON { result: UNCOMMON_MAX }
+ else if ITEM = RARE { result: RARE_MAX }
+ else if ITEM = VERY_RARE { result: VERY_RARE_MAX }
+ else if ITEM = LEGENDARY { result: LEGENDARY_MAX }
+ result: -1
+}
+
+function: skilllevel ITEM:n skill SKILL:n {
+ SKILL_VAL: [skillleveltoitem SKILL]
+ result: [itemtolevelresult [lowest of ITEM and SKILL_VAL]]
+}
+
+function: skillleveltoitem SKILL:n {
+ if SKILL >= LEGENDARY_REQ { result: LEGENDARY }
+ else if SKILL >= VERY_RARE_REQ { result: VERY_RARE }
+ else if SKILL >= RARE_REQ { result: RARE }
+ else if SKILL >= UNCOMMON_REQ { result: UNCOMMON }
+ else if SKILL >= COMMON_REQ { result: COMMON }
+ result: COMMON
+}
+
+function: itemtolevelresult ITEM:n {
+ if ITEM = COMMON { result: COMMON_BASE }
+ else if ITEM = UNCOMMON { result: UNCOMMON_BASE }
+ else if ITEM = RARE { result: RARE_BASE }
+ else if ITEM = VERY_RARE { result: VERY_RARE_BASE }
+ else if ITEM = LEGENDARY { result: LEGENDARY_BASE }
+ result: -1
+}
+
+function: skillcheck ITEM:n skill SKILL:n {
+ SKILL_VAL: [skillchecktoitem SKILL + SKILL_DIE]
+ result: [itemtocheckresult [lowest of ITEM and SKILL_VAL]]
+}
+
+function: skillchecktoitem SKILL:n {
+ if SKILL >= LEGENDARY_DC { result: LEGENDARY }
+ else if SKILL >= VERY_RARE_DC { result: VERY_RARE }
+ else if SKILL >= RARE_DC { result: RARE }
+ else if SKILL >= UNCOMMON_DC { result: UNCOMMON }
+ result: COMMON
+}
+
+function: itemtocheckresult ITEM:n {
+ if ITEM = COMMON { result: COMMON_INC }
+ else if ITEM = UNCOMMON { result: UNCOMMON_INC }
+ else if ITEM = RARE { result: RARE_INC }
+ else if ITEM = VERY_RARE { result: VERY_RARE_INC }
+ else if ITEM = LEGENDARY { result: LEGENDARY_INC }
+ result: -1
+}
+
+function: workfocus HOURS:n {
+ result: ((HOURS + HOURS_SPENT_DIE) > HOURS_SPENT_TARGET) + 1
+}
+
+function: shop SHOP:n {
+ if SHOP { result: SHOP_MULT }
+ else { result: 1 }
+}
+
+function: work ITEM:n hours HOURS:n skill SKILL:n shop SHOP:n assist ASSIST:n {
+ \ Hours * Hours spent Mult * Skill Mult * Shop Mult * Assistant Mult \
+ result: HOURS*[workfocus HOURS]*[shop SHOP]*([skilllevel ITEM skill SKILL] + [skillcheck ITEM skill SKILL])
+}
+
+ITEM_RANGE: {COMMON, UNCOMMON, RARE, VERY_RARE, LEGENDARY}
+HOUR_RANGE: {1}
+EXPERTISE_RANGE: {FALSE}
+ABILITY_RANGE: {5,7,9,11,13,15}
+PROF_RANGE: {0}
+WORKSHOP_RANGE: {FALSE}
+ASSISTANCE_RANGE: {0}
+
+\
+loop ITEM over ITEM_RANGE {
+ loop HOURS over HOUR_RANGE {
+  loop EXPERTISE over EXPERTISE_RANGE {
+   loop PROF over PROF_RANGE {
+    loop ABILITY over ABILITY_RANGE {
+     loop WORKSHOP over WORKSHOP_RANGE {
+      loop ASSISTANCE over ASSISTANCE_RANGE {
+       SKILL: ABILITY + PROF * EXPERTISE + PROF
+       output [itemtocostmax ITEM] / [work ITEM hours HOURS skill SKILL shop WORKSHOP assist ASSISTANCE] named "Item:[ITEM] Hours: [HOURS] Skill:[SKILL] Shop:[WORKSHOP] Assist:[ASSISTANCE]"
+      }
+     }
+    }
+   }
+  }
+ }
+}
+\
+
+loop SKILL over {1..10} {
+loop ITEM over {COMMON} {
+ output [skillcheck ITEM skill SKILL]
+}
+}

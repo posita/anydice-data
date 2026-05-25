@@ -1,0 +1,37 @@
+function: exito D:n TARGET:n{
+  if D <= TARGET{ result: D}
+  result: 0
+}
+
+function: roll D:n TECNICA:n ESFUERZO:n INCOMPETENCIA:n{
+if TECNICA = 0 { TECNICA: 1 }
+   RES: [exito D TECNICA]
+   if RES >= 1{
+      loop N over {0..ESFUERZO}{
+         RES: RES + [exito 1d6 TECNICA]
+      }
+   }
+   result: RES
+}
+
+function: accion TECNICA:n ESFUERZO:n AFINIDAD:n DIFICULTAD:n{
+  X: 0
+  INCOMPETENCIA: 0
+  loop N over {1..3 + ESFUERZO + AFINIDAD}{
+     X: X + [roll 1d6 TECNICA ESFUERZO INCOMPETENCIA]
+  }
+
+  result: X >= DIFICULTAD
+}
+
+DIFICULTAD: 10
+loop AFINIDAD over {0..3}{
+   loop TECNICA over {0..3}{
+      loop ESFUERZO over {0..3}{
+         output [accion TECNICA ESFUERZO AFINIDAD DIFICULTAD] named "Dificultad [DIFICULTAD], Técnica [TECNICA], Esfuerzo [ESFUERZO] y Afinidad [AFINIDAD]"
+      }
+   }
+}
+
+
+

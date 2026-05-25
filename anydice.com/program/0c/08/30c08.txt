@@ -1,0 +1,33 @@
+function: attackdamage ATTACKROLL:n ATTACKMOD:n AC:n DAMAGE_DICE:d  {
+  if (ATTACKROLL = 20) { result: DAMAGE_DICE + DAMAGE_DICE }
+  else if ((ATTACKROLL + ATTACKMOD) >= AC) { result: DAMAGE_DICE  }
+  else { result: 0}
+}
+
+function: attackroll with advantage ADV:n {
+  if (ADV > 0) { result: [ highest 1 of 2d20 ] }
+  else if (ADV < 0) { result: [ lowest 1 of 2d20 ] }
+  else { result: 1d20 }
+}
+
+AC: 15
+
+
+\
+output [attackroll with advantage 0 ] named "normal"
+output [attackroll with advantage 1 ] named "advantage"
+output [attackroll with advantage -1 ] named "disadvantage"
+output [attackroll with advantage 0 ] + 1d4 named "normal plus 1d4"
+output [attackroll with advantage 1 ] + 1d4 named "advantage plus 1d4"
+output [attackroll with advantage -1 ] + 1d4 named "disadvantage plus 1d4"
+\
+
+output [attackdamage [attackroll with advantage 0 ] (6 + 0) AC (1d12 + 3)] named "damage"
+output [attackdamage [attackroll with advantage 0 ] (6 + 1d4) AC (1d12 + 3)] named "damage with attack die"
+
+
+
+\
+output [attackdamage [attackroll with advantage 0 ] AC 1d12] named "1d12"
+output [attackdamage [attackroll with advantage 0 ] AC 2d6] named "2d6"
+\

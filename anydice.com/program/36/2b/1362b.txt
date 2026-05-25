@@ -1,0 +1,42 @@
+DICE: 4
+MAXDEPTH: 2
+\Calculate successes for Shadowrun, with Glitch probabilities (ones*2 > hits)\
+\A result of -999 means a Critical Glitch (0 hits)\
+\Negative results mean X hits but with a Glitch\
+\Positive results are numbers of hits\
+\MAXDEPTH is how many recursions of Exploding Dice are allowed\
+\With high pools, use lower depth (loss of precision, but less risk of timing out)\
+\With low pools, you can increase the depth\
+\All hail Catlike Coding!\
+
+function: explode N:n plus X {
+ if N = 6 { result: [explode d6 plus X + 1] }
+ if N = 5 { result: X + 1 }
+ if N = 1 {
+  if X { result: -X }
+  result: -100
+ }
+ result: X
+}
+
+function: parse ROLL:s {
+ ONES: 0
+ HITS: 0
+ loop N over ROLL {
+  if N > 0 { HITS: HITS + N }
+  else if N = -100 { ONES: ONES + 1 }
+  else if N < 0 {
+   HITS: HITS - N
+   ONES: ONES + 1
+  }
+ }
+ if ONES * 2 > HITS {
+  if HITS { result: -HITS }
+  result: -999
+ }
+ result: HITS
+}
+
+set "maximum function depth" to MAXDEPTH
+D: [explode d6 plus 0]
+output [parse DICEdD]

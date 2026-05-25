@@ -1,0 +1,25 @@
+function: attack ATK:n DIE:n DMG:n MOD:n{
+  if ATK = 20 {result: (2*DIE)dDMG+MOD}
+  if ATK = 1 {result: 0}
+  result: DIEdDMG+MOD
+}
+
+function: greaterthan SWITCH:n VALUE:n YES:n NO:n ADD:n{
+  if SWITCH > VALUE {result: YES}
+  if NO = -1 {result: SWITCH+ADD}
+  result: NO
+}
+
+BITE: [attack 1d20 4 12 10]
+CLAW: [attack 1d20 4 8 10]
+HORN: [attack 1d20 4 10 10]
+TAIL: [attack 1d20 4 6 10]
+CRITTAIL: [attack 20 4 6 10]
+
+HP: 40
+WSHP: 45
+DEAD: 120
+
+output [greaterthan BITE/2+CLAW/2+CLAW/2+HORN/2 HP+WSHP-1 [greaterthan CRITTAIL HP-1 DEAD 0 0] 0-1 TAIL/2] named "Near"
+output [greaterthan BITE/2+CLAW/2+CLAW/2+HORN/2 HP+WSHP-1 [greaterthan TAIL HP-1 DEAD 0 0] 0-1 TAIL/2] named "Far"
+output HP+WSHP named "Wherever you are"

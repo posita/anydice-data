@@ -1,0 +1,34 @@
+\
+\\ Polyhedrals Roll Below Target Number
+\
+
+
+\ Variables \
+DICE: {4,6,8}
+
+
+\ Recursive function for the dice roll \
+function: for NUM:n of ROLL:n reroll VUL:n as DIE:d if BNS:n {
+  \ Handle rerolls if theres bonus damage \
+  if ROLL >= VUL & BNS > 0 {
+   result: [for NUM of DIE reroll VUL as DIE if (BNS-1)] 
+  }
+  \ Move on to next die in pool \
+  if NUM > 1 {
+   result: (ROLL < VUL) + [for NUM-1 of DIE reroll VUL as DIE if BNS]
+  }
+
+  \ Return damage result, remaining bonus damage included \
+  result: (ROLL < VUL) + BNS
+}
+
+\ Loops to test a variety of combinations \
+loop DIE over DICE{
+ loop NUMBER over {4}{
+  loop BONUS over {1}{
+   loop VULNERABILITY over {2}{
+    output [for NUMBER of dDIE reroll VULNERABILITY as dDIE if BONUS] named "Damage Dice: [NUMBER]d[DIE] + Bonus Damage:[BONUS] vs [VULNERABILITY]"
+   }
+  }
+ }
+}

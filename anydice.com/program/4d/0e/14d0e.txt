@@ -1,0 +1,44 @@
+AC: d{10..20}
+ARCHERY_STYLE: 2
+NORMAL: d20
+ADVANTAGE: 1@2d20
+ELVEN_ACCURACY: 1@3d20
+
+function: attack DMG:d crit CRIT_DMG:d penalty PENALTY:n rider RIDER:n dex DEX:n roll ROLL:n against AC:n{
+    PROFICIENCY: ((LEVEL-1)/4) + 2    
+    MODIFIER: (DEX-10)/2
+    DMG_WITH_BONUS: DMG + MODIFIER + RIDER
+	
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        result: DMG_WITH_BONUS + CRIT_DMG
+    }
+    if ROLL + MODIFIER + PROFICIENCY - PENALTY + ARCHERY_STYLE  >= AC {
+        result: DMG_WITH_BONUS
+    }
+    result: 0
+}
+
+function: longbow DEX:n dex roll ROLL:n against AC:n {
+    result: [attack 1d8 crit 1d8 penalty 0 rider 0 dex DEX roll ROLL against AC]
+}
+
+function: sharpshooter longbow DEX:n dex roll ROLL:n against AC:n {
+    result: [attack 1d8 crit 1d8 penalty 5 rider 10 dex DEX roll ROLL against AC]
+}
+
+LEVEL: 1
+output [longbow 17 dex roll ADVANTAGE against AC] named "Level [LEVEL] w/ Advantage"
+
+LEVEL: 4
+output [longbow 18 dex roll NORMAL against AC] named "Level [LEVEL] Elven Accuracy w/o Advantage"
+output [sharpshooter longbow 17 dex roll NORMAL against AC] named "Level [LEVEL] Sharpshooter w/o Advantage"
+output [longbow 18 dex roll ELVEN_ACCURACY against AC] named "Level [LEVEL] Elven Accuracy w/ Advantage"
+output [sharpshooter longbow 17 dex roll ADVANTAGE against AC] named "Level [LEVEL] Sharpshooter w/ Advantage"
+
+LEVEL: 5
+output 2d[longbow 18 dex roll ELVEN_ACCURACY against AC] named "Level [LEVEL] Elven Accuracy w/ Advantage"
+output 2d[sharpshooter longbow 17 dex roll ADVANTAGE against AC] named "Level [LEVEL] Sharpshooter w/ Advantage"
+

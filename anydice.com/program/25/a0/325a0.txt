@@ -1,0 +1,55 @@
+\Rogue 1.4.8 random monster generator\
+\There are two used, level monsters and roaming monsters\
+function: cap A:s {
+  if A >= 5 {
+    result: 4
+  }
+  if A <= 1 {
+    result: 2
+  }
+  result: A
+}
+
+\loop FLOOR_NUMBER over {1..26}{\
+\  MONSTER_LEVEL: 1d6 + 1d7 - 5\
+\ if MONSTER_LEVEL < 1{\
+\   MONSTER_LEVEL: 1d6 + 1\
+\ }\
+\ if MONSTER_LEVEL > 26{\
+\   MONSTER_LEVEL: 1d6 + 22\
+\ }\
+\ MONSTER_LEVEL: MONSTER_LEVEL - 1\
+\  output MONSTER_LEVEL named "[FLOOR_NUMBER]"\
+
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+function: lowest of A:n and B:n {
+ if A < B { result: A }
+ result: B
+}
+
+function: get reroll for monsters ROLL:s {
+  REROLL: d{0..4} + 1
+  if ROLL < 1 {
+    result: REROLL
+  }
+  result: ROLL
+}
+function: roll for monsters on floor FLOOR:n {
+  ROLL: FLOOR + d{0..4} + d{0..5} - 5
+  REROLL: [get reroll for monsters ROLL]
+  ROLL: REROLL
+  result: ROLL
+}
+function: get floor monster for ROLL:n {
+  result: ROLL
+}
+
+function: monsters per floor {
+  ROLL: [roll for monsters on floor 1]
+  MONSTER: [get floor monster for ROLL]
+  result: MONSTER
+}
+output [monsters per floor]

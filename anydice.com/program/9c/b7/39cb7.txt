@@ -1,0 +1,35 @@
+function: oracle REQUIRED:n DICE:d {
+    result: [count {4, 5, 6} in DICE] >= REQUIRED
+}
+
+function: exceptional yes DICE:d {
+    result: [count 6 in DICE] = 2
+}
+
+function: exceptional no DICE:d {
+    result: [count 1 in DICE] = 2
+}
+
+function: undecided fate DICE:d {
+    NO: [count 1 in DICE] = 2
+    YES: [count 6 in DICE] = 2
+    result: YES + NO = 2
+}
+
+function: countset SET:n in ROLL:s {
+ MATCHES: 0 
+ loop X over {1..6}{
+  if [count X in ROLL] >= SET { MATCHES: MATCHES + 1 }
+ }
+ result: MATCHES >= 1
+}
+
+output [oracle 1 4d6] named "Very Likely"
+output [oracle 2 4d6] named "Likely"
+output [oracle 3 4d6] named "Unlikely"
+output [oracle 4 4d6] named "Very Unlikely"
+output [exceptional yes 4d6] named "Exceptional Yes"
+output [exceptional no 4d6] named "Exceptional No"
+output [countset 3 in 4d6] named "Interrupt"
+output [countset 4 in 4d6] named "Exceptional Interrupt"
+output [undecided fate 4d6] named "Undecided Fate"

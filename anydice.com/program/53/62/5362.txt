@@ -1,0 +1,47 @@
+\
+This is a program written by giantitp user AttilaTheGeek to test the outcome of a party of four 20th-level wild magic sorcerers blasting with Disintegrate against Tiamat. The sorcerers have a 27.67% chance of defeating her: this can be seen by calculating this code, switching the data to "at least", and scrolling down to see the probability of dealing at least 615 damage.
+
+This simulation ignores Tiamat's legendary actions, assumes she eats one party member on her turn, and assumes she uses her Legendary Resistance to automatically save against the first three spells cast. Note that Tiamat already has advantage on all saves against spells, so the Heightened Spell metamagic merely removes that advantage instead of granting disadvantage.
+
+She has a 25% chance to take damage from each quickened Disintegrate (+9 Dex save vs. DC 19 with advantage), which is represented by the ([highest of 1d4-3 and 0]) term. Each sorcerer uses their Bend Luck feature to give her a 1d4 penalty on her save against their heightened spell. Her probability of taking damage from it is represented by the [damageprob] function, which returns 1 if she fails the save and 0 if she succeeds. 9th-level Disintegrates deal 19d6+40, 8th-level ones deal 16d6+40, and 7th-level ones deal 13d6+40. 
+
+All spells cast are Disintegrate, so I use the shorthand "7th" for one in a 7th-level slot, "8th" for 
+one in an 8th-level slot, and "9th" for one in a ninth-level slot.
+\
+
+function: damageprob {
+  result: 1-[lowest of 1 and [highest of 1d20+9-1d4-19 and 0]]
+}
+
+output 
+\ Round one  \
+\ Sorcerer A \
+      \Quickened 7th: resisted\ 0 +
+      \7th : resisted         \ 0 +
+\ Sorcerer B \
+      \Quickened 7th: resisted\ 0 +
+      \Heightened 9th:        \ [damageprob] * (19d6+40) +
+\ Sorcerer C \ 
+      \Quickened 8th:         \ ([highest of 1d4-3 and 0]) * (16d6+40) + 
+      \Heightened 9th:        \ [damageprob] * (19d6+40) +
+\ Sorcerer D \ 
+      \Quickened 8th:         \ ([highest of 1d4-3 and 0]) * (16d6+40) + 
+      \Heightened 9th:        \ [damageprob] * (19d6+40) +
+
+\ Round two  \
+\ Because one sorcerer at random is eaten, damage for this round is multiplied by 0.75.\
+[lowest of 1 and [highest of 1d4-1 and 0]] \returns 0.75\ * (
+
+\ Sorcerer A \ 
+      \Quickened 8th:         \ ([highest of 1d4-3 and 0]) * (16d6+40) + 
+      \Heightened 9th:        \ [damageprob] * (19d6+40) +
+\ Sorcerer B \ 
+      \Quickened 7th:         \ ([highest of 1d4-3 and 0]) * (13d6+40) + 
+      \Heightened 8th:        \ [damageprob] * (16d6+40) +
+\ Sorcerer C \ 
+      \Quickened 7th:         \ ([highest of 1d4-3 and 0]) * (13d6+40) + 
+      \Heightened 7th:        \ [damageprob] * (13d6+40)+
+\ Sorcerer D \ 
+      \Quickened 7th:         \ ([highest of 1d4-3 and 0]) * (13d6+40) + 
+      \Heightened 7th:        \ [damageprob] * (13d6+40)
+)

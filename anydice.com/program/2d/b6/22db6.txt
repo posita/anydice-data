@@ -1,0 +1,37 @@
+set "maximum function depth" to 24
+
+function: pre TIMES:n {
+  SUCCESSES: 0
+  loop N over {1..TIMES} {
+    SUCCESSES: SUCCESSES + [exp 1d6]
+  }
+  result: SUCCESSES
+}
+
+function: exp N:n {
+  SUCCESSES: 0
+  if N >= 5 { SUCCESSES: 1 }
+  if N = 6 { SUCCESSES: SUCCESSES + [exp 1d6] }
+  result: SUCCESSES
+}
+
+function: post TIMES:n {
+  SUCCESSES: 0
+  loop N over {1..TIMES} {
+    SUCCESSES: SUCCESSES + [reroll 1d6]
+  }
+  result: SUCCESSES
+}
+
+function: reroll N:n {
+  SUCCESSES: 0
+  if N >= 5 { SUCCESSES: 1 }
+  if N < 5  { SUCCESSES: SUCCESSES + (1d6 >= 5) }
+  result: SUCCESSES
+}
+
+POOL: 19
+EDGE: 4
+LIMIT: 10
+output [lowest of [post POOL] and LIMIT] named "Second Chance limit"
+output [lowest of [pre POOL+EDGE] and POOL+EDGE*3] named "pre-Push The Limit"

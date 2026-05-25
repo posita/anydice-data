@@ -1,0 +1,55 @@
+AC: 20
+ATTACK_BONUS: 10
+CRIT_RANGE: 20
+
+FLAT_DAMAGE: 8
+VAR_DAMAGE: 7
+
+
+
+GWM_DAMAGE: 10
+NORMAL_DAMAGE: FLAT_DAMAGE + VAR_DAMAGE
+CRIT_DAMAGE:   FLAT_DAMAGE + (2* VAR_DAMAGE) + GWM_DAMAGE
+CRIT_RATIO: CRIT_DAMAGE / NORMAL_DAMAGE
+GWM_RATIO:  (NORMAL_DAMAGE + GWM_DAMAGE) / NORMAL_DAMAGE
+
+GWM_RATIO: 2
+CRIT_RATIO: 3
+
+
+NORMAL_HIT: [highest 1 of 1d20]
+ADV_HIT: [highest 1 of 2d20]
+ELV_HIT: [highest 1 of 3d20]
+
+MISS: 0
+HIT: 1
+GWM_HIT: 2
+CRIT: 3
+
+function: hittype ROLL:n vs DELTA:n {
+ if ROLL >= CRIT_RANGE { result: CRIT }
+ if ((ROLL - DELTA - 5)>=0) {result: GWM_HIT}
+ if ((ROLL - DELTA)>=0) { result: HIT }
+ 
+ if ROLL = 1 { result: MISS }
+ result: MISS
+}
+
+function: applieddamage of CR and GR with ROLL:n vs DELTA:n {
+ HIT_TYPE: [hittype ROLL vs DELTA]
+
+ if (HIT_TYPE = MISS) { result: 0 }
+ if (HIT_TYPE = CRIT) { result: CR}
+ if (HIT_TYPE = GWM_HIT) { result: GR}
+ if (HIT_TYPE = HIT) { result: 1 }
+
+ result: HIT_TYPE
+}
+
+
+
+DELTA_HIT: (AC - ATTACK_BONUS)
+
+output [applieddamage of CRIT_RATIO and GWM_RATIO with NORMAL_HIT vs DELTA_HIT] named "normal"
+output [applieddamage of CRIT_RATIO and GWM_RATIO with ADV_HIT vs DELTA_HIT] named "advantage"
+output [applieddamage of CRIT_RATIO and GWM_RATIO with ELV_HIT vs DELTA_HIT] named "elven"

@@ -1,0 +1,25 @@
+\ point buy cost of a single ability score \
+\ source: http://www.d20pfsrd.com/basics-ability-scores/ability-scores/ \
+function: cost of SCORE:n {
+  if SCORE < 7 { result: -4 } \ assume that going below score 7 gives you no more points \
+  if SCORE > 18 { result: 1000000 }  \ make trying to go above 18 cost a million points \
+  result: (SCORE - 6) @ { -4, -2, -1, 0, 1, 2, 3, 5, 7, 10, 13, 17 }
+}
+
+\ point cost distributions for 6 stat arrays rolled with different methods \
+STANDARD: 6d[cost of [highest 3 of 4d6]]  \ standard (4d6 drop lowest) \
+CLASSIC: 6d[cost of 3d6]  \ classic (3d6) \
+
+\ optimized alternative to 1@(NdD) from https://rpg.stackexchange.com/a/176183 \
+function: highest of N:n x D:d {
+  if N = 0 { result: 0 }
+  if N = 1 { result: D }
+  RES: 1@2d[highest of N/2 x D]
+  if N - (N/2)*2 = 1 { RES: [highest of D and RES] }
+  result: RES
+}
+
+output STANDARD named "5e point cost of standard 4d6 drop lowest array"
+loop N over {1..10} {
+  output [highest of N x CLASSIC] named "highest 5e point cost of [N] classic 3d6 arrays"
+}

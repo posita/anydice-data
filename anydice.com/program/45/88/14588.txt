@@ -1,0 +1,46 @@
+G:10000
+A:01000
+S:00100
+B:00010
+E:00001
+RD:{A,S+S+E,S+E,S+E,S,0}
+GD:{G,B+B+E,B+E,B,0,0}
+OD:{S+B+E,S+S+E,B,S+B,S,0}
+UD:{S+B+E,B+B+E,B,S+B,S,0}
+YD:{S+B+E,S+E+E,B+E,E,E,0}
+BD:{B,B,B,0,0,0}
+
+\output d{RD}+d{OD} named "combo"\
+output [d{UD}+d{YD} contains 101] named "contains exactly"
+function: ROLL:s count successes {
+        ROLLD: ROLL
+        if #(ROLLD/1) >= 5 {result: 3@(ROLLD/1)}
+        if #(ROLLD/1) >= 4 {result: 2@(ROLLD/1)}
+        if #(ROLLD/1) >= 3 {result: 1@(ROLLD/1)}
+        result: 0}
+
+function: ROLL:s count blocks{
+        ROLLD:ROLL
+        if #(ROLLD/1) >= 5 {result: 4@(ROLLD/1)}
+        if #(ROLLD/1) >= 4 {result: 3@(ROLLD/1)}
+        if #(ROLLD/1) >= 3 {result: 2@(ROLLD/1)}
+        if #(ROLLD/1) >= 2 {result: 1@(ROLLD/1)}
+        result: 0
+}
+function: ROLL:s count exclamations{
+        ROLLD:ROLL
+        if #(ROLLD/1) >= 5 {result: 5@(ROLLD/1)}
+        if #(ROLLD/1) >= 4 {result: 4@(ROLLD/1)}
+        if #(ROLLD/1) >= 3 {result: 3@(ROLLD/1)}
+        if #(ROLLD/1) >= 2 {result: 2@(ROLLD/1)}
+        if #(ROLLD/1) >= 1 {result: 1@(ROLLD/1)}
+	result: ROLLD 
+}
+function: ROLL:s count A:n{
+        ROLLD:ROLL
+	result: ROLLD & A
+}
+output [d{RD}+d{OD} count 100] named "function "
+output [d{RD}+d{OD} count successes] named "function success"
+output [d{OD}+d{UD} count blocks] named "function blocks"
+output [d{RD}+d{OD}+d{YD} count exclamations] named "function exclamations"

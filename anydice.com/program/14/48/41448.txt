@@ -1,0 +1,76 @@
+function: dos DICE:n BONUS:n DC:n {
+DOS: 0
+if DICE + BONUS > DC + 10 {
+DOS: 2
+}
+else if DICE + BONUS > DC {
+DOS: 1
+}
+else if DICE + BONUS > DC - 10 {
+DOS: 0
+}
+else {
+DOS: -1
+}
+
+if DICE = 20 {
+DOS: DOS + 1
+}
+if DICE = 1 {
+DOS: DOS - 1
+}
+
+if DOS > 2 {
+DOS: 2
+}
+if DOS < -1 {
+DOS: -1
+}
+
+result: DOS
+}
+
+function: basic save DOS:n DAMAGE:n {
+if DOS = 2 {
+result: 0
+}
+if DOS = 1 {
+result: DAMAGE / 2
+}
+if DOS = 0 {
+result: DAMAGE
+}
+result: DAMAGE * 2
+}
+
+function: strike DOS:n DAMAGE:n {
+if DOS = 2 {
+result: DAMAGE * 2
+}
+if DOS = 1 {
+result: DAMAGE
+}
+result: 0
+}
+
+function: damage over targets DAMAGE:d TARGETS:n {
+TOTAL: 0
+loop N over {1..TARGETS} {
+TOTAL: TOTAL + DAMAGE
+}
+result: TOTAL
+}
+
+output [strike [dos d20 17 23] (2d6 + (1d6 * 2) + 6 + 4)]
+output [strike [dos d20 17 23] (2d6 + (1d6 * 2) + 6 + 8)]
+
+NUM_ENEMIES: 3
+ENEMY_SAVE: 14
+SPELL_DC: 24
+DAMAGE_PER_ENEMY: 4d4
+
+DOS_PER_ROLL: [dos d20 ENEMY_SAVE SPELL_DC]
+DAMAGE_PER_ROLL: [basic save DOS_PER_ROLL DAMAGE_PER_ENEMY]
+TOTAL_DAMAGE: [damage over targets DAMAGE_PER_ROLL NUM_ENEMIES]
+
+output TOTAL_DAMAGE

@@ -1,0 +1,95 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ ATTACK: PROF_MOD + STR_MOD + MAGIC_WEP_HIT_MOD
+ if ROLL = 1 { result: MISS }
+ \if ROLL = 60 { result: CRITICALHIT*3 }\
+ \if ROLL > 39 { result: CRITICALHIT*2 }\
+ if ROLL >= CRIT_ON { result: CRITICALHIT }
+  
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+
+function: damage for ATTACKS:s {
+ D: 0
+ DAMAGE: (DAMAGE_DIE * DAMAGE_DICE)
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = CRITICALHIT { D: D + (DAMAGE_DICE*2)d(DAMAGE_DIE) + STR_MOD + MAGIC_WEP_DMG_MOD }
+  if A@ATTACKS = (CRITICALHIT*2) { D: D + [maximum of (DAMAGE_DICE*4)d(DAMAGE_DIE)] + (STR_MOD*PROF_MOD*2*4) + MAGIC_WEP_DMG_MOD }
+  if A@ATTACKS = (CRITICALHIT*3) { D: D + [maximum of (DAMAGE_DICE*10)d(DAMAGE_DIE)] + (STR_MOD*PROF_MOD*2*10) + MAGIC_WEP_DMG_MOD }
+  else if A@ATTACKS = HIT { D: D + (DAMAGE_DICE)d(DAMAGE_DIE) + STR_MOD + MAGIC_WEP_DMG_MOD }
+ }
+ result: D
+}
+
+function: reroll DIE:d {
+ result: [reroll DIE helper]
+}
+
+function: reroll N:n helper {
+ if N < 3 { result: [highest of N and DIE] }
+ result: N
+}
+
+function: damage with great weapon master for ATTACKS:s {
+ D: 0
+ loop A over {1..#ATTACKS} {
+  if A@ATTACKS = CRITICALHIT { D: D + (DAMAGE_DICE*2)d[reroll DAMAGE_DIE] + STR_MOD + MAGIC_WEP_DMG_MOD }
+  if A@ATTACKS = (CRITICALHIT*2) { D: D + [maximum of (DAMAGE_DICE*4)d(DAMAGE_DIE)] + (STR_MOD*PROF_MOD*2*4) + MAGIC_WEP_DMG_MOD }
+  if A@ATTACKS = (CRITICALHIT*3) { D: D + [maximum of (DAMAGE_DICE*10)d(DAMAGE_DIE)] + (STR_MOD*PROF_MOD*2*10) + MAGIC_WEP_DMG_MOD }
+  else if A@ATTACKS = HIT { D: D + (DAMAGE_DICE)d[reroll DAMAGE_DIE] + STR_MOD + MAGIC_WEP_DMG_MOD }
+ }
+ result: D
+}
+
+
+
+
+\BASICS OF CHARACTER\
+DEFENSE: 19 \SET TO AC of MOB\
+PROF_MOD  : 6
+STR_MOD: 5
+MAGIC_WEP_HIT_MOD: 0
+CRIT_ON: 18
+
+\CRIT AND MISS BREAKDOWN\
+output [attack [explode d20] vs DEFENSE] named "D20 breakdown. Miss, hit, crit, double crit, triple crit"
+
+\LONGSWORD\
+DAMAGE_DIE  : d10
+DAMAGE_DICE: 1
+MAGIC_WEP_HIT_MOD: 0
+MAGIC_WEP_DMG_MOD: 0
+
+function: strike {
+  result: [attack [explode d20] vs DEFENSE]
+}
+
+function: strike with advantage {
+  result: [attack [highest of [explode d20] and [explode d20]] vs DEFENSE]
+}
+function: strike with disadvantage {
+  result: [attack [lowest of [explode d20] and [explode d20]] vs DEFENSE]
+}
+
+
+output 3d[damage for [strike]] named "Duel Wield +2 Longswords"
+output 3d[damage for [strike with advantage]] named "Duel Wield +2 Longswords (ADVANTAGE)"
+output 3d[damage for [strike with disadvantage]] named "Duel Wield +2 Longswords (DISADVANTAGE)"
+
+\GREATSWORD\
+DAMAGE_DIE  : d6
+DAMAGE_DICE: 2
+MAGIC_WEP_HIT_MOD: 1
+MAGIC_WEP_DMG_MOD: 1
+
+
+output 2d[damage with great weapon master for [strike]] named "+2 Claymore"
+output 2d[damage with great weapon master for [strike with advantage]] named "+2 Claymore (ADVANTAGE)"
+output 2d[damage with great weapon master for [strike with disadvantage]]  named "+2 Claymore (DISADVANTAGE)"
+

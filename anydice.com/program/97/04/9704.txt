@@ -1,0 +1,29 @@
+\This program calculates Exalted odds for the results for a single die depending on what your dice trick charms do\
+
+TARGETNUMBER: 7
+
+function: normal ROLL:s doubling DOUBLE:n {
+ result: (ROLL >= DOUBLE) + (ROLL >= TARGETNUMBER)
+}
+
+function: explode ROLL:s on EXPLODE:n doubling DOUBLE:n {
+ if ROLL >= EXPLODE {result: [normal ROLL doubling DOUBLE] + [explode 1d10 on EXPLODE doubling DOUBLE]}
+ result: [normal ROLL doubling DOUBLE]
+}
+
+function: reroll ROLL:n on AGAIN:n doubling DOUBLE:n {
+ if ROLL != AGAIN {result: [normal ROLL doubling DOUBLE]}
+}
+
+output [normal 1d10 doubling 10] named "Normal Roll"
+output [normal 1d10 doubling 9] named "Double 9s"
+output [normal 1d10 doubling 8] named "Double 8s"
+output [normal 1d10 doubling 7] named "Double 7s"
+
+set "maximum function depth" to 4
+output [explode 1d10 on 10 doubling 10] named "10 Again"
+output [explode 1d10 on 9 doubling 10] named "9 Again"
+output [explode 1d10 on 8 doubling 10] named "8 Again"
+output [explode 1d10 on 7 doubling 10] named "7 Again"
+
+output [reroll 1d10 on 6 doubling 10] named "Reroll 6s"

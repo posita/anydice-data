@@ -1,0 +1,25 @@
+set "maximum function depth" to 5
+
+\ 0=botch; 7=critical success \
+function: resolve POS:s NEG:s PI:n NI:n {
+  if PI > #POS {
+    result: 0
+  }
+  if NI > #NEG {
+    result: PI@POS
+  }
+  if PI@POS != NI@NEG {
+    if PI < #POS {
+      if (PI+1)@POS = 6 { result: 7 }
+      result: PI@POS
+    }
+    result: PI@POS
+  }
+  result: [resolve POS NEG (PI+1)(NI+1)]
+}
+
+loop P over {1..4} {
+  loop N over {0..3} {
+    output [resolve Pd6 Nd6 1 1] named "+[P] -[N]"
+  }
+}

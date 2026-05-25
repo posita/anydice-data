@@ -1,0 +1,23 @@
+\ A variant of exploding dice, where you replace the maximum result of one die with two new dice. \
+\ Right up to this moment, things doesn't work like it should be. \
+
+NUMBEROFDICES: 2                    \ THESE TWO ARE THE ONLY... \
+DIETYPE: d6                         \ ...VARIABLES THAT YOU HAVE TO CHANGE \
+SUM: 0                              \ Just to make this variable global \
+set "maximum function depth" to 7   \ Otherwise the calculator will be showing the wrong median \
+
+function: ob NUMBER:n of DIE:d {    \ ~ main program ~ \
+  MAX: [maximum of DIE]
+  loop N over {1..NUMBER} {
+    if (#{SUM}) > 100 { result: SUM }   \ A roof, so it wont calculate forever. \
+    SUM: SUM + [checkmax DIE]
+  }
+  result: SUM
+}
+
+function: checkmax ROLL:n {         \ checks if the highest result is rolled \
+  if ROLL = MAX { result: [ob 2 of d6] }
+  else { result: ROLL }
+}
+                                    \ the output from the main program \
+output [ob NUMBEROFDICES of DIETYPE] named "OB[NUMBEROFDICES][DIETYPE], median -->"

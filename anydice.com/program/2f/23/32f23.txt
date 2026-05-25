@@ -1,0 +1,31 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+function: repeatreroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: [reroll {1} on d6 to d6]
+    }
+    result: ROLL
+}
+
+
+function: loopreroll REROLL:s on ROLL:n to REPLACENTEM:d times REPEAT:n{
+    if [REROLL contains ROLL] {
+      loop P over {1..REPEAT} {
+        result: [loopreroll {1} on d6 to d6 times REPEAT-1]
+      }
+    }
+  result: ROLL
+}
+
+TIMES: 3
+output [loopreroll {1} on d6 to d6 times TIMES] named "[TIMES] rerolls 1s on a d6"
+output 2d [loopreroll {1} on d6 to d6 times TIMES] named "[TIMES] rerolls 1s on a d6 doubled"
+output [loopreroll {1} on 2d6 to 2d6 times TIMES] named "[TIMES] rerolls 1s on 2d6"
+
+output [repeatreroll {1} on d6 to d6] named "double rerolls 1s on a d6"
+output [reroll {1} on d6 to d6] named "reroll 1s on a d6"
+output 2d[reroll {1} on d6 to d6] named "reroll 1s on 2d6"

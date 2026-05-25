@@ -1,0 +1,61 @@
+WHITEA:  d{0,0,0,0,0,99,1,1}
+BLACKA:  d{0,0,0,99,1,1,1,1}
+REDA:    d{0,99,1,1,1,1,1,1}
+
+\ REMOVE: This should always be set to 1. \
+\ SURGE: If the model or unit has surge, set this to 1, otherwise set it to 0. \
+\ PRECISE: number of rerolls (amount of precision). \
+\ AMOUNT: Amount of dice rolled (number of models or dice on weapon). \
+\ DICE: Type of dice being rolled. \
+\ ROLL: The total amount of dice rolled. \
+
+function: attack REMOVE:n SURGE:n PRECISE:n AMOUNT:n DICE:d ROLL:n{
+REMOVAL:99
+if SURGE=1 & REMOVE=1 {REMOVAL:98}
+loop X over {1..AMOUNT}{
+if ROLL >= 99 {ROLL: ROLL - REMOVAL}
+}
+
+if ROLL < AMOUNT & PRECISE > 0 {result: [attack 0 SURGE PRECISE-1 AMOUNT DICE ROLL+1dDICE]}
+result: ROLL
+}
+
+function: remove A:n ROLL:n{
+loop X over {1..A}{
+if ROLL >= 7 {ROLL: ROLL - 6}
+}
+result: ROLL
+}
+
+\ attack REMOVE SURGE PRECISE AMOUNT DICE ROLL \
+output [attack 1      0     0       10     1dBLACKA 4dBLACKA+6dWHITEA] named "Rebel Troopers (4 models) + Z-6"
+output [attack 1 0 0 6 1dREDA 6dREDA] named "Darth Vader"
+output [attack 1 1 2 4 1dBLACKA 4dBLACKA] named "4 Deathtroopers"
+output [attack 1 1 0 8 1dWHITEA 8dWHITEA] named "4 Pathfinders"
+output [attack 1 1 0 4 1dREDA 4dREDA] named "4 Pathfinders Short"
+output [attack 1 1 0 4 1dBLACKA 4dBLACKA] named "4 Vets"
+output [attack 1 1 0 5 1dBLACKA 5dBLACKA] named "5 Vets"
+output [attack 1 1 0 6 1dBLACKA 6dBLACKA] named "Luke Skywalker Lightsaber"
+output [attack 1 1 0 2 1dREDA 2dREDA] named "Luke Skywalker Blaster"
+output [attack 1 0 0 4 1dBLACKA 4dBLACKA] named "Rebel Troopers (4 models)"
+output [attack 1 0 0 5 1dBLACKA 5dBLACKA] named "Rebel Trooper (5 models)"
+output [attack 1 1 0 8 1dWHITEA 8dWHITEA] named "Fleet Troopers (4 models)"
+output [attack 1 1 0 10 1dWHITEA 10dWHITEA] named "FleetTrooper (5 models)"
+output [attack 1 0 0 6 1dWHITEA 6dWHITEA] named "Z-6 Trooper"
+output [attack 1 1 0 2 1dWHITEA 2dWHITEA] named "Scatter Gun Trooper"
+output [attack 1 0 0 2 1dBLACKA 2dBLACKA] named "Grenade Launcher Trooper"
+output [attack 1 0 0 2 1dREDA 2dREDA] named "MPL-57 Trooper"
+output [attack 1 1 1 4 1dWHITEA 4dWHITEA] named "Stormtroopers (4 models)"
+output [attack 1 1 1 5 1dWHITEA 5dWHITEA] named "Stormtrooper (5 models)"
+output [attack 1 1 0 3 1dWHITEA 3dWHITEA] named "HH-12 Stormtrooper (without precise)"
+output [attack 1 1 0 2 1dWHITEA 2dREDA] named "DLT-19 Stormtrooper (without precise)"
+output [attack 1 1 0 3 1dREDA 3dREDA] named "AT-RT Grappling Claws"
+output [attack 1 1 0 2 1dWHITEA 2dWHITEA] named "AT-RT A-300 Blaster"
+output [attack 1 1 0 2 1dBLACKA 2dBLACKA] named "AT-RT Flamethrower (One target)"
+output [attack 1 1 0 3 1dBLACKA 2dBLACKA+1dREDA] named "AT-RT Laser Cannon **See notes at bottom**"
+output [attack 1 1 0 5 1dBLACKA 5dBLACKA] named "AT-RT Rotary Blaster"
+output [attack 1 1 0 4 1dBLACKA 4dBLACKA] named "74-Z Speeder Bikes Blaster (2 models)"
+output [attack 1 1 0 6 1dBLACKA 2dREDA+2dBLACKA+2dWHITEA] named "74-Z Speeder Bikes Cannon (2 models) **See notes at bottom**"
+output [attack 1 1 0 14 1dWHITEA 14dWHITEA] named "Fleet Troopers sd"
+
+\**On these models precise may not accurately reflect true odds because of the varied dice. They will be close, but not 100% accurate. The accuracy will be affected more with higher amounts of precise dice rolled.**\

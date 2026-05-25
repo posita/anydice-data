@@ -1,0 +1,59 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 4 
+HITDAMAGE: 1d10+1d6 + 15
+CRITICALDAMAGE: 2d10+2d6 + 15
+MISSDAMAGE: 0
+output [attack]*2 named "Karlach Smack"
+
+ATTACK: 4 
+HITDAMAGE: 1d10+1d6 + 15 +4d8
+CRITICALDAMAGE: 2d10+2d6 + 15 +8d8
+MISSDAMAGE: 0
+output [attack]*2 named "Karlach Smite"
+
+ATTACK: 3 
+HITDAMAGE: 1d10 + 15 + 2 +1d4
+CRITICALDAMAGE: 2d10 + 15 + 2 + 2d4
+MISSDAMAGE: 0
+output [attack]*2 named "Moonlight Glaive GWF"
+
+ATTACK: 8 
+HITDAMAGE: 1d10+5
+CRITICALDAMAGE: 2d10+5
+MISSDAMAGE: 0
+output [attack]*2 named "2x agonizing Blast"
+
+ATTACK: 4 
+HITDAMAGE: 8d6
+CRITICALDAMAGE: 8d6
+MISSDAMAGE: 4d6
+output [attack]*2 named "2 target fireball"

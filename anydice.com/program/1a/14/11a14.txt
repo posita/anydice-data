@@ -1,0 +1,31 @@
+\ Dice templates, written in full for clarity \
+GRIM: {1,1,1,1,1,1}
+TOME: {1,1,1,1,1,0}
+LOOT: {1,1,1,0,0,0}
+WOOD: {1,1,0,0,0,0}
+
+function: ranalds bones with DICE:s {
+  GRIM_N: [lowest of 1@DICE and 7]
+  LOOT_N: [lowest of 2@DICE and 7 - GRIM_N]
+  TOME_N: [lowest of 3@DICE and 7 - GRIM_N - LOOT_N]
+  WOOD_N: 7 - GRIM_N - LOOT_N - TOME_N
+  result: GRIM_NdGRIM + LOOT_NdLOOT + TOME_NdTOME + WOOD_NdWOOD
+}
+function: add SA:s and SB:s {
+  SUM: {}
+  loop N over {1..[lowest of #SA and #SB]} {
+    SUM: {N@SA + N@SB, SUM}
+  }
+  result: SUM
+}
+
+output [add 
+
+\ Extra dice that your mutator awards \
+EXTRA: {0, 0, 0}
+
+\ Some typical scenarios \
+output [ranalds bones with [add {0,0,0} and EXTRA]] named "No books"
+output [ranalds bones with [add {0,3,0} and EXTRA]] named "Only tomes"
+output [ranalds bones with [add {2,3,0} and EXTRA]] named "All books"
+output [ranalds bones with [add {2,3,2} and EXTRA]] named "Full dice"

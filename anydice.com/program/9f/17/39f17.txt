@@ -1,0 +1,106 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+function: attacka ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attacka ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attacka ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+AC: 13
+PRF: 2
+ATK: 3
+DMG: 3
+
+output
+[attack d20 plus PRF + ATK vs 13 for 1d8 crit 0 on 20]
+named "Sacred Flame Save +0"
+
+output
+[attack d20 plus PRF + ATK  vs AC for 1d10 crit 1d10 on 20]
+named "Firebolt"
+
+output
+[attack d20 plus PRF + ATK vs 13 for 1d12 crit 0 on 20]
+named "Poison Spray Save +0"
+
+output
+[attack d20 plus PRF + ATK + 2 vs AC for 1d8 + DMG crit 1d8 on 20]
+named "Archer"
+
+output
+[attack d20 plus PRF + ATK vs AC for 1d[gwf d10] + DMG crit 1d[gwf d10] on 20]
+named "GWF 1d10"
+
+output
+[attack d20 plus PRF + ATK vs AC for 1d8 + DMG + 2 crit 1d8 on 20]
+named "Duelist"
+
+output
+[attack d20 plus PRF + ATK vs AC for 1d[gwf d12] + DMG crit 1d[gwf d12] on 20]
+named "GWF 1d12"
+
+output
+[attack d20 plus PRF + ATK vs AC for 1d8 + DMG + 1d6 crit 1d8 + 1d6 on 20]
+named "Rapier Rogue"
+
+output
+[attack d20 plus PRF + ATK vs AC for 2d[gwf d6] + DMG crit 2d[gwf d6] on 20]
+named "GWF 2d6"
+
+output
+[attack d20 plus PRF + ATK vs AC for 1d12 + DMG + 2 crit 1d12 on 20]
+named "Rage 1d12"
+
+output
+[attack d20 plus PRF + ATK vs AC for 1d6 + DMG crit 1d6 on 20] + [attack d20 plus PRF + ATK vs AC for 1d6 + DMG crit 1d6 on 20]
+named "TWF"
+
+output
+[attacka d20 plus PRF + ATK vs AC
+    hit  1d6 + DMG + 1d6  + [attacka d20 plus PRF + ATK vs AC for 1d6 crit 1d6 on 20]
+    miss [attacka d20 plus PRF + ATK vs AC for 1d6 + 1d6 crit 1d6 + 5d6 on 20]
+    crit 2d6 + DMG + 2d6 + [attacka d20 plus PRF + ATK vs AC for 1d6 crit 1d6 on 20] on 20
+] named "DW Rogue"
+
+
+
+

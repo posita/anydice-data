@@ -1,0 +1,34 @@
+\
+Rolls a die using CPRED critical success/failure logic.
+D:n = A die; CPRED standard is 1d10.
+BASE = Number; The character's bonus to the roll.
+N = Boolean; Whether or not Fumble Recovery is active.
+\
+function: roll D:n with BASE recover N {
+  if D=10 {result: [critical d10 with BASE+10]}
+  if !N {
+    if D=1  {result: [fumble d10 with BASE+1]}
+  }
+  result: BASE + D
+}
+
+\
+Helper function for fumbles since dice can't be rolled inside a function.
+D:n = A die; the die roll to subtract from the previous total.
+BASE = A number; the total before critical failure.
+\
+function: fumble D:n with BASE {
+  result: BASE - D
+}
+
+\
+Helper function for criticals since dice can't be rolled inside a function.
+D:n = A die; the die roll to add to the previous total.
+BASE = A number; the total before critical success.
+\
+function: critical D:n with BASE {
+  result: BASE + D
+}
+
+output [roll d10 with 10 recover 0] named "Odds, Standard, Base 10"
+output [roll d10 with 10 recover 1] named "Odds, Recovery, Base 10"

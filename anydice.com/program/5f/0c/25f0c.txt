@@ -1,0 +1,59 @@
+set "position order" to "lowest first"
+function: X:n fire {
+  if X = 1 {result: 2}
+  result: X 
+}
+
+function: ISCRIT:n raydamage{
+  if ISCRIT = 1 {result: 4d([d6 fire]) + 2d6}
+  result: 2d([d6 fire]) + 1d6
+}
+
+function: X:n ray {
+  if X>CRITON {result: 2}
+  if X=1 {result: 0}
+  if X>AC-ATTACKBONUS {result: 1}
+  result: 0
+}
+
+function: X:n seekingray {
+  if X>CRITON {result: 2}
+  if X>AC-ATTACKBONUS {result: 1}
+  result: [d20 ray]
+}
+function: X:n rayhits {
+  if X=1 {result: 0}
+  if X>AC-ATTACKBONUS {result: 1}
+  result: 0
+}
+
+function: X:n seekingrayhits {
+  if X>AC-ATTACKBONUS {result: 1}
+  result: [d20 rayhits]
+}
+
+
+
+
+function: X:n raydamage {
+  REROLLS: DICETOREROLL
+  FIREDICE: [d6 fire]
+  result: 2*X*FIREDICE + Xd6 - [lowest REROLLS of Xd6] + REROLLSd6
+}
+function: X:n blastdamage {
+  REROLLS: 2
+  result: Xd10 - [lowest REROLLS of Xd10] + REROLLSd10
+}
+function: NUMRAYS:n seekingempoweredrays {
+  result: [NUMRAYS * [ROLL seekingray] raydamage] + 5*NUMRAYS*[ROLL seekingrayhits]
+}
+function: NUMBLASTS:n seekingempoweredblasts {
+  result: [NUMBLASTS * [ROLL seekingray] blastdamage] + 10*NUMBLASTS*[ROLL seekingrayhits]
+}
+
+CRITON: 19
+ATTACKBONUS: 11
+AC: 25
+DICETOREROLL: 5
+ROLL: [highest 1 of 2d20]
+output [10 seekingempoweredrays] + [9 seekingempoweredrays] + [4 seekingempoweredblasts] 

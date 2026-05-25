@@ -1,0 +1,72 @@
+function: damage ROLL:n ap A:n prot P:n min M:n{
+if P-A < 0 {EP: 0}
+else {EP: P-A}
+
+if (ROLL) <= M {result: [highest of (M - EP) and 0]} 
+else {result: [highest of (ROLL - EP) and 0]}
+}
+
+function: attack ATCK:n dmg DMG:n ap A:n prot P:n min M{
+if ATCK >= 14 { result: [highest of [damage (DMG + ATCK-8) ap A prot P min M] and 1]}
+else if ATCK >= 8 { result: [damage (DMG + ATCK-8) ap A prot P min M]}
+else {result: 0}
+}
+
+function: check DIFF:n dm DM:n boon B:n{
+if B = 1 {result: [highest 2 of 3d6]+DM-DIFF}
+else{
+if B = -1 {result: [lowest 2 of 3d6]+DM-DIFF}
+else {result: 2d6+DM-DIFF}
+}
+}
+
+function: chain E:n diff DIFF:n dm DM:n boon B:n{
+if (E = 0) {result: [check DIFF dm DM boon B] + 1}
+else if ((E >= 1) & (E <= 5)) {result: [check DIFF dm DM boon B] + 2}
+else if (E >= 6) {result: [check DIFF dm DM boon B] + 3}
+else if (E = -1) {result: [check DIFF dm DM boon B] - 1}
+else if ((E <= -1) & (E >= -5)) {result: [check DIFF dm DM boon B] - 2}
+else {result: [check DIFF dm DM boon B] - 3}
+}
+
+
+function: multiple E:n max MAX:n dmg DMG:n ap A:n prot P:n{
+if ((E >= 0) * (E+1 > MAX)) {result: [damage DMG ap A prot P]*(MAX)}
+else if ((E >= 0) * (E+1 <= MAX)) {result: [damage DMG ap A prot P]*(E+1)}
+else {result: 0}
+}
+
+function: starports ROLL:n{
+if ( ROLL <= 2) {result: 0}
+else if (ROLL = 3 |ROLL = 4) {result: 1}
+else if (ROLL = 5 |ROLL = 6) {result: 2}
+else if (ROLL = 7 |ROLL = 8) {result: 3}
+else if (ROLL = 9 | ROLL = 10) {result: 4}
+else {result: 5}
+}
+
+function: minval ROLL:n floor F:n{
+if ROLL < F {result: F}
+else {result: ROLL}
+}
+
+
+function: hullparts H:n roll ROLL:n{
+COUNT: 0
+loop R over {1.. H}{
+  if (ROLL-6 = 0 | ROLL-6 = 1){COUNT: COUNT + 5}
+  else if (ROLL-6 = 2){COUNT: COUNT + 4}
+  else if (ROLL-6 = 3){COUNT: COUNT + 3}
+  else if (ROLL-6 = 4){COUNT: COUNT + 2}
+  else if (ROLL-6 = 5){COUNT: COUNT + 1}
+  else if (ROLL-6 >= 6){COUNT: COUNT + 0}
+}
+result: COUNT
+}
+
+function: attckdmg DM:n dmg DMG:n ap AP:n prot P:n min M:n{
+result: [damage DMG+[minval [check 8 dm DM boon 0] floor 0] ap AP prot P min M]
+}
+
+output [attckdmg 2 dmg 3d6-3 ap 0 prot 8 min 3]
+

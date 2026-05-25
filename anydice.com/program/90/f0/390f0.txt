@@ -1,0 +1,32 @@
+X: 2
+Q: 1
+L: 10
+
+function: countsplode DIE:d at THRESH lim CAP {
+ MAX: [maximum of DIE]
+ TICK: 0 
+ result: [lowest of [countsplode DIE ticker] and L]
+}
+function: countsplode N:n ticker{
+ TICK: TICK+1
+ ROLLRES: N
+ if TICK = CAP-1
+ {
+  if ROLLRES>=THRESH {result: 1}
+  else {result: 0}
+ }
+ else if ROLLRES = MAX
+ {
+  if ROLLRES>=THRESH {result: 1 + [countsplode N ticker]}
+  else  {result: 0 + [countsplode N ticker]}
+ }
+ else if ROLLRES >= THRESH {result: 1}
+ else {result: 0}
+}
+
+output Qd[countsplode 1d20 at X lim L] named "d20"
+output Qd[countsplode 1d12 at X lim L] named "d12"
+output Qd[countsplode 1d10 at X lim L] named "d10"
+output Qd[countsplode 1d8 at X lim L] named "d8"
+output Qd[countsplode 1d6 at X lim L] named "d6"
+output Qd[countsplode 1d4 at X lim L] named "d4"

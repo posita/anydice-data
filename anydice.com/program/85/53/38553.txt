@@ -1,0 +1,40 @@
+set "maximum function depth" to 4
+function: explode N:n {
+ if N = MAX {
+  result: N-1+[explode D]
+ }
+ result: N
+}
+function: drn D:d {
+ MAX: [maximum of D]
+ result: [explode D]
+}
+function: nested D:d N:n times {
+ X: 0
+ loop N over {1..N}{
+  X: X + [ nested sub D ]
+ }
+ result: X
+}
+function: nested sub D:n {
+ result: d(D*3+4)
+}
+function: alternate D_ONE:d with D_TWO:d N_ONE:n times in N_TWO:n {
+ result: [ inner func b dN_TWO N_ONE D_ONE D_TWO ]
+}
+function: inner func b N_TWO_D:n N_ONE:n D_ONE:d D_TWO:d {
+ if N_TWO_D <= N_ONE {
+  result: D_TWO
+ }
+ result: D_ONE
+} 
+
+TIMES: 16
+PATROLSTRENGTH: 97
+
+CUSTOMBLOODHUNT: 0
+loop I over {1..3} {
+ CUSTOMBLOODHUNT: CUSTOMBLOODHUNT + [alternate (TIMESd6 - TIMES) with [nested d6+0 TIMES times] 1 times in 10] - dPATROLSTRENGTH
+}
+
+output CUSTOMBLOODHUNT

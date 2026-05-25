@@ -1,0 +1,50 @@
+REROLL_VALUE: 10
+TO_HIT: 7
+DICE_MINUS: 6
+DAMAGE_ROLL: 3d6
+ATTACK_ROLL: 3d6
+
+function: take A:n or reroll damage
+{
+ if A > REROLL_VALUE
+ {
+   result: A
+ }
+ result: DAMAGE_ROLL
+}
+
+function: add A:n to B:n if enough to damage
+{
+ if A > DICE_MINUS
+ {
+   result: B + A - DICE_MINUS
+ }
+ result: B
+}
+
+function: did A:n or B:n hit
+{
+ if A >= TO_HIT | B >= TO_HIT
+ {
+   result: 1
+ }
+ result: 0
+}
+
+function: calculate attack with TOTAL_DAMAGE:n and HIT:n
+{
+  if HIT
+  {
+   DAMAGE: [take DAMAGE_ROLL or reroll damage]
+   result: [add DAMAGE to TOTAL_DAMAGE if enough to damage]
+  }
+  result: TOTAL_DAMAGE
+}
+
+TOTAL_DAMAGE: 0
+loop N over {1..3}
+{
+  TOTAL_DAMAGE: [calculate attack with TOTAL_DAMAGE and [did ATTACK_ROLL or ATTACK_ROLL hit]]
+}
+
+output TOTAL_DAMAGE

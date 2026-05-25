@@ -1,0 +1,39 @@
+ATTACKS: 12
+AC: 18
+
+function: A:d elvenaccuracy{
+ result: [highest 1 of A]
+}
+function: attackdamage{
+ result: 2d8+4+2+2d6
+}
+function: attackcrit{
+ DAMAGE: DAMAGE+4d8+4+2+4d6
+ result: DAMAGE
+}
+function: X:n attack{
+ DAMAGE: 0
+ if X = 20{
+   DAMAGE: [attackcrit] 
+  }
+  else {
+   if X+8 > AC{
+    DAMAGE: [attackdamage]
+   }
+   else{
+    DAMAGE: 0
+   }
+  }
+  result: DAMAGE
+}
+function: A:n multiattack{
+ TOTAL: 0
+ loop N over {1..A}{
+  DAMAGE: [[3d20 elvenaccuracy] attack]
+  TOTAL: TOTAL + DAMAGE
+ }
+ result: TOTAL + 12d6
+}
+
+
+output [ATTACKS multiattack]

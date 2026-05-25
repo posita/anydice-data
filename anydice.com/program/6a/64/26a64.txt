@@ -1,0 +1,74 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 20 {
+  if ROLL + DC >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + DC >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: [savage attacker] + DIVINE_SMITE_DICE * 2 + HIT_MODIFIER
+ }
+ if ATTACKRESULT = HIT {
+  result: [savage attacker] + DIVINE_SMITE_DICE + HIT_MODIFIER
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ RES: 0
+ loop N over NUM_OF_ATTACKS {
+  RES: RES + [damage for [attack ATTACK_HIT_DICE + DC vs DEFENSE]]
+ }
+ result: RES
+}
+
+function: savage attacker {
+ result: 1@2d(HIT_DICE)
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+DEFENSE: d{10..30}
+MISSDAMAGE: 0
+
+\ Weapon Details \
+HIT_DICE: d8
+HIT_MODIFIER: 7
+
+DC: 10
+
+NUM_OF_ATTACKS: {1..2}
+ATTACK_HIT_DICE: d20
+DIVINE_SMITE_DICE: 0
+output [attack] named "Kossal's Arm"
+
+DIVINE_SMITE_DICE: 3d8
+output [attack] named "Kossal's Arm w/ Divine Smite"
+
+NUM_OF_ATTACKS: {1..4}
+DIVINE_SMITE_DICE: 0
+output [attack] named "Kossal's Arm w/ Max Attacks"
+
+DIVINE_SMITE_DICE: 3d8
+output [attack] named "Kossal's Arm w/ Max Attacks & Divine Smite"
+
+ATTACK_HIT_DICE: 1@2d20
+NUM_OF_ATTACKS: {1..2}
+DIVINE_SMITE_DICE: 0
+output [attack] named "Kossal's Arm w/ Advantage"
+
+DIVINE_SMITE_DICE: 3d8
+output [attack] named "Kossal's Arm w/ Advantage & Divine Smite"
+
+NUM_OF_ATTACKS: {1..4}
+DIVINE_SMITE_DICE: 0
+output [attack] named "Kossal's Arm w/ Advantage & Max Attacks"
+
+DIVINE_SMITE_DICE: 3d8
+output [attack] named "Kossal's Arm w/ Advantage & Max Attacks & Divine Smite"

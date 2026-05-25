@@ -1,0 +1,76 @@
+
+
+\ COMPARING the DPR of TWO ATTACKERS AGAINST THE SAME ENEMY IN WEIRD WIZARD \
+
+ENEMYDEFENSE: 16
+
+\ ATTACK SECTION attacker A \
+ABANES: 0         \ number of banes \
+ABOONS: 1         \ number of boons \
+AATKFLATBONUS: 5  \ stat bonus + any other flat bonuses \
+
+\ DAMAGE SECTION attacker A \
+ADMGDICE: 19      \ the number of damage dice \
+ABRUTAL: 1        \ 1 if you reroll 1s, otherwise 0 \
+ADMGFLATBONUS: 0  \ Some paths/spells give flat bonuses to damage \
+AREROLLDMG: 0     \ Fighters reroll damage and take highest result \
+
+\ ATTACK SECTION attacker B \
+BBANES: 0         \ number of banes \
+BBOONS: 2         \ number of boons \
+BATKFLATBONUS: 5  \ stat bonus + any other flat bonuses \
+
+\ DAMAGE SECTION attacker B \
+BDMGDICE: 14      \ the number of damage dice \
+BBRUTAL: 0        \ 1 if you reroll 1s, otherwise 0 \
+BDMGFLATBONUS: 28 \ Some paths/spells give flat bonuses to damage \
+BREROLLDMG: 1     \ Fighters reroll damage and take highest result \
+
+\ DO NOT EDIT BELOW THIS LINE \
+
+ABOONSBANES: ABOONS - ABANES
+BBOONSBANES: BBOONS - BBANES
+
+\ rerolls 1's if BRUTAL is 1 thanks to Vilarinof of stackexchange! \
+function: reroll DICE:n as REROLL:d if BRUTAL:n {
+  if BRUTAL=1 {
+    if DICE=1 {
+      result: REROLL
+    }
+    result: DICE
+  }
+  result: DICE
+}
+
+\ REROLL whole dice set if HIGHEST is 1, thanks to Vilarinof of stackexchange! \
+function: highest of two DICE:d if HIGHEST {
+  if HIGHEST=1 {
+    result: [highest of DICE and DICE]
+  }
+  result: DICE
+}
+
+AREROLLED: [reroll d6 as d6 if ABRUTAL]  \ now we got the new "rerolled dice sequence" for attacker A \
+BREROLLED: [reroll d6 as d6 if BBRUTAL]  \ and for attacker B. If they don't have brutal, it's just d6 \
+
+\ Hit Probabilities. Thanks to stealth_elephant on reddit! \
+AHITPROB: [highest of [lowest of ((d20) + AATKFLATBONUS + [highest 1 of ABOONSBANESd6] -ENEMYDEFENSE + 1) and 1] and 0]
+BHITPROB: [highest of [lowest of ((d20) + BATKFLATBONUS + [highest 1 of BBOONSBANESd6] -ENEMYDEFENSE + 1) and 1] and 0] 
+\ named "B Hit probability with d20 + [BATKFLATBONUS] with [BBOONSBANES] boons. Enemy defense: [ENEMYDEFENSE]" \
+
+output AHITPROB named "A's hit probability against defense [ENEMYDEFENSE], using d20 + [AATKFLATBONUS] with [ABOONSBANES] boons"
+
+output BHITPROB named "B's hit probability against defense [ENEMYDEFENSE], using d20 + [BATKFLATBONUS] with [BBOONSBANES] boons"
+
+\ output the attack roll distribution \
+output ((d20) + AATKFLATBONUS + [highest 1 of ABOONSBANESd6]) named "A Attack: d20 + [AATKFLATBONUS] with [ABOONSBANES] boons"
+output ((d20) + BATKFLATBONUS + [highest 1 of BBOONSBANESd6]) named "B Attack: d20 + [BATKFLATBONUS] with [BBOONSBANES] boons"
+
+\ output the dmg roll distr incl brutal and highest of two rolls if it applies \
+\ output [highest of two DICEROLLED d SIXR if A/BREROLLDMG] \ 
+output [highest of two ADMGDICE d AREROLLED if AREROLLDMG] + ADMGFLATBONUS named "A Damage [ADMGDICE]d6 + [ADMGFLATBONUS]. Brutal: [ABRUTAL] Rerolldmg: [AREROLLDMG]" 
+output [highest of two BDMGDICE d BREROLLED if BREROLLDMG] + BDMGFLATBONUS named "B Damage [BDMGDICE]d6 + [BDMGFLATBONUS]. Brutal: [BBRUTAL] Rerolldmg: [BREROLLDMG]" 
+
+\ and now, let's do the DPR. I want this as a function, but whatever, I'm a noob \
+output ([highest of [lowest of ((d20) + AATKFLATBONUS + [highest 1 of ABOONSBANESd6] - ENEMYDEFENSE + 1) and 1] and 0]) * [highest of two ADMGDICE d AREROLLED if AREROLLDMG] + ADMGFLATBONUS named "A's DPR against defense [ENEMYDEFENSE]. Hit probability [AHITPROB]. Damage: [ADMGDICE]d6 + [ADMGFLATBONUS]. Brutal: [ABRUTAL] Rerolldmg: [AREROLLDMG]"
+output ([highest of [lowest of ((d20) + BATKFLATBONUS + [highest 1 of BBOONSBANESd6] - ENEMYDEFENSE + 1) and 1] and 0]) * [highest of two BDMGDICE d BREROLLED if BREROLLDMG] + BDMGFLATBONUS named "B's DPR against defense [ENEMYDEFENSE]. Hit probability [BHITPROB]. Damage: [BDMGDICE]d6 + [BDMGFLATBONUS]. Brutal: [BBRUTAL] Rerolldmg: [BREROLLDMG]"

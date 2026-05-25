@@ -1,0 +1,96 @@
+\ 
+  function "n up on so_many dice" returns number
+  of dice out of so_many that passed n+ test
+  TARGET -- the "3" in "3+", 
+  NUMBER -- number of dice to be rolled
+\
+
+function: TARGET:n up on NUMBER:n dice
+{
+  ACCUM: 0
+  loop N over {1..NUMBER}
+  {
+    ACCUM: ACCUM +(d6>=TARGET)
+  }
+  result: ACCUM
+}
+
+function: reroll DIE:n below TARGET:n
+{ if DIE < TARGET {result: d6} else {result: DIE} }
+
+function: TARGET:n up on NUMBER:n dice with reroll
+{
+  ACCUM: 0
+  loop N over {1..NUMBER}
+  {
+    ACCUM: ACCUM + ([reroll d6 below TARGET]>=TARGET)
+  }
+  result: ACCUM
+}
+
+function: TARGET:n up save failed on NUMBER:n dice
+{
+  ACCUM: 0
+  loop N over {1..NUMBER}
+  {
+    ACCUM: ACCUM +(d6<TARGET)
+  }
+  result: ACCUM
+}
+
+function: ws AWS:n strength S:n attacks A:n ap AP:n against ws TWS:n toughness T:n save SV:n invul INVUL:n
+{
+  if TWS > AWS*2 
+  {
+    TOHIT: 5
+  } else { if TWS < AWS {TOHIT: 3} else {TOHIT: 4} }
+  
+  TOWOUND: 4+T-S
+  if TOWOUND < 2 {TOWOUND: 2}
+  if TOWOUND = 7 {TOWOUND: 6}
+  if AP <= SV {SV: INVUL}
+  result: [SV up save failed on [TOWOUND up on [TOHIT up on A dice] dice] dice]
+}
+
+function: ws AWS:n strength S:n with reroll attacks A:n ap AP:n against ws TWS:n toughness T:n save SV:n invul INVUL:n
+{
+  if TWS > AWS*2 
+  {
+    TOHIT: 5
+  } else { if TWS < AWS {TOHIT: 3} else {TOHIT: 4} }
+  
+  TOWOUND: 4+T-S
+  if TOWOUND < 2 {TOWOUND: 2}
+  if TOWOUND = 7 {TOWOUND: 6}
+  if AP <= SV {SV: INVUL}
+  result: [SV up save failed on [TOWOUND up on [TOHIT up on A dice] dice with reroll] dice]
+}
+
+function: bs BS:n strength S:n attacks A:n ap AP:n against ws TWS:n toughness T:n save SV:n invul INVUL:n
+{
+  TOHIT: 7-BS
+  
+  TOWOUND: 4+T-S
+  if TOWOUND < 2 {TOWOUND: 2}
+  if TOWOUND = 7 {TOWOUND: 6}
+  result: [SV up save failed on [TOWOUND up on [TOHIT up on A dice] dice] dice]
+}
+\target stats\
+WS: 4
+T: 4
+SV: 3
+INVUL: 7
+CCW:   [ws 4 strength 4 attacks 3 ap 4 against ws WS toughness T save SV invul INVUL]
+CAXE:  [ws 4 strength 4 attacks 3 ap 4 against ws WS toughness T save SV invul INVUL]
+MAUL:  [ws 4 strength 6 attacks 3 ap 4 against ws WS toughness T save SV invul INVUL]
+SWORD: [ws 4 strength 4 attacks 3 ap 3 against ws WS toughness T save SV invul INVUL]
+AXE:   [ws 4 strength 5 attacks 3 ap 2 against ws WS toughness T save SV invul INVUL]
+FIST:  [ws 4 strength 8 attacks 2 ap 4 against ws WS toughness T save SV invul INVUL]
+CLAWS: [ws 4 strength 4 with reroll attacks 2 ap 3 against ws WS toughness T save SV invul INVUL]
+output CCW named "chainsword"
+output CAXE named "chainaxe"
+output SWORD named "power sword"
+output CLAWS named "lightning claws"
+output MAUL named "power maul, concussive"
+output AXE named "power axe, unwieldy"
+output FIST named "power fist, unwieldy"

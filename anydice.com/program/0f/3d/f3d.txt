@@ -1,0 +1,74 @@
+TAG: 1
+ASKILL: +4
+ATIER: 2
+DSKILL: +3
+DTIER: 3
+WEAPON: 2
+ARMOR: 3
+
+function: fateopp AT vs DT {
+  if AT <= DT {
+    result: [fatedice 0]
+  } else {
+    result: [fatedice AT - DT]
+  }
+}
+
+function: fatedice TIER {
+  if TIER < 0 {
+    result: (4+TIER)d{-1,0,1} - (-TIER)d6
+  } else {
+    result: (4-TIER)d{-1,0,1} + TIERd6
+  }
+}
+
+function: atag ROLL:n {
+  if TAG {
+    if ROLL < -1 {
+      result: [fateopp ATIER vs DTIER]
+    } else {
+      result: ROLL + 2
+    }
+  } else {
+    result: ROLL
+  }
+}
+
+function: odds ROLL:n {
+  if ROLL <= -3 {
+    result: -3
+  } else if ROLL <= -1 {
+    result: -1
+  } else if ROLL = 0 {
+    result: 0
+  } else if ROLL < 3 {
+    result: 1
+  } else {
+    result: 3
+  }
+}
+
+function: damage ROLL:n {
+  if ROLL <= 0 {
+    result: 0
+  } else if ROLL <= WEAPON {
+    if 2 * ROLL <= ARMOR {
+      result: 0
+    } else {
+      result: 2 * ROLL - ARMOR
+    }
+  } else if ROLL + WEAPON < ARMOR {
+    result: 0
+  } else {
+    result: ROLL + WEAPON - ARMOR
+  }
+}
+
+AD: [atag [fateopp ATIER vs DTIER]] + ASKILL
+DD: [fateopp DTIER vs ATIER] + DSKILL
+
+output AD named "Attacker Dice"
+output DD named "Defender Dice"
+output AD - DD named "Attack Result"
+output [odds AD - DD] named "Attack Spin"
+output [damage AD - DD] named "Damage"
