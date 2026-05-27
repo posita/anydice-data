@@ -27,7 +27,7 @@ from anydyce.anydice.fetch import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def main() -> int:
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Extract AnyDice programs from sources and write them to local text files within a sharded directory space."
     )
@@ -36,7 +36,7 @@ def main() -> int:
         metavar="PATH",
         type=Path,
         default=Path("program"),
-        help=f"the path of the top-level directory for the shards",
+        help="the path of the top-level directory for the shards",
     )
     parser.add_argument(
         "--log-level",

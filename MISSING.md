@@ -16,21 +16,19 @@
 
 The following IDs are absent from `anydice.com/program/`:
 
-- [`133a7`](https://anydice.com/program/133a7) —
+- [`133a7`](https://anydice.com/program/133a7)
 - [`1452b`](https://anydice.com/program/1452b)
 - [`279e0`](https://anydice.com/program/279e0)
 - [`27c2c`](https://anydice.com/program/27c2c)
 - [`27f7b`](https://anydice.com/program/27f7b)
 
 These programs likely exist on anydice.com.
-Their HTML pages were retrieved during the 2026-05-17 crawl, archived in `anydice.com-2026-05-17T15:08:22-0500.tar.gz`, but the corresponding HTML files don't contain extractable program source.
+Their HTML pages were retrieved during the last crawl, archived in `anydice.com-2026-05-17T15:08:22-0500.tar.gz`, but the corresponding HTML files don't contain extractable program source.
 The retrieval errors appear to have occurred server-side during that crawl.
-The HTML responses were structurally valid but missing a typical `loadedProgram` JavaScript variable that normally carries the program text.
+Most of the HTML responses were structurally valid but missing a typical `loadedProgram` JavaScript variable that normally carries the program text.
 
 Re-harvesting these IDs is not currently possible because anydice.com's program-retrieval functionality is broken (status as of 2026-05-25).
 If the that functionality is restored, the missing programs can be re-fetched and added to the corpus.
-
-The highest ID retrieved is [`4327d`](https://anydice.com/program/4327d).
 
 ---
 
@@ -56,3 +54,6 @@ set -eux
         --wait 0.5 \
         --random-wait
 ```
+
+The `--wait 0.5 --random-wait` is to avoid hammering anydice.com.
+Expect a fresh crawl to take many hours.
