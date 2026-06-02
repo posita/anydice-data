@@ -40,7 +40,7 @@ from urllib.parse import urlparse
 
 from dyce import H
 
-from anydyce.anydice import DEFAULT_PRECISION, format_anydice_results
+from anydyce.anydice import DEFAULT_PRECISION, format_results
 from anydyce.anydice import parse as anydyce_parse
 from anydyce.anydice import unparse as anydyce_unparse
 from anydyce.anydice.ast_ import (
@@ -457,9 +457,9 @@ def _try_program_id(arg: str) -> int | None:
 def _upsert_program(conn: sqlite3.Connection, program_id: int, program: str) -> str:
     r"""Insert or update a program row, deduplicating on canonical form.
 
-    Returns `#!python 'added'`, `#!python 'updated'` (existing row had a lower ID), or `#!python 'duplicate'`.
+    Returns `'added'`, `'updated'` (existing row had a lower ID), or `'duplicate'`.
     The original program text is preserved on update to retain any comments.
-    Programs that do not parse (`canonical` is `#!python None`) deduplicate on raw
+    Programs that do not parse (`canonical` is `None`) deduplicate on raw
     program text instead.
     """
     canonical = _canonicalize(program)
@@ -650,9 +650,9 @@ def _store_output(
     r"""
     Store output for the given program_id and return (*status*, *old_output*).
 
-    *status* is one of `#!python 'computed'`, `#!python 'skipped'`, `#!python 'unchanged'`, or `#!python 'changed'`.
-    *old_output* is the previous value when status is `#!python 'changed'`, else `#!python None`.
-    `#!python 'changed'` means `--force` was set and the new result differs from the stored one.
+    *status* is one of `'computed'`, `'skipped'`, `'unchanged'`, or `'changed'`.
+    *old_output* is the previous value when status is `'changed'`, else `None`.
+    `'changed'` means `--force` was set and the new result differs from the stored one.
     """
     row = conn.execute(
         "SELECT output FROM programs WHERE program_id = ?", (program_id,)
@@ -1097,7 +1097,7 @@ def _try_total(
 
 
 def _pct_to_counts(outcomes: list[list]) -> tuple[dict[int, int], list[str]]:
-    r"""Convert `#!python [[outcome, pct], ...]` to `#!python {outcome: count}`.
+    r"""Convert `[[outcome, pct], ...]` to `{outcome: count}`.
 
     Returns the count dict and a list of precision-warning strings (empty if all
     round-trips are within `_PCT_RECOVERY_LOOSE_TOL`).
@@ -1285,20 +1285,22 @@ def cmd_compare(ids: list[str], db_path: Path, *, timeout_s: float) -> None:
             print(f"AnyDice errored on program_id={arg}: {msg}")
             continue
 
-        # Bound interpreter wall-clock time.
-        prev_handler = signal.signal(signal.SIGALRM, _alarm_handler)
-        signal.setitimer(signal.ITIMER_REAL, timeout_s)
+        # Bound interpreter CPU-time (not wall-clock) per program. ITIMER_VIRTUAL
+        # only ticks while this process is on CPU, so the budget is fair under
+        # worker-pool contention.
+        prev_handler = signal.signal(signal.SIGVTALRM, _alarm_handler)
+        signal.setitimer(signal.ITIMER_VIRTUAL, timeout_s)
         try:
             ours = run(program)
         except _InterpTimeout:
-            print(f"interpreter timeout (>{timeout_s}s): program_id={arg}")
+            print(f"interpreter timeout (>{timeout_s}s CPU): program_id={arg}")
             continue
         except Exception as exc:  # noqa: BLE001
             print(f"interpreter error on program_id={arg}: {type(exc).__name__}: {exc}")
             continue
         finally:
-            signal.setitimer(signal.ITIMER_REAL, 0)
-            signal.signal(signal.SIGALRM, prev_handler)
+            signal.setitimer(signal.ITIMER_VIRTUAL, 0)
+            signal.signal(signal.SIGVTALRM, prev_handler)
 
         their_dists = data.get("distributions", {}).get("data", [])
         their_labels = data.get("distributions", {}).get("labels", [])
@@ -1336,7 +1338,7 @@ def cmd_compare(ids: list[str], db_path: Path, *, timeout_s: float) -> None:
 
 def cmd_run(source: str, *, timeout_s: float, short: bool, precision: int) -> None:
     r"""Run *source* through the anydyce interpreter and print each output's
-    distribution. Bounded by `timeout_s` via SIGALRM. Exits 1 on parse error,
+    distribution. Bounded by `timeout_s` of CPU time via SIGVTALRM. Exits 1 on parse error,
     2 on interpreter error or timeout. Output formatting mirrors `H.format()`
     by default (multi-line with avg/std/var and per-outcome bars); `--short`
     switches to `H.format_short()`.
@@ -1347,21 +1349,23 @@ def cmd_run(source: str, *, timeout_s: float, short: bool, precision: int) -> No
         print(f"parse error: {type(exc).__name__}: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    prev_handler = signal.signal(signal.SIGALRM, _alarm_handler)
-    signal.setitimer(signal.ITIMER_REAL, timeout_s)
+    # ITIMER_VIRTUAL: CPU-time budget rather than wall-clock. See _InterpTimeout
+    # docstring for rationale.
+    prev_handler = signal.signal(signal.SIGVTALRM, _alarm_handler)
+    signal.setitimer(signal.ITIMER_VIRTUAL, timeout_s)
     try:
         results = AnyDiceInterpreter().run(program_ast)
     except _InterpTimeout:
-        print(f"interpreter timeout (>{timeout_s}s)", file=sys.stderr)
+        print(f"interpreter timeout (>{timeout_s}s CPU)", file=sys.stderr)
         sys.exit(2)
     except Exception as exc:  # noqa: BLE001
         print(f"interpreter error: {type(exc).__name__}: {exc}", file=sys.stderr)
         sys.exit(2)
     finally:
-        signal.setitimer(signal.ITIMER_REAL, 0)
-        signal.signal(signal.SIGALRM, prev_handler)
+        signal.setitimer(signal.ITIMER_VIRTUAL, 0)
+        signal.signal(signal.SIGVTALRM, prev_handler)
 
-    print(format_anydice_results(results, precision=precision, short=short))
+    print(format_results(results, precision=precision, short=short))
 
 
 # ---- Verify helpers ------------------------------------------------------------------
@@ -1556,7 +1560,17 @@ def _their_results_to_counts(data: dict) -> list[dict[int, int]]:
 
 
 class _InterpTimeout(Exception):  # noqa: N818
-    r"""Raised by the SIGALRM handler when interpreter execution exceeds the per-row budget."""
+    r"""
+    Raised by the SIGVTALRM handler when interpreter execution exceeds the per-row CPU-time budget.
+
+    Uses ITIMER_VIRTUAL (CPU time consumed by this process) rather than
+    ITIMER_REAL (wall-clock time) so the budget is fair under worker-pool
+    contention.
+    A worker descheduled by the OS because other workers are running doesn't
+    burn its budget; only actual CPU work counts.
+    Without this, a 3-second-of-work program could trip a 30-second wall-clock
+    budget purely from scheduler unfairness on a saturated machine.
+    """
 
 
 def _alarm_handler(signum: int, frame: object) -> None:  # noqa: ARG001
@@ -1635,15 +1649,19 @@ def _classify(
             return "parse-fail:legacy", detail
         return "parse-fail", detail
 
-    # Bound interpreter wall-clock time per program. setitimer accepts floats so we
-    # don't have to round timeout up to a whole second. Linux/macOS only; the helper
-    # is not expected to run on Windows.
-    prev_handler = signal.signal(signal.SIGALRM, _alarm_handler)
-    signal.setitimer(signal.ITIMER_REAL, timeout_s)
+    # Bound interpreter CPU-time per program via ITIMER_VIRTUAL. Crucially NOT
+    # ITIMER_REAL: under worker-pool contention, a CPU-bound program that takes
+    # 3 CPU-seconds can take 30+ wall-clock seconds purely from scheduler
+    # unfairness, and an ITIMER_REAL budget would trip unfairly. ITIMER_VIRTUAL
+    # ticks only while this process is on a CPU. setitimer accepts floats so
+    # we don't have to round timeout up to a whole second. Linux/macOS only;
+    # the helper is not expected to run on Windows.
+    prev_handler = signal.signal(signal.SIGVTALRM, _alarm_handler)
+    signal.setitimer(signal.ITIMER_VIRTUAL, timeout_s)
     try:
         ours = AnyDiceInterpreter().run(program_ast)
     except _InterpTimeout:
-        return "interp-timeout", f">{timeout_s}s"
+        return "interp-timeout", f">{timeout_s}s CPU"
     except MemoryError as exc:
         # Caught before the generic Exception handler so an `interp-oom`
         # bucket surfaces (vs. interp-error:MemoryError). When running with
@@ -1654,8 +1672,8 @@ def _classify(
     except Exception as exc:  # noqa: BLE001
         return f"interp-error:{type(exc).__name__}", str(exc)
     finally:
-        signal.setitimer(signal.ITIMER_REAL, 0)
-        signal.signal(signal.SIGALRM, prev_handler)
+        signal.setitimer(signal.ITIMER_VIRTUAL, 0)
+        signal.signal(signal.SIGVTALRM, prev_handler)
 
     our_counts = _our_results_to_counts(ours)
     their_counts = _their_results_to_counts(data)
@@ -1754,9 +1772,11 @@ def _verify_isolated(
       or signal-9; segfault; etc.). Detected as a worker-side exception
       surfacing on `AsyncResult.get()`.
 
-    `_classify` enforces its own `SIGALRM`-based wall-clock timeout in the
+    `_classify` enforces its own `SIGVTALRM`-based CPU-time timeout in the
     worker, so the parent's `get(timeout=...)` is just a safety buffer for
-    stuck workers.
+    stuck workers. The buffer is generous (see `parent_wait` below) because
+    wall-clock time per worker can be many multiples of CPU time under heavy
+    pool contention.
 
     Returns `(buckets, processed_count)`. On `KeyboardInterrupt`, returns the
     partial buckets collected so far; the Pool's `__exit__` cleanly
@@ -1799,9 +1819,17 @@ def _verify_isolated(
                 file=sys.stderr,
             )
 
-        # Parent-side wait buffer: workers enforce SIGALRM at timeout_s, so the
-        # parent only needs enough slack for IPC/unwinding. 10s is generous.
-        parent_wait = timeout_s + 10.0
+        # Parent-side wait buffer. Workers enforce SIGVTALRM (CPU time) at
+        # timeout_s, but the parent's get(timeout=...) is wall-clock. Under
+        # heavy contention a worker getting fraction 1/N of CPU takes ~N x
+        # timeout_s wall-clock to consume timeout_s CPU-seconds before its
+        # SIGVTALRM trips. Budget parent_wait for the worst-case slowdown
+        # (workers x timeout_s, since that's the most a single worker can be
+        # contended-by-its-peers) plus a 60s unwinding buffer. Without this
+        # bump the parent would preempt the worker's own (fair) CPU-time
+        # timeout under contention -- defeating the point of switching to
+        # ITIMER_VIRTUAL in the worker.
+        parent_wait = timeout_s * max(workers, 1) + 60.0
         try:
             for i, (program_id, ar) in enumerate(async_results, start=1):
                 _, program, _ = rows_by_id[program_id]
@@ -1823,12 +1851,15 @@ def _verify_isolated(
                 try:
                     _, bucket, detail, elapsed = ar.get(timeout=parent_wait)
                 except multiprocessing.TimeoutError:
-                    # Worker hung past its own SIGALRM; rare, usually means a C
-                    # extension didn't honor the alarm. Bucket as timeout and
-                    # proceed; the worker will eventually be replaced.
+                    # Worker hung past its own SIGVTALRM; rare, usually means a
+                    # C extension didn't honor the signal or the worker deadlocked
+                    # in a syscall. Bucket as timeout and proceed; the worker
+                    # will eventually be replaced. (The wall-clock parent wait
+                    # is `timeout_s * workers + 60s` -- if a worker exceeds that
+                    # it's almost certainly stuck rather than just slow.)
                     bucket, detail = (
                         "interp-timeout",
-                        f">{timeout_s}s (parent wait of {parent_wait}s exceeded)",
+                        f">{timeout_s}s CPU (parent wait of {parent_wait}s exceeded)",
                     )
                 except MemoryError as exc:
                     bucket, detail = "interp-oom", str(exc)
