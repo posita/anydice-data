@@ -30,19 +30,19 @@ git clone --depth 1 https://github.com/posita/anydice-data.git
 
 ## Layout
 
-| File                                       | Description                                                                                                            |
-|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| `anydice.com/program/<XX>/<YY>/<id>.txt`   | Raw AnyDice source, one program per file, sharded by the last 4 hex chars of the zero-padded program ID (~175k files). |
-| `anydice.com-<TIMESTAMP>.tar.gz`           | Raw HTML crawl tarball (provenance archive).                                                                           |
-| `anydice-programs.db.gz`                   | Small curated corpus (~3MB compressed).                                                                                |
-| `anydice-programs.db.sha256`               | sha256 sidecar (uncompressed + compressed).                                                                            |
-| `anydice-programs-all.db.gz.part-<NN>.bin` | Full corpus, byte-split shards (~160k programs, ~270MB total across 7 shards, each shard <50MB).                       |
-| `anydice-programs-all.db.sha256`           | sha256 sidecar (uncompressed + compressed).                                                                            |
-| `assemble-programs-db.sh`                  | Reassembles shards into `anydice-programs-all.db.gz`.                                                                  |
-| `pack-programs-db.sh`                      | Re-compresses `.db` → `.db.gz` with rsyncable gzip (for updating the committed shards and sidecar after a fresh pack). |
-| `anydice-programs.py`                      | CLI: fetch, annotate, verify, etc. Inflates and verifies `.db.gz`  automatically on first use.                         |
-| `harvest-program-txt.py`                   | Extracts program from AnyDice source HTML into the sharded `.txt` tree.                                                |
-| [`MISSING.md`](MISSING.md)                 | IDs that couldn't be re-harvested due to server-side glitches during the 2026-05-17 crawl.                             |
+| File                                                 | Description                                                                                                            |
+|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `anydice.com/program/<XX>/<YY>/<id>.txt`             | Raw AnyDice source, one program per file, sharded by the last 4 hex chars of the zero-padded program ID (~175k files). |
+| `anydice.com-<TIMESTAMP>.tar.gz`                     | Raw HTML crawl tarball (provenance archive).                                                                           |
+| `anydice-programs.db.gz`                             | Small curated corpus (~3MB compressed).                                                                                |
+| `anydice-programs.db.sha256`                         | sha256 sidecar (uncompressed + compressed).                                                                            |
+| `anydice-programs-all.db.gz.part-<NN>.bin`           | Full corpus, byte-split shards (~160k programs, ~270MB total across 7 shards, each shard <50MB).                       |
+| `anydice-programs-all.db.sha256`                     | sha256 sidecar (uncompressed + compressed).                                                                            |
+| [`assemble-programs-db.sh`](assemble-programs-db.sh) | Reassembles shards into `anydice-programs-all.db.gz`.                                                                  |
+| [`pack-programs-db.sh`](pack-programs-db.sh)         | Re-compresses `.db` → `.db.gz` with rsyncable gzip (for updating the committed shards and sidecar after a fresh pack). |
+| [`anydice-programs.py`](anydice-programs.py)         | CLI: fetch, annotate, verify, etc. Inflates and verifies `.db.gz`  automatically on first use.                         |
+| [`harvest-program-txt.py`](harvest-program-txt.py)   | Extracts program from AnyDice source HTML into the sharded `.txt` tree.                                                |
+| [`MISSING.md`](MISSING.md)                           | IDs that couldn't be re-harvested due to server-side glitches during the 2026-05-17 crawl.                             |
 
 ## Using the corpus
 
@@ -114,9 +114,9 @@ split -b 45M -d -a 2 --additional-suffix=.bin \
     anydice-programs-all.db.gz anydice-programs-all.db.gz.part-
 ```
 
-If the shard count changes, update `EXPECTED_SHARD_COUNT` in `assemble-programs-db.sh` accordingly.
+If the shard count changes, update `EXPECTED_SHARD_COUNT` in [`assemble-programs-db.sh`](assemble-programs-db.sh) accordingly.
 
-`pack-programs-db.sh` uses `gzip --rsyncable`, so most shard *contents* stay bit-identical across re-packs — only shards covering changed regions are rewritten.
+[`pack-programs-db.sh`](pack-programs-db.sh) uses `gzip --rsyncable`, so most shard *contents* stay bit-identical across re-packs — only shards covering changed regions are rewritten.
 This keeps the git history clean across the corpus's slow update cadence (~once per 1-2 years).
 
 ## License
