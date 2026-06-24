@@ -20,21 +20,29 @@ This corpus is the empirical reference used to reverse-engineer and validate the
 Every divergence between the cleanroom interpreter and AnyDice's own output has been triaged against programs in this corpus.
 The buckets are documented as annotations in the SQLite DBs.
 
+## Cloning
+
+Unless history is desired for some reason, a shallow clone is recommended to avoid fetching obsolete versions of large files:
+
+```sh
+git clone --depth 1 https://github.com/posita/anydice-data.git
+```
+
 ## Layout
 
-| File | Description |
-|---|---|
-| `anydice.com/program/<XX>/<YY>/<id>.txt` | Raw AnyDice source, one program per file, sharded by the last 4 hex chars of the zero-padded program ID (~175k files). |
-| `anydice.com-<TIMESTAMP>.tar.gz` | Raw HTML crawl tarball (provenance archive). |
-| `anydice-programs.db.gz` | Small curated corpus (~3MB compressed). |
-| `anydice-programs.db.sha256` | sha256 sidecar (uncompressed + compressed). |
-| `anydice-programs-all.db.gz.part-<NN>.bin` | Full corpus, byte-split shards (~160k programs, ~270MB total across 7 shards, each shard <50MB). |
-| `anydice-programs-all.db.sha256` | sha256 sidecar (uncompressed + compressed). |
-| `assemble-programs-db.sh` | Reassembles shards into `anydice-programs-all.db.gz`. |
-| `pack-programs-db.sh` | Re-compresses `.db` → `.db.gz` with rsyncable gzip (for updating the committed shards and sidecar after a fresh pack). |
-| `anydice-programs.py` | CLI: fetch, annotate, verify, etc. Inflates and verifies `.db.gz`  automatically on first use. |
-| `harvest-program-txt.py` | Extracts program from AnyDice source HTML into the sharded `.txt` tree. |
-| `MISSING.md` | Five IDs that couldn't be re-harvested due to server-side glitches during the 2026-05-17 crawl. |
+| File                                       | Description                                                                                                            |
+|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `anydice.com/program/<XX>/<YY>/<id>.txt`   | Raw AnyDice source, one program per file, sharded by the last 4 hex chars of the zero-padded program ID (~175k files). |
+| `anydice.com-<TIMESTAMP>.tar.gz`           | Raw HTML crawl tarball (provenance archive).                                                                           |
+| `anydice-programs.db.gz`                   | Small curated corpus (~3MB compressed).                                                                                |
+| `anydice-programs.db.sha256`               | sha256 sidecar (uncompressed + compressed).                                                                            |
+| `anydice-programs-all.db.gz.part-<NN>.bin` | Full corpus, byte-split shards (~160k programs, ~270MB total across 7 shards, each shard <50MB).                       |
+| `anydice-programs-all.db.sha256`           | sha256 sidecar (uncompressed + compressed).                                                                            |
+| `assemble-programs-db.sh`                  | Reassembles shards into `anydice-programs-all.db.gz`.                                                                  |
+| `pack-programs-db.sh`                      | Re-compresses `.db` → `.db.gz` with rsyncable gzip (for updating the committed shards and sidecar after a fresh pack). |
+| `anydice-programs.py`                      | CLI: fetch, annotate, verify, etc. Inflates and verifies `.db.gz`  automatically on first use.                         |
+| `harvest-program-txt.py`                   | Extracts program from AnyDice source HTML into the sharded `.txt` tree.                                                |
+| [`MISSING.md`](MISSING.md)                 | IDs that couldn't be re-harvested due to server-side glitches during the 2026-05-17 crawl.                             |
 
 ## Using the corpus
 

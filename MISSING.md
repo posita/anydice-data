@@ -14,7 +14,13 @@
 
 # Missing Programs
 
-The following IDs are absent from `anydice.com/program/`:
+Approximately 100,000 IDs are absent from `anydice.com/program/`.
+A complete list can be found in `index-of-missing-programs-by-id.txt.gz`.
+
+A handful of those were retrieved during the last crawl, archived in `anydice.com-2026-05-17T15:08:22-0500.tar.gz`, but the corresponding HTML files don't contain extractable program source.
+The retrieval errors appear to have occurred server-side during that crawl.
+Most of the HTML responses were structurally valid but missing a typical `loadedProgram` JavaScript variable that normally carries the program text.
+These include:
 
 - [`133a7`](https://anydice.com/program/133a7)
 - [`1452b`](https://anydice.com/program/1452b)
@@ -22,12 +28,8 @@ The following IDs are absent from `anydice.com/program/`:
 - [`27c2c`](https://anydice.com/program/27c2c)
 - [`27f7b`](https://anydice.com/program/27f7b)
 
-These programs likely exist on anydice.com.
-Their HTML pages were retrieved during the last crawl, archived in `anydice.com-2026-05-17T15:08:22-0500.tar.gz`, but the corresponding HTML files don't contain extractable program source.
-The retrieval errors appear to have occurred server-side during that crawl.
-Most of the HTML responses were structurally valid but missing a typical `loadedProgram` JavaScript variable that normally carries the program text.
-
-Re-harvesting these IDs is not currently possible because anydice.com's program-retrieval functionality is broken (status as of 2026-05-25).
+These programs likely still exist somewhere on anydice.com.
+However, re-harvesting the malformed or missing IDs is not currently possible because anydice.com's program-retrieval functionality is broken (status as of 2026-06-23).
 If the that functionality is restored, the missing programs can be re-fetched and added to the corpus.
 
 ---

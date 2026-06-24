@@ -40,7 +40,7 @@ from urllib.parse import urlparse
 
 from dyce import H
 
-from anydyce.anydice import DEFAULT_PRECISION, format_results
+from anydyce.anydice import DEFAULT_PRECISION, Settings, format_results
 from anydyce.anydice import parse as anydyce_parse
 from anydyce.anydice import unparse as anydyce_unparse
 from anydyce.anydice.ast_ import (
@@ -1365,7 +1365,9 @@ def cmd_run(source: str, *, timeout_s: float, short: bool, precision: int) -> No
         signal.setitimer(signal.ITIMER_VIRTUAL, 0)
         signal.signal(signal.SIGVTALRM, prev_handler)
 
-    print(format_results(results, precision=precision, short=short))
+    settings = Settings()
+    settings.set("anydyce: display precision", precision)
+    print(format_results(results, settings=settings, short=short))
 
 
 # ---- Verify helpers ------------------------------------------------------------------
