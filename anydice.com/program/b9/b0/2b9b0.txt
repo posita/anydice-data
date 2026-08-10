@@ -1,0 +1,56 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n against AC:n
+{
+if ROLL = 20 { result: CRIT }
+if ROLL + ATTACK_MOD < AC | ROLL = 1 { result: MISS }
+result: HIT
+}
+
+function: attack X:n and Y:n against AC:n with advantage
+{
+if X = 20 | Y = 20 { result: CRIT }
+if X = 1 & Y = 1 { result: MISS }
+if X + ATTACK_MOD >= AC | Y + ATTACK_MOD >= AC { result: HIT }
+result: MISS
+}
+
+function: damage ROLL:n
+{
+if ROLL = MISS {result: 0} 
+if ROLL = HIT {result: DAMAGE_DIE + DAMAGE_MOD}
+if ROLL = CRIT {result: [maximum of DAMAGE_DIE] + DAMAGE_DIE + DAMAGE_MOD}
+}
+
+function: damage barbarian ROLL:n
+{
+if ROLL = MISS {result: 0} 
+if ROLL = HIT {result: DAMAGE_DIE + DAMAGE_MOD}
+if ROLL = CRIT {result: [maximum of DAMAGE_DIE] + DAMAGE_DIE + DAMAGE_DIE + DAMAGE_MOD}
+}
+
+ATTACK_MOD: 5+3+1-5
+DAMAGE_DIE: 1d12
+DAMAGE_MOD: 5+2+1+10
+
+output [damage barbarian [attack d20 against 13]]
+  + [damage barbarian [attack d20 against 13]]
+ named "Nico DMG ohne Reckless Attack"
+
+output [damage barbarian [attack d20 and d20 against 13 with advantage]]
+  + [damage barbarian [attack d20 and d20 against 13 with advantage]]
+ named "Nico DMG mit Reckless Attack"
+
+ATTACK_MOD: 10
+DAMAGE_DIE: 4d12
+DAMAGE_MOD: 7
+
+output [damage [attack d20 against 16]]
+ named "T-Rex DMG ohne Reckless Attack"
+
+output [damage [attack d20 and d20 against 16 with advantage]]
+ named "T-Rex DMG mit Reckless Attack"
+
+output d20 + 10 >= 17 | d20 + 10 >= 17

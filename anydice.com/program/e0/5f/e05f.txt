@@ -1,0 +1,94 @@
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITICALHIT }
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: HIT }
+ result: 0
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + 0
+  }
+ }
+ result: D + [extra damage for ATTACKRESULTS]
+}
+
+function: extra damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs AC]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs AC]]
+}
+
+
+
+function: attack {
+ result: [damage for [attack d20 vs AC]]
+}
+
+\looped against enemy AC from 13-19\
+AC: d{13..19}
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+HITDAMAGE: 1d6 + ATTACKMOD + DMGBONUS
+CRITICALDAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+
+output [3 attacks] named "Monk 5, Bonus Action Attack"
+
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+HITDAMAGE: 1d6 + ATTACKMOD + DMGBONUS
+CRITICALDAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+
+output [4 attacks] named "Monk 5, Flurry of Blows"
+
+ATTACKMOD: 4
+DMGBONUS: 2
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+HITDAMAGE: d8 + ATTACKMOD + DMGBONUS
+CRITICALDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+SUPDIE: d8
+
+output [2 attacks] named "BM Fghtr 5, Sword & Shield, no Superiority Die, no Action Surge"
+
+output [3 attacks] named "BM Fghtr 5, Sword & Shield, no Superiority Die, with Action Surge"
+
+function: extra damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: 2d SUPDIE
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: SUPDIE
+ }
+ result: 0
+}
+
+output [2 attacks] named "BM Fghtr 5, Sword & Shield, with Superiority Die, no Action Surge"
+
+output [3 attacks] named "BM Fghtr 5, Sword & Shield, with Superiority Die, with Action Surge"

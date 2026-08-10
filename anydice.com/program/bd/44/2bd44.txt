@@ -1,0 +1,44 @@
+set "explode depth" to 1
+function: attack with  A:d and B:d {
+  result: [explode A]+[explode B]
+}
+function: adv attack with A:d and B:d {
+  if {A} > {B} {result: [attack with A and [highest 1 of 2dB]]}
+  result: [attack with B and [highest 1 of 2dA]]
+}
+function: dis attack with A:d and B:d{
+
+  if {A} > {B} {result: [attack with B and [lowest 1 of 2dA]]}
+  result: [attack with A and [lowest 1 of 2dB]]
+}
+
+DICESIZES: {4,6,8,10,12}
+
+loop CA over{7..14}{
+  loop A over DICESIZES{
+    loop B over DICESIZES{
+      if A>=B{
+        output [attack with dA and dB]>=CA named "d[A]+d[B]>=[CA]"
+      }
+    }
+  }
+}
+loop CA over{7..14}{
+  loop A over{4,6,8,10,12}{
+    loop B over{4,6,8,10,12} {
+      if A>=B{
+        output [adv attack with dA and dB]>=CA named "adv. d[A]+d[B]>=[CA]"
+      }
+    }
+  }
+}
+loop CA over{7..14}{
+  loop A over{4,6,8,10,12}{
+    loop B over{4,6,8,10,12} {
+      if A>=B{
+        output [dis attack with dA and dB]>=CA named "dis. d[A]+d[B]>=[CA]"
+      }
+    }
+  }
+}
+

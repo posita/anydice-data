@@ -1,0 +1,45 @@
+DIE: {-1..10} \ d12 with 0-9,+,- \
+
+\
+  -4: --    (critical fail)
+  -3: F-    (major fail/fail with cost)
+  -2: FF    (fail)
+  -1: F+    (minor fail/fail with bonus)
+   0: +-/SF (tie/deadlock)
+   1: S-    (minor success/success with cost)
+   2: SS    (success)
+   3: S+    (major success/success with bonus)
+   4: ++    (critical success)
+\
+function: check A:n and B:n vs TN:n {
+ if A = -1 {
+  if B = -1 { result: -4 }
+  if B = 10 { result: 0 }
+  if B >= TN { result: 1 }
+  result: -3
+ }
+ if A = 10 {
+  if B = -1 { result: 0 }
+  if B = 10 { result: 4 }
+  if B >= TN { result: 3 }
+  result: -1
+ }
+ if B = -1 {
+  if A >= TN { result: 1 }
+  result: -3
+ }
+ if B = 10 {
+  if A >= TN { result: 3 }
+  result: -1
+ }
+ if A >= TN {
+  if B >= TN { result: 2 }
+  result: 0
+ }
+ if B >= TN { result: 0 }
+ result: -2
+}
+
+loop N over {0..10} {
+ output [check dDIE and dDIE vs N] named "TN[N]"
+}

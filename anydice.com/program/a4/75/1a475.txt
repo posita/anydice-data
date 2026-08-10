@@ -1,0 +1,41 @@
+function: attack ARC:n RAT:n POW:n DEF:n ARM:n COV:n {
+  result: [damage [result RAT ARC DEF COV POW] ARM]
+} 
+
+function: hit RAT:n ARC:n DEF:n  {
+  SUCCESS: RATd{0,0,0,1,1,2} + ARCd{0,1,1,1,1,2} - DEFd{0,0,0,1,1,2} - COVd{0,1,1,1,1,2}
+  result: SUCCESS
+}
+
+function: strike POW:n SUCCESS:n  {
+  STRIKE: 0
+  if SUCCESS >= 0 {
+    STRIKE: SUCCESSd{0,1,1,1,1,2}+POWd{0,0,0,1,1,2}
+  } 
+  result: STRIKE
+}
+
+function: result RAT:n ARC:n DEF:n COV:n POW:n {
+  result: [strike POW [hit RAT ARC DEF]]
+}
+
+function: damage STRIKE:n ARM:n {
+  if STRIKE < ARM {
+    result: 0
+  }
+  if STRIKE < 2*ARM {
+    result: 1
+  }
+  if STRIKE < 3*ARM {
+    result: 2
+  }
+  if STRIKE < 4*ARM {
+    result: 3
+  }
+ if STRIKE < 5*ARM {
+    result: 4
+  }
+  result: 5
+}
+
+output [attack 0 4 4 3 3 2]

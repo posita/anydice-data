@@ -1,0 +1,42 @@
+ATK: 1d20 + 9
+ATKADV: [highest 1 of 2d20] + 9
+ATKDIS: [lowest 1 of 2d20] + 9
+
+DMG: 1d6 + 6
+VULNDMG:(1d6*2) + 12
+RESDMG: (1d6/2) + 3
+
+function: average damage AC FB ADVORDIS VULNORRES {
+ if ADVORDIS = 0 {
+  PROBHIT: ATK >= AC
+ }
+ if ADVORDIS = 1 {
+  PROBHIT: ATKADV >= AC
+ }
+ if ADVORDIS = 2 {
+  PROBHIT: ATKDIS >= AC
+ }
+ if VULNORRES = 0 {
+  DMGPERHIT: PROBHIT*DMG
+ }
+ if VULNORRES = 1 {
+  DMGPERHIT: PROBHIT*VULNDMG
+ }
+ if VULNORRES = 2 {
+  DMGPERHIT: PROBHIT*RESDMG
+ }
+ if FB = 0 {
+  DMGTOTAL: (DMGPERHIT)+(DMGPERHIT)+(DMGPERHIT)
+ }
+ if FB = 1 {
+  DMGTOTAL: (DMGPERHIT)+(DMGPERHIT)+(DMGPERHIT)+(DMGPERHIT)
+ }
+ result: DMGTOTAL
+}
+
+\ Usage: First is AC, the monster's estimated armor class. Then FB, 0 if not using flurry of blows, 1 if you are. \
+\ Then, put a 0 if attacking with neither advantage or disadvantage, a 1 if with advantage, or 2 with disadvantage \
+\ Finally, put a 0 if it's a normal attack, a 1 if they're vulnerable, or a 2 if they're resistant to the damage. \
+\ AC, Flurry of Blows, Advantage or disadvantage, vulnerability or resistance. \
+
+output [average damage 20 0 0 0]

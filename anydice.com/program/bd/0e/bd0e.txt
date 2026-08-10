@@ -1,0 +1,55 @@
+TOHIT: 6d6
+TODODGE: 6d6
+WEAPONDV: 10
+WEAPONAP: -6
+DEFENDERAV: 12
+DEFENDERBODY: 4
+MODARMOR: DEFENDERAV + WEAPONAP
+
+function: net attack hits {
+result: [count {5, 6} in TOHIT] - [count {5, 6} in TODODGE]
+}
+
+function: NETHITS:s modified damage value{
+  if NETHITS > 0 {result: NETHITS + WEAPONDV}
+  if NETHITS <= 0 {result: 0}
+}
+
+function: MODDAMAGE:s damage type {
+  if MODDAMAGE = 0 {result: 0}
+  if MODDAMAGE < MODARMOR {result: 1}
+  if MODDAMAGE >= MODARMOR {result: 2}
+}
+
+function: FINALDAMAGE:s net damage dealt{
+  if MODARMOR > 0 {
+  result: FINALDAMAGE - ([count {5, 6} in DEFENDERBODYd6] + [count {5, 6} in MODARMORd6])
+}
+  else {result: FINALDAMAGE - [count {5, 6} in DEFENDERBODYd6]}
+}
+
+function: DAMAGEDEALT:s process negatives{
+  if DAMAGEDEALT <= 0 {result: 0}
+  else {result: DAMAGEDEALT}
+}
+
+
+\OUTPUT1: NET ATTACK SUCCESSES
+ -1 is miss chance, 0 is a graze, > 0 is modified DV\
+output  [net attack hits]
+
+\OUTPUT2: TOTAL DAMAGE DEALT\
+output [[net attack hits] modified damage value]
+
+\OUTPUT3 TYPE OF DAMAGE
+0 = miss, 1 = stun, 2 = physical\
+output [[[net attack hits] modified damage value] damage type]
+
+\OUTPUT4 NET DAMAGE DEALT - after save\
+output [[[[net attack hits] modified damage value] net damage dealt] process negatives]
+
+
+
+
+
+

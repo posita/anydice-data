@@ -1,0 +1,49 @@
+\PF1E Battle Calculator\
+
+\Variable Definitions (Put your raw data here)\
+
+MONSTER_AC: 16
+MONSTER_HP: 4
+MONSTER_DR: 0 \Use a 0 if an attack bypasses the DR or a negative number if there is vulnerability\
+
+ATTACK_BONUS: 5
+DAMAGE: 1d8+3
+CRIT_DAMAGE: 2d8+6
+CRIT_THREAT: 20
+
+\Math (Do not change this unless you know what you're doing)\
+
+ATTACK: 1d20 + ATTACK_BONUS
+HIT_CHANCE: (ATTACK >= MONSTER_AC) | (1d20 = 20 & MONSTER_AC > ATTACK_BONUS+20)
+DAMAGE: DAMAGE - MONSTER_DR
+CHANCE_TO_DAMAGE_ON_HIT: DAMAGE > 0
+CHANCE_TO_DAMAGE_ON_ATTACK: HIT_CHANCE & CHANCE_TO_DAMAGE_ON_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_HIT: DAMAGE >= MONSTER_HP
+CHANCE_TO_ONE_HIT_KILL_ON_ATTACK: HIT_CHANCE & CHANCE_TO_ONE_HIT_KILL_ON_HIT
+
+CRIT_DAMAGE: CRIT_DAMAGE - MONSTER_DR
+CRIT_CHANCE: HIT_CHANCE & 1d20 >= CRIT_THREAT
+CHANCE_TO_DAMAGE_ON_CRIT_HIT: CRIT_DAMAGE > 0
+CHANCE_TO_DAMAGE_ON_CRIT_ATTACK: CRIT_CHANCE & CHANCE_TO_DAMAGE_ON_CRIT_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT: CRIT_DAMAGE >= MONSTER_HP
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK: CRIT_CHANCE & CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT
+
+\Outputs (You can touch this, but it might give you wrong results if you do)\
+
+output HIT_CHANCE named "Chance to Hit"
+output DAMAGE named "Damage Range"
+output CHANCE_TO_DAMAGE_ON_HIT named "Chance to Deal Damage On Non-Critical Hit"
+output CHANCE_TO_DAMAGE_ON_ATTACK named "Chance to Deal Damage On Non-Critical Attack"
+output CHANCE_TO_ONE_HIT_KILL_ON_HIT named "Chance for One Hit Kill On Non-Critical Hit"
+output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK named "Chance for One Hit Kill On Non-Critical Attack"
+
+
+output CRIT_CHANCE named "Chance to Critical Hit"
+output CRIT_DAMAGE named "Critical Damage Range"
+output CHANCE_TO_DAMAGE_ON_CRIT_HIT named "Chance to Deal Damage On Critical Hit"
+output CHANCE_TO_DAMAGE_ON_CRIT_ATTACK named "Chance to Deal Damage On Critical Attack"
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT named "Chance for One Hit Kill On Critical Hit"
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill On Critical Attack"
+
+output CHANCE_TO_DAMAGE_ON_ATTACK | CHANCE_TO_DAMAGE_ON_CRIT_ATTACK named "Chance to Deal Damage At All"
+output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK | CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill Happening"

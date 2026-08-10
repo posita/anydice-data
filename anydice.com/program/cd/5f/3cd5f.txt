@@ -1,0 +1,42 @@
+ARMOR : 1
+
+function: accuracy A:n {
+  if A > 0 { result : 1@Ad6 }
+  if A < 0 {
+    A : [absolute A]
+    result : 1@Ad6 * -1 }
+  result : 0
+}
+
+function: check X:n target T:n {
+  if X >= 20 { result : 2 }
+  if X >= T { result : 1 }
+  result : 0
+}
+
+function: X:n damage N:n F:n M:n {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  result : [highest of H - ARMOR and 0]
+}
+
+function: X:n damage N:n F:n M:n reliable R:n {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  H : [highest of H and R]
+  result : [highest of H - ARMOR and 0]
+}
+
+function: X:n damage N:n F:n M:n ap {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  result : H
+}
+
+output ARMOR named "Armor"
+output [[check 1d20+[accuracy 0]+3 target 11] damage 1 6 2] named "1d6+2"
+output [[check 1d20+[accuracy 0]+3 target 11] damage 1 6 0 reliable 2] named "1d6 Reliable 2"
+output [[check 1d20+[accuracy 0]+3 target 11] damage 1 3 3 ap] named "1d3+3 AP"

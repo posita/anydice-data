@@ -1,0 +1,71 @@
+set "explode depth" to 3
+
+\ Static Variables \
+MISS: 0
+HIT: 1
+MIGHTY: 2
+POWER: 3
+CRIT: 4
+
+\ Mutable Variables \
+STR: 3
+PROF: 4
+
+SAVE_DC: 8+STR+PROF
+BONUS: STR+PROF
+
+GUNBLADER: 2d8 + 5
+
+
+\ Determine what kind of hit happens \
+function: attack ROLL:n BON:n vs AC:n {
+  if ROLL = 20 { result: CRIT }
+  if ROLL + BON >= AC + 10 { result: POWER }
+  if ROLL + BON >= AC + 5 { result: MIGHTY }
+  if ROLL = 1 | ROLL + BON < AC { result: MISS }
+  result: HIT
+}
+
+\ Standard attack, nothing special \
+function: damage DICE:d DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result: [maximum of DICE]+DICE+DAM }
+  if ATTACK = MISS { result: 0 }
+  result: DICE+DAM
+}
+
+\ Wound does an extra damage die on mighty blow or better (including crit, for simplicity) \
+function: wound damage D_NUM:n D_SIZE:n DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result: [maximum of D_NUMdD_SIZE]+(D_NUM+1)dD_SIZE+DAM }
+  if ATTACK >= MIGHTY { result: (D_NUM+1)dD_SIZE+DAM }
+  if ATTACK = MISS { result: 0 }
+  result: D_NUMdD_SIZE+DAM
+}
+
+\ Wound with extra die on powerful blow or crit \
+function: wound keen damage D_NUM:n D_SIZE:n DAM:n for ATTACK:n {
+  if ATTACK = CRIT { result: [maximum of D_NUMdD_SIZE]+(D_NUM+2)dD_SIZE+DAM }
+  if ATTACK = POWER { result: (D_NUM+2)dD_SIZE+DAM }
+  if ATTACK >= MIGHTY { result: (D_NUM+1)dD_SIZE+DAM }
+  if ATTACK = MISS { result: 0 }
+  result: D_NUMdD_SIZE+DAM
+}
+
+loop AC over {10..20} {
+  output 0 named "AC [AC]"
+
+  MGUNBLADE: [damage (2d4 + 1) STR for [attack d20 (BONUS + 1) vs AC]]
+  \output MGUNBLADE named "Melee Gunblade"\
+
+  RGUNBLADE: [damage (2d8 + 5 + 1) STR for [attack d20 (BONUS + 1) vs AC]] 
+  \output RGUNBLADE named "Ranged Gunblade"\
+
+  BITE: [wound damage 1 6 STR for [attack d20 BONUS vs AC]]
+  \output BITE named "Bite"\
+
+  WARFAN: [wound keen damage 1 4 STR for [attack d20 BONUS vs AC]]
+  \output WARFAN named "War Fan"\
+
+  output (MGUNBLADE + 2) + MGUNBLADE + MGUNBLADE + RGUNBLADE + BITE + WARFAN + WARFAN + 1d8 named "Every Other Turn"
+
+  \output (MGUNBLADE + 2) + MGUNBLADE + MGUNBLADE + MGUNBLADE + MGUNBLADE + MGUNBLADE + RGUNBLADE + BITE + BITE + WARFAN + WARFAN + WARFAN + 1d8 named "All Out"\
+}

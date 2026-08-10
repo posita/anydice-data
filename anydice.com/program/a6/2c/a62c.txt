@@ -1,0 +1,71 @@
+function: attack ROLL:n TO_HIT DAM_DIE DAM_ADD CRIT AC {
+ if ROLL=1 {result:0}
+ if ROLL>=CRIT {result:DAM_DIE+DAM_DIE+DAM_ADD}
+ if ROLL+TO_HIT>=AC {result:DAM_DIE+DAM_ADD}
+ result:0
+}
+
+function: save ROLL:n DC SAVE {
+ if ROLL+SAVE>=DC {result:0}
+ result:1
+}
+
+function: multiattack LEVEL:n ATK_MOD:n BONUS DAM_DIE CRIT AC:n {
+ PROF:6
+ EXTRA:3
+ if LEVEL<20 {EXTRA:2}
+ if LEVEL<17 {PROF:5}
+ if LEVEL<13 {PROF:4}
+ if LEVEL<11 {EXTRA:1}
+ if LEVEL<9 {PROF:3}
+ if LEVEL<5 {PROF:2 EXTRA:0}
+ SUM:0
+ loop N over {1..EXTRA+1}{
+  SUM:SUM+[attack 1d20 ATK_MOD+PROF DAM_DIE ATK_MOD+BONUS CRIT AC]
+ }
+ result:SUM
+}
+
+function: gfb LEVEL:n ATK_MOD:n INT_MOD:n BONUS DAM_DIE CRIT AC:n {
+ if LEVEL<3 {result:0}
+ PROF:6
+ EXTRA:3
+ WM:1
+ if LEVEL<17 {PROF:5 EXTRA:2}
+ if LEVEL<13 {PROF:4}
+ if LEVEL<11 {HITS:2 EXTRA:1}
+ if LEVEL<9 {PROF:3}
+ if LEVEL<7 {WM:0}
+ if LEVEL<5 {PROF:2 EXTRA:0}
+ result:[attack 1d20 ATK_MOD+PROF DAM_DIE ATK_MOD+BONUS+(2*EXTRA)d8+INT_MOD CRIT AC]+(WM*[attack 1d20 ATK_MOD+PROF DAM_DIE ATK_MOD+BONUS CRIT AC])
+}
+
+function: tc LEVEL:n TARGETS ATK_MOD:n INT_MOD:n BONUS DAM_DIE CRIT AC:n SAVE:n {
+ if LEVEL<3 {result:0}
+ PROF:6
+ EXTRA:3
+ WM:1
+ if LEVEL<17 {PROF:5 EXTRA:2}
+ if LEVEL<13 {PROF:4}
+ if LEVEL<11 {HITS:2 EXTRA:1}
+ if LEVEL<9 {PROF:3}
+ if LEVEL<7 {WM:0}
+ if LEVEL<5 {PROF:2 EXTRA:0}
+ SUM:0 
+ loop N over {1..TARGETS} {SUM:SUM+([save 1d20 8+PROF+INT_MOD SAVE]*(1+EXTRA)d6)}
+ result:SUM+(WM*[attack 1d20 ATK_MOD+PROF DAM_DIE ATK_MOD+BONUS CRIT AC])
+}
+
+L:11                      \ PLAYER LEVEL \
+A:5                       \ PLAYER ATTACK MOD \
+I:3                       \ PLAYER INT MOD \
+D:1d8                     \ PLAYER WEAPON DAMAGE DICE \
+B:2                       \ BONUS DAMAGE FROM DUELING FIGHTING STYLE \
+C:20                      \ MINIMUM CRIT ROLL \
+T:3                       \ TC TARGETS \
+AC_RANGE:d{11..20}        \ MONSTER AC \
+SAVE_RANGE:d{-1..5}       \ MONSTER CON SAVE MOD \
+
+output [multiattack L A B D C AC_RANGE] named "attack lv [L]"
+output [gfb L A I B D C AC_RANGE] named "gfb lv [L]"
+output [tc L T A I B D C AC_RANGE SAVE_RANGE] named "tc lv [L]"

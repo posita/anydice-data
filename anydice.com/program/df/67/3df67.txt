@@ -1,0 +1,24 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: notgoodenough QUANTITY:n of DICE:d {
+  TOTAL: [reroll {1,2} on DICE]
+  if QUANTITY > 1 {
+    loop N over {2..QUANTITY} {
+      TOTAL: TOTAL + [reroll {1,2} on DICE]
+    }
+  }
+  result: TOTAL
+}
+
+PROFICIENCY: 2
+output PROFICIENCYd8 + 8 named "simple longsword"
+output [notgoodenough PROFICIENCY of d8] + 8 named "not good enough longsword"

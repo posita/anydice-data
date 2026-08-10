@@ -1,0 +1,165 @@
+function: attack DIE:n plus ATK ac AC for DMG crit CRIT {
+ if (DIE = 20) {result: DMG + CRIT}
+ if (DIE = 1) {result: 0}
+ if (DIE + ATK >= AC) {result: DMG}
+ else {result: 0}
+}
+
+function: bless BLESS:n attack DIE:n plus ATK ac AC for DMG crit CRIT {
+ if (DIE = 20) {result: DMG + CRIT}
+ if (DIE = 1) {result: 0}
+ if (DIE + BLESS + ATK >= AC) {result: DMG}
+ else {result: 0}
+}
+
+function: craft DIE:n plus MOD {
+ if (DIE = 1) {result: 150}
+ if (DIE+MOD <= 10) {result: 115}
+ if (DIE+MOD <= 15) {result: 100}
+ if (DIE+MOD <= 20) {result:  85}
+ if (DIE+MOD  > 20) {result:  50}
+ else {result: 0}
+}
+
+function: gold DIE:n plus MOD {
+ if (DIE = 1) {result: 0}
+ if (DIE+MOD <= 10) {result: MOD * 2d4}
+ if (DIE+MOD <= 15) {result: MOD * 3d4}
+ if (DIE+MOD <= 20) {result: MOD * 3d6}
+ if (DIE+MOD  > 20) {result: MOD * 3d8}
+ else {result: 0}
+}
+
+
+ARMOR: 16
+
+DAL_DEX: 6 
+DEX: 5
+PROF: 3
+
+EA: 1@3d20
+ADV: 1@2d20
+DIS: 2@2d20
+REG: 1d20
+
+ATH: REG
+DAL: REG
+
+BOW: 1d8
+HXB: 1d6
+SWORD: 1d6
+SS: 10
+HM: 1d6
+CS: 1d8
+
+
+function: bless BLESS:n slayer DIE_A:n plus ATK ac AC for DMG_A crit CRIT_A and DIE_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20)                  {result: DMG_A + CRIT_A + 2d8 + [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+ if (DIE_A = 1)                   {result:                        [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A + BLESS + ATK >= AC)   {result: DMG_A          + 1d8 + [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+ else                             {result:                        [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+}
+
+function: slayer DIE_A:n plus ATK ac AC for DMG_A crit CRIT_A and DIE_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20)          {result: DMG_A + CRIT_A + 2d8 + [attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+ if (DIE_A = 1)           {result:                        [attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A + ATK >= AC)   {result: DMG_A          + 1d8 + [attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+ else                     {result:                        [attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+}
+
+function: slayer DIE_A:n plus ATK_A ac AC for DMG_A crit CRIT_A and DIE_B plus ATK_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20)          {result: DMG_A + CRIT_A + 2d8 + [attack DIE_B plus ATK_B ac AC for DMG_B     crit CRIT_B    ]}
+ if (DIE_A = 1)           {result:                        [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A + ATK_A >= AC) {result: DMG_A          + 1d8 + [attack DIE_B plus ATK_B ac AC for DMG_B     crit CRIT_B    ]}
+ else                     {result:                        [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+}
+
+function: slayer DIE_A:n plus ATK ac AC for DMG_A crit CRIT_A and DIE_B for DMG_B crit CRIT_B and DIE_C for DMG_C crit CRIT_C {
+ if (DIE_A = 20)          {result: DMG_A + CRIT_A + 2d8 + [attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ] + [attack DIE_C plus ATK ac AC for DMG_C crit CRIT_C]}
+ if (DIE_A = 1)           {result: [slayer DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B and DIE_C for DMG_C crit CRIT_C]}
+ if (DIE_A + ATK >= AC)   {result: DMG_A          + 1d8 + [attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ] + [attack DIE_C plus ATK ac AC for DMG_C crit CRIT_C]}
+ else                     {result: [slayer DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B and DIE_C for DMG_C crit CRIT_C]}
+}
+
+function: bless BLESS:n fresh slayer DIE_A:n plus ATK ac AC for DMG_A crit CRIT_A and DIE_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20)                {result: DMG_A + CRIT_A + [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A = 1)                 {result:                  [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+ if (DIE_A + BLESS + ATK >= AC) {result: DMG_A          + [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ else                           {result:                  [bless 1d4 attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+}
+
+function: fresh slayer DIE_A:n plus ATK ac AC for DMG_A crit CRIT_A and DIE_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20)          {result: DMG_A + CRIT_A + [attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A = 1)           {result:                  [attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+ if (DIE_A + ATK >= AC)   {result: DMG_A          + [attack DIE_B plus ATK   ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ else                     {result:                  [attack DIE_B plus ATK   ac AC for DMG_B     crit CRIT_B    ]}
+}
+
+function: fresh slayer DIE_A:n plus ATK_A ac AC for DMG_A crit CRIT_A and DIE_B plus ATK_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20)          {result: DMG_A + CRIT_A + [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A = 1)           {result:                  [attack DIE_B plus ATK_B ac AC for DMG_B     crit CRIT_B    ]}
+ if (DIE_A + ATK_A >= AC) {result: DMG_A          + [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ else                     {result:                  [attack DIE_B plus ATK_B ac AC for DMG_B     crit CRIT_B    ]}
+}
+
+function: reroll FIRST:n as SECOND:n {
+ if (FIRST=0) {result: SECOND}
+ else {result: FIRST}
+}
+
+function: froll A:n or B:n or M:n as R:n {
+ if (A=0)|(B=0)|(M=0) {result: A+B+M+R}
+ else {result: A+B+M}
+}
+
+function: froll A:n or B:n as R:n {
+ if (A=0)|(B=0) {result: A+B+R}
+ else {result: A+B}
+}
+
+function: fullflurry DIE plus ATK ac AC for DMG crit CRIT {
+ FIRST: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ SECOND: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ AMBUSH: [attack DIE plus ATK ac AC for DMG+1d8 crit CRIT+1d8]
+ REDO: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ 
+ result: [froll FIRST or SECOND or AMBUSH as REDO]
+}
+
+function: flurry DIE plus ATK ac AC for DMG crit CRIT {
+ FIRST: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ SECOND: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ REDO: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ 
+ result: [froll FIRST or SECOND as REDO]
+}
+
+
+
+output 1d10 named "Target AC [ARMOR] #BlessUp"
+output [bless 1d4 attack DAL plus 2+DAL_DEX+PROF ac ARMOR for DAL_DEX+1d6 crit 1d6] 
+     + [bless 1d4 attack DAL plus 2+DAL_DEX+PROF ac ARMOR for DAL_DEX+1d6 crit 1d6] 
+     + [bless 1d4 attack DAL plus 2+DAL_DEX+PROF ac ARMOR for DAL_DEX+1d6 crit 1d6] named "Dallas' triple tap"
+
+\-
+output [bless 1d4 fresh slayer ATH plus 2+DEX+PROF ac ARMOR for DEX+BOW crit BOW and ATH for DEX+BOW crit BOW] named "Athros, 1st blood"
+output [bless 1d4 slayer       ATH plus 2+DEX+PROF ac ARMOR for DEX+BOW crit BOW and ATH for DEX+BOW crit BOW] named "Athros"
+-\
+
+output [bless 1d4 attack DAL plus 2+DAL_DEX+PROF-5 ac ARMOR for DAL_DEX+1d6+SS crit 1d6] 
+     + [bless 1d4 attack DAL plus 2+DAL_DEX+PROF-5 ac ARMOR for DAL_DEX+1d6+SS crit 1d6] 
+     + [bless 1d4 attack DAL plus 2+DAL_DEX+PROF-5 ac ARMOR for DAL_DEX+1d6+SS crit 1d6] named "Dallas' triple SS"
+output [bless 1d4 slayer       ATH plus 2+DEX+PROF ac ARMOR for DEX+BOW+HM crit BOW+HM and ATH for DEX+BOW+HM crit BOW+HM] named "Athros, HM"
+output [bless 1d4 fresh slayer ATH plus 2+DEX+PROF ac ARMOR for DEX+BOW+HM crit BOW+HM and ATH for DEX+BOW+HM crit BOW+HM] named "Athros, HM, 1st blood"
+
+output [bless 1d4 attack ADV plus 2+DAL_DEX+PROF-5 ac ARMOR for DAL_DEX+1d6+SS crit 1d6] 
+     + [bless 1d4 attack ADV plus 2+DAL_DEX+PROF-5 ac ARMOR for DAL_DEX+1d6+SS crit 1d6] 
+     + [bless 1d4 attack ADV plus 2+DAL_DEX+PROF-5 ac ARMOR for DAL_DEX+1d6+SS crit 1d6] named "Dallas' triple SS w/ Advantage"
+output [bless 1d4 slayer       EA plus 2+DEX+PROF ac ARMOR for DEX+BOW+HM crit BOW+HM and EA for DEX+BOW+HM crit BOW+HM] named "Athros, HM w/ EA"
+output [bless 1d4 fresh slayer EA plus 2+DEX+PROF ac ARMOR for DEX+BOW+HM crit BOW+HM and EA for DEX+BOW+HM crit BOW+HM] named "Athros, HM, 1st blood w/ EA"
+
+
+\-
+output [slayer       ATH plus   DEX+PROF ac ARMOR for DEX+SWORD+HM crit SWORD+HM and ATH for DEX+SWORD+HM crit SWORD+HM and ATH for SWORD+HM crit SWORD+HM] named "Athros, swords, HM"
+output [bless 1d4 slayer ATH plus 2+DEX+PROF-5 ac ARMOR for DEX+BOW+HM+SS crit BOW+HM and ATH for DEX+BOW+HM+SS crit BOW+HM] named "Athros, HM, SS"
+-\

@@ -1,0 +1,33 @@
+\
+ Blades in the Dark
+ 0: Things go bad.
+ 1: Success, but with undesired consequences.
+ 2: Clean success.
+ 3: Critical success!
+\
+
+function: blades ROLL:s {
+ result: (1@ROLL >= 4) + (1@ROLL = 6) + (2@ROLL = 6)
+}
+
+function: dataops ATT TOTAL ROLL:s {
+ A: 0
+ loop X over {1..ATT} {
+  B: [count X in ROLL] 
+  if B>A { A: B }
+  if A>2 { A: 3 }
+ }
+ result: A
+}
+
+output [blades 2@2d6] named "0d"
+loop P over {1..7} {
+ output [blades Pd6] named "[P]d"
+}
+
+loop A over {1..5} {
+ output [dataops A 1 1@2d6] named "att[A] 0d"
+ loop P over {1..7} {
+  output [dataops A P Pd6] named "att[A] [P]d"
+ }
+}

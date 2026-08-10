@@ -1,0 +1,41 @@
+\ Rolls a Bonus/Penalty die, which on a 6/1 adds/subtracts a success \
+function: modifier VALUE:n {
+  result: ([absolute VALUE])d(1d6 >= 5)
+}
+
+\ Roll a pool of dice equal to KEEP + SWAP and only keep a number equal to KEEP \
+function: KEEP:n swap SWAP:n {
+ result: [highest KEEP of (KEEP + SWAP)d(1d6 = 6)]
+}
+
+function: KEEP:n swap SWAP:n mod MOD:n {
+ PLAYER: [KEEP swap SWAP]
+ MODIFIER: [modifier MOD]
+ if MOD >= 0 {
+  result: PLAYER + MODIFIER
+ } else {
+  result: [highest of PLAYER - MODIFIER and 0]
+ }
+}
+
+function: ternary TALLY:s {
+ WEAL: [count 6 in TALLY]
+ WOE: [count 1 in TALLY]
+ LENGTH: #TALLY
+
+ if (WEAL > 1 & WOE = 0) {
+  result: 4
+ } else if (WEAL >= 1 & WOE >= 0) {
+  result: 3
+ } else if (WEAL = 0 & WOE <= LENGTH/2) {
+  result: 2
+ } else {
+  result: 1
+ }
+}
+
+\ output [ternary [4 swap 2]] \
+
+loop I over {0}{ 
+ output [7 swap 5 mod I] named "[I] mod"
+}

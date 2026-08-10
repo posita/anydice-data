@@ -1,0 +1,95 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attacka ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + FIRSTATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + FIRSTATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + FIRSTATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackb ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + SECONDATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + SECONDATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + SECONDATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackc ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + THIRDATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + THIRDATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + THIRDATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKARESULT:n {
+ if ATTACKARESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKARESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ 
+
+function: attacka {
+ result: [damage for [attacka d20 vs DEFENSE]]
+}
+function: attackb {
+ result: [damage for [attackb d20 vs DEFENSE]]
+}
+function: attackc {
+ result: [damage for [attackc d20 vs DEFENSE]]
+}
+
+DEFENSE: d{15..25}
+
+FIRSTATTACK: 10
+SECONDATTACK: 5
+THIRDATTACK: 0
+
+D:2
+C:3
+MOD:4
+S:2
+B:0
+
+HITDAMAGE: Dd6
+CRITICALDAMAGE: ((2*Dd6)+1d10)
+MISSDAMAGE: 0
+output [attacka] named "Bow"
+output [attackb] named "Bow2"
+output [attacka]+[attackb] named "total"
+
+HITDAMAGE: Dd6+Sd6
+CRITICALDAMAGE: ((2*Dd6)+(2*Sd6)+1d10)
+MISSDAMAGE: 0
+output [attacka] named "Sneak Bow"
+output [attackb] named "Sneak Bow2"
+output [attacka]+[attackb] named "total"
+
+output 0
+
+HITDAMAGE: Cd4+MOD
+CRITICALDAMAGE: (2*Cd4)+(MOD*2)
+MISSDAMAGE: 0
+output [attacka] named "Produce Flame"
+
+HITDAMAGE: Cd4+MOD+Sd6
+CRITICALDAMAGE: (2*Cd4)+(2*MOD)+ (2*Sd6)
+MISSDAMAGE: 0
+output [attacka] named "Sneak Flame"

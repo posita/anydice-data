@@ -1,0 +1,28 @@
+function: roller DICE:d {
+ NEW: {1@DICE, 2@DICE}
+ EXTRA: [helper 1@DICE] + [helper 2@DICE]
+ POOL: 2d NEW
+ result: POOL + EXTRA
+}
+
+function: helper DIE:n {
+ RES : 0
+ if DIE >= 10 {RES : [explode 1d10]}
+ result : RES
+}
+
+function: check NUMBER:n{
+ if NUMBER < 0 { result: 0 }
+ result: NUMBER
+}
+
+LIGHT_DAMAGE: 20
+MEDIUM_DAMAGE: 40
+HEAVY_DAMAGE: 60
+ARMOR: 60
+
+output [check (([highest 2 of 2d10] - [highest 2 of 2d10])*(10 + LIGHT_DAMAGE/5) - ARMOR)] named "Light Weapon"
+output [check (([highest 2 of 2d10] - [highest 2 of 2d10])*(10 + MEDIUM_DAMAGE/5) - ARMOR)] named "Medium Weapon"
+output [check (([highest 2 of 2d10] - [highest 2 of 2d10])*(10 + HEAVY_DAMAGE/5) - ARMOR)] named "Heavy Weapon"
+output [check (([lowest 2 of 2d10] - [highest 2 of 2d10])*(10 + LIGHT_DAMAGE/5) - ARMOR)] + [check (([lowest 2 of 3d10] - [lowest 2 of 2d10])*(10 + LIGHT_DAMAGE/5) - ARMOR)] named "Double Light Weapon"
+output [check (([highest 2 of 3d10] - [highest 2 of 2d10])*(10 + MEDIUM_DAMAGE/5) - ARMOR)]named "Medium and Shield"

@@ -1,0 +1,168 @@
+\---- How to use ----\
+\Adjust the variables below (MOD, DIE, NUMDIE, MIN, CRIT) to change calculation & click "Calculate" below the textbox\
+\--------------------------------------------------------------------------------------------------------------------\
+\EXAMPLE, DO NOT EDIT:                                                                                               \
+\For Great Weapon Fighter with a Halberd you would use the following:                                             \
+\MOD: [Strength modifier]                                                                                            \
+\DIE: 10      (Halberd damage: 1d[10])                                                                              \
+\NUMDIE: 1   (Halberd damage: [1]d10)                                                                              \
+\MIN: 2      (Default for GWF is reroll 1s and 2s)                                                               \
+\CRIT: 20    (Default crit value of fighter)                                                                   \
+\--------------------------------------------------------------------------------------------------------------------\
+
+\VARIABLES - Edit these to change output!                           \
+\-------------------------------------------------------------------\
+ENEMYAC:13
+PCLEVEL:1
+MOD:3     \This is the damage modifier. I.E. Strength modifier, etc.\
+DIE:10     \Die size. I.E. DIE:10 for d10                              \
+NUMDIE:1  \Number of damage dice. I.E. NUMDIE:1 for Halberd/Maul \
+MIN:2     \Lower limit for Great Weapon Fighter. Default of 2       \
+CRIT: 20  \Minimum roll for a crit. Default 20                      \                                
+\-------------------------------------------------------------------\
+
+\Don't touch the code below, this is where the magic happens!\
+\It's been documented for others to understand functionality \
+\------------------------------------------------------------\
+
+\Description -----------------------------------------------------------------------------------\
+\This function returns the re-rolled value of the die if it is lower or equal to the lower limit\
+\Variables -------------------------------------------------------------------------------------\
+\A = Initial input value. I.E. 1 to 10 for d10                                                    \
+\B = Lower reroll limit. I.E. 2 for Great Weapon Fighter                                        \
+\C = Dice value. I.E. 10 for d10                                                                  \
+\-----------------------------------------------------------------------------------------------\
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+\Description ---------------------------------------------\
+\This function simulates the Great Weapon Master feat     \
+\Variables -----------------------------------------------\
+\A = Dice value I.E. A=10 for 1d10                          \
+\B = Number of damage dice I.E. B = 1 for Halberd (1d10)\
+\C = Lower limit for reroll. Default 2                    \
+\---------------------------------------------------------\
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+\Description ---------------------------------------------\
+\This function returns 2 if the user crits                \
+\Variables -----------------------------------------------\
+\A = Dice roll. Default 1 to 20 (1d20)                    \
+\B = Minimum critical roll. Default 20                    \
+\---------------------------------------------------------\
+
+function: getcrit A:n B:n { 
+ if A >= 20 { 
+  result:2 
+ }
+ else { 
+  result:1 
+ } 
+}
+
+MUL:[getcrit 1d20 CRIT]
+
+\---- How to use ----\
+\Adjust the variables below (MODTWO, DIETWO, NUMDIETWO, MINTWO, CRITTWO) to change calculation & click "Calculate" below the textbox\
+\--------------------------------------------------------------------------------------------------------------------\
+\EXAMPLE, DO NOT EDIT:                                                                                               \
+\For Great Weapon Fighter with a HalberdTWO you would use the following:                                             \
+\MODTWO: [Strength modifier]                                                                                            \
+\DIETWO: 4      (HalberdTWO damage: 1d[4])                                                                              \
+\NUMDIETWO: 1   (HalberdTWO damage: [1]d4)                                                                              \
+\MINTWO: 2      (Default for GWF is reroll 1s and 2s)                                                               \
+\CRITTWO: 20    (Default CRITTWO value of fighter)                                                                   \
+\--------------------------------------------------------------------------------------------------------------------\
+
+\VARIABLES - Edit these to change output!                           \
+\-------------------------------------------------------------------\
+MODTWO:3     \This is the damage modifier. I.E. Strength modifier, etc.\
+DIETWO:4     \DIETWO size. I.E. DIETWO:4 for d4                              \
+NUMDIETWO:1  \Number of damage dice. I.E. NUMDIETWO:1 for HalberdTWO/Maul \
+MINTWO:2     \Lower limit for Great Weapon Fighter. Default of 2       \
+CRITTWO: 20  \Minimum roll for a CRITTWO. Default 20                      \                                
+\-------------------------------------------------------------------\
+
+\Don't touch the code below, this is where the magic happens!\
+\It's been documented for others to understand functionality \
+\------------------------------------------------------------\
+
+\Description -----------------------------------------------------------------------------------\
+\This function returns the re-rolled value of the DIETWO if it is lower or equal to the lower limit\
+\Variables -------------------------------------------------------------------------------------\
+\A = Initial input value. I.E. 1 to 4 for d4                                                    \
+\B = Lower reroll limit. I.E. 2 for Great Weapon Fighter                                        \
+\C = Dice value. I.E. 4 for d4                                                                  \
+\-----------------------------------------------------------------------------------------------\
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+\Description ---------------------------------------------\
+\This function simulates the Great Weapon Master feat     \
+\Variables -----------------------------------------------\
+\A = Dice value I.E. A=4 for 1d10                          \
+\B = Number of damage dice I.E. B = 1 for HalberdTWO (1d10)\
+\C = Lower limit for reroll. Default 2                    \
+\---------------------------------------------------------\
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+\Description ---------------------------------------------\
+\This function returns 2 if the user crits                \
+\Variables -----------------------------------------------\
+\A = Dice roll. Default 1 to 20 (1d20)                    \
+\B = Minimum critical roll. Default 20                    \
+\---------------------------------------------------------\
+
+function: getcrit A:n B:n { 
+ if A >= 20 { 
+  result:2 
+ }
+ else { 
+  result:1 
+ } 
+}
+
+MUL:[getcrit 1d20 CRITTWO]
+output (MUL * 1d10+MOD) named "Normal Single Halberd Attack"
+
+\-------\
+output (MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD named "Great Weapon Fighter Attack without Savage Attacker (1d10 + MOD)"
+output [highest of ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD) and ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD)] named "Great Weapon Fighter using Savage Attacker on both rolls(higher of ((1d10 and 1d10) + MOD)"
+
+\-------\
+output (MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MODTWO named "Polearm Opposite End - Great Weapon Fighter Attack without Savage Attacker(1d4 + MOD)"
+output [highest of ((MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MODTWO) and ((MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MODTWO)] named "Polearm Opposite End - Great Weapon Fighter and Savage Attacker ((highest of 1d4 and 1d4) + MOD)"
+
+\-------\
+output ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD) + (MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MODTWO named "Main attack and Opposite End Attack - GWF on both((1d10+MOD)+(1d4+MOD))"
+output [highest of ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD) and ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD)] + (MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MODTWO named "SA on Main Attack with GWF on Main and Opposite End Attack ((highest 1d10 and 1d10) + (1d4 + MOD))"
+
+\-------\
+output ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD + 1) + (MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD + 1 + ((MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MODTWO +1) named "Total Attack with Ability Score Increase - Main attack and Opposite End Attack - GWF on both((1d10+MOD)+(1d4+MOD))"
+output [highest of ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD) and ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD)] + ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD) + (MUL * [greatweaponmaster DIETWO NUMDIETWO MINTWO]) + MODTWO named "Total Attack - SA on Main Attack with GWF on Main and Opposite End Attack ((highest (1d10 and 1d10)+MOD ) + (1d10 + MOD) + (1d4 + MOD))"
+
+

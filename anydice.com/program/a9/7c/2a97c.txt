@@ -1,0 +1,32 @@
+AC: 15
+CRIT_THRESHOLD: 20
+AMOD: 7
+DMOD: 4
+function: attack ROLL:n for DAMAGE:n{
+ if DAMAGE = 0 { result: 0 }
+ if ROLL >= CRIT_THRESHOLD { result: DAMAGE+DAMAGE+DMOD }
+ if ROLL >= AC - AMOD { result: DAMAGE+DMOD }
+ result: 0
+}
+
+function: turn ACTION:n EXTRA:n BONUS:n{
+  result: [attack d20 for ACTION] + [attack d20 for EXTRA] + [attack d20 for BONUS]
+}
+
+TENBASE: [turn 1d10 1d10 1d4]
+BASE: [turn 1d6 1d6 1d4]
+TENTURNA: [turn 1d10+1d6 1d10+1d6 0]
+TURNA: [turn 1d6+1d6 1d6+1d6 0]
+output TURNA named "Turn 1"
+output TENTURNA named "10 Turn 1"
+CRIT_THRESHOLD: 19
+DMOD: 7
+TENTURNB: [turn 1d10+1d6 1d10+1d6 0]
+TURNB: [turn 1d6+1d6 1d6+1d6 0]
+TENTURNC: [turn 1d10+1d6 1d10+1d6 1d4+1d6]
+TURNC: [turn 1d6+1d6 1d6+1d6 1d4+1d6]
+output TURNC named "Turn 3"
+output TENTURNC named "10 Turn 3"
+
+output (TURNA + TURNB + TURNC)/3 named "3Average"
+output (TENTURNA + TENTURNB + TENTURNC)/3 named "10 3Average"

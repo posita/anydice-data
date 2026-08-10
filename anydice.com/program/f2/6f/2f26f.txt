@@ -1,0 +1,52 @@
+EXTRA: 0
+YES: 1
+NO: 0
+
+function: explode ROLLEDVALUE:n LIMIT:n ISREROLL {
+ if LIMIT < 0 { result: 0 }
+ if ROLLEDVALUE = 6 {
+   result: 6 + [explode d6 LIMIT-1 NO]
+ }
+ if ROLLEDVALUE < 4 & EXTRA > 0 & !ISREROLL {
+   EXTRA: EXTRA - 1
+   result: [explode d6 LIMIT YES]
+ }
+ result: ROLLEDVALUE
+}
+
+function: burst ROLL:s cha CHA empowered EMPOWERED {
+  if EMPOWERED {
+    USED: [count {1,2,3} in ROLL]
+    EXTRA: CHA - USED
+  }
+    
+  TOTAL: 0
+  loop N over {1..#ROLL} {
+    if N@ROLL = 6 {
+      TOTAL: TOTAL + [explode 6 CHA NO]
+    }
+    else {
+      if N@ROLL < 4 & EMPOWERED {
+        TOTAL: TOTAL + [explode 1d6 CHA NO]
+      }
+      else {
+        TOTAL: TOTAL + N@ROLL
+      }
+    }
+  }
+
+  result: TOTAL
+}
+
+
+
+output [burst 1d6 cha 3 empowered NO] named "Level 1"
+output [burst 2d6 cha 4 empowered NO] named "Level 5"
+output [burst 3d6 cha 5 empowered NO] named "Level 11"
+output [burst 4d6 cha 5 empowered NO] named "Level 17"
+
+output [burst 1d6 cha 3 empowered YES] named "Level 1 empowered"
+output [burst 2d6 cha 4 empowered YES] named "Level 5 empowered"
+output [burst 3d6 cha 5 empowered YES] named "Level 11 empowered"
+output [burst 4d6 cha 5 empowered YES] named "Level 17 empowered"
+

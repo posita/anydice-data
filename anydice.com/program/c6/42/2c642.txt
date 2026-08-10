@@ -1,0 +1,61 @@
+function: str S:n t T:n sv SV:n ap AP:n
+          rapid IS_RAPID:n shock IS_SHOCK:n
+          shred IS_SHRED:n power IS_POWER:n
+          rapidroll RAPID_ROLL:s critroll CRIT_ROLL:s
+          woundroll WOUND_ROLL:s saveroll SAVE_ROLL:s
+{
+X:0
+if (IS_RAPID = 1)
+{
+  if (RAPID_ROLL = 6 )
+   {X:3}
+  else 
+   {
+    if (RAPID_ROLL > 3 )
+     {
+      X:2
+     }
+    else {X:1}
+   }
+}
+else
+{ 
+  X:1
+}
+
+TEMP_RESULT:0
+
+if (CRIT_ROLL = 6)
+{
+  if (IS_SHRED=1) {AP:AP-1}
+  if (IS_POWER=1) {AP:AP-7}
+  if (IS_SHOCK=1) 
+  {
+    if (X=0)
+    {
+       result:1
+    }
+    else
+    {
+       X: X-1
+       TEMP_RESULT:1 
+    }
+  }
+}
+
+loop N over {1..X}{
+ if (((S >= T * 2)&(WOUND_ROLL>=2)) 
+ | ((S > T)&(WOUND_ROLL>=3))
+ | ((S = T)&(WOUND_ROLL>=4))
+ | ((S < T )&(WOUND_ROLL>=5))
+ | ((S <= T / 2 )&(WOUND_ROLL>=6)))&(SAVE_ROLL<(SV-AP))
+{
+  TEMP_RESULT:TEMP_RESULT+1
+}
+}
+
+
+result:TEMP_RESULT
+}
+
+output [str4 t3 sv4 ap-1 rapid 1 shock 0 shred 0 power 0 rapidroll d6 critroll d6 woundroll d6 saveroll d6] named "+GW HOTSHOT+ STR4 T3 SV4 AP-1"

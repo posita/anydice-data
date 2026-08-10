@@ -1,0 +1,84 @@
+EVASION: 8
+ARMOR: 3
+
+function: attack A:n {
+  result: 1d20 + 3 + ((A < 0) * (-A) + (A > 0))@Ad6
+}
+
+function: mod N:n by D:n {
+  result: N - D * (N / D)
+}
+
+function: handcannon A:n with DH:n {
+  D: DH / 2
+  H: DH - D * 2
+  result: D * 2 + [handdam [attack A] with H]
+}
+
+function: handdam R:n with H:n {
+  if (R < EVASION) {
+    result: H
+  } else if (R < 20) {
+    result: [highest of 1d6 - ARMOR and 0] * 2 + 1
+  } else {
+    result: [highest of 1@2d6 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: nanocarbonlast A:n with DH:n {
+  D: DH / 2
+  H: DH - D * 2
+  result: 2 * D + [nanodamlast [attack (A + H)]]
+}
+
+function: nanodamlast R:n {
+  if (R < EVASION) {
+    result: 0
+  } else if (R < 20) {
+    result: [highest of 1d6 + 4 - ARMOR and 0] * 2
+  } else {
+    result: [highest of 1@2d6 + 4 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: nanofirst R:n {
+  if (R < EVASION) {
+    result: 0
+  } else if (R < 20) {
+    result: [highest of 1d6 + 4 - ARMOR and 0] * 2
+  } else {
+    result: [highest of 1@2d6 + 4 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: handlast DC:n {
+  D: DC / 2
+  C: DC - D * 2
+  if C {
+    HCF: [handcannon 3 with 0]
+    HCS: [handcannon 1 with HCF]
+    result: 2 * D + 2 * (HCS / 2) + 1
+  } else {
+    result: 2 * D
+  }
+}
+
+HCA: [handcannon 2 with 0]
+HCB: [handcannon 1 with HCA]
+HCC: [handcannon 1 with HCB]
+HCD: [handcannon 1 with HCC]
+DAMF: [nanocarbonlast (-1) with HCD] / 2
+
+NCZ: [nanofirst [attack 1]]
+DCZ: [handlast NCZ]
+
+DCT: [nanocarbonlast 1 with HCB]
+
+output DCZ / 2 named "Damage (0 loaded beforehand)"
+output 2 + [mod DCZ by 2] * 2 named "Loaded afterwards (0 loaded beforehand)"
+
+output DCT / 2 named "Damage (2 loaded beforehand)"
+output [mod DCT by 2] * 2 named "Loaded afterwards (2 loaded beforehand)"
+
+output DAMF named "Damage (4 loaded beforehand)"
+output 0 named "Loaded afterwards (4 loaded beforehand)"

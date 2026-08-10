@@ -1,0 +1,30 @@
+\ This table maps numbers to every combination of up to two bad/good/null symbols. 
+  The numbers are arbitrary, but chosen to be easily referenced by people.
+
+    none bad good null 
+none  0   1   2    3
+bad      11  12   13
+good         22   23
+null              33 \
+
+
+\ These are examples of six sided dice \
+ZERO: {1, 2, 3:3, 13}   \ sides: bad, good, three null, and bad+null. This die is equivalent to the die embedded in your 'outcome ROLL:s' \
+ONE: {23:3, 13:3}       \ sides: three good+null, and three bad+null \
+TWO: {0, 1, 2, 33, 3:2} \ sides: blank, bad, good, null+null, two null \
+
+
+function: outcome ROLL:s limit LIMIT:n {
+ BAD:  [count {1,12,13} in ROLL] + 2 * [count 11 in ROLL] \ count sides with a bad, plus double count sides with two bads \
+ NULL: [count {3,13,23} in ROLL] + 2 * [count 33 in ROLL] \ count sides with a null, plus double count sides with two nulls \
+ GOOD: [count {2,12,23} in ROLL] + 2 * [count 22 in ROLL] \ count sides with a good, plus double count sides with two goods, \
+                             + [lowest of NULL and LIMIT] \ plus nulls that can be converted to goods \
+ result: GOOD - BAD   \ calculate how good or bad the roll is \
+}
+
+
+\ see how each limit affects the outcome of the dice \
+loop LIMIT over {0..4} {   \ 4 nulls is the most you can have when rolling 2 dice: 2 null+null sides \
+ output [outcome 2dTWO limit LIMIT] named "convert at most [LIMIT] nulls"
+}
+

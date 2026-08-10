@@ -1,0 +1,74 @@
+\ <========================================================================================================================================> \
+\ Para alterar os dados rolados, altera apenas as duas variÃ¡veis abaixo \
+\ a variÃ¡vel "DADOS_NORMAIS" simboliza sua quantidade de dados normais lanÃ§ados, e "DADOS_CORROMPIDOS" e a sua quantidade de dados de corrupÃ§Ã£o lanÃ§ados \
+\ <========================================================================================================================================> \
+
+
+
+DADOS_NORMAIS: 5 
+DADOS_CORROMPIDOS: 3
+
+
+
+\ <========================================================================================================================================> \
+\ daqui pra baixo, sÃ£o apenas cÃ³digos que executa a rolagem \
+\ se vc n tem interesse em aprender e sÃ³ quer testar a rolagem, nÃ£o avance pra baixo, apenas muda as variÃ¡vel e aperte calcule-te \
+\ <========================================================================================================================================> \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function: CORRUPCAO:n to count consequence {
+  SUCESSO_CORRUPCAO: [count {8..10} in CORRUPCAO d{1:7,8..10}]*2 
+  result: SUCESSO_CORRUPCAO*2
+}
+
+function:  NORMAL:n and CORRUPCAO:n to count consequence again {
+  DIFERENCA: CORRUPCAO+NORMAL-7
+  SUCESSO_CORRUPCAO: [count {(8+DIFERENCA)..(10+DIFERENCA)} in CORRUPCAO d{1:7,8..10}]*2 
+  result: SUCESSO_CORRUPCAO*2
+}
+
+function: roll NORMAL:n and CORRUPCAO:n smaller {
+  SUCESSO_NORMAL: [count {6..10} in NORMAL d{1:5,6..10}]
+  SUCESSO_CORRUPCAO: [count {8..10} in CORRUPCAO d{1:7,8..10}]*2
+  result: SUCESSO_NORMAL + SUCESSO_CORRUPCAO
+}
+
+function: roll NORMAL:n and CORRUPCAO:n bigger {
+  DIFERENCA: CORRUPCAO+NORMAL-7
+  SUCESSO_NORMAL: [count {6..10} in NORMAL d{1:5,6..10}]
+  SUCESSO_CORRUPCAO: [count {(8+DIFERENCA)..(10+DIFERENCA)} in CORRUPCAO d{1:7,8..10}]*2
+  result: SUCESSO_NORMAL + SUCESSO_CORRUPCAO
+}
+
+if DADOS_NORMAIS+DADOS_CORROMPIDOS <= 7 {
+  ROLL_RESULT: [roll DADOS_NORMAIS and DADOS_CORROMPIDOS smaller]
+  CONSEQUENCE: [DADOS_CORROMPIDOS to count consequence]
+  
+  output ROLL_RESULT named "[DADOS_NORMAIS]d NORMAL e [DADOS_CORROMPIDOS]d CORRUPÃ‡ÃƒO"
+  output (ROLL_RESULT > CONSEQUENCE) named "[DADOS_NORMAIS]d NORMAL e [DADOS_CORROMPIDOS]d CORRUPÃ‡ÃƒO, 0 = com consequÃªncia e 1 = sem consequÃªncia"
+
+} else {
+  ROLL_RESULT: [roll DADOS_NORMAIS and DADOS_CORROMPIDOS bigger]
+  CONSEQUENCE: [DADOS_NORMAIS and DADOS_CORROMPIDOS to count consequence again]
+  
+  output ROLL_RESULT named "[DADOS_NORMAIS]d NORMAL e [DADOS_CORROMPIDOS]d CORRUPÃ‡ÃƒO"
+  output (ROLL_RESULT > CONSEQUENCE) named "[DADOS_NORMAIS]d NORMAL e [DADOS_CORROMPIDOS]d CORRUPÃ‡ÃƒO, 0 = com consequÃªncia e 1 = sem consequÃªncia"
+}

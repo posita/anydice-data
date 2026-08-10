@@ -1,0 +1,28 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+ENEMYAC: 20
+
+function: gwf N:n on SIZE {
+ if N <= 2 { result: d(SIZE) }
+ result: N
+}
+
+function: damage for ATTACK:n {
+ if ATTACK = CRITICALHIT {
+  result: 2*([gwf d12 on 12]+[gwf d6 on 6]+[gwf d4 on 4])+2d[gwf d12 on 12]+23
+ }
+ if ATTACK = HIT {
+  result: [gwf d12 on 12]+[gwf d6 on 6]+[gwf d4 on 4]+23
+ }
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + 9 >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+output 5d[damage for [attack 1@2d20 vs ENEMYAC]] named "GROG"

@@ -1,0 +1,32 @@
+\first roll\
+SETBACK: 1
+NETWORKING: {2..3}
+CONTINUING: {4..5}
+PASSION: {6}
+\second roll\
+LOCATION: {3..4}
+EVENT: {5..8}
+OPPORTUNITY: {9..12}
+\opportunity roll\
+ASSET: {1..3}
+JOB: {5..6}
+
+function: last SEQUENCE:s {
+   POSITION: #(SEQUENCE)
+   result: POSITION@(SEQUENCE)
+   }
+function: probabilities TBLMOTIVATION:n TBLENCOUNTER:n TBLOPPORTUNITY:n {
+   if TBLMOTIVATION!=1 {
+      if TBLENCOUNTER = 2 {result: 0} \a nothing day\
+      if TBLENCOUNTER = LOCATION {result: 1} \a location\
+      if TBLENCOUNTER >= 1@(OPPORTUNITY) & TBLENCOUNTER <= [last OPPORTUNITY] {
+         if TBLOPPORTUNITY >= 1@(ASSET) & TBLOPPORTUNITY <= [last ASSET] {result: 3} \an asset\
+         if TBLOPPORTUNITY >= 1@(JOB) & TBLOPPORTUNITY <= [last JOB] {result: 4} \a job listing\
+         result: 5 \other opportunity\
+      } 
+      result: 2 \an event\
+   }
+   result: -1 \a setback\
+}
+
+output [probabilities 1d6 2d6 1d6] named "-1:setback | 0:nothing | 1:location | 2:event | 3:asset | 4:job | 5:other"

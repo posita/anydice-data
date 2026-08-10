@@ -1,0 +1,60 @@
+\ WÃœRFEL-DEFINITIONEN \
+
+\ output d{-2,6:2} named "1orange"
+output d{1,2,3:2,4,5} named "2green"
+output d{0:2,8} named "3blue"
+output d{-1,7} named "4yellow" \
+
+
+
+\ KAMPF-PARAMETER \
+
+ATTACKER_NUMBER_OF_DICE: 2
+ATTACKER_TYPE_OF_DICE: 1
+
+DEFENDER_NUMBER_OF_DICE: 2
+DEFENDER_TYPE_OF_DICE: 1
+
+\  ROLLT DIE ANGEGEBENE ANZAHL WÃœRFEL UND FORMATIERT DEN OUTPUT   \
+\  ES WERDEN WEITERHIN NUR WÃœRFELSUMMEN GEBILDET                  \
+
+\ if ATTACKER_TYPE_OF_DICE = 1 {output ATTACKER_NUMBER_OF_DICE d{-2,6:2} named "Attacke: [ATTACKER_NUMBER_OF_DICE] orange WÃ¼rfel"}
+else { if  ATTACKER_TYPE_OF_DICE = 2 {output ATTACKER_NUMBER_OF_DICE d{1,2,3:2,4,5} named "Attacke: [ATTACKER_NUMBER_OF_DICE] grÃ¼ne WÃ¼rfel"}
+            else { if  ATTACKER_TYPE_OF_DICE = 3 {output ATTACKER_NUMBER_OF_DICE d{0:2,8} named "Attacke: [ATTACKER_NUMBER_OF_DICE] blaue WÃ¼rfel"} 
+                 else { if  ATTACKER_TYPE_OF_DICE = 4 {output ATTACKER_NUMBER_OF_DICE d{-1,7} named "Attacke: [ATTACKER_NUMBER_OF_DICE] gelbe WÃ¼rfel"}}}}
+
+if DEFENDER_TYPE_OF_DICE = 1 {output DEFENDER_NUMBER_OF_DICE d{-2,6:2} named "Verteidigung: [DEFENDER_NUMBER_OF_DICE] orange WÃ¼rfel"}
+else { if  DEFENDER_TYPE_OF_DICE = 2 {output DEFENDER_NUMBER_OF_DICE d{1,2,3:2,4,5} named "Verteidigung: [DEFENDER_NUMBER_OF_DICE] grÃ¼ne WÃ¼rfel"}
+            else { if  DEFENDER_TYPE_OF_DICE = 3 {output DEFENDER_NUMBER_OF_DICE d{0:2,8} named "Verteidigung: [DEFENDER_NUMBER_OF_DICE] blaue WÃ¼rfel"}
+                 else { if  DEFENDER_TYPE_OF_DICE = 4 {output DEFENDER_NUMBER_OF_DICE d{-1,7} named "Verteidigung: [DEFENDER_NUMBER_OF_DICE] gelbe WÃ¼rfel"}}}}  \
+
+\  VERGLEICHS-FUNKTION VON JASPER  \
+
+function: A:s vs B:s {
+ W: 0
+ loop P over {1..[highest of #A and #B]} {
+  W: W + (P@A > P@B)
+ }
+ result: W
+}
+
+
+\  MEINE VERGLEICHS-FUNKTION  \
+
+function: A:s vsa B:s {
+ W: 0
+ loop P over {1..[lowest of #A and #B]} {
+  W: W + (P@A > P@B)
+ }
+if #A >= #B {
+ result: W + #A - #B
+ } else {
+ result: W
+ }
+}
+
+
+output [2d3 vs 3d3] named "vs"
+output [2d3 vsa 3d3]named "vsa"
+
+\output [2d{-2,6:2} vs 2d{1,2,3:2,4,5}]\

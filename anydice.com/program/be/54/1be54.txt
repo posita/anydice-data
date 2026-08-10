@@ -1,0 +1,88 @@
+function: if X:n in RESTRICT:s {
+  if X = RESTRICT { result: X }
+  result: d{}
+}
+
+function: bool if X:n in RESTRICT:s {
+  if X = RESTRICT { result: 1 }
+  result: 0
+}
+
+function: reroll R:n under N:n {
+   if R < N { result: d6 } else {result: R}
+}
+function: bool if X:n in RESTRICT:s or RESTRICTTWO:s for A and B {
+  if X = RESTRICT { result: A }
+  if X = RESTRICTTWO { result: B }
+  result: 0
+}
+function: S threatens T {
+  if S >= 2 * T { result: 2 }
+  if S > T { result: 3 }
+  if S = T { result: 4 } 
+  if S < T { result: 5 }
+  if S <= 2 * T { result: 6 }
+}
+
+function: ork boyz with SLUGGA slugga CHOPPA choppa and SHOOTA shoota vs T tough and SV save  {
+\CH: (N*3)d((d6 >= 3) * (d6 >= [4 threatens T]) * (d6 + 0 < SV))\
+\SL: Nd((d6 >= 5) * (d6 >= [4 threatens T]) * (d6 + 0 < SV))\
+\SH: (N*2)d((d6 >= 5) * (d6 >= [4 threatens T]) * (d6 + 0 < SV))\
+TOTAL: (CHOPPA*3)d((d6 >= 3) * (d6 >= [4 threatens T]) * (d6 + 0 < SV))
+TOTAL: TOTAL + (SLUGGA)d((d6 >= 5) * (d6 >= [4 threatens T]) * (d6 + 0 < SV))
+TOTAL: TOTAL + (SHOOTA*2)d((d6 >= 5) * (d6 >= [4 threatens T]) * (d6 + 0 < SV))
+result: TOTAL
+}
+
+loop RAPID over {1..2} {
+
+SQ: 4
+PA: 2
+A: 4 * RAPID
+ABS: 3
+AS: 4
+AP: -2
+DT: 3
+DSV: 4
+DAM: 1
+
+FULLAH: 3d[bool if (2d6 + 1) in {5,6,7,8,9} or {10,11,12} for d3 and d6]
+AH: 2d[bool if (2d6 + 1) in {5,6,7,8,9} or {10,11,12} for d3 and d6]
+INDIV: SQd(([bool if 2d6 in {2,12}] * -d3 + A)d((d6 >= ABS) * (d6 >= [AS threatens DT]) * (d6 + AP < DSV)) * DAM + [bool if 2d6 in {5,6,7,8,9} or {10,11,12} for 1 and d3])
+CLUMPPRES: (19 * RAPID)d((2d6 != 2) * (d6 >= [AS threatens DT]) * (d6 + AP < DSV)) * DAM
+CLUMP: (19 * RAPID)d(([reroll d6 under 2] >= ABS) * (d6 >= [AS threatens DT]) * (d6 + AP < DSV)) * DAM
+
+\output AH named "Ahriman"\
+output INDIV + FULLAH named "Individual squads ([RAPID])"
+output CLUMPPRES + AH named "Clump + prescience ([RAPID])"
+output CLUMP + FULLAH named "Clump ([RAPID])"
+
+output (3 * 2 * RAPID)d((d6 >= 3) * (d6 >= [AS threatens DT]) * (d6 + AP < DSV)) * DAM named "sorcerers firing ([RAPID])"
+
+}
+output [bool if (2d6 + 1) in {5,6,7,8,9} or {10,11,12} for d3 and d6] named "sorcerers smiting familiar"
+output [bool if (2d6) in {5,6,7,8,9} or {10,11,12} for d3 and d6] named "sorcerers smiting"
+
+output 40d((d6 >= 5) * (d6 >= [4 threatens 4]) * (d6 + 0 < DSV)) * DAM named "ork boyz (shootas)"
+output 40d((d6 >= 3) * (d6 >= [4 threatens 4]) * (d6 + 0 < DSV)) * DAM named "ork boyz (unarmed)"
+output 20d((d6 >= 5) * (d6 >= [4 threatens 4]) * (d6 + 0 < DSV)) * DAM named "ork boyz (sluggas)"
+output 60d((d6 >= 3) * (d6 >= [4 threatens 4]) * (d6 + 0 < DSV)) * DAM named "ork boyz (choppas)"
+
+MEGABOLT: 30d((d6 >= 4) * (d6 >= [6 threatens 4]) * (d6 - 2 < 6)) * DAM 
+HEAVYFLAME: (2d6)d(1 * (d6 >= [5 threatens 4]) * (d6 - 1 < 6)) * DAM
+HEAVYSTUB: 9d((d6 >= 4) * (d6 >= [4 threatens 4]) * (d6 < 6)) * DAM 
+output MEGABOLT + HEAVYFLAME + HEAVYSTUB named "macharius vulcan (combined)"
+output HEAVYFLAME + HEAVYSTUB named "macharius vulcan (minus megabolt)"
+output 39d((d6 >= 4) * (d6 >= [6 threatens 7]) * (d6 - 2 < 3)) * DAM named "mechvulc vs hellburte"
+output 39d((d6 >= 4) * (d6 >= [6 threatens 2]) * (d6 - 2 < 3) * (d6 < 5)) * DAM named "mechvulc vs glitchling (few)"
+output 39d((d6 >= 5) * (d6 >= [6 threatens 4]) * (d6 < 5) * (d6 < 5)) * DAM named "mechvulc vs plaguebearers (many)"
+output 39d((d6 >= 6) * (d6 >= [6 threatens 4]) * (d6 < 5) * (d6 < 5)) * DAM named "mechvulc vs plaguebearers (many) + buffs"
+output (40*1)d((d6 >= 5) * (d6 >= [4 threatens 8]) * (d6 + 0 < 3)) * DAM named "40 ork boyz (sluggas) vs Macharius Vulcan"
+output (40*3)d((d6 >= 3) * (d6 >= [4 threatens 8]) * (d6 + 0 < 3)) * DAM named "40 ork boyz (choppas) vs Macharius Vulcan"
+output (33*3)d((d6 >= 3) * (d6 >= [4 threatens 8]) * (d6 + 0 < 3)) * DAM named "33 ork boyz (choppas) vs Macharius Vulcan"
+output (26*3)d((d6 >= 3) * (d6 >= [4 threatens 8]) * (d6 + 0 < 3)) * DAM named "26 ork boyz (choppas) vs Macharius Vulcan"
+output (23*3)d((d6 >= 3) * (d6 >= [4 threatens 8]) * (d6 + 0 < 3)) * DAM named "23 ork boyz (choppas) vs Macharius Vulcan"
+output (20*3)d((d6 >= 3) * (d6 >= [4 threatens 8]) * (d6 + 0 < 3)) * DAM named "20 ork boyz (choppas) vs Macharius Vulcan"
+output [ork boyz with 40 slugga 40 choppa and 0 shoota vs 8 tough and 3 save] named "40 ork boyz (ch + sl) vs Macharius Vulcan"
+output (3d([highest 1 of 2d6]))d(1 * (d6 >= [4 threatens 4]) * (d6 + 0 < 6)) * DAM named "AdMech flamer"
+output 18d((d6 >= 4) * (d6 >= [5 threatens 4]) * (d6 - 2 < 4)) * 1 named "AdMech heavy grav cannon"

@@ -1,0 +1,49 @@
+MISS: 0
+PASS: 0
+FAIL: 1
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: save ROLL:n vs SAVEDC:n {
+ if ROLL + SAVEMOD >= SAVEDC { result: PASS }
+ result: FAIL
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: savedamage for SAVERESULT:n {
+ if SAVERESULT = FAIL { result: FAILDAMAGE }
+ result: PASSDAMAGE
+}
+
+ATTACK: 6
+HITDAMAGE: 2d8
+CRITICALDAMAGE: 6d6
+DEFENSE: 18
+SAVEMOD: 2
+SAVEDC: 14
+FAILDAMAGE: 3d6
+PASSDAMAGE: 0
+
+output [damage for [attack d20 vs DEFENSE]] named "produce flame"
+output [savedamage for [save d20 vs SAVEDC]] named "vile of acid"

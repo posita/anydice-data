@@ -1,0 +1,33 @@
+\Target number. Modify this to the current Target Number of the spell on your wizard sheet.\
+TN: 5
+\Empowerment Amount. Will be from 0-5. Where 0 is no Empowerment.\
+EA:0
+
+\The core output. Don't touch.\
+\Empowerment Target Number. The modified Target Number value once empowerment amount is taken into account.\
+ETN: TN-EA
+
+\Error value. Used for exception handling.\
+ERROR: -1
+
+\Check to see if TN is not below 8.\
+if TN < 5 {
+	output ERROR named "ERROR: TARGET NUMBER IS BELOW 5."
+}
+else {
+	\Check to see if EA is not within the range. If so, catch it and output an error.\
+	if EA > 5 | EA < 0 {
+		output ERROR named "ERROR: EMPOWERMENT AMOUNT NOT WITHIN RANGE"
+	}
+	else {
+		\Makes sure that if there is no empowerment...\
+		if ETN = TN {
+			\...that it returns as just P(TN). i.e. returns as just the probability of making the target number.\
+			output d20 >= TN named "Pure Probability"
+		}
+		\Otherwise, it is just simply P((ETN ˄ ~TN) ˅ TN).\
+		else {
+			output (d20 >= ETN & d20 < TN) | d20 >= TN named "Empowered Probability"
+		}
+	}
+}

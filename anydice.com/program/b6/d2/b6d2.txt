@@ -1,0 +1,85 @@
+
+function: ROLL:n hit TARGET:n {
+ if ROLL >= TARGET {
+  result: 1
+ }
+ result:0
+}
+
+function: hit TARGET:n {
+ result: [d6 hit TARGET]
+}
+
+function: ROLL:n nosave REND:n {
+ if ROLL >= (SAVE+REND) {
+  result: 0
+ }
+ if ROLL <= REROLLMAX+REND & REROLLMAX > 0 {
+  result: d6 < (SAVE+REND)
+ }
+ result: 1
+}
+
+function: nosave REND:n {
+ result: [d6 nosave REND]
+}
+
+function: dowound TOHIT:n TOWOUND:n REND:n {
+ result: [hit TOHIT]*[hit TOWOUND]*[nosave REND]
+}
+
+function: attacks ATTACKS:n hit TOHIT:n wound TOWOUND:n rend REND:n dmg DAMAGE:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+   TOTAL: TOTAL + DAMAGE * [dowound TOHIT TOWOUND REND]
+ }
+ result: TOTAL
+}
+
+function: retriattack HITROLL:n {
+ if HITROLL = 6 {
+   result: 2
+ }
+ result: [HITROLL hit 3-SC_HITBONUS]*[hit (3-PALAWOUNDBONUS)]*[nosave 1]*2
+
+}
+
+function: retriattacks ATTACKS:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [retriattack d6]
+ }
+ result: TOTAL
+}
+
+function: hammerstrike {
+  \ Prosecutors \
+  TOTAL: [attacks 2 hit 3 wound 3 rend 1 dmg 2]
+  TOTAL: TOTAL + [attacks 2 hit 3 wound 3 rend 0 dmg 2]
+
+  \ Retributors \
+  TOTAL: TOTAL + [retriattacks 11]*(2d6>=3)
+
+  \ Protectors (Glaives) \
+  TOTAL: TOTAL + [attacks 10 hit 3 wound (3-PALAWOUNDBONUS) rend 1 dmg 1]*(2d6>=3)
+
+  \ Protectors (Starsoul) \
+  TOTAL: TOTAL + 2d3*(2d6>=3)
+
+  result: TOTAL
+}
+
+SAVE: 4
+REROLLMAX: SAVE-1
+PALAWOUNDBONUS: 1
+SC_HITBONUS: 1
+
+
+output [hammerstrike]
+\
+output [attacks 4 hit 2 wound 3 rend 1 dmg 1] named "Default"
+output [attacks 5 hit 2 wound 3 rend 1 dmg 1] named "Strife-Ender"
+output [attacks 6 hit 2 wound 3 rend 1 dmg 1] named "Strife-Ender vs Chaos"
+output [attacks 4 hit 2 wound 3 rend 2 dmg 1] named "Obsidian"
+output [attacks 4 hit 2 wound 3 rend 1 dmg 1]*(1+(d4=4)) named "Hammer of Might"
+\

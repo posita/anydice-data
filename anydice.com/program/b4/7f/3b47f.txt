@@ -1,0 +1,77 @@
+set "maximum function depth" to 5
+
+function: explodesixandone N:n {
+ if N = 6 { result: N + [explode SIX] }
+ if N = -1 { result: N + [explode CHARMINEXPL] }
+ result: N
+}
+
+function: explodeone N:n {
+ if N = -1 { result: N + [explodeone CHARMINEXPL ] }
+ result: N
+}
+
+\Steigerung: Zuerst den zweiten WÃ¼rfel, dann "Hochschaukeln" bis beide W12 sind\
+function: eptodice N:n {
+ if N = 0 { result: 0 }
+ if N = 1 { result: 1d(FOUR) }
+ if N = 2 { result: 2d(FOUR) }
+ if N = 3 { result: 1d(FOUR) + 1d(SIX) }
+ if N = 4 { result: 2d(SIX) }
+ if N = 5 { result: 1d(SIX) + 1d(EIGHT) }
+ if N = 6 { result: 2d(EIGHT) }
+ if N = 7 { result: 1d(EIGHT) + 1d(TEN) }
+ if N = 8 { result: 2d(TEN) }
+ if N = 9 { result: 1d(TEN) + 1d(TWELVE) }
+ if N = 10 { result: 2d(TWELVE) }
+}
+
+\Steigerung: Zuerst einen WÃ¼rfel bis auf W12 pushen, dann erst den zweiten dazunehmen\
+function: eptodicevar N:n {
+ if N = 0 { result: 0 }
+ if N = 1 { result: 1d(FOUR) }
+ if N = 2 { result: 1d(SIX) }
+ if N = 3 { result: 1d(EIGHT) }
+ if N = 4 { result: 1d(TEN) }
+ if N = 5 { result: 1d(TWELVE) }
+ if N = 6 { result: 1d(TWELVE) + 1d(FOUR) }
+ if N = 7 { result: 1d(TWELVE) + 1d(SIX) }
+ if N = 8 { result: 1d(TWELVE) + 1d(EIGHT) }
+ if N = 9 { result: 1d(TWELVE) + 1d(TEN) }
+ if N = 10 { result: 2d(TWELVE) }
+}
+
+FOUR: d{0,0,1,1}
+SIX: d{0,0,1,1,1,2}
+EIGHT: d{0,0,1,1,1,2,2,2}
+TEN: d{0,0,1,1,1,2,2,2,3,3}
+TWELVE: d{0,0,1,1,1,2,2,2,3,3,3,4}
+CHARSIX: d{-1, 0, 1, 1, 1, 2}
+CHARMINEXPL: d{-1, 0, 0, 0, 0, 0}
+
+FOUR_E: [explode FOUR]
+SIX_E: [explode SIX]
+EIGHT_E: [explode EIGHT]
+TEN_E: [explode TEN]
+TWELVE_E: [explode TWELVE]
+
+BASEAMOUNT: 0
+FERTIGKEIT: 0
+CHARAKTERWUERFELSECHS: 1d(SIX_E)
+CHARAKTERWUERFELSECHSUNDEINS: 1d([explodesixandone CHARSIX])
+CHARAKTERWUERFEL: CHARAKTERWUERFELSECHS
+
+output CHARAKTERWUERFEL named "nur CharakterwÃ¼rfel"
+
+loop I over {0..10}{
+ loop J over {I..10}{
+ EP: I+J
+ ATTRIBUT_EINS: [eptodice I]
+ ATTRIBUT_ZWEI: [eptodice J]
+ output ATTRIBUT_EINS + ATTRIBUT_ZWEI + CHARAKTERWUERFEL named "var1: [EP] EP: [I]+[J]"
+
+ ATTRIBUT_EINS: [eptodicevar I]
+ ATTRIBUT_ZWEI: [eptodicevar J]
+ output ATTRIBUT_EINS + ATTRIBUT_ZWEI + CHARAKTERWUERFEL named "var2: [EP] EP: [I]+[J]"
+}
+}

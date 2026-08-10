@@ -1,0 +1,35 @@
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: if CONDITION:n then C {
+  if CONDITION { result: C } 
+}
+
+F:6
+MARVEL: d{F,2,3,4,5,6}
+RO: (1d6)
+RL: (1d6)
+ROLL: (RO+RL+MARVEL)
+EDGE: [if MARVEL<=RO then [if MARVEL <= RL then (2d6+[highest 1 of (2dMARVEL)]) else (MARVEL + 1d6 + [highest 1 of 2d6])]]
+AC: 15
+MOD: 5
+MULT: 4
+HP_DEF:1
+
+A:[highest of [lowest of (EDGE - AC + MOD + 1) and 1] and 0]
+
+output A  named "Hit or Miss"
+B:[if EDGE=18 then [if MARVEL=F then A^0 else A]
+ else A]
+output B named "Hit or Miss w/ 616"
+
+
+DMG: [if EDGE=18 then [if MARVEL=F then B^0 else B]
+ else B]*((MARVEL * (MULT-HP_DEF)) + MOD)
+
+output DMG named "Avg Dmg"
+
+CRIT: [if MARVEL = F then DMG*2 else DMG]
+
+output CRIT named "Avg Dmg w/ Crit"

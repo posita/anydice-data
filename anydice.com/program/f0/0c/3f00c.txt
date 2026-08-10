@@ -1,0 +1,48 @@
+GRIT:1
+BONUS:0
+ACCURACY:1 \positive numbers for accuracy, negative for difficulty\
+ROLL:d20 + GRIT + BONUS + [highest 1 of ACCURACYd6]
+
+\Weapon Stats\
+\Just put it in as it appears on the sheet\
+\i.e. Heavy Machine Gun's 2d6+4 becomes DAMAGE:2d6 and BONUS:4\
+
+DAMAGE:4d6
+BONUS:4
+RELIABLE:0 \If a weapon isn't reliable just put a 0\
+
+\Enemy Stats\
+
+EVASION:10
+ARMOR:1
+INVISIBLE:0 \If an enemy is invisible, this should be 1. If not, it should be 0\
+
+\Damage calculation\
+\This was a doozy, I had to differentiate between dice and regular ol numbers\
+\and it's a slight hack job since iunno how to access data types in this or if it's even possible\
+
+function: R:n with D:d and B:d and RE:n vs E:n with A:n and I:n and J:n{
+ if ((I = 1) & (J = 2)) | (I = 0){
+
+ if R >= 20 & R >= E {
+  if 2@{D} = 0 {
+   if 2@{B} = 0 {result: [highest of [highest of (D + B) and RE] - A and 0]}
+   else {result: [highest of D + [highest of [highest #B of (2*#B)d((1@[sort {B}])/#B)] and RE] - A and 0]}
+  }
+  else {
+   if 2@{B} = 0 {result: [highest of [highest of [highest #D of (2*#D)d((1@[sort {D}])/#D)] + B and RE] - A and 0]}
+   else {
+    if (1@[sort {D}])/#D = (1@[sort {B}])/#B {result: [highest of [highest of [highest (#D+#B) of (2*(#D+#B))d((1@[sort {D}])/#D)] and RE] - A and 0]}
+    else {result: [highest of [highest of [highest (#D) of (2*#D)d((1@[sort {D}])/#D)] + [highest (#B) of (2*#B)d((1@[sort {B}])/#B)] and RE] - A and 0]}
+   }
+  }
+ }
+ if R >= E {result: [highest of [highest of (D + B) and RE] - A and 0]}
+
+ }
+ result: [highest of (RE - A) and 0]
+}
+
+output [ROLL with DAMAGE and BONUS and RELIABLE vs EVASION with ARMOR and INVISIBLE and 1d2]
+
+\Lemme know what else to add!\

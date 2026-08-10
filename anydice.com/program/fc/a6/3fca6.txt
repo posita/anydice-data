@@ -1,0 +1,61 @@
+R:1
+
+function: inner N:n tn TN {
+  RES:666
+  if N>=TN+10      { RES:3 }
+  else if N>=TN    { RES:2 }
+  else if N>=TN-10 { RES:1 }
+  else             { RES:0 }
+  if N=20 { RES: [lowest of RES+1 and 3] }
+  if N=1 { RES: [highest of RES-1 and 0] }
+  result: RES
+}
+
+function: inner TN:n {
+  result: [inner d20 tn TN]
+}
+
+function: inner SUCCESS:n for D:d {
+  if SUCCESS=3 { result: 2dD }
+  if SUCCESS=2 { result: D }
+  if SUCCESS=1 { result: D/2 }
+  if SUCCESS=0 { result: 0 }
+  result: 666
+}
+
+function: inner live wire SUCCESS:n for D:d {
+  if SUCCESS=3 { result: 4dD }
+  if SUCCESS=2 { result: 2dD }
+  if SUCCESS=1 { result: D }
+  if SUCCESS=0 { result: 0 }
+  result: 666
+}
+
+function: roll basic TN:n with B:n for D:d {
+  result: [inner [inner TN-B] for D]
+}
+
+function: ask basic TN:n with B:n for D:d {
+  result: [inner 3-[inner TN-B] for D]
+}
+
+function: live wire with B:n vs TN:n for D:d {
+  result: [inner live wire [inner TN-B] for D]
+}
+
+MOD:+7
+DC:10+MOD
+R:1
+loop ACMOD over {2..6} {
+  AC:10 + ACMOD
+  output [live wire with MOD vs AC for d4] named "Live Wire [R] vs +[ACMOD]"
+}
+loop FORT over {2..7} {
+  output [ask basic DC with FORT for 2d4] named "Frostbite [R] vs +[FORT]"
+}
+loop REF over {0, 5..8} {
+  output 2d[ask basic DC with REF for 2d4] named "Electric Arc [R] vs +[REF]"
+}
+loop WILL over {2..5} {
+  output [ask basic DC with WILL for d6] named "Daze [R] vs +[WILL]"
+}

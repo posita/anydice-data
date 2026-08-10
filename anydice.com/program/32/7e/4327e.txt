@@ -1,0 +1,38 @@
+
+
+function: min A:n and B:n {
+  if A < B { result: A }
+  result: B
+}
+
+function: resolve helper D:s with M:n actions {
+  ONES:   [count {1} in D]
+  TWOS:   [count {2} in D]
+  THREES: [count {3} in D]
+  FOURS:  [count {4} in D]
+  FIVES:  [count {5} in D]
+  SIXES:  [count {6} in D]
+  REMOVED:  [min ONES and M]
+  ONESLEFT: ONES - REMOVED
+  POOL: M - REMOVED
+  FIVE_CONV: [min FIVES and POOL]
+  POOL: POOL - FIVE_CONV
+  FOUR_CONV: [min FOURS and POOL/2]
+  POOL: POOL - FOUR_CONV*2
+  THREE_CONV: [min THREES and POOL/3]
+  POOL: POOL - THREE_CONV*3
+  TWO_CONV: [min TWOS and POOL/4]
+  POOL: POOL - TWO_CONV*4
+  SIXESFINAL: SIXES + FIVE_CONV + FOUR_CONV + THREE_CONV + TWO_CONV
+  result: SIXESFINAL - ONESLEFT
+}
+
+function: resolve N:n dice with M:n actions {
+  result: [resolve helper Nd6 with M actions]
+}
+
+loop N over {1..12} {
+  loop M over {3} {
+    output [resolve N dice with M actions] named "N=[N] M=[M]"
+  }
+}

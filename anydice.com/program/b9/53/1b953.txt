@@ -1,0 +1,146 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+
+TARGET: 16
+
+output [attack d20 plus 9 vs TARGET for 1d8 + 5 + 4d6 crit 1d8 + 4d6 on 20] named "Rogue:Rapier" 
+
+output
+[multiattack d20 plus 9 vs TARGET
+    hit  1d6 + 5 + 4d6  + [attack d20 plus 9 vs TARGET for 1d6       crit 1d6       on 20]
+    miss                  [attack d20 plus 9 vs TARGET for 1d6 + 4d6 crit 1d6 + 4d6 on 20]
+    crit 2d6 + 5 + 8d6 + [attack d20 plus 9 vs TARGET for 1d6       crit 1d6       on 20] on 20
+] named " Two-Shortsword Rogue"
+
+
+output
+[multiattack d20 plus 9 vs TARGET
+    hit  1d6 + 5 + 4d6 
+    miss                  [attack d20 plus 9 vs TARGET for 1d6 + 4d6 crit 1d6 + 4d6 on 20]
+    crit 2d6 + 5 + 8d6  on 20
+] named "Sometimes Two-Shortsword Rogue"
+
+
+output [attack d20 plus 9 vs TARGET for 1d8 + 5 + 4d6 crit 1d8 + 4d6 on 20] named "Rogue:Light Crossbow" 
+output [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 5 + 4d6 crit 1d8 + 4d6 on 20] named "Rogue:Light Crossbow Advantage" 
+output [attack [highest 1 of 3d20] plus 9 vs TARGET for 1d8 + 5 + 4d6 crit 1d8 + 4d6 on 20] named "Rogue:Longbow Elven Accuracy Advantage" 
+
+output
+[multiattack d20 plus 8 vs TARGET
+    hit  1d6 + 4 + 4d6  + [attack d20 plus 8 vs TARGET for 1d6 + 4   crit 1d6       on 20]
+    miss                  [attack d20 plus 8 vs TARGET for 1d6 + 4d6 + 4 crit 1d6 + 4d6 on 20]
+    crit 2d6 + 4 + 8d6 + [attack d20 plus 8 vs TARGET for 1d6  + 4   crit 1d6       on 20] on 20
+] named "Crossbow Expert Rogue"
+
+output [attack d20 plus 9 vs TARGET for 2d8 + 5 + 4d6 crit 2d8 + 4d6 on 20] named "Rogue:Rapier + Booming Blade" 
+output [attack d20 plus 9 vs TARGET for 3d8 + 1d4 + 5 + 4d6 crit 1d8 + 1d4 + 4d6 on 20] named "Rogue:Rapier + Booming Blade with move damage"
+
+
+
+output [attack d20 plus 9 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 19]
++ [attack d20 plus 9 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 19] named "Greatsword Champion Fighter" 
+
+
+
+output
+[multiattack d20 plus 3 vs TARGET
+    hit  [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 + [multiattack d20 plus 3 vs TARGET
+            hit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 
+            miss 0
+            crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20]  on 19
+        ]
+
+    miss  [multiattack d20 plus 3 vs TARGET
+            hit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 
+            miss 0
+            crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 19]  on 19
+        ]
+          
+    crit 14 + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 19] + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 19] on 19
+
+] named "Greatsword GWM Champion Fighter"
+
+
+output
+[multiattack d20 plus 9 vs TARGET
+    hit  d8 + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 + [multiattack d20 plus 9 vs TARGET
+            hit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 
+            miss 0
+            crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 + [attack d20 plus 9 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20]  on 20
+        ]
+
+    miss  [multiattack d20 plus 9 vs TARGET
+            hit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 + d8
+            miss 0
+            crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 + d8 + [attack d20 plus 9 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20]  on 20
+        ]
+          
+    crit d8 + 5 + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [attack d20 plus 9 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20] + [attack d20 plus 9 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 5 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20] on 20
+
+] named "Greatsword Battlemaster Fighter"
+
+
+
+output
+[multiattack d20 plus 3 vs TARGET
+    hit  d8 + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 + [multiattack d20 plus 3 vs TARGET
+            hit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 
+            miss 0
+            crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20]  on 20
+        ]
+
+    miss  [multiattack d20 plus 3 vs TARGET
+            hit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 + d8
+            miss 0
+            crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 + d8 + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20]  on 20
+        ]
+          
+    crit d8 + 14 + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20] + [attack d20 plus 3 vs TARGET for [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] + 14 crit [reroll {1,2} on d6 to d6] + [reroll {1,2} on d6 to d6] on 20] on 20
+
+] named "Greatsword GWM Battlemaster Fighter"

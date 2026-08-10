@@ -1,0 +1,102 @@
+function: numerator Y:n R:n ARM:n {
+ if (Y<R) {
+  if (R-ARM>0) {
+   result: R-ARM
+  }
+ } 
+ result: Y
+} 
+
+function: reliable R:n H:n A:n N:n D:n Y:n ARM:n{
+if (H>=A) {
+ if (H>=20) {
+  result: [numerator [highest N of (2*N)dD] R ARM]
+ } 
+ if (Y<R) {
+  if (R-ARM>0) {
+   result: R-ARM
+  }
+ } 
+ result: Y
+} 
+result: 0}
+
+function: critreliable R:n H:n C:n A:n N:n D:n Y:n ARM:n{
+if (H>=A) {
+ if (H>=C) {
+  result: [numerator [highest N of (2*N)dD] R ARM]
+ } 
+ if (Y<R) {
+  if (R-ARM>0) {
+   result: R-ARM
+  }
+ } 
+ result: Y
+} 
+result: 0}
+
+function: piercing P:n H:n A:n N:n D:n ARM:n {if (H>=A) {if (H>=20) {result: [highest (N+P) of (2*(N+P))dD]-ARM} result: NdD-ARM} result: 0}
+
+function: cutter num Y:n ARM:n {
+ if (Y>2*ARM) {
+   result: (Y-(2*ARM))*2
+  }
+ result: 0
+}
+
+function: critpiercing P:n H:n C:n A:n N:n D:n ARM:n {if (H>=A) {if (H>=C) {result: [highest (N+P) of (2*(N+P))dD]-ARM} result: NdD-ARM} result: 0}
+
+function: cutter H:n A:n N:n D:n Y:n ARM:n {
+ if H>=A {
+  if H>=20 {
+   result: [cutter num [highest N of (2*N)dD] ARM]
+  }
+  if (Y>2*ARM) {
+   result: (Y-(2*ARM))*2
+  }
+ }
+ result: 0
+}
+
+function: combo H:n X:n A:n N:n D:n ARM:n {
+ if (H>=A){
+  if (X>=A){
+   if (H>=20){
+    if (X>=20){
+     result: [highest N of (2*N)dD]-ARM+[highest N+1 of (2*N+1)dD]-ARM
+    }
+    result: [highest N of (2*N)dD]-ARM+(N+1)dD-ARM
+   }
+   result: (NdD-ARM)+((N+1)dD-ARM)
+  }
+  result: NdD-ARM
+ }
+ result: 0
+}
+
+function: powerful H:n A:n N:n D:n ARM:n {
+ if H>=A{
+  if H>=20{
+   result: [highest N of (2*N)dD]-(ARM/2)
+  } 
+  result: NdD-(ARM/2)
+ } 
+ result: 0
+}
+
+function: crit check X:n Y:n N:n D:n ARM:n {if X>=Y { if X>=20 { result: [highest N of (2*N)dD]-ARM} result: NdD-ARM} result: 0}
+function: armor check X:n {if X>0 {result: X} result: 0}
+
+ARM:3
+
+output [armor check [reliable 6 1d20 11 2 8 2d8 ARM]] named "Straight Blade+ 1H"
+output [armor check [reliable 6 1d20  11 2 10 2d10 ARM]] named "Straight Blade+ 2H"
+output [cutter 1d20 11 2 8 2d8 ARM] named "Curved Blade+ 1H"
+output [cutter 1d20 11 2 8 2d10 ARM] named "Curved Blade+ 2H"
+output [armor check [piercing 1 (d20+d6) 11 2 6 ARM]] named "Thrusting Blade+"
+output [armor check [piercing 5 (1d20) 11 3 6 ARM]] named "Dagger+"
+output [armor check [combo 1d20 1d20 11 2 6 ARM]]+[armor check [crit check 1d20 11 2 6 ARM]] named "Knuckles+"
+output [armor check [powerful 1d20 11 2 8 ARM]] named "Mace+ 1H"
+output [armor check [powerful 1d20 11 2 10 ARM]] named "Mace+ 2H"
+output [armor check [cutter 1d20 11 2 6 2d6 ARM/2]] named "Hatchet+"
+output [armor check [critreliable 6 1d20 18 11 2 8 2d8 ARM]] named "Short Sword+"

@@ -1,0 +1,58 @@
+function: attack ROLLS:s plus MOD:n against AC:n crit CRIT:d hit HIT:d add ADD:n {
+    HIGHEST: (1 @ ROLLS)
+    ATK: HIGHEST + MOD
+    if HIGHEST >= 19{
+        result: CRIT + ADD
+    }
+    else {
+        if ATK >= AC {
+            result: HIT + ADD
+        }
+        else {
+            result: 0
+        }
+    }
+}
+
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  if ((#ROLL)@ROLL) >= MIN {
+     result: ROLL + 0
+  } else {
+    result: (({1..#ROLL-1}@ROLL) + REROLL)
+  }
+}
+
+
+GUN:            1d12
+GUN_HM:         1d12 + 1d6
+
+GUNCRIT_HM:     2d12 + 2d6
+
+HM:              1d6
+
+PGUNCRIT:       3d12
+CRIT_HM:         2d6
+
+FIST_HM:        1d8 + 1d6
+FISTCRIT_HM:    2d8 + 2d6
+
+DREAD: 1d8
+CRIT_DREAD: 2d8
+
+\ problems: mostly that 1/turn things are always used on the first attack. you should be able to use them on the second if they miss, but that's difficult to add \
+
+loop AC over {15..30} {
+
+  \ All \
+  \ attack with piercer, second attack, bonus action unarmed strike \
+  OUT: [attack 3d20 plus 6 against AC crit [reroll lowest of (PGUNCRIT) as 1d12 if less than 6] + CRIT_HM hit [reroll lowest of GUN as 1d12 if less than 7] + HM add 15] + [attack 3d20 plus 6 against AC crit PGUNCRIT + CRIT_HM hit GUN_HM add 15] + [attack 3d20 plus 11 against AC crit FISTCRIT_HM hit FIST_HM add 5]
+  output OUT named "AC [AC]"
+
+  output OUT + [attack 3d20 plus 11 against AC crit FISTCRIT_HM hit FIST_HM add 5] named "AC [AC]: flurry of blows"
+
+  \ First Round \
+  \ hunter's mark, attack with piercer, second attack, extra attack on first round \
+  output [attack 3d20 plus 6 against AC crit [reroll lowest of (PGUNCRIT) as 1d12 if less than 6] + CRIT_HM hit [reroll lowest of GUN as 1d12 if less than 7] + HM add 15] + [attack 3d20 plus 6 against AC crit PGUNCRIT + CRIT_HM hit GUN_HM add 15] + [attack 3d20 plus 6 against AC crit PGUNCRIT + CRIT_HM + CRIT_DREAD hit GUN_HM + DREAD add 15] named "AC [AC]: first round"
+
+  output 0 named ""
+}

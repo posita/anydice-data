@@ -1,0 +1,48 @@
+RANGE: 8
+D: {0,1}
+HIGH: {0,0,0,0,0,1}
+LOW: {0,0,1}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+
+
+function: roll adv A:n tn TN:n cn CN:n {
+  if TN > CN { CN: TN }
+  result: [resolve Ad6 tn TN cn CN]
+}
+
+function: resolve S:s tn TN:n cn CN:n {
+  CRITS: [count {CN..6} in S]
+  SUCCESS: [count {TN..CN-1} in S]
+  if SUCCESS > 0 { SUCCESS: 1 }
+  \ if the roll was all crits, keep going \
+  if CRITS = #S {
+    if CN = 6 {
+      SUCCESS: [explode dHIGH]
+    } else {
+      SUCCESS: [explode dLOW]
+    }
+  }
+  result: CRITS + SUCCESS
+}
+
+
+loop X over {0..1} {
+  CN: 6 - X
+  loop TN over {2..6} {
+\
+    loop N over {-4..-2} {
+      output [clamp [roll disadv -N tn TN cn CN] between -RANGE and RANGE] named "[N]d [TN]/[CN]"
+    }
+\
+    loop N over {1..8} {
+      output [clamp [roll adv N tn TN cn CN] between -RANGE and RANGE] named "[N]d [TN]/[CN]"
+    }
+  }
+}
+

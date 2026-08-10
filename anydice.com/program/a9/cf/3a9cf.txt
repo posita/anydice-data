@@ -1,0 +1,28 @@
+\ Structure damage and overheating use identical checks, so this code will work for both.\
+\This was heavily plagiarised from the pre-prepared Blades in the Dark program (https://anydice.com/articles/blades-in-the-dark/).\
+
+MINOR: 25
+MAJOR: 50
+CRITICAL: 75 
+FATAL: 100
+
+function: onedie DICE:n \ Handles situations where a mech has 1 stress/structure damage marked. \
+{
+ if DICE = 1 {result: CRITICAL}
+ else if DICE >= 5 {result: MINOR}
+ else {result: MAJOR}
+}
+
+function: twodice DICE:n \ Handles everything else. \
+{
+ if 2@DICE = 1
+ {
+  if 1@DICE = 1 {result: FATAL}
+  else {result: CRITICAL}
+ }
+}
+
+output [onedie 1d6]
+
+loop STRESS over {2..6}
+{ output [stresstest {STRESS-1, STRESS}@STRESSd6] named "[STRESS] damage"}

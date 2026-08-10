@@ -1,0 +1,163 @@
+
+\ attack die value \
+XM: 0
+X: 3d8+XM
+\ defense die value \
+YM: 0
+Y: 3d8
+
+\ Armor scaling value \
+ARMORSCORE: 10
+
+\ Block function \
+
+function: block A B {
+ C: A / 2
+ D: 0
+ if(C > B) { D: A - B }
+ D: A - C
+ if(D < A) { result: A - D }
+ result: 0
+}
+
+function: negate A B {
+ if(B < A) { result: A - B }
+ result: 0
+}
+
+\ Armor Rolltable Functions \
+
+function: arm light leather A:n B:n {
+ if(B >= 17) { result: [negate A (ARMORSCORE * 1000)] }
+ result: A
+}
+
+function: arm medium chain A:n B:n {
+ if(B >= 19) { result: [negate A (ARMORSCORE)] }
+ if(B >= 13) { result: [block A (ARMORSCORE)] }
+ result: A
+}
+
+function: arm heavy plate A:n B:n {
+ if(B >= 15) { result: [block A (ARMORSCORE * 1000)] }
+ if(B >= 11) { result: [block A (ARMORSCORE)] }
+ result: A
+}
+
+
+\ Attack Function (set the target armor here) \
+
+function: atk A {
+ result: [arm heavy plate A Y]
+}
+
+
+
+
+\ Weapon Rolltable Functions \
+
+function: wep dagger A:n {
+ if A >= 19 { result: 12+4d6 }
+ if A >= 9 { result: 2+1d6 }
+ result: 0
+}
+
+function: wep greatsword A:n {
+ if A >= 18 { result: 2+3d8+(XM) }
+ if A >= 15 { result: 2+2d8+(XM) }
+ if A >= 10 { result: 2+1d8+(XM) }
+ result: 0
+}
+
+function: wep longbow A:n {
+ if A >= 17 { result: 4+3d8 }
+ if A >= 11 { result: 4+1d8 }
+ result: 0
+}
+
+\ Weapon damage outputs \
+
+\output [arm heavy plate [wep greatsword X] Y+(YM*2)] named "Greatsword vs Heavy"\
+output [arm medium chain [wep greatsword X] Y+YM] named "Greatsword vs Medium"
+\output [arm light leather [wep greatsword X] Y+YM] named "Greatsword vs Light"\
+
+\output [arm heavy plate [wep dagger X] Y] named "Dagger vs Heavy"\
+output [arm medium chain [wep dagger X] Y+YM] named "Dagger vs Medium"
+\output [arm light leather [wep dagger X] Y+YM] named "Dagger vs Light"\
+
+output [arm medium chain [wep longbow X] Y+YM] named "Bow vs Medium"
+
+\ Armor score comparison \
+
+\
+ARMORROLL: 1d(1 * ARMORSCORE)
+
+output [arm heavy plate ARMORROLL Y+(YM*2)] named "1[ARMORROLL] vs Heavy Plate"
+output [arm medium chain ARMORROLL Y+YM] named "1[ARMORROLL] vs Medium Chain"
+output [arm light leather ARMORROLL Y+YM] named "1[ARMORROLL] vs Light Leather" 
+\
+
+
+\ Armor scaling comparison \
+\
+ N: 1d(ARMORSCORE * 100)
+
+
+
+ output N named "Damage: [N]"
+
+ output 0 named "Heavy Plate vs [N]"
+
+ output [arm heavy plate N 3d8+0] named "+0"
+ output [arm heavy plate N 3d8+2] named "+2"
+ output [arm heavy plate N 3d8+4] named "+4"
+ output [arm heavy plate N 3d8+6] named "+6"
+
+ output 0 named "Medium Chain vs [N]"
+
+ output [arm medium chain N 3d8+0] named "+0"
+ output [arm medium chain N 3d8+1] named "+1"
+ output [arm medium chain N 3d8+2] named "+2"
+ output [arm medium chain N 3d8+3] named "+3"
+
+ output 0 named "Light Leather vs [N]"
+
+ output [arm light leather N 3d8+0] named "+0"
+ output [arm light leather N 3d8+1] named "+1"
+ output [arm light leather N 3d8+2] named "+2"
+ output [arm light leather N 3d8+3] named "+3"
+
+ output 0 named ""
+\
+
+\ Armor advantage comparison \
+\
+ N: 1d(ARMORSCORE)
+
+
+
+ output N named "Damage: [N]"
+
+ output 0 named "Heavy Plate vs [N]"
+
+output [arm heavy plate N 3d8] named "+0"
+ output [arm heavy plate N [highest 3 of 4d8]] named "+1"
+ output [arm heavy plate N [highest 3 of 5d8]] named "+2"
+ output [arm heavy plate N [highest 3 of 6d8]] named "+3"
+
+ output 0 named "Medium Chain vs [N]"
+
+ output [arm medium chain N 3d8] named "+0"
+ output [arm medium chain N [highest 3 of 4d8]] named "+1"
+ output [arm medium chain N [highest 3 of 5d8]] named "+2"
+ output [arm medium chain N [highest 3 of 6d8]] named "+3"
+
+ output 0 named "Light Leather vs [N]"
+
+ output [arm light leather N 3d8] named "+0"
+ output [arm light leather N [highest 3 of 4d8]] named "+1"
+ output [arm light leather N [highest 3 of 5d8]] named "+2"
+ output [arm light leather N [highest 3 of 6d8]] named "+3"
+
+ output 0 named ""
+\

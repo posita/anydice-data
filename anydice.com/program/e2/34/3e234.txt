@@ -1,0 +1,36 @@
+\ ---- CONFIGURATION ---- \
+TARGET_AC: 15
+
+\ ---- CHARACTER BONUSES ---- \
+DEX: 2
+PROF: 2
+
+\ ---- DAMAGE CALCULATION FUNCTION ---- \
+\ This function takes the result of a d20 roll and calculates damage \
+function: attack ROLL:n with WEAPON:d vs AC:n with TO_HIT:n and DAMAGE_BONUS:n {
+  \ Critical Hit on a 20 \
+  if ROLL = 20 {
+    result: 2dWEAPON + DAMAGE_BONUS
+  }
+
+  \ Critical Miss on a 1 \
+  if ROLL = 1 {
+    result: 0
+  }
+
+  \ Normal Hit Check \
+  if ROLL + TO_HIT >= AC {
+    result: 1dWEAPON + DAMAGE_BONUS
+  }
+
+  \ Otherwise, it's a miss \
+  result: 0
+}
+
+
+\ ---- OUTPUT ---- \
+\ Shortsword: +4 to hit, 1d6+4 damage \
+output [attack 1d20 with 1d6 vs TARGET_AC with (DEX+PROF) and DEX] named "Shortsword (1d6) vs AC [TARGET_AC]"
+
+\ Magic Dagger: +5 to hit, 1d4+5 damage \
+output [attack 1d20 with 1d4 vs TARGET_AC with (DEX+PROF + 1) and (DEX + 1)] named "Magic Dagger (+1, 1d4+1) vs AC [TARGET_AC]"

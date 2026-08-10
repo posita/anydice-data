@@ -1,0 +1,57 @@
+\
+output ([highest 1 of 3d [explode d10]]/5)+1 named "Initiative Cards"
+output ([highest 1 of 5d [explode d10]]/5) named "Quick Draw"
+output ([highest 1 of 3d [explode d6]]+2) named "Overawe"
+\
+
+function: shoot SHOT:n range RANGE vs TN {
+  if SHOT = 3 { result: -1 }
+  else {result: 1}
+}
+
+output [shoot [lowest 2 of 3d[explode d10]] range 10 vs 5]
+
+function: cpm SHOT:n vs RANGE vs TN {
+  if SHOT< TN+(RANGE/CPMRANGE) { result: 0 }
+  if SHOT>= TN+(RANGE/CPMRANGE){ result: [locationcpm d20] }
+}
+
+function: called SHOT:n vs RANGE vs TN {
+  if ([highest 1 of 5d ([explode d10])]) = 3 { result: -1 }
+  if SHOT< TN+2+(RANGE/CPMRANGE) { result: 0 }
+  if SHOT>= TN+2+(RANGE/CPMRANGE){ result: (3d [explode d6])/6 }
+}
+
+function: locationcpm X:n {
+  if X = 20 {result: (6d [explode d6])/6}
+  if X = 10 {result: (5d [explode d6])/6}
+  else {result: (4d [explode d6])/6}
+}
+
+CPM: ([highest 1 of 5d ([explode d10]-1)])
+CPMRANGE: 10
+
+function: win SHOT:n vs RANGE vs TN{
+ if SHOT< TN+(RANGE/WINRANGE) { result: 0 }
+ if SHOT>= TN+(RANGE/WINRANGE) { result: [locationwin d20] }
+}
+
+function: locationwin X:n {
+  if X = 20 {result: (6d [explode d8])/6}
+  if X = 10 {result: (5d [explode d8])/6}
+  else {result: (4d [explode d8])/6}
+}
+WINCHESTER: ([highest 1 of 5d ([explode d10])])
+WINCHESTERDAM:(4d [explode d8]+2)/6
+WINRANGE: 20
+
+TN: 5
+
+loop RANGE over {10,20,30} {
+\   output [cpm CPM vs RANGE vs TN]+[cpm CPM vs RANGE vs TN]+[cpm CPM vs RANGE vs TN]+[cpm CPM vs RANGE vs TN] named "R[RANGE] Volley"
+\
+\   output [cpm CPM vs RANGE vs TN]+[cpm CPM vs RANGE vs TN]+[cpm CPM vs RANGE vs TN]+[cpm CPM vs RANGE vs TN] named "[RANGE] Called Volley"
+\
+\   output [win WINCHESTER vs RANGE vs TN] named "R[RANGE] Shot"
+\
+}

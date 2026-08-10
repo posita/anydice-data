@@ -1,0 +1,134 @@
+\ =============    ATTACK   ============ \
+
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+\ ====================================== \
+
+\ ==============   SAVES   ============= \
+
+function: save ROLL:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    if ROLL >= DC {
+        result: S_DMG
+    }
+    if ROLL < DC {
+        result: F_DMG
+    }
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for half {
+    result: [save ROLL vs DC-MOD for F_DMG damage or F_DMG/2 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for none {
+    result: [save ROLL vs DC-MOD for F_DMG damage or 0 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success with crit fail on CRITS:s for CRIT_DMG:d {
+  if [CRITS contains ROLL] {
+    result: CRIT_DMG
+  } 
+
+  result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+} 
+
+\ ====================================== \
+
+\ ==============   MISC    ============= \
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s then save SAVE:n plus S_MOD:n vs DC:n for F_DMG:n or S_DMG:n on success{
+    
+    if ROLL = 20 | ROLL >= (AC-MOD) {
+        HIT_DMG: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+        RIDER_DMG: [save SAVE vs DC-S_MOD for F_DMG damage or S_DMG on success]
+        result: HIT_DMG + RIDER_DMG
+    }
+    result: 0
+}
+
+function: DMG:n plus EXTRA:d per turn {
+    if DMG = 0 { result: 0 }
+    result: DMG + EXTRA
+}
+
+function: twist DE:n DIE:d {
+  if DE <= 1 {
+    result: 1@{DIE}
+  } 
+  if DE = 2 {
+    result: [lowest of DIE and DIE]
+  }
+  if DE = 3 {
+    result: [highest of DIE and DIE]
+  }
+  if DE >= 4 {
+    result: 1@[reverse {DIE}]
+  }
+}
+
+function: ttf DIE:d {
+  result: (DIE-1)/5+1
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: DICE:d reroll REROLL:s {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+\ ====================================== \
+
+
+SAVE_ROLL: [lowest 1 of d20]
+SAVE_MOD: 2
+AC: 18
+DC: 8 + 5 + 4 + 2 + 2 
+
+
+\ ==============   ANIMATE OBJECTS   ============= \
+
+HIT_ROLL: [highest 1 of 2d20]
+HIT_MOD: 4 + d4
+F_DMG: 4 * 9/4
+DMG: d4 * 9/4
+
+output [10d(
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}]
+    ) plus 9 per turn
+] named "10x Animate Objects, 2xADV + Serendipity"
+
+
+\ ==============   SPIRIT GUARDIANS   ============= \
+
+S_LEVEL: 5
+ENEMIES: 3
+DMG: (3+S_LEVEL-3)d8 * 9/4
+output ENEMIESd[
+    save SAVE_ROLL plus SAVE_MOD vs DC for DMG damage or save for half
+] named "Level [S_LEVEL] Spirit Guardians vs [ENEMIES] enemies"

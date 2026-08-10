@@ -1,0 +1,108 @@
+\
+LONG FOOT D20
+PURPOSE: This die roller/ probability program is a modification for D20 roll at-or-under systems
+It 
+-Matches d20 well for higher rolls
+-Improves chances of low rolls 1-20
+-Creates a smoothly tapering 'tail' in the negatives,
+ allowing for rolls under 1 with diminishing chances
+
+USAGE OF THE PROGRAM:
+Use one of the sample outputs at the bottom of the program,
+Or;
+
+1)Copy the output line shown between dotted lines below 
+2)Paste it at the bottom of the program. 
+3)For each of the items between double vertical bars ||like this||, choose an option, and delete every other option, and the double bars.
+
+---------
+output [ longfoot d20 into  ||d10, d20, (d20*2), d33, d40,  d100, etc||   with exponent   ||1 or 2|| and lowstop  ||-10, -15,-20,-25,-30, etc||   ] 
+named " ||CHOOSE A NAME||   "
+-------
+
+4) To see probabilities, click the following buttons under the program area:
+-"At most"(this lets you see the chance to roll any number or less)
+-"Table" or "Graph" depending on the view you want
+-"Calculate"
+
+5) To Use the die roller 
+-click "roller"
+-on the next line, a box will appear with an output name. It's a drop-down menu, select the name you gave your output, or an existing one
+-There is a  field to type a number, which is how many rolls you want at once (it will show them separately not summed.
+-click "roll"
+
+
+EXPLANATION
+-A larger die number in the first item gives a longer tail in the negatives and boosts all values slightly, more at the low end
+
+-Exponent 1 allows the tail to affect higher values of the 1-20 range a little more. Exponent 2 keeps it tighter, affecting only  the low values of 1-20 and gives a sharper curve.
+
+-Lowstop is a minimum cutoff for the graph, as the 'tail' can get very long. When rolling digitally here, any output value under lowstop will return lowstop number, so you can set it to -1000 if you want to ensure you can roll the minimum.
+
+TABLE PROCEDURE (if you want to use this method with physical dice and a calculator): 
+1) Roll  d20 (call it A);
+2) ROLL  1 die that is a d10, d20, d20*2, d40  , d100, or another number above 10 of your choice (called it B). [Note the d20*2 is MULTIPLYING 1d20, not rolling 2d20]
+3) Choose 1 or 2 as an exponent
+3) If exponent is 1, calculate:
+ A - (B/A)
+If exponent is 2, calculate: 
+A - ( B/(A^2) )
+
+
+
+THE PROGRAM IS BELOW. 
+!!!DO NOT EDIT BELOW THE BACKSLASH, UNTIL 
+TOLD AT BOTTOM!!!
+(unless changing the program, be my guest)
+
+\
+
+set "maximum function depth" to 5
+
+function: minimum of R:d{
+ result:1@ {R}
+}
+
+function: longfoot ADIE:d into BDIE:d with exponent EXPONENT and lowstop LOWSTOP:n
+{
+MINA: [minimum of ADIE]
+MAXA: [maximum of ADIE]
+MINB: [minimum of BDIE]
+MAXB: [maximum of BDIE]
+result: [bhelper ADIE BDIE]
+}
+
+function: bhelper A:n B:n
+{     
+X : (A -  B/(A^EXPONENT)   )
+if X<=LOWSTOP {result: LOWSTOP}
+result: X
+}
+
+
+\
+
+BELOW THE FOLLOWING BACKSLASH
+PASTE THE OUTPUT LINES FROM 'Usage of the program' 
+(between the dotted lines, before the program)
+
+Some samples are provided, you can just use them 
+
+\
+
+
+
+
+
+
+
+output [ longfoot d20 into d10 with exponent 1 and lowstop -10] named "longfoot10 ex1"
+
+
+\output [ longfoot d20 into d20 with exponent 1 and lowstop -10] named "longfoot20 ex1"\
+
+output [ longfoot d20 into d20 with exponent 2 and lowstop -10] named "longfoot20 ex2"
+
+output [ longfoot d20 into 2*d20 with exponent 2 and lowstop -10] named "longfootd20*2 ex2"
+
+output d20 named "basic d20"

@@ -1,0 +1,37 @@
+function: damage for attack ATTACK:s miss MISS:s vs defense DEFENSE:s {
+  MODDEDATTACK: [remove MISS from ATTACK]
+  result: [calculate damage MODDEDATTACK vs DEFENSE]
+}
+
+function: remove MISS:s from ROLL:s {
+  R: {}
+  loop P over {1..#ROLL}{
+    N: P@ROLL
+    if ![MISS contains N]{ R: {R, N} }
+  }
+  result: R
+}
+
+function: calculate damage ATKROLL:s vs DEFROLL:s {
+  SORTEDATKROLL: [sort ATKROLL]
+  SORTEDDEFROLL: [sort DEFROLL]
+  UNBLOCKED: 0
+  D: 1
+  loop A over {1..#SORTEDATKROLL}{
+    ATK: A@SORTEDATKROLL
+    DEF: D@SORTEDDEFROLL
+    if (D > #SORTEDDEFROLL) | (ATK > DEF) {
+      UNBLOCKED: UNBLOCKED + 1
+    }
+    else{
+      D: D + 1
+    }
+  }
+  result: UNBLOCKED
+}
+
+output [calculate damage 3d6 vs 4d6] named "damage testcase"
+output [calculate damage {3,6,4} vs {2,4}] named "damage testcase should be 2"
+output [remove {1,4} from 1d6] named "miss testcase"
+output [remove {1,2} from {1,2,4,5,6}] named "miss testcase should be 4,5,6"
+output [damage for attack 2d6 miss {1,2} vs defense 2d6] named "a5, m1-2, d3"

@@ -1,0 +1,102 @@
+output 10 named "Action Success Chart : 2-6 Failure, 7-11 Success, 12 Critical Success"
+output 10 named "Injury Chart : 1 No Effect, 2-6 Minor Hit, 7-8 Down, 9+ Out of Action"
+\Max Modifiers :
+6 Blood Markers
+6 Infection Markers
+x Blessing Markers
+
+-3 to +4 DICES action : model characteristics
+-2 to +3 DICES action : model/warband/weapon/etc... special ability : to itself or to ennemies in range
+
+-1DICE all actions : if your Model is Down
++1DICE action&injury : Diving Charge
++1to2DICES injury : Falling
+
+-1DICE range action : Enemy behind Cover
+-1DICE range action : Long Range
++1DICE range action : Shooting from an elevated position
+
+-1DICE melee action : Defended Obstacle
+-1DICE melee action : Off-Hand Weapons
+-1DICE melee action : FEAR
+
+-1 to +2 DICES injury : weapon characteristics
+-2 to +3 DICES injury : model/warband/weapon/etc... special ability : to itself or to ennemies in range
+-3 to 0 injury ROLL from Armors or Ignore Armor ability
+-1DICE injury : Target is already Down
++1d6 injury BLOODBATH, Malebranche Sword
++2DICES injury : CRITICAL
+
++1 to 2 injury ROLL : Assassinâ€™s Dagger, Golden Khanjar / Zulfiqar : special ability
+\
+\**************************************************************************************\
+function: view crop SEQUENCE:n by MAX:n{                  \ limit the display range between [-1;100] \
+ MIN: 1
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+
+function: rollcharts MODIFIED:n for NUMBER:n of DICE:d{
+ if MODIFIED<0 { result: {(#DICE - NUMBER + 1)..#DICE}@DICE }
+ if MODIFIED>=0 { result: {1..NUMBER}@DICE }
+ result: 0
+}
+\**************************************************************************************\
+M: 3                               \ +/-DICE(S) Modifiers final value \
+P: 2+M                             \ pool of dices rolled after modifiers done \
+R: 2                               \ dices used for the total value \
+CHART: 9                           \12 for action table, 9 for injury table\
+
+\
+output [highest R of Pd6] named "Improved rolled, with Blessing/Blood Marker injury/etc..."
+output Rd6 named "rolled with negated DICE modifiers"
+output [lowest R of Pd6] named "Worsen rolled, with Blood Marker action/etc..."
+output [lowest 3 of 3d6] named "compare with Bloodbath"
+
+output [view crop ([highest 2 of 5d6]) by CHART] named "3 blood markers activated + modifiers : injury"
+output [view crop ([highest 2 of 8d6]) by CHART] named "6 blood markers activated + modifiers : injury"
+output [view crop 3d6 by CHART]                  named "Bloodbath activated + modifiers : injury"
+\
+
+
+
+\BM: Blood Markers, BB: Bloodbath
+ sequence -> total added dices from -+DICES modifiers (blessings, infections, more BMs, abilities);
+             Armor Modifier; 
+S: {0, 0}     -> Attacker/Defender has no modifiers (other than Bloodbath or equivalent (for injury)).
+S: {-1, 0}    -> Defender use 1 Blessing (injury)     or Attacker use 1 Infection (action).
+S: {1, 0}     -> Attacker use 1 Infection (injury)    or Defender use 1 Blessing (action).
+S: {0, -2}     -> no DICES modifiers but some armor.
+\
+
+\output [view crop ([highest 2 of 6d6]) by CHART] named "verificator"\
+
+
+\couples vertical\
+ARMORS: [reverse {-3..0}]
+MODS:   {0:#ARMORS}
+
+MODS:   {0..6}
+ARMORS: {0:#MODS}
+
+MODS:   [reverse {-3..0}]
+ARMORS: {0:#MODS}
+
+
+loop N over {1..#MODS}{
+S: {N@MODS, N@ARMORS}
+I: N@MODS
+
+\EQU_SMALL_BB: [view crop ([rollcharts 3+1@S for 2 of (2+[absolute 3+1@S])d6] +2@S) by CHART]
+output EQU_SMALL_BB named "test [I] : 3 blood markers activated + modifiers : injury"\
+
+EQU_BIG_BB:   [view crop ([rollcharts 6+1@S for 2 of (2+[absolute 6+1@S])d6] +2@S) by CHART]
+output EQU_BIG_BB   named "test [I] : 6 blood markers activated + modifiers : injury"
+
+BB_ACTIVATED: [view crop ([rollcharts 1@S for 3 of (3+[absolute 1@S])d6] +2@S) by CHART]
+output BB_ACTIVATED     named "test [I] : Bloodbath activated + modifiers : injury"
+
+\BB_ACTIVATED_SUP: [view crop ([rollcharts 1@S for 3 of (3+[absolute 3+1@S])d6] +2@S) by CHART]
+output BB_ACTIVATED_SUP named "test [I] : Bloodbath activ + 3BMs + modifiers : injury"\
+}

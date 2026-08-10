@@ -1,0 +1,142 @@
+function: attack DIE:n plus ATK ac AC for DMG crit CRIT {
+ if (DIE = 20) {result: DMG + CRIT}
+ if (DIE = 1) {result: 0}
+ if (DIE + ATK >= AC) {result: DMG}
+ else {result: 0}
+}
+
+GWFAXE: {1..2,3..12:7}
+GWFMAUL: 2d{1..2,3..6:4}
+DEX: 4
+DEXER: 5
+PROF: 3
+ARMOR: 14
+BOW: 1d8
+H_XB: 1d6
+SS: 10
+HM: 1d6
+CS: 1d8
+
+function: reroll FIRST:n as SECOND:n {
+ if (FIRST=0) {result: SECOND}
+ else {result: FIRST}
+}
+
+function: froll A:n or B:n or M:n as R:n {
+ if (A=0)|(B=0)|(M=0) {result: A+B+M+R}
+ else {result: A+B+M}
+}
+
+function: froll A:n or B:n as R:n {
+ if (A=0)|(B=0) {result: A+B+R}
+ else {result: A+B}
+}
+
+function: colossus A:n or B:n with C:n {
+ if (A=0)&(B=0) {result: A+B}
+ else {result: A+B+C}
+}
+
+function: slayer DIE_A:n plus ATK ac AC for DMG_A crit CRIT_A and DIE_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20) {result: DMG_A + CRIT_A + 2d8 + [attack DIE_B plus ATK ac AC for DMG_B crit CRIT_B]}
+ if (DIE_A = 1) {result: [attack DIE_B plus ATK ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A + ATK >= AC) {result: DMG_A + 1d8 + [attack DIE_B plus ATK ac AC for DMG_B crit CRIT_B]}
+ else {result: [attack DIE_B plus ATK ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+}
+
+function: slayer DIE_A:n plus ATK_A ac AC for DMG_A crit CRIT_A and DIE_B plus ATK_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20) {result: DMG_A + CRIT_A + 2d8 + [attack DIE_B plus ATK_B ac AC for DMG_B crit CRIT_B]}
+ if (DIE_A = 1) {result: [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A + ATK_A >= AC) {result: DMG_A + 1d8 + [attack DIE_B plus ATK_B ac AC for DMG_B crit CRIT_B]}
+ else {result: [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+}
+
+function: fresh slayer DIE_A:n plus ATK_A ac AC for DMG_A crit CRIT_A and DIE_B plus ATK_B for DMG_B crit CRIT_B {
+ if (DIE_A = 20) {result: DMG_A + CRIT_A + [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ if (DIE_A = 1) {result: [attack DIE_B plus ATK_B ac AC for DMG_B crit CRIT_B]}
+ if (DIE_A + ATK_A >= AC) {result: DMG_A + [attack DIE_B plus ATK_B ac AC for DMG_B+1d8 crit CRIT_B+1d8]}
+ else {result: [attack DIE_B plus ATK_B ac AC for DMG_B crit CRIT_B]}
+}
+
+
+function: fullflurry DIE plus ATK ac AC for DMG crit CRIT {
+ FIRST: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ SECOND: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ AMBUSH: [attack DIE plus ATK ac AC for DMG+1d8 crit CRIT+1d8]
+ REDO: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ 
+ result: [froll FIRST or SECOND or AMBUSH as REDO]
+}
+
+
+function: flurry DIE plus ATK ac AC for DMG crit CRIT {
+ FIRST: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ SECOND: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ REDO: [attack DIE plus ATK ac AC for DMG crit CRIT]
+ 
+ result: [froll FIRST or SECOND as REDO]
+}
+
+output [attack 1d20 plus DEX+PROF ac ARMOR for DEX+1d6 crit 1d6] + [attack 1d20 plus DEX+PROF ac ARMOR for DEX+1d6 crit 1d6] + [attack 1d20 plus DEX+PROF ac ARMOR for DEX+1d6 crit 1d6] named "Dallas' triple tap"
+
+
+
+output [attack 1d20 plus DEX+PROF-5 ac ARMOR for DEX+1d6+10 crit 1d6] + [attack 1d20 plus DEX+PROF-5 ac ARMOR for DEX+1d6+10 crit 1d6] + [attack 1d20 plus DEX+PROF-5 ac ARMOR for DEX+1d6+10 crit 1d6] named "Dallas' triple SS"
+output [slayer 1d20 plus 2+DEX+PROF ac ARMOR for DEX+1d8+1d6 crit 1d8+1d6 and 1d20 for DEX+1d8+1d6 crit 1d8+1d6] named "18 Dex; x2 HM"
+output [fresh slayer 1d20 plus 2+DEX+PROF ac ARMOR for DEX+1d8+1d6 crit 1d8+1d6 and 1d20 plus 2+DEX+PROF for DEX+1d8+1d6 crit 1d8+1d6]
+
+
+
+
+
+
+
+
+\-
+output [slayer 1d20 plus 2+DEXER+PROF ac ARMOR for DEXER+1d8+1d6 crit 1d8+1d6 and 1d20 for DEXER+1d8+1d6 crit 1d8+1d6] named "20 Dex; x2 HM"
+output [slayer 1d20 plus 2+DEX+PROF-5 ac ARMOR for DEX+1d8+1d6+10 crit 1d8+1d6 and 1d20 plus 2+DEX+PROF for DEX+1d8+1d6 crit 1d8+1d6] named "18 Dex; HM+SS, HM"
+output [slayer 1d20 plus 2+DEX+PROF-5 ac ARMOR for DEX+1d8+1d6+10 crit 1d8+1d6 and 1d20 plus 2+DEX+PROF-5 for DEX+1d8+1d6+10 crit 1d8+1d6] named "18 Dex; x2 HM+SS"
+-\
+\-
+output [slayer 1@3d20 plus 2+DEX+PROF ac ARMOR for DEX+1d8+1d6 crit 1d8+1d6 and 1d20 for DEX+1d8+1d6 crit 1d8+1d6] named "18 Dex; 1 EA; x2 HM"
+output [slayer 1@3d20 plus 2+DEXER+PROF ac ARMOR for DEXER+1d8+1d6 crit 1d8+1d6 and 1d20 for DEXER+1d8+1d6 crit 1d8+1d6] named "20 Dex; 1 EA; x2 HM"
+output [slayer 1@3d20 plus 2+DEX+PROF-5 ac ARMOR for DEX+1d8+1d6+10 crit 1d8+1d6 and 1d20 plus 2+DEX+PROF for DEX+1d8+1d6 crit 1d8+1d6] named "18 Dex; 1 EA; HM+SS, HM"
+output [slayer 1@3d20 plus 2+DEX+PROF-5 ac ARMOR for DEX+1d8+1d6+10 crit 1d8+1d6 and 1d20 plus 2+DEX+PROF-5 for DEX+1d8+1d6+10 crit 1d8+1d6] named "18 Dex; 1 EA; x2 HM+SS"
+-\
+\-
+output [slayer 1@3d20 plus 2+DEX+PROF ac ARMOR for DEX+1d8+1d6 crit 1d8+1d6 and 1@3d20 for DEX+1d8+1d6 crit 1d8+1d6] named "18 Dex; 2 EA; x2 HM"
+output [slayer 1@3d20 plus 2+DEXER+PROF ac ARMOR for DEXER+1d8+1d6 crit 1d8+1d6 and 1@3d20 for DEXER+1d8+1d6 crit 1d8+1d6] named "20 Dex; 2 EA; x2 HM"
+output [slayer 1@3d20 plus 2+DEX+PROF-5 ac ARMOR for DEX+1d8+1d6+10 crit 1d8+1d6 and 1@3d20 plus 2+DEX+PROF for DEX+1d8+1d6 crit 1d8+1d6] named "18 Dex; 2 EA; HM+SS, HM"
+output [slayer 1@3d20 plus 2+DEX+PROF-5 ac ARMOR for DEX+1d8+1d6+10 crit 1d8+1d6 and 1@3d20 plus 2+DEX+PROF-5 for DEX+1d8+1d6+10 crit 1d8+1d6] named "18 Dex; 2 EA; x2 HM+SS"
+-\
+
+\-
+output [attack 1d20 plus 7 ac 15 for 1d8+3 crit 1d8]
+output [attack 1@2d20 plus 7 ac 15 for 1d8+3 crit 1d8]
+output [reroll [attack 1d20 plus 7 ac 15 for 1d8+3 crit 1d8] as [attack 1d20 plus 7 ac 15 for 1d8+3 crit 1d8]]
+
+output 2d[attack 1d20 plus 11 ac 20 for 1d8+5 crit 1d8]
+ + [attack 1d20 plus 7 ac 15 for 2d8+5 crit 2d8]
+output [fullflurry 1d20 plus 11 ac 20 for 1d8+5 crit 1d8]
+-\
+\-
+output 2d[attack 1@3d20 plus 11-5 ac 10 for 1d8+5+10 crit 1d8]
+ + [attack 1@3d20 plus 11-5 ac 10 for 2d8+5+10 crit 2d8]
+output [fullflurry 1@3d20 plus 11-5 ac 10 for 1d8+5+10 crit 1d8]
+-\\-
+output 2d[attack 1d20 plus 11-5 ac 10 for 1d8+5+10 crit 1d8]
+output [flurry 1d20 plus 11-5 ac 10 for 1d8+5+10 crit 1d8]
+-\
+
+\-
+output 2d[attack 1d20 plus 11 ac 23 for 1d8+5 crit 1d8] named "2 attacks"
+output 3d[attack 1d20 plus 11 ac 23 for 1d8+5 crit 1d8] named "3 attacks"
+output 5d[attack 1d20 plus 11 ac 23 for 1d8+5 crit 1d8] named "5 attacks"
+output 2d[attack 1d20 plus 11 ac 23 for 1d8+5 crit 1d8]
+       + [attack 1d20 plus 11 ac 23 for 2d8+5 crit 2d8] named "3 attacks + ambush d8"
+output [colossus [attack 1d20 plus 11 ac 23 for 1d8+5 crit 1d8] 
+              or [attack 1d20 plus 11 ac 23 for 1d8+5 crit 1d8]
+            with 1d8] named "2 attacks + colossus slayer d8"
+output [flurry 1d20 plus 11 ac 23 for 1d8+5 crit 1d8]     named "2 attacks flurried"
+output [fullflurry 1d20 plus 11 ac 23 for 1d8+5 crit 1d8] named "3 attacks flurried + ambush d8"
+-\

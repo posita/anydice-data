@@ -1,0 +1,43 @@
+function: reroll DIE:d under LIMIT:n {
+  result: [reroll DIE as DIE if under LIMIT]
+}
+
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL < LIMIT { result: DIE }
+  else { result: ROLL }
+}
+
+function: crit D:d on N:n{
+result: [critcheck d20 D as D on N]
+}
+
+function: critcheck D:n N:n as M:n on C:n{
+ if D<C{result: N} 
+ result: N+M+[reroll d6 under 3]\this reroll is for half orcs savage attack, adjust manually to fit weapon or other races\
+}
+
+function: hit N:n against M:n crit on X:n{
+ result: [hitcheck N against M with d20 crit on X]
+}
+
+function: barbhit N:n against M:n crit on X:n{
+ result: [hitcheck N against M with [highest 1 of 2d20] crit on X]
+}
+
+function: hitcheck N:n against M:n with D:n crit on X:n{
+ if D<M{result: 0} else { result: [critcheck D N as N on X]}
+ result: N
+}
+
+X: 3d[reroll d6 under 3]+4 \Base damage for greatsword plus hunters mark, includes great weapon fighting\
+Z: 2d[reroll d6 under 3]+8 \Base damage greatsword includes great weapon fighting\
+Y: 2d[reroll d6 under 3]+2d[reroll d8 under 3]\base damage for greatsword plus holy weapon, includes great weapon fighting\
+
+loop N over {15..25}{
+ output 2d[barbhit Z against N-8 crit on 20] named " AC [N] Barbarian Great Sword "
+ output 3d[hit Z against N-8 crit on 20] named " AC [N] Great Sword with Haste "
+}
+
+
+
+

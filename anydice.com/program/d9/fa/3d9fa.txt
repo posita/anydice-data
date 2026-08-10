@@ -1,0 +1,41 @@
+function: pbta MOD:n {
+ R:0
+ RP:0
+ E:0 
+ loop N over {2d6+MOD}{
+       if N<7 {E:E+1}
+  else if [{7..9} contains N] {RP:RP+1}
+  else                        {R:R+1} 
+ }
+ result:{-1:E,0:RP,1:R}
+}
+
+function: pbta {result:[pbta 0]}
+
+function: loe DICE:d MOD:n A:s B:s C:s{
+ RT:0 RS:0 RP:0 EP:0 ET:0
+
+ loop N over {DICE+MOD}{
+  if       N < 1@A        {ET:ET+1}
+  else if [A contains N]  {EP:EP+1}
+  else if [B contains N]  {RP:RP+1}
+  else if [C contains N]  {RS:RS+1}
+  else                    {RT:RT+1} 
+ }
+ result:{-2:ET,-1:EP,0:RP,1:RS,2:RT}
+}
+
+function: loe MOD:n {result:[loe d12 MOD {3..5} {6..8} {9..11}]}
+function: loe {result:[loe 0]}
+
+function: loe dnd MOD:n {result:[loe d20 MOD {4..8} {9..13} {14..18}]}
+function: loe dnd{result:[loe dnd 0]}
+
+function: loe pbta MOD:n {result:[loe 2d6 MOD {2..6} {7..9} {10..12}]}
+function: loe pbta{result:[loe pbta 0]}
+
+\output [loe] named "Land of Eem (d12)"
+output [loe dnd] named "Land of Eem (d20)"\
+
+output [loe pbta] named "Land of Eem (2d6)"
+output [pbta] named "pbta"

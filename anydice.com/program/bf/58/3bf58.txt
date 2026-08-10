@@ -1,0 +1,53 @@
+\
+DICE: 5d6
+HITS: [count {4..6} in DICE]
+SIXES: [count 6 in DICE]
+output HITS
+output SIXES
+output HITS - SIXES named "this should never be negative, right?"
+
+function: test DICE:s {
+  HITS: [count {4..6} in DICE]
+  SIXES: [count 6 in DICE]
+  result: HITS - SIXES
+}
+output [test 5d6] named "this really is always non-negative"
+\
+\******************************************************************\
+
+\Thresholds Difference\
+Q: {0..3}
+
+PD: 10
+PD_THRESHOLDS: {4,8,10,12}
+RD: 10
+RD_THRESHOLDS: {4,27,28,29}
+
+function: countt THRESHOLDS:s in POOL:n {
+ RES: 0
+ if(POOL >= 1@THRESHOLDS) { RES: 1}
+ if(POOL >= 2@THRESHOLDS) { RES: 2}
+ if(POOL >= 3@THRESHOLDS) { RES: 3}
+ if(POOL >= 4@THRESHOLDS) { RES: 4}
+ result: RES
+}
+A: [countt PD_THRESHOLDS in PDdQ]
+B: [countt RD_THRESHOLDS in RDdQ]
+output A named "Potential Damages"
+output B named "Damages Reduction"
+output A-B named "should not be negative ?"
+
+
+function: test DICE:s {
+  HITS: [countt PD_THRESHOLDS in DICE]
+  SAVES: [countt RD_THRESHOLDS in DICE]
+  result: HITS - SAVES
+}
+function: testun DICE:s {
+  HITS: [countt PD_THRESHOLDS in DICE]
+  SAVES: [countt RD_THRESHOLDS in DICE]
+  result: HITS - SAVES
+}
+
+output [test 10dQ] named "this really is always non-negative"
+

@@ -1,0 +1,120 @@
+/add bonuses for flanking/
+/figure out how to do combat rhythm/
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= DEFENSE | ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: rhythmattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= DEFENSE | ROLL = 20 {
+  PAPENALTY: [highest of PAPENALTY+1 and 0]
+  result: CRITICALHIT}
+ if ROLL + ATTACK >= DEFENSE {
+  PAPENALTY: [highest of PAPENALTY+1 and 0]
+  result: HIT }
+ result: MISS
+}
+
+function: secondaryattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + SECONDARYATTACK >= DEFENSE | ROLL = 20 {result: CRITICALHIT}
+ if ROLL + SECONDARYATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: furiousattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK + 2>= DEFENSE | ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK + 2>= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: (CRITICAL d DAMAGE) + SNEAKATTACKDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: DAMAGE + SNEAKATTACKDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+TAC: 20
+BAB: 6
+SECONDARYBAB: 1
+SIZE: 1
+STRENGTH: 2
+MAGIC: 1
+
+
+ATTACK: BAB + STRENGTH + MAGIC + SIZE
+SECONDARYATTACK: SECONDARYBAB + STRENGTH + MAGIC + SIZE
+DAMAGEBONUS: STRENGTH+STRENGTH/2 + MAGIC
+CRITICAL: 3
+DAMAGE: 1d8 + DAMAGEBONUS
+SNEAKATTACKDAMAGE: 1d6
+THREAT: 20
+MISSDAMAGE: 0
+loop AC over {TAC} {
+ output [damage for [attack d20 vs AC]] named "Monk/Rogue 1 attack against AC [AC]"
+ output 2d[damage for [attack d20 vs AC]] + [damage for [secondaryattack d20 vs AC]] named "Monk/Rogue 3 Flurry attacks against AC [AC]"
+}
+
+
+ATTACK: BAB + STRENGTH + MAGIC + SIZE -2
+SECONDARYATTACK: SECONDARYBAB + STRENGTH + MAGIC + SIZE -2
+DAMAGEBONUS: STRENGTH+STRENGTH/2 + MAGIC + 6
+CRITICAL: 3
+DAMAGE: 1d8 + DAMAGEBONUS
+THREAT: 20
+MISSDAMAGE: 0
+
+loop AC over {TAC} {
+ output 2d[damage for [attack d20 vs AC]] + [damage for [secondaryattack d20 vs AC]] named "Monk/Rogue 3 Flurry Power attacks against AC [AC]"
+}
+
+loop AC over {TAC} {
+ output [damage for [furiousattack d20 vs AC]] + [damage for [attack d20 vs AC]] + [damage for [secondaryattack d20 vs AC]] named "Monk/Rogue 3 Flurry Furious Power attacks against AC [AC]"
+}
+
+BAB: 7
+SECONDARYBAB: 2
+SIZE: 1
+STRENGTH: 2
+MAGIC: 1
+
+ATTACK: BAB + STRENGTH + MAGIC + SIZE
+SECONDARYATTACK: SECONDARYBAB + STRENGTH + MAGIC + SIZE
+DAMAGEBONUS: STRENGTH+STRENGTH/2 + MAGIC
+SNEAKATTACKDAMAGE: 0
+CRITICAL: 3
+DAMAGE: 1d8 + DAMAGEBONUS
+THREAT: 20
+MISSDAMAGE: 0
+
+loop AC over {TAC} {
+ output [damage for [attack d20 vs AC]] named "Monk 1 attack against AC [AC]"
+ output 2d[damage for [attack d20 vs AC]] + [damage for [secondaryattack d20 vs AC]] named "Monk 3 Flurry attacks against AC [AC]"
+}
+
+ATTACK: BAB + STRENGTH + MAGIC + SIZE -2
+SECONDARYATTACK: SECONDARYBAB + STRENGTH + MAGIC + SIZE -2
+DAMAGEBONUS: STRENGTH+STRENGTH/2 + MAGIC + 6
+CRITICAL: 3
+DAMAGE: 1d8 + DAMAGEBONUS
+SNEAKATTACKDAMAGE: 0
+THREAT: 20
+MISSDAMAGE: 0
+
+loop AC over {TAC} {
+ output 2d[damage for [attack d20 vs AC]] + [damage for [secondaryattack d20 vs AC]] named "Monk 3 Flurry Power attacks against AC [AC]"
+ output [damage for [furiousattack d20 vs AC]] + [damage for [attack d20 vs AC]] + [damage for [secondaryattack d20 vs AC]] named "Monk 3 Flurry Furious Power attacks against AC [AC]"
+}

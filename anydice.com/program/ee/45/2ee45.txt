@@ -1,0 +1,29 @@
+function: crit DICE:d {
+  TOTAL:0
+  MAX: [maximum of DICE]/#(DICE)
+  DIE: d{1..MAX}
+  loop N over {1..#(DICE)}{
+    TOTAL: TOTAL + [highest of DIE and DIE]
+  }
+  result: TOTAL
+}
+function: skirmish ATK:n DMG BON
+{
+  if ATK < EVA {result: 0}
+  else if ATK < 19 {result: DMG + BON}
+  else {result: [crit DMG]}
+}
+EVA: 8
+
+CPR: [highest of [skirmish 1d20+1d6 3d6 3] and 5]
+AR: [highest of [skirmish 1d20 1d6 0] and 2] 
+HMG: [skirmish 1d20-1d6 2d6 4] 
+
+ANDROMEDA: [skirmish 1d20 2d6 3]
+SOL: [skirmish 1d20 1d6 1]
+TACHYON: [skirmish 1d20 2d6 8]
+
+output HMG+AR named "HMG+AR"
+output ANDROMEDA+SOL named "ANDROMEDA+SOL"
+output CPR named "CPR"
+output TACHYON named "TACHYON"

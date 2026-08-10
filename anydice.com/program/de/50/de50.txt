@@ -1,0 +1,44 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+PRECISIONHIT: 3
+
+function: attack ATK:n plus PLUSATK:n vs DEFENSE:n with MANEUVER:n {
+ if ATK = 1 { result: MISS }
+ if ATK = 20 {
+  result: CRITICALHIT
+ }
+ if ATK + PLUSATK >= DEFENSE { result: HIT }
+ if ATK + PLUSATK + MANEUVER >= DEFENSE { result: PRECISIONHIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n with MANEUVER:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAMAGE + MAGIC
+ }
+ if ATTACKRESULT = HIT {
+  result: DAMAGE + MANEUVER + MAGIC
+ }
+ if ATTACKRESULT = PRECISIONHIT {
+  result: DAMAGE + MAGIC
+ }
+ result: MISSDAMAGE
+}
+
+ROLL: 1d20
+BLESS: 0d4
+AC: 12
+MAGIC: 0
+TOHIT: 8 - 5
+MISSDAMAGE: 0
+DAMAGE: 1d6 + 13
+CRITDAMAGE: 2d6 + 13
+MANEUVERDIE: 0d8
+
+output 5d([damage for [attack ROLL plus (BLESS+TOHIT+MAGIC) vs AC with MANEUVERDIE] with MANEUVERDIE] )
+
+MAGIC: 1
+DAMAGE: 1d8 + 13
+CRITDAMAGE: 2d8 + 13
+output 4d[damage for [attack ROLL plus (BLESS+TOHIT+MAGIC) vs AC with MANEUVERDIE] with MANEUVERDIE]

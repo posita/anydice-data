@@ -1,0 +1,89 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack ROLL vs DEFENSE]]
+}
+
+function: save ROLL:n vs DC:n {
+  if ROLL < DC {result: HIT}
+  result: MISS
+}
+
+function: dccheck {
+ result: [damage for [save ROLL vs DC]]
+}
+
+DEFENSE: d{11..16}
+SAVE: d{-1..3}
+
+ROLL: 1d20
+ATTACK: 5
+HITDAMAGE: 1d8+2
+CRITICALDAMAGE: 2d8+2
+MISSDAMAGE: 0
+output [attack] named "Light Crossbow"
+
+ROLL: 1d20+SAVE
+DC: 13
+HITDAMAGE: 2d6
+MISSDAMAGE: (2d6)/2
+output 3d[dccheck] named "Breath Weapon, 3 tgt."
+
+ROLL: 1d20+SAVE
+DC: 16
+HITDAMAGE: 2d12
+MISSDAMAGE: 0
+output [dccheck] named "Academic Anguish"
+
+ROLL: 1d20
+ATTACK: 8
+HITDAMAGE: 2d8+4
+CRITICALDAMAGE: 4d8+4
+output [attack] named "Ray of Frost"
+
+ROLL: 1d20+SAVE
+DC: 16
+HITDAMAGE: 3d4
+MISSDAMAGE: 0
+output 3d[dccheck] named "Acid Stream, 3 tgt."
+
+ROLL: 1d20
+ATTACK: 100
+HITDAMAGE: 3d4+3
+CRITICALDAMAGE: 3d4+3
+MISSDAMAGE: 3d4+3
+output [attack] named "Magic Missile"
+
+ROLL: 1d20+SAVE
+DC: 16
+HITDAMAGE: 2d8
+MISSDAMAGE: (2d8)/2
+output 3d[dccheck] named "Thunderwave, 3 tgt."
+
+ROLL: 1d20+SAVE
+DC: 16
+HITDAMAGE: 2d6
+MISSDAMAGE: (2d6)/2
+output [dccheck] named "Flaming Sphere"

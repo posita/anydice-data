@@ -1,0 +1,85 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{16..22}
+
+ATTACK: 11
+HITDAMAGE: 2d6
+CRITICALDAMAGE: 12
+MISSDAMAGE: 0
+output [1 attacks] named "SA 1 rnd"
+output [2 attacks] named "SA 2 rnd"
+output [3 attacks] named "SA 3 rnd"
+output [4 attacks] named "SA 4 rnd"
+
+ATTACK: 11
+HITDAMAGE: 1d6
+CRITICALDAMAGE: 6
+MISSDAMAGE: 0d6
+output [attack] named "Shroud 1 rnd"
+
+ATTACK: 11
+HITDAMAGE: 2d6
+CRITICALDAMAGE: 12
+MISSDAMAGE: 1d6
+output [attack] named "Shroud 2 rnd"
+
+ATTACK: 11
+HITDAMAGE: 3d6
+CRITICALDAMAGE: 18
+MISSDAMAGE: 2d6
+output [attack] named "Shroud 3 rnd"
+
+ATTACK: 11
+HITDAMAGE: 4d6
+CRITICALDAMAGE: 24
+MISSDAMAGE: 3d6
+output [attack] named "Shroud 4 rnd"
+
+ATTACK: 11
+HITDAMAGE: 1d6
+CRITICALDAMAGE: 6
+MISSDAMAGE: 0
+output [1 attacks] named "Quarry 1 rnd"
+output [2 attacks] named "Quarry 2 rnd"
+output [3 attacks] named "Quarry 3 rnd"
+output [4 attacks] named "Quarry 4 rnd"

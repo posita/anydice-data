@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Clash Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes flip {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(720deg); }
+    }
+    .flip {
+      animation: flip 0.6s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-5xl bg-gray-800 rounded-2xl shadow-xl p-4 grid grid-cols-2 gap-4">
+    <!-- Left Side: Player -->
+    <div class="space-y-2">
+      <h2 class="text-lg font-bold">Player Skill</h2>
+      <input id="playerSkill" type="number" value="10" class="w-full p-2 rounded bg-gray-700 text-white">
+      <div class="flex gap-2">
+        <button onclick="saveSkill('player')" class="bg-blue-500 px-2 py-1 rounded">Save</button>
+        <select id="playerSaved" class="bg-gray-700 px-2 py-1 rounded text-white" onchange="loadSkill('player')">
+          <option value="">Load Saved</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Right Side: Enemy -->
+    <div class="space-y-2">
+      <h2 class="text-lg font-bold">Enemy Skill</h2>
+      <input id="enemySkill" type="number" value="8" class="w-full p-2 rounded bg-gray-700 text-white">
+      <div class="flex gap-2">
+        <button onclick="saveSkill('enemy')" class="bg-red-500 px-2 py-1 rounded">Save</button>
+        <select id="enemySaved" class="bg-gray-700 px-2 py-1 rounded text-white" onchange="loadSkill('enemy')">
+          <option value="">Load Saved</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Middle Section -->
+    <div class="col-span-2 space-y-4">
+      <div class="flex justify-center gap-2">
+        <button onclick="startClash()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-bold">Start Clash</button>
+      </div>
+
+      <!-- Results -->
+      <div id="results" class="grid grid-cols-2 gap-2 text-center"></div>
+      <div id="clashResult" class="text-center text-xl font-bold mt-2"></div>
+
+      <!-- Clash Log -->
+      <div class="bg-gray-700 p-2 rounded-lg h-40 overflow-y-auto text-sm" id="clashLog"></div>
+    </div>
+  </div>
+
+  <script>
+    let playerSaves = [];
+    let enemySaves = [];
+    let clashNumber = 0;
+
+    function saveSkill(type) {
+      const input = document.getElementById(type + "Skill");
+      const dropdown = document.getElementById(type + "Saved");
+      const value = input.value;
+      if (value && !isNaN(value)) {
+        if (type === "player") playerSaves.push(value);
+        else enemySaves.push(value);
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        dropdown.appendChild(option);
+      }
+    }
+
+    function loadSkill(type) {
+      const dropdown = document.getElementById(type + "Saved");
+      if (dropdown.value) {
+        document.getElementById(type + "Skill").value = dropdown.value;
+      }
+    }
+
+    async function startClash() {
+      const playerSkill = parseInt(document.getElementById("playerSkill").value);
+      const enemySkill = parseInt(document.getElementById("enemySkill").value);
+      const resultsDiv = document.getElementById("results");
+      const clashResult = document.getElementById("clashResult");
+      const clashLog = document.getElementById("clashLog");
+
+      resultsDiv.innerHTML = "";
+      clashResult.textContent = "";
+      clashNumber++;
+
+      let playerHeads = 0;
+      let enemyHeads = 0;
+
+      // Flip coins sequentially
+      for (let i = 0; i < playerSkill; i++) {
+        await flipCoin("player", i, resultsDiv);
+        if (Math.random() < 0.5) playerHeads++;
+      }
+      for (let i = 0; i < enemySkill; i++) {
+        await flipCoin("enemy", i, resultsDiv);
+        if (Math.random() < 0.5) enemyHeads++;
+      }
+
+      // Clash result
+      let resultText = "";
+      if (playerHeads > enemyHeads) {
+        resultText = `Player Wins Clash #${clashNumber}!`;
+      } else if (enemyHeads > playerHeads) {
+        resultText = `Enemy Wins Clash #${clashNumber}!`;
+      } else {
+        resultText = `Clash #${clashNumber} is a Tie!`;
+      }
+
+      clashResult.textContent = resultText;
+
+      // Log
+      clashLog.innerHTML += `<div>Clash #${clashNumber}: Player ${playerHeads} vs Enemy ${enemyHeads} â†’ ${resultText}</div>`;
+      clashLog.scrollTop = clashLog.scrollHeight;
+    }
+
+    function flipCoin(side, index, container) {
+      return new Promise(resolve => {
+        const coin = document.createElement("div");
+        coin.className = "w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs flip";
+        coin.textContent = "?";
+        container.appendChild(coin);
+
+        setTimeout(() => {
+          const isHead = Math.random() < 0.5;
+          coin.textContent = isHead ? "P" : "E";
+          coin.className =
+            "w-10 h-10 rounded-full flex items-center justify-center text-white text-xs " +
+            (isHead ? "bg-blue-500" : "bg-red-500");
+          resolve(isHead);
+        }, 500);
+      });
+    }
+  </script>
+</body>
+</html>

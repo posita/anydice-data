@@ -1,0 +1,72 @@
+\ Defense Tab \
+
+MONSTER_ACC: 10
+MONSTER_DMG: 3d12
+NUMBER_OF_HITS: 3
+
+PLAYER_AC: 20
+PLAYER_HP: 100
+
+function: hp A:n
+   {
+   if A < 0 {
+      A: 0
+   }
+   result: A
+}
+
+function: what are my hp on round A:n with ac B:n
+   {
+   X: 0
+
+   MONSTER_ACC: 10
+   MONSTER_DMG: 3d12
+   NUMBER_OF_HITS: 3
+
+   PLAYER_AC: B
+   PLAYER_HP: 100
+
+   MONSTER_ROUND: (MONSTER_DMG) * ((1d20+MONSTER_ACC)>(PLAYER_AC-1))
+   loop X over {1..A}
+      {
+      PLAYER_HP: PLAYER_HP - MONSTER_ROUND
+      PLAYER_HP: PLAYER_HP - MONSTER_ROUND
+      PLAYER_HP: PLAYER_HP - MONSTER_ROUND
+   }
+PLAYER_HP: [hp PLAYER_HP] 
+   result: PLAYER_HP
+}
+
+function: compare my hp to the monsters on round A
+   {
+   X: 0
+
+   MONSTER_ACC: 10
+   MONSTER_AC: 18
+   MONSTER_HP: 192
+   MONSTER_DMG: 3d12
+   NUMBER_OF_MONSTER_HITS: 3
+
+   PLAYER_AC: 25
+   PLAYER_HP: 99
+
+   MONSTER_ROUND: (MONSTER_DMG) * ((1d20+MONSTER_ACC)>(PLAYER_AC-1))
+   PLAYER_ROUND: (1d8+7) * ((1d20+11)>(17))
+   loop X over {1..A}
+      {
+      PLAYER_HP: PLAYER_HP + 12
+      PLAYER_HP: PLAYER_HP - MONSTER_ROUND
+      PLAYER_HP: PLAYER_HP - MONSTER_ROUND
+      PLAYER_HP: PLAYER_HP - MONSTER_ROUND
+
+      MONSTER_HP: MONSTER_HP - PLAYER_ROUND
+      MONSTER_HP: MONSTER_HP - PLAYER_ROUND
+   }
+   PLAYER_HP: [hp PLAYER_HP]
+   MONSTER_HP: [hp MONSTER_HP]
+   
+   result: (PLAYER_HP * !MONSTER_HP)
+}
+   
+
+output [compare my hp to the monsters on round 20]

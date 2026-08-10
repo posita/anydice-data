@@ -1,0 +1,39 @@
+function: if CONDITION:n then A else B {
+ if CONDITION { result: A } else { result: B }
+}
+
+function: base N:n {
+ result: N d{-1, 0, 0, 0, 1}
+ \result: N d{-1, 0, 1}\
+}
+
+function: one {
+ ROLL: [base 1]
+ CONFIRM: [base 1]
+ result: [if ROLL=1 & CONFIRM=1 then 2 else [if ROLL=-1 & CONFIRM=-1 then -2 else ROLL]] 
+}
+
+function: good N:n {
+ ROLL: [base N]
+ CRIT: ([highest 2 of ROLL]>=2)
+ BOTCH: ([highest 2 of ROLL]<=-2)
+ KEEP: [highest 1 of ROLL]
+ result: [if CRIT then 2 else [if BOTCH then -2 else KEEP]]
+}
+
+function: poor N:n {
+ ROLL: [base N]
+ CRIT: ([lowest 2 of ROLL]>=2)
+ BOTCH: ([lowest 2 of ROLL]<=-2)
+ KEEP: [lowest 1 of ROLL]
+ result: [if BOTCH then -2 else [if CRIT then 2 else KEEP]]
+}
+
+output [one] named "1"
+
+loop N over {2,3,4,5,6}{
+ output [good N] named "good [N]"
+\ output [poor N] named "poor [N]"\
+}
+
+output 0 named "0"

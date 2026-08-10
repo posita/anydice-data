@@ -1,0 +1,30 @@
+LARGE: 12
+MEDIUM: 8
+SMALL: 5
+HIT: d6 >= 5
+MISS: d6 <= 1
+DEFENSE: 8
+DAMAGE: 6
+DIFFICULTY: 2
+DRAINRESIST: 4
+DIE: d6 >= 5
+DIFFICULTY: 2
+
+function: evaluate HITS:n with PLUS:n not MINUS:n over THRESHOLD:n {
+ if HITS >= THRESHOLD {
+  result: [highest of 0 and HITS + PLUS - MINUS]
+ }
+ result: 0
+}
+
+loop POOL over {SMALL, MEDIUM, LARGE} {
+ output [evaluate POOLdDIE with DAMAGE not DEFENSE over DIFFICULTY] named "Weapon: [POOL] dice + [DAMAGE]atk vs. [DEFENSE]def ([DIFFICULTY] threshold)"
+}
+
+loop POOL over {SMALL, MEDIUM, LARGE} {
+ output [evaluate POOLdHIT with 0 not DRAINRESIST over 0] named "Drain: [POOL] pool vs [DRAINRESIST] drain resist"
+}
+
+loop POOL over {SMALL, MEDIUM, LARGE} {
+ output POOLdHIT named "Success: [POOL] pool hits"
+}

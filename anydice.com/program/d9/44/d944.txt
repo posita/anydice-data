@@ -1,0 +1,32 @@
+function: attack ROLL:d plus ATTACK:n vs DEFENSE:n {
+ MIN: 2
+ if DEFENSE-ATTACK > 2 {
+  MIN: DEFENSE-ATTACK
+ }
+ result: [count {MIN..6} in ROLL]
+}
+
+function: attackstarlordextra ROLL:d plus ATTACK:n vs DEFENSE:n extra EXTRA:n times T:n max M:n {
+ if T<M { 
+  if EXTRA>=5 {
+   MIN: 2
+   if DEFENSE-ATTACK > 2 {
+    MIN: DEFENSE-ATTACK
+   }
+   result: [count {MIN..6} in ROLL] + [attackstarlordextra ROLL plus ATTACK vs DEFENSE extra 1d6 times T+1 max M]
+  }
+ }
+ result: 0
+}
+
+function: attackstarlord ROLL:d plus ATTACK:n vs DEFENSE:n times TIMES:n {
+ COUNT: [attack ROLL plus ATTACK vs DEFENSE] + [attackstarlordextra ROLL plus ATTACK vs DEFENSE extra 1d6 times 0 max TIMES]
+
+ result: COUNT
+}
+
+output [attack 10d6 plus 5 vs 8] named "AttackNormal"
+output [attackstarlord 10d6 plus 5 vs 8 times 1] named "AttackStarlordOnce"
+output [attackstarlord 10d6 plus 5 vs 8 times 2] named "AttackStarlordTwice"
+output [attackstarlord 10d6 plus 5 vs 8 times 3] named "AttackStarlordThrice"
+output [attackstarlord 10d6 plus 5 vs 8 times 4] named "AttackStarlordFour"

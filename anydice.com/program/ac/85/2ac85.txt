@@ -1,0 +1,68 @@
+function: attack D:n plus B:n vs AC:n {
+    if D = 20 { result: 2 }
+    else if D+B >= AC { result: 1 }
+    else { result: 0 }
+}
+
+function: damage DD:n plus B:n if HIT:n {
+    if HIT = 2 { result: (DD*2)+B }
+    else if HIT = 1 { result: DD+B }
+    else { result: 0}
+}
+
+\ Attack Config: Normal or Advantage or Disadvantage \
+function: attconfig CONFIG:n {
+    \ 1 - Normal: 1d20 \
+    \ 2 - Advantage: [highest 1 of 2d20] \
+    \ 0 - Disadvantage: [lowest 1 of 2d20] \
+
+    if CONFIG = 1 { result: 1d20 }
+    else if CONFIG = 2 { result: [highest 1 of 2d20] }
+    else if CONFIG = 0 { result: [lowest 1 of 2d20] }
+}
+
+\ Main Function: Attack for each AC from 5 to 20 (Level 5) \
+loop AC over {10..20} {
+    TOTAL_DMG: 0 \ Total Damage \
+    TOTAL_DMA: 0 \ Total Damage w Advantage \
+
+    TOTAL_DMS: 0 \ Total Damage + SD Rend \
+    TOTAL_DAS: 0 \ Total Damage + SD Rend w Advantage \
+
+    \ Main Action (Attack w Extra Attack) \
+    loop NOA over {1..1} {
+
+       HIT: [ attack [attconfig 1] plus 9 vs AC ]
+       TOTAL_DMG: TOTAL_DMG+[ damage 1d6 plus 7 if HIT ]
+
+       HIT: [ attack [attconfig 2] plus 9 vs AC ]
+       TOTAL_DMA: TOTAL_DMA+[ damage 1d6 plus 7 if HIT ]
+    }
+
+    \ Steel Defender Rend \
+    HIT: [ attack [attconfig 1] plus 7 vs AC ]                
+    TOTAL_DMG: TOTAL_DMG+[ damage 1d8 plus 2 if HIT ] 
+
+    HIT: [ attack [attconfig 2] plus 7 vs AC ] 
+    TOTAL_DMA: TOTAL_DMA+[ damage 1d8 plus 2 if HIT ] 
+
+
+    \ Attack w Arcane Jolt (1x per turn) \
+    \HIT: [ attack [attconfig 1] plus 7 vs AC ]                  \
+    \TOTAL_DMG: TOTAL_DMG+[ damage 3d6 plus 17 if HIT ] \
+
+    \HIT: [ attack [attconfig 2] plus 7 vs AC ]   \
+    \TOTAL_DMA: TOTAL_DMA+[ damage 3d6 plus 17 if HIT ] \
+    
+
+    \ Firebolt (Bladesinger Extra Attack) \
+    \HIT: [ attack [attconfig 1] plus 11 vs AC ]                \
+    \TOTAL_DMG: TOTAL_DMG+[ damage 3d10 plus 0 if HIT ]\
+
+    \HIT: [ attack [attconfig 2] plus 11 vs AC ] \
+    \TOTAL_DMA: TOTAL_DMA+[ damage 3d10 plus 0 if HIT ]\
+
+
+    output TOTAL_DMG named "D:[AC]"
+    output TOTAL_DMA named "A:[AC]"
+}

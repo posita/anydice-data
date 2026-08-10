@@ -1,0 +1,35 @@
+\PF1E Battle Calculator\
+
+\Variable Definitions (Put your raw data here)\
+
+MONSTER_AC: 16
+MONSTER_HP: 4
+MONSTER_DR: 0 \Use a 0 if an attack bypasses the DR or a negative number if there is vulnerability\
+
+ATTACK_BONUS: 5
+DAMAGE: 1d8+3
+CRIT_DAMAGE: 2d8+6
+CRIT_THREAT: 20
+
+\Math(do not change this unless you know what you're doing)\
+
+ATTACK: 1d20 + ATTACK_BONUS
+HIT_CHANCE: (ATTACK >= MONSTER_AC) | (1d20 = 20 & MONSTER_AC > ATTACK_BONUS+20)
+DAMAGE: DAMAGE - MONSTER_DR
+CRIT_DAMAGE: CRIT_DAMAGE - MONSTER_DR
+CRIT_CHANCE: ATTACK >= MONSTER_AC & 1d20 >= CRIT_THREAT
+
+\Outputs\
+
+output (ATTACK >= MONSTER_AC) | (1d20 = 20 & MONSTER_AC > ATTACK_BONUS+20) named "Chance to hit"
+output DAMAGE named "Damage Range"
+output DAMAGE > 0 named "Chance to Deal Damage On Hit"
+output DAMAGE >= MONSTER_HP named "Chance for One Hit Kill On Non-Critical Hit"
+
+output CRIT_CHANCE named "Chance to Critical Hit"
+output CRIT_DAMAGE named "Critical Damage Range"
+output CRIT_DAMAGE > 0 named "Chance to Deal Damage On Critical Hit"
+output CRIT_DAMAGE >= MONSTER_HP named "Chance for One Hit Kill On Critical Hit"
+
+output (HIT_CHANCE & DAMAGE > 0) | ((HIT_CHANCE & CRIT_CHANCE) & CRIT_DAMAGE > 0) named "Chance to Deal Damage At All"
+output (DAMAGE >= MONSTER_HP & ATTACK >= MONSTER_AC) | (CRIT_DAMAGE >= MONSTER_HP & (CRIT_CHANCE)) named "Chance for One Hit Kill Happening"

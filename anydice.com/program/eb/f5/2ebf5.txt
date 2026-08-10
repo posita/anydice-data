@@ -1,0 +1,36 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+\ output [roll 1d20 damage 2d6 crit 4d6 on {19,20}] named "Light Pistol"
+
+output [roll 1d20 damage 3d6 crit 6d6 on {19,20}] named "Light Pistol, Ring of Accuracy"
+
+output [roll 1d20 damage 1d6+4 crit 2d6+4 on {20}] named "Hand Crossbow / Shortbow" \
+
+
+
+AC: 20
+DMG: 1
+CRIT: 1
+output [roll 1d20 plus 8 against AC damage DMG crit CRIT on {20}] named "Baseline"
+output 2d[roll 1d20 plus 8 against AC damage DMG crit CRIT on {20}] named "Attack Twice"
+output [roll [highest 1 of 2d20] plus 8 against AC damage DMG crit CRIT on {20}] named "Truestrike (Adv. Ver.)"
+output [roll 1d20 plus 8+10 against AC damage DMG crit CRIT on {20}] named "Truestrike (Mod Ver.)"
+

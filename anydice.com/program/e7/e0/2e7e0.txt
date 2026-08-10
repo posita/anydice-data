@@ -1,0 +1,47 @@
+function: attack ATTACK:n ATTACKMOD:n AC:n DAMAGE:n {
+  if ATTACK = 20 {
+    result: DAMAGE * 2
+  } 
+  if ATTACK + ATTACKMOD >= AC + 10{
+    result: DAMAGE * 2
+  }
+  if ATTACK + ATTACKMOD >= AC {
+    result: DAMAGE
+  }
+
+  result: 0
+}
+
+function: save DC:n SAVE:n DAMAGE:n {
+  if(SAVE < DC - 10){
+    result: DAMAGE * 2
+  }
+  if(SAVE < DC) {
+    result: DAMAGE
+  }
+  if(SAVE < DC + 10) {
+    result: 0
+  }
+
+  result: DAMAGE / 2
+}
+
+function: spellstrike ATTACK:n ATTACKMOD:n AC:n ATKDAMAGE:n SPELLDAMAGE:n{
+  result: [attack ATTACK ATTACKMOD AC ATKDAMAGE+SPELLDAMAGE]
+}
+
+function: savestrike ATTACK:n ATTACKMOD:n AC:n DC:n SAVE:n ATKDAMAGE:n SPELLDAMAGE:n{
+  ATKRESULT: [attack ATTACK ATTACKMOD AC ATKDAMAGE]
+
+  if(ATKRESULT = 0) {
+    result: 0
+  }
+
+  result: ATKRESULT + [save DC SAVE SPELLDAMAGE]
+}
+
+AC: 21
+SAVEMOD: 7
+
+output [spellstrike 1d20 12 AC 1d4+3 6d6] named "Unarmed Fireball"
+output [savestrike 1d20 12 AC 18 1d20+SAVEMOD 1d4+3 3d6+3d6] named "Unarmed Magnetic Accelleration"

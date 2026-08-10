@@ -1,0 +1,39 @@
+PROF: 3
+CHA: 4
+CON: 2
+
+function: blast against AC {
+ ATK: d20
+ HIT: ATK+PROF+CHA > AC
+ CRIT: ATK >= 20-CUR
+ DMG: d10+HEX*d6+CUR*PROF+CHA
+ result: (HIT+CRIT) * DMG
+}
+
+function: double blast against AC {
+ result: [blast against AC] + [blast against AC]
+}
+
+function: constitution save of VAL {
+ result: d20+CON >= VAL
+}
+
+function: mirror image x X {
+ result: d20 >= 20/(X+1) + 1
+}
+
+IMG: 3
+HEX: 1
+CUR: 1
+TOTAL: 0
+loop N over {1..8}{
+ DMG: [double blast against 15]
+ TOTAL: TOTAL + DMG
+ output DMG named "Damage roll [N]"
+ DEFLECT: [mirror image x IMG]
+ IMG: IMG - DEFLECT
+ HEX: HEX = 1 & (DEFLECT | [constitution save of 10])
+}
+output HEX named "Hex still active"
+output IMG named "Remaining mirror images"
+output TOTAL named "Total damage"

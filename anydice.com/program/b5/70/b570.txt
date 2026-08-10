@@ -1,0 +1,354 @@
+function: test ROLL:n vs AC:n {
+ if ROLL = 1 { result: 0 }
+ else {
+  result: 1
+ }
+}
+
+function: roll B:n A:n{
+ result: BdA
+}
+
+function: gwf B:n A:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA A]
+ }
+ result: X
+}
+
+function: reroll A:n B:n{ 
+ if A <= 2 { 
+  A: 1dB 
+ }  
+ result: A 
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRITMISS: -1
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL = 1 { result: CRITMISS }
+ if ROLL >= CRITON {
+  result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKROLLRESULT:s {
+ D: 0
+ loop A over ATTACKROLLRESULT {
+  if A = CRITICALHIT {
+   D: D + CRITDMG
+  }
+  else if A = HIT {
+   D: D + HITDMG
+  }
+  else {
+   D: D + 0
+  }
+ }
+ result: D + [oncextradmg for ATTACKROLLRESULT]
+}
+
+function: bonusdmg for ATTACKROLLRESULT:s {
+ D: 0
+ loop A over ATTACKROLLRESULT {
+  if A = CRITICALHIT {
+   D: D + BONUSCRITDMG
+  }
+  else if A = HIT {
+   D: D + BONUSHITDMG
+  }
+  else {
+   D: D + 0
+  }
+ }
+ result: D + [oncextradmg for ATTACKROLLRESULT]
+}
+
+function: oncextradmg for ATTACKROLLRESULT:s {
+ if [ATTACKROLLRESULT contains CRITICALHIT] {
+   result: [roll (2*ONCEXTRADMGNUM) ONCEXTRADMGDICE]
+ }
+ if [ATTACKROLLRESULT contains HIT] {
+   result: [roll ONCEXTRADMGNUM ONCEXTRADMGDICE]
+ }
+ result: 0
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attackroll [highest 1 of ATKDICENUMd20] vs AC]]
+}
+
+function: N:n bonusattacks {
+ result: [bonusdmg for Nd[attackroll [highest 1 of ATKDICENUMd20] vs AC]]
+}
+
+\----------------AC attacking against-----------------------\
+     AC: d{16..21}
+
+\********************************************************************************\
+\-.................................RyokuMav_20.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        7 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   4
+     NUMATKS:       2
+     NUMBONUSATKS:  1
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          10
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     4
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:       4      \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "RyokuMav_20"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................Tyr12_Champ8_Mark_Surge_GWM_Smite.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        5 + 1
+     PROF:          6 - 5
+     CRITON:        19
+     CRITDICEMUL:   1
+     NUMATKS:       5
+     NUMBONUSATKS:  2
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          6
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     4
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:    [roll 1 6] + [roll 4 8]    \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [gwf      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD + 10
+     BONUSHITDMG:    [gwf BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD + 10
+     CRITDMG:        HITDMG      + [gwf (      DMGDICENUM * CRITDICEMUL )      DMGDICE] + MISCDMGMOD
+     BONUSCRITDMG:   BONUSHITDMG + [gwf ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE] + MISCDMGMOD
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "Tyr11_Champ9_Mark_Surge_GWM_Smite"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................GreatOldOne8_Rogue10_Ftr2_TWF_Hex_Surge.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        5 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   1
+     NUMATKS:       4
+     NUMBONUSATKS:  2
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          8
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     8
+     ONCEXTRADMGNUM:   5       \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  6      
+     MISCDMGMOD:       0       \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE] + MISCDMGMOD
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE] + MISCDMGMOD
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "GreatOldOne8_Rogue10_Ftr2_TWF_Hex_Surge"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................ZEDD_20.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        7 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   4
+     NUMATKS:       2
+     NUMBONUSATKS:  1
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          12
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     12
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:       4      \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "ZEDD_20"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................Molikroth_17.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        5 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   1
+     NUMATKS:       4
+     NUMBONUSATKS:  0
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          10
+     BONUSDMGDICENUM:  0
+     BONUSDMGDICE:     0
+     ONCEXTRADMGNUM:   10      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  10      
+     MISCDMGMOD:       1d6     \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE] + MISCDMGMOD
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE] + MISCDMGMOD
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "Molikroth_17"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................Generic_Orc_Champion_20_GWM.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        5 + 1
+     PROF:          6 - 5
+     CRITON:        18
+     CRITDICEMUL:   1
+     NUMATKS:       8
+     NUMBONUSATKS:  2
+
+\____Damage Variables____\
+     DMGDICENUM:       2
+     DMGDICE:          6
+     BONUSDMGDICENUM:  2
+     BONUSDMGDICE:     6
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:       10      \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [gwf      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [gwf BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [gwf (      DMGDICENUM * CRITDICEMUL )      DMGDICE] + [gwf 1 DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [gwf ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE] + [gwf 1 DMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "Generic_Orc_Champion_20_GWM"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................Artimus Peacox_20_XBow.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        5 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   1
+     NUMATKS:       1
+     NUMBONUSATKS:  0
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          8
+     BONUSDMGDICENUM:  0
+     BONUSDMGDICE:     0
+     ONCEXTRADMGNUM:   10      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  6      
+     MISCDMGMOD:       0       \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "Artimus Peacox_20_XBow"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................Rogue15_Champ5_TWF.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2         \1=Normal 2=Advantage...didn't include disadvantage\
+     ATKMOD:        5 + 1
+     PROF:          6
+     CRITON:        19
+     CRITDICEMUL:   1
+     NUMATKS:       4
+     NUMBONUSATKS:  2
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          8
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     8
+     ONCEXTRADMGNUM:   8       \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  6      
+     MISCDMGMOD:       0       \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "Rogue15_Champ5_TWF"
+
+\********************************************************************************\

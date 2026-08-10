@@ -1,0 +1,36 @@
+function: repeat DICE:d NUMBER:n {
+ SUM: 0
+ loop N over {1..NUMBER} {
+  SUM: DICE + SUM
+ }
+ result: SUM
+}
+
+function: points NUMBER:n {
+ POINTS: NUMBER - 8
+ if NUMBER > 13 { POINTS: POINTS + NUMBER - 13 }
+ if NUMBER > 15 { POINTS: POINTS + NUMBER - 15 }
+ if NUMBER > 17 { POINTS: POINTS + NUMBER - 17 }
+ result: POINTS
+}
+
+function: sumpoints ROLL:s {
+ SUM: 0
+ loop N over {1..#ROLL} {
+  SUM: SUM + [points N@ROLL]
+ }
+ result: SUM
+}
+
+function: sumhighest NUMBER:n of DICE:d plus OFFSET:n {
+ SUM: 0
+ loop N over {1..NUMBER} {
+  SUM: SUM + [points N@DICE + OFFSET]
+ }
+ result: SUM
+}
+
+output [sumpoints {15, 14, 13, 12, 10, 8}] named "default array points"
+output [repeat [sumpoints {1..3}@4d6] 6] named "default roll points"
+output [sumhighest 6 of 8d8 plus 7] named "6/8 d8 roll points"
+output [sumhighest 6 of 9d8 plus 7] named "6/9 d8 roll points"

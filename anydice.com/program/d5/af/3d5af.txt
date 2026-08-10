@@ -1,0 +1,28 @@
+#############################################################
+#  Explode-and-subtract-one helper
+#
+#  ROLL  â€“ the current result showing on the die
+#  SIDES â€“ number of faces on the die (d6 â†’ 6, d10 â†’ 10, â€¦)
+#
+#  If the roll is less than the maximum face, weâ€™re done.
+#  If itâ€™s the maximum, subtract 1 and roll again, adding the
+#  new (possibly exploding) result.
+#############################################################
+function: EXPLODESUB ROLL:s SIDES:n {
+  if ROLL < SIDES {                       \ no explosion
+    result: ROLL
+  } else {                                \ explode
+    result: (ROLL - 1) + [EXPLODESUB d{SIDES} SIDES]
+  }
+}
+
+#############################################################
+#  --- configure your test here ---
+SIDES: 7        \ size of the die (6 â†’ d6, 10 â†’ d10 â€¦)
+TARGET: 20       \ â€œat least this totalâ€ you care about
+#############################################################
+
+A: [EXPLODESUB d{SIDES} SIDES]            \ distribution for one die
+
+output [atleast TARGET in A] named "â‰¥ TARGET chance"
+output A named "full distribution"

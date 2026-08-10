@@ -1,0 +1,49 @@
+set "explode depth" to 2
+
+MAXWOUNDS: 4
+
+EDF: [explode d4]
+EDS: [explode d6]
+EDA: [explode d8]
+EDTE: [explode d10]
+EDTW: [explode d12]
+
+
+
+\ RESULTS are: -1 for no damage, 0 for shaken, and 1,2,3,etc for number of WOUNDS \ 
+function: roll DMG:n damage vs toughness TOUGH:n {
+  if DMG < TOUGH { result: -1 }
+  if (DMG-TOUGH)/4 > MAXWOUNDS { result: MAXWOUNDS }
+  result: (DMG-TOUGH)/4
+}
+
+\ RESULTS are: -1 for critfail, 0 for miss, 1 for hit, and 2 for raise \
+function: roll ATK:n attack vs defense DEF:n {
+  if ATK = 1 { result: -2 }       \ CRITFAIL \
+  if ATK < DEF { result: -1 }     \ NORMAL MISS \
+  if ATK - DEF >= 4 { result: 1 } \ RAISE \
+  result: 0                       \ normal hit \
+}
+
+
+function: ATK:n attack with DMG:n damage vs defense DEF:n and tougness TOUGH:n {
+  ATKRESULT: [roll ATK attack vs defense DEF]
+  if ATKRESULT = -2 { result: -2 }              \ CRITFAIL \
+  if ATKRESULT = -1 { result: -1 }              \ NORMAL MISS, no DMG \
+  if ATKRESULT >=1 { DMG: DMG + [explode d6] }  \ RAISE, so +1d6 damage \
+
+  result: [roll DMG damage vs toughness TOUGH] \ Roll damage \
+}
+
+ATK: [highest of EDA and EDS]
+DMG: [explode 2d6]
+PARRY: 7
+TOUGHNESS: 9
+
+output [ATK attack with DMG damage vs defense PARRY and tougness TOUGHNESS] named "d6&d6 attack with 2d6 dmg, vs parry [PARRY], and toughness [TOUGHNESS]. CRITFAIL -2. NO DMG -1. SHAKEN 0. POSITIVE: Number of WOUNDS"
+
+\ output [roll [highest of d6 and d6] attack vs defense 6] named "d6 & d6 mot 6 parry" \
+output [roll [highest of [explode d6] and [explode d6]] attack vs defense PARRY] named "Atk explode d6 & d6 mot parry [PARRY]"
+
+output [roll 2d6 damage vs toughness 9] named "2d6 skaderull mot toughness 8"
+output [roll [explode 2d6] damage vs toughness 9] named "2d6 exploderende skaderull mot toughness 9"

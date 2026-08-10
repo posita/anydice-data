@@ -1,0 +1,54 @@
+set "maximum function depth" to 10
+
+function: replace lowest A:s with X:n{
+if #A@A < X & X >= 0 {result: {1..(#A-1)}@A + X}
+result: A
+}
+
+function: X:n dos A:n{
+if X >= A { result: (X - A)/10 }
+result: -1
+}
+
+function: hits DOS:n{
+if MODE = 0 & DOS >= 0 {result: 1}
+else if MODE = 1 & DOS >= 0
+{
+  if ROF <= DOS/2 {result: ROF}
+  else {result: DOS/2 + 1}
+}
+else if MODE = 2 & DOS >= 0
+{
+  if ROF <= DOS {result: ROF}
+  else {result: DOS + 1}
+}
+result: 0
+}
+
+function: soak{
+result: [highest of AP-PEN and 0] + TB}
+
+function: damage{
+result:  [highest NUMBEROFDTENS of (NUMBEROFDTENS+1)d[explode d10]]*TEARING + NUMBEROFDTENSd[explode d10]*!TEARING + BONUS}
+
+function: total damage{
+result: [hits [TOHIT dos 1d100]] * [highest of ([replace lowest [damage] with [TOHIT dos 1d100]] - [soak]) and 0]
+}
+
+NUMBEROFDTENS: 1
+BONUS: 9
+TEARING: 1
+
+ROF: 3
+MODE: 2
+TOHIT: d{50}
+
+AP: 4
+PEN: 4
+TB: 0
+
+output [total damage]
+
+
+
+

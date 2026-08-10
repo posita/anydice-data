@@ -1,0 +1,60 @@
+PLAYERCOUNT:3
+PLAYERDICE:2
+PLAYERBOOST:0
+
+MONSTERDICE:3
+MONSTERBOOST:0
+
+
+function: max A:n B:n{
+if A > B { result: A }
+else {result: B}
+}
+
+function: max A:s{
+  MAX:0
+  loop N over {1..#A}{
+    TEMP: N@A
+    MAX: [max MAX TEMP]
+  }
+  result: MAX
+}
+
+function: battle A:n vs B:n{
+if A < B {result: 0}
+else {result: 1}
+}
+
+\gibt hÃ¶chsten WÃ¼rfel oder Pasch aus\
+function: pasch A:s{
+  MAXPASCH: (A = 1)
+  if (A = 2)*2 > MAXPASCH {MAXPASCH: (A = 2)*2}
+  if (A = 3)*3 > MAXPASCH {MAXPASCH: (A = 3)*3}
+  if (A = 4)*4 > MAXPASCH {MAXPASCH: (A = 4)*4}
+  if (A = 5)*5 > MAXPASCH {MAXPASCH: (A = 5)*5}
+  if (A = 6)*6 > MAXPASCH {MAXPASCH: (A = 6)*6}
+  result: [max MAXPASCH [max A]]
+}
+
+\initialisierung und dann wÃ¼rfeln fÃ¼r alle Spieler und aufaddieren:\
+PLAYERTOTAL:0
+loop J over {1..PLAYERCOUNT}{
+  PLAYERMAX:0
+  loop N over {1..PLAYERDICE}{
+    TEMP:d6
+    PLAYERMAX: [max PLAYERMAX TEMP]
+  }
+  PLAYERTOTAL: PLAYERTOTAL + PLAYERMAX
+}
+
+\Initialisierung und dann hÃ¶chsten WÃ¼rfel bzw. Pasch nehmen:\
+MONSTERMAX:0
+MONSTERMAX: [pasch MONSTERDICEd6]
+
+PLAYERFINAL: PLAYERTOTAL + PLAYERBOOST
+MONSTERFINAL: MONSTERMAX + MONSTERBOOST
+
+output PLAYERFINAL named "PlayerFinal"
+output MONSTERFINAL named "MonsterFinal"
+
+output [battle PLAYERFINAL vs MONSTERFINAL] named "Ergebnis (1 = Spieler gewinnt (auch mit unentschieden); 0 = Monster gewinnt)"

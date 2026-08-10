@@ -1,0 +1,65 @@
+set "position order" to "lowest first"
+
+function: reroll DIE:d if under LIMIT:n {
+  result: [reroll DIE as DIE if under LIMIT]
+}
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL < LIMIT { result: DIE }
+  else { result: ROLL }
+}
+
+function: hit H:n mod M crit C dmg D bonus B extra E ac A {
+   if H = 1 {result: 0}
+   else if H >= C {result: D+D+B+E}
+   else if H+M >= A {result: D+B} 
+   else {result: 0}
+}
+
+
+function: empower ROLL:s rerollvalue REROLLVAL:n dice D:d charisma CHA:n minrerollcount MIN:n {
+   MOD: (CHA - 10) / 2
+   MAX: [highest of MOD and 1]
+
+   R: {}
+
+   loop P over {1..#ROLL} {
+      if P <= MAX & (P@ROLL <= REROLLVAL) > MIN {
+         R: d{R, [reroll P@ROLL if under REROLLVAL+1]}
+      } else {
+         R: d{R, P@ROLL}
+      }
+   }
+
+   result: R
+}
+
+
+CHARISMA: 18
+
+FIREBALL: 8d6
+DIESIZE: d6
+DIECUTOFF: 1
+REROLLATLEAST: 3
+
+EFIREBALL: 8d[empower FIREBALL rerollvalue DIECUTOFF dice DIESIZE charisma CHARISMA minrerollcount REROLLATLEAST]
+
+output EFIREBALL named "Empowered Fireball, [CHARISMA] Charisma, Reroll at least [REROLLATLEAST]"
+output FIREBALL named "Fireball"
+
+
+\
+GWA: [reroll d12 if under 3]
+GWS: [reroll d6 if under 3]
+DA: [highest of 1d20 and 1d20]
+ARMOR: 13
+
+BSIX: [hit DA mod 7 crit 20 dmg d12 bonus 6 extra d12 ac ARMOR]
+FSIX: [hit d20 mod 8 crit 19 dmg GWS+GWS bonus 7 extra 0 ac ARMOR]
+HGB: [hit DA mod 8 crit 20 dmg 2d8 bonus 5 extra 0 ac 17]
+HGF: [hit d20 mod 8 crit 20 dmg 2d8 bonus 5 extra 0 ac 18]
+
+output BSIX+BSIX+BSIX named "L6 Reckless Berserker"
+output FSIX+FSIX named "L6 GW Fighter"
+output (HGB+HGB)/2 named "Hill Giant vs Berserker"
+output HGF+HGF named "Hill Giant vs Fighter"
+\

@@ -1,0 +1,46 @@
+ATTACK: 5
+HITDAMAGE: 3d6+10+4+1
+CRITICALDAMAGE: 4d6+10+4+1
+MISSDAMAGE: 0
+
+AC:18
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs AC:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRITICALHIT }
+  if ROLL + ATTACK >= AC { result: HIT }
+  result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+  if ATTACKRESULT = CRITICALHIT {
+    result: CRITICALDAMAGE
+  }
+  if ATTACKRESULT = HIT {
+    result: HITDAMAGE
+  }
+  result: MISSDAMAGE
+}
+
+function: DIE:d at advantage { result: [highest of DIE and DIE] }
+function: DIE:d at disadvantage { result: [lowest of DIE and DIE] }
+
+SUM:0
+loop ATTACKS over {1..8} {
+  SUM:SUM+[damage for [attack [d20 at advantage] vs AC]]
+}
+output SUM named "Sharpshooter"
+
+ATTACK: 10
+HITDAMAGE: 3d6+4+1
+CRITICALDAMAGE: 4d6+4+1
+
+SUM:0
+loop ATTACKS over {1..8} {
+  SUM:SUM+[damage for [attack [d20 at advantage] vs AC]]
+}
+output SUM named "Normal"

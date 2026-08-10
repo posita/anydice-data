@@ -1,0 +1,36 @@
+\ Attributes \
+MBS: {4, 6, 8}
+IPR: {12, 10, 8}
+
+\ Skills \
+SKL: { 
+  4,  6,  8, 
+ 10, 12,  4,
+  6,  8, 10
+}
+
+\ Advantage \
+ADV: 0
+
+\ Roll Function \
+function: matrix R:n C:n CR:n {
+  IDX: (R-1)*3+C \ Skill Index \
+  ONE: d{1..R@MBS}
+  TWO: d{1..C@IPR}
+  THREE: 0
+  FOUR: 0
+  if ADV >= 0 {THREE: d{1..IDX@SKL}}
+  if ADV = 1 {FOUR: d{1..IDX@SKL}}
+  S: (ONE >= CR) + (TWO >= CR) + (THREE >= CR) + (FOUR >= CR)
+  F: (ONE = 1) + (TWO = 1) + (THREE = 1) + (FOUR = 1)
+  result: (S+1) * (F!=3+ADV) - 1
+} 
+
+loop CR over {3..12} {
+  loop R over {1..3} {
+    loop C over {1..3} {
+      I: (R-1)*3+C
+      output [matrix R C CR] named "ATR [I] @ CR [CR]"
+    }
+  }
+}

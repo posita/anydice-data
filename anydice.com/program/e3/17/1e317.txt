@@ -1,0 +1,65 @@
+DEX: 5
+PROF: 3
+
+ATTACK: DEX + PROF
+
+MMDMG: 0
+MHDMG: 1d8 + DEX
+MCDMG: 2d8 + DEX
+HMDMG: 1d8 + DEX
+HHDMG: 1d8 + DEX + 1d8 + DEX
+HCDMG: 1d8 + DEX + 2d8 + DEX
+CMDMG: 2d8 + DEX
+CHDMG: 2d8 + DEX + 1d8 + DEX
+CCDMG: 2d8 + DEX + 2d8 + DEX
+
+MM: 00
+MH: 01
+MC: 02
+HM: 10
+HH: 11
+HC: 12
+CM: 20
+CH: 21
+CC: 22
+
+function: attack ROLLA:n and ROLLB:n vs DEFENSE:n {
+ if ROLLA = 1  { 
+   if ROLLB = 1 {result: MM}
+   if ROLLB = 20 {result: MC}
+   if ROLLB + ATTACK >= AC {result: MH}
+   result: MM
+ }
+ if ROLLA = 20 {
+   if ROLLB = 1 {result: CM}
+   if ROLLB = 20 {result: CC}
+   if ROLLB + ATTACK >= AC {result: CH}
+   result: CM
+ }
+ if ROLLA + ATTACK >= DEFENSE {
+   if ROLLB = 1 {result: HM}
+   if ROLLB = 20 {result: HC}
+   if ROLLB + ATTACK >= AC {result: HH}
+   result: HM
+ }
+ if ROLLB = 1 {result: MM}
+ if ROLLB = 20 {result: MC}
+ if ROLLB + ATTACK >= AC {result: MH}
+ result: MM
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = MM {result: MMDMG}
+ if ATTACKRESULT = MH {result: MHDMG}
+ if ATTACKRESULT = MC {result: MCDMG}
+ if ATTACKRESULT = HM {result: HMDMG}
+ if ATTACKRESULT = HH {result: HHDMG}
+ if ATTACKRESULT = HC {result: HCDMG}
+ if ATTACKRESULT = CM {result: CMDMG}
+ if ATTACKRESULT = CH {result: CHDMG}
+ if ATTACKRESULT = CC {result: CCDMG}
+}
+
+loop AC over {5..25} {
+ output [damage for [attack d20 and d20 vs AC]] named "[AC]"
+}

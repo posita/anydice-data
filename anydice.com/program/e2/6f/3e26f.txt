@@ -1,0 +1,62 @@
+\ ---- CONFIGURATION ---- \
+TARGET_AC: 15
+
+\ ---- CHARACTER BONUSES ---- \
+DEX: 2
+PROF: 2
+MAGIC_BONUS_DAGGER: 1 \ Explicitly define the magic bonus for clarity \
+
+
+\ ---- DAMAGE CALCULATION FUNCTION ---- \
+\ This function takes the result of a d20 roll and calculates damage \
+function: attack ROLL:n with WEAPON:d vs AC:n with TO_HIT:n and DAMAGE_BONUS:n {
+  \ Critical Hit on a 20 \
+  if ROLL = 20 {
+    result: 2dWEAPON + DAMAGE_BONUS
+  }
+
+  \ Critical Miss on a 1 \
+  if ROLL = 1 {
+    result: 0
+  }
+
+  \ Normal Hit Check \
+  if ROLL + TO_HIT >= AC {
+    result: 1dWEAPON + DAMAGE_BONUS
+  }
+
+  \ Otherwise, it's a miss \
+  result: 0
+}
+
+
+\ ---- OUTPUT (Nick Weapon Mastery Comparisons) ---- \
+
+\ --- Define Weapon-Specific Bonuses for Main Attack --- \
+\ Shortsword (Main): +4 to hit, 1d6+2 damage \
+TO_HIT_SHORTSWORD_MAIN: DEX + PROF
+DAMAGE_BONUS_SHORTSWORD_MAIN: DEX
+
+\ Magic Dagger (+1, Main): +5 to hit, 1d4+3 damage \
+TO_HIT_DAGGER_MAIN: DEX + PROF + MAGIC_BONUS_DAGGER
+DAMAGE_BONUS_DAGGER_MAIN: DEX + MAGIC_BONUS_DAGGER
+
+\ --- Define Weapon-Specific Bonuses for Nick Attack --- \
+\ Shortsword (Nick): +4 to hit, 1d6 damage (no DEX bonus) \
+TO_HIT_SHORTSWORD_NICK: DEX + PROF \ To-hit is unaffected by Nick \
+DAMAGE_BONUS_SHORTSWORD_NICK: 0 \ No DEX bonus for Nick attack \
+
+\ Magic Dagger (+1, Nick): +5 to hit, 1d4+1 damage (no DEX bonus, but keeps magic bonus) \
+TO_HIT_DAGGER_NICK: DEX + PROF + MAGIC_BONUS_DAGGER \ To-hit is unaffected by Nick \
+DAMAGE_BONUS_DAGGER_NICK: MAGIC_BONUS_DAGGER \ Only magic bonus, no DEX bonus for Nick attack \
+
+
+\ Option 1: Shortsword for main attack, Magic Dagger (+1) for extra (Nick) attack \
+output [attack 1d20 with 1d6 vs TARGET_AC with TO_HIT_SHORTSWORD_MAIN and DAMAGE_BONUS_SHORTSWORD_MAIN] +
+       [attack 1d20 with 1d4 vs TARGET_AC with TO_HIT_DAGGER_NICK and DAMAGE_BONUS_DAGGER_NICK]
+       named "Option 1: Shortsword (Main) + Magic Dagger (+1, Nick) vs AC [TARGET_AC]"
+
+\ Option 2: Magic Dagger (+1) for main attack, Shortsword for extra (Nick) attack \
+output [attack 1d20 with 1d4 vs TARGET_AC with TO_HIT_DAGGER_MAIN and DAMAGE_BONUS_DAGGER_MAIN] +
+       [attack 1d20 with 1d6 vs TARGET_AC with TO_HIT_SHORTSWORD_NICK and DAMAGE_BONUS_SHORTSWORD_NICK]
+       named "Option 2: Magic Dagger (+1, Main) + Shortsword (Nick) vs AC [TARGET_AC]"

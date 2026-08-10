@@ -1,0 +1,35 @@
+PC_TARGET_NUMBER: 7
+PC_MASTERIES: 1
+
+RESISTANCE_TARGET_NUMBER: 14
+RESISTANCE_MASTERIES: 0
+
+function: PC_ROLL:n against RE_ROLL:n {
+  PC_MASTERY:         PC_MASTERIES +         [check PC_ROLL against PC_TARGET_NUMBER]
+  RESISTANCE_MASTERY: RESISTANCE_MASTERIES + [check RE_ROLL against RESISTANCE_TARGET_NUMBER] 
+
+  OUTCOME:             PC_MASTERY - RESISTANCE_MASTERY
+  NOT_ROLLED_EQUAL:    PC_ROLL != RE_ROLL
+  SHOULD_COMPARE_DICE: OUTCOME = 0 & NOT_ROLLED_EQUAL
+
+  if SHOULD_COMPARE_DICE {
+    \ -- Results in either -1 or +1  -- \
+    OUTCOME: 2 * (PC_ROLL > RE_ROLL) - 1 
+  }
+
+  result: OUTCOME
+}
+
+function: check ROLL:n against TN:n {
+  if ROLL = TN { result: 2 }
+  if ROLL = 20 { result: -1 }
+  result: ROLL < TN
+}
+
+PCTN: PC_TARGET_NUMBER
+PCM: PC_MASTERIES
+
+RTN: RESISTANCE_TARGET_NUMBER
+RM: RESISTANCE_MASTERIES
+
+output [1d20 against 1d20] named "(PC) [PCTN]W[PCM] vs [RTN]W[RM] (Resistance)"

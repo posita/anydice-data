@@ -1,0 +1,75 @@
+output 0 named "Action Success Chart : 2-6 Failure, 7-11 Success, 12 Critical Success"
+output 0 named "Injury Chart : 1 No Effect, 2-6 Minor Hit, 7-8 Down, 9+ Out of Action"
+\Max Modifiers :
+6 Blood Markers
+6 Infection Markers
+x Blessing Markers
+
+-3 to +4 DICES action : model characteristics
+-2 to +3 DICES action : model/warband/weapon/etc... special ability : to itself or to ennemies in range
+
+-1DICE all actions : if your Model is Down
++1DICE action&injury : Diving Charge
++1to2DICES injury : Falling
+
+-1DICE range action : Enemy behind Cover
+-1DICE range action : Long Range
++1DICE range action : Shooting from an elevated position
+
+-1DICE melee action : Defended Obstacle
+-1DICE melee action : Off-Hand Weapons
+-1DICE melee action : FEAR
+
+-1 to +2 DICES injury : weapon characteristics
+-2 to +3 DICES injury : model/warband/weapon/etc... special ability : to itself or to ennemies in range
+-3 to 0 injury ROLL from Armors or Ignore Armor ability
+-1DICE injury : Target is already Down
++1d6 injury BLOODBATH, Malebranche Sword
++2DICES injury : CRITICAL
+
++1 to 2 injury ROLL : Assassinâ€™s Dagger, Golden Khanjar / Zulfiqar : special ability
+\
+\**************************************************************************************\
+function: injuries view crop SEQUENCE:n {                  \ limit the display range between [-1;100] \
+ MIN: 0
+ MAX: 9
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+
+function: rollcharts MODIFIED:n for NUMBER:n of DICE:d{
+ if MODIFIED<0 { result: {(#DICE - NUMBER + 1)..#DICE}@DICE }
+ if MODIFIED>0 { result: {1..NUMBER}@DICE }
+ result: 0
+}
+\**************************************************************************************\
+M: 3                               \ +/-DICE(S) Modifiers final value \
+P: 2+M                             \ pool of dices rolled after modifiers done \
+R: 2                               \ dices used for the total value \
+
+\
+output [highest R of Pd6] named "Improved rolled, with Blessing/Blood Marker injury/etc..."
+output Rd6 named "rolled with negated DICE modifiers"
+output [lowest R of Pd6] named "Worsen rolled, with Blood Marker action/etc..."
+output [lowest 3 of 3d6] named "compare with Bloodbath"
+
+output [injuries view crop ([highest 2 of 8d6])] named "6 blood markers : injury"
+output [injuries view crop ([highest 2 of 5d6])] named "3 blood markers : injury"
+output [injuries view crop 3d6] named "compare with Bloodbath : injury"
+\
+
+
+
+\sequence -> Armor Modifier; Total of BM applied compared to big BB; to small BB; BMs applied against BB
+S: {0, 3, 6, 0}     -> Attacker has no downside modifiers
+\
+
+S: {0, 3, 6, 0}
+output [injuries view crop ([highest 2 of (2+2@S)d6] -1@S)] named "3 blood markers + armor : injury"
+output [injuries view crop ([highest 2 of (2+3@S)d6] -1@S)] named "6 blood markers + armor : injury"
+
+output [injuries view crop ([lowest 3 of (3+4@S)d6] -1@S)] named "compare with Bloodbath + armor : injury"
+output [injuries view crop ([rollcharts -1 for 3 of (3+4@S)d6] -1@S)] named "compare with Bloodbath + armor : injury"
+
+

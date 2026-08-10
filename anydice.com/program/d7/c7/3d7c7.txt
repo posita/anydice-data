@@ -1,0 +1,41 @@
+\ opposed roll with no pushing; returns 0 on failure and 1 on success \
+function: ACTOR:s vs OPPONENT:s {
+  result: (ACTOR = 6) - (OPPONENT = 6) > 0
+}
+
+\ opposed roll with push; returns -1 on failure without push, 0 on failure \
+\ after pushing, 1 on success after pushing and 2 on success without push \
+function: push ACTOR:s vs OPPONENT:s {
+  BASELINE: (ACTOR = 6) - (OPPONENT = 6)
+  PUSHABLE: [count {2..5} in ACTOR]
+  if BASELINE > 0 { result: 2 }
+  if BASELINE + PUSHABLE <= 0 { result: -1 }
+  result: BASELINE + (PUSHABLE d (d6 = 6)) > 0
+}
+
+function: push ACTOR:s {
+  BASELINE: (ACTOR = 6)
+  PUSHABLE: [count {2..5} in ACTOR]
+  if BASELINE > 0 { result: 2 }
+  if BASELINE + PUSHABLE <= 0 { result: -1 }
+  result: BASELINE + (PUSHABLE d (d6 = 6)) > 0
+}
+
+function: ACTOR:s {
+  result: (ACTOR = 6)> 0
+}
+
+\ optimized d6 with all sides from 2 to 5 relabeled to be equivalent \ 
+X: d{1, 2:4, 6}
+
+loop N over {1..9}{
+
+output [NdX] named "Regular no push [N]d6: 0 = fail; 1 = success"
+output [NdX] named "Regular with push [N]d6: 0 = fail; 1 = success"
+
+loop M over {1..9}{
+
+output [NdX vs MdX] named "Opposed no push [N]vs[M]: 0 = fail; 1 = success"
+output [push NdX vs MdX] named "opposed with push [N]vs[M]: -1 = fail, no push; 0 = fail with push; 1 = success with push; 2 = success, no push"
+
+}}

@@ -1,0 +1,46 @@
+\INPUT DC OF FORCED OSTEOPEROSIS IN DC. INPUT ENEMY FORTITUDE BONUS INTO BONUS\
+DC: 18
+BONUS: 10
+\
+  How to read results
+   0 means target is unaffected
+   1 means target is impaired
+   2 means target is disabled
+   3 means target is incapacitated
+\
+DIFF: DC-BONUS
+
+function: first save DIE:n {
+  if DIE = 20 & DIE >= DIFF-4 & DIE <= DIFF { result: 0 }
+  if DIE = 20 & DIE >= DIFF-9 & DIE <= DIFF-5 { result: 1 }
+  if DIE = 20 & DIE <= DIFF-10 { result: 2 }
+  if DIE != 1 & DIE != 20 & DIE >= DIFF-4 & DIE <= DIFF { result: 1 }
+  if DIE != 1 & DIE != 20 & DIE >= DIFF-9 & DIE <= DIFF-5 { result: 2 }
+  if DIE != 1 & DIE != 20 & DIE <= DIFF-10 { result: 3 }
+  if DIE = 1 & DIE >= DIFF-4 & DIE <= DIFF { result: 2 }
+  if DIE = 1 & DIE >= DIFF-9 & DIE <= DIFF-5 { result: 3 }
+  if DIE = 1 & DIE <= DIFF-10 { result: 3 }
+  result: 0
+}
+
+function: second save FIRST:n with DIEB:n {
+  if FIRST = 0 { result: 0}
+  if FIRST = 3 { result: 3}
+  if FIRST = 1 & DIEB-2 <= DIFF { result: 2 }
+  if FIRST = 1 & DIEB-2 > DIFF { result: 0 }
+  if FIRST = 2 & DIEB-5 <= DIFF { result: 3 }
+  if FIRST = 2 & DIEB-5 > DIFF { result: 0}
+  result: 44441
+}
+
+function: third save SECOND:n with DIEC:n {
+  if SECOND = 0 { result: 0 }
+  if SECOND = 3 { result: 3 }
+  if SECOND = 2 & DIEC-5 <= DIFF { result: 3 }
+  if SECOND = 2 & DIEC-5 > DIFF { result: 0 }
+  result: 44442
+}
+
+output [first save d20] named "After Initial Hit"
+output [second save [first save d20] with d20] named "On Second Saving Throw"
+output [third save [second save [first save d20] with d20] with d20] named "On Third Saving Throw"

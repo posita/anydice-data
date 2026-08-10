@@ -1,0 +1,64 @@
+\crit\
+\second dmg source with separate attacks amount (e.g. maneuvers)\
+ATTACKS:1
+ADVANTAGE: 1
+TO_HIT_FLAT: 6
+DEFENSE: 18
+WEAPON_DMG_DIE: 1d6
+EXTRA_DMG_DIE: 0
+FLAT_DMG: 0
+MIN_CRIT_PROC: 19
+
+function: if HIT:n hit if CRIT:n crit {
+  if CRIT {
+    result: 2
+  }
+  else {
+    if HIT {result: 1} else {result: 0}
+  }
+}
+
+\final dmg probabilities considering miss, normal hit and crit\
+function: HIT_TYPE:n unified dmg {
+  \crit dmg\
+  if HIT_TYPE = 2 {
+    DAMAGE: 2*(WEAPON_DMG_DIE + EXTRA_DMG_DIE) + FLAT_DMG
+    result: DAMAGE
+  }
+  if HIT_TYPE = 1 {
+    DAMAGE: WEAPON_DMG_DIE + EXTRA_DMG_DIE + FLAT_DMG
+    result: DAMAGE
+  }
+  result: 0
+}
+
+HIT_RESULT: 0
+HIT_ROLL: d20
+if ADVANTAGE = 1 {
+  HIT_ROLL: [highest 1 of 2d20]
+}
+
+\hit chance\
+HIT_RESULT: HIT_ROLL + TO_HIT_FLAT >= DEFENSE
+CRIT: HIT_ROLL >= MIN_CRIT_PROC
+HIT_TYPE: [if HIT_RESULT hit if CRIT crit]
+output HIT_TYPE named "crit chance: 0 miss, 1 hit, 2 crit"
+
+\normal dmg\
+DAMAGE: WEAPON_DMG_DIE + EXTRA_DMG_DIE + FLAT_DMG
+DAMAGE: DAMAGE * ATTACKS
+output DAMAGE named "normal hit DMG"
+
+\crit dmg\
+DAMAGE: 2*(WEAPON_DMG_DIE + EXTRA_DMG_DIE) + FLAT_DMG
+DAMAGE: DAMAGE * ATTACKS
+output DAMAGE named "crit hit DMG"
+
+\crunchy crit dmg\
+DAMAGE: [maximum of WEAPON_DMG_DIE] + WEAPON_DMG_DIE + EXTRA_DMG_DIE + FLAT_DMG
+
+\unified dmg\
+loop N over {1..ATTACKS}{
+  
+}
+output [HIT_TYPE unified dmg] named "unified DMG"

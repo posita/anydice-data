@@ -1,0 +1,160 @@
+\ https://anydice.com/program/2d79b \
+
+\ Initializers \
+
+CRIT: 0                    \ A crit is rolling a 0 \
+MAXDICE: 2                 \ 5 is the max dice we ever add \
+DOUBLEARDOR: {5}           \ Show double ardor for these trainings \
+SHORTLEVEL: 5              \ How many penalty levels to output \
+
+set "maximum function depth" to MAXDICE*2
+
+\ 
+Virtually Real skill system separates training from experience.
+The number in the square brackets is your training, the number of
+dice to roll.  Your experience in the skill determine's the modifier.
+
+The number of dice to roll is as follows :
+        [1]     Secondary skill, untrained
+        [2]     Primary Skill, trained
+        [3]     Advanced (master craftsman, olympic atheletes)
+        [4]     Supernatural (non-human; need [3] in the attribute)
+        [5]     Deific (divine; need [4] or [5] in the attribute)
+Brilliant successes roll an extra d6 on the following natural rolls,
+the last column shows the normal critical failure results
+        [1]     6               1
+        [2]     12              2
+        [3]     17,18           3
+        [4]     22-24           4
+        [5]     27-30           5,6
+
+If the extra/exploded die is a 6, add +2 to the total and roll another die.
+If you keep rolling 6's, keep adding 2 and roll another die.
+If it wasn't a 6, on rolls of
+        [1]     Don't add anything more
+        [2+]    Add the result on the die and stop
+
+Ardor is used for special interests such as skill aspects or "home"
+geography & history, your own culture, favorite weapon, etc.  Add
++1 die per source of Ardor and drop the lowest die rolled.  Add +1
+to the critical range for ardor (critical range still goes down)
+
+Shortcomings come from conditions on the condition chart and also
+from some backgrounds.  It's the reverse of Ardor.  Add +1 die per              
+shortcoming and subtract the highest die.
+
+You can have Ardor and Shortcomings on the same roll.
+\
+
+\ What rolls are brilliant for this many dice \ 
+function: brilliant of DICE:d {
+  MAX: [maximum of DICE] +2
+  if MAX = 8 { result: { 6 } } 
+  BR: {}
+  loop N over {1..#DICE} {
+    if N = 1 {
+      BR: BR
+    }
+    else {
+      BR: {BR, MAX-N}
+    }
+  }
+  result: {BR}
+}
+
+\ returns the set of critical rolls for this many dice \
+function: critical of DICE:d {
+  if #DICE > 4 { 
+    result: {#DICE,#DICE+1} 
+  }
+  else {  
+    result: #DICE 
+  }
+}
+
+\ return above, but for "crit +1" rolls \
+function: critplusone of DICE:d {
+  if #DICE > 4 { 
+    result: {#DICE, #DICE+1,#DICE+2} 
+  }
+  else { 
+    result: {#DICE,#DICE+1} 
+  }
+}
+
+\ return "crit+2" set \
+function: critplustwo of DICE:d {
+  result: {#DICE,#DICE+1,#DICE+2}
+}
+
+\ explode helper for [2]+ dice rolls \
+function: explodeb ROLLEDVALUE:n {
+ if ROLLEDVALUE = 6 { 
+   result: 2 + [explodeb d6] 
+ }
+  else {
+    result: ROLLEDVALUE
+  }
+}
+
+\ explode helper for [1] die rolls \
+function: explodec ROLLEDVALUE:n {
+  if ROLLEDVALUE = 6 { result: 2 + [explodec d6] }
+  result: 0
+}
+
+\ The new explode function with crit and brilliant ranges \
+function: explode ROLLEDVALUE:n crit CRITR:s bril BRIL:s {
+if ROLLEDVALUE = CRITR { result: CRIT }
+ if BRIL = 6 &  ROLLEDVALUE = 6 { result: ROLLEDVALUE + [ explodec d6 ] }
+ if ROLLEDVALUE = BRIL { result: ROLLEDVALUE + [explodeb d6] }
+ result: ROLLEDVALUE
+}
+
+\ My replacement explode function, wrapping the above \
+function: explode DICE:d {
+  if [maximum of DICE] = 6 {
+    result: [explode DICE crit 1 bril 6]
+  }
+  result: [explode DICE crit [critical of DICE] bril [brilliant of DICE]]
+}
+
+\ The exploding dice with "ardor", like "explode" above \
+function: ardor DICE:d {
+  NUM: #(DICE)
+  MORE: NUM+1
+  result: [explode [highest NUM of MOREd6] crit [critplusone of DICE] bril [brilliant of DICE]]
+}
+
+\ Double ardor! \
+function: ardortwo DICE:d {
+  NUM: #(DICE)
+  MORE: NUM+2
+  result: [explode [highest NUM of MOREd6] crit [critplustwo of DICE] bril [brilliant of DICE]]
+}
+
+\ Shortcoming function \
+function: shortcoming DICE:d short SHORTCOMING:n {
+  TOTALDICE: #(DICE)+SHORTCOMING
+  result: [lowest N of TOTALDICEd6]
+}
+
+\ Main Program \
+loop N over {1..MAXDICE} {
+  TEST: Nd6
+  \ How many shortcomings to list? \
+  loop S over {1..SHORTLEVEL} {
+    REVERSE: SHORTLEVEL-S+1
+    output [shortcoming TEST short REVERSE] named "shortcoming x[REVERSE] [TEST]"
+  }
+  output [explode TEST] named "explode [TEST]"
+  output [ardor TEST] named "ardor [TEST]"
+  \ List every set you want double ardor for \
+  if N = DOUBLEARDOR {  
+    output [ardortwo TEST] named "double ardor [TEST]"
+  }
+}
+
+
+
+

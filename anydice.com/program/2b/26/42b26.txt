@@ -1,0 +1,70 @@
+\
+Shadowrun Fifth Edition
+To Hit Chance and 
+Damage Probability Calculator Version 1.2
+By Insaniac99, modified from code by Slippery_Chicken
+\
+
+FALSE:0
+TRUE:1
+\ Attacker Regular dice \ A: 3
+\ Attacker Risk dice \    R: 8
+\ Attacker RR \          RR: 2
+\ Use Edge? \             E: FALSE
+\ Weapon Damage Value \   V: 6
+\ Attacker Threshold \   AT: 0
+
+\ Defender Nonrisk Dice\  D: 0
+\ Defender Risk \        RD: 0
+\ Defender Threshold \    T: 4
+\ D's Wound Threshold\    W: 5
+
+
+
+function: reroll N:n {
+ if N > 4 { result: 1} 
+ result: d(d6>4)
+}
+
+
+function: calculatedamage DAMAGE:n plus NETHITS:n {
+ if NETHITS < 1 { result: 0 }
+ result: DAMAGE + NETHITS
+}
+
+
+\Attacker's Roll Result\ 
+AR:0
+if E { 
+AR: Ad[reroll d6] + 2 * Rd[reroll d6]
+} else {
+AR: Ad(d6 > 4) + 2 * Rd(d6 > 4) + AT
+}
+
+\Glitches return the odds of one, two or three+ ones, ignoring RR of them \
+ G: Rd(d6 = 1)
+ THREE: G > RR + 2
+ TWO:   G = RR + 2
+ ONE:   G = RR + 1
+ NONE:  G < RR + 1
+
+
+
+
+\Defender's Roll Result\ DR: Dd(d6 > 4) + 2 * RDd(d6 > 4) + T
+\Attacker Net Hits\       X: AR - DR
+\Modified Damage\        SD: [calculatedamage V plus X]
+\Wounding the target\ LWOUND: SD > W
+                      SWOUND: SD > W + 3
+                        DEAD: SD > W + 6
+
+output LWOUND named "Odds of Light Wound"
+output SWOUND named "Odds of Serious Wound"
+output DEAD named "Odds of Incapacitating"
+output ONE named "Odds of Glitching" 
+output TWO named "Odds of Crit Glitch"
+output THREE named "Odds of Catastrophe"
+output X>0 named "Attacker's chance to hit"
+\output AR named "Attacker's Hits Rolled"
+output DR  named "Defender's Hits Rolled"
+output X   named "Attacker's net hits"\

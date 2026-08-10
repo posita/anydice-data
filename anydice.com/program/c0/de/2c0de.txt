@@ -1,0 +1,37 @@
+STR:5
+PRF:5
+RGE:3
+
+HITE:STR+PRF
+DMGE:3d10
+RAWE:3*STR
+CRE:0
+
+
+HITG:STR+PRF
+DMGG:1d12
+RAWG:STR
+CRG:0
+
+function: attack ROLL:n BNS:n for DIE:d DMG:n crit CRIT vs AC:n {
+  if (ROLL = 1) { result: 0 }
+  if (ROLL = 20) { result: DIE+DIE+CRIT+DMG }
+  if (ROLL+BNS>=AC) { result: DIE+DMG }
+  result: 0
+}
+
+EGR:0
+GWM:0
+BOTH:1
+
+loop TAR over {16..22} {
+    if EGR {
+    output [attack 1d20 HITE for DMGE RAWE crit CRE vs TAR] named "Eadgar vs [TAR]"
+    }
+    if GWM {
+    output [attack 1d20 HITG for DMGG RAWG crit CRG vs TAR]+[attack 1d20 HITG for DMGG RAWG crit CRG vs TAR]+[attack 1d20 HITG for DMGG RAWG crit CRG vs TAR] named "Great vs [TAR]"
+    }
+    if BOTH {
+    output [attack 1d20 HITE for DMGE RAWE crit CRE vs TAR] - ([attack 1d20 HITG for DMGG RAWG crit CRG vs TAR]+[attack 1d20 HITG for DMGG RAWG crit CRG vs TAR]+[attack 1d20 HITG for DMGG RAWG crit CRG vs TAR]) named "Eadgar vs Great against [TAR]"
+    }
+}

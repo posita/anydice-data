@@ -1,0 +1,45 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + MAGICBONUS + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+LEVEL: 7
+
+ATTACKMOD: [lowest of LEVEL/4+3 and 5]
+PROFICIENCY: (LEVEL-1)/4+2
+MAGICBONUS: LEVEL/5
+
+DMGBONUS: 0
+EXTRADICESIZE: 0
+ACCBONUS: 0
+CRITROLL: 20
+SNEAK: (LEVEL+1)/2
+DAMAGE: 1d6 + ATTACKMOD + MAGICBONUS + DMGBONUS + 1dEXTRADICESIZE + SNEAKd6
+CRITDAMAGE: 2d6 + ATTACKMOD + MAGICBONUS + DMGBONUS + 2dEXTRADICESIZE + {2*SNEAK}d6
+output [attackroll d20 vs ENEMYAC] named "Rogue: +1 Weapon, SA"
+
+DMGBONUS: 0
+ACCBONUS: 0
+CRITROLL: 20
+if LEVEL < 5 { NUMATK: 1
+} else { if LEVEL < 11 { NUMATK: 2
+} else { if LEVEL = 20 { NUMATK: 4
+} else { NUMATK: 3 }}}
+DAMAGE: 2d6 + ATTACKMOD + MAGICBONUS + DMGBONUS
+CRITDAMAGE: 4d6 + ATTACKMOD + MAGICBONUS + DMGBONUS
+output NUMATKd[attackroll d20 vs ENEMYAC] named "Fighter: +1 Weapon (more attacks)"
+
+DMGBONUS: 0
+ACCBONUS: PROFICIENCY
+CRITROLL: 20-PROFICIENCY
+NUMATK: [lowest of LEVEL/5+1 and 2]
+DAMAGE: 2d6 + ATTACKMOD + MAGICBONUS + DMGBONUS
+CRITDAMAGE: 4d6 + ATTACKMOD + MAGICBONUS + DMGBONUS
+output NUMATKd[attackroll d20 vs ENEMYAC] named "Analyst: +1 Weapon (extra acc/crit)"

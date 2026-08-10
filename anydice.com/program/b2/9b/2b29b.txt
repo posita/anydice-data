@@ -1,0 +1,38 @@
+STR:4
+PRF:3
+RGE:2
+
+HITA:STR+PRF+1-5
+DMGA:1d12
+RAWA:RGE+STR+1+10
+CRA:1d12
+DMGZ:1d6
+RAWZ:2
+
+HITC:STR+PRF+1
+DMGC:1d8
+RAWC:RGE+STR+2+1
+CRC:0
+
+function: attack ROLL:n BNS:n for DIE:d DMG:n crit CRIT vs AC:n {
+  if (ROLL = 1) { result: 0 }
+  if (ROLL = 20) { result: DIE+DIE+CRIT+DMG }
+  if (ROLL+BNS>=AC) { result: DIE+DMG }
+  result: 0
+}
+
+AXE:0
+CLAW:0
+BOTH:1
+
+loop TAR over {10..20} {
+    if AXE {
+    output [attack 1@2d20 HITA for DMGA+DMGZ RAWA+RAWZ crit CRA vs TAR]+[attack 1@2d20 HITA for DMGA RAWA crit CRA vs TAR] named "Axe vs [TAR]"
+    }
+    if CLAW {
+    output [attack 1@2d20 HITC for DMGC RAWC crit CRC vs TAR]+[attack 1@2d20 HITC for DMGC RAWC crit CRC vs TAR]+[attack 1@2d20 HITC for DMGC RAWC crit CRC vs TAR] named "Claws vs [TAR]"
+    }
+    if BOTH {
+    output [attack 1@2d20 HITA for DMGA+DMGZ RAWA+RAWZ crit CRA vs TAR]+[attack 1@2d20 HITA for DMGA RAWA crit CRA vs TAR] - ([attack 1@2d20 HITC for DMGC RAWC crit CRC vs TAR]+[attack 1@2d20 HITC for DMGC RAWC crit CRC vs TAR]+[attack 1@2d20 HITC for DMGC RAWC crit CRC vs TAR]) named "Axe vs Claws against [TAR]"
+    }
+}

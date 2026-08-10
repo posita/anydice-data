@@ -1,0 +1,53 @@
+\ This assumes against a Fiend, with the AC below, where Immeral has Hunter's Mark up, Corbus only uses Battlemaster dice on crits, and Lucan only smites (level 1) on crits. \
+AC: 12
+
+IMMERALHIT: 4 + 3 + 2
+CORBUSHIT: 3 + 3 + 1
+LUCANHIT: 3 + 3 + 1
+
+IMMERALDAMAGEDICE: 1d8 + 1d6
+CORBUSDAMAGEDICE: 1d8
+LUCANDAMAGEDICEMAIN: 1d10
+LUCANDAMAGEDICEBONUS: 1d4
+
+IMMERALDAMAGEMOD: 4 + 4
+CORBUSDAMAGEMOD: 3 + 1
+LUCANDAMAGEMOD: 3 + 1
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+IMMERALATTACKDAMAGE: [attack 1d20 plus IMMERALHIT vs AC for (IMMERALDAMAGEDICE + IMMERALDAMAGEMOD) crit IMMERALDAMAGEDICE on 20]
+CORBUSATTACKDAMAGE: [attack 1d20 plus CORBUSHIT vs AC for (CORBUSDAMAGEDICE + CORBUSDAMAGEMOD) crit CORBUSDAMAGEDICE on 20]
+LUCANATTACKDAMAGEMAIN: [attack 1d20 plus LUCANHIT vs AC for (LUCANDAMAGEDICEMAIN + LUCANDAMAGEMOD) crit LUCANDAMAGEDICEMAIN on 20]
+LUCANATTACKDAMAGEBONUS: [attack 1d20 plus LUCANHIT vs AC for (LUCANDAMAGEDICEBONUS + LUCANDAMAGEMOD) crit LUCANDAMAGEDICEBONUS on 20]
+
+\ adding twice allows independent results, unlike doubling \
+IMMERALDPR: IMMERALATTACKDAMAGE + IMMERALATTACKDAMAGE
+CORBUSDPR: CORBUSATTACKDAMAGE + CORBUSATTACKDAMAGE
+LUCANDPR: LUCANATTACKDAMAGEMAIN + LUCANATTACKDAMAGEMAIN + LUCANATTACKDAMAGEBONUS
+
+TOTALDPR: IMMERALDPR + CORBUSDPR + LUCANDPR
+
+output IMMERALDPR named "IMMERAL DPR"
+output CORBUSDPR named "CORBUS DPR"
+output LUCANDPR named "LUCAN DPR"
+
+output TOTALDPR named "Total DPR"
+
+TOTALDMG: 0
+loop ROUNDS over {1..4}
+{
+ TOTALDMG: TOTALDMG + TOTALDPR
+ output TOTALDMG named "Total damage dealt to AC [AC] after [ROUNDS] round/s of attacks"
+}

@@ -1,0 +1,61 @@
+
+function: armor pen recursive D:n {
+ if D = 8 { result: 8 + [armor pen recursive 1d8] } else { result: D }
+}
+function: armor pen recursive for P pv and A av D:n {
+ if D = 3 { result: D + [armor pen recursive for (P - 2) pv and A av 3d(([armor pen recursive (1d10 - 2)] + P - 2) > A)] }
+ else { result: D }
+}
+AV: 0
+BASE: [armor pen recursive (1d10 - 2)]
+PV: 17
+SINGLET: (BASE + PV) > AV
+output 3dSINGLET
+output [armor pen recursive for PV pv and AV av (3dSINGLET)]
+
+function: does D:n with T trip skip cooldown {
+ if D <= T { result: 1 } else { result: 0 }
+}
+
+TRIP: 1
+MULTARM: 1
+TOTAL: 0
+FLURRYCOOLDOWN: 0
+loop TURN over {1..2} {
+ if FLURRYCOOLDOWN < 1 {
+  TOTAL: TOTAL + 6
+  FLURRYCOOLDOWN: 1 * 40
+ } else {
+  TOTAL: TOTAL 
+ } 
+}
+\output [does 1d100 with (7 + 3 * TRIP) trip skip cooldown]\
+
+MENTALMUTCOSTS: {1,1,1,   
+                 2,2,2,   
+                 3,3,3,3,3,
+                 4,4,4,4,4,4,4,4,4,4,
+                 5,5,5,5,5,5}
+
+PHYSMUTCOSTS:   {1,1,1,1,
+                 2,2,2,
+                 3,3,3,3,3,3,3,3,3,3,3,3,
+                 4,4,4,4,4,4,4,4,4,4,
+                 5,5}
+
+COMBINEDMUTCOSTS: {1,1,1,                 1,1,1,1,
+                   2,2,2,                 2,2,2,
+                   3,3,3,3,3,             3,3,3,3,3,3,3,3,3,3,3,3,
+                   4,4,4,4,4,4,4,4,4,4,   4,4,4,4,4,4,4,4,4,4,
+                   5,5,5,5,5,5,           5,5}
+
+\output #PHYSMUTCOSTS\
+
+\output 1dCOMBINEDMUTCOSTS\
+\output [highest 1 of 3dCOMBINEDMUTCOSTS]\
+
+\output 1dMENTALMUTCOSTS\
+\output [highest 1 of 3dMENTALMUTCOSTS]\
+
+\output 1dPHYSMUTCOSTS\
+\output [highest 1 of 3dPHYSMUTCOSTS]\

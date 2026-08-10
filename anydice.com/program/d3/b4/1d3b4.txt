@@ -1,0 +1,60 @@
+PROF: 3
+CHA: 4
+CON: 2
+EBS: 2
+ENEMY_AC: 15 
+
+function: blast against AC {
+ ATK: d20
+ HIT: ATK+PROF+CHA > AC
+ CRIT: ATK >= 20-CUR
+ DMG: d10+HEX*d6+CUR*PROF+CHA
+ result: (HIT+CRIT) * DMG
+}
+
+function: blast X against AC {
+ DMG: 0
+ loop Z over {1..X}{
+  DMG: DMG + [blast against AC]
+ }
+ result: DMG
+}
+
+function: constitution save of VAL {
+ result: d20+CON >= VAL
+}
+
+HEX: 1
+CUR: 0
+TOTAL: 0
+
+DMG: [blast EBS against ENEMY_AC]
+output DMG named "Damage roll 0"
+TOTAL: TOTAL + DMG
+HEX: HEX = 1 & [constitution save of 10]
+
+CUR: 1
+loop N over {1..7}{
+ DMG: [blast EBS against ENEMY_AC]
+ output DMG named "Damage roll [N]"
+ TOTAL: TOTAL + DMG
+ HEX: HEX = 1 & [constitution save of 10]
+}
+output TOTAL named "Total damage HEX/CUR"
+
+HEX: 0
+CUR: 1
+TOTAL: 0
+
+DMG: [blast EBS against ENEMY_AC]
+output DMG named "Damage roll 0"
+TOTAL: TOTAL + DMG
+
+HEX: 1
+loop N over {1..7}{
+ DMG: [blast EBS against ENEMY_AC]
+ output DMG named "Damage roll [N]"
+ TOTAL: TOTAL + DMG
+ HEX: HEX = 1 & [constitution save of 10]
+}
+output TOTAL named "Total damage CUR/HEX"

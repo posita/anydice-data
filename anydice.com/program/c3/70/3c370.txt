@@ -1,0 +1,258 @@
+function: armorexplode N:n on ARMOR:n {
+ if N > ARMOR { result: N + 1d6 }
+ result: N
+}
+
+function: armorimplode N:n on ARMOR:n {
+ if N <= ARMOR { result: N + 1d6 }
+ result: N
+}
+
+function: critchance N:n on CRITMIN:n{
+ if N >= CRITMIN {
+ result: 1
+ }
+ result: 0
+}
+
+function: avgdamagecrit N:n on CRITDICE:n CRITMIN:n {
+ if ([critchance CRITDICE on CRITMIN] >= 1) { result: N + 5 }
+ result: N
+}
+
+function: avgdamagecritpower N:n on CRITDICE:n CRITMIN:n{
+ if ([critchance CRITDICE on CRITMIN] >= 1) { result: N + 10 }
+ result: N
+}
+
+function: headshot DAM:n MULT:n {
+ if MULT = 2 {result: DAM * 2}
+else if MULT = 3{
+result: DAM * 2
+}
+ result: 0
+}
+
+\
+function: armorcalc DAM:n MELEE:n SP:n IGNORESP:n{
+ loop X over {1..SP} {
+if (IGNORESP >= 1){
+  if (SP < IGNORESP){ result: DAM}
+  else if (SP >= IGNORESP) {
+   if (MELEE = 1){result: DAM - SP}
+
+result: DAM - }
+ }
+else if (MELEE = 1){
+  
+ }
+
+ result: 0
+}
+\
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+
+
+\RE-ROLLING 1s AND 2s == output (([reroll {1,2} on 1d6 to d4+2] + [reroll {1,2} on 1d6 to d4+2] + [reroll {1,2} on 1d6 to d4+2] + [reroll {1,2} on 1d6 to d4+2])) named "VHP w/ Re-rolling 1s and 2s"\
+
+
+\===AUTOFIRE(1)===\
+
+output (2d6 * 1) named "Autofire (1) (Normal)"
+
+output (([highest 2 of 3d6]) * 1) named "Autofire (1) w/ Higher Cyclic Rate"
+
+output (([lowest 2 of 3d6]) * 1) named "Autofire (1) w/ Lower Cyclic Rate"
+
+\===AUTOFIRE(2)===\
+
+output (2d6 * 2) named "Autofire (2) (Normal)"
+
+output (([highest 2 of 3d6]) * 2) named "Autofire (2) w/ Higher Cyclic Rate"
+
+output (([lowest 2 of 3d6]) * 2) named "Autofire (2) w/ Lower Cyclic Rate"
+
+\===AUTOFIRE(3)===\
+
+output (2d6 * 3) named "Autofire (3) (Normal)"
+
+output (([highest 2 of 3d6]) * 3) named "Autofire (3) w/ Higher Cyclic Rate"
+
+output (([lowest 2 of 3d6]) * 3) named "Autofire (3) w/ Lower Cyclic Rate"
+
+
+\===AUTOFIRE(4)===\
+
+output (2d6 * 4) named "Autofire (4) (Normal)"
+
+output (([highest 1 of 2d6] + 1d6) * 4) named "Autofire (4) w/ Higher Cyclic Rate"
+
+output (([lowest 1 of 2d6] + 1d6) * 4) named "Autofire (4) w/ Lower Cyclic Rate "
+
+\===AUTOFIRE(5)===\
+
+output (2d6 * 5) named "Autofire (5) (Normal)"
+
+output ([highest 2 of 3d6] * 5) named "Autofire (5) w/ x1 Caliber Increase"
+
+output ([highest 2 of 4d6] * 5) named "Autofire (5) w/ x2 Caliber Increase"
+
+output ([highest 2 of 5d6] * 5) named "Autofire (5) w/ x3 Caliber Increase"
+
+output ([lowest 2 of 2d6] * 5) named "Autofire (5) w/ Lower Cyclic Rate"
+
+output ([highest 2 of 3d6] * 5) named "Autofire (5) w/ Higher Cyclic Rate"
+
+output (([lowest 2 of 3d[highest 3 of 4d6]]) * 5) named "Autofire (5) w/ Lower Cyclic Rate and x1 Caliber Increase"
+
+output (([lowest 2 of 3d[highest 3 of 5d6]]) * 5) named "Autofire (5) w/ Lower Cyclic Rate and x2 Caliber Increase"
+
+output (([lowest 2 of 3d[highest 3 of 6d6]]) * 5) named "Autofire (5) w/ Lower Cyclic Rate and x3 Caliber Increase"
+
+output ([highest 2 of 4d6] * 5) named "Autofire (5) w/ Higher Cyclic Rate and x1 Caliber Increase"
+
+output ([highest 2 of 5d6] * 5) named "Autofire (5) w/ Higher Cyclic Rate and x2 Caliber Increase"
+
+output ([highest 2 of 6d6] * 5) named "Autofire (5) w/ Higher Cyclic Rate and x3 Caliber Increase"
+
+
+\===MEDIUM PISTOL===\
+
+output 2d6 named "MP (Normal)"
+
+output ([highest 2 of 3d6]) named "MP w/ Caliber Increase x1"
+
+output ([highest 2 of 4d6]) named "MP w/ Caliber Increase x2"
+
+output ([highest 2 of 5d6]) named "MP w/ Caliber Increase x3"
+
+output [armorimplode 2d6 on 11] named "MP w/ Overpressure Rounds @ SP 11"
+
+output ([highest 2 of 4d6]) named "MP w/ HyperBurst"
+
+output ([highest 2 of 6d6]) named "MP w/ HyperBurst and Caliber Increase x1"
+
+output ([highest 2 of 8d6]) named "MP w/ HyperBurst and Caliber Increase x2"
+
+output ([highest 2 of 10d6]) named "MP w/ HyperBurst and Caliber Increase x3"
+
+
+\===HEAVY PISTOL===\
+
+output 3d6 named "HP (Normal)"
+
+output ([highest 3 of 4d6]) named "HP w/ x1 Caliber Increase"
+
+output ([highest 3 of 5d6]) named "HP w/ x2 Caliber Increase"
+
+output ([highest 3 of 6d6]) named "HP w/ x3 Caliber Increase"
+
+output [armorimplode 3d6 on 11] named "HP w/ Overpressure Rounds @ SP 11"
+
+output ([armorimplode [highest 3 of 6d6] on 11]) named "HP w/ x3 Caliber Increase and Overpressure Rounds @ SP 11"
+
+
+\===VERY HEAVY PISTOL===\
+
+output 4d6 named "VHP (Normal)"
+
+output ([highest 4 of 5d6]) named "VHP w/ x1 Caliber Increase"
+
+output ([highest 4 of 6d6]) named "VHP w/ x2 Caliber Increase"
+
+output ([highest 4 of 7d6]) named "VHP w/ x3 Caliber Increase"
+
+
+
+\===ASSAULT RIFLE===\
+
+output 5d6 named "AR/SR Damage (Normal)"
+
+\set "maximum function depth" to 18\
+\output named "AR/SR Damage (Normal) vs SP 1-18"\
+
+output [avgdamagecrit 5d6 on 2d6 6] named "AR/SR (Normal) Damage (w/ Crits)"
+
+output [avgdamagecritpower 5d6 on 2d6 6] named "AR/SR (Power Rebuild) Damage (w/ Crits)"
+
+output ([highest 5 of 10d6]) named "AR/SR w/ HyperBurst (Roll x2 Take Higher)"
+
+output (([reroll {1} on 1d6 to d5+1]) + 4d6) named "AR/SR w/ x1 Caliber Increase V1"
+
+output ([highest 5 of 6d6]) named "AR/SR w/ x1 Caliber Increase V2"
+
+output (([reroll {1} on 1d6 to d5+1] + [reroll {1} on 1d6 to d5+1]) + 3d6) named "AR/SR w/ x2 Caliber Increase"
+
+output ([highest 5 of 7d6]) named "Assault/Sniper Rifle w/ x2 Caliber Increase V2"
+
+output (([reroll {1} on 1d6 to d5+1] + [reroll {1} on 1d6 to d5+1] + [reroll {1} on 1d6 to d5+1]) + 2d6) named "AR/SR w/ x3 Caliber Increase"
+
+output ([highest 5 of 8d6]) named "AR/SR w/ x3 Caliber Increase V2"
+
+output [armorimplode 5d6 on 11] named "AR/SR w/ Overpressure Rounds @ SP 11"
+
+output [armorimplode 5d6 on 15] named "AR/SR w/ Overpressure Rounds @ SP 15"
+
+output [armorimplode 5d6 on 18] named "AR/SR w/ Overpressure Rounds @ SP 18"
+
+output [armorexplode [avgdamagecrit 5d6 on 2d6 6] on 18] named "AR/SR (w/ Crits) w/ Overpressure Rounds @ SP 18"
+
+output 5d[critchance d6 on 6] > 1 named "AR/SR (Normal) Crit Chance"
+
+output 5d{0, 0, 0, 0, 1, 10} > 10 named "AR/SR(Normal) Crit Chance (one 5 Counting as a 6)"
+
+output 5d[critchance d6 on 5] > 1 named "AR/SR (Normal) Crit Chance (any 5s Counting as 6s)"
+
+output 5d[critchance d6 on 4] > 1 named "AR/SR (Normal) Crit Chance (any 4s and 5s Counting as 6s)"
+
+\===EXPLOSIVES===\
+
+
+output 6d6 named "AP Grenade Avg Damage(No Crits)"
+
+output [avgdamagecrit 6d6 on 2d6 6] named "AP Grenade Avg Damage(w/ Crits)"
+
+output 6d[critchance d6 on 6] > 1 named "AP Grenade Crit Chance"
+
+output 8d6 named "AP Rocket Avg Damage(No Crits)"
+
+output [avgdamagecrit 8d6 on 2d6 6] named "AP Rocket Avg Damage(w/ Crits)"
+
+output 8d[critchance d6 on 6] > 1 named "AP Rocket Crit Chance"
+
+output 9d6 named "CEMK Smasher's Rockets Avg Damage(No Crits)"
+
+output [avgdamagecrit 9d6 on 2d6 6] named "CEMK Smasher's Rockets Avg Damage(w/ Crits)"
+
+output 9d[critchance d6 on 6] > 1 named "CEMK Smasher's Rockets Crit Chance"
+
+
+\===MISC HOMEBREW===\
+
+
+output [avgdamagecritpower 8d6 on 2d6 6] named "AT Rifle Avg. Damage (w/ Crits + Power Rebuild)"
+
+output (([avgdamagecritpower 8d6 on 2d6 6] - 13) * 2) named "AT Rifle Aimed Shot VS SP13 Vehicle (w/ Crits + Power Rebuild)"
+
+output 8d[critchance d6 on 6] > 1 named "AT Rifle Crit Chance"
+
+output ([avgdamagecrit 5d6 on 2d6 6]) named "Hurricane (Slugs) Avg Damage (ROF 2 on same target w/ Crits)"
+
+output 5d[critchance d6 on 6] > 1 named "Hurricane Crit Chance"
+
+output ([avgdamagecrit 6d6 on 2d6 6] + [avgdamagecrit 6d6 on 2d6 6]) named "Cowboy Avg Damage (ROF 2 on same target w/ Crits)"
+
+output 6d[critchance d6 on 6] > 1 named "Cowboy Crit Chance"
+
+
+
+
+
+

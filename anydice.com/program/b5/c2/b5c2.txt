@@ -1,0 +1,36 @@
+function: average damage for attack ATTACK:n miss MISS:s vs defense DEFENSE:n {
+  ATKROLL: [remove MISS from ATTACKd6]
+  DEFROLL: DEFENSEd6
+  result: [calculate damage ATKROLL vs DEFROLL]
+}
+
+function: remove MISS:s from ROLL:s {
+  R: {}
+  loop P over {1..#ROLL}{
+    N: P@ROLL
+    if ![MISS contains N]{ R: {R, N} }
+  }
+  result: R
+}
+
+function: calculate damage ATKROLL:s vs DEFROLL:s {
+  ATKROLL: [sort ATKROLL]
+  DEFROLL: [sort DEFROLL]
+  UNBLOCKED: 0
+  CURRENTD: 1
+  loop ATK over ATKROLL{
+    if ATK > CURRENTD@DEFROLL {
+      UNBLOCKED: UNBLOCKED + 1
+    }
+    else{
+      CURRENTD: CURRENTD + 1
+    }
+  }
+
+  result: UNBLOCKED
+}
+
+output [calculate damage 3d6 vs 3d6]
+output [calculate damage {3,4,6} vs {2,4}] named "damage testcase should be 2"
+output [remove {1,2} from {1,2,4}] named "miss testcase should be 4"
+output [average damage for attack 1 miss {1,2} vs defense 1] named "a5, m1-2, d3"

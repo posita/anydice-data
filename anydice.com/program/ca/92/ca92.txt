@@ -1,0 +1,81 @@
+function: attack ROLL:n BAB:n mod ATK:n damage DMG:n die DIE:n crit CRIT:n times MULT:n fail FAIL:n ac AC:n {
+  if ROLL >= CRIT {
+    result: (MULT)d(DIE) + MULT * DMG
+  }
+  if ROLL <= FAIL {
+    result: 0
+  }
+  if ROLL + BAB + ATK > AC {
+    result: 1d(DIE) + DMG
+  }
+  result: 0
+}
+
+function: hammer ROLL:n BAB:n mod ATK:n damage DMG:n die DIE:n crit CRIT:n times MULT:n fail FAIL:n ac AC:n SUCCESSES:n {
+  if BAB > 0 {
+    if ROLL >= CRIT {
+      result: (MULT)d(DIE) + MULT * (DMG + SUCCESSES) + [hammer 1d20 BAB-5 mod ATK damage DMG die DIE crit CRIT times MULT fail FAIL ac AC (SUCCESSES + 1)]
+    }
+    if ROLL <= FAIL {
+      result: 0 + [hammer 1d20 BAB-5 mod ATK damage DMG die DIE crit CRIT times MULT fail FAIL ac AC (SUCCESSES + 1)]
+    }
+    if ROLL + BAB + ATK > AC {
+      result: 1d(DIE) + DMG + SUCCESSES + [hammer 1d20 BAB-5 mod ATK damage DMG die DIE crit CRIT times MULT fail FAIL ac AC SUCCESSES]
+    }
+  }
+  result: 0
+}
+function: hammer BAB:n mod ATK:n damage DMG:n die DIE:n crit CRIT:n times MULT:n fail FAIL:n ac AC:n {
+  result: [hammer 1d20 BAB mod ATK damage DMG die DIE crit CRIT times MULT fail FAIL ac AC 0]
+}
+function: rapidhammer ROLL:n BAB:n mod ATK:n damage DMG:n die DIE:n crit CRIT:n times MULT:n fail FAIL:n ac AC:n {
+  if ROLL >= CRIT {
+    result: (MULT)d(DIE) + MULT * DMG + [hammer 1d20 BAB mod ATK-2 damage DMG die DIE crit CRIT times MULT fail FAIL ac AC 1]
+  }
+  if ROLL <= FAIL {
+    result: 0 + [hammer 1d20 BAB mod ATK-2 damage DMG die DIE crit CRIT times MULT fail FAIL ac AC 0]
+  }
+  if ROLL + BAB + ATK-2 > AC {
+    result: 1d(DIE) + DMG + [hammer 1d20 BAB mod ATK-2 damage DMG die DIE crit CRIT times MULT fail FAIL ac AC 1]
+  }
+  result: 0
+}
+function: rapidhammer BAB:n mod ATK:n damage DMG:n die DIE:n crit CRIT:n times MULT:n fail FAIL:n ac AC:n {
+  result: [rapidhammer 1d20 BAB mod ATK   damage DMG   die DIE crit CRIT   times MULT fail FAIL ac AC]
+}
+
+function: full BAB:n mod ATK:n damage DMG:n die DIE:n crit CRIT:n times MULT:n fail FAIL:n ac AC:n {
+  if BAB > 0 {
+    result: [attack 1d20 BAB mod ATK damage DMG die DIE crit CRIT times MULT fail FAIL ac AC] + [full BAB-5 mod ATK damage DMG die DIE crit CRIT times MULT fail FAIL ac AC]
+  }
+  result: 0
+}
+
+function: rapid BAB:n mod ATK:n damage DMG:n die DIE:n crit CRIT:n times MULT:n fail FAIL:n ac AC:n {
+  result: [attack 1d20 BAB mod ATK-2 damage DMG die DIE crit CRIT times MULT fail FAIL ac AC] + [full BAB mod ATK-2 damage DMG die DIE crit CRIT times MULT fail FAIL ac AC]
+}
+
+AC: 10 \21\
+AC_LO: AC
+AC_HI: AC
+
+BAB: 8
+ATK: 5+2+1-3   \ DEX + ENCH + PB-SHOT - D-AIM         \
+DMG: 5+2+1+6+1 \ DEX + ENCH + PB-SHOT + D-AIM + A-STK \
+DIE: 8
+CRIT: 20
+MULT: 4
+FAIL: 2
+
+\loop AC over {AC_LO..AC_HI} {
+  output [rapid       BAB mod ATK   damage DMG   die DIE crit CRIT   times MULT fail FAIL ac AC] named "Baseline [AC]"
+}\
+loop AC over {AC_LO..AC_HI} {
+  output [rapid       BAB mod ATK   damage DMG   die DIE crit CRIT-1 times MULT fail FAIL ac AC] named "Improved Critical [AC]"
+\}
+loop AC over {AC_LO..AC_HI} {\
+  output [rapid       BAB mod ATK+1 damage DMG+2 die DIE crit CRIT   times MULT fail FAIL ac AC] named "Weapon F/S [AC]"
+}
+\loop AC over {AC_LO..AC_HI} {
+  output [rapidhammer BAB mod ATK   damage DMG   die DIE crit CRIT   times MULT fail FAIL ac AC] named "Hammer [AC]"
+}\

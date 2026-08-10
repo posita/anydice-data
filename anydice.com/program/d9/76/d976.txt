@@ -1,0 +1,40 @@
+function: ROLL:n reroll below T:n count N:n {
+  if (ROLL <= T) & ( N > 0 ) { result: [d6 reroll below T count N-1] } else { result: ROLL }
+}
+
+\output [d6 reroll below 1 count 1]\
+
+function: hit die HIT_ROLL:n skill SKILL:n reroll below HIT_REROLL:n mod HIT_MODIFIER:n {
+  result: [HIT_ROLL reroll below HIT_REROLL count 1]+HIT_MODIFIER >= SKILL
+}
+
+\output [hit die d6 skill 3 reroll 1 mod 0]\
+
+function: wound die WND_ROLL:n str STR:n tough TGH:n reroll mode WND_REROLL_MODE:n mod WND_MODIFIER:n {
+
+\WND_REROLL_MODE: 0 for no reroll, 1 for rerolling ones, 2 for rerolling fails\
+
+  if STR <= 2*TGH { WND_TARGET: 6 }
+  if STR < TGH { WND_TARGET: 5 }
+  if STR = TGH { WND_TARGET: 4 }
+  if STR > TGH { WND_TARGET: 3 }
+  if STR >= 2*TGH { WND_TARGET: 2 }
+
+  if WND_REROLL_MODE = 0 {
+    result: WND_ROLL+WND_MODIFIER >= WND_TARGET
+  }
+  if WND_REROLL_MODE = 1 {
+    result: [WND_ROLL reroll below 1 count 1]+WND_MODIFIER >= WND_TARGET
+  }
+  if WND_REROLL_MODE = 2 {
+    result: [WND_ROLL reroll below TARGET-1 count 1]+WND_MODIFIER >= WND_TARGET
+  }
+}
+
+\output [wound die d6 str 4 tough 4 reroll mode 1 mod -1]\
+
+function: save die SV_ROLL:n save SV:n ap AP:n reroll below SV_REROLL:n {
+  result: [SV_ROLL reroll below SV_REROLL count 1]+AP < SV 
+}
+
+output [save die d6 save 2 ap -1 reroll below 1]

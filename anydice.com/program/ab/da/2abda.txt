@@ -1,0 +1,47 @@
+FIRST_KNOW: [highest 2 of 3d6] \first roll\
+INT_MOD: 1 \int modifier\
+KNOW_SKILL: 2 \know skill level\
+SECOND_KNOW: 1d20 \second roll\
+ROCK_SIZE: d{1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3,3,3,3,4} \roll for rock size\
+
+CHECK_ONE: FIRST_KNOW+INT_MOD+KNOW_SKILL \first check value\
+CHECK_TWO: SECOND_KNOW+INT_MOD+KNOW_SKILL \second check value\
+
+
+function: scan check ROLL_ONE:n ROLL_TWO:n{
+  if ROLL_ONE >= 6 & ROLL_ONE < 12 {
+    result: 1
+  }
+  else if ROLL_ONE >= 12 {
+    if ROLL_TWO >= 20 {
+      result: 3
+    }
+    else {
+      result: 2
+    }
+  }
+  else {
+    result: 0
+  }
+}
+
+\function: size check ROLL_ONE:n {
+  if ROLL_ONE >= 5 {
+    result: 1
+  }
+  else if ROLL_ONE >=6 & ROLL_ONE <= 14 {
+    result: 2
+  }
+  else if ROLL_ONE >=15 & ROLL_ONE <= 19 {
+    result: 3
+  }
+  else if ROLL_ONE = 20 {
+    result: 4
+  }
+}\
+
+SCAN_RESULT:[scan check CHECK_ONE CHECK_TWO]
+\SIZE_CHECK:[size check ROCK_SIZE]\
+\SIZE_CHECK:d{1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3,3,3,3,4}\
+
+output SCAN_RESULT named "scan"

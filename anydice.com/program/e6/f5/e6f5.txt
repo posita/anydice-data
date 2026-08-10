@@ -1,0 +1,37 @@
+AC: 12
+
+function: attack MULTI:n times using C:n de W:n plus ATT:n bonus B:n bonus first BF:n modifier MOD:n with ADVANTAGE:n crit on CRIT:n{
+TOTAL:0
+  loop N over {1..MULTI}{
+  ROLL: 0
+  DAMAGE: 0
+    if N = 1 {
+      if ADVANTAGE = 2 { ROLL: ([highest 1 of 2d20]+ATT+MOD>AC)
+        } else {
+          if ADVANTAGE = 0 { ROLL: ([lowest 1 of 2d20]+ATT+MOD>AC)
+          } else { ROLL: (1d20+ATT+MOD>AC) }
+        }
+    } else {
+      if ADVANTAGE = 0 { ROLL: ([lowest 1 of 2d20]+ATT+MOD>AC)
+      } else { ROLL: (1d20+ATT+MOD>AC) }
+    }
+  DAMAGEFIRST: (((C+(Cd(20+ATT+MOD-AC)<(22-CRIT))))dW+ATT+B+BF)
+  DAMAGEALL: (((C+(Cd(20+ATT+MOD-AC)<(22-CRIT))))dW+ATT+B)
+
+   if N = 1 { TOTAL: TOTAL+(ROLL*(DAMAGEFIRST)) }
+     else { TOTAL: TOTAL+(ROLL*DAMAGEALL) }
+  }
+  result: TOTAL
+}
+
+DISADVANTAGE: 0
+NOADVANTAGE: 1
+ADVANTAGE: 2
+
+output [attack 1 times using 1 de 8 plus 5 bonus 0 bonus first 1d6 modifier 2 with NOADVANTAGE crit on 20] named "Tegg (Sneak)"
+output [attack 1 times using 1 de 10 plus 4 bonus 0 bonus first 0 modifier 2 with NOADVANTAGE crit on 20] named "Zarik"
+output [attack 1 times using 1 de 10 plus 0 bonus 0 bonus first 0 modifier 0 with  NOADVANTAGE crit on 20] named "Succ"
+output [attack 1 times using 1 de 6 plus 5 bonus 0 bonus first 0 modifier 2 with NOADVANTAGE crit on 20] named "Quarx"
+
+
+

@@ -1,0 +1,23 @@
+\Chance for malign gateway tentacle to turn hostile before it goes neutral at different spell powers\
+\0 is the chance to turn hostile, 1 is the chance not to turn hostile\
+
+function: rand N:n {
+  result: 1d{1..N} - 1
+}
+
+function: rand MAX:n avg ROLLS:n times {
+  SUM: [rand MAX]
+  loop I over {1..ROLLS-1} {
+    SUM: SUM + [rand MAX+1]
+  }
+  result: SUM / ROLLS
+}
+
+output [rand 6 avg 5 times] named "rand2avg sanity check" \just making sure rand2avg isn't obviously wrong :)\
+
+loop I over {0..20} {
+  POWER: I * 10
+  output [rand POWER avg 6 times] - [rand 4]   \random2avg(pow, 6) - random2(4) turns\
+    > 30 + [rand 31 avg 2 times] - 18          \30 + random2avg(31, 2) - 18\
+    named "Hostility chance at [POWER] power"
+}

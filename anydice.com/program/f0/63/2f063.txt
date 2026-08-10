@@ -1,0 +1,31 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: totaldpr FROLL:n SROLL:n TROLL:n vs AC:n {
+ if FROLL>=CRITROLL | SROLL>=CRITROLL {
+  result: [attackroll FROLL vs AC] + [attackroll SROLL vs AC] + [attackroll TROLL vs AC]
+ }
+ if (FROLL + PROFICIENCY + ATTACKMOD + ACCBONUS < AC | FROLL=1) & (SROLL + PROFICIENCY + ATTACKMOD + ACCBONUS < AC | SROLL=1) { result: 0 }
+
+ result: [attackroll FROLL vs AC] + [attackroll SROLL vs AC] + 6d8
+}
+
+
+
+ATTACKMOD: 4
+DMGBONUS: 4
+PROFICIENCY: 4
+ACCBONUS: 0
+CRITROLL: 19
+DAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d6 + ATTACKMOD + DMGBONUS
+ENEMYAC: 15
+DICE: 1@3d20
+
+output [totaldpr DICE DICE DICE vs ENEMYAC] named "Hexbld Greatsword vs [ENEMYAC] AC"

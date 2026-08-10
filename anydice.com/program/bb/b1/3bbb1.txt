@@ -1,0 +1,44 @@
+function: attack ROLL:n HITPLUS:n ATTACK:d DMGPLUS:n SNEAKATK:d AC:n{
+
+if ROLL = 1 {result: 0}
+if ROLL = 20 {result: ATTACK + ATTACK + SNEAKATK + SNEAKATK + DMGPLUS}
+if (ROLL + HITPLUS) >= AC {result: ATTACK + SNEAKATK + DMGPLUS}
+
+result: 0
+}
+
+function: calc X:n atk roll A:n atk bonus B:n dmg Y:d plus C:n and D:d sneak atk vs J:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [attack A B Y C D J]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+\Assuming:
+    4 rounds of combat
+    guaranteed adv
+    Elven Archery
+    Off-turn attack always triggered
+\
+TIMES: 4
+STIMES: 2
+DMGDIE: 1d8
+SDMGDIE: 1d4
+DMGBONUS: 3
+SDMGBONUS: (0 + 2) \+2 scimitar\
+TOHITDIE: [highest 1 of 3d20]
+STOHITDIE: [highest 1 of 2d20]
+TOHITBONUS: (3 + 4) \proficiency\
+STOHITBONUS: (3 + 2) \+2 scimitar\
+SNEAK: 5d6
+SSNEAK: 4d6
+
+loop I over {17..19}{
+output [calc TIMES atk roll TOHITDIE atk bonus TOHITBONUS dmg DMGDIE plus DMGBONUS and SNEAK sneak atk vs I] named "Normal vs AC of [I]"
+}
+
+loop Z over {17..19}{
+output ([calc TIMES atk roll TOHITDIE atk bonus TOHITBONUS dmg DMGDIE plus DMGBONUS and SSNEAK sneak atk vs I] +  [calc STIMES atk roll TOHITDIE atk bonus STOHITBONUS dmg SDMGDIE plus SDMGBONUS and SSNEAK sneak atk vs I]) named "SElven vs AC of [Z]"
+}

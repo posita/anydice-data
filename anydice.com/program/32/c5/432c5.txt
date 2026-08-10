@@ -1,0 +1,64 @@
+X: 5
+
+\ --- version 1: any doubles --- \
+function: doubles in ROLL:s {
+  if #ROLL > 1 {
+    loop I over {2..#ROLL} {
+      if I@ROLL = (I-1)@ROLL { result: 1 }
+    }
+  }
+  result: 0
+}
+
+\ --- version 2: doubles only among dice showing 4+ --- \
+function: high doubles in ROLL:s {
+  loop V over {5..6} {
+    if (V = ROLL) >= 2 { result: 1 }
+  }
+  result: 0
+}
+
+function: resolve ROLL:s {
+  if 1@ROLL < 5 { result: 0 }
+  if [doubles in ROLL] = 1 { result: 2 }
+  result: 1
+}
+
+function: resolve strict ROLL:s {
+  if 1@ROLL < 5 { result: 0 }
+  if [high doubles in ROLL] = 1 { result: 2 }
+  result: 1
+}
+
+
+output [resolve strict 1 d 6] named "1d6"
+output [resolve strict 2 d 6] named "2d6"
+output [resolve strict 3 d 6] named "3d6"
+output [resolve strict 4 d 6] named "4d6"
+output [resolve strict 5 d 6] named "5d6"
+output [resolve strict 6 d 6] named "6d6"
+
+
+function: drop N:n highest of ROLL:s {
+  KEPT: {}
+  if #ROLL > N {
+    loop I over {N+1 .. #ROLL} {
+      KEPT: {KEPT, I@ROLL}
+    }
+  }
+  result: KEPT
+}
+
+function: resolve strict drop N:n of ROLL:s {
+  KEPT: [drop N highest of ROLL]
+  if 1@KEPT < 5 { result: 0 }
+  if [high doubles in KEPT] = 1 { result: 2 }
+  result: 1
+}
+
+output [resolve strict drop 1 of 1 d 6] named "1d6 drop 1"
+output [resolve strict drop 1 of 2 d 6] named "2d6 drop 1"
+output [resolve strict drop 1 of 3 d 6] named "3d6 drop 1"
+output [resolve strict drop 1 of 4 d 6] named "4d6 drop 1"
+output [resolve strict drop 1 of 5 d 6] named "5d6 drop 1"
+output [resolve strict drop 1 of 6 d 6] named "6d6 drop 1"

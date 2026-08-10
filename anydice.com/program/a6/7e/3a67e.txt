@@ -1,0 +1,77 @@
+function: minimum of DIE:d {
+ result: 1@{DIE}
+}
+
+function: aroll regular double N:n M:n O:n {
+ result: N + M + O
+}
+
+function: aroll DIE:d N:n M:n helper {
+ if N = M { 
+  if N=1 { result: 0 }
+  if N=2 { result: 111 }
+  if N=3 { result: 4 }
+  if N=4 { result: 6 }
+  result: 100
+ }
+ SUM: N+M
+ if SUM={3,4} {result: 1}
+ if SUM=5 { result: 2}
+ if SUM={6,7} { result: 3 }
+
+ result: N + M
+}
+
+function: aroll DIE:d {
+ MAX: [maximum of DIE + DIE]
+ MIN: [minimum of DIE + DIE]
+ result: [aroll DIE DIE DIE helper]
+}
+
+function: maybe add level N:n LEVEL:n {
+ if N = 0 { result: 0 }
+ if N = 111 { result: LEVEL }
+ result: N + LEVEL
+}
+
+function: aroll DIE:d at LEVEL:n {
+ result: [maybe add level [aroll DIE] LEVEL]
+}
+
+set "maximum function depth" to 12
+loop LEVEL over {0..10} {
+ \loop DIFFICULTY over {8,16,24,32} {\
+
+
+
+  D: d4
+
+  \output [aroll D at LEVEL] named "[LEVEL]"\
+\  output [aroll D at LEVEL] named "Lv [LEVEL] in 1 turn"\
+  \output [aroll D at LEVEL] >= DIFFICULTY named "Lv [LEVEL] to [DIFFICULTY] in 1 turn"\
+  \output [aroll D at LEVEL] + [aroll D at LEVEL] >= DIFFICULTY named "Lv [LEVEL] to [DIFFICULTY] in 2 turns"\
+  \output [aroll D at LEVEL] + [aroll D at LEVEL] + [aroll D at LEVEL] >= DIFFICULTY named "Lv [LEVEL] to [DIFFICULTY] in 3 turns"\
+\ }\
+}
+
+\loop LEVEL over {1..10} {
+ SPELLDC: 2 + 2*LEVEL
+ output [aroll d4 at LEVEL] named "Lv [LEVEL] 1 round"
+ output [aroll d4 at LEVEL] +[aroll d4 at LEVEL] named "Lv [LEVEL] 2 rounds"
+output [aroll d4 at LEVEL] +[aroll d4 at LEVEL]+[aroll d4 at LEVEL] named "Lv [LEVEL] 3 rounds"
+}\
+
+function: repeat ROLL:d N:n times {
+ if N=1 { result: ROLL }
+ result: ROLL + [repeat ROLL N-1 times]
+}
+
+HIT: 1d20+1 >= 12
+\loop ATTACKS over {1..5} {
+ output [repeat (HIT * 1d6) ATTACKS times] named "[ATTACKS] Classic"
+}\
+loop LV over {0..10} {
+ loop ATTACKS over {1..3} {
+  output [repeat [aroll d4 at LV] ATTACKS times] named "Lv [LV]: [ATTACKS] attempts"
+ }
+}

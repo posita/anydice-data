@@ -1,0 +1,65 @@
+function: longbow sneak attack TOHIT:n CRIT_THRESHOLD:n {
+  OUT: -1
+  
+  DMG_ROLL: 1d8+1d4+6d6+1d6
+  DMG_FLAT: 5
+
+  if TOHIT >= CRIT_THRESHOLD {
+    OUT: DMG_ROLL*2
+  } else {
+    OUT: DMG_ROLL
+  }
+
+  OUT: OUT + DMG_FLAT
+
+  result: OUT
+}
+function: longbow regular attack TOHIT:n CRIT_THRESHOLD:n {
+  OUT: -1
+  
+  DMG_ROLL: 1d8+1d4+1d6
+  DMG_FLAT: 5
+
+  if TOHIT >= CRIT_THRESHOLD {
+    OUT: DMG_ROLL*2
+  } else {
+    OUT: DMG_ROLL
+  }
+
+  OUT: OUT + DMG_FLAT
+
+  result: OUT
+}
+
+function: longbow dread attack TOHIT:n CRIT_THRESHOLD:n {
+  OUT: -1
+  
+  DMG_ROLL: 1d8+1d4+1d6+1d8
+  DMG_FLAT: 5
+
+  if TOHIT >= CRIT_THRESHOLD {
+    OUT: DMG_ROLL*2
+  } else {
+    OUT: DMG_ROLL
+  }
+
+  OUT: OUT + DMG_FLAT
+
+  result: OUT
+}
+
+function: longbow TOHIT:n CRIT_THRESHOLD:n {
+
+  ATK_ONE: [longbow sneak attack TOHIT CRIT_THRESHOLD]
+  ATK_TWO: [longbow regular attack TOHIT CRIT_THRESHOLD]
+  ATK_THREE: [longbow dread attack TOHIT CRIT_THRESHOLD]
+  ACT_SURGE_ATK_ONE: [longbow regular attack TOHIT CRIT_THRESHOLD]
+  ACT_SURGE_ATK_TWO: [longbow regular attack TOHIT CRIT_THRESHOLD]
+  ACT_SURGE_ATK_THREE: [longbow dread attack TOHIT CRIT_THRESHOLD]
+
+  result: ATK_ONE + ATK_TWO + ATK_THREE + ACT_SURGE_ATK_ONE + ACT_SURGE_ATK_TWO + ACT_SURGE_ATK_THREE
+}
+
+
+TOHIT: 1@3d20
+output [longbow TOHIT 19]

@@ -1,0 +1,131 @@
+\Atyla-Ouroboros\
+Q: {0..3}
+
+function: crop SEQUENCE:n MIN:n MAX:n {                  \ limit the display range between [min;max] \
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: halve SEQUENCE:n {                  \ divide per 2, rounded up \
+ DIV: SEQUENCE/2
+ TEMP: DIV*2
+ if (DIV=TEMP){result: DIV}
+ result: (SEQUENCE+1)/2
+}
+
+\************************************************************************\
+
+function: phaseone ATT:s DEF:s {
+  SIZE_MODS: [compare 11@ATT with 11@DEF]                 \compare the nbr of bodies\
+  ATT_ROLL: (1@ATT +SIZE_MODS) dQ + 4@ATT                      \freeze the hits-dices sequence\
+
+  VELOCITY_MODS: [compare 10@DEF with 9@ATT]             \compare the velocity for the dodge capacity\
+  DEF_ROLL: (5@DEF +VELOCITY_MODS) dQ + 8@DEF
+
+  result: [phasetwo ATT_ROLL DEF_ROLL ATT DEF]
+}
+
+function: phasetwo ATT_ROLL:n DEF_ROLL:n  ATT:s DEF:s {
+  HITS: [crop ATT_ROLL 2@ATT 3@ATT]
+  SAVES: [crop DEF_ROLL 6@DEF 7@DEF]
+  HIT_SETS: [sets in ATT_ROLL]
+  SAVE_SETS: [sets in DEF_ROLL]
+
+  \DAMAGES: HITS - SAVES\
+  DAMAGES: [halve HITS] - [halve SAVES]
+  result: [crop DAMAGES 0 4]
+}
+
+function: find sets in ROLL:s {
+ THREES: ROLL=3                          \test the value on each element of the Sequence parameter : optimized\
+ TWOS:   ROLL=2
+ ONES:   ROLL=1
+ ZEROS:  ROLL=0
+ result: {THREES, TWOS, ONES, ZEROS}
+}
+
+function: highest set in SETS:s {
+ THREE: {2@SETS,3@SETS,4@SETS} <= 1@SETS
+ TWO:   {1@SETS,3@SETS,4@SETS} <= 2@SETS
+ ONE:   {1@SETS,2@SETS,4@SETS} <= 3@SETS
+
+ if (THREE=3) {result: 3}
+ if (TWO=3) {result: 2}
+ if (ONE=3) {result: 1}
+ result: 0
+}
+
+function: compare sets ATT_S:s DEF_S:s {  \*********** TODO ***********\
+ ATT: [highest set in ATT_S]
+ DEF: [highest set in DEF_S]
+ if ATT > DEF { result: ATT }
+ result: DEF
+}
+
+function: compare bodies ATT_B:n DEF_B:n {
+  if(ATT_B > DEF_B) { result: ATT_B-DEF_B}
+  result: 0
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  if(VAL_X < VAL_Y) { result: -1}
+  result: 0
+}
+
+\************************************************************************\
+function: hit ATTACKS:n {
+  DICE: ATTACKS dQ                       \freeze the hits-dices sequence\
+  result: [hit roll DICE]
+}
+
+function: hit roll DICES:s {
+  HITS: [count {WS..3} in DICES]
+  ZEROS:  [count 0 in DICES]
+  ONES:   [count 1 in DICES]
+  TWOS:   [count 2 in DICES]
+  THREES: [count 3 in DICES]
+  SETS: {ZEROS,ONES,TWOS,THREES}
+  result: [save DICES with SETS]
+}
+
+function: save HITS:n with SETS:s {
+  DICES: RD dQ                              \freeze the saves-dices sequence\
+  result: [damages DICES with SETS]
+}
+
+\************************************************************************\
+\PD, Lim MIN, Lim Max, PD_MODS, RD, Lim MIN, Lim Max, RD_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {6, 0,50, 3,   5, 0,50, 0,   150, 9, 1}      \Mono, Light Armor, Sniper, Knife\
+B: {8, 0,50, 0,   5, 0,50, 0,   0, 9, 1}       \Mono, VeryLight Armor, Double Swords\
+C: {12, 0,50, 0,   10, 0,50, 0,   80, 4, 2}     \Multi, Heavy Armor, Shotgun, HandPunch\
+D: {8, 0,50, 0,   8, 0,50, 0,   90, 5, 4}     \Multi, Middle Armor, Fusils, Bayonet\
+E: {4, 0,50, 0,   6, 0,50, 0,   80, 9, 1}      \Mono, Light Armor, Wooden Bow, Sword\
+F: {8, 0,50, 0,   14, 0,50, 0,   50, 3, 1}      \Mono, Tank, Flamer Sponsons, TankFront\
+G: {12, 0,50, 0,   14, 0,50, 0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+H: {15, 0,50, 0,   10, 0,50, 0,   200, 3, 1}      \Mono, Drone, Heavy Laser Canon, DroneFront\
+
+GL: {12, 13,25, 0,   14, 20,35, 0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GM: {12, 0,50, 5,   14, 0,50, 5,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GA: {12, 13,25, 5,   14, 20,35, 5,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+\************************************************************************\
+
+\
+output [phaseone A B] named "lone Sniper VS lone Sword Master"
+output [phaseone A G] named "lone Sniper VS Tank"
+output [phaseone E A] named "lone Archer VS lone Sniper"
+output [phaseone H G] named "Laser Canon VS Tank"
+\
+\
+output [phaseone G G] named "Tanks no Limits/Modifiers"
+output [phaseone GL G] named "Tanks test: Att Limits"
+output [phaseone G GL] named "Tanks test: Def Limits"
+output [phaseone GM G] named "Tanks test: Att Modifier"
+output [phaseone G GM] named "Tanks test: Def Modifier"
+output [phaseone GA G] named "Tanks test: Att Lim & Mods"
+output [phaseone G GA] named "Tanks test: Def Lim & Mods"
+\
+
+output 6d(d6>=4)
+output 

@@ -1,0 +1,23 @@
+function: explode DICE:n above THRESHOLD:n looped TIMES:n dicesize SIZE:n{
+  if TIMES = 3 { result: DICE}
+  if DICE >= THRESHOLD { result: DICE + [explode 1dSIZE above THRESHOLD looped TIMES+1 dicesize SIZE]}
+  result: DICE
+}
+
+function: extreme VALUE:n range TOOL:n LOW:n MED:n HIGH:n TOOH:n factor DICE:d looped TIMES:n {
+  if TIMES >= 3 {result: VALUE}
+  if VALUE>MED & VALUE<=HIGH   {result: VALUE-DICE}
+  if VALUE<MED & VALUE>=LOW    {result: VALUE+DICE}
+  if VALUE>HIGH & VALUE<TOOH  {result: [extreme VALUE-2*DICE range TOOL LOW MED HIGH TOOH factor DICE looped TIMES+1]}
+  if VALUE<LOW & VALUE>TOOL   {result: [extreme VALUE+2*DICE range TOOL LOW MED HIGH TOOH factor DICE looped TIMES+1]}
+  if VALUE<TOOL  {result: [extreme VALUE+4*DICE range TOOL LOW MED HIGH TOOH factor DICE looped TIMES+1]}
+  if VALUE>TOOH  {result: [extreme VALUE-4*DICE range TOOL LOW MED HIGH TOOH factor DICE looped TIMES+1]}
+  result: VALUE-11+2d10
+}
+
+function: altezza fattore A:n range L:n a M:n{
+  BASE: (A*(60+[explode 6d20 above 20 looped 2 dicesize 20]+[explode 4d10 above 10 looped 2 dicesize 10]+[explode 2d6 above 6 looped 2 dicesize 6]))/100
+  result: [extreme BASE range L*2/3 L (L+M)/2 M M*3/2 factor 1d12 looped 1]
+}
+
+output [altezza fattore 100 range 150 a 190]

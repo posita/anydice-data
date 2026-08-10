@@ -1,0 +1,72 @@
+\meta\
+SCALE: 1
+MAX_TURNS: 1
+HP_LOSS: 1
+QI_LOSS: 2
+
+\self\
+ATK_DICE: 24
+ATK_AP: 3
+ATK_DV: 7
+ATK_BONUS: 1
+ATK_N: 4 \attacks per turn\
+
+\enemy\
+E_DICE: 30
+E_HP: 4
+E_QI: 8
+E_ARMOR: 3
+
+\helpers\
+CD: d10>6
+MITIGATION: [highest of 0 and E_ARMOR-ATK_AP]
+if MITIGATION >= ATK_BONUS {
+	DR: MITIGATION-ATK_BONUS
+	ATK_BONUS: 0
+}
+else {
+	DR: 0
+	ATK_BONUS: ATK_BONUS-MITIGATION
+}
+
+function: turn vs DEF:n { \ output = scale * unblockable damage + regular damage \
+	DMG: 0
+	CLASH: [highest of 0 and [lowest of ATK_DV and ATK_DICE dCD - DEF]]
+	loop N over {1..ATK_N} {
+		DMG: DMG+[clash interpret dCLASH]
+	}
+	result: DMG
+}
+
+function: clash interpret C:n {
+	if C = 0 {result: 0}
+	result: SCALE * ATK_BONUS + [highest of 0 and C-DR]
+}
+
+\ sim code works for like HP=5, Qi=10 \
+function: sim turn T:n enemy hp HP:n qi QI:n damaged by DMG:n {
+	if T > MAX_TURNS {result: 0}
+	
+	DMG_HP: DMG / SCALE
+	DMG_QI: DMG - DMG_HP * SCALE
+	
+	HP: HP-DMG_HP
+	QI: QI-DMG_QI
+	
+	if HP<=0 { result: 10 * T + HP_LOSS }
+	if QI<=0 { result: 10 * T + QI_LOSS }
+	
+	HP_PENALTY: [highest of 0 and 4-HP]
+	
+	DMG: [turn vs (E_DICE-HP_PENALTY) dCD]
+	T: T+1
+	result:[sim turn T enemy hp HP qi QI damaged by DMG]
+}
+
+\ sim part that doesn't work for big values \
+\output [sim turn 0 enemy hp E_HP qi E_QI damaged by 0]\
+
+\ actually useful thing; gives % dice for X damage Y unblockable damage \
+\ for SCALE = 1 becomes pure damage dealt (any) \
+HP_PENALTY: 0
+output [turn vs (E_DICE-HP_PENALTY) dCD] named "[SCALE]*unblockable + qi-blockable damage in 1 turn"

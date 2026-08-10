@@ -1,0 +1,64 @@
+B: 1 \ # of boost die \
+S: 0 \ # of setback die \
+A: 2 \ # of ability die \
+D: 2 \ # of difficulty die \
+P: 3 \ # of proficiency die \
+C: 0 \ # of challenge die \
+
+BOOW: {0, 0, 100, 101, 2, 1}
+ABIW: {0, 100, 100, 200, 1, 1, 101, 2}
+DIFW: {0, 100, 200, 1, 1, 1, 2, 101}
+PROW: {0, 100, 100, 200, 200, 1, 101, 101, 101, 2, 2, 102}
+
+\ Success and Failure Faces \ 
+BOOS: {0, 0, 1, 1, 0, 0}
+ABIS: {0, 1, 1, 2, 0, 0, 1, 0}
+PROS: {0, 1, 1, 2, 2, 0, 1, 1, 1, 0, 0, 1}
+SETF: {0, 0, 1, 1, 0, 0}
+DIFF: {0, 1, 2, 0, 0, 0, 0, 1}
+CHAF: {0, 1, 1, 2, 2, 0, 0, 1, 1, 0, 0, 1}
+
+\ Advantage and Threat Faces \
+BOOA: {0, 0, 0, 1, 2, 1}
+ABIA: {0, 0, 0, 0, 1, 1, 1, 2}
+PROA: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+SETT: {0, 0, 0, 0, 1, 1}
+DIFT: {0, 0, 0, 1, 1, 1, 2, 1}
+CHAT: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+
+\ Blank Faces \
+BOOB: {1, 1, 0, 0, 0, 0}
+ABIB: {1, 0, 0, 0, 0, 0, 0, 0}
+PROB: {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+SETB: {1, 1, 0, 0, 0, 0}
+DIFB: {1, 0, 0, 0, 0, 0, 0, 0}
+CHAB: {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
+\ Triumph and Despair \
+PROT: {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+CHAD: {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+
+function: A:n mod B:n {
+ result: A-(A/B)*B
+}
+
+function: link damage A:n {
+ S: A / 100
+ R: [A mod 100]
+ if S < 1 {result: 0}
+ if R > 50 {result: S+3}
+ C: [lowest of R and 6]
+ result: (S+3)*(1+C/2)
+}
+
+SUCCESSES: BdBOOS + AdABIS + PdPROS - SdSETF - DdDIFF - CdCHAF 
+ADVANTAGES: BdBOOA + AdABIA + PdPROA - SdSETT - DdDIFT - CdCHAT
+BLANKS: BdBOOB + AdABIB + PdPROB + SdSETB + DdDIFB + CdCHAB
+WORKA: [PdPROW mod 100] + [AdABIW mod 100] + [BdBOOW mod 100] + [DdDIFW mod 100]
+WORKS: PdPROW / 100 + AdABIW / 100 + BdBOOW / 100 - DdDIFW / 100
+
+output SUCCESSES named "Successes"
+output ADVANTAGES named "Advantages"
+output [link damage PdPROW + AdABIW + BdBOOW - DdDIFW] named "link damage"
+output WORKA named "workspace a"
+output WORKS named "workspace sic"

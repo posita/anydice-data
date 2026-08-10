@@ -1,0 +1,72 @@
+\ Fate Dice Study: Modifiers -- by Frank Malcher \
+\ Comparing different kinds of "bonus"/"modifiers" to Fate rolls. \
+
+F: d{-1..+1}  \ Definition of 1 Fate Die \
+N: 4 \ Default Number of Fate Dice in your game. Fate Core uses 4dF. \
+
+\ Minimum and Maximum values allowed to a Modifier. \
+MIN_MDF: 1
+MAX_MDF: 5
+
+\ Function: Red Dice \
+\ Roll NdF in which M are Red Dice. Each Red Die that's +1 counts as +2. \
+function: apply RED red dice to N {
+
+ DICEPOOL: (N-RED)dF \ Normal Dice \
+
+ REDDICE: (RED)dF \ Red Dice \
+ REDBONUS: ([count {+1} in REDDICE]*2)
+
+ TOTAL: REDBONUS
+
+ result: TOTAL
+}
+
+\ Function: White Dice \
+\ Roll NdF + M White Dice. Each White Die that's +1 counts; else, don't. \
+function: apply WHITE white dice to N {
+
+ DICEPOOL: (N)dF \ Normal Dice \
+
+ WHITEBONUS: ([count {+1} in (WHITE)dF])
+
+ TOTAL: DICEPOOL + WHITEBONUS
+
+ result: WHITEBONUS
+}
+
+
+
+\ First, plot the default roll without bonus: NdF \
+output ((N)dF) named "[N]dF"
+
+\ Now, for each valid Bonus value, repeat... \
+\ Default Add Shifts: 4dF + M. \
+\loop M over {MIN_MDF..MAX_MDF} {
+
+  output NdF+M named "[N]dF+[M]"
+}\
+
+
+\ Roll 4dF + MdF. Pick the 4 highest dice. \
+\loop M over {MIN_MDF..MAX_MDF} {
+
+  output [highest 4 of (N+M)dF] named "Highest 4 in [N]dF+[M]dF"
+}\
+
+\ Roll 4dF in which M are Red Dice. Each Red Die that's +1 counts as +2. \
+\ Red Dice can never be negative, nor be greater than N\
+loop M over {MIN_MDF..MAX_MDF} {
+  if M >=0 & M <= N 
+  {
+    output [apply M red dice to N] named "[M] Red D in [N]dF"
+  }
+}
+
+\ Roll 4dF + M White Dice. Each White Die that's +1 counts; else, they are ignored. \
+loop M over {MIN_MDF..MAX_MDF} {
+  if M >=0 \ White Dice can never be negative\ 
+  {
+    output [apply M white dice to N] named "[M] White D in [N]dF"
+  }
+}

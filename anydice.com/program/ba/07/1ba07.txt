@@ -1,0 +1,81 @@
+function: roll SET:s le SUCC:n with REROLLS:n rerolls {
+  SUCCESSES: 0
+  loop N over SET {
+    DIEROLL: dN
+    RE: [reroller DIEROLL if over SUCC up to REROLLS times]
+    SUCCESSES: SUCCESSES + 1d (dN <= SUCC) 
+  }
+  result: SUCCESSES 
+}
+
+function: helper N:n le LE:n {
+  if N <= LE { result: 1 }
+  result: 0
+}
+
+
+\##########################\
+
+function: reroller D:d if over N:n up to T:n times {
+   if T < 1 {result: D }
+   if T = 1 { result: [rerollerone D of D if over N] }
+   if T = 2 { result: [rerollertwo D of D if over N] }
+   if T = 3 { result: [rerollerthree D of D if over N] }
+   if T = 4 { result: [rerollerfour D of D if over N] }
+   if T = 5 { result: [rerollerfive D of D if over N] }
+}
+
+
+function: rerollerone R:n of D:d if over N:n {
+   if R > N { result: D } else {result: R}
+}
+
+function: rerollertwo R:n of D:d if over N:n {
+   if R > N { 
+      result: [rerollerone D of D if over N] 
+   } else {result: R}
+}
+
+function: rerollerthree R:n of D:d if over N:n {
+   if R > N { 
+      result: [rerollertwo D of D if over N] 
+   } else {result: R}
+}
+
+function: rerollerfour R:n of D:d if over N:n {
+   if R > N { 
+      result: [rerollerthree D of D if over N] 
+   } else {result: R}
+}
+
+function: rerollerfive R:n of D:d if over N:n {
+   if R > N { 
+      result: [rerollerfour D of D if over N] 
+   } else {result: R}
+}
+
+\##########################\
+\
+loop TN over {2} {
+output [roll {20} le TN-1] named "-4) roll {20} <= [TN-1]"
+output [roll {20} le TN] named "-3) roll {20} <= [TN]"
+output [roll {20, 12 } le TN] named "-2) roll {20..12} <= [TN]"
+output [roll {20, 12, 10} le TN] named "-1) roll {20..10} <= [TN]"
+output [roll {20, 12, 10, 8} le TN] named "0) roll {20..8} <= [TN]"
+output [roll {20, 12, 10, 8, 6} le TN] named "+1) roll {20..8,6} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 4} le TN] named "+2)roll {20..8,6,4} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 6, 4} le TN] named "+3) roll {20..8,6,6,4} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 6, 6, 4} le TN] named "+4)roll {20..8,6,6,6,4} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 6, 6, 6, 4} le TN] named "+5)roll {20..8,6,6,6,4} <= [TN]"
+}
+\
+
+
+loop N over {0..5} {
+  output [reroller d8 if over 4 up to N times] named "d6<2 rerolled [N] times"
+}
+
+TN: 2
+loop REROLLS over {0..3} {
+output [roll {20, 12, 10, 8} le TN with REROLLS rerolls] named "0) roll {20..8} <= [TN] (re: [REROLLS])"
+}

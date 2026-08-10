@@ -1,0 +1,73 @@
+\**** Tom Smith (Dual Wielder Rapier vs  ****\
+
+function: dwattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: DWCRITDAMAGE + [dwbonusroll 1d20 vs ENEMYAC]} 
+ if ROLL = 1 { result: 0 + [dwbonusroll 1d20 vs ENEMYAC]}
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DWDAMAGE + [dwbonusroll 1d20 vs ENEMYAC]}
+ result: 0 + [dwbonusroll 1d20 vs ENEMYAC]
+}
+
+function: dwbonusroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: DWCRITBONUSDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DWBONUSDAMAGE }
+ result: 0
+}
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE + [bonusroll 1d20 vs ENEMYAC]} 
+ if ROLL = 1 { result: 0 + [bonusroll 1d20 vs ENEMYAC]}
+ if ROLL + PROFICIENCY + ATTACKMOD + 1 >= AC { result: DAMAGE + [bonusroll 1d20 vs ENEMYAC]}
+ result: 0 + [bonusroll 1d20 vs ENEMYAC]
+}
+
+function: bonusroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITBONUSDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + 1 >= AC { result: BONUSDAMAGE }
+ result: 0
+}
+
+function: bbattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE + [bonusroll 1d20 vs ENEMYAC] + BOOMING} 
+ if ROLL = 1 { result: 0 + [bonusroll 1d20 vs ENEMYAC]}
+ if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: DAMAGE + [bonusroll 1d20 vs ENEMYAC] + BOOMING}
+ result: 0 + [bonusroll 1d20 vs ENEMYAC]
+}
+
+function: bbbonusroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITBONUSDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: BONUSDAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 1
+
+DWDAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+DWCRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+DWBONUSDAMAGE: 1d8 + DMGBONUS
+DWCRITBONUSDAMAGE: 2d8 + DMGBONUS
+
+DAMAGE: 1d6 + ATTACKMOD + 1
+CRITDAMAGE: 2d6 + ATTACKMOD + 1
+BONUSDAMAGE: 1d6 + DMGBONUS
+CRITBONUSDAMAGE: 2d6 + DMGBONUS
+
+BBDAMAGE: 1d6 + ATTACKMOD
+BBCRITDAMAGE: 2d6 + ATTACKMOD
+BBBONUSDAMAGE: 1d6 + DMGBONUS
+BBCRITBONUSDAMAGE: 2d6 + DMGBONUS
+BOOMING: 1d8
+
+output ATTACKTIMESd[dwattackroll d20 vs ENEMYAC] named "Dual Wielder, Rapier proficiency +2 Attack modifier +2"
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Short sword proficiency +2 Attack modifier +3"
+output ATTACKTIMESd[bbattackroll d20 vs ENEMYAC] named "Short sword Booming Blade proficiency +2 Attack modifier +2"

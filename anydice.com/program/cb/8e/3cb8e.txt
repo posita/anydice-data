@@ -1,0 +1,57 @@
+SCOREROLL: [highest 2 of 3d{2..8}] + 1
+
+function: processset FIVESEQ:s {
+  SUMFIVE: FIVESEQ
+  SIXTHSCORE: 75 - SUMFIVE
+
+  if SIXTHSCORE < 5 | SIXTHSCORE > 17 {
+    result: d{}
+  }
+  result: d{FIVESEQ, SIXTHSCORE}
+}
+
+ALLVALIDSCORES: [processset 5d(SCOREROLL)]
+
+output ALLVALIDSCORES named "3d8 Drop + 1, Reroll All Ones Five Times, Sixth Score is 75 Minus Total of First Five"
+
+ function: balanced RANK:n from FIVE:s {
+ SIXTH: 75 - FIVE
+ if SIXTH < 5 | SIXTH > 17 {
+  result: d{}
+ }
+ result: RANK @ [sort {FIVE, SIXTH}]
+}
+
+loop RANK over {1..6} {
+ output [balanced RANK from 5d([highest 2 of 3d{2..8}] + 1)] named "3d8 Drop + 1, Reroll All Ones Five Times, Sixth Score is 75 Minus Total of First Five Stat [RANK]"
+} 
+
+output ([highest 2 of 3d{2..8}] + 1) named "3d8 Drop + 1, Reroll All Ones"
+
+  function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+
+A: ([highest 2 of 3d{2..8}] + 1)
+
+ARRAY: 6dA
+output 1@ARRAY named "3d8 Drop + 1, Reroll All Ones Stat 1"
+output 2@ARRAY named "3d8 Drop + 1, Reroll All Ones Stat 2"
+output 3@ARRAY named "3d8 Drop + 1, Reroll All Ones Stat 3"
+output 4@ARRAY named "3d8 Drop + 1, Reroll All Ones Stat 4"
+output 5@ARRAY named "3d8 Drop + 1, Reroll All Ones Stat 5"
+output 6@ARRAY named "3d8 Drop + 1, Reroll All Ones Stat 6" 
+
+function: accept FIVE:s total TOTAL:n {
+ SIXTH: TOTAL - FIVE
+ if SIXTH < 5 | SIXTH > 17 {
+  result: 0
+ }
+ result: 1
+}
+
+loop TOTAL over {73..78} {
+ output [accept 5d([highest 2 of 3d{2..8}] + 1) total TOTAL]
+  named "1 = accept, 0 = reroll (total = [TOTAL])"
+}

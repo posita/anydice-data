@@ -1,0 +1,52 @@
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+function: ROLL:n extrahelper BADA:s and BADB:s as REROLLA:d and REROLLB:d{
+  if ROLL = BADA { result: REROLLA }
+  else if ROLL = BADB { result: REROLLB}
+  result: [[[[ROLL failsless HIT] reroll {HIT..6} as [[d6 reroll BADB as d6] failsless WOUND]] reroll {WOUND..6} as [d6 failsmore SAVE]] reroll {1..(SAVE-1)} as DMG]
+}
+function: ROLL:n failsless THRESHOLD:n{
+  if ROLL < THRESHOLD { result: 0}
+  result: ROLL
+}
+function: ROLL:n failsmore THRESHOLD:n{
+  if ROLL >= THRESHOLD { result: 0}
+  result: ROLL
+}
+function: hits on HIT:n wounds on WOUND:n saves on SAVE:n damage DMG{
+  result: 1d[[[[d6 failsless HIT] reroll {HIT..6} as [d6 failsless WOUND]] reroll {WOUND..6} as [d6 failsmore SAVE]] reroll {1..(SAVE-1)} as DMG]
+}
+
+function: SHOTS:n shots hits on HIT:n wounds on WOUND:n saves on SAVE:n damage DMG{
+  result: SHOTSd([[[[d6 failsless HIT] reroll {HIT..6} as [d6 failsless WOUND]] reroll {WOUND..6} as [d6 failsmore SAVE]] reroll {1..(SAVE-1)} as DMG])
+}
+function: SHOTS:n shots hits on HIT:n rerolling BAD:s wounds on WOUND:n saves on SAVE:n damage DMG{
+  result: SHOTSd([[[[[d6 reroll BAD as d6] failsless HIT] reroll {HIT..6} as [d6 failsless WOUND]] reroll {WOUND..6} as [d6 failsmore SAVE]] reroll {1..(SAVE-1)} as DMG])
+}
+function: SHOTS:n shots hits on HIT:n wounds on WOUND:n rerolling BAD:s saves on SAVE:n damage DMG{
+  result: SHOTSd([[[[d6 failsless HIT] reroll {HIT..6} as [[d6 reroll BAD as d6] failsless WOUND]] reroll {WOUND..6} as [d6 failsmore SAVE]] reroll {1..(SAVE-1)} as DMG])
+}
+function: SHOTS:n shots hits on HIT:n rerolling BADA:s wounds on WOUND:n rerolling BADB:s saves on SAVE:n damage DMG{
+  result: SHOTSd([[[[[d6 reroll BADA as d6] failsless HIT] reroll {HIT..6} as [[d6 reroll BADB as d6] failsless WOUND]] reroll {WOUND..6} as [d6 failsmore SAVE]] reroll {1..(SAVE-1)} as DMG])
+}
+function: SHOTS:n shots hits on HIT:n rerolling BADA:s extra on GOODA:s wounds on WOUND:n rerolling BADB:s saves on SAVE:n damage DMG{
+  result: SHOTSd[d6 extrahelper BADA and GOODA as [1 shots hits on HIT rerolling BADA wounds on WOUND rerolling BADB saves on SAVE damage DMG] and ([[[d6 failsless WOUND] reroll {WOUND..6} as [d6 failsmore SAVE]] reroll {1..(SAVE-1)} as DMG] + [1 shots hits on HIT rerolling BADA wounds on WOUND rerolling BADB saves on SAVE damage DMG])]
+}
+function: SHOTS:n shots hits on HIT:n rerolling BADA:s extra on GOODA:s wounds on WOUND:n saves on SAVE:n damage DMG{
+  result: [SHOTS shots hits on HIT rerolling BADA extra on GOODA wounds on WOUND rerolling {} saves on SAVE damage DMG]
+}
+function: SHOTS:n shots hits on HIT:n extra on GOODA:s wounds on WOUND:n saves on SAVE:n damage DMG{
+  result: [SHOTS shots hits on HIT rerolling {} extra on GOODA wounds on WOUND rerolling {} saves on SAVE damage DMG]
+}
+function: SHOTS:n shots hits on HIT:n extra on GOODA:s wounds on WOUND:n rerolling BADB saves on SAVE:n damage DMG{
+  result: [SHOTS shots hits on HIT rerolling {} extra on GOODA wounds on WOUND rerolling BADB saves on SAVE damage DMG]
+}
+output [153 shots hits on 4 rerolling 1 extra on 6 wounds on 2 saves on 3 damage 2]
+output [153 shots hits on 4 rerolling 1 wounds on 2 saves on 3 damage 2]
+
+
+
+
+

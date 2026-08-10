@@ -1,0 +1,99 @@
+\VARIABLESm change modifier, ac of opposition and damage dices.\
+MODIFIER: 5
+MINAC: 10
+MAXAC: 15
+TURNS: 5
+
+GBHITDMG: 4d6
+GBHITCRIT: 8d6
+ARCHERHITDMG: 1d8 + MODIFIER
+ARCHERHITCRIT: 2d8 + MODIFIER
+
+\outputs, 1 for output\
+OUTPUTGB: 0
+OUTPUTARCHER: 0
+OUTPUTTOTAL: 1
+OUTPUTGBHIT: 0
+OUTPUTARCHERHIT: 0
+
+\CONSTANTS, do not touch\
+MISS: 0
+HIT: 1
+CRIT: 10
+
+
+function: attack ROLL:n vs AC:n with MOD:n {
+	if ROLL = 1 {
+		result: MISS
+	}
+	
+	if ROLL >= 20 {
+		result: CRIT
+	}
+	
+	if ROLL+MOD >= AC {
+		result: HIT
+	}
+	
+	result: MISS
+}
+
+function: guiding bolt damage for TOHIT:n{
+	if TOHIT = CRIT{
+		result: GBHITCRIT
+	}
+	
+	if TOHIT = HIT{
+		result: GBHITDMG
+	}
+	
+	result: 0
+}
+
+function: archer damage for TOHIT:n{
+	if TOHIT = CRIT{
+		result: ARCHERHITCRIT
+	}
+	
+	if TOHIT = HIT{
+		result: ARCHERHITDMG
+	}
+	
+	result: 0
+}
+
+function: calculate archer attack with GBATTACK:n{
+	if GBATTACK >= HIT {
+		result: [attack 1@2d20 vs MONSTERAC with MODIFIER]
+	}else{
+		result: [attack d20 vs MONSTERAC with MODIFIER]
+	}	
+}
+
+loop MONSTERAC over {MINAC..MAXAC}{
+	GBHIT: 0
+	GBDMG: 0
+	ARCHERHIT: 0
+	ARCHERDMG: 0
+	TOTALDMG: 0
+
+	loop TURN over {1..TURNS}{
+		GBHITTURN: [attack d20 vs MONSTERAC with MODIFIER]
+		GBDMGTURN: [guiding bolt damage for GBHITTURN]	
+		ARCHERHITTURN: [calculate archer attack with GBHITTURN]
+		ARCHERDMGTURN: [archer damage for ARCHERHITTURN]
+		TOTALDMGTURN: GBDMGTURN+ ARCHERDMGTURN
+		
+		GBHIT: GBHIT + GBHITTURN
+		GBDMG: GBDMG + GBDMGTURN
+		ARCHERHIT: ARCHERHIT + ARCHERHITTURN
+		ARCHERDMG: ARCHERDMG + ARCHERDMGTURN
+		TOTALDMG: TOTALDMG + TOTALDMGTURN	
+	}
+	
+	if OUTPUTGBHIT = 1 { output GBHIT named "Guiding bolt to hit for monster with [MONSTERAC]AC for [TURNS] turns" }
+	if OUTPUTGB = 1 { output GBDMG named "Guiding bolt damage for monster with [MONSTERAC]AC for [TURNS] turns" }
+	if OUTPUTARCHERHIT = 1 { output ARCHERHIT named "archer to hit for monster with [MONSTERAC]AC for [TURNS] turns" }
+	if OUTPUTARCHER = 1 { output ARCHERDMG named "Archer damage for monster with [MONSTERAC]AC for [TURNS] turns"	}
+	if OUTPUTTOTAL = 1 { output TOTALDMG named "Total round damage for monster with [MONSTERAC]AC for [TURNS] turns" }
+}

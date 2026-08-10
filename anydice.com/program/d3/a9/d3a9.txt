@@ -1,0 +1,76 @@
+\\\ Uplift Function \\\
+
+function: uplift ROLL:s with DIE {
+ R: 0
+ loop P over {1..3}{
+  if P@ROLL = 1 { R: R + DIE }
+  else { R: R + P@ROLL }
+ }
+ result: R
+}
+
+\\\ Newdie Function \\\
+
+function: newdie { 
+    result: d6
+}
+
+\\\ Reroll Function \\\
+
+function: rerolldie ROLL:n REROLLS:n {
+if ((ROLL<=2)&(REROLLS>0))
+{
+result: [rerolldie [newdie] REROLLS-1]
+}
+else
+{
+result:ROLL
+}
+}
+
+\\\ D6's \\\
+
+output 3d6 named "3d6"
+output [highest 3 of 4d6] named "4d6k3"
+output [highest 3 of 5d6] named "5d6k3"
+
+\\\ D3's \\\
+
+output 6d3 named "6d3"
+output [highest 6 of 7d3] named "7d3k6"
+output [highest 6 of 8d3] named "8d3k6"
+
+\\\ With Advantage \\\
+
+output [highest 1 of 2d(3d6)] named "3d6 with advantage"
+output [highest 1 of 2d([highest 3 of 4d6])] named "4d6k3 with advantage"
+output [highest 1 of 2d(6d3)] named "6d3 with advantage"
+
+\\\ Maximize One Die \\\
+
+output 2d6+6 named "2d6+6"
+output [highest 2 of 3d6] + 6 named "3d6k2 + 6"
+
+\\\ Roll 7 Times, Keep 6 Highest \\\
+
+TRIES: 7
+output ([highest 6 of TRIESd(3d6)]) / 6 named "7( 3d6 )k6"
+TRIES: 7
+output ([highest 6 of TRIESd([highest 3 of 4d6])]) / 6 named "7( 4d6k3 )k6"
+TRIES: 7
+output ([highest 6 of TRIESd([highest 3 of 5d6])]) / 6 named "7( 5d6k3 )k6"
+
+\\\ Reroll 1's & 2's \\\
+
+output 3d[rerolldie [newdie] 1] named "3d6, reroll 1's & 2's"
+output 3d[rerolldie [newdie] 6] named "3d6, eliminate 1's & 2's"
+
+\\\ Reroll 1's After Keeping Highest \\\
+
+output [uplift 4d6 with d6] named "4d6k3, 1s rerolled after"
+output [uplift 4d6 with d{2..6}] named "4d6k3, 1s eliminated after"
+
+\\\ Reroll 1's Before Keeping Highest \\\
+
+output [highest 3 of 4d{1,2..6:7}] named "4d6k3, 1s rerolled before"
+output [highest 3 of 4d{2..6}] named "4d6k3, 1s rerolled eliminated before"

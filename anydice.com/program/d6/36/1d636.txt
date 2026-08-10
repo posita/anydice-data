@@ -1,0 +1,98 @@
+\ COMBAT PARAMETERS \
+
+DEFEND_DICE:     1
+DEFEND_WARBANDS: 1
+ATTACK_WARBANDS: 3
+ATTACK_LIMIT:   -1  \ The attacker may choose to limit the number of dice before applying battle plans. 
+                      Set to negative to have the attacker use all dice. \
+ATTACK_MOD:      0  \ modifier to the number of dice from battle plans \
+
+\ END PARAMETERS \
+
+function: defence dice helper ROLL_RESULT:s {
+  MULT: [count -1 in ROLL_RESULT]
+  BASE: 0
+  loop P over ROLL_RESULT {
+    if P > 0 {
+      BASE: BASE + P
+    }
+  }
+  result: (2^MULT)*BASE
+}
+
+function: roll N:n defence dice {
+  result: [defence dice helper Nd{0,0,1,1,2,-1}]
+}
+
+ATTACK_DICE: ATTACK_WARBANDS
+if ATTACK_LIMIT >= 0 & ATTACK_LIMIT < ATTACK_DICE {
+  ATTACK_DICE: ATTACK_LIMIT
+}
+ATTACK_DICE: ATTACK_DICE + ATTACK_MOD
+DEFEND_ROLL: DEFEND_WARBANDS + [roll DEFEND_DICE defence dice]
+ATTACK_ROLL: ATTACK_DICE d {1,1,1,2,2,3} \ this is double the actual result, need to divide by 2 but ONLY AFTER counting extra losses \
+
+function: campaign outcome ATTACK_RESULT:s vs DEFEND_RESULT:n {
+  EMPTY_HITS: [count 1 in ATTACK_RESULT]
+  FULL_HITS: [count 2 in ATTACK_RESULT] + 2*[count 3 in ATTACK_RESULT]
+  EXTRA_LOSSES: [count 3 in ATTACK_RESULT]
+
+  ATTACK_HITS: FULL_HITS + (EMPTY_HITS/2)
+  COMBAT_RESULT: 1 + DEFEND_RESULT - ATTACK_HITS
+  if COMBAT_RESULT < 0 { COMBAT_RESULT: 0 }
+
+  REMAINING_WARBANDS: ATTACK_WARBANDS - EXTRA_LOSSES
+  if REMAINING_WARBANDS < 0 { REMAINING_WARBANDS: 0 }
+  
+  if COMBAT_RESULT > REMAINING_WARBANDS {
+    result: -1
+  } else {
+    result: COMBAT_RESULT + EXTRA_LOSSES
+  }
+}
+
+function: attacker casualties from ATTACK_RESULT:s vs DEFEND_RESULT:n {
+  EMPTY_HITS: [count 1 in ATTACK_RESULT]
+  FULL_HITS: [count 2 in ATTACK_RESULT] + 2*[count 3 in ATTACK_RESULT]
+  EXTRA_LOSSES: [count 3 in ATTACK_RESULT]
+
+  ATTACK_HITS: FULL_HITS + (EMPTY_HITS/2)
+  COMBAT_RESULT: 1 + DEFEND_RESULT - ATTACK_HITS
+  if COMBAT_RESULT < 0 { COMBAT_RESULT: 0 }
+
+  REMAINING_WARBANDS: ATTACK_WARBANDS - EXTRA_LOSSES
+  if REMAINING_WARBANDS < 0 { REMAINING_WARBANDS: 0 }
+  
+  if COMBAT_RESULT > REMAINING_WARBANDS {
+    result: REMAINING_WARBANDS/2
+  } else {
+    result: COMBAT_RESULT + EXTRA_LOSSES
+  }
+}
+
+function: defender casualties from ATTACK_RESULT:s vs DEFEND_RESULT:n {
+  EMPTY_HITS: [count 1 in ATTACK_RESULT]
+  FULL_HITS: [count 2 in ATTACK_RESULT] + 2*[count 3 in ATTACK_RESULT]
+  EXTRA_LOSSES: [count 3 in ATTACK_RESULT]
+
+  ATTACK_HITS: FULL_HITS + (EMPTY_HITS/2)
+  COMBAT_RESULT: 1 + DEFEND_RESULT - ATTACK_HITS
+  if COMBAT_RESULT < 0 { COMBAT_RESULT: 0 }
+
+  REMAINING_WARBANDS: ATTACK_WARBANDS - EXTRA_LOSSES
+  if REMAINING_WARBANDS < 0 { REMAINING_WARBANDS: 0 }
+  
+  if COMBAT_RESULT > REMAINING_WARBANDS {
+    result: 0
+  } else {
+    result: DEFEND_WARBANDS/2
+  }  
+}
+
+output [campaign outcome ATTACK_ROLL vs DEFEND_ROLL] >= 0 named "Attacker Wins (At Any Cost)"
+output [campaign outcome ATTACK_ROLL vs DEFEND_ROLL] named "Attacker Casualties (-1 = Attacker Lost)"
+\ output [attacker casualties from ATTACK_ROLL vs DEFEND_ROLL] named "Attacker Casualties (Win or Lose)" \
+
+output ATTACK_WARBANDS - [attacker casualties from ATTACK_ROLL vs DEFEND_ROLL] named "Attacker Remaining Warbands (Win or Lose)"
+output DEFEND_WARBANDS - [defender casualties from ATTACK_ROLL vs DEFEND_ROLL] named "Defender Remaining Warbands (Win or Lose)" 
+

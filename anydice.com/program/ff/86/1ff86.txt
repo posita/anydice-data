@@ -1,0 +1,371 @@
+function: savethrow SAVE:n dc DC:n {
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: 2d12}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+
+output [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 3] named "Baseline 1"
+
+output [attack 1d20 plus 5 vs ac 14 for 1d6 plus 3] + [attack 1d20 plus 5 vs ac 14 for 1d6 plus 3] named "Safyah 1"
+
+
+output [attack 1d20 plus 7 vs ac 14 for 1d6 plus 3] + [attack 1d20 plus 5 vs ac 14 for 1d6 plus 3] named "Safyah 2"
+
+output
+[attack d20 plus 7 vs 14
+    hit 2d6+3 + [attack 1d20 plus 7 vs ac 14 for 1d6 plus 3]
+    miss [attack 1d20 plus 7 vs ac 14 for 2d6 plus 3]
+    crit 2d6+3 + [attack 1d20 plus 7 vs ac 14 for 1d6 plus 3] on 20
+] named "Safyah 3"
+
+output [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 4] named "Baseline 4"
+
+output
+[attack d20 plus 2 vs 15
+    hit 2d6+13 + [attack 1d20 plus 2 vs ac 15 for 1d6 plus 13]
+    miss [attack 1d20 plus 2 vs ac 15 for 2d6 plus 13]
+    crit 4d6+13 + [attack 1d20 plus 2 vs ac 15 for 1d6 plus 13] on 20
+] named "Safyah 4 always sharpshooter"
+
+output
+[attack d20 plus 7 vs 15
+    hit 2d6+3 + [attack 1d20 plus 2 vs ac 15 for 1d6 plus 13]
+    miss [attack 1d20 plus 7 vs ac 15 for 2d6 plus 3]
+    crit 4d6+3 + [attack 1d20 plus 7 vs ac 15 for 1d6 plus 13] on 20
+] named "Safyah 4 after hit sharpshooter"
+
+output [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 4] + [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 4] named "Baseline 5"
+
+output
+[attack d20 plus 3 vs 16
+    hit 2d6+13 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13]
+    miss [attack d20 plus 3 vs 16
+             hit 2d6+13 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13]
+             miss [attack d20 plus 3 vs 16
+                      hit 2d6+13
+                      miss 0
+                      crit 4d6+13 on 20
+                  ]
+             crit 4d6+13 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] on 20
+         ]
+    crit 4d6+13 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] on 20
+] named "Safyah 5-7 always sharpshooter"
+
+output
+[attack d20 plus 8 vs 16
+    hit 2d6+3 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13]
+    miss [attack d20 plus 8 vs 16
+             hit 2d6+3 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13]
+             miss [attack d20 plus 8 vs 16
+                      hit 2d6+3
+                      miss 0
+                      crit 4d6+3 on 20
+                  ]
+             crit 4d6+3 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] on 20
+         ]
+    crit 4d6+3 + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 16 for 1d6 plus 13] on 20
+] named "Safyah 5-7 after hit sharpshooter"
+
+output [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] named "Baseline 8"
+
+output
+[attack d20 plus 3 vs 17
+    hit 3d6+13 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13]
+    miss [attack d20 plus 3 vs 17
+             hit 3d6+13 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13]
+             miss [attack d20 plus 3 vs 17
+                      hit 3d6+13
+                      miss 0
+                      crit 6d6+13 on 20
+                  ]
+             crit 6d6+13 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] on 20
+         ]
+    crit 6d6+13 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] on 20
+] named "Safyah 8-9 always sharpshooter"
+
+output
+[attack d20 plus 8 vs 17
+    hit 3d6+3 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13]
+    miss [attack d20 plus 8 vs 17
+             hit 3d6+3 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13]
+             miss [attack d20 plus 8 vs 17
+                      hit 3d6+3
+                      miss 0
+                      crit 6d6+3 on 20
+                  ]
+             crit 6d6+3 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] on 20
+         ]
+    crit 6d6+3 + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 17 for 1d6 plus 13] on 20
+] named "Safyah 8-9 after hit sharpshooter"
+
+output
+[attack d20 plus 3 vs 18
+    hit 4d6+13 + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13]
+    miss [attack d20 plus 3 vs 18
+             hit 4d6+13 +  + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13]
+             miss [attack d20 plus 3 vs 18
+                      hit 4d6+13
+                      miss 0
+                      crit 8d6+13 on 20
+                  ]
+             crit 8d6+13 + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] on 20
+         ]
+    crit 8d6+13 + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] on 20
+] named "Safyah 10 always sharpshooter"
+
+output
+[attack d20 plus 8 vs 18
+    hit 4d6+3 + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13]
+    miss [attack d20 plus 8 vs 18
+             hit 4d6+3 +  + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13]
+             miss [attack d20 plus 8 vs 18
+                      hit 4d6+3
+                      miss 0
+                      crit 8d6+3 on 20
+                  ]
+             crit 8d6+3 + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] on 20
+         ]
+    crit 8d6+3 + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] + [attack 1d20 plus 3 vs ac 18 for 1d6 plus 13] on 20
+] named "Safyah 10 after hit sharpshooter"
+
+output [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] named "Baseline 11"
+
+output
+[attack d20 plus 4 vs 18
+    hit 4d6+14 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14]
+    miss [attack d20 plus 4 vs 18
+             hit 4d6+14 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14]
+             miss [attack d20 plus 4 vs 18
+                      hit 4d6+14
+                      miss 0
+                      crit 8d6+14 on 20
+                  ]
+             crit 8d6+14 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] on 20
+         ]
+    crit 8d6+14 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] on 20
+] named "Safyah 11 always sharpshooter"
+
+output
+[attack d20 plus 9 vs 18
+    hit 4d6+4 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14]
+    miss [attack d20 plus 9 vs 18
+             hit 4d6+4 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14]
+             miss [attack d20 plus 9 vs 18
+                      hit 4d6+4
+                      miss 0
+                      crit 8d6+4 on 20
+                  ]
+             crit 8d6+4 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] on 20
+         ]
+    crit 8d6+4 + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 4 vs ac 18 for 1d6 plus 14] on 20
+] named "Safyah 11 after hit sharpshooter"
+
+output
+[attack d20 plus 5 vs 18
+    hit 5d6+14 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14]
+    miss [attack d20 plus 5 vs 18
+             hit 5d6+14 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14]
+             miss [attack d20 plus 5 vs 18
+                      hit 5d6+14
+                      miss 0
+                      crit 10d6+14 on 20
+                  ]
+             crit 10d6+14 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] on 20
+         ]
+    crit 10d6+14 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] on 20
+] named "Safyah 12-13 always sharpshooter"
+
+output
+[attack d20 plus 10 vs 18
+    hit 5d6+4 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14]
+    miss [attack d20 plus 10 vs 18
+             hit 5d6+4 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14]
+             miss [attack d20 plus 10 vs 18
+                      hit 5d6+4
+                      miss 0
+                      crit 10d6+4 on 20
+                  ]
+             crit 10d6+4 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] on 20
+         ]
+    crit 10d6+4 + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] + [attack 1d20 plus 5 vs ac 18 for 1d6 plus 14] on 20
+] named "Safyah 12-13 after hit sharpshooter"
+
+output
+[attack d20 plus 6 vs 19
+    hit 6d6+14 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14]
+    miss [attack d20 plus 6 vs 19
+             hit 6d6+14 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14]
+             miss [attack d20 plus 6 vs 19
+                      hit 6d6+14
+                      miss 0
+                      crit 12d6+14 on 20
+                  ]
+             crit 12d6+14 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] on 20
+         ]
+    crit 12d6+14 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] on 20
+] named "Safyah 14 always sharpshooter"
+
+output
+[attack d20 plus 11 vs 19
+    hit 6d6+4 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14]
+    miss [attack d20 plus 11 vs 19
+             hit 6d6+4 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14]
+             miss [attack d20 plus 11 vs 19
+                      hit 6d6+4
+                      miss 0
+                      crit 12d6+4 on 20
+                  ]
+             crit 12d6+4 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] on 20
+         ]
+    crit 12d6+4 + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] + [attack 1d20 plus 6 vs ac 19 for 1d6 plus 14] on 20
+] named "Safyah 14 after hit sharpshooter"
+
+output
+[attack d20 plus 7 vs 19
+    hit 6d6+17 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 7 vs 19
+             hit 6d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 7 vs 19
+                      hit 6d6+15
+                      miss 0
+                      crit 12d6+15 on 20
+                  ]
+             crit 12d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 12d6+15  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 15 always sharpshooter"
+
+output
+[attack d20 plus 11 vs 19
+    hit 6d6+5 +  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 11 vs 19
+             hit 6d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 11 vs 19
+                      hit 6d6+5
+                      miss 0
+                      crit 12d6+5 on 20
+                  ]
+             crit 12d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 12d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 15 after hit sharpshooter"
+
+output [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] + [attack 1d20 plus 5 vs ac 14 for 1d10 + 1d6 plus 5] named "Baseline 17"
+
+output
+[attack d20 plus 7 vs 19
+    hit 7d6+17 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 7 vs 19
+             hit 7d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 7 vs 19
+                      hit 7d6+15
+                      miss 0
+                      crit 14d6+15 on 20
+                  ]
+             crit 14d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 14d6+15  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 16-17 always sharpshooter"
+
+output
+[attack d20 plus 11 vs 19
+    hit 7d6+5 +  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 11 vs 19
+             hit 7d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 11 vs 19
+                      hit 7d6+5
+                      miss 0
+                      crit 14d6+5 on 20
+                  ]
+             crit 14d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 14d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 16-17 after hit sharpshooter"
+
+output
+[attack d20 plus 7 vs 19
+    hit 8d6+17 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 7 vs 19
+             hit 8d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 7 vs 19
+                      hit 8d6+15
+                      miss 0
+                      crit 16d6+15 on 20
+                  ]
+             crit 16d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 16d6+15  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 18-19 always sharpshooter"
+
+output
+[attack d20 plus 11 vs 19
+    hit 8d6+5 +  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 11 vs 19
+             hit 8d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 11 vs 19
+                      hit 8d6+5
+                      miss 0
+                      crit 16d6+5 on 20
+                  ]
+             crit 16d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 16d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 18-19 after hit sharpshooter"
+
+output
+[attack d20 plus 7 vs 19
+    hit 9d6+17 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 7 vs 19
+             hit 9d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 7 vs 19
+                      hit 9d6+15
+                      miss 0
+                      crit 18d6+15 on 20
+                  ]
+             crit 18d6+15 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 18d6+15  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 20 always sharpshooter"
+
+output
+[attack d20 plus 11 vs 19
+    hit 9d6+5 +  + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+    miss [attack d20 plus 11 vs 19
+             hit 9d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15]
+             miss [attack d20 plus 11 vs 19
+                      hit 9d6+5
+                      miss 0
+                      crit 18d6+5 on 20
+                  ]
+             crit 18d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+         ]
+    crit 18d6+5 + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] + [attack 1d20 plus 7 vs ac 19 for 1d6 plus 15] on 20
+] named "Safyah 20 after hit sharpshooter"

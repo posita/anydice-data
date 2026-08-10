@@ -1,0 +1,61 @@
+ARMOR : 1
+
+function: A:n accuracy {
+  if A > 0 { result : 1@Ad6 }
+  if A < 0 {
+    A : [absolute A]
+    result : 1@Ad6 * -1 }
+  result : 0
+}
+
+function: check X:n target T:n {
+  if X >= 20 { result : 2 }
+  if X >= T { result : 1 }
+  result : 0
+}
+
+function: X:n damage N:n F:n M:n {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  result : [highest of H - ARMOR and 0]
+}
+
+function: X:n damage N:n F:n M:n reliable R:n {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  H : [highest of H and R]
+  result : [highest of H - ARMOR and 0]
+}
+
+function: X:n damage N:n F:n M:n ap {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  result : H
+}
+
+
+function: X:n damage N:n F:n M:n overkill {
+  if X > 0 {
+    H : {1..N}@(X*N)d{2..F} + M
+  } else { H : 0 }
+  result : [highest of H - ARMOR and 0]
+}
+
+function: X:n intercept Y:n target T:n {
+  if X >= 20 {
+    if Y >= X { result : -2 }
+    result:2
+  }
+  if X >= T {
+    if Y >= X { result : -1 }
+    result : 1
+  }
+  result : 0
+}
+
+output ARMOR named "Armor"
+output [[check 1d20+[0 accuracy]+3 target 11] damage 8 6 0]
+output [[check 1d20+[0 accuracy]+3 target 11] damage 8 6 0 overkill]

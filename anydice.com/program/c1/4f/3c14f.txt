@@ -1,0 +1,92 @@
+AC: 16 \enemy ac\
+DEXMOD: 2 \enemy dex mod\
+STRMOD: 3
+
+PROF: 3
+MYCHAMOD: 5 \pc cha mod\
+MYDEXMOD: 3
+DC: 8 + PROF + MYCHAMOD\difficulty for saving throws\
+SPD: PROF + MYDEXMOD
+SPNF: PROF + MYCHAMOD
+SP: SPNF + 1 \bonus to roll with fire spells\
+CRIT: 20 \minimum to crit\
+
+
+\### FUNCTIONS ###\
+
+
+function: atk ROLL:n h MOD:n DICE:d BONUS:n {
+ if ROLL >= CRIT { result: 2dDICE+BONUS} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + MOD >= AC { result: 1dDICE+BONUS}
+ result: 0
+}
+
+function: absorb ROLL:n BONUS:n {
+if ROLL > 0 {result: ROLL + BONUS}
+result: 0
+}
+
+function: adh ROLL:n MOD:n dc DC:n DMG:n {
+if ROLL+MOD >= DC { result : DMG/2}
+result : DMG
+}
+
+function: adz ROLL:n MOD:n dc DC:n DMG:n {
+if ROLL+MOD >= DC { result : 0}
+result : DMG
+}
+
+function: rerollones NUM:n dice DICE:n {
+ COUNT: 0
+ loop P over {1..NUM} {
+  COUNT: COUNT + [implode 1dDICE]
+ }
+ result: COUNT
+}
+
+function: implode N:n {
+ if N = 1 { result: 1dDICE }
+ result: N
+}
+
+\### LEVEL 0 ATTACKS/CQNTRIPS ###\
+output [atk 1d20 h SPD 1d4 0] named "lvl 0 dagger offhand"
+output [atk 1d20 h SPD 1d4 MYDEXMOD] named "lvl 0 dagger"
+output [atk 1d20 h SPD 1d8 MYDEXMOD] named "lvl 0 light crossbow"
+output [atk 1d20 h SPD 1d4 MYDEXMOD]+[atk 1d20 h 6 1d4 0] named "lvl 0 dagger full round"
+output [atk 1d20 h SPNF 2d8 0] named "lvl 0 lighting grasp+"
+output [adz 1d20 DEXMOD dc DC 2d8+1] named "lvl 0 create bonfire+"
+output [atk [highest 1 of 2d20] h SPNF 2d8 0] named "lvl 0 lighting grasp+ vs metal"
+output [atk 1d20 h SP 2d10 1] named "lvl 0 fire bolt+"
+
+
+\### LEVEL 1 SPELLS ###\
+output 0 named "-"
+output [absorb ([atk 1d20 h SPD 1d4 MYDEXMOD]+[atk 1d20 h SPD 1d4 0]) 1d6] named "lvl 1 absorb element and dagger full round"
+output [absorb [atk 1d20 h SPNF 2d8 0] 1d6] named "lvl 1 absorb element and lightning grasp+"
+output [adh 1d20 DEXMOD dc DC 3d6+1] named "lvl 1 burning hand"
+output [absorb [atk [highest 1 of 2d20] h SPNF 2d8 0] 1d6] named "lvl 1 absorb element and lightning grasp+ vs metal"
+
+\### LEVEL 2 SPELLS ###\
+output 0 named "-"
+output [adh 1d20 DEXMOD dc DC 2d6+1] named "lvl 2 flaming sphere"
+output [adh 1d20 DEXMOD dc DC 3d6+1] named "lvl 2 dragon's breath"
+output [adh 1d20 DEXMOD dc DC 4d6+1] named "lvl 2 burning hand"
+output [adh 1d20 DEXMOD dc DC 2d6+1]+[atk 1d20 h SP 2d10 1] named "lvl 2 flaming sphere and lvl 0 fire bolt+"
+output [absorb 3d[atk 1d20 h SP 2d6 0] 1] named "lvl 2 three scorching rays"
+
+\### LEVEL 3 SPELLS ###\
+output 0 named "-"
+output [adh 1d20 DEXMOD dc DC 3d6+1] named "lvl 3 flaming sphere"
+output [adh 1d20 DEXMOD dc DC 4d6+1] named "lvl 3 dragon's breath"
+output [adh 1d20 DEXMOD dc DC 4d6+1] named "level 3 meteor double"
+output [adh 1d20 DEXMOD dc DC 5d6+1] named "lvl 3 burning hand"
+output [adh 1d20 DEXMOD dc DC 3d6+1]+[atk 1d20 h SP 2d10 1] named "lvl 3 flaming sphere and lvl 0 fire bolt+"
+output [adh 1d20 DEXMOD dc DC 4d6+1]+[atk 1d20 h SP 2d10 1] named "level 3 meteor double and lvl 0 fire bolt+"
+output [absorb 4d[atk 1d20 h SP 2d6 0] 1] named "lvl 3 four scorching rays"
+output [adh 1d20 DEXMOD dc DC 8d6+1] named "lvl 3 fire ball"
+
+
+
+

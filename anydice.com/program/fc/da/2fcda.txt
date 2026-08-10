@@ -1,0 +1,65 @@
+\ Pathfinder 2nd edition Weapon Damage Calculator
+created by /u/jtblin 2019 \
+
+function: ATTACKS:s vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n WEAK:n FORTUNE:n {
+  SUM: {0}
+  N: 0
+  F: 0
+  T: 0
+  FE: 0
+  LAST: 0
+  loop ATTACK over ATTACKS {
+    S: 0
+    N: N + 1
+    if LAST = 0 { LAST: ATTACK }
+    else if ATTACK < LAST { 
+      LAST: ATTACK
+      FE: FAILURE_EFFECT
+    }
+    if (N = 2) { 
+      F: FORCEFUL 
+      T: TWIN
+    } else if (N > 2) { 
+      F: 2*FORCEFUL 
+      T: TWIN
+    }
+if FORTUNE != 0 { SUM: SUM + [[highest of d20 and d20] plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK]} 
+   else { SUM: SUM + [1d20 plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK] }
+  }
+  result: SUM
+}
+
+function: ROLL:n plus ATTACK:n vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n WEAK:n {
+  if (ROLL + ATTACK >= (AC+10)) { 
+     result: [crit DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK]
+  }
+  if (ROLL + ATTACK >= AC) {
+    if (ROLL = 20){ 
+      result: [crit DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK]
+    }
+    result: DAMAGE+FORCEFUL+TWIN+WEAK
+  }
+  if (ROLL = 20){ result: DAMAGE+FORCEFUL+TWIN+WEAK }
+  result: FAILURE_EFFECT
+}
+
+function: crit DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n WEAK:n {
+  if FATAL != 0 { result: 2*(FATAL+FORCEFUL+TWIN)+DEADLY+WEAK }
+  result: 2*(DAMAGE+FORCEFUL+TWIN)+DEADLY+WEAK
+}
+
+\ level 10 AC 29 based creature \
+
+output [{24,19} vs 29 with 0 for 2d8+5 0 0 1d12 2d12+5 0 0] named "Tiggy Level 10, Inspire Courage, Jezail"
+output [{24,19} vs 27 with 0 for 2d8+5+1d6 0 0 1d12 2d12+5+1d6 0 0] named "Tiggy Level 10, Inspire Courage, Sneak Attack vs flat-footed, Jezail"
+output [{24} vs 27 with 0 for 3d8+5+1d6 0 0 1d12 3d12+5+1d6 0 0] named "Tiggy Level 10, Inspire Courage, Sneak Attack vs flat-footed, Vital Shot, Jezail"
+output [{24} vs 27 with 0 for 3d8+5+1d6 0 0 1d12 3d12+5+1d6 0 1] named "Tiggy Level 10, Inspire Courage, Sneak Attack vs flat-footed, Vital Shot, True Strike, Jezail"
+
+output [{22, 18} vs 29 with 0 for 2d6+10 0 0 0 0 0 0] named "Kiddukiman 10, Inspire Courage, Arcane Cascade, Dogslicer"
+output [{22, 18} vs 27 with 0 for 2d6+14+1d6 0 0 0 0 0 0] named "Kiddukiman 10, Inspire Courage, Sneak Attack, Arcane Cascade, Dogslicer"
+output [{22} vs 27 with 0 for 2d6+14+1d6+5d6+4 0 0 0 0 0 0] named "Kiddukiman 10, Inspire Courage, Spellstrike, Gouging Claw, Sneak Attack, Arcane Cascade, Dogslicer"
+output [{22} vs 27 with 0 for 2d6+14+1d6+6d12 0 0 0 0 0 0] named "Kiddukiman 10, Inspire Courage, Spellstrike, Shocking Grasp, Sneak Attack, Arcane Cascade, Dogslicer"
+output [{22} vs 27 with 0 for 2d6+14+2d6+6d12 0 0 0 0 0 0] named "Kiddukiman 10, Inspire Courage, Spellstrike, Shocking Grasp, Sneak Attack, Elemental Assault, Arcane Cascade, Dogslicer"
+output [{22} vs 27 with 0 for 2d6+14+2d6+6d12 0 0 0 0 0 1] named "Kiddukiman 10, Inspire Courage, True Strike, Spellstrike, Shocking Grasp, Sneak Attack, Elemental Assault, Arcane Cascade, Dogslicer"
+output [{22} vs 27 with 0 for 2d6+14+2d6+6d12+1d4 0 0 0 0 0 1] named "Kiddukiman 10, Inspire Courage, True Strike, Spellstrike, Shocking Grasp, Sneak Attack, Elemental Assault, Arcane Cascade, Jolt Coil, Dogslicer"
+

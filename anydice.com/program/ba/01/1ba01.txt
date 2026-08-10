@@ -1,0 +1,86 @@
+function: rollorig SET:s le SUCC:n {
+  EXPLODED: 0
+  SUCCESSES: 0
+  loop N over SET {
+    DIEROLL: dN
+    SUCCESSES: SUCCESSES + 1d (dN <= SUCC) 
+  }
+  result: SUCCESSES 
+}
+
+function: roll SET:s le SUCC:n with N:n rerolls {
+  EXPLODED: 0
+  SUCCESSES: 0
+  loop N over SET {
+    DIEROLL: dN
+    SUCCESSES: SUCCESSES + 1d (dN <= SUCC) 
+  }
+  result: SUCCESSES 
+}
+\
+function: helper N:n le LE:n {
+  if N <= LE { result: 1 }
+  result: 0
+}
+\
+
+\#####################################\
+
+function: checkroll R:n lt N:n {
+   if R < N { result: 1 } else { result: 0 }
+}
+
+function: reroller R:n of D:d if over N:n {
+   if R > N { result: D } else {result: R}
+}
+
+function: rerollhelper D:d of ROLL:n if over N:n up to T:n times {
+  loop L over {1..T} {
+    ROLL: [reroller D of D if over N]
+    COMP: ROLL < N
+    if COMP { result: ROLL }
+  }
+  result: ROLL
+}
+
+function: reroll D:d if over N:n up to T:n times {
+  result: [rerollhelper D of D if over N up to T times]
+}
+
+
+
+function: reroll D:d if over N:n {
+   result: [rerollhelper D of D if over N]
+}
+
+function: rerollhelper R:n of D:d if over N:n {
+   if R > N { result: D } else {result: R}
+}
+
+
+\
+loop TN over {2} {
+output [roll {20} le TN-1] named "-4) roll {20} <= [TN-1]"
+output [roll {20} le TN] named "-3) roll {20} <= [TN]"
+output [roll {20, 12 } le TN] named "-2) roll {20..12} <= [TN]"
+output [roll {20, 12, 10} le TN] named "-1) roll {20..10} <= [TN]"
+output [roll {20, 12, 10, 8} le TN] named "0) roll {20..8} <= [TN]"
+output [roll {20, 12, 10, 8, 6} le TN] named "+1) roll {20..8,6} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 4} le TN] named "+2)roll {20..8,6,4} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 6, 4} le TN] named "+3) roll {20..8,6,6,4} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 6, 6, 4} le TN] named "+4)roll {20..8,6,6,6,4} <= [TN]"
+output [roll {20, 12, 10, 8, 6, 6, 6, 6, 4} le TN] named "+5)roll {20..8,6,6,6,4} <= [TN]"
+
+}\
+\output [roll {20, 12, 10, 8} le 2 with 5 rerolls] named "0) roll {20..8} <= 2"\
+\loop REROLLS over {1..5} {
+output [reroll d20 if over 10 up to REROLLS times]
+}\
+\
+output [reroll d6 if over 3 up to 0 times] named "0"
+output [reroll d6 if over 3 up to 1 times] named "1"
+output [reroll d6 if over 3 up to 10 times] named "2"
+output [reroll d6 if over 3 up to 15 times] named "3"
+\
+output [reroll d6 if over 3] named "3"
+output [rerollhelper d6 of d6 if over 3 up to 15 times] named "3"

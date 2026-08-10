@@ -1,0 +1,41 @@
+function: evaluate ROLL:s {
+SUCCESSES: ROLL >= 7
+result: SUCCESSES  + (ROLL = 10)+ (-1*(ROLL = 1))
+}
+
+
+function: bonus ROLL:s {
+NB: #ROLL-1
+EVA: 0
+loop X over {1..NB} {
+EVA : [evaluate X@ROLL] + EVA
+}
+result: EVA
+}
+
+function: malus ROLL:s {
+NB: #ROLL
+EVA: 0
+loop X over {2..NB} {
+EVA : [evaluate X@ROLL] + EVA
+}
+result: EVA
+}
+
+\loop DICE over {1..5} {
+output [evaluate DICE d10] named "[DICE]d10"
+}\
+
+\loop DICE over {1..5} {
+DES: DICE+1
+output [bonus DES d10] named "Bonus [DICE]d10"
+}\
+
+\loop DICE over {1..5} {
+DES: DICE+1
+output [malus DES d10] named "malus [DICE]d10"
+}\
+loop DICE over {1..5}{
+loop DICEB over {1..5}{
+output [evaluate DICEBd10]>=[evaluate DICE d10] named "[DICEB]d10/[DICE]d10"
+}}

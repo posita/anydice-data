@@ -1,0 +1,92 @@
+set "maximum function depth" to 5
+
+function: replace lowest A:s with X:n{
+  \
+  if PROVEN 
+  { SET: {}
+    loop P over {1..#A} {
+      if P@A < PROVEN {SET: {PROVEN, SET}}
+      else {SET: {P@A, SET}}
+    } 
+  result: SET
+  }
+\
+  if #A@A < X & X >= 0 {result: {1..(#A-1)}@A + X}
+  result: A
+  }
+
+function: X:n dos A:n{
+if X >= A { result: (X - A)/10 }
+result: -1
+}
+
+function: hits DOS:n{
+if MODE = 0 & DOS >= 0 {result: 1}
+else if MODE = 1 & DOS >= 0
+{
+  if ROF <= DOS/2 {result: ROF}
+  else {result: DOS/2 + 1}
+}
+else if MODE = 2 & DOS >= 0
+{
+  if ROF <= DOS {result: ROF}
+  else {result: DOS + 1}
+}
+result: 0
+}
+
+function: soak DOS:n{
+if DOS > 2 & RAZORSHARP {result: [highest of AP-(PEN*2) and 0] + TB}
+else {result: [highest of AP-PEN and 0] + TB}}
+
+function: damage{
+result:  ([highest NUMBEROFDTENS of (NUMBEROFDTENS+1)d[explode d10]]*TEARING) + (NUMBEROFDTENSd[explode d10]*!TEARING) + BONUS}
+
+function: total damage{
+DAMAGE: [replace lowest [damage] with DOS]
+result: [hits DOS] * [highest of (DAMAGE - [soak DOS]) and 0]
+}
+
+function: kills DOS:s{
+DAMAGE: [highest of [replace lowest [damage] with DOS] and 0]
+WOUNDSCAUSED: DAMAGE - [soak DOS]
+
+result: [hits DOS]*(WOUNDS <= WOUNDSCAUSED)
+}
+
+function: horde mag killed{
+DAMAGE: [highest of [replace lowest [damage] with DOS] and 0]
+WOUNDSCAUSED: DAMAGE - [soak DOS]
+result: [hits DOS]*(WOUNDSCAUSED > 0)}
+
+function: horde mag killed plus explosive damage HORDEKILLS:s{
+if HORDEKILLS > 0 {result: HORDEKILLS + EXPLOSIVEDAMAGE}
+result: 0}
+
+NUMBEROFDTENS: 1
+BONUS: 9
+
+ROF: 3
+MODE: 1
+TOHIT: d{50, 75, 100}
+
+AP: 3
+PEN: 4
+TB: 3
+WOUNDS: 9
+
+TEARING: 1
+RAZORSHARP: 0
+EXPLOSIVEDAMAGE: 1
+PROVEN: 0 \ makes it to many loops and system calls, breaks the program :// \
+
+DOS:[TOHIT dos 1d100]
+
+output [total damage] named "total damage"
+output [kills DOS] named "enemies killed"
+output [horde mag killed plus explosive damage [horde mag killed]] named "horde magnitude killed"
+
+
+
+
+

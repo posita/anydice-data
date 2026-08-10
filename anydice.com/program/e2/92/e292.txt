@@ -1,0 +1,29 @@
+function: hit on HIT:n in ROLL:s {
+  HITS: 0
+  FAILS: 0
+  loop RES over {1..#ROLL} {
+    if RES@ROLL >= HIT { HITS: HITS + 1 }
+    else { FAILS: FAILS + 1 }
+  }
+  if FAILS > 0 {
+    BPOOL: FAILS
+    loop RESTWO over {1..(#ROLL-1)} {
+      if RESTWO@ROLL < HIT {
+        if (RESTWO@ROLL + BPOOL) >= HIT {
+		  HITS: HITS + 1
+		  BPOOL: BPOOL - (HIT - RESTWO@ROLL)
+		}
+      }
+    }
+  }
+  result: HITS
+}
+
+\loop J over {4,6,8,10,12,20}{\
+ J: 6
+ loop I over {1,2,3,4,5} {
+  \output ([count  {4..20,6..20} in IdJ]) named "[I]d[J]"\
+  output [hit on 4 in IdJ] named "[I]d[J] hits"
+  output [count {6..20} in IdJ] named "[I]d[J] crits"
+ }
+\}\

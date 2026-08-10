@@ -1,0 +1,26 @@
+DR_H: 2
+HP_H: 17
+EVADE_H: 0
+HIT_H: 14
+DR_M: 0
+HP_M: 64
+F: 1
+P: 1
+
+function: dodge D:n {
+  result: (d20>EVADE_H)*D
+}
+function: hit D:n {
+  result: (d20<=HIT_H)*D
+}
+function: compare DIE:n to THRESH:n {
+  result: DIE>=THRESH
+}
+
+function: fight D_H:n vs D_M:n for N:n {
+   result: [compare (N*F)d[highest of ([dodge D_M]-DR_H) and 0] to HP_H] & ![compare (N*P)d[highest of ([hit D_H]-DR_M) and 0] to HP_M]
+}
+
+loop N over {1..17} {
+  output [fight 2d8+d6 vs 2d8 for N] named "[N]"
+}

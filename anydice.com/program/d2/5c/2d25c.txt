@@ -1,0 +1,119 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: compare attack ROLL:n vs DEFENSE:n with A:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + A >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + A >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: compare damage for ATTACKRESULT:n hit HD:n crit CD:n miss MD:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CD
+ }
+ if ATTACKRESULT = HIT {
+  result: HD
+ }
+ result: MD
+}
+function: gs gwf B:n CA:n CB:n{
+if CA <=2 & CB <=2 { result: 2dB }
+if CA <=2 & CB >2 { result: 1dB + CB }
+if CA >2 & CB <=2 { result: 1dB + CA }
+if CA >2 & CB >2 { result: CA+CB }
+}
+LOOP: {18}
+BASE: 12
+DMGBONUS: 7
+GWF: [gs gwf 6 1d6 1d6]
+MISSDAMAGE: 0
+
+\
+ATTACK: 10
+HITDAMAGE: 12
+CRITICALDAMAGE: 12
+output [damage for [attack d20 vs 18]] named "Baseline"
+\
+\
+ATTACK: BASE-5
+HITDAMAGE: dGWF + DMGBONUS + 10
+CRITICALDAMAGE: 2dGWF + DMGBONUS + 10
+loop AC over LOOP {
+ output 3d[damage for [attack 1@2d20 vs AC]] named "GWM and ADV and GWF at [AC]"}
+\
+ATTACK: BASE-5
+HITDAMAGE: dGWF + DMGBONUS + 10
+CRITICALDAMAGE: 2dGWF + DMGBONUS + 10
+loop AC over LOOP {
+ output 3d[damage for [attack 1@3d20 vs AC]] named "GWM and EADV and GWF at [AC]"}
+
+loop AC over LOOP {
+ATTACK: BASE
+HITDAMAGE: dGWF + DMGBONUS
+CRITICALDAMAGE: 2dGWF + DMGBONUS
+RAPIDA: 1d[damage for [attack 1d20 vs AC]]
+ATTACK: BASE-5
+HITDAMAGE: dGWF + DMGBONUS + 10
+CRITICALDAMAGE: 2dGWF + DMGBONUS + 10
+NORMALA: 3d[damage for [attack 1@3d20 vs AC]]
+ output (RAPIDA + NORMALA) named "Rapid no GWM, Normal yes GWM at [AC]"}
+
+loop AC over LOOP {
+ATTACK: BASE-5
+HITDAMAGE: dGWF + DMGBONUS + 10
+CRITICALDAMAGE: 2dGWF + DMGBONUS + 10
+RAPIDB: 1d[damage for [attack 1d20 vs AC]]
+ATTACK: BASE-5
+HITDAMAGE: dGWF + DMGBONUS + 10
+CRITICALDAMAGE: 2dGWF + DMGBONUS + 10
+NORMALB: 3d[damage for [attack 1@3d20 vs AC]]
+ output (RAPIDB + NORMALB) named "Rapid yes GWM, Normal yes GWM at [AC]"}
+
+
+ATTACK: BASE
+HITDAMAGE: dGWF + DMGBONUS
+CRITICALDAMAGE: 2dGWF + DMGBONUS
+loop AC over LOOP {
+ output 3d[damage for [attack 1@3d20 vs AC]] named "EADV and GWF at [AC]"}
+
+\
+ATTACK: BASE-5
+HITDAMAGE: dGWF + DMGBONUS + 10
+CRITICALDAMAGE: 2dGWF + DMGBONUS + 10
+loop AC over LOOP {
+ output 3d[damage for [attack d20 vs AC]] named "GWM and GWF at [AC]"}
+\
+\
+ATTACK: BASE
+HITDAMAGE: dGWF + DMGBONUS
+CRITICALDAMAGE: 2dGWF + DMGBONUS
+loop AC over LOOP {
+ output 3d[damage for [attack d20 vs AC]] named "Just GWF at [AC]"}
+\
+\\
+\
+loop AC over LOOP {
+output 3d[compare damage for [compare attack 1@3d20 vs AC with BASE-5] hit dGWF+17 crit 2dGWF+17 miss 0]>= 3d[compare damage for [compare attack 1@3d20 vs AC with BASE] hit dGWF+7 crit 2dGWF+7 miss 0] named "[AC]"
+}
+\

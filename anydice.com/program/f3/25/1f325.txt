@@ -1,0 +1,33 @@
+
+
+function: process ROLL:s {
+ DA: [count 1 in ROLL]
+ DB: [count 2 in ROLL] 
+ DC: [count 3 in ROLL]
+ DD: [count 4 in ROLL]
+ DE: [count 5 in ROLL]
+ DF: [count 6 in ROLL]
+
+ if (DA = 0 & DB = 0 & DC = 0 & DD = 0 & DE = 0 & DF = 0) { result: 0 }
+
+ if (DA > DB & DA > DC & DA > DD & DA > DE & DA > DF) { result: DA }
+ if (DB > DA & DB > DC & DB > DD & DB > DE & DB > DF) { result: DB }
+ if (DC > DA & DC > DB & DC > DD & DC > DE & DC > DF) { result: DC }
+ if (DD > DA & DD > DB & DD > DC & DD > DE & DD > DF) { result: DD }
+ if (DE > DA & DE > DB & DE > DC & DE > DD & DE > DF) { result: DE }
+ if (DF > DA & DF > DB & DF > DC & DF > DD & DF > DE) { result: DF }
+ 
+ DZ:  [count {1..6} in ROLL]
+ if (DZ >= 12) { result: 3 }
+ if (DZ >= 6) { result: 2 }
+ result: 1
+}
+
+loop N over {2..5} { 
+ ROLL:  (N)d6
+ \ OUT: [count 4 in ROLL] + ([count 5 in ROLL] * 2) + ([count 6 in ROLL] * 3) \
+ \ OUT: [process ROLL] \
+  OUT: {1,2}@ROLL 
+
+ output OUT named "[N]d"
+}

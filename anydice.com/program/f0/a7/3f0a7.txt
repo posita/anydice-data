@@ -1,0 +1,58 @@
+
+TA: d10
+TB: d100
+TC: d{1,2:8,10:10,20:10,30:10,40:10,50:10,60:10,70:10,80:10,90:10,100}
+TD: d{1,40:49,50:49,100}
+
+function: A:n B:n C:n tri{ \ Sorts rolls \
+ if A>=B & B>=C {
+  result: [A B C helper]
+ }else{
+  if A>=B & C>=B{
+   result: [A C B helper]
+  }else{
+   if B>=A & A>=C{
+    result: [B A C helper]
+   }else{
+    if B>=A & C>=A{
+     result: [B C A helper]
+    }else{
+     if C>=A & A>=B{
+      result: [C A B helper]
+     }else{
+      result: [C B A helper]
+     }
+    }
+   }    
+  }
+ }
+}
+
+function: A:n B:n C:n helper { \ Checks for dubs\
+ if C=1{
+  if A=1{
+   result: -1
+  }
+  result: B
+ }else{
+  if A=B {result: 1000*A}
+  \if B=C {result: 1000*C +A}\
+  result: A
+ }
+}
+ 
+
+function: A:n C:n botch { \1s Botch\
+ if C=1 {
+  result: C
+ }
+ result: A
+}
+
+output [TA TA TA tri] named "prefect data as d10s for intuition"
+
+output TC named "simplified d100"
+output TD named "very simplified d100"
+
+output [TB TC TC tri] named "simplified 3d100 Better demonstrates between 10s place 1 real d100 2  of the less simplified"
+output [TB TB TD tri] named "simplified 3d100 Better shows  at each 10s place 2 real d100 1 very simplified d100"

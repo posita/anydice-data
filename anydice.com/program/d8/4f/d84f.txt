@@ -1,0 +1,28 @@
+
+function: threeattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE + [bonusattackroll 1d20 vs ENEMYAC]} 
+ if ROLL = 1 { result:0 + [bonusattackroll 1d20 vs ENEMYAC] }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE + [bonusattackroll 1d20 vs ENEMYAC] }
+ result: 0 + [bonusattackroll 1d20 vs ENEMYAC]
+}
+
+function: bonusattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: BNSCRITDAMAGE} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: BNSDAMAGE}
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 2
+DMGBONUS: 0 
+PROFICIENCY: 4
+ACCBONUS: 0
+CRITROLL: 20
+DAMAGE: 3d4 +  ATTACKMOD + DMGBONUS + 3 
+CRITDAMAGE: 6d4 + ATTACKMOD + DMGBONUS + 3
+BNSDAMAGE: 1d4 + DMGBONUS + 1
+BNSCRITDAMAGE: 2d6 + DMGBONUS + 1
+output [threeattackroll 1d20 vs ENEMYAC] named "Lander's Triple Dagger Attack + Bonus Dagger"

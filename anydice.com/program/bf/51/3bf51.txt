@@ -1,0 +1,87 @@
+\Atyla-Ouroboros\
+Q: {0..3}
+
+PD: 10
+PD_THRESHOLDS: {4,8,10,24}
+PD_MODS: 0
+
+RD: 8
+RD_THRESHOLDS: {5,10,15,21}
+RD_MODS: 0
+
+
+WS: 2
+WS_MODIFIER: 0
+S: 5
+T_FOE: 4
+AP: 0
+ARMOR_SAVE_FOE: 2
+
+
+function: hit ATTACKS:n {
+  DICE: ATTACKS dQ                       \freeze the hits-dices sequence\
+  result: [hit roll DICE]
+}
+
+function: hit roll DICES:s {
+  HITS: [count {WS..3} in DICES]
+  ZEROS:  [count 0 in DICES]
+  ONES:   [count 1 in DICES]
+  TWOS:   [count 2 in DICES]
+  THREES: [count 3 in DICES]
+  SETS: {ZEROS,ONES,TWOS,THREES}
+  result: [save DICES with SETS]
+}
+
+function: save HITS:n with SETS:s {
+  DICES: RD dQ                              \freeze the saves-dices sequence\
+  result: [damages DICES with SETS]
+}
+
+function: damages POOL:s with THRESHOLDS:s {
+  if(POOL >= 4@THRESHOLDS) { result: 4}
+  if(POOL >= 3@THRESHOLDS) { result: 3}
+  if(POOL >= 2@THRESHOLDS) { result: 2}
+  if(POOL >= 1@THRESHOLDS) { result: 1}
+  result: 0
+}
+
+
+\************************************************************************\
+function: finaldamages THRESHOLDS:s from POOL:n{
+  if(POOL >= 4@THRESHOLDS) { result: 4}
+  if(POOL >= 3@THRESHOLDS) { result: 3}
+  if(POOL >= 2@THRESHOLDS) { result: 2}
+  if(POOL >= 1@THRESHOLDS) { result: 1}
+  result: 0
+}
+function: test PDICES:s {
+  RDICES: RD dQ
+  HITS: [finaldamages PD_THRESHOLDS from PDICES]
+  SAVES: [finaldamages RD_THRESHOLDS from RDICES]
+  result: HITS - SAVES
+}
+\************************************************************************\
+
+\output [hit PD] named "direct calculation with [PD] attacks (slow)"
+output [hit 1] named "one attack (fast)"
+output PD d [hit 1] named "[PD] independent attacks (fast)"\
+
+
+\output [save PD with PD_THRESHOLDS] named "Attacker"
+output [save RD with RD_THRESHOLDS] named "Defender"
+output [save PD with PD_THRESHOLDS]-[save RD with RD_THRESHOLDS] named "Final Damages"\
+
+output [finaldamages PD_THRESHOLDS from PDdQ]
+output [test PDdQ]
+
+\PD: 10
+PD_THRESHOLDS: {4,8,10,12}
+
+RD: 8
+RD_THRESHOLDS: {5,10,15,20}
+
+TEST: 8
+TEST_THRESHOLDS: {9,12,16,20}
+output [save TEST with TEST_THRESHOLDS] named "test"\
+

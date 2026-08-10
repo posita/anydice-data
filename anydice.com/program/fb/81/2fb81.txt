@@ -1,0 +1,48 @@
+NATT: 8
+AB: 5
+ATTABILITYBONUS: 1
+ATTCHARBONUS: 3
+DMGDICE: 1
+DMGDICESIZE: 8
+DMGBONUS: 5
+
+FUNBLEVAL: 1
+CRITVAL: 20
+CRITICAL: 2
+EXPLODE: 1
+set "explode depth" to 1
+
+ACN: 15
+ACMAX:30
+HP: 17
+
+function: attack ATTRES:n vs ACEFF:n {
+if ATTRES = FUNBLEVAL {result: 0}
+if ATTRES = CRITVAL {result: [damage CRITICAL]}
+if ATTRES > ACEFF {result: [damage 1]}
+else {result:0}
+}
+
+function: damage MULT{
+if EXPLODE = 0{
+if MULT = 2 {result: DMGDICE*DMGDICESIZE + DMGDICEdDMGDICESIZE +DMGBONUS}
+else {result: DMGDICEdDMGDICESIZE+DMGBONUS}
+}
+if EXPLODE = 1{
+if MULT = 2 {result: DMGDICE*DMGDICESIZE + [explode DMGDICEdDMGDICESIZE] +DMGBONUS}
+else {result: [explode DMGDICEdDMGDICESIZE]+DMGBONUS}
+}
+}
+
+function: attacks NAT:n{
+if NAT <= 0 {result: 0}
+ATTREMAINING: NAT -1 
+result: [attack 1d20 vs ACEFF] + [attacks ATTREMAINING]
+}
+
+loop ACEF over {ACN..ACMAX} {
+ACEFF: ACEF - AB - ATTABILITYBONUS - ATTCHARBONUS
+if HP <= 0 {output [attacks NATT] named "[ACEF] AC"}
+else {output [attacks NATT]>=HP named "[HP] to [ACEF] AC"
+}
+}

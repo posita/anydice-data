@@ -1,0 +1,40 @@
+\ Edited version of my original stress/structure check program: https://anydice.com/program/3a9b0 \
+\ Now handles Monstrosities [Lancer Core Rulebook p. 324], which use a different table than       \
+\ everything else, giving them an additional potential result. I also made a second program which \
+\ handles individual results - no clue if it'll prove useful, but if you're planning to make a    \
+\ custom structure/stress damage table, it'll hopefully prove useful. Anyways, let's do this.     \
+
+GLANCING: 10 \ Lowest value = 5 or 6 \\ Glancing Hit  \
+POWERFUL: 25 \ Lowest value = 3 or 4 \\ Powerful Hit  \
+DISMEMBR: 50 \ Lowest value = 2      \\ Dismemberment \ 
+DIRECTHT: 75 \ Lowest value = 1      \\ Direct Hit    \
+FATALHIT: 90 \ Multiple 1's rolled   \\ Fatal Hit     \
+
+function: monstrosity DICE:s
+{
+ VALUES: 1
+ COUNT: 0
+ loop P over {1..#VALUES}
+ { COUNT: COUNT + (P@VALUES = DICE) }
+ if COUNT >= 2 { result: FATALHIT }
+ else
+ {
+       if {(#DICE - VALUES + 1)..#DICE}@DICE = 1  { result: DIRECTHT }
+  else if {(#DICE - VALUES + 1)..#DICE}@DICE = 2  { result: DISMEMBR }
+  else if {(#DICE - VALUES + 1)..#DICE}@DICE >= 5 { result: GLANCING }
+  else    {result: POWERFUL }
+ }
+}
+
+function: stressdev DICE:s
+{
+ VALUES: 1
+ COUNT: 0
+ loop P over {1..#VALUES}
+ { COUNT: COUNT + (P@VALUES = DICE) }
+ if COUNT >= 2 { result: 0 }
+ else { result: {(#DICE - VALUES + 1)..#DICE}@DICE }
+}
+
+loop DAMAGE over {1..6} { output [monstrosity DAMAGEd6] named "[DAMAGE] structure damage (Monstrosity)" }
+loop DAMAGE over {1..6} { output [stressdev DAMAGEd6] named "[DAMAGE] structure/stress (DEV TABLE)" }

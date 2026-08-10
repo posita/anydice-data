@@ -1,0 +1,30 @@
+AC: 16
+DEX: 5
+CHA: 5
+
+
+function: attack hit HIT:n adv ADV:n grn GRN:n enm ENM:n recadv RECADV:n{
+ DAM: 0                            \Damage Done\
+ if ADV = 1{
+  Y:[highest 1 of 2d20+HIT]
+ }
+ else {
+  Y: (1d20+HIT)
+ }
+ X: (Y>AC)
+ DAM: X*(1d10+DEX+3d6)
+ if GRN = 1{
+  DAM: X*(DAM+1d8)
+ }
+ if GRN = 1 & ENM = 1{
+  DAM: X*(DAM+1d8+CHA)
+ }
+ DAM: DAM
+ if HIT > 0{
+  DAM: (1d20>10)*X*(DAM+[attack hit (HIT-1) adv (ADV*RECADV) grn 0 enm 0 recadv RECADV])
+ }
+ result: DAM
+}
+
+output [attack hit 9 adv 0 grn 1 enm 1 recadv 0]+[attack hit 9 adv 0 grn 1 enm 1 recadv 0]+[attack hit 9 adv 0 grn 0 enm 0 recadv 0] named "Haste"
+output [attack hit 9 adv 1 grn 1 enm 1 recadv 1]+[attack hit 9 adv 1 grn 1 enm 1 recadv 1] named "G Invis"

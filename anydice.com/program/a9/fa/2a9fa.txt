@@ -1,0 +1,35 @@
+EVASION: 8 \ Evasion of the targeted enemy. \
+ARMOR: 0   \ Armor of the targeted enemy. \
+
+\ Do not edit below this line. \
+function: knifedamage R:n {
+  if (R < EVASION) {
+    result: 0
+  } else if (R < 20) {
+    result: [highest of 1d3+1-ARMOR and 0] * 2 + 1
+  } else {
+    result: [highest of 1@2d3+1-ARMOR and 0] * 2 + 1
+  }
+}
+
+function: shotgunattack DH:n {
+  D: DH / 2
+  H: DH - D * 2
+  if H {
+    result: D + [shotgundamage 1d20+3+1d6]
+  } else {
+    result: D + [shotgundamage 1d20+3]
+  }
+}
+
+function: shotgundamage R:n {
+  if (R < EVASION) {
+    result: 0
+  } else if (R < 20) {
+    result: [highest of 2d6-ARMOR and 0]
+  } else {
+    result: [highest of {1,2}@4d6-ARMOR and 0]
+  }
+}
+
+output [shotgunattack [knifedamage 1d20+3]]+[highest of 3+1d6-ARMOR and 0] named "Knife, shotgun, and autopod damage"

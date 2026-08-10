@@ -1,0 +1,63 @@
+function: BASE_DAMAGE:d plus BONUS_DAMAGE:d damage with ATTACK:n attack against AC:n ac {
+ if ATTACK = 20 {
+  result: 2d(BASE_DAMAGE) + BONUS_DAMAGE
+ } else if ATTACK >= AC {
+  if ATTACK > 1 {
+   result: BASE_DAMAGE + BONUS_DAMAGE
+  }
+ }
+ result: 0
+}
+
+function: DIE:d greater than THRESHOLD:n {
+ result: [DIE DIE greater than helper THRESHOLD]
+}
+
+function: ROLL:n DIE:d greater than helper THRESHOLD:n {
+ if ROLL > THRESHOLD {
+  result: ROLL
+ }
+ else {
+  result: DIE
+ }
+}
+
+AC: 18 + 3d{-3..3}
+CHARISMA_MODIFIER: 3
+
+function: total wb WEAPON_BASE:d pb PROFICIENCY_BONUS:n am ABILITY_MODIFIER:n na NUMBER_OF_ATTACKS:n uamd USE_AM_IN_DAMAGE:n iaa IS_ATTACK_ADVANTAGE:n igwm IS_GWM:n ib IS_BLESSED:n isw IS_SACRED_WEAPON:n {
+ ATTACK: PROFICIENCY_BONUS + ABILITY_MODIFIER
+ BONUS_DAMAGE: 0
+ if IS_ATTACK_ADVANTAGE = 1 {
+  ATTACK: ATTACK + (1@(2d20))
+ } else {
+  ATTACK: ATTACK + d20
+ }
+ if USE_AM_IN_DAMAGE = 1 {
+  BONUS_DAMAGE: BONUS_DAMAGE + ABILITY_MODIFIER
+ }
+ if IS_GWM = 1 {
+  ATTACK: ATTACK - 5
+  BONUS_DAMAGE: BONUS_DAMAGE + 10
+ }
+ if IS_BLESSED = 1 {
+  ATTACK: ATTACK + 1d4
+ }
+ if IS_SACRED_WEAPON {
+  ATTACK: ATTACK + CHARISMA_MODIFIER
+ }
+ result: (NUMBER_OF_ATTACKS)d([WEAPON_BASE plus BONUS_DAMAGE damage with ATTACK attack against AC ac])
+}
+
+function: sneak attack DAMAGE:n sa SNEAK_ATTACK_DICE:d {
+ if DAMAGE = 0 {
+  result: 0
+ } else {
+  result: DAMAGE + SNEAK_ATTACK_DICE
+ }
+}
+
+IS_SACRED_WEAPON: 0
+output [total wb (1d8 + 2) pb 4 am 5 na 2 uamd 1 iaa 1 igwm 1 ib 0 isw IS_SACRED_WEAPON] + [total wb (1d4 + 2) pb 4 am 5 na 1 uamd 1 iaa 1 igwm 1 ib 0 isw IS_SACRED_WEAPON] named "barbarian 8, fighter 3, monk 1, polearm master, GWM"
+output ([total wb (1d8 + 2) pb 4 am 5 na 2 uamd 1 iaa 0 igwm 0 ib 0 isw IS_SACRED_WEAPON] + [total wb 1d6 pb 4 am 5 na 2 uamd 1 iaa 0 igwm 0 ib 0 isw IS_SACRED_WEAPON] + [total wb (1d8 + 2) pb 4 am 5 na 2 uamd 1 iaa 1 igwm 1 ib 0 isw IS_SACRED_WEAPON] + [total wb (1d4 + 2) pb 4 am 5 na 1 uamd 1 iaa 1 igwm 0 ib 0 isw IS_SACRED_WEAPON]) / 2 named "monk 5, fighter 4, barbarian 2"
+output [sneak attack [total wb 1d8 pb 6 am 5 na 2 uamd 1 iaa 1 igwm 1 ib 1 isw IS_SACRED_WEAPON] sa 1d6] named "Paladin 5, fighter 4, Rogue 2, sharpshooter"

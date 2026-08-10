@@ -1,0 +1,70 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 10 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack 2@3d10 vs DEFENSE]]
+}
+
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+
+DEFENSE: d{6..15}
+
+ATTACK: 1
+LEVEL: 2
+CURSE: [explode 1d6]
+WEAPON: [explode 1d6] + 2
+
+
+\########################################################\
+
+ATTACK: 11 + 1 + 3
+HITDAMAGE: [explode 1d6] + 2 + LEVEL + CURSE
+CRITICALDAMAGE: HITDAMAGE
+output [attack] named "Rayo sobrenatural"
+
+
+ATTACK: 7 + 3 + 3
+HITDAMAGE: WEAPON + LEVEL + CURSE
+CRITICALDAMAGE: HITDAMAGE
+output [attack] named "Estocada Glacial"
+
+
+HITDAMAGE: 2d(WEAPON) + LEVEL + CURSE
+CRITICALDAMAGE: HITDAMAGE
+output [attack] named "Fragmento Perforador"
+
+
+ATTACK: 1000
+HITDAMAGE: [explode 2d6] + LEVEL + CURSE
+CRITICALDAMAGE: HITDAMAGE
+output [attack] named "Armadura del Yugo Invernal"
+
+
+\
+output 3@3d10 named "3d10 menor"
+output 2@3d10 named "3d10 medio"
+output 1@3d10 named "3d10 alto"
+output 1d20 named "1d20"
+\

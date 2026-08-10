@@ -1,0 +1,36 @@
+DIETYPE: 1d10
+TARGETONE: 1
+TARGETTWO: 10
+ROLL_LOWER: 1
+
+function: DIEONE:n vs DIETWO:n {
+  SUCCESSONE: DIEONE <= TARGETONE
+  SUCCESSTWO: DIETWO <= TARGETTWO
+
+  if (!SUCCESSONE & !SUCCESSTWO) {
+    result: -1
+  }
+
+  if (SUCCESSONE & SUCCESSTWO) {
+    if DIEONE=DIETWO {
+     result: 0
+    }
+
+    if (ROLL_LOWER) {
+      result: 1 + (DIETWO < DIEONE)
+    }
+
+    result: 1 + (DIETWO > DIEONE)
+  }
+
+  result: 1 + SUCCESSTWO
+} 
+
+output -1 named "~~~ Rolling [DIETYPE] vs [DIETYPE] ~~~"
+output -1 named "~~~ -1 = both failed, 0 = both rolled equal and succceded, 1 = '[TARGETONE]' won, 2 = '[TARGETTWO]' won ~~~"
+
+output [DIETYPE vs DIETYPE] named "Lower result is better ('[TARGETONE]' vs '[TARGETTWO]')"
+
+ROLL_LOWER: 0
+
+output [DIETYPE vs DIETYPE] named "Higher result is better ('[TARGETONE]' vs '[TARGETTWO]')"

@@ -1,0 +1,82 @@
+ATTACK: 4 + 3
+HITDAMAGE: 3d6 + 4
+CRITICALDAMAGE: 6d6 + 4
+MISSDAMAGE: 0
+DEFENSE: 16
+SMITE: 3d6
+CSMITE: 6d6
+ADVANTAGE: 1
+
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ if ADVANTAGE = 0 {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+ }
+ if ADVANTAGE = 1 {
+result: [damage for Nd[attack [highest 1 of 2d20] vs DEFENSE]]
+ }
+}
+
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: CSMITE 
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: SMITE
+ }
+ result: 0
+}
+
+output [2 attacks] named "EXTRA ATTACK WİTH SMITE"
+

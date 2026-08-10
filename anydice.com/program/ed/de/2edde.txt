@@ -1,0 +1,63 @@
+ARMOR_CLASS: 15
+
+ATTACK_DICE: 1@3d20
+WEAPON_DICE: 1d8
+DEXTERITY_MODIFIER: 4
+PROFICIENCY_BONUS: 3
+ATTACK_BONUS: DEXTERITY_MODIFIER + PROFICIENCY_BONUS + 3
+CRIT_THRESHOLD: 20
+
+function: attack ROLL:n FIRST_DICE:d SECOND_DICE:d MODIFIER:n {
+  MISS: 0
+  HIT: FIRST_DICE + SECOND_DICE + MODIFIER
+  CRITICAL_HIT: 2d(FIRST_DICE + SECOND_DICE) + MODIFIER
+
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRIT_THRESHOLD { result: CRITICAL_HIT }
+  if ROLL + ATTACK_BONUS >= ARMOR_CLASS { result: HIT }
+  result: MISS
+}
+
+function: rogue attacks FIRST_ATTACK_DAMAGE:n {
+  if (FIRST_ATTACK_DAMAGE > 0) {
+    result: FIRST_ATTACK_DAMAGE + [attack ATTACK_DICE WEAPON_DICE 0 DEXTERITY_MODIFIER]
+  }
+  else {
+    result: [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER]
+  }
+}
+
+function: ranger attacks FIRST_ATTACK_DAMAGE:n {
+  if (FIRST_ATTACK_DAMAGE > 0) {
+    result: FIRST_ATTACK_DAMAGE + [attack ATTACK_DICE WEAPON_DICE 0 DEXTERITY_MODIFIER]
+  }
+  else {
+    result: [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER]
+  }
+}
+
+function: paladin attacks FIRST_ATTACK_DAMAGE:n {
+  if (FIRST_ATTACK_DAMAGE > 0) {
+    result: FIRST_ATTACK_DAMAGE + [attack ATTACK_DICE WEAPON_DICE 0 DEXTERITY_MODIFIER]
+  }
+  else {
+    result: [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER]
+  }
+}
+
+
+BONUS_DICE: 4d6
+output [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER] named "Rogue (8 level)"
+
+BONUS_DICE: 2d6
+output [rogue attacks [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER]] named "Rogue (3 level) + Fighter (5 level)"
+
+BONUS_DICE: 0
+output [rogue attacks [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER]] named "Fighter (8 level)"
+
+BONUS_DICE: 2d6 + 1d8 + 1d6
+output [rogue attacks [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER]] named "Rogue (3 level) + Ranger (5 level)"
+
+BONUS_DICE: 2d6 + 3d8
+output [rogue attacks [attack ATTACK_DICE WEAPON_DICE BONUS_DICE DEXTERITY_MODIFIER]] named "Rogue (3 level) + Paladin (5 level)"
+

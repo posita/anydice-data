@@ -1,0 +1,47 @@
+T: {1}
+DC: 95
+
+PTZ: 0
+PTO: 0
+PTT: 0
+PC: 0
+
+FTZ: 0
+FTO: 0
+FTT: 0
+FC: 0
+
+loop X over {0..9} {
+loop Y over {0..9} {
+loop TR over T {
+
+if (X*10 + Y) < DC {
+PC : PC + 1
+if (TR >= X) & (TR >= Y) { PTT : PTT + 1 }
+else if (TR >= X) | (TR >= Y) { PTO : PTO + 1 }
+else { PTZ : PTZ + 1 }
+}
+
+else {
+FC : FC + 1
+if (TR >= X) & (TR >= Y) { FTT : FTT + 1 }
+else if (TR >= X) | (TR >= Y) { FTO : FTO + 1 }
+else { FTZ : FTZ + 1 }
+}
+
+}
+}
+}
+
+output PTZ named "Pass: 0 trouble"
+output PTO named "Pass: 1 trouble" 
+output PTT named "Pass: 2 trouble"
+
+output FTZ named "Fail: 0 trouble"
+output FTO named "Fail: 1 trouble"
+output FTT named "Fail: 2 trouble"
+
+output PC*100 / (PC+FC) named "Pass rate"
+
+output {PTZ, PTO, PTT, PC} named "Sanity check (not in any order)"
+output {FTZ, FTO, FTT, FC} named "Sanity check (not in any order)"

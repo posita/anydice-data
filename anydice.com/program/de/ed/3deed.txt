@@ -1,0 +1,29 @@
+D: 8
+
+function: eval success GOOD:n and crit in poolsize POOLSIZE:n of dice DIESIZE:n {
+  if POOLSIZE = 0 {
+    result: [lowest 1 of 2dDIESIZE] >= GOOD
+  }
+  result: [eval success GOOD and crit in POOLSIZEdDIESIZE with max DIESIZE]
+}
+
+function: eval success GOOD:n and crit in DICEPOOL:s with max MAX:n {
+  COUNTMAX: (MAX = DICEPOOL)
+  COUNTGOOD: (GOOD <= DICEPOOL)
+
+  if COUNTMAX >= 2 {result: 3}
+  if COUNTMAX >= 1 {result: 2}
+  if COUNTGOOD >= 1 {result: 1}
+  result: 0
+}
+
+POOLSIZES: {0,1,2}
+SUCCESSVALUES: {3,4,5}
+
+loop N over {1..#POOLSIZES} {
+  loop S over {1..#SUCCESSVALUES} {
+    SVAL: S@SUCCESSVALUES
+    NVAL: N@POOLSIZES
+    output [eval success SVAL and crit in poolsize NVAL of dice D] named "[NVAL]d[D] pool with success >= [SVAL]"
+  }
+}

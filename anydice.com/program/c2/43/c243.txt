@@ -1,0 +1,163 @@
+\Copyright 2017 Adam Ä†wik\
+\Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\
+\The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\
+\THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\
+\Copyright end\
+\Should something about AnyDice -  online dice probability calculator available as a free web app - be mentioned here ? It's author - Catlike Coding - did a great job. Thanks!\
+
+\ Do not touch this defines please \
+NO:0
+YES:1
+\ DEAR USER: ENTER DATA BELOW \
+\ attacker: \
+ATTACKS:12
+BS: 4 \ enter 2 for BS 2+ \
+S: 4
+AP: -1 \enter -2 for AP -2\
+DAMAGE: 1  \ No dice damage yet \
+
+REROLLS_ONES_TO_HIT: NO
+REROLLS_FAILED_TO_HIT: YES
+REROLLS_ONES_TO_WOUND: NO
+REROLLS_FAILED_TO_WOUND: YES
+
+\ target: \
+T: 4
+W: 1
+REMAINING_WOUNDS: W \ Enter "W" if all models in unit have full wound pools. If opposite is true, enter wound pool of wounded one \
+SAVE: 3 \ enter 2 for save 2+, and\
+IGNORE_WOUNDS_ON:3 \ Can he feel it? \
+
+QUANTITY:20
+
+\ No need to go below this line. Just press "Calculate" \
+\FIXME(Adam): cannot extract max dice roll?\
+set "maximum function depth" to [highest of ATTACKS and DAMAGE]+6
+
+function: X:n save{
+  if X >= SAVE-AP {result: 0}
+  else { result: 1}
+}
+
+function: wounding on{
+  if 2*T <= S {result:2}
+  if 2*S <= T {result:6}
+  if S > T {result:3}
+  if T > S {result:5}
+  result:4
+}
+WOUNDING_ON:[wounding on]
+
+function: X:n wound without reroll{
+  if X < WOUNDING_ON{result: 0}
+  else {
+    result: [d6 save]
+  }
+}
+
+function: X:n wound{
+  if X < WOUNDING_ON{
+    if REROLLS_ONES_TO_WOUND & X=1{
+      result: [d6 wound without reroll]}
+    else{
+      if REROLLS_FAILED_TO_WOUND{
+        result: [d6 wound without reroll]
+      }
+      else {result: 0}
+    }
+  }
+  else{
+    result: [d6 save]
+  }
+}
+
+function: X:n hit without reroll{
+  if X < BS{result: 0}
+  else 
+  {
+    result: [d6 wound]
+  }
+}
+
+function: X:n hit{
+  if X < BS{
+    if REROLLS_ONES_TO_HIT & X=1{
+      result: [d6 hit without reroll]}
+    else{
+      if REROLLS_FAILED_TO_HIT
+      {
+        result: [d6 hit without reroll]
+      }
+      else {result: 0}
+    }
+  }
+    else 
+  {
+    result: [d6 wound]
+  }
+}
+
+function: attack  X:n times{
+  if X>0{
+    result: [d6 hit] + [attack X-1 times]
+  }
+  else {result: 0}
+}
+
+function: X:n ignore {
+  if X < IGNORE_WOUNDS_ON{result: 0}
+  else {result: 1}
+}
+function: ignore up to X:n damage{
+  if X>0{
+    result: [d6 ignore] + [ignore up to X-1 damage]
+  }
+  else {result: 0}
+}
+
+function: deal X:n damage capped at Y:n {
+  result: [lowest of X - [ignore up to X damage] and Y]
+}
+function: deal damage X:n times{
+  if X>0{
+    Z:[deal DAMAGE damage capped at W]
+    result: Z + [deal damage X-1 times]
+  }
+  else {result: 0}
+}
+
+function: calculate damage inflicted by X:n failed saves{
+  WOUNDS_LOST: 0
+  LOCAL_REMAINING_WOUNDS: REMAINING_WOUNDS
+  LOCAL_QUANTITY: QUANTITY
+  TEMP_DAMAGE_DONE: 0
+  if X > 0{
+
+    loop Z over {1..X}{
+      \ TODO Adam : let damage be a dice \
+      TEMP_DAMAGE_DONE: DAMAGE
+      \ FIXME Adam : FNP \
+\      TEMP_DAMAGE_DONE: TEMP_DAMAGE_DONE - [ignore up to TEMP_DAMAGE_DONE damage]\
+      \model died\
+      if LOCAL_REMAINING_WOUNDS - TEMP_DAMAGE_DONE < 1 {
+        WOUNDS_LOST: WOUNDS_LOST + LOCAL_REMAINING_WOUNDS
+        LOCAL_REMAINING_WOUNDS: W
+        LOCAL_QUANTITY: LOCAL_QUANTITY - 1 \ XXX(Adam):How to print this out? \
+        if LOCAL_QUANTITY < 1{
+          result: WOUNDS_LOST
+        }
+      }
+      \model survived\
+      else{
+        LOCAL_REMAINING_WOUNDS: LOCAL_REMAINING_WOUNDS - TEMP_DAMAGE_DONE
+        WOUNDS_LOST: WOUNDS_LOST + TEMP_DAMAGE_DONE
+      }
+    }
+  }
+result: WOUNDS_LOST
+}
+
+output [calculate damage inflicted by [attack ATTACKS times] failed saves] named "Wounds lost"
+output [attack ATTACKS times] named "Failed saves"
+ANYDICEHASPROBLEMWITHUNDERSCOREINVARIABLEINSTRING: WOUNDING_ON
+output [wounding on] named "Wounding on [ANYDICEHASPROBLEMWITHUNDERSCOREINVARIABLEINSTRING]+"

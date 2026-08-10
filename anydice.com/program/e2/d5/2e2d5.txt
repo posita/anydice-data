@@ -1,0 +1,66 @@
+\ READING THE OUTPUT: \
+\ 0: Attack missed or did no damage \
+\ 1: Basic hit with no raises. i.e. Shakes enemy, or Wounds if already Shaken \
+\ 2 or more: Hit with raises; one raise for every point above 1. e.g: 2 is a hit + two raises, inflicting two Wounds \
+
+\ This sadly can't be set higher than 2 because the script rolls way too many exploding dice \
+set "explode depth" to 2
+
+
+\ Set target Parry and Toughness here, including any modifiers \
+PARRY: 2
+TOUGHNESS: 8
+
+\ Check for a hit. 0 is a miss, 1 is a hit, and every point past 1 is a raise \
+function: hit F:n vs P:n {
+  if F < P {
+    result: 0
+  }
+  else {
+    result: (F - P + 4) / 4
+  }
+}
+
+\ Check number of wounds. \
+\ Input of 0 is a miss, and counts as zero wounds. \
+\ Input of 1 is a standard hit. \
+\ Input of 2 or more implies a raise, and gets the d6 appropriate bonus. \
+\ The variable R at the end is a workaround to add in the extra exploding d6 \
+\   you get from raises, and should always be (d6); this is here because \
+\   anydice can't use dice in booleans, and [explode d6] returns a die \
+
+\ The output is 0 for no damage (including a miss on the attack die), \
+\   1 for a basic hit, and every point past one is a raise \
+function: wound D:n on a hit of H:n vs T:n R:n {
+  if H = 0 {
+    result: 0
+  }
+  if H = 1 {
+    if D < T {
+      result: 0
+    }
+    else {
+      result: (D - T + 4) / 4
+    }
+  }
+  if H > 1 {
+    if (D + R) < T {
+      result: 0
+    }
+    else {
+      result: (D + R - T + 4) / 4
+    }
+  }
+}
+
+loop F over {4, 6, 8, 10, 12} {
+  loop DONE over {4, 6, 8, 10, 12} {
+    loop DTWO over {4, 6, 8, 10, 12} {
+      if DONE >= DTWO {
+        FIGHTING: [explode dF]
+        DAMAGE: [explode dDONE] + [explode dDTWO]
+        output [wound DAMAGE on a hit of [hit [highest of FIGHTING and [explode d6]] vs PARRY] vs TOUGHNESS (d6)] named "Skill d[F], Damage d[DONE] + d[DTWO] vs Parry [PARRY] and Toughness [TOUGHNESS]"
+      }
+    }
+  }
+}

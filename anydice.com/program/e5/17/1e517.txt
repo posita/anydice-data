@@ -1,0 +1,39 @@
+MINDIE: 0
+MAXDIE: 7
+DIETYPE: d6
+TARGET: 4
+
+output 0 named "0 Ã¤r lika"
+
+function: explode DIE:d {
+ MAX: [maximum of DIE]
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = MAX { result: 1 + [explode DIE helper] }
+ result: N>=TARGET
+}
+
+function: binary YOUREXPLODE:n with YOURDICE:n against ENEMYEXPLODE:n with ENEMYDICE:n {
+  OUTPUT: YOUREXPLODE+YOURDICE - ENEMYEXPLODE-ENEMYDICE
+  if OUTPUT < 0 { result: -1 }
+  if OUTPUT > 0 { result: 1 }
+
+  if YOUREXPLODE<ENEMYEXPLODE { result: -1}
+  if YOUREXPLODE>ENEMYEXPLODE { result: 1}
+
+  result: 0
+}
+
+loop YOURDICE over {MINDIE..MAXDIE} {
+  YOURREAL: 1+YOURDICE
+  output 0 named "~~~~~~~~~~~~~~~~~~ [YOURREAL][DIETYPE] ~~~~~~~~~~~~~~~~~~"
+
+  loop ENEMYDICE over {MINDIE..MAXDIE} {
+    ENEMYREAL: 1+ENEMYDICE
+    BINARY: [binary [explode d6] with YOURDICEd(DIETYPE>=TARGET) against [explode d6] with ENEMYDICEd(DIETYPE>=TARGET)]
+
+    output BINARY named "[YOURREAL][DIETYPE] vs [ENEMYREAL][DIETYPE]"
+  }
+}

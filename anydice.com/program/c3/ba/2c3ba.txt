@@ -1,0 +1,99 @@
+\ Pathfinder 2nd edition Weapon Damage Calculator
+created by /u/jtblin 2019 \
+
+function: ATTACKS:s vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n {
+  SUM: {0}
+  N: 0
+  F: 0
+  T: 0
+  FE: 0
+  LAST: 0
+  loop ATTACK over ATTACKS {
+    S: 0
+    N: N + 1
+    if LAST = 0 { LAST: ATTACK }
+    else if ATTACK < LAST { 
+      LAST: ATTACK
+      FE: FAILURE_EFFECT
+    }
+    if (N = 2) { 
+      F: FORCEFUL 
+      T: TWIN
+    } else if (N > 2) { 
+      F: 2*FORCEFUL 
+      T: TWIN
+    }
+    SUM: SUM + [1d20 plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL] 
+  }
+  result: SUM
+}
+
+function: ROLL:n plus ATTACK:n vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n {
+  if (ROLL + ATTACK >= (AC+10)) { 
+     if FATAL != 0 { result: 2*FATAL+DEADLY+FORCEFUL+TWIN }
+     result: 2*DAMAGE+DEADLY+FORCEFUL+TWIN 
+  }
+  if (ROLL + ATTACK >= AC) {
+    if (ROLL = 20){ 
+      if FATAL != 0 { result: 2*FATAL+DEADLY+FORCEFUL+TWIN }
+      result: 2*DAMAGE+DEADLY+FORCEFUL+TWIN 
+    }
+    result: DAMAGE+FORCEFUL+TWIN
+  }
+  if (ROLL = 20){ result: DAMAGE+FORCEFUL+TWIN }
+  result: FAILURE_EFFECT
+}
+
+
+output [{24} vs 29 with 0 for 2d6+14 0 0 1d10 2d10+8]+[{24,18} vs 29 with 0 for 2d4+11 0 0 1d8 2d8+8] named "Fighter 10, Double Slice, Giant Rage Instinct Dedication, Agile Grace, Picks, Heroism, Rage"
+
+output [{23} vs 29 with 0 for 4d8+14 2 0 1d8 0]+[{18} vs 29 with 14 for 2d8+14 2 0 1d8 0] named "Fighter 10, Power Attack, Furious Focus, Rage Giant Instinct, Certain Strike, Glaive"
+
+output [{23} vs 29 with 0 for 4d12+14 0 2 0 0]+[{18} vs 29 with 14 for 2d12+14 2 0 0 0] named "Fighter 10, Power Attack, Furious Focus, Rage Giant Instinct, Certain Strike, Greataxe"
+
+output [{23} vs 29 with 0 for 2d12+14 0 2 0 0]+[{18,13} vs 29 with 14 for 2d12+14 2 0 0 0] named "Fighter 10, Rage Giant Instinct, Certain Strike, Greataxe"
+
+output [{23,18,13} vs 29 with 0 for 2d12+18 0 0 0 0] named "Barbarian 10, Rage Giant Instinct, Greataxe"
+
+output [{23} vs 29 with 0 for 2d12+14 0 0 0 0]+[{18,13} vs 29 with 14 for 2d12+14 0 0 0 0] named "Fighter 10, Rage Giant Instinct, Certain Strike, Greataxe"
+
+output [{23,23,17,17} vs 29 with 0 for 2d6+8 0 0 0 0] named "Fighter 10, Double Slice, Twin Takedown, Agile Grace, Sawtooth Sabre"
+
+output [{23,17} vs 29 with 0 for 2d6+8 0 0 1d10 2d10+8]+[{23,17} vs 29 with 0 for 2d4+8 0 0 1d8 2d8+8] named "Fighter 10, Double Slice, Twin Takedown, Agile Grace, Picks"
+
+output [{22} vs 27 with 0 for 2d6+14 0 0 0 0] named "Rogue 10, Horse, Cavalier"
+
+output [{20,15,10} vs 29 with 8 for 2d8+16 0 0 0 0] named "Thaumaturge 10"
+output [{20,15} vs 29 with 16 for 2d8+24 0 0 0 0] named "Thaumaturge 10, Twin Weakness"
+output [{22,17} vs 29 with 8 for 2d8+16 0 0 0 0] named "Thaumaturge 10, Intensify Vulnerability"
+output [{22} vs 29 with 16 for 2d8+24 0 0 0 0] named "Thaumaturge 10, Intensify Vulnerability, Twin Weakness"
+output [{20,15,10} vs 29 with 11 for 2d8+19 0 0 0 0] named "Thaumaturge 10, Mortal Weakness 10"
+output [{22,17} vs 29 with 8 for 2d8+19 0 0 0 0] named "Thaumaturge 10, Intensify Vulnerability, Mortal Weakness 10"
+output [{20} vs 29 with 8 for 2d8+13 0 0 0 0]+[{14,9} vs 29 with 11 for 2d8+7 0 0 0 0] named "Thaumaturge 10, Jezail, Bombs"
+
+output [{23} vs 29 with 0 for 2d8+5+4d12 0 0 1d10 0] named "Fighter Wizard Eldritch Archer 10, Shocking Grasp"
+output [{23} vs 29 with 0 for 2d8+5+6d4 0 0 1d10 0] named "Fighter Wizard Eldritch Archer 10, Gouging Claw"
+output [{21} vs 27 with 0 for 2d6+4+4d12+4d6 0 0 1d10 0] named "Rogue Eldritch Archer 10, Shocking Grasp"
+output [{21} vs 27 with 0 for 2d6+4+6d4+4d6 0 0 1d10 0] named "Rogue Eldritch Archer 10, Gouging Claw"
+
+output [{23} vs 26 with 0 for 2d12+13 0 0 0 0]+[{18,13} vs 26 with 0 for 2d12+13 0 0 0 0] named "Fighter 10, Intimidation build, Fearsome Brute, Marshal Stance"
+output [{23} vs 26 with 0 for 2d12+10 0 0 0 0]+[{18,13} vs 26 with 10 for 2d12+10 0 0 0 0] named "Fighter 10, Intimidation build, Certain Strike, Marshal Stance"
+output [{23} vs 26 with 0 for 2d12+14 0 0 0 0]+[{18,13} vs 26 with 4 for 2d12+14 0 0 0 0] named "Fighter 10, Intimidation build, Advantageous Assault, Marshal Stance"
+
+output [{21,21,15,15} vs 29 with 0 for 2d6+10 0 2 0 0] named "Ranger 10, Double Slice, Twin Takedown, Rage Giant Instinct, Sawtooth Sabre"
+
+output [{21,21,17,17} vs 29 with 0 for 2d8+10 0 2 0 0] named "Barbarian 10, Double Slice, Twin Takedown, Rage Giant Instinct, Sawtooth Sabre"
+
+output [{21,17,13,13} vs 27 with 0 for 2d6+8+4d6 0 0 0 0] named "Rogue 10, Twin Takedown, Sneak Attack, Precise Debilitation, Dogslicer"
+
+output [{21,13,13} vs 27 with 0 for 2d6+8+4d6 0 0 0 0]+[{21} vs 27 with 0 for 2d6+8 0 0 0 0] named "Rogue 10, Twin Takedown, Sneak Attack, Double Slice, Precise Debilitation, Dogslicer"
+
+output [{21} vs 27 with 0 for 2d6+12+4d6 0 0 0 0]+[{17,13} vs 27 with 0 for 2d6+8+4d6 0 0 0 0] named "Rogue 10, Sneak Attack, Gravity Weapon, Precise Debilitation, Dogslicer"
+
+output [{20,15} vs 29 with 0 for 2d10+8 0 0 1d10 0] + [{12,12} vs 29 with 0 for 2d8+6 0 0 1d10 0] named "Alchemist 10, Flurry of Blows, Rage Dragon Instinct, Feral Mutagen, Bestial Mutagen"
+
+output [{21,17} vs 27 with 0 for 2d6+8+5d6 0 0 0 0] named "Rogue 12, Sneak Attack, Precise Debilitation, Dogslicer"
+output [{21} vs 27 with 0 for 2d6+8+5d6+6d6+2 0 0 0 0] named "Rogue 12, Sneak Attack, Precise Debilitation, Dogslicer, Spellstriker"
+
+
+

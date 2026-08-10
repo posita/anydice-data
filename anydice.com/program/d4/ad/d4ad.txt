@@ -1,0 +1,60 @@
+\ START EDIT THESE \
+
+\ NUMBER OF ATTACKS \
+ATK: 61
+\ TO HIT \
+H:{2}
+\ HIT REROLLS \
+HR:{1}
+\ MORTAL WOUND ON HIT \
+MWH:{3,4,5,6}
+\ TO WOUND \
+W:{3,4,5,6}
+\ WOUND REROLLS \
+WR:{1}
+\ TO SAVE \
+S:{5,6}
+\ WOUND REROLLS \
+SR:{0}
+\ END EDIT THESE \
+
+
+function: rollhit R:s {
+DICE: R
+if R = HR { DICE: 1d6 }
+result: DICE
+}
+
+function: rollwound R:s {
+DICE: R
+if R = WR { DICE: 1d6 }
+result: DICE
+}
+
+function: rollsave R:s {
+DICE: R
+if R = SR { DICE: 1d6 }
+result: DICE
+}
+
+function: rollattack HIT:s WOUND:s SAVE:s {
+if [count H in HIT] & [count W in WOUND] & [count S in SAVE]=0 { result: 1 }
+result: 0
+}
+
+function: rollmortalwounds HIT:s {
+if [count MWH in HIT] { result: 1 }
+result: 0
+}
+
+
+WOUNDS: 0
+MORTALWOUNDS: 0
+
+loop N over {1..ATK} {
+WOUNDS: WOUNDS + [rollattack [rollhit 1d6] [rollwound 1d6] [rollsave 1d6]]
+MORTALWOUNDS: MORTALWOUNDS + [rollmortalwounds [rollhit 1d6]]
+}
+
+output WOUNDS named "unsaved wounds"
+output MORTALWOUNDS named "mortalwounds"

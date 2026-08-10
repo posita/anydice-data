@@ -1,0 +1,33 @@
+function: reduce GOOD_ROLL:s BAD_ROLL:s {
+  REMOVED: {}
+  loop BAD_RESULT over BAD_ROLL {
+    used: 0
+    loop IDX over {1 .. #GOOD_ROLL} {
+      if !used & BAD_RESULT = IDX@GOOD_ROLL {
+        used = 1
+        REMOVED: {REMOVED, IDX}
+      }
+    }
+  }
+  RESULT: {}
+  loop IDX over {1 .. #GOOD_ROLL} {
+    if !(REMOVED contains IDX) {
+      RESULT: {RESULT, IDX@GOOD_ROLL}
+    }
+  }
+  result: RESULT
+}
+
+function: interpret ROLL:s {
+ if [count 6 in ROLL] { result: 1 }
+ if [count 5 in ROLL] | [count 4 in ROLL] { result: 0 }
+ result: -1
+}
+
+loop GOOD_DICE over {1..5} {
+  loop BAD_DICE over {0..3}
+  {
+    DICE_RESULTS = [reduce GOOD_DICE BAD_DICE]
+    /output [interpret DICE_RESULTS] named "[GOOD_DICE]d - [BAD_DICE]d"/
+  }
+}

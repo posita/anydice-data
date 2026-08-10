@@ -1,0 +1,117 @@
+function: X:n div Y:n { result: (d{0..Y-1} + X) / Y }
+function: r N:n { result: d{0..(N - 1)} }
+
+STR: 25
+DEX: 20
+FSKILL: 27
+WSKILL: 27
+UNARMED: 0
+ACCURACY: -3
+BASE_DAMAGE: 15
+ENCHANTMENT: 9
+SLAYING: 6
+AC: 30
+EV: 20
+DELAY: 7
+MONSTER: 0
+HD: 21
+FIGHTER: 1
+
+
+
+function: dpt { result: [10 * [atk] div DELAY]}
+
+function: hit {
+ MHIT: [r 15 + (DEX / 2) + d{0..FSKILL} + d{0..WSKILL} + ACCURACY + SLAYING + ENCHANTMENT]
+ if MONSTER {
+  MHIT: [r 18 + (HD / 2) + ((!!FIGHTER + 1) * HD) + 1]
+ }
+ EV_ROLL: [2d{1..(2 * EV)} div 2]
+ result: ((MHIT > EV_ROLL) + d{-1, 0:38, 1}) > 0
+}
+
+function: atk {
+ if MONSTER { result: 0 }
+ result: [dmg [hit]]
+}
+
+
+
+function: dmg HIT:n {
+ if !HIT {result: 0}
+ B: BASE_DAMAGE
+ if UNARMED { B: BASE_DAMAGE + WSKILL }
+ S: [dmg [B str mod] helper]
+ F: [S fskill mod]
+ W: [F wskill mod]
+ result: [highest of W - d{0..AC} + d{0..(SLAYING + ENCHANTMENT)} and 0]
+}
+function: dmg N:n helper { result: d{1..N} }
+
+function: N:n str mod {
+ R: 39 + (d{0..STR-9} * 2)
+ result: [N * R div 39]
+}
+
+function: N:n wskill mod {
+ if UNARMED { result: N }
+ R: 25 + d{0..WSKILL}
+ result: [N * R div 25]
+}
+
+function: N:n fskill mod {
+ M: 30
+ if UNARMED { M: 40 }
+ R: M + d{0..FSKILL}
+ result: [N * R div M]
+}
+
+
+AC: 20
+EV: 20
+
+
+      SLAYING: 0
+      DELAY: [2 * 5 div 3]
+      ENCHANTMENT: -1
+      BASE_DAMAGE: 16
+      output [dpt] named "butterfly sword vs [EV]ev [AC]ac @[SLAYING] slay"
+
+      UNARMED: 1
+      DELAY: 5
+      BASE_DAMAGE: 9
+      ENCHANTMENT: 0
+      output [dpt] named "claws 3 vs [EV]ev [AC]ac @[SLAYING] slay"
+
+
+      UNARMED: 0
+      SLAYING: 20
+      DELAY: [2 * 5 div 3]
+      ENCHANTMENT: -1
+      BASE_DAMAGE: 16
+      output [dpt] named "butterfly sword vs [EV]ev [AC]ac @[SLAYING] slay"
+      UNARMED: 1
+      DELAY: 5
+      BASE_DAMAGE: 9
+      ENCHANTMENT: 0
+      output [dpt] named "claws 3 vs [EV]ev [AC]ac @[SLAYING] slay"
+
+
+
+
+\     DELAY: 7
+      HP: 270
+      BASE_DAMAGE: 15
+      ENCHANTMENT: HP / 5
+      output [dpt] named "rev sword of power @[HP]hp vs [EV]ev [AC]ac"
+
+      UNARMED: 1
+      DELAY: 5
+      BASE_DAMAGE: 22
+      ENCHANTMENT: 0
+      output [dpt] named "blade hands vs [EV]ev [AC]ac"
+
+      BASE_DAMAGE: 52
+      ENCHANTMENT: 10
+      DELAY: d{16, 17}
+      output [dpt] named "dark maul vs [EV]ev" \

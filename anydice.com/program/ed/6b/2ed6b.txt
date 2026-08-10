@@ -1,0 +1,147 @@
+MISSRESULT: 0
+HITRESULT: 1
+CRITRESULT: 2
+
+ATTACKADV: 0
+ATTACKNORMAL: 1
+ATTACKDIS: 2
+
+LUCKY: 0
+
+function: lucky ROLL:n added ADDEDROLL:n vs DEFENSE:n {
+ if LUCKY > 0 {
+  if ROLL = 1 {
+    LUCKY: LUCKY - 1
+    result: ADDEDROLL
+  } else {
+    \if ROLL + TOHIT < DEFENSE {
+      LUCKY: LUCKY - 1
+      result: ADDEDROLL
+    }\
+  }
+ }
+ result: ROLL
+}
+
+function: attack ROLL:n added ADDEDROLL:n vs DEFENSE:n {
+ FINALROLL: [lucky ROLL added ADDEDROLL vs DEFENSE]
+
+ if FINALROLL = 1 {
+  result: MISSRESULT
+ }
+ if FINALROLL >= CRITRANGE {
+  result: CRITRESULT
+ }
+ if FINALROLL + TOHIT >= DEFENSE {
+   result: HITRESULT
+ }
+
+ result: MISSRESULT
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITRESULT {
+   D: D + CRITDAMAGE
+  }
+  else if A = HITRESULT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITRESULT] {
+  result: 2 * ONCEDAMAGE
+ }
+ if [ATTACKRESULTS contains HITRESULT] {
+  result: ONCEDAMAGE
+ }
+ result: 0
+}
+
+function: N:n attacks hit HIT:n dmg DMG:d crit CRIT:d range RANGE:n
+once ONCE:d advantage ADVANTAGE:n vs TARGET:n {
+ TOHIT: HIT
+ HITDAMAGE: DMG
+ CRITDAMAGE: CRIT
+ CRITRANGE: RANGE
+ ONCEDAMAGE: ONCE
+ DEFENSE: TARGET
+ if ADVANTAGE = ATTACKNORMAL {
+   result: [damage for Nd[attack [highest 1 of 1d20] added [highest 1
+of 1d20] vs DEFENSE]]
+ }
+ if ADVANTAGE = ATTACKADV {
+   result: [damage for Nd[attack [highest 1 of 2d20] added [highest 1
+of 1d20] vs DEFENSE]]
+ }
+ if ADVANTAGE = ATTACKDIS {
+   result: [damage for Nd[attack [lowest 1 of 2d20] added [highest 1
+of 1d20] vs DEFENSE]]
+ }
+
+ result: [damage for Nd[attack [highest 1 of 1d20] added [highest 1 of
+1d20] vs DEFENSE]]
+}
+
+DEFENSE: 16
+MISSDAMAGE: 0
+PARTYADVANTAGE: ATTACKNORMAL
+
+VALSPIRAEB: [1 attacks hit 5 dmg 1d10+3 crit 2d10+3 range 20 once 0
+advantage PARTYADVANTAGE vs 16]
+
+REJUVYNGLAIVE: [1 attacks hit 5 dmg 1d10+3 crit 2d10+3 range 20 once 0
+advantage PARTYADVANTAGE vs 16]
+REJUVYNPAM: [1 attacks hit 5 dmg 1d4+3 crit 2d4+3 range 20 once 0
+advantage PARTYADVANTAGE vs 16]
+
+GORSHLB: [1 attacks hit 4 dmg 1d8+5 crit 2d8+5 range 20 once 0
+advantage PARTYADVANTAGE vs 16]
+GORSHMOCK: [1 attacks hit 6 dmg 1d4 crit 2d4 range 20 once 0 advantage
+PARTYADVANTAGE vs 16]
+
+JINZIROSTWOHSTAFF: [1 attacks hit 5 dmg 1d8+3 crit 2d8+3 range 20 once
+0 advantage PARTYADVANTAGE vs 16]
+JINZIROSUNARMED: [1 attacks hit 5 dmg 1d4+3 crit 2d4+3 range 20 once 0
+advantage PARTYADVANTAGE vs 16]
+
+IAN: [1 attacks hit 5 dmg 1d8+4 crit 2d8+4 range 20 once 0 advantage
+PARTYADVANTAGE vs 16]
+IANSA: [1 attacks hit 5 dmg 1d8+4 crit 2d8+4 range 20 once 2d6
+advantage PARTYADVANTAGE vs 16]
+
+\Total Group HP: 46 + 36 + 33 + 36 = 151\
+
+TESTAC: 10
+TESTSAVE: 5
+
+FISHBELLYGWM: [2 attacks hit 2 dmg 2d6+16 crit 4d6+16 range 20 once 1d8 advantage PARTYADVANTAGE vs TESTAC]
+FISHBELLYGWMA: [2 attacks hit 3 dmg 2d6+14 crit 4d6+14 range 20 once 1d8 advantage PARTYADVANTAGE vs TESTAC]
+FISHBELLYGWMB: [2 attacks hit 4 dmg 2d6+12 crit 4d6+12 range 20 once 1d8 advantage PARTYADVANTAGE vs TESTAC]
+FISHBELLYGWMC: [2 attacks hit 5 dmg 2d6+10 crit 4d6+10 range 20 once 1d8 advantage PARTYADVANTAGE vs TESTAC]
+
+
+FISHBELLY: [2 attacks hit 7 dmg 2d6+6 crit 4d6+6 range 20 once 1d8 advantage PARTYADVANTAGE vs TESTAC]
+
+GEORGE: [2 attacks hit 10 dmg 1d12+5 crit 3d12+2d4+5 range 20 once 1d4 advantage PARTYADVANTAGE vs TESTAC]
+GEORGEPLANAR: [1 attacks hit 10 dmg 1d12+1d8+5 crit 2d12+2d8+2d4+5 range 20 once 1d4 advantage PARTYADVANTAGE vs TESTAC] + [1 attacks hit 10 dmg 1d12+5 crit 2d12+5 range 20 once 0 advantage PARTYADVANTAGE vs TESTAC]
+
+PDB: [2 attacks hit 7 dmg 2d6+4 crit 6d6+4 range 20 once 0 advantage PARTYADVANTAGE vs TESTAC]
+
+KEVORKIAN: [1 attacks hit 0 dmg 1d12 crit 1d12 range 20 once 0 advantage PARTYADVANTAGE  vs TESTSAVE]
+KEVORKIANDOUBLE: [2 attacks hit 0 dmg 1d12 crit 1d12 range 20 once 0 advantage PARTYADVANTAGE vs TESTSAVE]
+
+output FISHBELLYGWM named "-5/+10"
+output FISHBELLYGWMA named "-4/+8"
+output FISHBELLYGWMB named "-3/+6"
+output FISHBELLYGWMC named "-2/4"
+output FISHBELLY named "Normal"
+
+

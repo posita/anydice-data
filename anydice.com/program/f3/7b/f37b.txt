@@ -1,0 +1,22 @@
+function: hit ROLL:n plus BONUS:n ac AC:n {
+  if ROLL =  1 { result: 0 }
+  if ROLL = 20 { result: 1 }
+  result: ROLL + BONUS >= AC
+}
+
+function: crit ROLL:n plus BONUS:n ac AC:n range THREAT:s {
+  if [hit ROLL plus BONUS ac AC] & ROLL = THREAT {
+    result: [hit d20 plus BONUS ac AC]  \ confirm? \
+  }
+  result: 0
+}
+
+BAB: 1 + 2 + 10
+loop AC over {20..40} {
+  ECB: [crit d20 plus BAB ac AC range {18..20}]
+  output ECB named "Elven Curved Blade vs AC [AC]"
+}
+loop AC over {20..40} {
+  TWF: [crit d20 plus BAB-2 ac AC range {19..20}]
+  output 2dTWF > 0 named "Two-weapon fighting vs AC [AC]"
+}

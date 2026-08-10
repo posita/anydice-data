@@ -1,0 +1,142 @@
+\Atyla-Ouroboros-Heroes\
+Q: {0..3}
+
+function: crop SEQUENCE:n {                  \ limit the display range between [0;max] \
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+function: halve SEQUENCE:n {                  \ divide per 2, rounded up \
+ DIV: SEQUENCE/2
+ TEMP: DIV*2
+ if (DIV=TEMP){result: DIV}
+ result: (SEQUENCE+1)/2
+}
+
+\************************************************************************\
+function: do X:n attacks with ATT:s DEF:s {        \repeat X times the attack sequence\
+ DAMAGES: 0
+ loop N over {1..X}{
+   DAMAGES: DAMAGES + [phaseone ATT DEF]
+ }
+ result: DAMAGES
+}
+
+function: phaseone ATT:s DEF:s {                    \Find the environment modifiers\
+  VELOCITY_MODS: [compare 8@DEF with 7@ATT]         \compare the velocity for the dodge capacity\
+
+  ATT_DICES: (1@ATT +2@ATT)                              \final number of hit-dices to roll\
+  DEF_DICES: (4@DEF +5@DEF +VELOCITY_MODS)                \final number of save-dices to roll\
+
+  result: [phasetwo ATT_DICESdQ DEF_DICESdQ ATT DEF]  \freeze the hits-dices & saves-dices sequences\
+}
+
+function: phasetwo ATT_ROLL:n DEF_ROLL:n  ATT:s DEF:s {       \Analysis of the rolls\
+  SETS: [find damage bonus ATT_ROLL DEF_ROLL]                 \find the damage bonus from the sub-sets\
+
+  HITS:  ATT_ROLL +@ATT                                       \add post-roll modifiers for Attack\
+  SAVES: DEF_ROLL +@DEF                                       \add post-roll modifiers for Save\
+
+  DAMAGES: HITS - SAVES
+  result: [crop DAMAGES]
+}
+
+\********Functions to compare Sets of Dices (Optimized at max) **********\
+
+function: find damage bonus ATT:s DEF:s {
+ ATT_SET: [find best set ATT]
+ DEF_SET: [find best set DEF]
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+function: find best set ROLL:s {       \return the best subset face value\
+  \separate the sets in a roll\
+  THREES: ROLL=3                     \test the value on each element of the Sequence parameter : optimized\
+  TWOS:   ROLL=2
+  ONES:   ROLL=1
+
+  \compare the sets to find the more numerous one, choosing the higher if equal\
+  if (THREES>0) & (THREES>=TWOS) & (THREES>=ONES) { result: 3}
+  if (TWOS>0) & (TWOS>=ONES) { result: 2}
+  if (ONES>0) { result: 1}
+  result: 0
+}
+
+function: compare sets ATT_SET:n DEF_SET:n {
+\if Attacker has a higher set's face than Defender, add Damage Bonus\
+ if (ATT_SET>DEF_SET) { result: ATT_SET-DEF_SET }
+ result: 0
+}
+
+function: testun ATT_SUBSET:s DEF_SUBSET:s {
+\diference between the nbr of same dices for the same face valueÂ (chosen when rolling the hit)\
+ if (1@ATT_SUBSET=1@DEF_SUBSET){                                     \test if subsets have the same face\
+  if (2@ATT_SUBSET>2@DEF_SUBSET){result: 2@ATT_SUBSET-2@DEF_SUBSET}  \diference between the nbr of same dices\
+ }
+ result: 0
+}
+
+function: testdeux ATT_SUBSET:s DEF_SUBSET:s {
+\the nbr of dices kept for the save roll canâ€™t be more than the hit roll,
+ the defender choose the dices to keep, difference between the best set face value gives the damages\
+
+ result: 0
+}
+
+function: testtrois ATT_SUBSET:s DEF_SUBSET:s {
+\Att vs Def subset = Damages chart\
+ DAMAGES: 0
+ if (1@ATT_SUBSET > 1@DEF_SUBSET){DAMAGES: DAMAGES+2}
+ if (1@ATT_SUBSET = 1@DEF_SUBSET){DAMAGES: DAMAGES+1}
+ if (1@ATT_SUBSET < 1@DEF_SUBSET){DAMAGES: DAMAGES+0}
+
+ if (2@ATT_SUBSET > 2@DEF_SUBSET){DAMAGES: DAMAGES+2}
+ if (2@ATT_SUBSET = 2@DEF_SUBSET){DAMAGES: DAMAGES+1}
+ if (2@ATT_SUBSET < 2@DEF_SUBSET){DAMAGES: DAMAGES+0}
+ result: DAMAGES
+}
+
+
+\************************************************************************\
+
+function: compare bodies ATT_B:n with DEF_B:n {
+  if(ATT_B > DEF_B) { result: ATT_B-DEF_B}
+  result: 0
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  result: -1       \VAL_X < VAL_Y\
+}
+
+
+\************************************************************************\
+\PD, A_DICES_MODS, A_VALUES_MODS, RD, D_DICES_MODS, D_VALUES_MODS, ATT_VELOCITY, DEF_VELOCITY\
+
+A: {6, 0,0,   4, 0,0,   150, 9, 1}      \Light Armor, Sniper, Knife\
+B: {8, 0,0,   5, 0,0,   30, 9, 1}       \VeryLight Armor, Double Swords\
+E: {4, 0,0,   6, 0,0,   80, 9, 1}       \Light Armor, Wooden Bow, Sword\
+F: {8, 0,0,   14, 0,0,   50, 3, 1}      \Dragon, Crache-Flamme, Bite\
+G: {12, 0,0,   14, 0,0,   80, 3, 1}      \Troll, Rock, Fist\
+H: {15, 0,0,   10, 0,0,   200, 3, 1}      \Drone, Heavy Laser Canon, DroneFront\
+
+GL: {12, 0,0,   14, 0,0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GM: {12, 0,0,   14, 0,0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GA: {12, 0,0,   14, 0,0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+\************************************************************************\
+
+output [phaseone A B] named "lone Sniper VS lone Sword Master"
+output [phaseone A G] named "lone Sniper VS Tank"
+output [phaseone E A] named "lone Archer VS lone Sniper"
+output [phaseone H G] named "Laser Canon VS Tank"
+
+
+\output [phaseone G G] named "Tanks no Limits/Modifiers"
+output [phaseone GL G] named "Tanks test: Att Limits"
+output [phaseone G GL] named "Tanks test: Def Limits"
+output [phaseone GM G] named "Tanks test: Att Modifier"
+output [phaseone G GM] named "Tanks test: Def Modifier"
+output [phaseone GA G] named "Tanks test: Att Lim & Mods"
+output [phaseone G GA] named "Tanks test: Def Lim & Mods"
+\
+\output 10d(dQ=1) named "16d4 : Successes Count on 1, 2 or 3 (same thing)"\
+

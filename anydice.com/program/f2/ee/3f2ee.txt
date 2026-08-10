@@ -1,0 +1,99 @@
+function: evaluatespread ROLL:s {
+SUCCESSES: ROLL >= 5
+BONUSES: ROLL = 5
+CRITS: ROLL = 6
+STUMBLES: ROLL = 1
+BALANCE: BONUSES - STUMBLES
+BALANCECANCELED: BALANCE
+if BALANCE < 0 { BALANCECANCELED: 0 }
+
+if #ROLL = 1 {
+if CRITS >= 1 { result: 10 }
+if STUMBLES >= 1 { result: -1 }
+if SUCCESSES >= 1 { result: 1 }
+result: 0
+}
+
+if CRITS >= 2 { result: 10 * CRITS + BONUSES }
+if BALANCECANCELED + CRITS > 0 { result: BALANCECANCELED + CRITS }
+if BALANCE < -1 { result: BALANCE }
+if STUMBLES < 0 { result: STUMBLES }
+result: 0
+}
+
+
+
+
+function: collapsecrits ARRAY:s {
+CRITSTABLE: {}
+loop NUM over ARRAY {
+if NUM < 0 { CRITSTABLE: { CRITSTABLE, -1 } }
+if NUM >= 10 { CRITSTABLE: { CRITSTABLE, 10 } }
+if NUM > 0 & NUM < 10 { CRITSTABLE: { CRITSTABLE, 1 } }
+if NUM = 0 { CRITSTABLE: { CRITSTABLE, 0 } }
+}
+result: CRITSTABLE
+}
+
+function: collapsepasses ARRAY:s {
+PASSTABLE: {}
+loop NUM over ARRAY {
+if NUM <= 0 { PASSTABLE: { PASSTABLE, 0 } }
+if NUM >= 1{ PASSTABLE: { PASSTABLE, 1 } }
+}
+result: PASSTABLE
+}
+
+\
+loop DICE over {1..6} {
+SPREAD: [evaluatespread DICE d6]
+PASSFAILCRITS: [collapsecrits SPREAD]
+PASSFAIL: [collapsepasses SPREAD]
+
+output SPREAD named "[DICE]d - Spread"
+output PASSFAILCRITS named "[DICE]d - Pass/Fail with CRITS"
+output PASSFAIL named "[DICE]d - Pass/Fail"
+}
+\
+
+function: collapsecrits ARRAY:s {
+CRITSTABLE: {}
+loop NUM over ARRAY {
+if NUM < 0 { CRITSTABLE: { CRITSTABLE, -1 } }
+if NUM >= 10 { CRITSTABLE: { CRITSTABLE, 10 } }
+if NUM > 0 & NUM < 10 { CRITSTABLE: { CRITSTABLE, 1 } }
+if NUM = 0 { CRITSTABLE: { CRITSTABLE, 0 } }
+}
+result: CRITSTABLE
+}
+
+function: collapsepasses ARRAY:s {
+PASSTABLE: {}
+loop NUM over ARRAY {
+if NUM <= 0 { PASSTABLE: { PASSTABLE, 0 } }
+if NUM >= 1{ PASSTABLE: { PASSTABLE, 1 } }
+}
+result: PASSTABLE
+}
+
+
+loop DICE over {1..6} {
+SPREAD:  [evaluatespread DICE d6] 
+PASSFAILCRITS: [collapsecrits SPREAD]
+PASSFAIL: [collapsepasses SPREAD]
+output PASSFAIL named "[DICE]d - Pass/Fail"
+}
+
+
+loop DICE over {1..6} {
+SPREAD:  [evaluatespread DICE d6] 
+PASSFAILCRITS: [collapsecrits SPREAD]
+output PASSFAILCRITS named "[DICE]d - Pass/Fail with CRITS"
+}
+
+\
+loop DICE over {1..6} {
+SPREAD:  [evaluatespread DICE d6] 
+output SPREAD named "[DICE]d - Spread"
+}
+\

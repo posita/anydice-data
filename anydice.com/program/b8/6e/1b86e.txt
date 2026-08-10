@@ -1,0 +1,67 @@
+
+
+function: psi PSI:n of PSI_MAX:n mul MUL:d add ADD up UP:d same SAME:d down DOWN:d {
+    if PSI = 1 {
+        REM: UP
+    }
+    else if PSI = PSI_MAX {
+        REM: DOWN
+    }
+    else {
+        REM: SAME
+    }
+
+    result: MUL*PSI + ADD + REM
+}
+
+function: psi SIZE:n size SIZES:s mul MUL:d add ADD up UP:d same SAME:d down DOWN:d {
+    if SIZE > #SIZES {
+        result: 0
+    }
+    else if SIZE = #SIZES {
+        DOWN: 0
+    }
+
+    result: [psi d(SIZE@SIZES) of SIZE@SIZES mul MUL add ADD up UP same SAME down DOWN]
+}
+
+function: psi SIZES:s roll MAX:n mul MUL:d add ADD:d {
+
+    A: 0
+    B: 0
+    C: 0
+    D: 0
+    E: 0
+
+    loop N over {1 .. MAX} {
+        A_: A
+        B_: B
+        C_: C
+        D_: D
+        E_: E
+
+        A: [psi 1 size SIZES mul MUL add ADD up A_ same A_ down B_]
+        B: [psi 2 size SIZES mul MUL add ADD up A_ same B_ down C_]
+        C: [psi 3 size SIZES mul MUL add ADD up B_ same C_ down D_]
+        D: [psi 4 size SIZES mul MUL add ADD up C_ same D_ down E_]
+        E: [psi 5 size SIZES mul MUL add ADD up D_ same E_ down 0]
+    }
+
+    result: A
+}
+
+ROLLS: 30
+
+output
+[psi {6, 4} roll ROLLS mul 0 add 1] named "d6 uses"
+
+
+output
+[psi {8, 6, 4} roll ROLLS mul 0 add 1] named "d8 uses"
+
+output
+[psi {10, 8, 6, 4} roll ROLLS mul 0 add 1] named "d10 uses"
+
+
+output
+[psi {12, 10, 8, 6, 4} roll ROLLS mul 0 add 1] named "d12 uses"

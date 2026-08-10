@@ -1,0 +1,412 @@
+\ Fighter Comparison \
+
+MISS: 0
+HIT: 1
+BGWF: {{1..2}, {3..10}:6}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+SKELEATTACK: 4
+MOUNTATTACK: 6
+BIGHITDAMAGE: 1d6 + 3 + 2 
+BIGCRITICALDAMAGE: 2d6 + 3 + 2 
+SMALLHITDAMAGE: 1d4 + 3 + 2
+SMALLCRITICALDAMAGE: 2d4 + 3 + 2
+SKELEHITDAMAGE: 1d10 + 2
+SKELECRITICALDAMAGE: 2d10 + 2
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 1d8 + 4
+MOUNTSMALLCRITICALDAMAGE: 2d8 + 4 
+
+CHARACTERSPELLSAVEONE: 15
+CHARACTERSPELLSAVETWO: 12
+SAVESPELLHITDAMAGEONE: 5d8
+SAVESPELLMISSDAMAGEONE: (5d8)/2 
+SAVESPELLHITDAMAGETWO: 1d12
+SAVESPELLMISSDAMAGETWO: 0
+MISSDAMAGE: 0
+MONSTERSAVEONE: -1
+MONSTERSAVETWO: -1
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+
+function: save spell one ROLL:n {
+ if ROLL + MONSTERSAVEONE >= CHARACTERSPELLSAVEONE {result: SAVESPELLMISSDAMAGEONE}
+ result: SAVESPELLHITDAMAGEONE
+}
+
+function: save spell two ROLL:n {
+ if ROLL + MONSTERSAVEONE >= CHARACTERSPELLSAVETWO {result: SAVESPELLMISSDAMAGETWO}
+ result: SAVESPELLHITDAMAGETWO
+}
+
+
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [[highest 1 of 2d20] vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [[highest 1 of 2d20] vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [[highest 1 of 2d20] vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackspo NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell one d20]
+  }
+  result: TOTAL
+}
+
+function: multiattackspt NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell two d20]
+  }
+  result: TOTAL
+}
+
+\ Levels 3-7 \
+
+BIGATTACK: 3 + 2
+SMALLATTACK: 3 + 2
+BIGHITDAMAGE: 1d6 + 1d8 + 3 + 2
+BIGCRITICALDAMAGE: 2d6 + 2d8 + 3 + 2 
+SMALLHITDAMAGE: 1d4 + 3 + 2
+SMALLCRITICALDAMAGE: 2d4 + 3 + 2
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Battlemaster w/ Polearm Master, manuever vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Battlemaster w/ Polearm Master, manuever vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Battlemaster w/ Polearm Master, manuever vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Battlemaster w/ Polearm Master, manuever vs AC[AC]"
+
+BIGATTACK: 3 + 2
+SMALLATTACK: 3 + 2
+BIGHITDAMAGE: 1d6 + 3 + 2
+BIGCRITICALDAMAGE: 2d6 + 3 + 2 
+SMALLHITDAMAGE: 1d4 + 3 + 2
+SMALLCRITICALDAMAGE: 2d4 + 3 + 2
+
+AC:10
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "levels 1-3 Eldritch Knight w/ Polearm Master, familiar vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "levels 1-3 Eldritch Knight w/ Polearm Master, familiar vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "levels 1-3 Eldritch Knight w/ Polearm Master, familiar vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [smallmultiattack 1] named "levels 1-3 Eldritch Knight w/ Polearm Master, familiar vs AC[AC]"
+
+
+\ Levels 8-13 \
+
+BIGATTACK: 5 + 3
+SMALLATTACK: 5 + 3
+BIGHITDAMAGE: 1d6 + 5 + 2
+BIGCRITICALDAMAGE: 2d6 + 5 + 2
+SMALLHITDAMAGE: 1d4 + 1d8 + 5 + 2
+SMALLCRITICALDAMAGE: 2d4 + 2d8 + 5 + 2
+
+AC:10
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 8 Battlemaster w/ Maneuver vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 8 Battlemaster w/ Maneuver vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 8 Battlemaster w/ Maneuver vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 8 Battlemaster w/ Maneuver vs AC[AC]"
+
+
+BIGATTACK: 5 + 3
+SMALLATTACK: 5 + 3
+BIGHITDAMAGE: 3d8 + 5 + 2
+BIGCRITICALDAMAGE: 6d8 + 5 + 2
+SMALLHITDAMAGE: 2d8 + 5 + 2
+SMALLCRITICALDAMAGE: 4d8 + 5 + 2
+
+AC:10
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 1] named "levels 8 Eldritch Knight w/ Shadowblade, Booming Blade, Find Familiar vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 1] named "levels 8 Eldritch Knight w/ Shadowblade, Booming Blade, Find Familiar vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 1] named "levels 8 Eldritch Knight w/ Shadowblade, Booming Blade, Find Familiar vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [smallmultiattackadvantage 1] named "levels 8 Eldritch Knight w/ Shadowblade, Booming Blade, Find Familiar vs AC[AC]"
+
+\ Levels 14-19 \
+
+BIGATTACK: 5 + 5
+SMALLATTACK: 5 + 5
+SKELEATTACK: 5 + 5
+BIGHITDAMAGE: 1d6 + 1d10 + 5 + 2
+BIGCRITICALDAMAGE: 2d6 + 2d10 + 5 + 2
+SMALLHITDAMAGE: 1d6 + 5 + 2
+SMALLCRITICALDAMAGE: 2d6 + 5 + 2
+SKELEHITDAMAGE: 1d4 + 5 + 2
+SKELECRITICALDAMAGE: 2d4 + 5 + 2
+
+AC:10
+output [bigmultiattack 2] + [smallmultiattack 1] + [skelemultiattack 1] named "levels 14-19 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] + [smallmultiattack 1] + [skelemultiattack 1] named "levels 14-19 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] + [smallmultiattack 1] + [skelemultiattack 1] named "levels 14-19 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] + [smallmultiattack 1] + [skelemultiattack 1] named "levels 14-19 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+
+BIGHITDAMAGE: 1d6 + 5 + 2
+BIGCRITICALDAMAGE: 2d6 + 5 + 2
+SMALLHITDAMAGE: 1d4 + 5 + 2
+SMALLCRITICALDAMAGE: 2d4 + 5 + 2
+
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 3] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Polearm Master, Find Familiar, Haste vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 3] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Polearm Master, Find Familiar, Haste vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 3] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Polearm Master, Find Familiar, Haste vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 3] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Polearm Master, Find Familiar, Haste vs AC[AC]"
+
+
+
+BIGHITDAMAGE: 5d8 + 5 + 2
+BIGCRITICALDAMAGE: 10d8 + 5 + 2
+SMALLHITDAMAGE: 3d8 + 5 + 2
+SMALLCRITICALDAMAGE: 6d8 + 5 + 2
+
+AC:10
+output [smallmultiattackadvantage 2] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+AC:15
+output [smallmultiattackadvantage 2] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+AC:20
+output [smallmultiattackadvantage 2] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+AC:25
+output [smallmultiattackadvantage 2] + [smallmultiattack 1] named "levels 14-19 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+
+\ Levels 14-19 \
+
+BIGATTACK: 5 + 6
+SMALLATTACK: 5 + 6
+SKELEATTACK: 5 + 6
+BIGHITDAMAGE: 1d6 + 1d12 + 5 + 2
+BIGCRITICALDAMAGE: 2d6 + 2d12 + 5 + 2
+SMALLHITDAMAGE: 1d6 + 5 + 2
+SMALLCRITICALDAMAGE: 2d6 + 5 + 2
+SKELEHITDAMAGE: 1d4 + 5 + 2
+SKELECRITICALDAMAGE: 2d4 + 5 + 2
+
+AC:10
+output [bigmultiattack 2] + [smallmultiattack 2] + [skelemultiattack 1] named "levels 20 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] + [smallmultiattack 2] + [skelemultiattack 1] named "levels 20 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] + [smallmultiattack 2] + [skelemultiattack 1] named "levels 20 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] + [smallmultiattack 2] + [skelemultiattack 1] named "levels 20 Battlemaster w/ Polearm Master, 2x Maneuvers vs AC[AC]"
+
+
+BIGHITDAMAGE: 5d8 + 5 + 2
+BIGCRITICALDAMAGE: 10d8 + 5 + 2
+SMALLHITDAMAGE: 3d8 + 5 + 2
+SMALLCRITICALDAMAGE: 6d8 + 5 + 2
+
+AC:10
+output [smallmultiattackadvantage 2] + [smallmultiattack 2] named "levels 20 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+AC:15
+output [smallmultiattackadvantage 2] + [smallmultiattack 2] named "levels 20 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+AC:20
+output [smallmultiattackadvantage 2] + [smallmultiattack 2] named "levels 20 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+AC:25
+output [smallmultiattackadvantage 2] + [smallmultiattack 2] named "levels 20 Eldritch Knight w/ Shadowblade, Find Familiar vs AC[AC]"
+
+
+
+
+
+
+
+
+

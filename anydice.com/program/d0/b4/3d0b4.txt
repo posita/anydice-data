@@ -1,0 +1,58 @@
+\- Oath of Devotion Paladin -\
+
+PALADIN_LEVEL: 8
+STRENGTH: 20
+CHARISMA: 16
+DIVINE_SMITE: 2
+SACRED_WEAPON: 1
+HAS_DUELING_STYLE: 1
+CRIT: 20
+
+
+
+function: attack {result: d20}
+function: attack with advantage {result: [highest of d20 and d20]}
+function: attack with disadvantage {result: [lowest of d20 and d20]}
+
+
+
+function: damage dice{
+  result: 1d12  \super lance\
+}
+
+function: number of attacks {
+  ATTACKS: 1
+  if PALADIN_LEVEL >= 5 {ATTACKS: ATTACKS + 1}
+  result: ATTACKS
+}
+
+
+DMG_DICE: [damage dice]
+STR_MOD: (STRENGTH/2 - 5)
+CHA_MOD: CHARISMA/2 - 5
+PROF_BONUS: (PALADIN_LEVEL - 1)/4  + 2
+DMG_MOD: STR_MOD + (HAS_DUELING_STYLE * 2)
+TO_HIT: STR_MOD + PROF_BONUS + (SACRED_WEAPON * [highest of CHA_MOD and 1])
+
+
+
+function: damage from ROLL:n {
+  if ROLL = 1  {result: 0}
+  if ROLL >= CRIT {result: 2dDMG_DICE + DMG_MOD}
+  if ROLL + TO_HIT >= AC {result: DMG_DICE + DMG_MOD}
+  result: 0
+}
+
+function: divine smite DAM:n {
+  if DIVINE_SMITE{
+    SMITE_DMG: DIVINE_SMITEd8 + 1d8
+    if DAM > 0 {result: DAM + SMITE_DMG}
+  }
+  result: DAM
+}
+
+ATTACKS: [number of attacks]
+
+loop AC over {TO_HIT + 2..TO_HIT + 20} {
+ output [divine smite (ATTACKS d [damage from [attack]])] named "AC [AC]"
+}

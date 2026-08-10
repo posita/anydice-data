@@ -1,0 +1,130 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d{
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        if ROLL + BONUS >= AC{
+            result: DMG * 2 + CRIT_DMG  
+        }
+        result: DMG
+    }
+    if ROLL + BONUS >= AC + 10 {
+        result: DMG * 2 + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        if ROLL + BONUS >= AC{
+            result: CRIT 
+        }
+        result: HIT
+    }
+    if ROLL + BONUS >= AC + 10{
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: save ROLL:n plus BONUS:n vs DC:n for DAMAGE:d save SAVE:d {
+    if ROLL + BONUS < DC {
+         result: DAMAGE
+    }
+    result: SAVE
+}
+
+function: check ROLL:n plus BONUS:n vs DC:n success DAMAGE:d fail FAIL:d { 
+    if ROLL + BONUS >= DC{
+        result: DAMAGE
+    }
+    result: FAIL
+}
+
+TARGET: 27
+
+HIT_DAMAGE: 2d6 + 4 + 1 + 4 + 2 + 2 + 4
+
+CRIT_DAMAGE: (2d10 + 4 + 1 + 4 + 2)*2 + 1d10 + 4 + 2 + 4
+
+\output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] named "thaum 9" \
+output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 13 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] + + [multiattack d20 plus 8 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] named "thaum 9 3 hits"
+output [multiattack d20 plus 20 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 15 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] named "thaum 9 intensify"
+output [multiattack d20 plus 20 vs TARGET hit 2d6 + 4 + 2 + 1 miss 0 crit (2d10 + 4 + 2 + 1) * 2 + 1d10 + 4] + [multiattack d20 plus 20 vs TARGET hit 2d4 + 4 + 2 miss 0 crit (2d8 + 4 + 2) * 2 + 1d8 + 4] + [multiattack d20 plus 12 vs TARGET hit 2d6 + 4 + 2 + 1 miss 0 crit (2d10 + 4 + 2 + 1) * 2 + 1d10 + 4] named "fighter 9"
+
+
+
+function: target LEVEL:n { 
+    if LEVEL = 10 {result: 29}
+    if LEVEL = 11 {result: 30}
+    if LEVEL = 12 {result: 32}
+    if LEVEL = 13 {result: 33}
+    if LEVEL = 14 {result: 35}
+    if LEVEL = 15 {result: 36}
+}
+
+function: thaumhit LEVEL:n { 
+    result: 2d6 + 4 + 1 + 4 + 2 + LEVEL / 2
+}
+
+function: thaumcrit LEVEL:n { 
+    result: (2d10 + 4 + 1 + 4 + 2)*2 + 1d10 + 4 + 2 + LEVEL / 2
+}
+
+FIGHTER_BASE_A: 2d6 + 5 + 3 + 1
+FIGHTER_BASE_CRIT_A: (2d10 + 5 + 3 + 1) * 2 + 1d10 + 4
+FIGHTER_BASE_B: 2d4 + 5 + 3
+FIGHTER_BASE_CRIT_B: (2d8 + 5 + 3) * 2 + 1d8 + 4
+
+
+loop N over {10..14}{
+
+if N < 13 {BONUS: 0}
+if N >= 13 {BONUS: 2}
+
+THAUM_DAMAGE: [thaumhit N] + BONUS / 2T
+THAUM_CRIT: [thaumcrit N] + BONUS
+FIGHTER_DAMAGE_B: FIGHTER_BASE_B + BONUS / 2
+FIGHTER_CRIT_B: FIGHTER_BASE_CRIT_B + BONUS
+FIGHTER_DAMAGE_A: FIGHTER_BASE_A + BONUS / 2
+FIGHTER_CRIT_A: FIGHTER_BASE_CRIT_A + BONUS
+
+
+output [multiattack d20 plus 4+N+2+4+BONUS vs [target N] hit THAUM_DAMAGE miss 0 crit THAUM_CRIT] + [multiattack d20 plus 4+N+2+4+BONUS-5 vs [target N] hit THAUM_DAMAGE miss 0 crit THAUM_CRIT] + [multiattack d20 plus 4+N+2+4+BONUS-10 vs [target N] hit THAUM_DAMAGE miss 0 crit THAUM_CRIT] named "thaum [N] 3 hits" 
+
+output [multiattack d20 plus 4+N+2+4+BONUS+2 vs [target N] hit THAUM_DAMAGE miss 0 crit THAUM_CRIT] + [multiattack d20 plus 4+N+2+4+BONUS-5+2 vs [target N] hit THAUM_DAMAGE miss 0 crit THAUM_CRIT] named "thaum [N] intensify"
+
+output [multiattack d20 plus 5+N+2+6+BONUS vs [target N] hit FIGHTER_DAMAGE_A miss 0 crit FIGHTER_CRIT_A] + [multiattack d20 plus 5+N+2+6+BONUS vs [target N] hit FIGHTER_DAMAGE_B miss 0 crit FIGHTER_CRIT_B] + [multiattack d20 plus 5+N+2+6+BONUS-8 vs [target N] hit FIGHTER_DAMAGE_B miss 0 crit FIGHTER_CRIT_B] named "fighter [N]"
+
+}
+
+
+output [multiattack d20 plus 28 vs [target 15] hit [thaumhit 15] + 2 miss 0 crit [thaumcrit 15] + 4] + [multiattack d20 plus 23 vs [target 15] hit [thaumhit 15] + 2 miss 0 crit [thaumcrit 15] + 4] + [multiattack d20 plus 18 vs [target 15] hit [thaumhit 15] + 2 miss 0 crit [thaumcrit 15] + 4]named "thaum 15 3 hits" 
+
+output [multiattack d20 plus 30 vs [target 15] hit [thaumhit 15] + 2 miss 0 crit [thaumcrit 15] + 4] + [multiattack d20 plus 25 vs [target 15] hit [thaumhit 15] + 2 miss 0 crit [thaumcrit 15] + 4] named "thaum 15 intensify"
+
+output [multiattack d20 plus 30 vs [target 15] hit FIGHTER_BASE_A + 1 miss 0 crit FIGHTER_BASE_CRIT_A + 2] + [multiattack d20 plus 30 vs [target 15] hit FIGHTER_BASE_B + 1 miss 0 crit FIGHTER_BASE_CRIT_B + 2] + [multiattack d20 plus 22 vs [target 15] hit FIGHTER_BASE_B + 1 miss 0 crit FIGHTER_BASE_CRIT_B + 2] named "fighter 15"
+
+

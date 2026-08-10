@@ -1,0 +1,92 @@
+WEAPON_DAM: 5
+WEAPON_DICE: 4
+ATTACK_DAM: 0
+ATTACK_ACC: -4
+
+DEFENSE_DR: 0
+DEFENSE_AGI: 6
+HP: 30
+
+function: A:n did damage
+{
+	if (A - DEFENSE_DR) > 0
+	{
+		result: 1
+	}
+	else
+	{
+		result: 0
+	}
+}
+
+function: check for A:n hit B:n
+{
+	if A > B
+	{
+		result: WEAPON_DAM
+	}
+	else
+	{
+		result: 0
+	}
+}
+
+
+function: A:n is dead
+{
+ if A <= 0 {result: 1}
+result: 0
+}
+
+function: hp A:n takes D:n damage
+{
+POST_HP: A
+DAM: D
+	if [DAM did damage] = 1
+	{
+		DAM: DAM + ATTACK_DAM
+		DAM: DAM - DEFENSE_DR
+		POST_HP: POST_HP - DAM
+	}
+
+	result: POST_HP
+}
+
+
+function: calculate all attacks on A:n hp
+{
+	DAM: 0
+
+	loop N over {1..WEAPON_DICE}
+	{
+ 		ATT: 1d20 + ATTACK_ACC
+ 		DEF: 1d20 + DEFENSE_AGI
+ 		DAM: DAM + [check for ATT hit DEF]
+	}
+
+	POST_HP: A
+
+result: [hp A takes DAM damage]
+}
+
+HP_A: [calculate all attacks on HP hp]
+HP_B: [calculate all attacks on HP_A hp]
+HP_C: [calculate all attacks on HP_B hp]
+HP_D: [calculate all attacks on HP_C hp]
+HP_E: [calculate all attacks on HP_D hp]
+HP_F: [calculate all attacks on HP_E hp]
+HP_G: [calculate all attacks on HP_F hp]
+HP_H: [calculate all attacks on HP_G hp]
+HP_I: [calculate all attacks on HP_H hp]
+
+
+
+\output [HP_A is dead] named "t1 - B dead"\
+output [HP_B is dead] named "Turn 2 Dead"
+output [HP_C is dead] named "Turn 3 Dead"
+output [HP_D is dead] named "Turn 4 Dead"
+output [HP_E is dead] named "Turn 5 Dead"
+output [HP_F is dead] named "Turn 6 Dead"
+output [HP_G is dead] named "Turn 7 Dead"
+output [HP_H is dead] named "Turn 8 Dead"
+output [HP_I is dead] named "Turn 9 Dead"

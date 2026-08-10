@@ -1,0 +1,110 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: damagenobonus for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: attacknobonus {
+ result: [damagenobonus for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+function: gwfroll DMG:d {
+ result: #DMG d{1,2, {3..[maximum of DMG] / #DMG}:2}
+}
+
+\ ====== Double-Bladed Scimitar Builds ====== \
+
+DEFENSE: d{14..22}
+ATTACK: 4 + 4
+
+SNEAKATTACK: 2d6
+HITDAMAGE: [gwfroll 2d4]
+CRITICALDAMAGE: [gwfroll 4d4]
+MISSDAMAGE: 0
+
+function: bonus damage for ATTACKRESULTS:s {
+ HITDAMAGE: [gwfroll 1d4]
+ CRITICALDAMAGE: [gwfroll 2d4]
+ if [ATTACKRESULTS contains CRITICALHIT] | [ATTACKRESULTS contains HIT] {
+  result: [attacknobonus] + SNEAKATTACK
+ }
+ result: 0
+}
+
+output [2 attacks] named "Double-Bladed Scimitar Fighter: 5  Rogue: 4"
+
+SNEAKATTACK: 3d6
+
+output [attack] named "Double-Bladed Scimitar Fighter: 3  Rogue: 6"
+
+\ ====== Dual-Wield Rapiers Builds ====== \
+
+SNEAKATTACK: 2d6
+HITDAMAGE: 1d8
+CRITICALDAMAGE: 2d8
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] | [ATTACKRESULTS contains HIT] {
+  result: SNEAKATTACK
+ }
+ result: 0
+}
+
+output [3 attacks] named "Dual-Wield Rapiers Fighter: 5  Rogue: 4"
+
+SNEAKATTACK: 3d6
+
+output [2 attacks] named "Dual-Wield Rapiers Fighter: 3  Rogue: 6"

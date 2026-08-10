@@ -1,0 +1,50 @@
+function: ROLL:s hits vs dc DC:n {
+ ACES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ result: SUCCESSES-ACES
+}
+function: ROLL:s hits vs DC:n ATTR:n{
+ if (ROLL = 0){result: ([1d12 hits vs (DC+1) ATTR])}
+ ACES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ if (SUCCESSES-ACES>ATTR) {result: ATTR}
+ if (SUCCESSES-ACES<-1) {
+     if (SUCCESSES-ACES<-ATTR) { result: -ATTR}
+     result: SUCCESSES-ACES
+ }result: SUCCESSES-ACES
+}
+
+BOTCH:-1
+MISS:0
+HIT:1
+CRIT:2
+
+function: attack ATTACK:n vs defense DEFENSE:n {
+ if ATTACK < 0 { result: BOTCH}
+
+  if ATTACK  > (DEFENSE) { 
+  if ATTACK > (DEFENSE+1){
+\result: (ATTACK-(DEFENSE+1))\
+result: (ATTACK-DEFENSE)
+}
+  result: HIT}
+ result: MISS
+}
+
+
+DICE:2
+DC:9
+ATTRA:2
+ATTRD:2
+RISKA:0
+RISKD:0
+ATT: 0
+DEF: -1
+loop DEF over{-4..2}{
+loop DICE over {4}{
+DEFENDERDICE : DICE+DEF
+output [attack [(DICE+ATT+RISKA)d12 hits vs (DC+RISKA) ATTRA] vs defense [(DICE+DEF+RISKD)d12 hits vs (DC+RISKD) ATTRD]] named "[DICE]d12 vs  [DEFENDERDICE]d12"
+
+\output [attack [(DICE+RISKA)d12 hits vs DC+RISKA) ATTR] vs defense [(DICE+DEF+RISKD)d12 hits vs (DC+RISKD) ATTR]] named "[DICE]d12 risk D [RISKD]"\
+}
+}

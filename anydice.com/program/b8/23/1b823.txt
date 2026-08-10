@@ -1,0 +1,56 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+	if ROLL = 1 {
+		result: MISS
+	}
+	if ROLL >= CRIT_RANGE {
+		result: CRIT
+	}
+	if ROLL + BONUS >= AC {
+		result: HIT
+	}
+	result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+	if ROLL = 1 {
+		result: 0
+	}
+	if ROLL >= CRIT_RANGE {
+		result: DMG + CRIT_DMG
+	}
+	if ROLL + BONUS >= AC {
+		result: DMG
+	}
+	result: 0
+}
+
+function: gsflurry attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT_DMG:d on CRIT_RANGE:d {
+
+	NO_MISS: 0
+	ALREADY_MISS: 0
+        ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE]
+
+	loop N over {1 .. ATTACKS}{
+                NO_MISS:[attack ROLL plus BONUS vs AC
+                        hit DMG + NO_MISS
+                        miss ATTACK + ALREADY_MISS
+			crit DMG + CRIT_DMG + NO_MISS on CRIT_RANGE
+                ]
+		ALREADY_MISS: ATTACK + ALREADY_MISS
+	}
+
+	result: NO_MISS
+}
+
+AC: 17
+PROF: 4
+STAT: 3
+
+output
+[gsflurry attacks 2 roll d20 plus PROF + STAT + 2 vs AC for 2d6 + STAT crit 2d6 on 20] named "[1] Stalker's Flurry + Hunter's Mark"
+
+output
+[gsflurry attacks 2 roll d20 plus PROF + STAT + 2 - 5 vs AC for 2d6 + STAT + 10 crit 2d6 on 20] named "[2] Stalker's Flurry + Sharpshooter + Hunter's Mark"
+
+output
+[gsflurry attacks 3 roll d20 plus PROF + STAT + 2 - 5 vs AC for 2d6 + STAT + 10 crit 2d6 on 20] named "[3] Dread Ambusher + Stalker's Flurry + Sharpshooter + Hunter's Mark"

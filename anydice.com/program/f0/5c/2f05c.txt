@@ -1,0 +1,27 @@
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITHIT { result: 2 }
+ if ROLL = 1 { result: 0}
+ if ROLL + ATKMOD >= AC { result: 1}
+ result: 0
+}
+
+function: totaldpr FROLL:n SROLL:n TROLL:n vs AC:n {
+ FHIT: [attackroll FROLL vs AC]
+ SHIT: [attackroll SROLL vs AC]
+ THIT: [attackroll TROLL vs AC]
+
+ if FHIT=2 | SHIT=2 {
+  result: (2*FHIT)d6+(2*SHIT)d6+(2*THIT)d6+(FHIT>0)*8+(SHIT>0)*8+(THIT>0)*8+6d8
+ }
+ result: (2*FHIT)d6+(2*SHIT)d6+(FHIT>0)*8+(SHIT>0)*8+((FHIT+SHIT>0)*6)d8
+}
+
+
+
+DICE: d20
+CRITHIT: 19
+ATKMOD: 8
+
+loop ENEMYAC over {15..25} {
+ output [totaldpr DICE DICE DICE vs ENEMYAC] named "Hexblade Greatsword vs [ENEMYAC] AC"
+}

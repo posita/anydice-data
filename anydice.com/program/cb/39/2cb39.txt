@@ -1,0 +1,45 @@
+PROF : 4
+MOD : 5
+MAGIC: 1
+AC: 17
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n bonusdmg BDMG:d and ATTACKS:n {
+    if ATTACKS = 0 {
+        result: 0
+    }
+    if ROLL = 1 {
+        result: [attack [highest 1 of 2d20] plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE bonusdmg BDMG and ATTACKS-1]
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG + 2dBDMG + [attack [highest 1 of 2d20] plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE bonusdmg 0 and ATTACKS-1]
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG + BDMG+ [attack [highest 1 of 2d20] plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE bonusdmg 0 and ATTACKS-1]
+    }
+    result: [attack [highest 1 of 2d20] plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE bonusdmg BDMG and ATTACKS-1]
+}
+
+GSR : [attack [highest 1 of 2d20] plus MOD+PROF+MAGIC-5 vs AC for 2d6 + MOD + MAGIC + 2+10 crit 2d6 on 20]
+GSG : [attack [highest 1 of 2d20] plus MOD+PROF+MAGIC-5 vs AC for 2d6 + MOD + MAGIC +10 crit 2d6 on 20 bonusdmg 1d6 and 2]
+GSRG : [attack [highest 1 of 2d20] plus MOD+PROF+1+MAGIC-5 vs AC+1 for 2d6 + MOD + MAGIC + 2+10 crit 2d6 on 20]
+GSGG : [attack [highest 1 of 2d20] plus MOD+PROF+1+MAGIC-5 vs AC+1 for 2d6 + MOD + MAGIC +10 crit 2d6 on 20 bonusdmg 1d8 and 3]
+
+
+output 2dGSR named "10th level Horgrim with Greatsword, rage, reckless attack and GWM"
+output 4dGSR named "10th level Horgrim with Greatsword, rage, reckless attack and GWM + action surge"
+output GSG   named "10th level Horgrim with Greatsword, giants might, reckless attack and GWM"
+output 3dGSRG named"13th level Horgrim with Greatsword, rage, reckless attack and GWM"
+output GSGG  named "13th level Horgrim with Greatsword, giants might, reckless attack and GWM"

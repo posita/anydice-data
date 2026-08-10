@@ -1,0 +1,76 @@
+YES: 1
+NO: 0
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: attack ATTACK:n hit HIT:n by MODELS:n {
+    if REROLL_HITS = YES {
+        result: [count {HIT..6} in (ATTACK * MODELS)d[reroll {1..HIT-1} on d6]]
+    }
+    if SOULGUIDE = YES {
+        result: [count {HIT..6} in (ATTACK * MODELS)d[reroll 1 on d6]]
+    }
+    result: [count {HIT..6} in (ATTACK * MODELS)d6]
+}
+
+function: hits HITS:n wound WOUND:n {
+    if REROLL_WOUNDS = YES {
+        result: [count {WOUND..6} in HITSd[reroll {1..WOUND-1} on d6]]
+    }
+    result: [count {WOUND..6} in HITSd6]
+}
+
+function: wounds WOUNDS:n vs SAVE:n rend REND:n {
+    if REROLL_SAVES = YES {
+        if SAVE = 6 {
+            result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd[reroll {1..SAVE-1} on d6]])
+        }
+        result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd[reroll {1..SAVE-1} on d6]])
+    }
+    if SAVE = 6 {
+        result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd6])
+    }
+    result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd6])
+}
+
+function: success SUCCESS:n for DAMAGE:n {
+    result: SUCCESS * DAMAGE
+}
+
+function: save SAVE:n wounds WOUNDS:n for MODELS:n dmg DAMAGE:n rend REND:n
+    result: []
+}
+
+function: attack ATTACK:n hit HIT:n wound WOUND:n vs SAVE:n rend REND:n for DAMAGE:n by MODELS:n {
+    result: [success [wounds [hits [attack ATTACK hit HIT by MODELS] wound WOUND] vs SAVE rend REND] for DAMAGE]
+}
+
+function: unit {
+    result: 
+}
+
+function: model {
+    result: 
+}
+
+
+REROLL_SAVES: NO
+
+SAVE: 4
+MODELS: 10
+WOUNDS: 1
+REND: 0
+DAMAGE: 1
+
+output [hit] named "3 hits"
+output [damage] named "3 damage"
+

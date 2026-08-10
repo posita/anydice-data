@@ -1,0 +1,129 @@
+\       Roll + Mod + Prof + WpnSize \
+ATTACK: 1d20 + 2*3 + 2d4  +   1d12
+
+\       Base + Weight + Dex + Str + Prof + WpnSize + Shield \
+ARMOUR:   6  +   3    +  1  +  3  + 2d4  +   1d8   +  2+3
+
+output [highest of (ATTACK-ARMOUR+9)/10 and 0]
+output 1d12+2*3+2d4 - 3-(2+3)
+
+ADV: [highest 1 of 2d20]  DISADV: [lowest 1 of 2d20]
+PROF:3  PROFDIE:1d(PROF*2)  MOD:4  CRIT:20
+LOWAC: 8+[lowest 2 of 3d6]  MIDAC: 8+[lowest 3 of 4d4]
+
+function: N:n reroll LOW:n {
+  if N <= LOW {result: [N reroll LOW]}
+  else {result: N}
+}
+function:   roll N:d {result: N}
+function: reroll N:d {result: N}
+function: N:n reroll LOW:n once {
+  if N <= LOW {result: [reroll N]}
+  else {result: N}
+}
+
+\Stat Distributions\
+function: mod for STAT:n {
+  if STAT >= 10 { result: (STAT-10)/2 }
+  if STAT <  10 { result: (STAT-11)/2 }
+}
+NORMSTAT:[lowest 3 of 4d[d6 reroll 1]]  WEAKSTAT:2+[lowest 4 of 6d4]  EXTREMESTAT:2+[lowest 3 of 4d6] PLAYERSTAT: [highest 3 of 4d[d6 reroll 1]]
+
+HIGHSTAT: [highest 1 of 6d[mod for PLAYERSTAT]]
+ SECSTAT: [lowest 1 of 2d[highest 1 of 3d[mod for PLAYERSTAT]]]
+ MIDSTAT: [middle 2 of 6d[mod for PLAYERSTAT]]/2
+ LOWSTAT: [middle 1 of 3d[lowest 1 of 2d[mod for PLAYERSTAT]]]
+DUMPSTAT: [lowest 1 of 6d[mod for PLAYERSTAT]]
+
+COMMONSTAT: NORMSTAT
+COMMONSTATMOD: [mod for COMMONSTAT]  PLAYERSTATMOD: [mod for PLAYERSTAT]
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d normal crit on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: DMG + [reroll DMG] + MOD - DR}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD - DR}
+  else {result: 0}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d threat on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: DMG + [reroll DMG] + MOD - DR + [threat helper 1d20 3 3 vs 15 for DMG crit RANGE]}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD - DR}
+  else {result: 0}
+}
+function: threat helper ROLL:n MOD:n PROF:n vs AC:n for DMG:d crit RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL + MOD + PROF >= AC {result: DMG}
+  else {result: 0}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d crit on RANGE:n bonus BONUSDMG:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: [highest of DMG+[maximum of DMG]+BONUSDMG+MOD-DR and 0]}
+  if ROLL + MOD + PROF >= AC {result: [highest of DMG+MOD-DR and 0]}
+  else {result: 0}
+}
+function: attack combo ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d crit on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL = 20 {result: [highest of DMG+[maximum of DMG]+MOD+[attack combo ADV with mod MOD and prof PROF vs AC plus DR for DMG crit on RANGE] and 0]}
+  if ROLL + MOD + PROF >= AC {result: [highest of DMG+MOD+[attack combo 1d20 with mod MOD and prof PROF vs AC plus DR for DMG crit on RANGE] and 0]}
+  else {result: 0}
+}\
+function: attack combo count ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d crit on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL = 20 {result: 1 + [attack combo count ADV with mod MOD and prof PROF vs AC for DMG]}
+  if ROLL + MOD + PROF >= AC {result: 1 + [attack combo count 1d20 with mod MOD and prof PROF vs AC for DMG]}
+  else {result: 0}
+}\
+function: attack ROLL:n str STR:n dex DEX:n prof PROF:n vs AC:n weight WT:n plus DR:n for DMG:d slashing crit on RANGE:n {
+  ATTACK: ROLL+STR+DEX+PROF
+  DAMAGE: DMG+STR+DEX-DR-WT*WT
+  TOTDMG: 0
+
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {TOTDMG: [highest of DAMAGE+[maximum of DMG] and 0]}
+
+  if ATTACK >= AC+WT {TOTDMG: TOTDMG+DAMAGE}
+  if ATTACK >= AC+WT*WT {TOTDMG: TOTDMG+DEX+PROF}
+  
+  result: [highest of TOTDMG and 0]
+}
+
+function: ac with armour bonus ARM:n of weight WT:n str STR:n dex DEX:n additional ADD:n with HAND:n handed F:n finesse WEAP:d and SHIELD:n shield prof PROF:n {
+  AC: 5+ARM+WT+ADD+SHIELD
+  WPN: HAND*([maximum of WEAP]-4)/2
+    if WPN > 0 {AC: AC + PROF + WPN + !F*STR + F*DEX}
+  DIF: STR-WT
+    if DIF < -1 {AC: AC - DIF}
+    if DIF <  0 {AC: AC + DEX/2}
+    if DIF =  0 {AC: AC + DEX}
+    if DIF >  0 {AC: AC + DEX + [lowest of DEX and DIF]}
+  result: AC
+}
+
+FIGHTERAC: [ac with armour bonus 4+1d4 of weight 3 str HIGHSTAT dex MIDSTAT additional 0 with 2 handed 0 finesse 1d10 and 0 shield prof 1d4]
+CLERICAC: [ac with armour bonus 1+1d4 of weight 2 str SECSTAT dex MIDSTAT additional 0 with 1 handed 0 finesse 1d6 and 3 shield prof 1d4]
+
+BARBAC: [ac with armour bonus 0 of weight 0 str HIGHSTAT dex SECSTAT additional SECSTAT with 2 handed 0 finesse 1d12 and 0 shield prof 1d4]
+MONKAC: [ac with armour bonus 0 of weight 0 str MIDSTAT dex HIGHSTAT additional SECSTAT with 2 handed 0 finesse 1d8 and 0 shield prof 1d4]
+
+ROGUETWOAC: [ac with armour bonus 0+1d2 of weight 1 str LOWSTAT dex HIGHSTAT additional 0 with 2 handed 1 finesse 1d4+1d8 and 0 shield prof 1d4]
+ROGUEAC: [ac with armour bonus 0+1d2 of weight 1 str LOWSTAT dex HIGHSTAT additional 0 with 1 handed 1 finesse 1d8 and 0 shield prof 1d4]
+
+WIZARDAC: [ac with armour bonus 0 of weight 0 str DUMPSTAT dex DUMPSTAT additional 0 with 0 handed 0 finesse 0 and 0 shield prof 0]
+
+COMMONAC: [ac with armour bonus 0 of weight 0 str [mod for COMMONSTAT] dex [mod for COMMONSTAT] additional 0 with 0 handed 0 finesse 0 and 0 shield prof 0]
+
+\
+output FIGHTERAC named "Fighter AC"
+output CLERICAC named "Cleric AC"
+output BARBAC named "Barb AC"
+output MONKAC named "Monk AC"
+output ROGUETWOAC named "Rogue2wp AC"
+output ROGUEAC named "Rogue AC"
+output WIZARDAC named "Wizard AC"
+
+output COMMONAC named "Commoner AC"
+\
+
+set "maximum function depth" to 2
+\output [attack        ADV with mod 2*HIGHSTAT and prof 2d4 vs FIGHTERAC plus 3+6/2+SECSTAT for 1d12 crit on 19]   named "Barb 2H vs Fighter"\
+\output [attack combo 1d20 with mod 2*3        and prof 2d4 vs    BARBAC plus 0+6/2+3       for 1d10 crit on 19]/2 named "Fighter 2H vs Barb"\
+\output [attack       1d20 with mod 2*MIDSTAT  and prof 2d4 vs FIGHTERAC plus 3+6/2+SECSTAT for 1d8  crit on 19]   named "Monk 2H vs Fighter"\

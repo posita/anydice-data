@@ -1,0 +1,47 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n plus ATTACKBONUS:n with crit at CRITTHRESH:n vs DEFENSE:n
+{
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITTHRESH { result: CRITICALHIT }
+ if ROLL + ATTACKBONUS >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage ROLL:d plus DAMAGEBONUS:n for ATTACKRESULT:n 
+{
+ if ATTACKRESULT = CRITICALHIT { result: ROLL + ROLL + DAMAGEBONUS }
+ if ATTACKRESULT = HIT { result: ROLL + DAMAGEBONUS }
+ result: 0
+}
+
+function: damage PROFICIENCY:n STRENGTH:n MAGIC:n
+{
+ BONUS: PROFICIENCY + STRENGTH + MAGIC
+ result: [damage d8 plus STRENGTH for [attack d20 plus BONUS with crit at 19 vs AC]]
+}
+
+function: use action surge A:n B:n
+{
+ if (A = 0) { result: B }
+ result: A
+}
+
+loop AC over {14} 
+{
+ WARHAMMER: [damage d8 plus 2 for [attack d20 plus 4 with crit at 19 vs AC]]
+ WARPICK: [damage d8 plus 3 for [attack d20 plus 5 with crit at 19 vs AC]]
+
+ WARHAMMERPLUSONE: [damage d8 plus 3 for [attack d20 plus 5 with crit at 19 vs AC]]
+ WARPICKPLUSONE: [damage d8 plus 4 for [attack d20 plus 6 with crit at 19 vs AC]]
+
+ WARHAMMERPLUSTWO: [damage d8 plus 4 for [attack d20 plus 6 with crit at 19 vs AC]]
+ WARPICKPLUSTWO: [damage d8 plus 5 for [attack d20 plus 7 with crit at 19 vs AC]]
+
+ output [damage 2 2 0] + [damage 2 2 1] named "Level 3"
+ output [damage 2 3 0] + [damage 2 3 1] named "Level 4"
+ output [damage 3 3 0] + [damage 3 3 1] + [damage 3 3 1] named "Level 5"
+ output [damage 4 3 0] + [damage 4 3 1] + [damage 4 3 1] named "Level 6"
+}

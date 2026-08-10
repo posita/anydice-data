@@ -1,0 +1,46 @@
+
+function: is critical SET:s {
+  result: ((1@SET) = (2@SET)+1) | ((2@SET) = (3@SET)+1)\ | (1@SET = 2@SET) | (2@SET = 3@SET)\
+}
+
+function: is SET:s critical at dc DC:n {
+  if 2@SET >= DC {
+    result: 1@SET = 2@SET
+  } else {
+    result: 2@SET = 3@SET
+  }
+}
+
+
+function: rx SET:s DC:n {
+  if [is critical SET] {
+    if 2@SET >= DC {
+      result: 1@SET
+    } else {
+      result: 3@SET
+    }
+  }
+  result: 2@SET
+}
+
+function: rdx SET:s DC:n {
+  R: 2@SET
+  if [is SET critical at dc DC] {
+    if R >= DC {
+      result: 2
+    } else {
+      result: -2
+    }
+  }
+  if R >= DC {
+    result: 1
+  } else {
+    result: -1
+  } 
+}
+
+loop DC over {1..20} {
+  if 2*(DC/2) =  {
+    output [rdx 3d20 DC] named "rdx with DC [DC]"
+  }
+}

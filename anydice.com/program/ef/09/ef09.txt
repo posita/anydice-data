@@ -1,0 +1,33 @@
+\-This is just a bunch of variable initialization for the functions -\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+ATTACK: 11 \-Level 20 life-\
+HITDAMAGE: 15d8+11 \-Autocritting 4d8 + Divine Smite (which I averaged to 3.5d8, so 7d8 for the crits) + Hexblade Curse and dex mode (total of 11)-\
+CRITICALDAMAGE: 15d8+11 \-All hits are crits-\
+MISSDAMAGE: 0 \-Obviously-\
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\-There's a lot to say, here. 6 attacks total, all of them have Elf Advantage, one of them also gets savage attacker. Appended to the end is Purple Worm Cheater Poison and Sneak Attack-\
+output 5d[damage for [attack [highest 1 of 3d20] vs 20]] + [highest 1 of 2d[damage for [attack [highest 1 of 3d20] vs 20]]] + 4d6
+
+\-Max damage is about 200 lower, but expected value is much much higher. Realistically the damage will fall between 400 and 600 every single time.-\

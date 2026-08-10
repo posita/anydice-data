@@ -1,0 +1,59 @@
+\**** Damage calculator ****\
+
+
+function: boomingbladeattack ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: PSICRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: PSIDAMAGE }
+ result: 0
+}
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: reroll D:d under N:n{
+   result: [rerollcore D die D under N]
+}
+
+function: rerollcore R:n die D:d under N:n{
+   if R < N { result: D } else {result: R}
+}
+
+function: highest N:n of A:s B:s C:s {
+    result: {1..N}@[sort {A, B, C}]
+}
+
+function: highest N:n of A:s B:s C:s {
+    result: {1..N}@[sort {A, B, C}]
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 1
+DAMAGE: 2d[reroll 1d6 under 2] + 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d[reroll 1d6 under 2] + 2d6 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Psi Knight level 3"
+
+ATTACKMOD: 4
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Psi Knight level 4 Asci to strengf"
+
+ATTACKTIMES: 2
+PROFICIENCY: 3
+
+DAMAGE: 2d[reroll 1d6 under 2] + 1d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d[reroll 1d6 under 2] + 2d8 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Psi Knight level 5 MA"
+
+PSIDAMAGE: 2d[reroll 1d6 under 2] + 2d8 + 1d8 + ATTACKMOD + DMGBONUS
+PSICRITDAMAGE: 4d[reroll 1d6 under 2] + 2d8 + 2d8 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] + 1d[boomingbladeattack d20 vs ENEMYAC] named "Psi Knight level 8 Booming Blade"

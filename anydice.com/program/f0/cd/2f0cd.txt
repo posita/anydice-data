@@ -1,0 +1,105 @@
+\**** Spell Damage calculator ****\
+
+YES: 1
+NO: 0
+
+HALF: 1
+NOTHING: 0
+
+ADVANTAGE: NO
+DISADVANTAGE: NO
+ACCURACY: NO
+DC: 15
+
+DICE: [adv ADVANTAGE disadv DISADVANTAGE acc ACCURACY]
+
+STR: [ strsave DICE vs DC ]
+DEX: [ dexsave DICE vs DC ]
+CON: [ consave DICE vs DC ]
+INT: [ intsave DICE vs DC ]
+WIS: [ wissave DICE vs DC ]
+CHA: [ chasave DICE vs DC ]
+
+
+STR_MOD: 0
+DEX_MOD: 0
+CON_MOD: 0
+INT_MOD: 0
+WIS_MOD: 0
+CHA_MOD: 0
+
+SRT_SAVE_BONUS: 0
+DEX_SAVE_BONUS: 0
+CON_SAVE_BONUS: 0
+INT_SAVE_BONUS: 0
+WIS_SAVE_BONUS: 0
+CHA_SAVE_BONUS: 0
+
+
+function: adv ADVANTAGE:n disadv DISADVANTAGE:n acc ACCURACY:n {
+ if ADVANTAGE = YES & DISADVANTAGE = YES { result: d20 }
+ if ADVANTAGE = NO & DISADVANTAGE = NO { result: d20 }
+ if ADVANTAGE = YES & ACCURACY = YES { result: 1@3d20 }
+ if ADVANTAGE = YES { result: 1@2d20 }
+ if DISADVANTAGE = YES { result: 2@2d20 }
+ result: 0
+}
+
+function: strsave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + STR_MOD + STR_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: dexsave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + DEX_MOD + DEX_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: consave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + CON_MOD + CON_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: intsave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + INT_MOD + INT_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: wissave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + WIS_MOD + WIS_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: chasave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + CHA_MOD + CHA_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: SAVE:n save to take DAMAGE:n or PASS_DAMAGE {
+ if PASS_DAMAGE = HALF {
+  if SAVE { result: DAMAGE/2 }
+  result: DAMAGE
+ }
+ if PASS_DAMAGE = NOTHING { result: (1 - SAVE)*DAMAGE }
+ result:0
+}
+
+
+
+FIREBALL: [DEX save to take 8d6 or HALF]
+
+
+
+output FIREBALL

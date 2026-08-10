@@ -1,0 +1,58 @@
+loop LVL over {1..20} {
+ BAB: 3*LVL/4
+ DEX: 5+(LVL/8)
+ GUN: LVL/4
+ AIM: 2*(1+(BAB/4))
+ function: skirmish {
+  B: (LVL+2)/3
+  if (LVL > 11) {
+   B: B*3
+  } else if (LVL > 5) {
+   B: B*2
+  }
+  result: Bd6
+ }
+ function: full attack {
+  if (BAB > 10) {
+   result: (2d4+DEX+GUN+AIM)*4
+  } else {
+   if (BAB > 5) {
+    result: (2d4+DEX+GUN+AIM)*3
+   } else {
+    result: (2d4+DEX+GUN+AIM)*2
+   }
+  }
+ }
+ function: single attack STEP IMPR {
+  if (BAB > 5) {
+   if (STEP != 0 & LVL > 5) {
+    if (IMPR != 0 & LVL > 11) {
+     result: (2d4+DEX+GUN+AIM)*3
+    } else {
+     result: (2d4+DEX+GUN+AIM)*2
+    }
+   } else {
+    result: (2d4+DEX+GUN+AIM)
+   }
+  } else {
+   if (STEP != 0 & LVL > 5) {
+    if (IMPR != 0 & LVL > 11) {
+     result: (2d4+DEX+GUN+AIM)*3
+    } else {
+     result: (2d4+DEX+GUN+AIM)*2
+    }
+   } else {
+    result: (2d4+DEX+GUN+AIM)
+   }
+  }
+ }
+ output 0 named ""
+ output [full attack] named "Full Attack Rapid Shot Lv [LVL]"
+ \output [single attack 0 0] named "Single Attack no Skirm Step Lv [LVL]"\
+ \output [single attack 1 0] named "Single Attack Skirmish Step Lv [LVL]"\
+ \output [single attack 1 1] named "Single Attack Improved Step Lv [LVL]"\
+ output [single attack 0 0]+[skirmish] named "Current Skirmish no Skirm Step Lv [LVL]"
+ output [single attack 1 0]+[skirmish] named "Current Skirmish Skirmish Step Lv [LVL]"
+ output [single attack 1 1]+[skirmish] named "Current Skirmish Improved Step Lv [LVL]"
+ output 0 named ""
+}

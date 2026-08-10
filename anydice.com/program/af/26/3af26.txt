@@ -1,0 +1,43 @@
+MISS: 0
+HIT: 1
+
+function: highest N:n of A:s B:s {
+    result: {1..N}@[sort {A, B}]
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL + ATTACK > DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+
+ loop A over ATTACKRESULTS {
+   POTDMG: HITDAMAGE - ARMOR
+   POTDMG: [highest 1 of 0 POTDMG]
+   D: D + POTDMG * A
+   ARMOR: ARMOR - A
+ }
+ result: D
+}
+
+function: attack {
+ result: [damage for [attack d10 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d10 vs DEFENSE]]
+}
+
+DEFENSE: 8+1d10
+
+ARMOR: 12
+ATTACK: 14
+HITDAMAGE: 4d6
+output [2 attacks] named "Brawl"
+
+ARMOR: 6
+ATTACK: 14
+HITDAMAGE: 4d6
+output [1 attacks] named "Extra Heavy Melee"

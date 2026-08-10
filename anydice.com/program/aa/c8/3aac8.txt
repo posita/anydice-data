@@ -1,0 +1,48 @@
+set "maximum function depth" to 12
+
+function: caravanroll LV:n N:n M:n helper {
+ if N = M { 
+  if N=1 { result: 0 }
+  if N=2 { result: 2 }
+  if N=3 { result: 6 + LV }
+  if N=4 { result: 8 + LV }
+ }
+ SUM: N+M
+ result: SUM + LV
+}
+
+function: caravanroll LV:n {
+ result: [caravanroll LV 1d4 1d4 helper]
+}
+
+function: check double DOUBLE:n N:n M:n O:n {
+ result: (N=DOUBLE&M=DOUBLE)|(M=DOUBLE&O=DOUBLE)|(O=DOUBLE&N=DOUBLE)
+}
+
+function: handle one two LV:n N:n M:n O:n {
+ if N=M { result: [caravanroll LV M O helper] }
+ result: [caravanroll LV N M helper]
+}
+
+function: caravanroll adv LV:n N:n M:n O:n helper {
+ if [check double 4 N M O] {result: [caravanroll LV 4 4 helper]}
+ if [check double 3 N M O] {result: [caravanroll LV 3 3 helper]}
+ if [check double 2 N M O] {result: [handle one two LV N M O]}
+ if [check double 1 N M O] {result: [handle one two LV N M O]}
+ if (N>O)&(M>O) { result: [caravanroll LV N M helper] }
+ if (N>M)&(O>M) { result: [caravanroll LV N O helper] }
+ if (M>N)&(O>M) { result: [caravanroll LV M O helper] }
+}
+
+function: caravanroll adv LV:n {
+ result: [caravanroll adv LV 1d4 1d4 1d4 helper]
+}
+
+output [caravanroll 0] named "caravanroll"
+output [highest 2 of 2d4] named "2 of 2d4"
+output [caravanroll adv 0] named "adv caravanroll"
+output [highest 2 of 3d4] named "2 of 3d4"
+output [highest 2 of 4d4] named "2 of 4d4"
+output 1d20>16 named "1d20"
+output (1d20+4)>16 named "1d20 + 4"
+output [highest 1 of 2d20] named "1 of 2d20"

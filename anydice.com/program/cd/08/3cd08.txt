@@ -1,0 +1,130 @@
+QUARTEIGHT:  d{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8}
+HALFEIGHT:  d{0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8}
+ATTACKMOD: 0
+
+function: attackroll ROLL:n vs AC:n with DMG:n and CRITDMG:n {
+ if ROLL >= 20 { result: CRITDMG} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: DMG}
+ result: 0
+}
+
+function: advattackroll vs AC:n with DMG:n and CRITDMG:n{
+ result: [attackroll [highest 1 of 2d20] vs AC with DMG and CRITDMG]
+}
+
+function: dmgdice per hit for cme cast at LVL:n {
+ result: 2d8 + (LVL-4)d8
+}
+
+function: dmgdice per hit for sb cast at LVL:n {
+ if (LVL=2) {result: 2d8}
+ if (LVL=3 | LVL=4) {result: 3d8}
+ if (LVL=5 | LVL=6) {result: 4d8}
+ if (LVL >=7) {result: 5d8}
+ result: 0
+}
+
+function: get std bb dmg with WPN_ATK at TIER:n {
+ if (TIER > 4) {result: WPN_ATK + 3d8 + 4dHALFEIGHT}
+ result: WPN_ATK + (TIER-1)d8 + TIERdHALFEIGHT
+}
+
+function: get crit bb dmg with CRIT_WPN_ATK at TIER:n {
+ if (TIER > 4) {result: WPN_ATK + 6d8 + 4dHALFEIGHT}
+ result: CRIT_WPN_ATK + 2*(TIER-1)d8 +TIERdHALFEIGHT
+}
+
+
+OFF_ATK_DMG: 1d6
+OFF_ATK_DMG_CRIT: 2d6
+
+
+\Tier 1(LVL4) calculations CR 1-4 Monsters\
+\
+TIER:1
+ENEMYAC: 14
+ATTACKMOD: 4
+PROFICIENCY: 2
+
+SB_BEST_SPELL_LVL: 2
+
+ATK_DMG: 1d6 + ATTACKMOD
+ATK_DMG_CRIT: 2d6 + ATTACKMOD
+SB_ATK_DMG_MAX_LVL: [dmgdice per hit for sb cast at SB_BEST_SPELL_LVL] + ATTACKMOD
+SB_ATK_DMG_MAX_LVL_CRIT: 2*[dmgdice per hit for sb cast at SB_BEST_SPELL_LVL] + ATTACKMOD
+
+STD_ATK_E_DMG: [attackroll d20 vs ENEMYAC with ATK_DMG and ATK_DMG_CRIT]
+STD_ATK_E_DMG_W_ADV: [advattackroll vs ENEMYAC with ATK_DMG and ATK_DMG_CRIT]
+OFF_ATK_E_DMG: [attackroll d20 vs ENEMYAC with OFF_ATK_DMG and OFF_ATK_DMG_CRIT]
+OFF_ATK_E_DMG_W_ADV: [advattackroll vs ENEMYAC with OFF_ATK_DMG and OFF_ATK_DMG_CRIT]
+BB_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with ATK_DMG at TIER] and [get crit bb dmg with ATK_DMG at TIER]]
+SB_BB_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with SB_ATK_DMG_MAX_LVL at TIER] and [get crit bb dmg with SB_ATK_DMG_MAX_LVL_CRIT at TIER]]
+
+
+output BB_E_DMG named "T1 Bb atk BA Push expected dmg"
+output STD_ATK_E_DMG + OFF_ATK_E_DMG named "T1 DW Atk, BAtk expected dmg"
+output SB_BB_E_DMG named "T1 SB BB atk expected dmg"
+\
+
+
+
+\Tier 2(LVL8) calculations CR 5-8 Monsters\
+TIER: 2
+ENEMYAC: 16
+ATTACKMOD: 4
+PROFICIENCY: 3
+
+SB_BEST_SPELL_LVL: 2*TIER -1
+CME_BEST_SPELL_LVL: 2*TIER
+
+ATK_DMG: 1d6 + ATTACKMOD
+ATK_DMG_CRIT: 2d6 + ATTACKMOD
+SB_OFF_ATK_DMG_MAX_LVL: [dmgdice per hit for sb cast at SB_BEST_SPELL_LVL]
+SB_OFF_ATK_DMG_MAX_LVL_CRIT: 2*[dmgdice per hit for sb cast at SB_BEST_SPELL_LVL]
+SB_ATK_DMG_MAX_LVL: SB_OFF_ATK_DMG_MAX_LVL + ATTACKMOD
+SB_ATK_DMG_MAX_LVL_CRIT: SB_OFF_ATK_DMG_MAX_LVL + ATTACKMOD
+
+STD_ATK_E_DMG: [attackroll d20 vs ENEMYAC with ATK_DMG and ATK_DMG_CRIT]
+STD_ATK_E_DMG_W_ADV: [advattackroll vs ENEMYAC with ATK_DMG and ATK_DMG_CRIT]
+OFF_ATK_E_DMG: [attackroll d20 vs ENEMYAC with OFF_ATK_DMG and OFF_ATK_DMG_CRIT]
+OFF_ATK_E_DMG_W_ADV: [advattackroll vs ENEMYAC with OFF_ATK_DMG and OFF_ATK_DMG_CRIT]
+BB_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with ATK_DMG at TIER] and [get crit bb dmg with ATK_DMG at TIER]]
+SB_BB_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with SB_ATK_DMG_MAX_LVL at TIER] and [get crit bb dmg with SB_ATK_DMG_MAX_LVL_CRIT at TIER]]
+SB_OFF_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with SB_OFF_ATK_DMG_MAX_LVL at TIER] and [get crit bb dmg with SB_OFF_ATK_DMG_MAX_LVL_CRIT at TIER]]
+CME_THREE_ATK_E_DMG: [attackroll d20 vs ENEMYAC with [dmgdice per hit for cme cast at CME_BEST_SPELL_LVL] and 2*[dmgdice per hit for cme cast at CME_BEST_SPELL_LVL]]
+
+output BB_E_DMG + STD_ATK_E_DMG + OFF_ATK_E_DMG named "T2 Bb, EAtk, BAtk expected dmg"
+output SB_BB_E_DMG + SB_OFF_E_DMG + STD_ATK_E_DMG named "T2 SbBbAtk, SbBAtk, EAtk expected damage"
+output BB_E_DMG + STD_ATK_E_DMG + OFF_ATK_E_DMG + CME_THREE_ATK_E_DMG named "T2 CME 3Atk expected damage"
+
+
+
+\Tier 3(LVL12) calculations CR 9-12 Monsters\
+TIER: 3
+ENEMYAC: 17
+ATTACKMOD: 4
+PROFICIENCY: 4
+
+SB_BEST_SPELL_LVL: 2*TIER -1
+CME_BEST_SPELL_LVL: 2*TIER
+
+ATK_DMG: 1d6 + ATTACKMOD
+ATK_DMG_CRIT: 2d6 + ATTACKMOD
+SB_OFF_ATK_DMG_MAX_LVL: [dmgdice per hit for sb cast at SB_BEST_SPELL_LVL]
+SB_OFF_ATK_DMG_MAX_LVL_CRIT: 2*[dmgdice per hit for sb cast at SB_BEST_SPELL_LVL]
+SB_ATK_DMG_MAX_LVL: SB_OFF_ATK_DMG_MAX_LVL + ATTACKMOD
+SB_ATK_DMG_MAX_LVL_CRIT: SB_OFF_ATK_DMG_MAX_LVL + ATTACKMOD
+
+STD_ATK_E_DMG: [attackroll d20 vs ENEMYAC with ATK_DMG and ATK_DMG_CRIT]
+STD_ATK_E_DMG_W_ADV: [advattackroll vs ENEMYAC with ATK_DMG and ATK_DMG_CRIT]
+OFF_ATK_E_DMG: [attackroll d20 vs ENEMYAC with OFF_ATK_DMG and OFF_ATK_DMG_CRIT]
+OFF_ATK_E_DMG_W_ADV: [advattackroll vs ENEMYAC with OFF_ATK_DMG and OFF_ATK_DMG_CRIT]
+BB_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with ATK_DMG at TIER] and [get crit bb dmg with ATK_DMG at TIER]]
+SB_BB_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with SB_ATK_DMG_MAX_LVL at TIER] and [get crit bb dmg with SB_ATK_DMG_MAX_LVL_CRIT at TIER]]
+SB_OFF_E_DMG: [attackroll d20 vs ENEMYAC with [get std bb dmg with SB_OFF_ATK_DMG_MAX_LVL at TIER] and [get crit bb dmg with SB_OFF_ATK_DMG_MAX_LVL_CRIT at TIER]]
+CME_THREE_ATK_E_DMG: [attackroll d20 vs ENEMYAC with [dmgdice per hit for cme cast at CME_BEST_SPELL_LVL] and 2*[dmgdice per hit for cme cast at CME_BEST_SPELL_LVL]]
+
+output BB_E_DMG + STD_ATK_E_DMG + OFF_ATK_E_DMG named "T3 Bb, EAtk, BAtk expected dmg"
+output SB_BB_E_DMG + SB_OFF_E_DMG + STD_ATK_E_DMG named "T3 SbBbAtk, SbBAtk, EAtk expected damage"
+output BB_E_DMG + STD_ATK_E_DMG + OFF_ATK_E_DMG + CME_THREE_ATK_E_DMG named "T3 CME 3Atk expected damage"

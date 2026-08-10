@@ -1,0 +1,89 @@
+\damage per round (dpr)\
+
+\smite damage roll, given spell level, and whether or not its undead\
+function: smite level LVL:n against UN:n undead {
+  result:(LVL+!!UN+1)d8
+}
+
+\calculates hit chance\
+function: does ROLL:n plus MOD hit ac AC {
+  if ROLL=1 {
+    result: 0
+  }
+  else if ROLL+MOD>=AC {
+    result: 1
+  }
+}
+
+\calculate damage given hit roll, hit mod, enemy ac, damage die, damage mod, \
+\smite level (0 for no smite), whether to smite only on crit, \
+\and whether opponent is undead/fiend (for smite extra damage)\
+function: damage if HIT:n plus MOD:n hits ac AC:n with DMG_DIE:d die plus D_MOD:n and level S:n smite on crit C against U undead{
+  if HIT=20 {
+    if S {
+      result: 2*DMG_DIE+D_MOD+[smite level S against U undead]*2
+    }
+    else {
+      result: 2*DMG_DIE+D_MOD
+    }
+  }
+  else if HIT = 1 {
+    result: 0
+  }
+  else if HIT+MOD>=AC {
+    if S & !C {
+      result: DMG_DIE+D_MOD+[smite level S against U undead]
+    }
+    else {
+      result: DMG_DIE+D_MOD
+    }
+  }
+  else {
+    result:0
+  }
+}
+
+\constants, change as applicable\
+TO_HIT:   1@1d20
+ENEMYAC:  12
+HIT_MOD:  6
+DMG_MOD:  4
+DMG:      d10  \add extra damage die for divine favor\
+UNDEAD:   1
+
+output TO_HIT=20 named "crit chance"
+
+\Level 2: 1 attack per round -_-\
+output [does TO_HIT plus HIT_MOD hit ac ENEMYAC] named "Level 2: hit percentage vs ac [ENEMYAC]"
+output [damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 0 smite on crit 0 against UNDEAD undead] named "Level 2 - no smite"
+output [damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 1 smite on crit 1 against UNDEAD undead] named "Level 2 - smite only on crit"
+output [damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 1 smite on crit 0 against UNDEAD undead] named "Level 2 - smite on every hit"
+
+\Level 5: 2 attacks + 1 bonus action attack with polearm master\
+
+HIT_MOD: 7
+
+output [does TO_HIT plus HIT_MOD hit ac ENEMYAC] named "Level 5: hit percentage vs ac [ENEMYAC]"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 0 smite on crit 1 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4 die plus DMG_MOD and level 0 smite on crit 0 against UNDEAD undead]named "Level 5 - no smite"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 2 smite on crit 1 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4 die plus DMG_MOD and level 2 smite on crit 1 against UNDEAD undead]named "Level 5 - L2 smite only on crit"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 2 smite on crit 0 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4 die plus DMG_MOD and level 2 smite on crit 0 against UNDEAD undead] named "Level 5 - L2 smite on every hit"
+
+\Level 11: 2 attacks + 1 bonus action attack with improved divine smite + polearm master + an ASI and proficiency\
+
+HIT_MOD: 9
+DMG_MOD: 5
+DMG:     d10+d8
+
+output [does TO_HIT plus HIT_MOD hit ac ENEMYAC] named "Level 11: hit percentage vs ac [ENEMYAC]"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 0 smite on crit 1 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4+d8 die plus DMG_MOD and level 0 smite on crit 0 against UNDEAD undead]named "Level 11 - no smite"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 3 smite on crit 1 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4+d8 die plus DMG_MOD and level 3 smite on crit 1 against UNDEAD undead]named "Level 11 - L3 smite only on crit"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 3 smite on crit 0 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4+d8 die plus DMG_MOD and level 3 smite on crit 0 against UNDEAD undead] named "Level 11 - L3 smite on every hit"
+
+\Level 17: 2 attacks + 1 bonus action attack with improved divine smite + polearm master + an ASI and proficiency\
+
+HIT_MOD: 11
+
+output [does TO_HIT plus HIT_MOD hit ac ENEMYAC] named "Level 17: hit percentage vs ac [ENEMYAC]"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 0 smite on crit 1 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4+d8 die plus DMG_MOD and level 0 smite on crit 0 against UNDEAD undead]named "Level 17 - no smite"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 5 smite on crit 1 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4+d8 die plus DMG_MOD and level 5 smite on crit 1 against UNDEAD undead]named "Level 17 - L5 smite only on crit"
+output 2d[damage if TO_HIT plus HIT_MOD hits ac ENEMYAC with DMG die plus DMG_MOD and level 5 smite on crit 0 against UNDEAD undead] + 1d[damage if 1d20 plus HIT_MOD hits ac 12 with d4+d8 die plus DMG_MOD and level 5 smite on crit 0 against UNDEAD undead] named "Level 17 - L5 smite on every hit"

@@ -1,0 +1,75 @@
+\PF1E Battle Calculator\
+
+\Variable Definitions (Put your raw data here)\
+
+MONSTER_AC: 16
+MONSTER_HP: 4
+MONSTER_DR: 5 \Use a 0 if an attack bypasses the DR or a negative number if there is vulnerability\
+
+ATTACK_BONUS: 6
+DAMAGE_DICE: 1d8
+DAMAGE_MODIFIER: 1
+NON_CRITTING_DICE: 0
+CRIT_MULTIPLIER: 3
+CRIT_THREAT: 20
+
+\Math (Do not change this unless you know what you're doing)\
+
+ATTACK: 1d20 + ATTACK_BONUS
+HIT_CHANCE: (ATTACK >= MONSTER_AC) | (1d20 = 20 & MONSTER_AC > ATTACK_BONUS+20)
+DAMAGE: DAMAGE_DICE + DAMAGE_MODIFIER + NON_CRITTING_DICE - MONSTER_DR
+CHANCE_TO_DAMAGE_ON_HIT: DAMAGE > 0
+CHANCE_TO_DAMAGE_ON_ATTACK: HIT_CHANCE & CHANCE_TO_DAMAGE_ON_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_HIT: DAMAGE >= MONSTER_HP
+CHANCE_TO_ONE_HIT_KILL_ON_ATTACK: HIT_CHANCE & CHANCE_TO_ONE_HIT_KILL_ON_HIT
+
+CRIT_DAMAGE: (DAMAGE_MODIFIER * CRIT_MULTIPLIER) + NON_CRITTING_DICE - MONSTER_DR
+loop N over {1..CRIT_MULTIPLIER} {
+	CRIT_DAMAGE: CRIT_DAMAGE + DAMAGE_DICE
+}
+CRIT_CHANCE: HIT_CHANCE & 1d20 >= CRIT_THREAT
+CHANCE_TO_DAMAGE_ON_CRIT_HIT: CRIT_DAMAGE > 0
+CHANCE_TO_DAMAGE_ON_CRIT_ATTACK: CRIT_CHANCE & CHANCE_TO_DAMAGE_ON_CRIT_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT: CRIT_DAMAGE >= MONSTER_HP
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK: CRIT_CHANCE & CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT
+
+MINIMUM_DAMAGE: #DAMAGE_DICE + DAMAGE_MODIFIER - MONSTER_DR
+MAXIMUM_DAMAGE: [maximum of DAMAGE_DICE] + DAMAGE_MODIFIER - MONSTER_DR
+MINIMUM_CRIT_DAMAGE: ((#DAMAGE_DICE + DAMAGE_MODIFIER) * CRIT_MULTIPLIER) + #NON_CRITTING_DICE - MONSTER_DR
+MAXIMUM_CRIT_DAMAGE: (([maximum of DAMAGE_DICE] + DAMAGE_MODIFIER) * CRIT_MULTIPLIER) + [maximum of NON_CRITTING_DICE] - MONSTER_DR
+
+\Outputs (You can touch this, but it might give you wrong results if you do)\
+
+output HIT_CHANCE named "Chance to Hit"
+output DAMAGE named "Damage Range"
+output CHANCE_TO_DAMAGE_ON_HIT named "Chance to Deal Damage On Non-Critical Hit"
+output CHANCE_TO_DAMAGE_ON_ATTACK named "Chance to Deal Damage On Non-Critical Attack"
+output CHANCE_TO_ONE_HIT_KILL_ON_HIT named "Chance for One Hit Kill On Non-Critical Hit"
+output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK named "Chance for One Hit Kill On Non-Critical Attack"
+
+output CRIT_CHANCE named "Chance to Critical Hit"
+output CRIT_DAMAGE named "Critical Damage Range"
+output CHANCE_TO_DAMAGE_ON_CRIT_HIT named "Chance to Deal Damage On Critical Hit"
+output CHANCE_TO_DAMAGE_ON_CRIT_ATTACK named "Chance to Deal Damage On Critical Attack"
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT named "Chance for One Hit Kill On Critical Hit"
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill On Critical Attack"
+
+if MINIMUM_DAMAGE > 0 {
+	output HIT_CHANCE named "Chance to Deal Damage At All"
+} else {
+	if MINIMUM_CRIT_DAMAGE > 0 & MAXIMUM_DAMAGE <= 0 {
+		output CRIT_CHANCE named "Chance to Deal Damage At All"
+	} else {
+		output CHANCE_TO_DAMAGE_ON_ATTACK | CHANCE_TO_DAMAGE_ON_CRIT_ATTACK named "Chance to Deal Damage At All"
+	}
+}
+
+if MINIMUM_DAMAGE >= MONSTER_HP {
+	output HIT_CHANCE named "Chance for One Hit Kill Happening"
+} else {
+	if MAXIMUM_DAMAGE >= MONSTER_HP {
+		output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK | CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill Happening"
+	} else {
+		output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill Happening"
+	}
+}

@@ -1,0 +1,44 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+AC: d{10..30}
+
+FLANKING: d{0, 2}
+
+BONUS: 12+FLANKING
+DAMAGE: 3d8+1
+CRIT: 6d8+2
+RANGE: 20
+
+BBONUS: 15+FLANKING
+BDAMAGE: 3d8+5
+BCRIT: 6d8+10
+BRANGE: 20
+
+SINGLE: [attack 1d20 plus BONUS vs AC for DAMAGE crit CRIT on RANGE]
+output SINGLE
+BSINGLE: [attack 1d20 plus BBONUS vs AC for BDAMAGE crit BCRIT on BRANGE]
+output BSINGLE
+
+output [attack 1d20 plus BONUS vs AC for DAMAGE crit CRIT on RANGE]+[attack 1d20 plus BONUS-1 vs AC for DAMAGE crit CRIT on RANGE]+[attack 1d20 plus BONUS-2 vs AC for DAMAGE crit CRIT on RANGE]+[lowest of 1 and [highest of 0 and 1d20+BONUS-AC]]*[attack 1d20 plus BONUS-2 vs AC for DAMAGE crit CRIT on RANGE] named "two normal attacks, take AoO if the first attack hits, and another attack against another enemy at -2"
+
+output 2d[attack 1d20 plus BONUS vs AC for DAMAGE crit CRIT on RANGE]+[attack 1d20 plus BONUS-2 vs AC for DAMAGE crit CRIT on RANGE] named "two normal attacks, don't take AoO, and another attack against another enemy at -2"
+
+output [attack 1d20 plus BBONUS vs AC for BDAMAGE crit BCRIT on BRANGE]+[attack 1d20 plus BBONUS-1 vs AC for BDAMAGE crit BCRIT on BRANGE]+[attack 1d20 plus BBONUS-2 vs AC for BDAMAGE crit BCRIT on BRANGE]+[lowest of 1 and [highest of 0 and 1d20+BBONUS-AC]]*[attack 1d20 plus BBONUS-2 vs AC for BDAMAGE crit BCRIT on BRANGE] named "two normal attacks, take AoO if the first attack hits, and another attack against another enemy at -2, buffed"
+
+output 2d[attack 1d20 plus BBONUS vs AC for BDAMAGE crit BCRIT on BRANGE]+[attack 1d20 plus BBONUS-2 vs AC for BDAMAGE crit BCRIT on BRANGE] named "two normal attacks, don't take AoO, and another attack against another enemy at -2, buffed"
+
+output [attack 1d20 plus BONUS vs AC for DAMAGE crit CRIT on RANGE]+[attack 1d20 plus BONUS-1 vs AC for DAMAGE crit CRIT on RANGE]+[attack 1d20 plus BONUS-2 vs AC for DAMAGE crit CRIT on RANGE]+[lowest of 1 and [highest of 0 and 1d20+BONUS-AC]]*[attack 1d20 plus BONUS-2 vs AC for DAMAGE crit CRIT on RANGE]+SINGLE named "two normal attacks, take AoO if the first attack hits, and another attack against another enemy at -2, spend 3 momentum"
+
+output [attack 1d20 plus BBONUS vs AC for BDAMAGE crit BCRIT on BRANGE]+[attack 1d20 plus BBONUS-1 vs AC for BDAMAGE crit BCRIT on BRANGE]+[attack 1d20 plus BBONUS-2 vs AC for BDAMAGE crit BCRIT on BRANGE]+[lowest of 1 and [highest of 0 and 1d20+BBONUS-AC]]*[attack 1d20 plus BBONUS-2 vs AC for BDAMAGE crit BCRIT on BRANGE]+BSINGLE named "two normal attacks, take AoO if the first attack hits, and another attack against another enemy at -2, buffed, spend 3 momentum"

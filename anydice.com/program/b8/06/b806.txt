@@ -1,0 +1,51 @@
+\**** Great Weapon Fighting modifiable Calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: sixgwfight ROLLX:n {
+ if ROLLX <= 2 { result:d6 }
+ result: ROLLX
+}
+
+function: twelvegwfight ROLLX:n {
+ if ROLLX <= 2 { result:d12 }
+ result: ROLLX
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 20
+DAMAGE: [sixgwfight d6] + [sixgwfight d6] + d12 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: [sixgwfight d6] + [sixgwfight d6] + [sixgwfight d6] + [sixgwfight d6] + 2d12 + ATTACKMOD + DMGBONUS
+output [attackroll [highest 1 of 2d20] vs ENEMYAC] named "Fgtr20 GWF Greatsword"
+output 8*[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Fgtr20 GWF Greatsword X8 Sup dice feat X2"
+
+ATTACKMOD: 5
+DMGBONUS: 2
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 20
+DAMAGE: d8 + d12 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d8 + 2d12 + ATTACKMOD + DMGBONUS
+output [attackroll [highest 1 of 2d20] vs ENEMYAC] named "Fgtr20 Dueling Longsword"
+output 8*[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Fgtr20 Dueling Longsword X8 (Action Surge) Sup dice feat X2"
+
+ATTACKMOD: 5
+DMGBONUS: 4
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 19
+DAMAGE: [twelvegwfight d12] + ATTACKMOD + DMGBONUS
+CRITDAMAGE: [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + ATTACKMOD + DMGBONUS
+output [attackroll [highest 1 of 2d20] vs ENEMYAC] named "Barb17 Fgtr3 GWF Greataxe Max Crit"
+output 5*[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Barb17 Fgtr3 GWF Greataxe Max Crit (Action Surge)"

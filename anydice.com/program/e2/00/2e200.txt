@@ -1,0 +1,117 @@
+YES: 1
+NO: 0
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: attack ATTACK:n hit HIT:n by MODELS:n {
+    if REROLL_HITS = YES {
+        result: [absolute HITSIX_MW-1]*[count {HIT..6} in (ATTACK * MODELS)d[reroll {1..HIT-1} on d6]] + HITSIX_MW*([count {HIT..6} in (ATTACK * MODELS)d[reroll {1..HIT-1} on d6]]-[count 6 in (ATTACK * MODELS)d[reroll {1..HIT-1} on d6]])
+    }
+    if SOULGUIDE = YES {
+        result: [absolute HITSIX_MW-1]*[count {HIT..6} in (ATTACK * MODELS)d[reroll 1 on d6]] + HITSIX_MW*([count {HIT..6} in (ATTACK * MODELS)d[reroll 1 on d6]]-[count 6 in (ATTACK * MODELS)d[reroll 1 on d6]])
+    }
+    result: [absolute HITSIX_MW-1]*[count {HIT..6} in (ATTACK * MODELS)d6] + HITSIX_MW*([count {HIT..6} in (ATTACK * MODELS)d6]-[count 6 in (ATTACK * MODELS)d6])
+}
+
+function: hits HITS:n wound WOUND:n {
+    if REROLL_WOUNDS = YES {
+        result: [count {WOUND..6} in HITSd[reroll {1..WOUND-1} on d6]]
+    }
+    result: [count {WOUND..6} in HITSd6]
+}
+
+function: wounds WOUNDS:n vs SAVE:n rend REND:n {
+    if REROLL_SAVES = YES {
+        if SAVE = 6 {
+            result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd[reroll {1..SAVE-1} on d6]])
+        }
+        result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd[reroll {1..SAVE-1} on d6]])
+    }
+    if SAVE = 6 {
+        result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd6])
+    }
+    result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd6])
+}
+
+function: success SUCCESS:n for DAMAGE:n mw MORTALWOUNDS:n mortal ATTACK:n wound HIT:n by MODELS:n {
+    if REROLL_HITS = YES {
+        result: (SUCCESS * DAMAGE) + HITSIX_MW*MORTALWOUNDS*(ATTACK * MODELS)d[reroll {1..HIT-1} on d{0,0,0,0,0,1}]
+    }
+    if SOULGUIDE = YES {
+        result: (SUCCESS * DAMAGE) + HITSIX_MW*MORTALWOUNDS*(ATTACK * MODELS)d[reroll 1 on d{0,0,0,0,0,1}]
+}
+    result: (SUCCESS * DAMAGE) + HITSIX_MW*MORTALWOUNDS*(ATTACK * MODELS)d{0,0,0,0,0,1}
+}
+
+function: mw MORTALWOUND:n dmg DAMAGE:n {
+    if MORTALWOUND = 0 {
+        result: DAMAGE
+    }
+    result: MORTALWOUND
+}
+
+function: attack ATTACK:n hit HIT:n wound WOUND:n vs SAVE:n rend REND:n for DAMAGE:n mw MORTALWOUND:n by MODELS:n {
+    result: [success [wounds [hits [attack ATTACK hit HIT by MODELS] wound WOUND] vs SAVE rend REND] for DAMAGE mw [mw MORTALWOUND dmg DAMAGE] mortal ATTACK wound HIT by MODELS]
+}
+
+function: damage {
+    result: [attack ATTACK hit HIT wound WOUND vs SAVE rend REND for DAMAGE mw MORTALWOUND by MODELS]
+}
+
+function: hit {
+    result: [wounds [hits [attack ATTACK hit HIT by MODELS] wound WOUND] vs SAVE rend REND]
+}
+
+
+
+REROLL_HITS: NO
+HITSIX_MW: YES
+SOULGUIDE: NO
+REROLL_WOUNDS: NO
+REROLL_SAVES: NO
+
+SAVE: 3
+ATTACK: 3
+HIT: 3
+WOUND: 3
+REND: 1
+DAMAGE: 2
+MORTALWOUND: 2
+MODELS: 1
+output [damage] named "MW's"
+
+REROLL_HITS: NO
+HITSIX_MW: NO
+SOULGUIDE: NO
+REROLL_WOUNDS: NO
+REROLL_SAVES: NO
+
+SAVE: 3
+ATTACK: 3
+HIT: 3
+WOUND: 3
+REND: 1
+DAMAGE: 2
+MORTALWOUND: 2
+MODELS: 1
+output [damage] named "no MW's"
+
+output [count {3..5} in 3d6] named "hit to 5"
+output 3d{0,0,1,1,1,0} named "hit to 5 custom dice"
+
+output [count 6 in 3d6] named "6's"
+output d{0,0,0,0,0,1} named "% of a 6 on 1d6"
+output 3d{0,0,0,0,0,1} named "% of a 6 on 3d6"
+output 2*3d{0,0,0,0,0,1} named "Mortal Wounds"
+
+output ([count 3 in 3d6] + [count 4 in 3d6] + [count 5 in 3d6] + [count 6 in 3d6])/4 named "test 2"
+output [count {3..6} in 3d6] named "all hits"

@@ -1,0 +1,71 @@
+function: deal A:n reliable R:n with critbonus D:n rolling B:n against C:n{
+ if B > C {
+  if B > 20 {
+   result: [highest 1 of 2d(A + D)]
+  }
+  result: A }
+ result: R
+}
+function: deal A:n with critbonus D:n rolling B:n against C:n{
+ result: [deal A reliable 0 with critbonus D rolling B against C]
+}
+function: deal A:n rolling B:n against C:n{
+ result: [deal A reliable 0 with critbonus 0 rolling B against C]
+}
+function: deal A:n reliable R:n rolling B:n against C:n{
+ result: [deal A reliable R rolling B against C]
+}
+function: attack with accuracy N:n{
+ result: [highest 1 of 2d(1d20+[highest 1 of Nd6])]+4
+}
+
+\
+Build:
+ Licences:
+   Death's Head 3 (Tracking Bug, Core Siphon (+1 accuracy), Kinetic Compensator (on miss, +1 accuracy))
+   Napoleon 2 (Paracausal ammunition) 
+  and one of 
+   \Problem: how do we handle heat? stabilize is still better than loading, but if we could do better somehow, it'd spike our dpr...
+    Ideally, we'd reset down to 5, for that sweet sweet +1d6 nuclear cavalier damage\ 
+   Barbarossa 3 (Siege stabilizers, Cannon)
+   Sherman 3 (ASURA nhp, Lance)
+     Maybe tack on Ghengis 2 for autocooler?
+  plus maybe
+    Pegasus 1 (Hunter Lock (+3 damage vs one target))
+ Talents:
+  Nuclear Cavalier 2? (how do I get into the danger zone safely?)
+  Tactician 2
+
+Weapons:
+Cyclone Rifle: 3d6+3 | Accurate, Loading, Reliable 5
+Siege Cannon: 3d6 | Arcing, ordinance, loading, heat 4, burst 2
+                  | OR heat 2, knockback 2
+Tachyon Lance: 2d6+8burn | ordinance, heat 4
+
+Acc Sources:
+Global: Core Siphon
+Conditional: Lock on, Tactician, compensator
+
+Rifle: +Talent, +Accurate -weakpoint
+\
+
+BASEACC:10
+RIFLEACC: BASEACC + 1 + 1 - 1
+CANNONACC: BASEACC
+LANCEACC: BASEACC
+
+       \Base Damage\  \Core Bonus\ \Pegasus\
+RIFLE:  3d6 + 3      + 1d6        + 3
+CANNON: 3d6          + 1d6  
+LANCE:  2d6 + 8      + 1d6        
+
+RIFLECRIT: 1d6
+
+EVASION:8
+
+output 1d{0,1}*
+       [deal RIFLE reliable 5 with critbonus RIFLECRIT rolling [attack with accuracy RIFLEACC] against EVASION] named "Rifle vs evasion [EVASION]"
+output 1d{0,1,1}*
+       [deal LANCE rolling [attack with accuracy LANCEACC] against EVASION] named "Lance vs evasion [EVASION]"
+output 1d{0,1,1,1,1}*
+       [deal CANNON rolling [attack with accuracy CANNONACC] against EVASION] named "Cannon vs evasion [EVASION]"

@@ -1,0 +1,38 @@
+function: basic save ROLL:n MOD:n DC:n DAMAGE:n POSTDAMAGE:n {
+  SAVE: ROLL + MOD - DC
+  if SAVE <= -10 {
+    LEVEL: -1
+  }
+  else if SAVE < 0 {
+    LEVEL: 0
+  }
+  else if SAVE < 10 {
+    LEVEL: 1
+  } 
+  else {
+    LEVEL: 2
+  }
+  if ROLL = 1 & LEVEL > -1 {
+    LEVEL: LEVEL - 1
+  }
+  if ROLL = 20 & LEVEL < 2 {
+    LEVEL: LEVEL + 1
+  }
+  result: [basic save damage LEVEL DAMAGE POSTDAMAGE] 
+}
+function: basic save damage LEVEL:n DAMAGE:n POSTDAMAGE:n {
+  if LEVEL = -1 {
+    result: DAMAGE * 2 + POSTDAMAGE
+  }
+  if LEVEL = 0 {
+    result: DAMAGE + POSTDAMAGE
+  }
+  if LEVEL = 1 {
+    result: DAMAGE / 2 + POSTDAMAGE
+  }
+  if LEVEL = 2 {
+    result: 0
+  }
+}
+
+output [basic save 1d20 8 21 (4d6+3+1d10) 10]

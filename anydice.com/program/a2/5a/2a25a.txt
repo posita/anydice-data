@@ -1,0 +1,45 @@
+function: dice for rank N {
+ if N > 0 {
+  if N < 6 {
+   result: 2 + (2 * N)
+  }
+ }
+}
+
+function: two highest of ATTR:s ABIL:s {
+  TOPS: {1@ATTR, 2@ATTR, 1@ABIL, 2@ABIL}
+  result: [two highest of tops TOPS]
+}
+function: two highest of ATTR:s ABIL:s RES:s {
+  TOPS: {1@ATTR, 2@ATTR, 1@ABIL, 2@ABIL, 1@RES, 2@RES}
+  result: [two highest of tops TOPS]
+}
+function: two highest of ATTR:s ABIL:s RES:s STA:s {
+  TOPS: {1@ATTR, 2@ATTR, 1@ABIL, 2@ABIL, 1@RES, 2@RES, 1@STA, 2@STA}
+  result: [two highest of tops TOPS]
+}
+function: two highest of tops TOPS:s {
+  SORTED: [sort TOPS]
+  result: {1,2}@SORTED
+}
+
+loop ATTR over {1..5}{
+ loop ABIL over {1..5}{
+  DATTR: [dice for rank ATTR]
+  DABIL: [dice for rank ABIL]
+  DRES: [dice for rank 1]
+
+  \ output [two highest of 1dDATTR 1dDABIL 1dDRES] named "d[DATTR], d[DABIL], d[DRES]" \
+  \ output [two highest of 1dDATTR 1dDABIL] named "d[DATTR], d[DABIL]" \
+ }
+}
+
+output [two highest of 1d[dice for rank 1] 1d[dice for rank 1]] named "d4, d4"
+output [two highest of 1d[dice for rank 3] 1d[dice for rank 3]] named "d8, d8"
+output [two highest of 1d[dice for rank 5] 1d[dice for rank 5]] named "d12, d12"
+
+\
+output [two highest of 1d4 1d4 1d12] named "d4, d4, d12"
+output [two highest of 1d4 1d12 1d12] named "d4, d12, d12"
+output [two highest of 1d12 1d12 1d12] named "d12, d12, d12"
+\

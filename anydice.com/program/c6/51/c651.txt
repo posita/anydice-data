@@ -1,0 +1,74 @@
+MISS: 0
+HIT: 1
+CRITICAL: 2
+MISSDAMAGE: 0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICAL }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICAL {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + [damage reroll WEAPONDAMAGE] + FLATDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [extra damage for ATTACKRESULTS]
+}
+
+function: extra damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICAL] {
+  result: [maximum of EXTRADAMAGE]
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: EXTRADAMAGE
+ }
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+function: damage reroll ROLL:n {
+ if ROLL <= REROLL {
+  result: WEAPONDAMAGE
+ }
+ result: ROLL
+}
+
+DEFENSE: d{13..17}
+
+ATTACK: 5 + 2 + 1
+WEAPONDAMAGE: d10
+FLATDAMAGE: 7
+CRITICALDAMAGE: 17 + d6
+EXTRADAMAGE: 0
+REROLL: 0
+
+output [attack] named "Warhammer"
+
+ATTACK: 5 + 2 + 1 + 1
+WEAPONDAMAGE: d12
+FLATDAMAGE: 5
+CRITICALDAMAGE: 17 + 1d12
+REROLL: 1
+
+output [attack] named "Greataxe"

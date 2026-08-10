@@ -1,0 +1,38 @@
+function: attack A HIT:n DICE BONUS:n def DEF:n {
+  result: [damage roll [hit roll A HIT def DEF] DICE BONUS]
+}
+
+CRIT: 2
+NHIT: 1
+MISS: 0
+
+NORM: 0
+ADV: 1
+DIS: 2
+
+function: hit roll A:n HIT:n def DEF:n {
+  if A = NORM {result: [hit check 1d20 HIT DEF]}
+  if A = ADV {result: [hit check 1@2d20 HIT DEF]}
+  if A = DIS {result: [hit check 2@2d20 HIT DEF]}
+}
+
+function: hit check HIT:n BONUS:n DEF:n {
+  if HIT = 20 { result: CRIT }
+  if HIT + BONUS > DEF { result: NHIT }
+  result: MISS
+}
+
+function: damage roll TYPE:n DICE BONUS:n {
+  if TYPE = CRIT { result: DICE + DICE + BONUS }
+  if TYPE = NHIT { result: DICE + BONUS }
+  result: 0
+}
+
+AC: 16
+BOW: [attack NORM 10 1d8+1d6 5 def AC]
+BITE: [attack NORM 5 1d6 5 def AC]
+ABOW: [attack ADV 10 1d8+1d6 5 def AC]
+ABITE: [attack ADV 5 1d6 5 def AC]
+
+output BOW + BITE + BITE
+output ABOW + ABITE + ABITE

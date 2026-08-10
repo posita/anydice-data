@@ -1,0 +1,77 @@
+AM: 5   \damage attribute bonus [-4,-3,-2,-1,0,+1,+2,+3,+4+5]\
+WM: 0   \weapon bonus [+1,+2,+3]\
+SH: 10  \sharpshooter +10\
+HWM: 10 \heavy weapon master +10\
+D: 2    \dueling(onehanded melee) +2\ 
+BA: 2   \bracers of archery(bow) +2\
+BR: 2   \barbarian rage lvl1:2 lvl9:3\
+
+function: weapon attack DMG:n crit CRIT{
+ result: DMG*CRIT + WM + AM \dmg dice + weapon bonus + damage attribute bonus\
+}
+
+function: melee twohanded damage DMG:n crit CRIT {
+ result: [weapon attack DMG crit CRIT] + HWM \weapon dmg + heavy weapon master\
+}
+
+function: melee onehanded damage DMG:n crit CRIT {
+ result: [weapon attack DMG crit CRIT] + D \weapon dmg + dueling\
+}
+
+function: ranged crossbow damage DMG:n crit CRIT {
+ result: [weapon attack DMG crit CRIT] + SH\weapon dmg + sharpshooter\
+}
+
+function: ranged bow damage DMG:n crit CRIT {
+ result: [weapon attack DMG crit CRIT] + BA + SH \dmg dice + weapon bonus + damage attribute bonus + bracers of archery + sharpshooter\
+}
+
+function: dmg reroll DMG:n DICE:n {
+ if DMG = 1 {
+  result: dDICE
+ }
+ result: DMG
+}
+
+function: fighter melee twohanded damage N DICE crit CRIT {
+DMG:0
+loop I over {1..N}{
+ DMG: DMG + [dmg reroll dDICE DICE]
+}
+result: [weapon attack DMG crit CRIT] + HWM
+}
+function: barbarian melee twohanded damage N DICE crit CRIT {
+DMG:0
+loop I over {1..N}{
+ DMG: DMG + dDICE
+}
+result: [weapon attack DMG crit CRIT] + BR + HWM
+}
+
+function: rogue attack DMG crit CRIT {
+ result: [weapon attack DMG crit CRIT] + 5d6*CRIT
+}
+
+output [melee twohanded damage 2d6 crit 1]            named "melee twohanded damage 2d6 +[HWM]"
+output [fighter melee twohanded damage 2 6 crit 1]    named "fighter melee twohanded damage 2d6 +[HWM]"
+output [barbarian melee twohanded damage 2 6 crit 1]  named "barbarian melee twohanded damage 2d6 +[HWM]"
+
+output [melee twohanded damage d12 crit 1]            named "melee twohanded damage d12 +[HWM]"
+output [fighter melee twohanded damage 1 12 crit 1]   named "fighter melee twohanded damage d12 +[HWM]"
+output [barbarian melee twohanded damage 1 12 crit 1] named "barbarian melee twohanded damage d12 +[HWM]"
+
+output [melee onehanded damage d6 crit 1]             named "melee onehanded damage d6 +[D]"
+output [melee onehanded damage d8 crit 1]             named "melee onehanded damage d8 +[D]"
+
+output [ranged bow damage d6 crit 1]          named "ranged bow damage d6"
+output [ranged bow damage d8 crit 1]          named "ranged bow damage d8"
+
+output [ranged crossbow damage d6 crit 1]     named "ranged crossbow damage d6"
+output [ranged crossbow damage d8 crit 1]     named "ranged crossbow damage d8"
+output [ranged crossbow damage d10 crit 1]    named "ranged crossbow damage d10"
+output [ranged bow damage d8 crit 1] +d6      named "ranged bow damage d8 +hunter mark"
+output [ranged bow damage d8 crit 1] +d8 +d6  named "ranged bow damage d8 +collosus slayer +hunter mark"
+
+output [melee onehanded damage d8 crit 1] +d8 + d6  named "melee onehanded damage d8 +[D] +collosus slayer +hunter mark"
+
+output [rogue attack d8 crit 1]  named "melee onehanded damage d8 +sneak damage lvl9"

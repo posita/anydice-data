@@ -1,0 +1,45 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+DOUBLECRIT: 3
+
+function: attack ROLL:n vs AC:n {
+ if ROLL=1 {result: MISS}
+ if ROLL=20 {
+  if ROLL + ATTACK >= AC+10 { result: DOUBLECRIT }
+  if ROLL + ATTACK >= AC+5 { result: CRIT }
+  result: HIT
+ }
+ if ROLL>=18 {
+  if ROLL + ATTACK >= AC+10 { result: DOUBLECRIT }
+  if ROLL + ATTACK >= AC+5 { result: CRIT }
+  if ROLL + ATTACK >= AC { result: HIT }
+  result: MISS
+ }
+ if ROLL + ATTACK >= AC+20 { result: DOUBLECRIT }
+ if ROLL + ATTACK >= AC+10 { result: CRIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for RESULT:n {
+ if RESULT = DOUBLECRIT {
+  result: DMGDIE+DMGDIE+DMGDIE + DMGBONUS
+ }
+ if RESULT = CRIT {
+  result: DMGDIE+DMGDIE + DMGBONUS
+ }
+ if RESULT = HIT {
+  result: DMGDIE + DMGBONUS
+ }
+ result: MISSDMG
+}
+
+ATTACK: 10
+DMGDIE: d10
+
+DMGBONUS: 6
+MISSDMG: 0
+
+
+output [damage for [attack d20 vs d{13..25}]]

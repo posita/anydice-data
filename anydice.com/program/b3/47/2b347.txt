@@ -1,0 +1,68 @@
+\Average Damage Calculator\
+\The average damage various attacks perform per turn, considering AC, resistances, and vulnerabilities\
+
+\Defenses\
+AC: 14
+MONST_AC: 13
+RESIST: 1 \"1" if no resistance, "2" if resistance\
+VULN: 1 \"1" if no vulnerabilities, "2" if vulnerable\
+
+\Basic Modifiers\
+PROF: 2
+MOD: 2
+
+\Attack Properties\
+BLESS: 0d4
+INSP: 0d6
+BASIC: 1d20
+ADV: [highest 1 of 2d20] 
+DIS: [lowest 1 of 2d20]
+
+TOHIT: PROF + MOD
+MONST_TOHIT: 3
+
+
+\Miscellaneous Properties\
+RAGE: 0
+BRUTAL: 0
+SNK: 0d6
+
+\Weapon Damage\
+DMG: 1d10
+MONST_DMG: 1d6 + 8
+
+
+\Critical Hit Properties\
+CRIT_DMG: DMG + (BRUTAL * DMG)
+MONST_CRIT: MONST_DMG
+CRIT_RANGE: 20
+IMPCRIT: 19
+
+\Damage Calculator\
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+\Damage Calculations\
+PLAYER_ATK: [attack BASIC + INSP + BLESS plus TOHIT vs MONST_AC for ((DMG + MOD + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + MOD + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE]
+MONST_ATK: [attack BASIC plus MONST_TOHIT vs AC for ((MONST_DMG) * VULN)/RESIST crit ((MONST_CRIT) * VULN)/RESIST on CRIT_RANGE]
+MULTIATK: PLAYER_ATK + [attack BASIC + INSP + BLESS plus TOHIT vs MONST_AC for ((DMG + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE]
+ADV_ATK: [attack ADV + INSP + BLESS plus TOHIT vs MONST_AC for ((DMG + MOD + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + MOD + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE] 
+ADV_MULTIATK: ADV_ATK + [attack BASIC + INSP + BLESS plus TOHIT vs MONST_AC for ((DMG + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE]
+
+\Damage Outputs\
+output 1d15 + 70 named "Monster HP at CR 1"
+output PLAYER_ATK named "Basic Attack"
+output ADV_ATK named "Advantage Attack"
+output MULTIATK named "Basic Two-Weapon Attack"
+output ADV_MULTIATK named "Advantage Two-Weapon Attack" 
+output MONST_ATK named "Monster CR 1 Attack vs. AC 14"

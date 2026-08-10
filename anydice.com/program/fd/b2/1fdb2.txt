@@ -1,0 +1,93 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: turn ROLL:n vs CHANCE:n for ATTACK_YES:d vs ATTACK_NO:d {
+    if ROLL > CHANCE{
+          result: ATTACK_NO
+    }
+    result: ATTACK_YES
+}  
+
+
+TARGET_AC_TEN: 12 + 2d4
+
+FIGHTER_FIVE: [multiattack d20 plus 9 vs TARGET_AC_TEN 
+    hit 1d8 + 3d6 + 5 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 5 crit 1d8 on 20]
+    miss [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 3d6 + 5 crit 1d8 + 3d6 on 20]
+    crit 2d8 + 6d6 + 5 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 5 crit 1d8 on 20]  on 20]
+
+FIGHTER_FIVE_ADV: [multiattack [highest 1 of 2d20] plus 9 vs TARGET_AC_TEN 
+    hit 1d8 + 3d6 + 5 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 5 crit 1d8 on 20]
+    miss [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 3d6 + 5 crit 1d8 + 3d6 on 20]
+    crit 2d8 + 6d6 + 5 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 5 crit 1d8 on 20]  on 20]
+
+    
+ROGUE_SEVEN: [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 4d6 + 5 crit 1d8 + 4d6 on 20]
+
+ROGUE_SEVEN_ADV: [attack [highest 1 of 2d20] plus 9 vs TARGET_AC_TEN for 1d8 + 4d6 + 5 crit 1d8 + 4d6 on 20]
+
+
+FIGHTER_FIVE_D: [multiattack d20 plus 9 vs TARGET_AC_TEN 
+    hit 1d8 + 3d6 + 7 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 7 crit 1d8 on 20]
+    miss [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 3d6 + 7 crit 1d8 + 3d6 on 20]
+    crit 2d8 + 6d6 + 7 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 7 crit 1d8 on 20]  on 20]
+
+FIGHTER_FIVE_ADV_D: [multiattack [highest 1 of 2d20] plus 9 vs TARGET_AC_TEN 
+    hit 1d8 + 3d6 + 7 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 7 crit 1d8 on 20]
+    miss [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 3d6 + 7 crit 1d8 + 3d6 on 20]
+    crit 2d8 + 6d6 + 7 + [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 7 crit 1d8 on 20]  on 20]
+
+
+ROGUE_SEVEN_D: [attack d20 plus 9 vs TARGET_AC_TEN for 1d8 + 4d6 + 7 crit 1d8 + 4d6 on 20]
+
+ROGUE_SEVEN_ADV_D: [attack [highest 1 of 2d20] plus 9 vs TARGET_AC_TEN for 1d8 + 4d6 + 7 crit 1d8 + 4d6 on 20]
+
+output ROGUE_SEVEN_D named "Fighter 3 / Rogue 7 normal turn dueling"
+
+output FIGHTER_FIVE_D named "Fighter 5 / Rogue 5 normal turn dueling" 
+
+output ROGUE_SEVEN_ADV_D named "Fighter 3 / Rogue 7 advantage turn dueling"
+
+output FIGHTER_FIVE_ADV_D named "Fighter 5 / Rogue 5 advantage turn (only first attack) dueling"
+
+output ROGUE_SEVEN named "Fighter 3 / Rogue 7 normal turn defense/other"
+
+output FIGHTER_FIVE named "Fighter 5 / Rogue 5 normal turn defense/other" 
+
+output ROGUE_SEVEN_ADV named "Fighter 3 / Rogue 7 advantage turn defense/other"
+
+output FIGHTER_FIVE_ADV named "Fighter 5 / Rogue 5 advantage turn (only first attack) defense/other"

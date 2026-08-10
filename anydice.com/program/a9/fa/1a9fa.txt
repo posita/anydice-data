@@ -1,0 +1,64 @@
+function: roll DICE:n
+{
+  result:DICE
+}
+
+function: opposed skill NUMBER:s dice SEQUENCE:s {
+  SORTED: [sort SEQUENCE]
+  R: 1@SORTED
+  S: [count NUMBER in SEQUENCE]
+  if S>0
+  {
+    S:S-1
+  }
+  result: R+S
+}
+
+function: attacker skill AS:s dice AD:s vs defender skill DS:s dice DD:s
+{
+  N:[opposed skill AS dice AD]-[opposed skill DS dice DD]
+  if N<-1
+  {
+    result: -1
+  } else
+  {
+    result: N
+  }
+}
+
+function: unopposed skill NUMBERS:s dice SEQUENCE:s
+{
+  if [count NUMBERS in SEQUENCE]>0
+  {
+    result:1
+  }else
+  {
+    result:0
+  }
+}
+
+function: attacker skill AS:s dice AD:s damage AP:n vs defender skill DS:s dice DD:s armor DA:n
+{
+  N:[opposed skill AS dice AD]-[opposed skill DS dice DD]
+  if N<0
+  {
+    result:0
+  } else
+  {
+    if AP+N-DA=0
+    {
+      result: [roll 1d{0,1}]
+    }else if AP+N-DA<0
+    {
+      result:0
+    }else
+    {
+      result:AP+N-DA
+    }
+  }
+}
+
+output [unopposed skill {4,5,6} dice 2d6]
+output [opposed skill {4,5,6} dice 2d6]
+output [attacker skill {4,5,6} dice 2d6 vs defender skill {4,5,6} dice 2d6]
+output [attacker skill {4,5,6} dice 2d6 damage 6 vs defender skill {4,5,6} dice 2d6 armor 6]

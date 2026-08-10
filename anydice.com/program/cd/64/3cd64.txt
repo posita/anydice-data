@@ -1,0 +1,51 @@
+ARMOR : 1
+
+function: accuracy A:n {
+  if A > 0 { result : 1@Ad6 }
+  if A < 0 {
+    A : [absolute A]
+    result : 1@Ad6 * -1 }
+  result : 0
+}
+
+function: check X:n target T:n {
+  if X >= 20 { result : 2 }
+  if X >= T { result : 1 }
+  result : 0
+}
+
+function: X:n damage N:n F:n M:n {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  result : [highest of H - ARMOR and 0]
+}
+
+function: X:n damage N:n F:n M:n reliable R:n {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  H : [highest of H and R]
+  result : [highest of H - ARMOR and 0]
+}
+
+function: X:n damage N:n F:n M:n ap {
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  result : H
+}
+
+function: X:n damage N:n F:n M:n reliable R:n neurolink {
+  if X < 1 { result : [[check 1d20+[accuracy 0]+3 target 11] damage N F M reliable R] }
+  if X > 0 {
+    H : {1..N}@(X*N)dF + M
+  } else { H : 0 }
+  H : [highest of H and R]
+  result : [highest of H - ARMOR and 0]
+}
+
+output ARMOR named "Armor"
+output [[check 1d20+[accuracy 1]+3 target 11] damage 3 6 3 reliable 5] named "3d6+3 Accurate Reliable 5 w/ Crackshot + Autostab + Hard Cover"
+output [[check 1d20+[accuracy 0]+3 target 11] damage 4 6 3 reliable 5] named "3d6+3 Accurate Reliable 5 w/ Crackshot + OpCal + Hard Cover"
+output [[check 1d20+[accuracy 0]+3 target 11] damage 4 6 3 reliable 5 neurolink] named "3d6+3 Accurate Reliable 5 w/ Crackshot + OpCal + Hard Cover + Reroll if miss"

@@ -1,0 +1,72 @@
+function: gwf N:n {
+ if N < 3 { result: dDMGDICE }
+ result: N
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRITMISS: -1
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { 
+  HITDAMAGE: 0
+  CRITICALDAMAGE: 0
+  BONUSHITDMG: 0
+  BONUSCRITDMG: 0
+  result: CRITMISS 
+ }
+ if ROLL >= CRITON {
+  result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+function: bonusdmg for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BONUSCRITDMG
+ }
+ if ATTACKRESULT = HIT {
+  result: BONUSHITDMG
+ }
+ result: 0
+}
+
+function: check N:n {
+C:0
+loop N over {1..N}{
+ C:C + [damage for [attack d[highest 1 of NUMDICEd20] vs DEFENSE]]
+ }
+result:C
+}
+
+function: N:n attacks {
+ result:[check N]
+}
+
+function: N:n bonusattacks {
+ result: [bonusdmg for Nd[attack [highest 1 of NUMDICEd20] vs DEFENSE]]
+}
+
+DEFENSE: d{0}
+
+ATTACK:   4 + 3
+NUMDICE:  1
+CRITON:   20
+DMGDICE: 12
+HITDAMAGE: dDMGDICE +4 + 3
+CRITICALDAMAGE: HITDAMAGE + 1dDMGDICE
+BONUSDMGDICE: 12
+BONUSHITDMG: dBONUSDMGDICE + 3 + 4
+BONUSCRITDMG: BONUSHITDMG + 1dBONUSDMGDICE
+output [2 attacks] + [0 bonusattacks]named "ZEDD_20"

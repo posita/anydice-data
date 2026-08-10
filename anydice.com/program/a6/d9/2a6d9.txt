@@ -1,0 +1,187 @@
+\Damage Distrobution Calculator
+Takes crits, probability to hit, (dis)advantage, etc it to account 
+This is written for Ian's House rules\
+\Global Constants\
+MISS: 0
+HIT: 1
+CRIT: 2
+
+\User Variable Input\
+TOHIT: 14 \to hit modifier - should be a constant - 999 for guaranteed hit\
+DMG: 1d10+8 \attack damage - should be dice + modifier\
+MISSDMG: 0 \damage done on a miss - usually 0 but some abilities may deal damage on miss\
+AC: 25 \enemy AC - should be constant\
+
+\Normal Attack Function\
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 {
+  if TOHIT = 999 {result: HIT} 
+  result: MISS}
+ if ROLL = 20 {result: CRIT}
+ if ROLL + TOHIT > AC {result: HIT}
+ else {
+ if TOHIT = 999 {result: HIT}
+ result: MISS}
+}
+
+function: damage for RESULT:n {
+ if RESULT = CRIT {result: CRIT * DMG}
+ if RESULT = HIT {result: DMG}
+ if RESULT = MISS {result: MISSDMG}
+}
+
+function: attack {
+ result: [damage for [attack 1d20 vs AC]]
+}
+
+function: advantage attack {
+ result: [damage for [attack [highest 1 of 2d20] vs AC]]
+}
+
+function: super advantage attack {
+ result: [damage for [attack [highest 1 of 3d20] vs AC]]
+}
+
+function: disadvantage attack {
+ result: [damage for [attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: super disadvantage attack {
+ result: [damage for [attack [lowest 1 of 3d20] vs AC]]
+}
+
+\Expanded Crit Functions\
+function: exp crit attack ROLL:n vs AC:n {
+ if ROLL = 1 {
+  if TOHIT = 999 {result: HIT} 
+  result: MISS}
+ if ROLL >= 19 {result: CRIT}
+ if ROLL + TOHIT > AC {result: HIT}
+ else {
+  if TOHIT = 999 {result: HIT}
+  result: MISS}
+}
+
+function: exp crit attack {
+ result: [damage for [exp crit attack 1d20 vs AC]]
+}
+
+function: exp crit advantage attack {
+ result: [damage for [exp crit attack [highest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super advantage attack {
+ result: [damage for [exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+function: exp crit disadvantage attack {
+ result: [damage for [exp crit attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super disadvantage attack {
+ result: [damage for [exp crit attack [lowest 1 of 3d20] vs AC]]
+}
+
+\Extra Expanded Crit Functions\
+function: extra exp crit attack ROLL:n vs AC:n {
+ if ROLL = 1 {
+  if TOHIT = 999 {result: HIT} 
+  result: MISS}
+ if ROLL >= 18 {result: CRIT}
+ if ROLL + TOHIT > AC {result: HIT}
+  else {
+ if TOHIT = 999 {result: HIT}
+ result: MISS}
+}
+
+function: extra exp crit attack {
+ result: [damage for [extra exp crit attack 1d20 vs AC]]
+}
+
+function: exp crit advantage attack {
+ result: [damage for [extra exp crit attack [highest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super advantage attack {
+ result: [damage for [extra exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+function: exp crit disadvantage attack {
+ result: [damage for [exp crit attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super disadvantage attack {
+ result: [damage for [extra exp crit attack [lowest 1 of 3d20] vs AC]]
+}
+
+\Blade of Disaster Functions\
+function: blade of disaster damage for RESULT:n {
+ if RESULT = CRIT {result: 12d12}
+ if RESULT = HIT {result: 4d12}
+ if RESULT = MISS {result: 0}
+}
+
+function: blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack 1d20 vs AC]]
+}
+
+function: advantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [highest 1 of 2d20] vs AC]]
+}
+
+function: super advantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+function: disadvantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: super disadvantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+\Main\
+PUNCH: [attack]
+PUNCHADV: [advantage attack]
+DMG: 1d10+6d6+8
+GRITPUNCH: [attack]
+GRITPUNCHADV: [advantage attack]
+DMG: 1d10+10 
+RAGEPUNCH: [attack]
+RAGEPUNCHADV: [advantage attack]
+DMG: 1d10+6d6+10 
+GRITRAGEPUNCH: [attack]
+GRITRAGEPUNCHADV: [advantage attack]
+DMG: 1d10+9d8+8 
+FOTKSPUNCH: [attack]
+FOTKSPUNCHADV: [advantage attack]
+DMG: 1d10+9d8+10 
+FOTKSRAGEPUNCH: [attack]
+FOTKSRAGEPUNCHADV: [advantage attack]
+
+\Outputs\
+output 4dPUNCH named "base"
+output 4dPUNCHADV named "base w/ reckless attack"
+output 7dPUNCH named "base w/ action surge"
+output 7dPUNCHADV named "base w/ action surge & reckless attack"
+output 4dRAGEPUNCH named "rage"
+output 4dRAGEPUNCHADV named "rage w/ reckless attack"
+output 7dRAGEPUNCH named "rage w/ action surge"
+output 7dRAGEPUNCHADV named "rage w/ action surge & reckless attack"
+output 3dPUNCH + dFOTKSPUNCH named "FOTKS"
+output 3dPUNCHADV + dFOTKSPUNCHADV named "FOTKS w/ reckless attack"
+output 6dPUNCH + dFOTKSPUNCH named "FOTKS w/ action surge"
+output 6dPUNCHADV + dFOTKSPUNCHADV named "FOTKS w/ action surge & reckless attack"
+output 3dRAGEPUNCH + dFOTKSRAGEPUNCH named "rage FOTKS"
+output 3dRAGEPUNCHADV + dFOTKSRAGEPUNCHADV named "rage FOTKS w/ reckless attack"
+output 6dRAGEPUNCH + dFOTKSRAGEPUNCH named "rage FOTKS w/ action surge"
+output 6dRAGEPUNCHADV + dFOTKSRAGEPUNCHADV named "rage FOTKS w/ action surge & reckless attack"
+output 4dGRITPUNCH named "grit load"
+output 4dGRITPUNCHADV named "grit w/ reckless attack"
+output 7dGRITPUNCH named "grit w/ action surge"
+output 7dGRITPUNCHADV named "grit w/ action surge & reckless attack"
+output 4dGRITRAGEPUNCH named "grit rage"
+output 4dGRITRAGEPUNCHADV named "grit rage w/ reckless attack"
+output 7dGRITRAGEPUNCH named "grit rage w/ action surge"
+output 7dGRITRAGEPUNCHADV named "grit rage w/ action surge & reckless attack"

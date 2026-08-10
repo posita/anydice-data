@@ -1,0 +1,33 @@
+function: attack ATTACK_ROLL_NATURAL_RESULT:s plus ATTACK_BONUS:n hit DAMAGE_DICE:d plus DAMAGE_BONUS:n ac AC:n {
+  IS_CRITICAL_HIT: ATTACK_ROLL_NATURAL_RESULT = 20
+  IS_CRITICAL_MISS: ATTACK_ROLL_NATURAL_RESULT = 1
+
+  IS_HIT: ATTACK_ROLL_NATURAL_RESULT + ATTACK_BONUS >= AC
+  IS_HIT: IS_HIT | IS_CRITICAL_HIT
+  IS_HIT: IS_HIT & !IS_CRITICAL_MISS
+
+  EXPECTED_DAMAGE: IS_HIT * (DAMAGE_DICE + DAMAGE_BONUS) + IS_CRITICAL_HIT * DAMAGE_DICE
+
+  result: EXPECTED_DAMAGE
+}
+
+AC: 22
+ATTACK_BONUS: 9
+
+FIRST_ATTACK: [attack 2@2d20 plus ATTACK_BONUS hit 1d6 plus 7 ac AC]
+SECOND_ATTACK: [attack 2@2d20 plus ATTACK_BONUS hit 1d4 plus 7 ac AC]
+BOTH_ATTACKS: FIRST_ATTACK + SECOND_ATTACK
+AIMED_ATTACK: [attack 1d20 plus ATTACK_BONUS hit 1d6 plus 7 ac AC]
+AIMED_ATTACK_WITH_SNEAK_ATTACK: [attack 1d20 plus ATTACK_BONUS hit (1d6+4d6) plus 7 ac AC]
+LONGBOW_ATTACK: [attack 2@2d20 plus ATTACK_BONUS hit 1d8 plus 7 ac AC]
+AIMED_LONGBOW_ATTACK: [attack 1d20 plus ATTACK_BONUS hit 3d8 plus 7 ac AC]
+AIMED_LONGBOW_ATTACK_WITH_SNEAK_ATTACK: [attack 1d20 plus ATTACK_BONUS hit (3d8+4d6) plus 7 ac AC]
+
+output FIRST_ATTACK named "First attack"
+output SECOND_ATTACK named "Second attack"
+output BOTH_ATTACKS named "Both attacks"
+output AIMED_ATTACK named "Aimed attack"
+output AIMED_ATTACK_WITH_SNEAK_ATTACK named "Aimed attack (with ally providing sneak attack)"
+output LONGBOW_ATTACK named "Longbow attack"
+output AIMED_LONGBOW_ATTACK named "Aimed longbow attack"
+output AIMED_LONGBOW_ATTACK_WITH_SNEAK_ATTACK named "Aimed longbow attack (with ally providing sneak attack)"

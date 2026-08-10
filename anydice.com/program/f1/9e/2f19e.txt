@@ -1,0 +1,215 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d{
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        if ROLL + BONUS >= AC{
+            result: DMG * 2 + CRIT_DMG  
+        }
+        result: DMG
+    }
+    if ROLL + BONUS >= AC + 10 {
+        result: DMG * 2 + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        if ROLL + BONUS >= AC{
+            result: CRIT 
+        }
+        result: HIT
+    }
+    if ROLL + BONUS >= AC + 10{
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: save ROLL:n plus BONUS:n vs DC:n for DAMAGE:d save SAVE:d {
+    if ROLL + BONUS < DC {
+         result: DAMAGE
+    }
+    result: SAVE
+}
+
+function: check ROLL:n plus BONUS:n vs DC:n success DAMAGE:d fail FAIL:d { 
+    if ROLL + BONUS >= DC{
+        result: DAMAGE
+    }
+    result: FAIL
+}
+
+TARGET: 31
+
+
+output [attack d20 plus 18 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 13 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0] named "4 weapon attacks" 
+
+output [attack d20 plus 18 vs TARGET for 2d8 + 8 crit 0] + [attack d20 plus 13 vs TARGET for 2d8 + 8 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 8 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 8 crit 0] named "4 weapon attacks (dread marshal)" 
+
+output [attack d20 plus 19 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 14 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 9 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 9 vs TARGET for 2d8 + 6 crit 0] named "4 weapon attacks (inspiring marshal)" 
+
+output [attack d20 plus 19 vs TARGET for 2d8 + 8 crit 0] + [attack d20 plus 14 vs TARGET for 2d8 + 8 crit 0] + [attack d20 plus 9 vs TARGET for 2d8 + 8 crit 0] + [attack d20 plus 9 vs TARGET for 2d8 + 8 crit 0] named "4 weapon attacks (both)" 
+
+
+
+output [multiattack d20 plus 18 vs 28 
+             hit [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0]
+             miss [attack d20 plus 13 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0]
+             crit 1d6 + [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0]
+       ]  named "trip then attack (no AOO)"
+
+output [multiattack d20 plus 18 vs 28 
+             hit [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0]+ [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+             miss [attack d20 plus 13 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0]
+             crit 1d6 + [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0]+ [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+       ] named "trip then attack (AOO)"
+
+
+output [multiattack d20 plus 18 vs 28 
+             hit [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0]+ [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+             
+             miss [multiattack d20 plus 13 vs 28 
+                  hit  [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+                  miss [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0]
+                  crit 1d6 + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+             ] 
+             
+             crit 1d6 + [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d8 + 6 crit 0]+ [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+       ] named "trip twice if necessary, then attack (AOO)"
+
+
+
+output [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 8 vs TARGET for 2d8 + 6 crit 0] named "two attacks at max MAP"
+
+output [multiattack d20 plus 7 vs 28 
+       hit [multiattack d20 plus -1 vs d20 hit 4+3d6 miss 0 crit 4+3d6]
+       miss [attack d20 plus 8 vs TARGET for 2d6 + 6 crit 0]
+       crit [multiattack d20 plus -1 vs d20 hit 4+3d6 miss 0 crit 4+3d6]] named "last resort grapple throw"
+
+output [multiattack d20 plus 17 vs 28 
+       hit [multiattack d20 plus 17 vs 28 hit 4+3d6 miss 0 crit 4+3d6]
+       miss [attack d20 plus 13 vs TARGET for 2d6 + 6 crit 0]
+       crit [multiattack d20 plus 17 vs 28 hit 4+3d6 miss 0 crit 4+3d6]] named "1 action beginning grapple throw"
+
+output [attack d20 plus 18 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 13 vs TARGET for 2d8 + 6 crit 0] named "1 action beginning 2 attack"
+
+
+
+output [multiattack d20 plus 18 vs 28 
+             hit [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] 
+             miss [attack d20 plus 13 vs TARGET for 2d8 + 6 crit 0] 
+             crit 1d6 + [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] 
+       ]  named "1 action beginning trip then attack (no AOO)"
+
+output [multiattack d20 plus 18 vs 28 
+             hit [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+             miss [attack d20 plus 13 vs TARGET for 2d8 + 6 crit 0] 
+             crit 1d6 + [attack d20 plus 15 vs TARGET for 2d8 + 6 crit 0] + [attack d20 plus 20 vs TARGET for 2d8 + 6 crit 0]
+       ]  named "1 action beginning trip then attack (AOO)"
+
+
+output [attack d20 plus 18 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 14 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0] named "4 stance attacks" 
+
+output [attack d20 plus 18 vs TARGET for 2d6 + 8 crit 0] + [attack d20 plus 14 vs TARGET for 2d6 + 8 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 8 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 8 crit 0] named "4 stance attacks (dread marshal)" 
+
+output [attack d20 plus 19 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 15 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 11 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 11 vs TARGET for 2d6 + 6 crit 0] named "4 stance attacks (inspiring marshal)" 
+
+output [attack d20 plus 19 vs TARGET for 2d6 + 8 crit 0] + [attack d20 plus 15 vs TARGET for 2d6 + 8 crit 0] + [attack d20 plus 11 vs TARGET for 2d6 + 8 crit 0] + [attack d20 plus 11 vs TARGET for 2d6 + 8 crit 0] named "4 stance attacks (both)" 
+
+output [multiattack d20 plus 19 vs 28 
+             hit [attack d20 plus 16 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0]
+             miss [attack d20 plus 14 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0]
+             crit 1d6 + [attack d20 plus 16 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0]
+       ]  named "trip then stance attack (no AOO)"
+
+output [multiattack d20 plus 19 vs 28 
+             hit [attack d20 plus 16 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 18 vs TARGET for 2d6 + 6 crit 0]
+             miss [attack d20 plus 14 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0]
+             crit 1d6 + [attack d20 plus 16 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 18 vs TARGET for 2d6 + 6 crit 0]
+       ]  named "trip then stance attack (AOO)"
+
+
+output [multiattack d20 plus 19 vs 28 
+             hit [attack d20 plus 16 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0]+ [attack d20 plus 20 vs TARGET for 2d6 + 6 crit 0]
+             
+             miss [multiattack d20 plus 14 vs 28 
+                  hit  [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 20 vs TARGET for 2d6 + 6 crit 0]
+                  miss [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 6 crit 0]
+                  crit 1d6 + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 20 vs TARGET for 2d6 + 6 crit 0]
+             ] 
+             
+             crit 1d6 + [attack d20 plus 16 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0] + [attack d20 plus 12 vs TARGET for 2d6 + 6 crit 0]+ [attack d20 plus 20 vs TARGET for 2d6 + 6 crit 0]
+       ] named "trip twice if necessary, then stance attack (AOO)"
+
+
+
+HIT_DAMAGE: 2d6 + 4 + 1 + 4 + 2 + 2 + 4
+
+CRIT_DAMAGE: (2d10 + 4 + 1 + 4 + 2)*2 + 1d10 + 4 + 2 + 4
+
+
+output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] named "lantern one strike" 
+
+output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 13 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] named "lantern two strike"
+
+output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 13 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 8 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] named "three strike"
+
+output [multiattack d20 plus 20 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 15 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] named "lantern intensify, two strike"
+
+
+output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 1 + 2 + 4 crit CRIT_DAMAGE] named "adept AOO" 
+
+output [multiattack d20 plus 20 vs TARGET hit HIT_DAMAGE miss 1 + 2 + 4 crit CRIT_DAMAGE] named "adept AOO (intensify)" 
+
+output [multiattack d20 plus 19 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 14 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 9 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] named "three strike marshal"
+
+output [multiattack d20 plus 21 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE] + [multiattack d20 plus 16 vs TARGET hit HIT_DAMAGE + 2 miss 0 crit CRIT_DAMAGE] named "marshal, intensify, two strike"
+
+
+
+output [attack d20 plus 18 vs TARGET for 4d6 + 3 + 2d8 + 4 + 4 crit 1d6] named "old eyrunn"
+
+output [multiattack d20 plus 18 vs TARGET 
+     hit 3d8 + 4 + [attack d20 plus 14 vs TARGET for 2d6 + 4 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 4 crit 0]
+     miss [multiattack d20 plus 14 vs TARGET 
+          hit 1d8 + 2d6 + 4 + [attack d20 plus 10 vs TARGET for 2d6 + 4 crit 0]
+          miss [attack d20 plus 10 vs TARGET for 1d8 + 2d6 + 4 crit 0]
+          crit 2*(1d8 + 2d6 + 4) + [attack d20 plus 10 vs TARGET for 2d6 + 4 crit 0]]
+     crit 2*(3d8+4) + [attack d20 plus 14 vs TARGET for 2d6 + 4 crit 0] + [attack d20 plus 10 vs TARGET for 2d6 + 4 crit 0]] 
++[multiattack d20 plus 15 vs TARGET 
+     hit 3d8 + 4 + [attack d20 plus 10 vs TARGET for 2d8 + 4 crit 0]
+     miss [attack d20 plus 11 vs TARGET for 1d8 + 2d6 + 4 crit 0]
+     crit 2*(3d8 + 4) + [attack d20 plus 10 vs TARGET for 2d8 + 4 crit 0]] named "precision twin takedown + strike + command animal strike + strike"
+
+output [multiattack d20 plus 20 vs TARGET hit 2d6 + 4 + 2 + 1 miss 0 crit (2d10 + 4 + 2 + 1) * 2 + 1d10 + 4] + [multiattack d20 plus 20 vs TARGET hit 2d4 + 4 + 2 miss 0 crit (2d8 + 4 + 2) * 2 + 1d8 + 4] named "pick fighter double slice" 
+
+output [multiattack d20 plus 20 vs TARGET hit 2d6 + 4 + 2 + 1 miss 0 crit (2d10 + 4 + 2 + 1) * 2 + 1d10 + 4] + [multiattack d20 plus 20 vs TARGET hit 2d4 + 4 + 2 miss 0 crit (2d8 + 4 + 2) * 2 + 1d8 + 4] + [multiattack d20 plus 12 vs TARGET hit 2d6 + 4 + 2 + 1 miss 0 crit (2d10 + 4 + 2 + 1) * 2 + 1d10 + 4] named "pick fighter double slice + strike"
+
+output [multiattack d20 plus 20 vs TARGET hit 2d6 + 4 + 2 + 1 miss 0 crit (2d10 + 4 + 2 + 1) * 2 + 1d10 + 4] named "fighter AOO"
+
+output [attack d20 plus 20 vs TARGET for 2d6 + 4 + 2 crit 0] named "byar AOO"
+

@@ -1,0 +1,37 @@
+DRAGON: 1d6
+DICEA: 1d6
+DICEB: 1d6
+
+MODIFIER: 7
+
+TN: 17
+
+function: rolls DA DB DC have doubles {
+  result: (DA = DB | DB = DC | DC = DA)
+}
+
+function: rolls DA DB DC exceed T {
+  result: (DA + DB + DC >= T)
+}
+
+function: rolls DA DB DC crit vs T {
+  result: [rolls DA DB DC exceed T] & [rolls DA DB DC have doubles]
+}
+
+function: rolls DA:n DB:n DC:n crit given hit vs T:n {
+  if [rolls DA DB DC exceed T] {result: [rolls DA DB DC have doubles]}
+  result: d{}
+}
+
+function: stunts if DA:n DB:n DC:n crit vs T:n {
+  if [rolls DA DB DC exceed T] & [rolls DA DB DC have doubles] {result: DA}
+  result: d{}
+}
+
+HIT: [rolls DRAGON DICEA DICEB exceed (TN-MODIFIER)]
+CRIT: [rolls DRAGON DICEA DICEB crit given hit vs (TN-MODIFIER)]
+STUNT: [stunts if DRAGON DICEA DICEB crit vs (TN-MODIFIER)]
+
+output HIT named "Hit chance"
+output CRIT named "Crit chance (given successful hit)"
+output STUNT named "Stunt points on a crit"

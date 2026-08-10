@@ -1,0 +1,35 @@
+function: res A:n {
+  result: (A>=12) + (A>=7)
+}
+function: injuryres A:n {
+  result: (A>=9) + (A>=7) + (A>=2)
+}
+function: success D:n {
+  RAW: (2 + [absolute D])d6
+  if D >= 0 {
+    ROLL: [highest 2 of RAW]
+  } else {
+    ROLL: [lowest 2 of RAW]
+  }
+  result: [res ROLL]
+}
+function: injury D:n {
+  result: [injury D 0]
+}
+function: injury D:n M:n {
+  RAW: (2 + [absolute D])d6
+  if D >= 0 {
+    ROLL: [highest 2 of RAW]
+  } else {
+    ROLL: [lowest 2 of RAW]
+  }
+  result: [injuryres (ROLL+M)]
+}
+
+AIM: [success 2]
+COVER: 0
+ATTACK: [success {3, 2*(AIM>0), COVER}]
+output AIM
+output ATTACK
+output [injury {0, 2*(ATTACK>1)}]*(ATTACK>0)
+output [injury {0, 2*(ATTACK>1)}]*(ATTACK>0)*(AIM>0)

@@ -1,0 +1,44 @@
+function: test POOL:n {
+    result: [count {5..6} in POOL d6]
+}
+
+function: test POOL:n limit LIMIT:n {
+    result: [lowest of [test POOL] and LIMIT]
+}
+
+function: test POOL:n vs DEFPOOL:n {
+    result: [highest of [test POOL]-[test DEFPOOL] and 0]
+}
+
+function: test POOL:n limit LIMIT:n vs DEFPOOL:n {
+    result: [highest of [test POOL limit LIMIT]-[test DEFPOOL] and 0]
+}
+
+function: damage HITS:n with DAMAGE:n vs BODY:n in ARMOR:n {
+    if HITS = 0 { result: 0 }
+    result: [highest of HITS + DAMAGE - [test BODY + ARMOR] and 0]
+}
+
+function: attack POOL:n limit ACCURACY:n damage DAMAGE:n vs DEFPOOL:n body BODY:n armor ARMOR:n {
+    HITS: [test POOL limit ACCURACY vs DEFPOOL]
+    result: [damage HITS with DAMAGE vs BODY in ARMOR]
+}
+
+ACCURACY: 6
+DAMAGE: 8
+BODY: 6
+DEFPOOL: 15
+ARMOR: 5
+\
+BOOST: [test 6]+1
+SPLIT: [attack (18+BOOST)/2 limit 8 damage 8 vs DEFPOOL body BODY armor ARMOR-3]
+output SPLIT named "Split attacks"
+output [attack 18+BOOST limit 8 damage 8 vs DEFPOOL body BODY armor ARMOR-3] named "One attack"
+output SPLIT+SPLIT named "Two attacks"
+\
+
+loop POOL over {6,8,10,12,14,16} {
+    output [attack POOL limit ACCURACY damage DAMAGE vs DEFPOOL body BODY  armor ARMOR] named "[POOL] attacking"
+    \SPLIT: [attack POOL/2 limit ACCURACY damage DAMAGE vs DEFPOOL body BODY armor ARMOR]
+    output SPLIT+SPLIT named "[POOL] semi-auto burst"\
+}

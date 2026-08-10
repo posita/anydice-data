@@ -1,0 +1,36 @@
+set "maximum function depth" to 50
+
+PSIX: {0,0,1,1,2,3}
+
+PEIGHT: {0,0,0,1,1,1,2,3}
+
+PTEN: {0,0,0,0,1,1,1,2,2,3}
+
+function: tail N:n D M {
+  if N < M {result: 0}
+  result: 1 + [tail dD D M]
+}
+
+function: poissonimpl N:n D M T {
+  if (N < M) {result: N}
+  if (T = 1) {result: M + [tail dD D M]}
+  result: M
+}
+
+function: poisson D T {
+  MAX: [maximum of dD]
+  result: [poissonimpl dD D MAX T]
+}
+
+function: success D:n on D at least N max M {
+ if (D = M) {result: 1 + [success dD on D at least N max M]}
+ if (D >= N) {
+  result: 1
+ }
+ result: 0
+}
+
+output [lowest of 4d[poisson PSIX 1] and 20] named "4d6 poisson"
+output [lowest of 4d[poisson PEIGHT 1] and 20] named "4d8 poisson"
+output [lowest of 4d[poisson PTEN 1] and 20] named "4d10 poisson"
+output [lowest of 4d[success d10 on d10 at least 7 max 10] and 20] named "success 4d10 at least 7"

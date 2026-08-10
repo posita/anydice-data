@@ -1,0 +1,119 @@
+\ Which one is best: Two-Gun Kid or Double Shot ? \ 
+\ Double Shot is a limited action, so I will be comparing it to multi-action with two and three actions with a gun \
+set "explode depth" to 3
+
+\ Parametre vi setter. Defense er enten parry eller 4+Cover \
+DEFENSE: 7
+TOUGHNESS: 7
+ATTACK_SKILL: [explode d8]
+DMG_ARROW: [explode 2d6]
+DMG_GUN: [explode 2d6]+1
+
+MAXWOUNDS: 4
+WILD_DIE: [explode d6]
+
+\ NO TOUCHING BELOW \
+EDS: [explode d6]
+
+\ "Double Attack" Edge Dice \
+\ Angrep 1: Den hÃ¸yeste av pilterning-rullene \
+\ Angrep 2: Hvis d6-rullet er hÃ¸yere enn det laveste pilterning-rullet, d6, ellers pilterning-rullet \
+DS_ARROW_ONE: [highest of ATTACK_SKILL and ATTACK_SKILL]
+DS_ARROW_TWO: [highest of [lowest of ATTACK_SKILL and ATTACK_SKILL] and WILD_DIE]
+
+\ "Two-Gun Kid" Edge dice \
+\ Angrep 1: skudd-terning + wild die \
+\ Angrep 2: som angrep 1, men -2 \
+TGK_SHOT_ONE: [highest of ATTACK_SKILL and WILD_DIE]
+TGK_SHOT_TWO: TGK_SHOT_ONE -2
+TGK_THREE_SHOT: TGK_SHOT_ONE -4
+
+\ Vanlig multi-attack: To angrep gir -2 pÃ¥ begge, tre gir -4 pÃ¥ alle tre \
+MULTI_TWO_SHOT: ([highest of ATTACK_SKILL and WILD_DIE]) -2
+MULTI_THREE_SHOT: ([highest of ATTACK_SKILL and WILD_DIE]) -4
+
+\ Angrepsfunksjonen \
+\ 0 er treff, 1 er raise, -1 er bom, -2 er critfail \
+function: tohit DEFENSE with DIE:n {
+  if DIE = 1 { result: -2 }
+  if DIE >= DEFENSE+4 { result: 1 } 
+  if DIE >= DEFENSE { result: 0 }
+  result: -1
+}
+
+\ WOUNDS-funksjonen \
+\ returnerer antall wounds, sÃ¥ 0 er treff/shaken, 1 er 1 wound, -1 er bom, -2 er critfail \
+\ input er tohit-sjansen, skaden, fiendens toughness, og skaderaise-die fra angrep \
+function: wounds toughness TN atk result ATK_RES:n dmg DMG:n dmgraise PR:n {
+  if ATK_RES <= 0 { result: ATK_RES }
+  if ATK_RES = 1 { DMG: DMG+PR }
+  if (DMG-TN)/4 > MAXWOUNDS { result: MAXWOUNDS }
+  \ divisjon runder ned til heltall \
+  result: (DMG-TN)/4 +1
+}
+
+\ lag et resultat for begge piler eller skudd \
+function: addwounds DA:n and DB:n {
+  if DB < 0 {
+    if DA < 0 { result: -1 } \ bom pÃ¥ begge \
+    result: DA
+  }
+  \ DB er nÃ¥ 0 eller positiv \
+  if DA < 0 { result: DB }
+  
+  \ nÃ¥ har treff pÃ¥ begge: \
+  if DB = 0 {
+    if DA = 0 { result: 1 } \ fordi 2x shaken = one wound \
+    result: DA
+  }
+\  if DA+DB > MAXWOUNDS { result: MAXWOUNDS } \
+  result: DA + DB
+}
+
+\ setter opp skuddene mot den defense vi har satt. Defense er parry eller 4+cover \
+DSA_RES:  [tohit DEFENSE with DS_ARROW_ONE]
+DSB_RES:  [tohit DEFENSE with DS_ARROW_TWO]
+TGKA_RES: [tohit DEFENSE with TGK_SHOT_ONE]
+TGKB_RES: [tohit DEFENSE with TGK_SHOT_TWO]
+
+TGKT_RES: [tohit DEFENSE with TGK_THREE_SHOT]
+M_TWO_RES: [tohit DEFENSE with MULTI_TWO_SHOT]
+M_THREE_RES: [tohit DEFENSE with MULTI_THREE_SHOT]
+
+\ Her kommer antall wounds. 0 er vanlig treff => shaken \
+DSA_W:  [wounds toughness TOUGHNESS atk result DSA_RES dmg DMG_ARROW dmgraise EDS]
+DSB_W:  [wounds toughness TOUGHNESS atk result DSB_RES dmg DMG_ARROW dmgraise EDS]
+TGKA_W: [wounds toughness TOUGHNESS atk result TGKA_RES dmg DMG_GUN dmgraise EDS]
+TGKB_W: [wounds toughness TOUGHNESS atk result TGKB_RES dmg DMG_GUN dmgraise EDS]
+TGKT_W: [wounds toughness TOUGHNESS atk result TGKT_RES dmg DMG_GUN dmgraise EDS]
+M_TWO_W: [wounds toughness TOUGHNESS atk result M_TWO_RES dmg DMG_GUN dmgraise EDS]
+M_THREE_W: [wounds toughness TOUGHNESS atk result M_THREE_RES dmg DMG_GUN dmgraise EDS]
+
+MULTI_ALL_W: [addwounds M_TWO_W and M_TWO_W]
+DS_ALL_W:    [addwounds DSA_W and DSB_W]
+TGK_ALL_W:   [addwounds TGKA_W and TGKB_W]
+TGK_THREE_ALL_W: [addwounds [addwounds TGKB_W and TGKB_W] and TGKT_W]
+M_THREE_ALL_W: [addwounds [addwounds M_THREE_W and M_THREE_W] and M_THREE_W]
+TGK_TWO_AMBIDEX: [addwounds TGKA_W and TGKA_W]
+
+output DS_ALL_W named "Wounds med Double Shot, to piler mot target"
+output TGK_ALL_W named "Wounds med Two-Gun Kid, to skudd mot target"
+output TGK_TWO_AMBIDEX named "Wounds Ambidex TGK, to skudd"
+output MULTI_ALL_W named "Wounds med Multi-Attack, to skudd mot target"
+output TGK_THREE_ALL_W named "Wounds Two-Gun, Multi 3 mot samme target"
+output M_THREE_ALL_W named "Wounds vanilje Multi 3 mot samme target"
+
+
+
+output DSA_W named "Wounds med Double Shot fÃ¸rste pil"
+output DSB_W named "Wounds med Double Shot andre pil"
+
+output DSA_RES named "DS arrow 1: Tohit chances"
+output DSB_RES named "DS arrow 2: Tohit chances"
+
+output TGKA_RES named "TGK shot 1: Tohit chances"
+output TGKB_RES named "TGK shot 2: Tohit chances"
+
+
+output DS_ARROW_ONE named "Double Shot pil 1, eller Frenzy angrep 1"
+output DS_ARROW_TWO named "Double Shot pil 2, eller Frenzy angrep 2"

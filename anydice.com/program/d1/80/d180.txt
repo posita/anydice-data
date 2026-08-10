@@ -1,0 +1,48 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 19 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll dam DAMROLL:n {
+ if DAMROLL = 1 {
+  result: d6
+ }
+ result: DAMROLL
+}
+
+ATTACK: 5+3
+HITDAMAGE: [reroll dam d6] + [reroll dam d6] + 5
+CRITICALDAMAGE: [reroll dam d6]+ [reroll dam d6]+ [reroll dam d6]+ [reroll dam d6] + 5
+MISSDAMAGE: 0
+
+loop AC over {15, 20, 25}{
+ output [damage for [attack d20 vs AC]]+[damage for [attack d20 vs AC]] named "2 attack vs[AC]"
+}
+
+ATTACK: 5+3-5
+HITDAMAGE:  [reroll dam d6]+ [reroll dam d6] + 15
+CRITICALDAMAGE: [reroll dam d6]+ [reroll dam d6]+ [reroll dam d6]+ [reroll dam d6] + 15
+MISSDAMAGE: 0
+
+loop AC over {15, 20, 25}{
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "slow attack vs[AC]"
+}

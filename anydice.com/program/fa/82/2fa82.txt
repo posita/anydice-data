@@ -1,0 +1,36 @@
+function: max A:n or B:n {
+  if A > B { result: A }
+  result: B
+}
+
+function: reroll DIE:d if under LIMIT:n {
+  result: [reroll DIE as DIE if under LIMIT]
+}
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL < LIMIT { result: DIE }
+  else { result: ROLL }
+}
+function: gwf DIE:d {
+  result: [reroll DIE as DIE if under 3]
+}
+
+
+DIE_SIZE: 6
+DIE_COUNT: 2
+PROF: 3
+DAMAGE_MODIFIER: 0
+
+
+GWF: [gwf dDIE_SIZE]
+GWF_DAMAGE: DIE_COUNTdGWF
+
+GWF_OR_PROFICIENCY: [max GWF_DAMAGE or PROF]
+MODIFIED_GWF: GWF_OR_PROFICIENCY + DAMAGE_MODIFIER
+
+DAMAGE: DIE_COUNTdDIE_SIZE
+MODIFIED_DAMAGE: [max DAMAGE or PROF]
+
+TOTAL_DAMAGE: MODIFIED_DAMAGE + DAMAGE_MODIFIER
+
+output TOTAL_DAMAGE named "Rolled Damage or Proficiency Bonus"
+output MODIFIED_GWF named "With Great Weapon Fighting"

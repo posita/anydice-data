@@ -1,0 +1,63 @@
+ATKMOD: 5
+PROF: 6
+WPNBONUS: 3
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRITRANGE: 20
+
+function: spear attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE { result: CRITICALHIT }
+ if ROLL + ATKMOD + PROF + WPNBONUS + 1 >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: spear damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: 2d8 + 2 + ATKMOD
+ }
+ if ATTACKRESULT = HIT {
+  result: 1d8 + 2 + ATKMOD
+ }
+ result: 0
+}
+
+function: unarmed attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE { result: CRITICALHIT }
+ if ROLL + ATKMOD + PROF >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: unarmed damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: 2d6 + ATKMOD
+ }
+ if ATTACKRESULT = HIT {
+  result: 1d6 + ATKMOD
+ }
+ result: 0
+}
+
+function: basic attack vs AC:n {
+ result: [spear damage for [spear attack d20 vs AC]] + [spear damage for [spear attack d20 vs AC]] + [spear damage for [spear attack d20 vs AC]] + [unarmed damage for [unarmed attack d20 vs AC]]
+}
+
+function: flurry attack vs AC:n {
+ result: [basic attack vs AC] + [unarmed damage for [unarmed attack d20 vs AC]]
+}
+
+function: adv attack vs AC:n {
+ result: [spear damage for [spear attack 1@2d20 vs AC]] + [spear damage for [spear attack 1@2d20 vs AC]] + [spear damage for [spear attack 1@2d20 vs AC]] + [unarmed damage for [unarmed attack 1@2d20 vs AC]]
+}
+
+function: adv flurry vs AC:n {
+ result: [adv attack vs AC] + [unarmed damage for [unarmed attack 1@2d20 vs AC]]
+}
+
+ARMORCLASS: 20
+output [basic attack vs ARMORCLASS] named "basic attack sequence"
+output [flurry attack vs ARMORCLASS] named "attack sequence with flurry of blows"
+output [adv attack vs ARMORCLASS] named "adv attack sequence"
+output [adv flurry vs ARMORCLASS] named "adv attack with flurry of blows"

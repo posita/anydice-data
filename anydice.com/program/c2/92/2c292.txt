@@ -1,0 +1,33 @@
+\ tweak values \
+PH_ATTACK: 3
+MG_ATTACK: 0
+PH_DEFENSE: 1
+MG_DEFENSE: 0
+HEALTH: 4
+ROLLS: 6
+
+\ anydice.com script for simulation \
+function: attack A {
+ result: Ad{0,1,1,1,1,2}
+}
+
+function: A:n with defense D:n {
+  if A > D {
+   result: A - D
+  }
+  result: 0
+}
+
+function: chance of HIT killing after N rolls {
+  X: 0
+  loop R over {1..N} {
+    X: X + HIT
+  }
+  result: X
+}
+
+HIT: [[attack PH_ATTACK] with defense PH_DEFENSE] + [[attack MG_ATTACK] with defense MG_DEFENSE]
+
+output HIT named "damage chances"
+output HIT > 0 named "hit chance"
+output [chance of HIT killing after ROLLS rolls] > HEALTH named "chance of damage over [HEALTH] after [ROLLS] rolls"

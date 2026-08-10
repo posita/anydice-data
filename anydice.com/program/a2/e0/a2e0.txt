@@ -1,0 +1,78 @@
+\Gives dice result for a given roll total\
+function: pomlookup NUMIN:n 
+{
+	if(NUMIN <  1) { result:  0 + (-5 * NUMIN) }
+	if(NUMIN > 20) { result: 100 + (5 * NUMIN) }
+	if(NUMIN =  1) { result: 0 }
+	if(NUMIN =  2) { result: 1 }
+	if(NUMIN =  3) { result: 3 }
+	if(NUMIN =  4) { result: 6 }
+	if(NUMIN =  5) { result: 10 }
+	if(NUMIN =  6) { result: 15 }
+	if(NUMIN =  7) { result: 21 }
+	if(NUMIN =  8) { result: 28 }
+	if(NUMIN =  9) { result: 36 }
+	if(NUMIN = 10) { result: 45 }
+	if(NUMIN = 11) { result: 55 }
+	if(NUMIN = 12) { result: 64 }
+	if(NUMIN = 13) { result: 72 }
+	if(NUMIN = 14) { result: 79 }
+	if(NUMIN = 15) { result: 85 }
+	if(NUMIN = 16) { result: 90 }
+	if(NUMIN = 17) { result: 94 }
+	if(NUMIN = 18) { result: 97 }
+	if(NUMIN = 19) { result: 99 }
+	if(NUMIN = 20) { result: 100 }
+}
+function: pomdice ONE:n TWO:n WEAK:n STRONG:n
+{
+	TOTAL: ONE + TWO + STRONG
+
+	FINAL: ([pomlookup TOTAL] + WEAK)/20
+	if(ONE = TWO)
+	{
+		FINAL: FINAL + 1
+	}
+	result: FINAL
+}
+
+function: pommoonbuff NUMMOON:n INF:n FIRST:n SECOND:n THIRD:n FOURTH:n
+{
+	BUFF: 0
+	EACH: 2
+	INFMOD: INF * 2
+	if(NUMMOON > 0)
+	{
+		CURRMOON: [pomdice FIRST SECOND INFMOD 0 ]
+		\DC 40\
+		CURRMOON: CURRMOON - 1 
+		if(CURRMOON >= 1)
+		{
+			BUFF: BUFF + (EACH * CURRMOON)
+		}
+	}
+	if(NUMMOON > 1)
+	{
+		CURRMOON: [pomdice THIRD FOURTH INFMOD 0 ]
+		\DC 40\
+		CURRMOON: CURRMOON - 1 
+		if(CURRMOON >= 1)
+		{
+			BUFF: BUFF + (EACH * CURRMOON)
+		}
+	}
+	result: BUFF
+}
+
+
+function: pommoonturn NUMMOON:n SKILL:n INF:n FIRST:n SECOND:n THIRD:n FOURTH:n FIFTH:n SIXTH:n
+{
+	WEAK: SKILL
+	STRONG: 0
+	WEAK: WEAK + [pommoonbuff NUMMOON INF FIRST SECOND THIRD FOURTH]
+	result: [pomdice FIFTH SIXTH WEAK STRONG]
+}
+output [pommoonbuff 2 6 1d10 1d10 1d10 1d10]
+\output [pomdice 1d10 1d10 12 0]\
+
+

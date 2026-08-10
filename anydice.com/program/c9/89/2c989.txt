@@ -1,0 +1,23 @@
+MINDAMAGE: 20
+MAXDR: 85
+
+function: resolve ammodt AMMO:s DT:n {
+    DTPEIRCE: 2@AMMO
+    DTMULT: 3@AMMO
+
+    result: [highest of 0 and (DT*(100+DTMULT)/(100) - DTPEIRCE)]    
+}
+
+function: deal DAMAGE:d NUMBER AMMO:s to enemy with resistance DR:n and threshold DT:n{
+    DTMOD: [resolve ammodt AMMO DT]
+    TOTAL: 0
+    loop N over {1..NUMBER} {
+      ADJDAMAGE: [highest of ((DAMAGE)*(100-[lowest of DR and MAXDR])/(100)-DTMOD) and (DAMAGE*MINDAMAGE)/(100)]
+      TOTAL: TOTAL + ADJDAMAGE
+    }
+    result:  (TOTAL*(100+1@AMMO)/(100))
+
+}
+
+
+output [deal 130 1 {0,0,0} to enemy with resistance 0 and threshold 100]

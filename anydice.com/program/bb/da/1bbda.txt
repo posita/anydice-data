@@ -1,0 +1,84 @@
+function: max S:s {result: 1@[sort S]}
+function: max M:n N:n {result: [max {M, N}]}
+function: min S:s {result: #S@[sort S]}
+function: min M:n N:n {result: [min {M, N}]}
+function: N:n vs T:n {
+  if N > T {result: 1} if N < T {result: -1} result: 0
+}
+function: N:n vs L:n H:n {
+  if N > H {result: 1} if N < L {result: -1} result: 0
+}
+function: F:s seqsum S:s {
+  R: {}
+  FSIZE: #F
+  SSIZE: #S
+  MAXI: [max FSIZE SSIZE]
+  loop I over {1..MAXI} {
+    R: {R, I@F + I@S}
+  }
+  result: R
+}
+function: F:s seqprod S:s {
+  R: {}
+  FSIZE: #F
+  SSIZE: #S
+  MAXI: [max FSIZE SSIZE]
+  loop I over {1..MAXI} {
+    R: {R, I@F * I@S}
+  }
+  result: R
+}
+function: N:n vs CM:n L:n H:n CH:n {
+  if N >= CH {result: 2} if N <= CM {result: -2}
+  if N > H {result: 1} if N < L {result: -1}
+  result: 0
+}
+function: roll N:n D:n plus MOD:n with ADV:n {
+  if ADV < 0 {result: {1-ADV..N-ADV}@(N-ADV)dD+MOD}
+  result: {1..N}@(N+ADV)dD+MOD
+}
+function: roll N:n D:n with ADV:n {result: [roll N D plus 0 with ADV]}
+function: roll N:n D:n plus MOD:n {result: [roll N D plus MOD with 0]}
+function: F:s within N:n of S:s {
+  result: [F within N N of S ]
+}
+function: F:s within M:n N:n of S:s {
+  R: {}
+  FSIZE: #F
+  SSIZE: #S
+  MAXI: [max FSIZE SSIZE]
+  loop I over {1..MAXI} {
+    CMP: I@F - I@S
+    if CMP < M {R: {R, -1}}
+    if CMP > N {R: {R, 1}}
+    if CMP > M & CMP < N {R: {R, 0}}
+  }
+  result: R
+}
+
+\================================================================\
+
+R: 3 D: 6 W: 1
+T: 8 L: T-W H: T+W
+
+loop M over {1..-6} {
+  output [ {1..R}@MdD vs L H ] named "{1..[R]}@[M]d[D] vs [L]:[H]"
+}
+loop N over {1..-6} {
+  loop M over {1..6} {
+    output [{1..R}@MdD within W of {1..R}@NdD] named "{1..[R]}@[M]d[D] vs {1..[R]}@[N]d[D] w/in +/- [W]"
+  }
+}
+
+loop MOD over {-3..-4} {
+  ADV: 1
+  output [[roll R D plus MOD with ADV] vs L H] named "#### MOD Only #### [R]d[D] + [MOD] w/ [ADV]  vs. [L]:[H]"
+}
+
+L: 8 H: 10
+
+loop ADD over {-1..-3} {
+  loop MOD over {-1..1} {
+    output [(R+ADD)dD+MOD vs L H] named "#### Num Dice #### ([R] + [ADD])d[D] + [MOD] vs. [L]:[H]"
+  }
+}

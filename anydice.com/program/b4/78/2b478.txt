@@ -1,0 +1,106 @@
+function: evaluate ROLL:s {
+
+SUCCESSES: ROLL >= 7
+
+result: SUCCESSES  + (ROLL = 10)+ (-1*(ROLL = 1))
+
+}
+
+ 
+
+function: att ROLL_A:n contre ROLL_B:n eval EROLL_A:n EROLL_B:n {
+
+  if(EROLL_A=EROLL_B){
+    if(ROLL_A>ROLL_B){
+      result: [bonus ROLL_A d10] > EROLL_B
+    }
+    if(ROLL_A<ROLL_B){result: EROLL_A > [bonus ROLL_B d10]}
+    else{result: -1}
+   }
+
+result: EROLL_A>EROLL_B
+
+}
+
+ 
+
+function: def ROLL_A:s sup ROLL_B:s{
+
+if(ROLL_A=ROLL_B){
+
+   result: -1
+
+}
+
+result: ROLL_A>ROLL_B
+
+}
+
+ 
+
+function: bonus ROLL:s avec ACUMU:n {
+
+NB: ACUMU-#ROLL
+
+EVA: 0
+
+loop X over {1..NB} {
+
+EVA : [evaluate X@ROLL] + EVA
+
+}
+
+result: EVA
+
+}
+
+ 
+
+function: malus ROLL:s {
+
+NB: #ROLL
+
+EVA: 0
+
+loop X over {2..NB} {
+
+EVA : [evaluate X@ROLL] + EVA
+
+}
+
+result: EVA
+
+}
+
+ 
+
+
+
+ 
+
+loop DICE over {4..8} {
+
+DES: DICE+4
+output [bonus DICE d10 avec DES] named "[DICE]Bonus 1d10"
+
+}
+
+ 
+
+\loop DICE over {1..5} {
+
+DES: DICE+1
+
+output [malus DES d10] named "malus [DICE]d10"
+
+}\
+
+ 
+
+\loop DICE over {1..3}{
+
+loop DICEB over {1..3}{
+
+output [att DICEB contre DICE eval [evaluate DICEB d10] [evaluate DICE d10]] named "[DICEB]>[DICE]"
+
+}}\

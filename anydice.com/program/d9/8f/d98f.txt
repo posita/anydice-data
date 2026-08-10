@@ -1,0 +1,112 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE + [maximum of MARKDMG]
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE + MARKDMG
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: [maximum of SNEAKDMG] + [maximum of COLOSSUS]
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: SNEAKDMG + COLOSSUS
+ }
+ result: 0
+}
+
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]] + HORDE*[damage for [attack d20 vs DEFENSE]]*(1d100 <= HORDECHANCE)
+}
+
+SHARPSHOOTER: 1
+HORDECHANCE: 40
+DEFENSE: 25
+MISSDAMAGE: 0
+HITDAMAGE: d6 + 10*SHARPSHOOTER + 5
+CRITICALDAMAGE: 6 + 10 + 5
+
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER
+SNEAKDMG: 0
+MARKDMG: 0
+COLOSSUS: 0
+HORDE: 0
+output 4d[5 attacks] named "Fighter 20"
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER
+SNEAKDMG: 4d6
+MARKDMG: 0
+COLOSSUS: 0
+HORDE: 0
+output 4d[4 attacks] named "Fighter 12, Rogue 8"
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER
+SNEAKDMG: 4d6
+MARKDMG: d6
+COLOSSUS: 0
+HORDE: 0
+output [3 attacks] + 3d[4 attacks] named "Fighter 12, Rogue 7, WL 1"
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER + 1
+SNEAKDMG: 0
+MARKDMG: d6
+COLOSSUS: 0
+HORDE: 0
+output [3 attacks] + 3d[4 attacks] named "Fighter 18, Ranger 2"
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER + 1
+SNEAKDMG: 0
+MARKDMG: d6
+COLOSSUS: 1d8
+HORDE: 0
+output [3 attacks] + 3d[4 attacks] named "Fighter 17, Ranger 3 Colossus"
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER + 1
+SNEAKDMG: 0
+MARKDMG: d6
+COLOSSUS: 0
+HORDE: 1
+output [3 attacks] + 3d[4 attacks] named "Fighter 17, Ranger 3 Horde"
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER + 1
+SNEAKDMG: 3d6
+MARKDMG: d6
+COLOSSUS: 1d8
+HORDE: 0
+output [3 attacks] + 3d[4 attacks] named "Fighter 12, Rogue 5, Ranger 3 Colossus"
+
+ATTACK: 6 + 2 + 5 - 5*SHARPSHOOTER + 1
+SNEAKDMG: 3d6
+MARKDMG: 1d6
+COLOSSUS: 0
+HORDE: 1
+output [3 attacks] + 3d[4 attacks] named "Fighter 12, Rogue 5, Ranger 3 Horde"

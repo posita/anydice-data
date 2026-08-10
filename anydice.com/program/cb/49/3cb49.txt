@@ -1,0 +1,121 @@
+\Atyla-Ouroboros-Squads\
+Q: {0..3}
+
+function: crop SEQUENCE:n MIN:n MAX:n {                  \ limit the display range between [min;max] \
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+function: halve SEQUENCE:n {                  \ divide per 2, rounded up \
+ DIV: SEQUENCE/2
+ TEMP: DIV*2
+ if (DIV=TEMP){result: DIV}
+ result: (SEQUENCE+1)/2
+}
+
+\************************************************************************\
+
+function: phaseone ATT:s DEF:s {                \Find the environment modifiers\
+  SIZE_MODS: [compare bodies 13@ATT with 13@DEF]           \compare the nbr of bodies\
+  VELOCITY_MODS: [compare 12@DEF with 11@ATT]        \compare the velocity for the dodge capacity\
+
+  ATT_DICES: (1@ATT +SIZE_MODS)                      \final number of hits-dices to roll\
+  DEF_DICES: (6@DEF +VELOCITY_MODS)                  \final number of saves-dices to roll\
+
+  \freeze the hits-dices & saves-dices sequences\
+  result: [phasetwo ATT_DICESdQ DEF_DICESdQ ATT DEF]
+}
+
+function: phasetwo ATT_ROLL:d DEF_ROLL:d  ATT:s DEF:s {       \Analysis of the rolls\
+  ATT_NEWTARGET: 2@ATT+5@ATT                                  \apply target-modifiers for Hit\
+  DEF_NEWTARGET: 7@ATT+10@ATT                                 \apply target-modifiers for Save\
+
+  ATT_SUCCESSES: [overflowing pairing ATT_ROLL on ATT_NEWTARGET]     \find Hit-Successes\
+  DEF_SUCCESSES: [overflowing pairing DEF_ROLL on DEF_NEWTARGET]     \find Save-Successes\
+
+  ATT_FINAL: ATT_SUCCESSES + (4@ATT /ATT_NEWTARGET)        \find bonus successes from value-modifiers to hit roll\
+  DEF_FINAL: DEF_SUCCESSES + (9@DEF /DEF_NEWTARGET)        \find bonus successes from value-modifiers to save roll\
+
+  DAMAGES: ATT_FINAL - DEF_FINAL
+  \DAMAGES: [halve ATT_FINAL] - [halve DEF_FINAL]\
+  result: [crop DAMAGES 0 4]
+}
+
+
+\******** Functions to find Successes on chosen target **********\
+
+function: overflowing pairing SEQUENCE:s on TARGET:n {
+  TOTAL: 0
+  \count of number in sequence\
+  UN:    SEQUENCE=1
+  DEUX:  SEQUENCE=2
+  TROIS: SEQUENCE=3
+  TEMP: {UN, DEUX, TROIS}
+  \sum of chosen numbers'occurencies\
+  TOTAL: {TARGET..3}@TEMP                        \final count of Successes\
+
+  \boolean checks : 0 or 1 multiplicators\
+  DT: DEUX>=TROIS
+  UT: UN>=TROIS
+  UD: UN>=DEUX
+
+  if(TARGET=6){result: TROIS/2}
+  if(TARGET=5){result: (TROIS+ (DT*TROIS)+(!DT*DEUX)) /2}
+  if(TARGET=4){result: (TROIS+ (UT*(TROIS+DEUX)) + (!UT*(UN+DEUX))) /2}
+  if(TARGET=3){result: TOTAL + ( (DEUX+ (UD*DEUX)+(!UD*UN)) /2)}
+  if(TARGET=2){result: TOTAL + (UN/2)}
+  if(TARGET=1){result: TOTAL}
+  result: TOTAL
+}
+
+\************************************************************************\
+
+function: compare bodies ATT_B:n with DEF_B:n {
+  if(ATT_B > DEF_B) { result: ATT_B-DEF_B}
+  result: 0
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  result: -1       \VAL_X < VAL_Y\
+}
+
+
+\************************************************************************\
+\PD, ATT_TARGET, A_DICES_MODS, A_VALUES_MODS, A_TARGET_MODS, RD, DEF_TARGET, D_DICES_MODS, D_VALUES_MODS, D_TARGET_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {7,2,  0,0,0,   4,5,  0,0,0,   150, 9, 1}      \Mono, Light Armor, Sniper, Knife\
+B: {6,3,  0,0,0,   3,3,  0,0,0,   30, 9, 1}       \Mono, VeryLight Armor, Double Swords\
+C: {12,4,  0,0,0,   11,5,  0,0,0,   80, 4, 2}     \Multi, Heavy Armor, Shotgun, HandPunch\
+D: {8,4,  0,0,0,   8,5,  0,0,0,   90, 5, 4}     \Multi, Middle Armor, Fusils, Bayonet\
+E: {4,5,  0,0,0,   3,4,  0,0,0,   80, 9, 1}      \Mono, Light Armor, Wooden Bow, Sword\
+F: {8,3,  0,0,0,   13,3,  0,0,0,   50, 3, 1}      \Mono, Tank, Flamer Sponsons, TankFront\
+G: {13,4,  0,0,0,   13,3,  0,0,0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+H: {15,3,  0,0,0,   10,4,  0,0,0,   200, 3, 1}      \Mono, Drone, Heavy Laser Canon, DroneFront\
+
+GL: {12,6,  0,0,0,   14,6,  0,0,0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GM: {12,6,  0,0,0,   14,6,  0,0,0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GA: {12,6,  0,0,0,   14,6,  0,0,0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+\************************************************************************\
+
+output [phaseone A B] named "lone Sniper VS lone Sword Master"
+output [phaseone A G] named "lone Sniper VS Tank"
+output [phaseone E A] named "lone Archer VS lone Sniper"
+output [phaseone H G] named "Laser Canon VS Tank"
+output [phaseone A D] named "lone Sniper VS fusils Squad"
+output [phaseone D A] named "fusils Squad VS lone Sniper"
+
+\output [phaseone G G] named "Tanks no Limits/Modifiers"
+output [phaseone GL G] named "Tanks test: Att Limits"
+output [phaseone G GL] named "Tanks test: Def Limits"
+output [phaseone GM G] named "Tanks test: Att Modifier"
+output [phaseone G GM] named "Tanks test: Def Modifier"
+output [phaseone GA G] named "Tanks test: Att Lim & Mods"
+output [phaseone G GA] named "Tanks test: Def Lim & Mods"
+\
+
+

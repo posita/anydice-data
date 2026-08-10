@@ -1,0 +1,40 @@
+\ If you're using multi-d6's, then the size of the pool is how many points of the skill you allocate to that one goal. If you allot 4 points to hitting someone, then that Goal rolls 4d6. There much be more successes than fails; if there is, you pick whichever of the dice that succeeded for your value. \
+
+\ 6 levels of result:
+    -2: Critical Failure - All dice roll the max value for that type.
+    -1: Extreme Failure  - All dice roll above the target number.
+     0: Failure          - More dice roll above the target number than below or equal to the target number.
+     1: Success          - More dice roll below or equal to the target number than above the target number.
+     2: Extreme Success  - All dice roll below or equal to the target number.
+     3: Critical Success - All dice roll equal to the target number.
+\ 
+
+function: result ROLL:s against TARGET:n using SIZE:n {
+
+ NUM_DICE: #ROLL
+
+ SUCCESSES: ROLL <= TARGET
+ DICE_AT_TARGET: ROLL = TARGET
+ FAILURES: ROLL > TARGET
+ DICE_AT_SIZE: ROLL = SIZE
+
+ if DICE_AT_TARGET = NUM_DICE {
+   result: 3
+ } else if SUCCESSES = NUM_DICE {
+   result: 2
+ } else if SUCCESSES > FAILURES {
+   result: 1
+ } else if DICE_AT_SIZE = NUM_DICE {
+   result: -2
+ } else if FAILURES = NUM_DICE {
+   result: -1
+ }
+ result: 0
+}
+
+SIZE: 8
+loop N over {3..SIZE-1} { 
+  output [result NdSIZE against N using SIZE ] named "[N]d[SIZE] OneRPG"
+} 
+
+

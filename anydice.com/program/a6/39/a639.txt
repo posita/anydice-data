@@ -1,0 +1,33 @@
+STAIRS: 18
+DEX: 0
+STR: 0
+TRIP_DC: 15
+FALL_DC: 13
+
+
+function: check TRIP:n against TRIP_DC:n then FALL:n against FALL_DC:n{
+  if TRIP < TRIP_DC {
+    if FALL < FALL_DC{
+      result: 0
+    }
+  }
+  result: 1
+}
+
+\Going down one stair at a time\
+SURVIVE: 0
+loop N over {1..STAIRS}{
+  TRIP_CHECK: [highest 1 of 2d20] + DEX
+  FALL_CHECK: 1d20 + STR
+  SURVIVE: SURVIVE + [check TRIP_CHECK against TRIP_DC then FALL_CHECK against FALL_DC]
+}
+output SURVIVE named "One step at a time"
+
+\Going down two stairs at a time\
+SURVIVE: 0
+loop N over {1..STAIRS/2}{
+  TRIP_CHECK: 1d20 + DEX
+  FALL_CHECK: 1d20 + STR
+  SURVIVE: SURVIVE + ([check TRIP_CHECK against TRIP_DC then FALL_CHECK against FALL_DC]*2)
+}
+output SURVIVE named "Two steps at a time"

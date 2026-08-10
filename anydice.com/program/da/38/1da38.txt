@@ -1,0 +1,135 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: precise SUP:n attack ROLL:n vs AC:n for DMG:d {
+    if ROLL + SUP >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:s to AFTER_CRIT:d use USE:d pass PASS:d {
+    if ROLL = 1 {
+        result: PASS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG + 2dSUP + AFTER_CRIT
+    }
+    if [PRECISE_RANGE contains (ROLL + BONUS)] {
+        result: [precise SUP attack ROLL + BONUS vs AC for DMG] + USE
+    }
+    if ROLL + BONUS >= AC {
+        if SUP_DICE >= ATTACKS {
+            result: DMG + SUP + USE
+        }
+        result: DMG + PASS
+    }
+
+    result: PASS
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d extra EXTRA:d {
+
+    \A B C D E F G are previous attack with 0, 1, 2, 3, 4, 5, or 6 superiority dice remaining\
+    \X has extra damage still to assign\
+
+    A: 0
+    AX: 0
+    B: 0
+    BX: 0
+    C: 0
+    CX: 0
+    D: 0
+    DX: 0
+    E: 0
+    EX: 0
+    F: 0
+    FX: 0
+    G: 0
+    GX: 0
+
+    \crit with the extra damage\
+    CRITX: CRIT + EXTRA
+    \damage with extra damage\
+    DMGX: DMG + EXTRA
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        GX: [battlemaster 6 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to F use FX pass GX]
+        G:  [battlemaster 6 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to F use F pass G]
+        FX: [battlemaster 5 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to E use EX pass FX]
+        F:  [battlemaster 5 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to E use E pass F]
+        EX: [battlemaster 4 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to D use DX pass EX]
+        E:  [battlemaster 4 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to D use D pass E]
+        DX: [battlemaster 3 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to C use CX pass DX]
+        D:  [battlemaster 3 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to C use C pass D]
+        CX: [battlemaster 2 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to B use BX pass CX]
+        C:  [battlemaster 2 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to B use B pass C]
+        BX: [battlemaster 1 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to A use AX pass BX]
+        B:  [battlemaster 1 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to A use A pass B]
+        AX: [attack ROLL plus BONUS vs AC hit DMGX + AX miss AX crit DMGX + CRITX + A on CRIT_RANGE]
+        A:  ATTACK + A
+
+        \before the last attack the extra damage is only used on a crit\
+        CRITX: CRIT + 2dEXTRA
+        DMGX: DMG
+    }
+
+    if SUP_DICE = 6 {
+        result: GX
+    }
+    if SUP_DICE = 5 {
+        result: FX
+    }
+    if SUP_DICE = 4 {
+        result: EX
+    }
+    if SUP_DICE = 3 {
+        result: DX
+    }
+    if SUP_DICE = 2 {
+        result: CX
+    }
+    if SUP_DICE = 1 {
+        result: BX
+    }
+    if SUP_DICE = 0 {
+        result: AX
+    }
+}
+
+AC: 16
+PROF: 3
+
+
+AC: 16
+PROF: 3
+
+output
+[battlemaster 4 superiority 1d8 precise {AC-8 .. AC-1} attacks 6 roll [highest 1 of 3d20] plus PROF + 5 + 2 + 1 - 5 vs AC for 1d10 + 5 + 1 + 5 + 6 + 10 crit 1d10 on 19 extra 6d8] named "[20] Battlemaster eldritch smite hex sharpshooter"

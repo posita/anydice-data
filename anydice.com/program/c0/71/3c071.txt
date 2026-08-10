@@ -1,0 +1,156 @@
+ADV: [highest 1 of 2d20]  DISADV: [lowest 1 of 2d20]
+PROF:3  PROFDIE:1d(PROF*2)  MOD:4  CRIT:20
+LOWAC: 8+[lowest 2 of 3d6]  MIDAC: 8+[lowest 3 of 4d4]
+
+function: N:n reroll LOW:n {
+  if N <= LOW {result: [N reroll LOW]}
+  else {result: N}
+}
+function:   roll N:d {result: N}
+function: reroll N:d {result: N}
+function: N:n reroll LOW:n once {
+  if N <= LOW {result: [reroll d12]}
+  else {result: N}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d normal crit on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: DMG + [reroll DMG] + MOD - DR}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD - DR}
+  else {result: 0}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d threat on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: DMG + [reroll DMG] + MOD - DR + [threat helper 1d20 3 3 vs 15 for DMG crit RANGE]}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD - DR}
+  else {result: 0}
+}
+function: threat helper ROLL:n MOD:n PROF:n vs AC:n for DMG:d crit RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL + MOD + PROF >= AC {result: DMG}
+  else {result: 0}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d crit on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: DMG + [maximum of DMG] + MOD - DR}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD - DR}
+  else {result: 0}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n plus DR:n for DMG:d {
+  if ROLL = 1 {result: 0}
+  if ROLL >= 20 {result: DMG + [maximum of DMG] + MOD - DR}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD - DR}
+  else {result: 0}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n for DMG:d crit on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: DMG + [maximum of DMG] + MOD}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD}
+  else {result: 0}
+}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n for DMG:d {
+  if ROLL = 1 {result: 0}
+  if ROLL = 20 {result: DMG + [maximum of DMG] + MOD}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD}
+  else {result: 0}
+}
+function: attack combo ROLL:n with mod MOD:n and prof PROF:n vs AC:n for DMG:d {
+  if ROLL = 1 {result: 0}
+  if ROLL = 20 {result: DMG + [maximum of DMG] + MOD + [attack combo ADV with mod MOD and prof PROF vs AC for DMG]}
+  if ROLL + MOD + PROF >= AC {result: DMG + MOD + [attack combo 1d20 with mod MOD and prof PROF vs AC for DMG]}
+  else {result: 0}
+}
+function: attack combo count ROLL:n with mod MOD:n and prof PROF:n vs AC:n for DMG:d {
+  if ROLL = 1 {result: 0}
+  if ROLL = 20 {result: 1 + [attack combo count ADV with mod MOD and prof PROF vs AC for DMG]}
+  if ROLL + MOD + PROF >= AC {result: 1 + [attack combo count 1d20 with mod MOD and prof PROF vs AC for DMG]}
+  else {result: 0}
+}
+function: bleed check ROLL:d with heavy armour and con mod CON:n against DMG:d slashing {
+  BLEED: 0
+  if [lowest 1 of 2dROLL] + CON < DMG {
+    BLEED: BLEED + 1
+    result: [bleed damage at level BLEED] + [bleed check ROLL with heavy armour and con mod CON against DMG slashing]}
+  result: 0
+}
+function: bleed damage at level BLEED:n {}
+function: attack ROLL:n with mod MOD:n and prof PROF:n vs AC:n heavy plus DR:n for DMG:d slashing crit on RANGE:n {
+  if ROLL = 1 {result: 0}
+  if ROLL >= RANGE {result: DMG + [maximum of DMG] + MOD - DR - 3*2}
+  if ROLL + MOD + PROF >= AC {
+    if ROLL + MOD + PROF >= AC + 3*2 {
+      result: DMG + MOD - DR - 3*2 + [bleed check 1d20 with heavy armour con mod 2 against DMG slashing]
+    }
+    result: DMG + MOD - DR - 3*2
+  }
+  else {result: 0}
+}
+set "maximum function depth" to 3
+output [attack 1d20 with mod 3 and prof 1d4 vs 12 for 1d10] named "Single vs 12"
+output [attack 1d20 with mod 3 and prof 1d4 vs 14 for 1d10] named "Single vs 14"
+output [attack 1d20 with mod 3 and prof 1d4 vs 16 for 1d10] named "Single vs 16"
+output [attack 1d20 with mod 3 and prof 1d4 vs 18 for 1d10] named "Single vs 18"
+output [attack 1d20 with mod 3 and prof 1d4 vs 20 for 1d10] named "Single vs 20"
+output [attack combo 1d20 with mod 3 and prof 1d4 vs 12 for 1d10] named "Chain vs 12"
+output [attack combo 1d20 with mod 3 and prof 1d4 vs 14 for 1d10] named "Chain vs 14"
+output [attack combo 1d20 with mod 3 and prof 1d4 vs 16 for 1d10] named "Chain vs 16"
+output [attack combo 1d20 with mod 3 and prof 1d4 vs 18 for 1d10] named "Chain vs 18"
+output [attack combo 1d20 with mod 3 and prof 1d4 vs 20 for 1d10] named "Chain vs 20"
+output [attack combo count 1d20 with mod 3 and prof 1d4 vs 12 for 1d10]
+output [attack combo count 1d20 with mod 3 and prof 1d4 vs 14 for 1d10]
+output [attack combo count 1d20 with mod 3 and prof 1d4 vs 16 for 1d10]
+output [attack combo count 1d20 with mod 3 and prof 1d4 vs 18 for 1d10]
+output [attack combo count 1d20 with mod 3 and prof 1d4 vs 20 for 1d10]
+
+WPN: 1d12 \Greataxe\
+AC:  MIDAC
+
+\Stat Distributions\
+function: ability mod for STAT:n {
+  if STAT >= 10 { result: (STAT-10)/2 }
+  if STAT <  10 { result: (STAT-11)/2 }
+}
+NORMSTAT:[lowest 3 of 4d[d6 reroll 1]]  WEAKSTAT:2+[lowest 4 of 6d4]  EXTREMESTAT:2+[lowest 3 of 4d6] PLAYERSTAT: [highest 3 of 4d[d6 reroll 1]]
+
+COMMONSTAT: NORMSTAT
+COMMONSTATMOD: [ability mod for COMMONSTAT]  PLAYERSTATMOD: [ability mod for PLAYERSTAT]
+
+COMMONHP: 1d8 + COMMONSTATMOD
+WIZHP: 1d6 + PLAYERSTATMOD
+NONWARHP: 1d8 + PLAYERSTATMOD
+WARHP: 1d10 + PLAYERSTATMOD
+BARBHP: 1d12 + PLAYERSTATMOD
+\
+output 1d4 named "Weak"      output 1d6 named "Wiz"      output 1d8 named "Non-war"      output 1d10 named "War"      output 1d12 named "Barb"
+output 2d4 named "2nd Weak"  output 2d6 named "2nd Wiz"  output 2d8 named "2nd Non-war"  output 2d10 named "2nd War"  output 2d12 named "2nd Barb"
+output 3d4 named "3rd Weak"  output 3d6 named "3rd Wiz"  output 3d8 named "3rd Non-war"  output 3d10 named "3rd War"  output 3d12 named "3rd Barb"
+output 4d4 named "4th Weak"  output 4d6 named "4th Wiz"  output 4d8 named "4th Non-war"  output 4d10 named "4th War"  output 4d12 named "4th Barb"
+output 5d4 named "5th Weak"  output 5d6 named "5th Wiz"  output 5d8 named "5th Non-war"  output 5d10 named "5th War"  output 5d12 named "5th Barb"
+output 6d4 named "6th Weak"  output 6d6 named "6th Wiz"  output 6d8 named "6th Non-war"  output 6d10 named "6th War"  output 6d12 named "6th Barb"
+output 7d4 named "7th Weak"  output 7d6 named "7th Wiz"  output 7d8 named "7th Non-war"  output 7d10 named "7th War"  output 7d12 named "7th Barb"
+\
+\
+output    COMMONHP  named "Commoners"
+output    WIZHP  named "Wizards"      output    NONWARHP  named "Non-warriors"      output    WARHP  named "Warriors"      output    BARBHP  named "Barbarians"
+output 2d(WIZHP) named "2nd Wizards"  output 2d(NONWARHP) named "2nd Non-warriors"  output 2d(WARHP) named "2nd Warriors"  output 2d(BARBHP) named "2nd Barbarians"
+output 3d(WIZHP) named "3rd Wizards"  output 3d(NONWARHP) named "3rd Non-warriors"  output 3d(WARHP) named "3rd Warriors"  output 3d(BARBHP) named "3rd Barbarians"
+output 4d(WIZHP) named "4th Wizards"  output 4d(NONWARHP) named "4th Non-warriors"  output 4d(WARHP) named "4th Warriors"  output 4d(BARBHP) named "4th Barbarians"
+\
+
+\
+output 2d[attack    d20  plus    3      plus  4  vs  12 plus 3  for  2d(1d6)  crit on CRIT] named "Champion"
+output 2d[attack    d20  plus PROFDIE   plus MOD vs  14 plus 4  for    WPN    crit on CRIT] named "Greataxe"
+\
+
+\
+output 2d[attack    d20  plus PROFDIE   plus MOD vs  AC  for  WPN  crit on CRIT] named "Greataxe"
+output 2d[attack    ADV  plus PROFDIE   plus MOD vs  AC  for  WPN  crit on CRIT] named "w/Adv"
+output 2d[attack    ADV  plus PROFDIE+2 plus MOD vs  AC  for  WPN  crit on CRIT] named "w/Adv2x"
+output 2d[attack    ADV  plus PROFDIE+5 plus MOD vs  AC  for  WPN  crit on CRIT] named "w/Adv3xV"
+output 2d[attack DISADV  plus PROFDIE   plus MOD vs  AC  for  WPN  crit on CRIT] named "w/Dis"
+output 2d[attack DISADV  plus PROFDIE-2 plus MOD vs  AC  for  WPN  crit on CRIT] named "w/Dis2x"
+output 2d[attack DISADV  plus PROFDIE-5 plus MOD vs  AC  for  WPN  crit on CRIT] named "w/Dis3xV"
+\
+
+\output 2d[attack    d20  plus PROFDIE plus MOD vs  AC  for [WPN reroll 2 once] crit on CRIT] named "GWF Greataxe"\
+\output 2d[attack    ADV  plus PROFDIE plus MOD vs  AC  for [WPN reroll 2 once] crit on CRIT] named "GWF Gr.axe Adv"\
+\output 2d[attack DISADV  plus PROFDIE plus MOD vs  AC  for [WPN reroll 2 once] crit on CRIT] named "GWF Gr.axe Dis"\

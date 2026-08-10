@@ -1,0 +1,121 @@
+function: attack ROLL:n vs AC{
+
+    if ROLL = 1            {result: MISS}
+    if ROLL = 20           {result: CRIT}
+    if ROLL + ATTACK >= AC {result: HIT}
+    result: MISS
+}
+
+function: damage for ATTACKRESULT:n{
+
+    if ATTACKRESULT = CRIT {result: CRITDAMAGE}
+    if ATTACKRESULT = HIT  {result: HITDAMAGE}
+    result: MISSDAMAGE
+}
+
+MISS: 0
+HIT: 1
+CRIT: 2
+
+MOD: 5
+PB: 6
+ATTACK: MOD + PB - 5
+HITDAMAGE: 1d12 + MOD + 10 + 1d8 + 5d8
+CRITDAMAGE: 12 + 1d12 + MOD + 10
+MISSDAMAGE: 0
+AC: 16
+
+output 2d[damage for [attack [highest 1 of 2d20] vs AC]] named "Paladin"
+
+
+MOD: 5
+PB: 6
+ATTACK: MOD + PB
+HITDAMAGE: 1d8 + MOD
+CRITDAMAGE: 8 + d8 + MOD
+MISSDAMAGE: 0
+
+output 5d[damage for [attack d20 vs AC]] named "TWF"
+
+
+ATTACK: ATTACK - 5
+HITDAMAGE: 1d12 + MOD + 10
+CRITDAMAGE: 12 + d12 + MOD + 10
+
+
+output 4d[damage for [attack d20 vs AC]] named "GWM"
+
+
+function: attack ROLL:n vs AC{
+
+    if ROLL = 1            {result: MISS}
+    if ROLL = 20           {result: CRIT}
+    if ROLL + ATTACK >= AC {result: HIT}
+    result: MISS
+}
+
+function: damage for ATTACKRESULTS:s{
+
+    D: 0
+
+    loop A over ATTACKRESULTS{
+
+        if A = CRIT{
+
+            D: D + CRITDAMAGE
+
+        } else if A = HIT{
+
+            D: D + HITDAMAGE
+
+        } else{
+
+            D: D + MISSDAMAGE
+        }
+    }
+
+    result: D + [extra damage for ATTACKRESULTS]
+}
+
+function: extra damage for ATTACKRESULTS:s{
+
+    result: 0
+}
+
+function: attack{
+
+    result: [damage for [attack d20 vs AC]]
+}
+
+function: N:n attacks{
+
+    result: [damage for Nd[attack d20 vs AC]]
+}
+
+
+MISS: 0
+HIT: 1
+CRIT: 2
+
+MOD: 5
+PB: 6
+ATTACK: MOD + PB
+HITDAMAGE: 1d8 + MOD
+CRITDAMAGE: 8 + d8 + MOD
+MISSDAMAGE: 0
+
+
+
+SNEAK: 10d6
+
+function: extra damage for ATTACKRESULTS:s{
+
+    if [ATTACKRESULTS contains HIT]{
+
+        result: SNEAK
+    }
+
+    result: 0
+}
+
+output [2 attacks] named "Rogue"

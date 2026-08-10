@@ -1,0 +1,30 @@
+function: damage from SHOTS:n shots hitting on HITS:n up wounding on WOUNDS:n up with ap AP:n against SAVE:n up save INVULN:n up invuln NOPAIN:n up fnp dealing DAMAGE:d damage {
+ HIT: 0
+ WOUND: 0
+ FAIL: 0
+ DAMAGED: 0
+ HITTING: {HITS..7}
+ WOUNDING: {WOUNDS..6}
+ INVULNBETTER: (INVULN <= SAVE-AP)
+ if INVULNBETTER = 1 {
+  SAVEFAIL: INVULN-1
+ }
+ else {
+  SAVEFAIL: SAVE-AP-1
+ }
+ FAILING: {1..SAVEFAIL}
+ PAINFAIL: NOPAIN-1
+ PAINFUL: {1..PAINFAIL}
+ loop P over {1..SHOTS} {
+  HIT: ([HITTING contains 1d6])
+  WOUND: ([WOUNDING contains 1d6])
+  FAIL: ([FAILING contains 1d6])
+  PAIN: ([PAINFAIL contains 1d6])
+  DAMAGED: DAMAGED + HIT*WOUND*FAIL*DAMAGE
+ }
+ result: DAMAGED
+}
+
+\include the negative sign on the AP of the attack\
+\put in an invuln of 7++ or higher to indicate no invulnerable or no fnp\
+output [damage from 10 shots hitting on 5 up wounding on 4 up with ap -2 against 2 up save 7 up invuln 7 up fnp dealing 3 damage]

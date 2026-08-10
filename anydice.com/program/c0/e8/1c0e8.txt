@@ -1,0 +1,61 @@
+\**** Damage calculator ****\
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  SUM: SUM + ([SUM gt 0]*1d8)
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){
+    result: ([crit MULT-1 DAMAGE] + CRITEXTRA) + DAMAGE + EXTRA }
+  if (ROLL = 1) { result: 0 }
+  if (ROLL + ATTACK >= AC) { 
+    if (ROLL >= THREAT) {
+      result: ([crit MULT-1 DAMAGE]  + CRITEXTRA) + EXTRA + DAMAGE }
+    result: (DAMAGE + EXTRA)}
+  result: 0
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+function: LEFT:n gt RIGHT:n {result: LEFT>RIGHT}
+
+\looped against enemy AC from 15-20\
+loop ENEMYAC over {10..20}{
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 2
+CRITROLL: 20
+DAMAGE: 1d8+1d6
+EXTRADAMAGE: ATTACKMOD + DMGBONUS
+ACCURACY: ATTACKMOD+PROFICIENCY+ACCBONUS
+output [{ACCURACY,ACCURACY} vs ENEMYAC crit 20 2 0 dmg DAMAGE EXTRADAMAGE] named "Longbow vs [ENEMYAC]"
+
+ATTACKMOD: 4
+DMGBONUS: 1
+PROFICIENCY: 3
+ACCBONUS: 3
+CRITROLL: 20
+DAMAGE: 2d6
+EXTRADAMAGE: ATTACKMOD + DMGBONUS
+ACCURACY: ATTACKMOD+PROFICIENCY+ACCBONUS
+output [{ACCURACY,ACCURACY} vs ENEMYAC crit 20 2 0 dmg DAMAGE EXTRADAMAGE] named "Shortbow vs [ENEMYAC]"
+}

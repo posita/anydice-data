@@ -1,0 +1,39 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\Barrage One-Hit\
+ATTACK: 23
+HITDAMAGE: 3d8+16
+CRITICALDAMAGE: 2d6+36
+MISSDAMAGE: 0
+loop AC over {28..40} {
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}
+
+\Whirlwind\
+\ATTACK: 23
+HITDAMAGE: 3d6+3d8+32
+CRITICALDAMAGE: 2d6+69
+MISSDAMAGE: (3d6+3d8+32)/2
+loop AC over {28, 32, 36, 40} {
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}\

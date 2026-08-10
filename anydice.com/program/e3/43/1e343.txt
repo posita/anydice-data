@@ -1,0 +1,55 @@
+MISS: 0
+DEFENDABLE: 1
+WOUND: 2
+
+function: strike STRIKE:n vs defense DEFENSE:n {
+ if STRIKE > TO_STRIKE { result: MISS }
+ if STRIKE <= DEFENSE { result: DEFENDABLE }
+ result: WOUND
+}
+
+function: effort loss for STRIKE_RESULT:n damage DAMAGE:n {
+  if STRIKE_RESULT = DEFENDABLE {
+    result: DAMAGE
+  }
+  result: 0
+}
+
+function: damage for STRIKE_RESULT:n damage DAMAGE:n {
+ if STRIKE_RESULT = WOUND {
+  result: DAMAGE
+ }
+ result: 0
+}
+
+function: damage for STRIKE_RESULT:n with armor ARMOR:n damage DAMAGE:n {
+ if STRIKE_RESULT = WOUND {
+  result: [highest of DAMAGE - ARMOR and 0]
+ }
+ result: 0
+}
+
+
+
+DEFENDABLE_DAMAGE: [highest 1 of 1d10+1d6]
+HIT_DAMAGE: 1d10+1d6
+
+SWORD_DAMAGE: 1d10+2
+SPEAR_DAMAGE: 1d8+2
+MACE_DAMAGE: 1d6+2
+
+TO_STRIKE: 13
+
+\ output [effort loss for [strike d20 vs defense d{3..10}]] named "Effort Loss" \
+\ output [damage for [strike d20 vs defense d{3..10}]] named "Wound Damage" \
+
+\ output [strike d20 vs defense 8] named "Strike Chances" \
+
+\ output [effort loss for [strike d20 vs defense d{2..11}] damage SWORD_DAMAGE] named "Effort Loss: Sword" \
+output [damage for [strike d20 vs defense d{2..11}] with armor d{0, 1d3, 1d6, 1d6} damage SWORD_DAMAGE] named "Damage: Sword vs Armor"
+
+\ output [effort loss for [strike d20 vs defense d{2..11}] damage SPEAR_DAMAGE] named "Effort Loss: Spear" \
+output [damage for [strike d20 vs defense d{2..11}] with armor d{0, 0, 0, 1d4} damage SPEAR_DAMAGE] named "Damage: Spear vs Armor"
+
+\ output [effort loss for [strike d20 vs defense d{2..11}] damage MACE_DAMAGE] named "Effort Loss: Mace" \
+output [damage for [strike d20 vs defense d{2..11}] with armor d{0, 0, 0, 0} damage MACE_DAMAGE] named "Damage: Mace vs Armor"

@@ -1,0 +1,52 @@
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+\ output [roll 1d20 damage 2d6 crit 4d6 on {19,20}] named "Light Pistol"
+
+output [roll 1d20 damage 3d6 crit 6d6 on {19,20}] named "Light Pistol, Ring of Accuracy"
+
+output [roll 1d20 damage 1d6+4 crit 2d6+4 on {20}] named "Hand Crossbow / Shortbow" \
+
+\
+AC: 16
+output [roll 1d20 plus 8 against AC damage 3d6 crit 6d6 on {19,20}] named "Baseline"
+output 2d[roll 1d20 plus 8 against AC damage 3d6 crit 6d6 on {19,20}] named "Attack Twice"
+output [roll 1d20 plus 28 against AC damage 3d6 crit 6d6 on {19,20}] named "Truestrike (+Mod Ver.)"
+output [roll [highest 1 of 7d20] plus 8 against AC damage 3d6 crit 6d6 on {19,20}] named "Truestrike (Adv. Ver.)"
+\
+
+AC: 16
+DMG: 1d8+5
+CRIT: 2d8+5
+
+
+output [roll [highest 1 of 2d10] damage DMG+2d10 crit CRIT+20+2d10 on {10}] named "Savvy Strike (17)"
+output [roll 1d20 damage DMG+3d8 crit DMG+6d8 on {20}] named "Booming Blade (17)"
+
+output [roll [highest 1 of 2d10] damage DMG+1d10 crit CRIT+10+1d10 on {10}] named "Savvy Strike (11)"
+output [roll 1d20 damage DMG+2d8 crit DMG+4d8 on {20}] named "Booming Blade (11)"
+
+output [roll 1d10 damage DMG+1d10 crit CRIT+10 on {10}] named "Savvy Strike (5)"
+output [roll 1d20 damage DMG+1d8 crit DMG+2d8 on {20}] named "Booming Blade (5)"
+
+output [roll 1d10 damage DMG crit CRIT on {10}] named "Savvy Strike (5)"
+output [roll 1d20 damage DMG crit DMG on {20}] named "Booming Blade (5)"
+
+

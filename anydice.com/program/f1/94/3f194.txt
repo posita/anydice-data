@@ -1,0 +1,54 @@
+
+function: cascade DIE:s {
+    TOTAL: DIE + 0 \ Add up the base total roll \
+    CURRENT: DIE \ Store individual rolls \
+
+    \ Identify pairs \
+    COUNTA: [count 1 in DIE]
+    COUNTB: [count 5 in DIE]
+    COUNTC: [count 6 in DIE]
+
+    CASCADES: (COUNTA / 2)
+    CASCADES: CASCADES + (COUNTB / 2)
+    CASCADES: CASCADES + (COUNTC / 2)
+
+    \ Check if there are any cascades \
+    if (CASCADES = 0) { result: TOTAL }
+
+    \ Clamp cascades to 3 \
+    else if (CASCADES > 3) { CASCADES: 3 }
+
+    \ HANDLE CASCADE ROLLS \
+    loop N over {1..CASCADES} {
+        \ Roll new d6 \
+        ROLL: 1d6
+
+        \ Add new d6 roll to list of pairs \
+        CURRENT: {CURRENT, ROLL}
+        TOTAL: TOTAL + ROLL
+
+        \ Identify pairs \
+        COUNTA: [count 1 in CURRENT]
+        COUNTB: [count 5 in CURRENT]
+        COUNTC: [count 6 in CURRENT]
+
+        \ Update cascades \
+        CASCADES: (COUNTA / 2)
+        CASCADES: CASCADES + (COUNTB / 2)
+        CASCADES: CASCADES + (COUNTC / 2)
+
+        \ Clamp cascades to 3 \
+        if (CASCADES > 3) { CASCADES: 3 }
+    }
+
+    \ RETURN THE FINAL OUTCOME \
+    result: TOTAL
+}
+
+output [cascade 2d6] named "Disfavor Cascade Roll"
+output [cascade 3d6] named "Normal Cascade Roll"
+output [cascade 4d6] named "Favor Cascade Roll"
+
+output 2d6 named "Flat 2d6"
+output 3d6 named "Flat 3d6"
+output 4d6 named "Flat 4d6"

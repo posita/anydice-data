@@ -1,0 +1,32 @@
+FAIL: 0
+SUCC: 1
+IMP:  2
+CRIT: 3
+
+function: skillcheck ROLL:n vs SKILL:n {
+ if ROLL > SKILL { result: FAIL}
+ if ROLL > 95 & SKILL < 50 { result: FAIL}
+ if ROLL = 100 { result: FAIL}
+ if ROLL = 1 { result: CRIT}
+ if ROLL <= SKILL/5 { result: IMP}
+ result: SUCC
+}
+
+SUCC_DMG: 1d10+1d4+2
+IMP_DMG:  1d10+1d4+2+16
+CRIT_DMG: 2d10+2d4+4+32
+
+function: damage for RESULT:n {
+ if RESULT = SUCC { result: SUCC_DMG }
+ if RESULT = IMP { result: IMP_DMG }
+ if RESULT = CRIT { result: CRIT_DMG }
+ result: 0
+}
+
+function: attackroll for CURRENT_SKILL:n {
+ result: [damage for [skillcheck 2@2d100 vs CURRENT_SKILL]] + [damage for [skillcheck 2@2d100 vs CURRENT_SKILL]] + [damage for [skillcheck 2@2d100 vs CURRENT_SKILL]]
+}
+
+loop SKILL over {60} {
+ output [attackroll for SKILL] named "[SKILL]"
+}

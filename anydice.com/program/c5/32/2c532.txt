@@ -1,0 +1,60 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+LOOP: {24}
+GWF: {2d6,2d6,2d6,1d6+3,1d6+3,2d6,1d6+4,1d6+4,1d6+3,1d6+3,1d6+5,1d6+5,1d6+4,1d6+4,3+3,1d6+6,1d6+6,1d6+5,1d6+5,3+4,4+3,1d6+6,1d6+6,5+3,3+5,4+4,6+3,3+6,5+4,4+5,6+4,4+6,5+5,6+5,5+6,6+6}
+MISSDAMAGE: 0
+
+ATTACK: 10
+HITDAMAGE: 12
+CRITICALDAMAGE: 12
+output [damage for [attack d20 vs 18]] named "Baseline"
+
+ATTACK: 11-5+4
+HITDAMAGE: d{GWF} + 16
+CRITICALDAMAGE: 2d{GWF} + 16
+loop AC over LOOP {
+ output 3d[damage for [attack d20 vs AC]] named "GWM and ADV and GWF at [AC]"}
+
+ATTACK: 11+4
+HITDAMAGE: d{GWF} + 6
+CRITICALDAMAGE: 2d{GWF} + 6
+loop AC over LOOP {
+ output 3d[damage for [attack d20 vs AC]] named "ADV and GWF at [AC]"}
+\
+ATTACK: 11
+HITDAMAGE: 2d6 + 6
+CRITICALDAMAGE: 4d6 + 6
+loop AC over LOOP {
+ output 3d[damage for [attack d20 vs AC]] named "Nothing at [AC]"}
+\
+ATTACK: 11-5
+HITDAMAGE: d{GWF}+ 16
+CRITICALDAMAGE: 2d{GWF}+ 16
+loop AC over LOOP {
+ output 3d[damage for [attack d20 vs AC]] named "GWM and GWF at [AC]"}
+
+ATTACK: 11
+HITDAMAGE: d{GWF}+ 6
+CRITICALDAMAGE: 2d{GWF}+ 6
+loop AC over LOOP {
+ output 3d[damage for [attack d20 vs AC]] named "Just GWF at [AC]"}

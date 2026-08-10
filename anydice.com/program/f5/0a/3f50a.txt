@@ -1,0 +1,204 @@
+B: 1 \ # of boost die \
+S: 0 \ # of setback die \
+A: 4 \ # of ability die \
+D: 1 \ # of difficulty die \
+P: 0 \ # of proficiency die \
+C: 0 \ # of challenge die \
+SOAK: 3
+
+\ implementation notes \
+\ Despair is excluded, it generally does not impact weapon damage beyond counting as a failure \
+\ Chaining active qualities is not straightforward, since rolls are not modified to subtract spent advantage or triumphs \
+\ due to using integer place values to represent symbols, everything breaks if you add so many dice that it is possible to have 50 of the same symbol \
+\ qualities that affect dice pool must be added outside the weapon function (e.g. blazer pistol applies inaccurate 1 to DICEPOOL) \
+
+
+BOOST: {0, 0, 100, 101, 2, 1}
+ABILITY: {0, 100, 100, 200, 1, 1, 101, 2}
+DIFFICULTY: {0, -100, -200, -1, -1, -1, -2, -101}
+PROFICIENCY: {0, 100, 100, 200, 200, 1, 101, 101, 101, 2, 2, 10100}
+SETBACK: {0, 0, -100, -100, -1, -1}
+CHALLENGE: {0, -100, -100, -200, -200, -1, -1, -101, -101, -2, -2, -100}
+
+\ Original dice definitions preserved for checksums \
+\ Success and Failure Faces \ 
+BOOS: {0, 0, 1, 1, 0, 0}
+ABIS: {0, 1, 1, 2, 0, 0, 1, 0}
+PROS: {0, 1, 1, 2, 2, 0, 1, 1, 1, 0, 0, 1}
+SETF: {0, 0, 1, 1, 0, 0}
+DIFF: {0, 1, 2, 0, 0, 0, 0, 1}
+CHAF: {0, 1, 1, 2, 2, 0, 0, 1, 1, 0, 0, 1}
+
+\ Advantage and Threat Faces \
+BOOA: {0, 0, 0, 1, 2, 1}
+ABIA: {0, 0, 0, 0, 1, 1, 1, 2}
+PROA: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+SETT: {0, 0, 0, 0, 1, 1}
+DIFT: {0, 0, 0, 1, 1, 1, 2, 1}
+CHAT: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+
+\ functions to extract symbol results from integer rolls \ 
+function: A:n mod B:n {
+ result: A-(A/B)*B
+}
+
+function: triumphs from ROLL:n {
+ TRIUMPHS: ROLL / 10000
+ REMAINDER: [ROLL mod 10000]
+ if REMAINDER > 5000 {result: TRIUMPHS + 1}
+ result: TRIUMPHS
+}
+
+function: successes from ROLL:n {
+ ROLL: ROLL - [triumphs from ROLL]*10000
+ REMAINDER: [ROLL mod 100]
+ SUCCESSES: ROLL / 100
+ if REMAINDER > 50 {result: SUCCESSES+1}
+ if REMAINDER < -50 {result: SUCCESSES-1}
+ result: SUCCESSES
+}
+
+function: advantages from ROLL:n {
+  REMAINDER: [ROLL mod 100]
+  if REMAINDER > 50 {result: REMAINDER-100}
+  if REMAINDER < -50 {result: REMAINDER+100}
+  result: REMAINDER
+}
+
+\ active quality helper functions \
+function: count linked RATING:n hits from ADVANTAGE:n {
+ \ autofire can be represented as linked 99 and upgrading dicepool difficulty \
+ LINKEDHITS: [lowest of ADVANTAGE/2 and RATING]
+ result: [highest of 0 and LINKEDHITS]
+}
+
+function: burn RATING:n damage BASEDAMAGE:n from ROLL:n {
+ TRIUMPHS: [triumphs from ROLL]
+ S: [successes from ROLL]
+ ADVANTAGE: [advantages from ROLL] + TRIUMPHS*2 \apply triumphs to trigger burn\
+ if ADVANTAGE < 2 {result: 0}
+ if S < 1 {result: 0} \burn cannot apply on a miss\
+ result: ([highest of 0 and BASEDAMAGE-SOAK])*RATING
+}
+
+function: blast RATING:n on miss ROLL:n {
+ TRIUMPH: [triumphs from ROLL]
+ ADVANTAGE: [advantages from ROLL] + TRIUMPH * 3 \apply triumph to trigger blast\
+ SUCCESS: [successes from ROLL]
+ if SUCCESS < 1 {
+  if ADVANTAGE > 2 {result: RATING - SOAK}
+ }
+ result: 0
+}
+
+\ passive quality helper functions \
+function: add superior RATING:n to ROLL:n {
+ result: ROLL + RATING
+}
+
+function: add inferior RATING:n to ROLL:n {
+ result: ROLL - RATING
+}
+
+function: add avian agility to ROLL:n {
+ result: ROLL + 202
+}
+
+function: upgrade difficulty from DICEPOOL:d {
+ result: DICEPOOL + 1dDIFFICULTY
+}
+
+function: inaccurate RATING:n DICEPOOL:d {
+ result: DICEPOOL + RATINGdSETBACK
+}
+
+function: accurate RATING:n DICEPOOL:d {
+ result: DICEPOOL + RATINGdBOOST
+}
+
+function: base BASEDAMAGE:n pierce PIERCE:n weapon damage ROLL:n {
+ S: [successes from ROLL]
+ ESOAK: [highest of SOAK - PIERCE and 0]
+ if S<1 {result:0}
+ DAMAGE: BASEDAMAGE + S - ESOAK
+ result: [highest of DAMAGE and 0]
+}
+
+\ weapon definitions \
+function: custom pistol damage ROLL:n {
+ \custom weapon example - pistol set with linked 3\
+ BASEDAMAGE: 4
+ PIERCE: 3
+ LINKRATING: 3
+ TRIUMPHS: [triumphs from ROLL]
+ S: [successes from ROLL]
+ ESOAK: [highest of 0 and SOAK-PIERCE]
+ ADVANTAGE: [advantages from [add superior 1 to ROLL]] + TRIUMPHS*2 \apply triumphs to trigger linked\
+ if S < 1 {result: 0}
+ if S < ESOAK - BASEDAMAGE+ 1 {result:0}
+ LINKEDHITS: [count linked LINKRATING hits from ADVANTAGE]
+ result: (S+BASEDAMAGE-ESOAK)*(1+LINKEDHITS)
+}
+
+function: plasma damage ROLL:n {
+ BASEDAMAGE: 10
+ BURNRATING: 1
+ result: [base BASEDAMAGE pierce 0 weapon damage ROLL] + [burn BURNRATING damage BASEDAMAGE from ROLL]
+}
+
+function: pistol damage ROLL:n {
+ BASEDAMAGE: 6
+ PIERCE: 0
+ result: [base BASEDAMAGE pierce PIERCE weapon damage ROLL]
+}
+
+function: dual pistol damage ROLL:n {
+ BASEDAMAGE: 6
+ PIERCE: 0
+ ADVANTAGE: [advantages from ROLL]
+ DAMAGE: [base BASEDAMAGE pierce PIERCE weapon damage ROLL]
+ if ADVANTAGE > 1 {DAMAGE: DAMAGE*2}
+ result: DAMAGE
+}
+
+function: blazer damage ROLL:n {
+ BASEDAMAGE: 7
+ PIERCE: 0
+ result: [base BASEDAMAGE pierce PIERCE weapon damage ROLL]
+}
+
+function: dual blazer damage ROLL:n {
+ BASEDAMAGE: 7
+ PIERCE: 0
+ ADVANTAGE: [advantages from ROLL]
+ DAMAGE: [base BASEDAMAGE pierce PIERCE weapon damage ROLL]
+ if ADVANTAGE > 1 {DAMAGE: DAMAGE*2}
+ result: DAMAGE
+}
+
+function: grenade damage ROLL:n {
+ BASEDAMAGE:7
+ BLASTRATING: 7
+ PIERCE: 0
+ result: [blast BLASTRATING on miss ROLL] + [base BASEDAMAGE pierce PIERCE weapon damage ROLL] 
+}
+
+DICEPOOL: PdPROFICIENCY + AdABILITY + BdBOOST + CdCHALLENGE + SdSETBACK + DdDIFFICULTY
+
+ADVANTAGES: BdBOOA + AdABIA + PdPROA - SdSETT - DdDIFT - CdCHAT
+SUCCESSES: BdBOOS + AdABIS + PdPROS - SdSETF - DdDIFF - CdCHAF 
+CHECKSUMADVANTAGES: [advantages from DICEPOOL]
+CHECKSUMSUCCESSES: [successes from DICEPOOL]
+
+output [custom pistol damage DICEPOOL] named "custom pistols damage"
+output [plasma damage DICEPOOL] named "plasma pistol damage"
+output [pistol damage DICEPOOL] named "shot pistol damage"
+output [dual pistol damage [upgrade difficulty from DICEPOOL]] named "dual shot pistol damage"
+output [blazer damage [inaccurate 1 DICEPOOL]] named "blazer damage"
+output [dual blazer damage [inaccurate 2 [upgrade difficulty from DICEPOOL]]] named "dual blazer damage"
+output [grenade damage DICEPOOL] named "grenade damage"
+
+output CHECKSUMSUCCESSES named "checksum successes"
+output SUCCESSES named "Successes"
+output CHECKSUMADVANTAGES named "checksum advantages"
+output ADVANTAGES named "Advantages"

@@ -1,0 +1,126 @@
+function: roll A:n B:n C:n E:n G:n{
+ F: 1
+ if E = 10 {F:2}
+ D: 0
+ if A = 10 { \tens die comes up 00\
+  D: B \just what the units die says\
+  if B = 10 {D: 100} \00 and 0 is 100\
+ }
+ if A!= 10 & B = 10 { \when you roll 10,20,30,etc\
+  D: A*10
+ }
+ if A!=10 & B!=10 {D: A*10+B \X1-X9 for X:1-9\
+ }
+ if D < (C*F) {result: A+B}
+}
+
+function: first aid A:n B:n SKILL:n DAMAGE:n OUCH:n{
+ RESULT: 0
+ if A = 10 { \tens die comes up 00\
+  RESULT: B \just what the units die says, 01-09\
+  if B = 10 {RESULT: 100} \00 and 0 is 100\
+ }
+ if A!= 10 & B = 10 { \when you roll 10,20,30,etc\
+  RESULT: A*10
+ }
+ if A!=10 & B!=10 {RESULT: A*10+B \X1-X9 for X:1-9\
+ }
+ if RESULT <= SKILL{
+  if RESULT = 1 {result: [minimum DAMAGE-20 0]} \crit heals 20 wounds\
+  if RESULT=11|RESULT=22|RESULT=33|RESULT=44|RESULT=55|RESULT=66|RESULT=77|RESULT=88|RESULT=99 {
+   result: [minimum DAMAGE-(A+B) 0] \a match heals wounds equal to the sum\
+  }
+  result: [minimum DAMAGE-A 0] \a regular success heals wounds equal to the tens die\
+ }
+ if RESULT = 100 {result: DAMAGE+OUCH} \a fumble inflicts 1d5 wounds\
+ if RESULT > SKILL {result: DAMAGE}
+}
+
+function: surgery A:n B:n SKILL:n DAMAGE:n OUCH:n{
+ RESULT: 0
+ if A = 10 { \tens die comes up 00\
+  RESULT: B \just what the units die says, 01-09\
+  if B = 10 {RESULT: 100} \00 and 0 is 100\
+ }
+ if A!= 10 & B = 10 { \when you roll 10,20,30,etc\
+  RESULT: A*10
+ }
+ if A!=10 & B!=10 {RESULT: A*10+B \X1-X9 for X:1-9\
+ }
+
+ if RESULT <= SKILL{
+  if RESULT = 1 {result: [lowest of [minimum DAMAGE-RESULT 0]and OUCH]} \crit heals all but the last 1d10 wounds, or removes wounds equal to the result if that would leave them with less\
+  result: [minimum DAMAGE-RESULT 1] \success heals wounds equal to the roll, but not the last one\
+ }
+ if RESULT = 100 {result: DAMAGE+OUCH} \a fumble inflicts 1d10 wounds\
+ if RESULT > SKILL {
+  if RESULT=11|RESULT=22|RESULT=33|RESULT=44|RESULT=55|RESULT=66|RESULT=77|RESULT=88|RESULT=99 {
+   result: DAMAGE \matched failure means they don't even heal from bed rest\
+  }
+  result: DAMAGE-1 \regular failure doesn't heal them, but they still benefit from bed rest\
+ }
+}
+
+function: minimum A:n B:n{
+ if A < B {result: B}
+ result: A
+}
+function: sigcharge A:n B:n {
+ C: A+B
+ if A = B {C: A+B+3}
+ result: C
+}
+function: half A:n {
+ if A=1|A=3|A=5|A=7|A=9|A=11|A=13|A=15|A=17|A=19|A=21|A=23|A=25|A=27|A=29|A=31|A=33|A=35 {result: (A+1)/2}
+ result: A/2
+}
+
+function: flipflop A:n B:n C:n{
+ D: 0
+ E: 0
+ F: 0
+ G: 0
+ if A = 10 { \tens die comes up 00\
+  D: B \just what the units die says\
+  if B = 10 {D: 100} \00 and 0 is 100\
+ }
+ if A!= 10 & B = 10 { \when you roll 10,20,30,etc\
+  D: A*10
+ }
+ if A!=10 & B!=10 {D: A*10+B \X1-X9 for X:1-9\
+ }
+ if D <= C {F: D}
+ if B = 10 { \tens die comes up 00\
+  E: A \just what the units die says\
+  if A = 10 {E: 100} \00 and 0 is 100\
+ }
+ if B!= 10 & A = 10 { \when you roll 10,20,30,etc\
+  E: B*10
+ }
+ if B!=10 & A!=10 {E: B*10+A \X1-X9 for X:1-9\
+ }
+ if E<= C {G: E}
+ if F > 0 & G > 0 {result: A+B}
+ if F > 0 & G = 0 {result: A+B}
+ if F = 0 & G > 0 {result: A+B}
+}
+function: thingy A:n C:n {
+ D: 0
+ if A = 1 {
+  if C = 1 {D: 4d6}
+  else {D: 2d6}
+ }
+ if A = 2 {
+  if C = 1 {D: 6d6}
+  else {D: 4d6}
+ }
+ if A = 3 {
+  if C = 1 {D: 8d6}
+  else {D: 6d6}
+ }
+ result: D
+}
+
+output [flipflop 1d10 1d10 60]
+output 1d10 > [lowest 1 of 2d5]
+output [roll 1d10 1d10 25 1 0]

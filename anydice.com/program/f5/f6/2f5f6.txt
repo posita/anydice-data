@@ -1,0 +1,56 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+DISADVANTAGE: -1
+REGULAR: 0
+ADVANTAGE: 1
+function: TYPE:n attack {
+ if TYPE = DISADVANTAGE { result: [damage for [attack [lowest 1 of 2d20] vs DEFENSE]] }
+ if TYPE = ADVANTAGE { result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]] }
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{5..15}
+MISSDAMAGE: 0
+
+ATTACK: 4
+HITDAMAGE: 1d8+2
+CRITICALDAMAGE: 2d8+2
+output [REGULAR attack] named "Greatclub"
+
+ATTACK: 4
+HITDAMAGE: 1d6+2
+CRITICALDAMAGE: 2d6+2
+output [REGULAR attack] named "Handaxe (0-20)"
+
+ATTACK: 4
+HITDAMAGE: 1d6+2
+CRITICALDAMAGE: 2d6+2
+output [DISADVANTAGE attack] named "Handaxe (20-60)"
+
+ATTACK: 3
+HITDAMAGE: 1d8+1
+CRITICALDAMAGE: 2d8+1
+output [REGULAR attack] named "Light Crossbow (0-80)"
+
+ATTACK: 3
+HITDAMAGE: 1d8+1
+CRITICALDAMAGE: 2d8+1
+output [DISADVANTAGE attack] named "Light Crossbow (80-320)"

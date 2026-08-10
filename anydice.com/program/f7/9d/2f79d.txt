@@ -1,0 +1,86 @@
+DC: 19
+SB: +4
+DMG: 2d8
+
+function: calc SAVEF:n with DMG:n {
+ if (SAVEF){
+  result: DMG
+ }
+ else {
+  result: DMG/2
+ }
+}
+
+output [calc 1d20+SB<DC with DMG] named "aoe"
+
+
+
+function: atk ROLL:n plus HITB:n against AC:n with DMG:n and CRIT:n {
+ RES: 0
+ if (ROLL > 1) {
+  RES:1
+  if (ROLL >= 20) {
+   RES: 3
+  }
+  else {
+   if (ROLL + HITB >= AC) {
+    RES: 2
+   }
+  }
+ }
+ if (RES = 0) {
+  result: DMG/2
+ }
+ if (RES = 1) {
+  result: DMG/2
+ }
+ if (RES = 2) {
+  result:DMG
+ }
+ if (RES = 3) {
+  result:CRIT
+ }
+}
+
+function: calledatk ROLL:n plus HITB:n against AC:n with DMG:n and CRIT:n {
+ RES: 0
+ if (ROLL > 1) {
+  RES:1
+  if (ROLL >= 20) {
+   RES: 3
+  }
+  else {
+   if (ROLL + HITB >= AC) {
+    RES: 2
+   }
+  }
+ }
+ if (RES = 0) {
+  result: DMG/2
+ }
+ if (RES = 1) {
+  result: DMG/2
+ }
+ if (RES = 2) {
+  result:CRIT
+ }
+ if (RES = 3) {
+  result:CRIT
+ }
+}
+
+AC: 18
+AB: +10
+DMG: 4d8+4
+CRIT: 8d8+4
+
+output [atk 1d20 plus AB against AC with DMG and CRIT] named "atk (base)"
+output [calledatk [lowest 1 of 2d20] plus AB against AC+2 with DMG and CRIT] named "atk (base, called)"
+
+AB: AB-5
+DMG: DMG+10
+CRIT: CRIT+10
+
+output [atk 1d20 plus AB against AC with DMG and CRIT] named "atk (sharpshooter)"
+output [calledatk [lowest 1 of 2d20] plus AB against AC+2 with DMG and CRIT] named "atk (sharpshooter, called)"
+

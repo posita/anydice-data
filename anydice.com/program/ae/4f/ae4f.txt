@@ -1,0 +1,30 @@
+\D&D character rolls at: http://anydice.com/program/adc7\
+DSIDES: 6
+NDICE: 6
+NTURNS: 3
+
+function: turn TURN:n roll D:s keep N:n {
+ X: [count N in D]
+ if X = #D { result: X }   \ full match!! \
+ if TURN = NTRURNS { result: X }   \ last turn. \
+ R: (#D) - X
+ result: X + [turn TURN + 1 roll R keep N]
+}
+
+function: yahtzee D:s {
+  KEEPN: 6
+  
+  loop N over {DSIDES..1} {
+    if [count N in D] > [count KEEPN in D] {
+      KEEPN: N
+    }
+  }
+  KEPT: [count KEEPN in D]
+  if KEPT < NDICE { 
+    
+    KEPT: KEPT + [turn 2 roll R keep N]
+  }
+  result: KEPT
+}
+
+output [yahtzee NDICEdDSIDES]

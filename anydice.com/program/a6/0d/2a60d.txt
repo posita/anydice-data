@@ -1,0 +1,18 @@
+\set output Data to "At Least" \
+N: 4     \ number of dice rolled \
+MOD: 0    \ +1 is "blessed", -1 is "cursed" \
+REROLLS: 1 \ how many rerolls \
+
+MIN: 5-MOD
+SUCCESS: d6 >= MIN
+
+function: R:n reroll X:n dice {
+ if (X = 0 | R = N) {result: R}
+ result: [R + 1d(SUCCESS) reroll (X-1) dice]
+}
+
+loop R over {0..REROLLS} {
+ output [Nd(SUCCESS) reroll R dice] named "successes with [R] rerolls"
+}
+
+\output (N+REROLLS)d(SUCCESS)\

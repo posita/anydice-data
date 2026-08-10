@@ -1,0 +1,47 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+SC_HPD: 5+2
+NSC_HPD: 5
+
+function: attackscnsc ROLLATT:n vs ROLLDEF:n {
+ if ROLLATT = 1 { result: MISS }
+ if ROLLDEF = 1 { result: CRITICALHIT }
+ if ROLLATT = 20 {
+  if ROLLATT + SC_HPD >= ROLLDEF + NSC_HPD { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLLDEF = 20 {
+  if ROLLDEF + NSC_HPD >= ROLLATT + SC_HPD { result: MISS }
+  result: MISS
+ }
+ if ROLLATT & ROLLDEF = 20 { 
+   if ROLLATT + SC_HPD >= ROLLDEF + NSC_HPD { result: HIT }
+  result: MISS
+ }
+ if ROLLATT + SC_HPD >= ROLLDEF + NSC_HPD { result: HIT }
+ result: MISS
+}
+
+function: attacknscsc ROLLATT:n vs ROLLDEF:n {
+ if ROLLATT = 1 { result: MISS }
+ if ROLLDEF = 1 { result: CRITICALHIT }
+ if ROLLATT = 20 {
+  if ROLLATT + NSC_HPD >= ROLLDEF + SC_HPD { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLLDEF = 20 {
+  if ROLLDEF + SC_HPD >= ROLLATT + NSC_HPD { result: MISS }
+  result: MISS
+ }
+ if ROLLATT & ROLLDEF = 20 { 
+   if ROLLATT + NSC_HPD >= ROLLDEF + SC_HPD { result: HIT }
+  result: MISS
+ }
+ if ROLLATT + NSC_HPD >= ROLLDEF + SC_HPD { result: HIT }
+ result: MISS
+}
+
+output [attackscnsc d20 vs d20] named "SC -> NSC"
+output [attacknscsc d20 vs d20] named "NSC -> SC"

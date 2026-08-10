@@ -1,0 +1,36 @@
+\ Calculator to measure casualties from Hold tests. \
+
+ATTCBT: 15 \ Attacker's CBT rating. \
+ATTTIER: 4 \ Attacker's Tier relative to Defender. \
+
+DEFCBT: 7 \ Defender's total CBT for Hold tests. \
+DEFTIER: 4 \ Defender's Tier for Hold tests. \
+
+COMPWGT: 4 \ Attacker's Weight relative to Defender. \
+WOUNDS: 5 \ Only used if function below is commented out. \
+
+function: morale DICE:n RANK:n HITS:n {
+  ACC: 0
+  loop _ over {1..DICE} {
+    SAVE: 1d6 >= RANK
+    ACC: ACC + SAVE
+  }
+  result: [lowest of 3 and [highest of 0 and HITS - ACC]]
+}
+
+function: compare DIE:n TARGET:n {
+  if DIE >= TARGET {
+    result: 1
+  }
+  result: 0
+}
+
+function: attack MAG:n HIT:n DAM:n {
+  HITS: MAGd[compare 1d6 HIT]
+  result: HITSd[compare 1d6 DAM]
+}
+
+\ Used to dynamically generate ## wounds. \
+WOUNDS: [attack ATTCBT ATTTIER COMPWGT]
+
+output [morale DEFCBT DEFTIER WOUNDS] named "Total Casualties"

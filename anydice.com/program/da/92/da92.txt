@@ -1,0 +1,21 @@
+\ Enter character edge and pool, hit Calculate. View: Table, Data: Summary \
+\ The mean will show expected hits, and how edge will manipulate.          \
+\ As a rule of thumb: Use edge to re-roll when Pool > 18/7 * Edge.         \
+
+EDGE: 5
+POOL: 13
+
+function: explode DIE:d {
+  result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+  if N=6 { result: 1 + [explode DIE helper] }
+  else if N=5 { result: 1 }
+  else { result: 0 }
+}
+
+output [count {5, 6} in POOL d6] named "Normal Pool"
+output (POOL + EDGE) d[explode d6] named "Pre-roll Push The Limit"
+output [count {5, 6} in POOL d6] + EDGE d[explode d6] named "Post-roll Push The Limit"
+output POOL d[highest 1 of 2d[count {5, 6} in d6]] named "Re-roll Failures"

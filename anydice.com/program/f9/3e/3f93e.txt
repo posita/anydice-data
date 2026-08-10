@@ -1,0 +1,36 @@
+\Day 1 Jewel Dust Economy\
+\Set these three variables and press Calculate\
+
+YOUR_JEWEL_LEVEL: 15
+YOUR_JEWEL_DUST: 0
+TARGET_LEVEL: 16
+
+\How to interpret results:\
+\% is the chance for that specific outcome\
+\if # is negative, then that's the dust missing for the upgrade\
+\if # is positive, then that's the dust remaining after the upgrade\
+\all positive? congrats you're guaranteed on worst scenario\
+\all negative? that upgrade is impossible\
+\if you want to see your overall chances of having enough dust, set Data to At Least and check % of first positive #\
+
+\Don't edit anything under this\
+
+TEMP_LVL: TARGET_LEVEL
+REQUIRED_DUST: 0
+loop N over {1..TARGET_LEVEL-YOUR_JEWEL_LEVEL}{
+ REQUIRED_DUST: REQUIRED_DUST + 10*2^(TEMP_LVL-1)
+ TEMP_LVL: TEMP_LVL-1
+}
+MISSING_DUST: REQUIRED_DUST-YOUR_JEWEL_DUST
+output MISSING_DUST named "missing dust"
+
+\The three type of jewel boxes with the assumption of a 1/3 chance for the upper jewel\
+LESSER_JEWEL_BOX: d{20480,10240,10240}
+PAID_JEWEL_BOX: d{40960,20480,20480}
+UPPER_JEWEL_BOX: d{81920,40960,40960}
+
+\Jewels from lv1 to lv10 that you can buy once from the S3 shop; amounts to less than a lv11\
+ONE_TIME_SHOP_JEWELS: 5120 + 2560 + 1280 + 640 + 320 + 160 + 80 + 40 + 20 + 10
+
+output (14d{20480,10240,10240}+7d{40960,20480,20480}+ONE_TIME_SHOP_JEWELS)-MISSING_DUST  named "without challengers"
+output (14d{20480,10240,10240}+7d{40960,20480,20480}+3d{81920,40960,40960}+ONE_TIME_SHOP_JEWELS)-MISSING_DUST named "with 3 challengers"

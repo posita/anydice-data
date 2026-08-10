@@ -1,0 +1,48 @@
+ABILITY: [highest 3 of 4d6]
+
+function: ROLL:n low VAL:n {
+  if ROLL > VAL { result: ROLL }
+  result: VAL
+}
+
+HIGHABILITY: [ ABILITY low 15 ]
+\
+ABILITIES: 6 d HIGHABILITY
+
+loop P over {1..2} {
+ output P@ABILITIES named "Ability [P]"
+}
+
+ABILITIES: 6 d ABILITY
+
+loop P over {3..6} {
+ output P@ABILITIES named "Ability [P]"
+}
+\
+
+function: ROLL:n point cost {
+  if ROLL <= 13 {
+    result: ROLL - 8
+  }
+  if ROLL <= 15 {
+    result: 5 + ((ROLL - 13) * 2)
+  }
+  if ROLL <= 17 {
+    result: 9 + ((ROLL - 15) * 3)
+  }
+  result: 17
+}
+
+function: HIGH:n from ROLLHI:n others ROLLLOW:n {
+  result: [highest HIGH of 6 d [ROLLHI point cost]] + [lowest (6 - HIGH) of 6 d [ROLLLOW point cost]]
+}
+
+
+output 6 d [ABILITY point cost] named "Point Cost 4d6"
+
+output [lowest 4 of 6 d [ABILITY point cost]] + [highest 2 of 6 d [HIGHABILITY point cost]] named "Point Cost 4d6 with two >= 15"
+
+output [2 from [ABILITY low 15] others ABILITY] named "Point Cost 4d6 with two >= 15" 
+\
+output [1 from [ABILITY low 16] others ABILITY] named "Point Cost 4d6 with one >= 16"
+\

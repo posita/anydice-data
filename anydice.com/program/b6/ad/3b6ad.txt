@@ -1,0 +1,51 @@
+\Crime, decent character, +5 Stealth, +3 Thieves' Tools, +5 Sleight of Hand, a Dex based character with proficiencies (except tools), though a Rogue would probably have +7 +7 +5 with expertise in stealth and thieves' tools\
+\==================================================================
+| inputs
+\
+\ define the three rolls you will be performing against the DC \
+ROLLA: 1d20 + 5         \ first skill or ability check\
+ROLLB: 1d20 + 3         \ second skill or ability check \
+ROLLC: 1d20 + 5         \ third skill or ability check \
+TARGET: 0               \ 0 = DC 10 | 1 = DC 15 | 2 = DC 20 | 3 = DC 25 \
+
+
+\==================================================================
+| functions
+\
+\ determines if a roll beats the given DC \
+function: check A:n is above B:n {
+ if A > B { result: 1 }
+ result: 0
+}
+
+\ determines the winnings from a group of checks \
+function: winnings from A:n {
+ if A = 0 { result: -[check payout of TARGET] - 25 }
+ if A = 1 { result: -25 }
+ if A = 2 { result: [check payout of TARGET]/2 - 25 }
+ if A = 3 { result: [check payout of TARGET] - 25 }
+ result: 0
+}
+
+\ determine DC from difficulty of target \
+function: check dc of A{
+ if A = 0 { result: 10 }
+ if A = 1 { result: 15 }
+ if A = 2 { result: 20 }
+ if A = 3 { result: 25 }
+}
+
+\ determine payout from difficulty of target \
+function: check payout of A{
+ if A = 0 { result: 50 }
+ if A = 1 { result: 100 }
+ if A = 2 { result: 200 }
+ if A = 3 { result: 1000 }
+}
+
+\==================================================================
+| simulation
+\
+DC: [check dc of TARGET]
+TOT: [check ROLLA is above DC] + [check ROLLB is above DC] + [check ROLLC is above DC]
+output [winnings from TOT]  named "Crime Winnings"

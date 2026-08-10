@@ -1,0 +1,49 @@
+\ --- WEG D6 Wild Die: Unlimited Explosions, Botch Tracking & Drop Highest Die --- \
+
+\ 1. Recursive function: keeps exploding as long as 6s are rolled \
+function: explode DIE:n {
+   if DIE = 6 { result: 6 + [explode 1d6] }
+   result: DIE
+}
+
+\ 2. Check if the reroll after an initial 1 produces a Botch \
+function: check botch REROLL:n {
+   if REROLL = 6 { result: -1 }    \ Flag for Botch \
+   result: 100                     \ Flag for Non-Botch 1 (Complication) \
+}
+
+\ 3. Main Wild Die resolution \
+function: wild DIE:n {
+   if DIE = 6 { result: 6 + [explode 1d6] }
+   if DIE = 1 { result: [check botch 1d6] }
+   result: DIE
+}
+
+\ 4. Combine Normal Dice sequence with Wild Die result \
+function: parse wild W:n NORMAL:s {
+   if W = -1 { 
+      \ BOTCH: Returns negative of actual roll (Normal total + 1) \
+      result: -(NORMAL + 1) 
+   }
+   if W = 100 { 
+      \ NON-BOTCH 1: Remove Wild Die AND the highest die in NORMAL \
+      \ {2..#NORMAL}@NORMAL extracts index 2 through end, which AnyDice automatically sums \
+      result: {2..#NORMAL}@NORMAL 
+   }
+   \ NORMAL ROLL / EXPLOSION: Add sum of NORMAL + Wild Die \
+   result: NORMAL + W
+}
+
+\ 5. Main Skill Roll Function \
+function: weg skill DICE:n {
+   result: [parse wild [wild 1d6] (DICE - 1)d6]
+}
+
+\ --- OUTPUTS --- \
+output [weg skill 2] named "2D Skill Roll"
+output [weg skill 3] named "3D Skill Roll"
+output [weg skill 4] named "4D Skill Roll"
+output [weg skill 5] named "5D Skill Roll"
+output [weg skill 6] named "6D Skill Roll"
+output [weg skill 7] named "7D Skill Roll"
+output [weg skill 8] named "8D Skill Roll"

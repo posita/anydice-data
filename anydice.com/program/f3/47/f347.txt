@@ -1,0 +1,42 @@
+\**** Damage of Hand vs Heavy Crossbow calculator ****\
+
+function: hattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: HCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: HDAMAGE }
+ result: 0
+}
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE + [bonusroll 1d20 vs ENEMYAC]} 
+ if ROLL = 1 { result: 0 + [bonusroll 1d20 vs ENEMYAC] }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE + [bonusroll 1d20 vs ENEMYAC]}
+ result: 0 + [bonusroll 1d20 vs ENEMYAC]
+}
+
+function: bonusroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE - ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE - ATTACKMOD }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+
+ATTACKTIMES: 1
+
+HDAMAGE: 1d10 + ATTACKMOD + DMGBONUS
+HCRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS
+
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+
+output ATTACKTIMESd[hattackroll d20 vs ENEMYAC] named "Heavy Crossbow"
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Hand Crossbow + Bonus Attack"

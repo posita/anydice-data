@@ -1,0 +1,55 @@
+function: roll D:n compare to A:n and B:n {
+ if D > A & D > B { result: 1 }
+ if D <= A & D <= B { result: -1 }
+ result: 0
+}
+
+function: roll D:s above C with critical step S {
+ if D >= (C+S) { result: 1 }
+ if D < C { result: -1 }
+ result: 0
+}
+
+function: roll D:s yearzero {
+ if [count 6 in D] >= 2 { result: 1 }
+ if [count 6 in D] < 1 { result: -1 }
+ result: 0
+}
+
+function: roll D:n with skill S:n and critical fraction F:n {
+ C: S / F
+ if D < C { result: 1 }
+ if D > S { result: -1 }
+ result: 0
+}
+
+loop S over {0,1,2,3} {
+ output [roll 1d6+S compare to 1d10 and 1d10] named "Ironsworn add [S]"
+}
+
+loop S over {0,1,2,3} {
+ loop V over {1,2,3} {
+  X: [highest 1 of Vd6]
+  Y: V-1
+  output [roll X+S compare to 1d10 and 1d10] named "Ironsworn add [S] with [Y] advantage"
+ }
+}
+
+loop S over {0,1,2,3} {
+ loop V over {2,3,4} {
+  X: [highest 2 of Vd6]
+  Y: V-2
+  C: 8
+  T: 5
+  output [roll X+S above C with critical step T] named "FTL roll over [C] with critical step [T], skill [S] advantage [Y]"
+ }
+}
+
+loop S over {1,2,3,4,5,6,7,8,9,10} {
+ output [roll Sd6 yearzero] named "Year Zero Dice Pool is [S]"
+}
+
+loop S over {10,30,50,70,90} {
+ F: 2
+ output [roll 1d100 with skill S and critical fraction F] named "roll d100 under skill [S] with critical fraction [F]" 
+}

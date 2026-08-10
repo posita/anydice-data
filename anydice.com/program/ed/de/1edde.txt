@@ -1,0 +1,42 @@
+\ EDIT THE NUMBER OF DICE BEING ROLLED HERE \
+
+GREEN: 0
+YELLOW: 0
+BLUE: 0
+
+PURPLE: 0
+RED: 0
+BLACK: 0
+
+\===============================================================================================================================================\
+\===============================================================================================================================================\
+\==========================================================DO NOT EDIT BELOW THIS LINE==========================================================\
+\===============================================================================================================================================\
+\===============================================================================================================================================\
+
+GREENPOOL: GREENd{0,0,0,0,1,1,1,2}
+YELLOWPOOL: YELLOWd{0,0,0,0,1,1,1,1,1,1,2,2}
+BLUEPOOL: BLUEd{0,0,0,0,1,1}
+
+PURPLEPOOL: PURPLEd{0,0,0,0,0,1,1,2}
+REDPOOL: REDd{0,0,0,0,0,1,1,1,1,1,2,2}
+BLACKPOOL: BLACKd{0,0,0,0,1,1}
+
+function: genesys GREENROLL:s YELLOWROLL:s BLUEROLL:s vs PURPLEROLL:s REDROLL:s BLACKROLL:s {
+ SUCCESSRANGE: {1, 2} 
+
+ GSUCCESS: [count SUCCESSRANGE in GREENROLL]
+ YSUCCESS: [count SUCCESSRANGE in YELLOWROLL]
+ BSUCCESS: [count SUCCESSRANGE in BLUEROLL]
+
+ PFAILURE: [count SUCCESSRANGE in PURPLEROLL]
+ RFAILURE: [count SUCCESSRANGE in REDROLL]
+ BFAILURE: [count SUCCESSRANGE in BLACKROLL]
+
+ result: (GSUCCESS + YSUCCESS + BSUCCESS) - (PFAILURE + RFAILURE + BFAILURE)
+}
+
+ROLL: [genesys GREENPOOL YELLOWPOOL BLUEPOOL vs PURPLEPOOL REDPOOL BLACKPOOL]
+
+output ROLL named "expanded odds of success"
+output [lowest of [highest of ROLL and 0] and 1] named "flat odds of success vs failure | 0 = failure, 1 = success"

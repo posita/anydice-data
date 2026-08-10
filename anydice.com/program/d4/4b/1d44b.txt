@@ -1,0 +1,86 @@
+set "maximum function depth" to 8
+
+AC: 15
+MISS: d{}
+
+function: ROLL:n attack AC:n exp EXP:n
+{
+  if (ROLL = 20)
+  {
+    result: [d20 threat AC exp EXP]
+  }
+  if ((ROLL + ATTACK_MODIFIER) >= AC)
+  {
+    if (ROLL >= RANGE)
+    {
+      result: [d20 threat AC exp EXP]
+    }
+    result: DAMAGE + AFTER
+  }
+  result: MISS
+}
+
+function: ROLL:n threat AC:n exp EXP:n
+{
+  if (ROLL = 20)
+  {
+    if (EXP)
+    {
+      result: [d20 threat AC exp (EXP + 1)]
+    }
+    result: (MULTIPLIER d DAMAGE) + AFTER
+  }
+  if ((ROLL + ATTACK_MODIFIER) >= AC)
+  {
+    if (ROLL >= RANGE)
+    {
+      if (EXP)
+      {
+        result: [d20 threat AC exp (EXP + 1)] 
+      }
+      result: (MULTIPLIER d DAMAGE) + AFTER
+    }
+    result: (1 + (EXP * (MULTIPLIER - 1))) d DAMAGE + AFTER
+  }
+  result: (1 + [highest of (EXP - 1) and 0] * (MULTIPLIER - 1)) d DAMAGE + AFTER
+}
+
+STRENGTH: 0
+
+ATTACK_MODIFIER: -3
+DAMAGE: 1d6 + STRENGTH
+AFTER: 0
+RANGE: 19
+MULTIPLIER: 2
+output [d20 attack AC exp 0] named "RÃ¶vid kard"
+
+ATTACK_MODIFIER: -3
+DAMAGE: 1d6 + STRENGTH
+AFTER: 0
+RANGE: 19
+MULTIPLIER: 2
+output [d20 attack AC exp 0] named "RÃ¶vid kard (2)"
+
+ATTACK_MODIFIER: 1
+DAMAGE: 1d6 + STRENGTH
+AFTER: 0
+RANGE: 20
+MULTIPLIER: 2
+output [d20 attack AC exp 0] named "HusÃ¡ng"
+
+
+ATTACK_MODIFIER: 2
+DAMAGE: 1d10 + STRENGTH + 1
+AFTER: 0
+RANGE: 20
+MULTIPLIER: 2
+output [d20 attack AC exp 0] named "Shillelagh"
+
+STRENGTH: 4
+
+ATTACK_MODIFIER: 8
+DAMAGE: 1d8 + STRENGTH
+AFTER: 0
+RANGE: 19
+MULTIPLIER: 2
+output [d20 attack AC exp 0] named "HosszÃºkard"

@@ -1,0 +1,69 @@
+TOHIT: 6d6
+TODODGE: 6d6
+WEAPONDV: 7
+WEAPONAP: 0
+DEFENDERAV: 9
+DEFENDERBODY: 3
+
+
+function: net attack hits {
+\first roll is ATTACK POOL, second roll is DEFENSE POOL\
+result: [count {5, 6} in TOHIT] - [count {5, 6} in TODODGE]
+}
+
+\Computes modified weapon damage from a roll\
+\modifier for the first conditional is WEAPON DAMAGE\
+function: NETHITS:s modified damage value{
+  if NETHITS > 0 {result: NETHITS + WEAPONDV}
+  if NETHITS = 0 {result: NETHITS}
+  if NETHITS < 0 {result: -1}
+}
+
+
+\first variable is target's AV, second is weapon AP \
+function: MODDAMAGE:s compare damage to armor{
+
+  if MODDAMAGE < 0 {result: -1}
+  if MODDAMAGE = 0 {result: 0}
+  if MODDAMAGE > 0 & MODDAMAGE < DEFENDERAV {result: 1}
+  if MODDAMAGE > 0 & MODDAMAGE >= DEFENDERAV  {result: 2}
+
+}
+
+function: MD:s soak chance{
+  MODARMOR: DEFENDERAV - WEAPONAP
+
+  result: MD - ([count {5, 6} in DEFENDERBODYd6] + [count {5, 6} in DEFENDERBODYd6])
+  
+}
+
+function: MD:s soak chance test{
+  MODARMOR: DEFENDERAV - WEAPONAP
+  POSSIBLEDAMAGE: [count {1..100} in MD]
+
+
+  if MD > 0 {
+  
+
+ if MODARMOR > 0{
+   result: (MD - ([count {5, 6} in DEFENDERBODYd6] + [count {5, 6} in MODARMORd6]))
+}
+ if MODARMOR <= 0{
+   result: (MD - ([count {5, 6} in DEFENDERBODYd6]))
+}
+
+ 
+}
+}
+
+\OUTPUT1: TO HIT/NET DAMAGE
+ -1 is miss chance, 0 is a graze, > 0 is modified DV\
+output  [[net attack hits] modified damage value]
+
+\OUTPUT2: DAMAGE TYPE
+0 = miss chance, 1 = stun damage, 2 = phys damage\
+output [[[net attack hits] modified damage value] compare damage to armor]
+
+\OUTPUT 3: FINAL DAMAGE AFTER SOAK\
+output [[[net attack hits] modified damage value] soak chance test]
+

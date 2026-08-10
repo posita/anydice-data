@@ -1,0 +1,469 @@
+\ Hexstaff \
+
+MISS: 0
+HIT: 1
+BGWF: {{1..2}, {3..10}:6}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 2
+SMALLATTACK: 2 + 2
+SKELEATTACK: 4
+MOUNTATTACK: 6
+BIGHITDAMAGE: 1d8 + 2
+BIGCRITICALDAMAGE: 2d8 + 2
+SMALLHITDAMAGE: 1d4 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+SKELEHITDAMAGE: 1d10 + 2
+SKELECRITICALDAMAGE: 2d10 + 2
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 2d6 + 4
+MOUNTSMALLCRITICALDAMAGE: 4d6 + 4 
+MISSDAMAGE: 0
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+\ Level 1 \
+
+
+AC:10
+output [bigmultiattack 1] named "level 1  vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 1  vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 1  vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 1  vs AC[AC]"
+
+\ Level 2 \
+
+BIGATTACK: 3 + 2
+SMALLATTACK: 3 + 2
+BIGHITDAMAGE: 1d8 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d8 + 2d6 + 3
+SMALLHITDAMAGE: 1d4 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+
+
+AC:10
+output [bigmultiattack 1] named "level 2 w/hex vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 2 w/hex vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 2 w/hex vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 2 w/hex vs AC[AC]"
+
+\ Level 3 - 4 \
+
+BIGATTACK: 3 + 2
+SMALLATTACK: 3 + 2
+BIGHITDAMAGE: 1d8 + 1d6 + 3 + 2
+BIGCRITICALDAMAGE: 6d8 + 2d6 + 3 + 2
+SMALLHITDAMAGE: 1d4 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+
+
+AC:10
+output [bigmultiattack 1] named "level 3 w/hex, dueling, smite vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 3 w/hex, dueling, smite vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 3 w/hex, dueling, smite vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 3 w/hex, dueling, smite vs AC[AC]"
+
+\ Level 5 \
+
+BIGATTACK: 3 + 3
+SMALLATTACK: 3 + 3
+BIGHITDAMAGE: 1d6 + 1d6 + 3 + 2
+BIGCRITICALDAMAGE: 2d6 + 4d8 + 2d6 + 3 + 2
+SMALLHITDAMAGE: 1d4 + 1d6 + 3 + 2
+SMALLCRITICALDAMAGE: 2d4 + 4d8 + 2d6 + 3 + 2
+
+
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/hex, dueling, smite, polearm master vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/hex, dueling, smite, polearm master vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/hex, dueling, smite, polearm master vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] named "level 5 w/hex, dueling, smite, polearm master vs AC[AC]"
+
+\ Level 6 \
+
+BIGATTACK: 3 + 3
+SMALLATTACK: 3 + 3
+BIGHITDAMAGE: 1d6 + 1d6 + 3 + 2
+BIGCRITICALDAMAGE: 2d6 + 6d8 + 2d6 + 3 + 2
+SMALLHITDAMAGE: 1d4 + 1d6 + 3 + 2
+SMALLCRITICALDAMAGE: 2d4 + 6d8 + 2d6 + 3 + 2
+
+
+AC:10
+output [bigmultiattack 2] + [smallmultiattack 1] + [mountbigmultiattack 1] named "level 6 w/hex, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] + [smallmultiattack 1] + [mountbigmultiattack 1] named "level 6 w/hex, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] + [smallmultiattack 1] + [mountbigmultiattack 1] named "level 6 w/hex, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] + [smallmultiattack 1] + [mountbigmultiattack 1] named "level 6 w/hex, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+\ Level 7 - 8 \
+
+BIGATTACK: 3 + 3
+SMALLATTACK: 3 + 3
+BIGHITDAMAGE: 1d6 + 3 + 2
+BIGCRITICALDAMAGE: 2d6 + 6d8 + 3 + 2
+SMALLHITDAMAGE: 1d4 + 3 + 2
+SMALLCRITICALDAMAGE: 2d4 + 6d8 + 3 + 2
+
+
+AC:10
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 7 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 7 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 7 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 7 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+\ Level 9 \
+
+BIGATTACK: 3 + 4
+SMALLATTACK: 3 + 4
+BIGHITDAMAGE: 1d6 + 3 + 2 + 3
+BIGCRITICALDAMAGE: 2d6 + 6d8 + 3 + 2 + 3
+SMALLHITDAMAGE: 1d4 + 3 + 2 + 3
+SMALLCRITICALDAMAGE: 2d4 + 6d8 + 3 + 2 + 3
+
+
+AC:10
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 9 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 9 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 9 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 2] + [smallmultiattackadvantage 1] + [mountbigmultiattack 1] named "level 9 w/darkness, dueling, smite, polearm master, warhorse vs AC[AC]"
+
+\ Level 10 \
+
+BIGATTACK: 4 + 4
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d6 + 4 + 2 + 4
+BIGCRITICALDAMAGE: 2d6 + 6d8 + 4 + 2 + 4
+SMALLHITDAMAGE: 1d4 + 4 + 2 + 4
+SMALLCRITICALDAMAGE: 2d4 + 6d8 + 4 + 2 + 4
+
+
+AC:10
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] named "level 10 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] named "level 10 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] named "level 10 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] named "level 10 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse vs AC[AC]"
+
+
+\ Level 11 - 12 \
+
+BIGATTACK: 4 + 4
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d6 + 4 + 2 + 4
+BIGCRITICALDAMAGE: 2d6 + 6d8 + 4 + 2 + 4
+SMALLHITDAMAGE: 1d4 + 4 + 2 + 4
+SMALLCRITICALDAMAGE: 2d4 + 6d8 + 4 + 2 + 4
+
+
+AC:10
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 8] named "level 11 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse, 8x skele vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 8] named "level 11 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse, 8x skele vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 8] named "level 11 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse, 8x skele vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 8] named "level 11 w/darkness, dueling, smite, polearm master, elven accuracy, warhorse, 8x skele vs AC[AC]"
+
+\ Level 13 \
+
+BIGATTACK: 4 + 5
+SMALLATTACK: 4 + 5
+BIGHITDAMAGE: 1d6 + 1d8 + 4 + 2 + 4
+BIGCRITICALDAMAGE: 2d6 + 8d8 + 4 + 2 + 4
+SMALLHITDAMAGE: 1d4 + 1d8 + 4 + 2 + 4
+SMALLCRITICALDAMAGE: 2d4 + 8d8 + 4 + 2 + 4
+
+
+AC:10
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 13 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 13 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 13 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 13 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+
+\ Level 14 \
+
+BIGATTACK: 5 + 5
+SMALLATTACK: 5 + 5
+BIGHITDAMAGE: 1d6 + 1d8 + 5 + 2 + 5
+BIGCRITICALDAMAGE: 2d6 + 8d8 + 5 + 2 + 5
+SMALLHITDAMAGE: 1d4 + 1d8 + 5 + 2 + 5
+SMALLCRITICALDAMAGE: 2d4 + 8d8 + 5 + 2 + 5
+
+
+AC:10
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 14 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 14 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 14 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [skelemultiattack 12] named "level 14 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, warhorse, 12x skele vs AC[AC]"
+
+\ Level 15 - 16 \
+
+BIGATTACK: 5 + 5
+SMALLATTACK: 5 + 5
+BIGHITDAMAGE: 1d6 + 1d8 + 5 + 2 + 5
+BIGCRITICALDAMAGE: 2d6 + 8d8 + 5 + 2 + 5
+SMALLHITDAMAGE: 1d4 + 1d8 + 5 + 2 + 5
+SMALLCRITICALDAMAGE: 2d4 + 8d8 + 5 + 2 + 5
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 1d8 + 4
+MOUNTSMALLCRITICALDAMAGE: 2d8 + 4 
+
+AC:10
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 12] named "level 15 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 12x skele vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 12] named "level 15 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 12x skele vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 12] named "level 15 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 12x skele vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 12] named "level 15 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 12x skele vs AC[AC]"
+
+\ Level 17 - 18 \
+
+BIGATTACK: 5 + 6
+SMALLATTACK: 5 + 6
+BIGHITDAMAGE: 1d6 + 1d8 + 5 + 2 + 5
+BIGCRITICALDAMAGE: 2d6 + 8d8 + 5 + 2 + 5
+SMALLHITDAMAGE: 1d4 + 1d8 + 5 + 2 + 5
+SMALLCRITICALDAMAGE: 2d4 + 8d8 + 5 + 2 + 5
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 1d8 + 4
+MOUNTSMALLCRITICALDAMAGE: 2d8 + 4 
+
+AC:10
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 18] named "level 17 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 18x skele vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 18] named "level 17 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 18x skele vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 18] named "level 17 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 18x skele vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 18] named "level 17 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 18x skele vs AC[AC]"
+
+
+\ Level 19 - 20 \
+
+BIGATTACK: 5 + 6
+SMALLATTACK: 5 + 6
+BIGHITDAMAGE: 1d6 + 1d8 + 5 + 2 + 5
+BIGCRITICALDAMAGE: 2d6 + 8d8 + 5 + 2 + 5
+SMALLHITDAMAGE: 1d4 + 1d8 + 5 + 2 + 5
+SMALLCRITICALDAMAGE: 2d4 + 8d8 + 5 + 2 + 5
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 1d8 + 4
+MOUNTSMALLCRITICALDAMAGE: 2d8 + 4 
+
+AC:10
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 26] named "level 19 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 26x skele vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 26] named "level 19 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 26x skele vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 26] named "level 19 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 26x skele vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 2] + [smallmultiattackdoubleadvantage 1] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] + [skelemultiattack 26] named "level 19 w/darkness, dueling, smite, polearm master, elven accuracy, improved smite, griffon, 26x skele vs AC[AC]"

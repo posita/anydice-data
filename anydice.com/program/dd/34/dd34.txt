@@ -1,0 +1,36 @@
+\calling function\
+function: compare ATTACK:s to DEFENCE:s {
+  result: [compare 1 from ATTACK to DEFENCE]
+}
+
+\helper function with recursion\
+function: compare N:n from ATTACK:s to DEFENCE:s {
+  if (N > #ATTACK) & (N > #DEFENCE) {
+    \out of dice for both - a draw!\
+    result: 0
+  }
+  if (N > #ATTACK) {
+    \out of dice for attacker - loss!\
+    result: -1
+  }
+  if (N > #DEFENCE) {
+    \out of dice for defender - win!\
+    result: 1
+  }
+  if (N@ATTACK > N@DEFENCE) {
+    \attacker die greater - win!\
+    result: 1
+  }
+  if (N@ATTACK < N@DEFENCE) {
+    \defender die greater - loss!\
+    result: -1
+  }
+  if (N@ATTACK = N@DEFENCE) {
+    \dice tie - draw, and recursion!\
+    result: [compare (N+1) from ATTACK to DEFENCE]
+  }
+}
+
+\increase max function depth to be able to handle larger dice pools\
+set "maximum function depth" to 10
+output [compare 4d6 to 4d6]

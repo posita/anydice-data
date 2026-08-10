@@ -1,0 +1,40 @@
+MISS: 0
+FAIL: 1
+WOUND: 2
+
+function: wound with hit HITROLL:n and wound WOUNDROLL:n using skill SKILL:n at strength STRENGTH:n vs toughness TOUGHNESS:n {
+ if HITROLL = 1 { result: MISS }
+ if HITROLL >= SKILL {
+	if WOUNDROLL = 1 { result: FAIL }
+	
+	if STRENGTH >= (TOUGHNESS * 2) {
+		if WOUNDROLL >= 2 { result: WOUND }
+		result: FAIL
+	}
+
+	if (STRENGTH * 2) <= TOUGHNESS {
+		if WOUNDROLL >= 6 { result: WOUND }
+		result: FAIL
+	}
+
+	if STRENGTH = TOUGHNESS {
+		if WOUNDROLL >= 4 { result: WOUND }
+		result: FAIL
+	}
+
+	if STRENGTH > TOUGHNESS {
+		if WOUNDROLL >= 3 { result: WOUND }
+		result: FAIL
+	}
+
+	if STRENGTH < TOUGHNESS {
+		if WOUNDROLL >= 5 { result: WOUND }
+		result: FAIL
+	}		
+ } result: MISS
+}
+
+loop T over {3..8} {
+ output [wound with hit d6 and wound d6 using skill 4 at strength 6 vs toughness T] named "T[T]"
+}
+

@@ -1,0 +1,38 @@
+\ simple version of wh40k calc \
+\ by LazyLexa \
+TOHIT:4       \ total hitroll \
+TOWOUND:4     \ total woundroll \
+AP:4          \ total AP \
+SAVE:3        \ save Without AP, Ap will be added in TOSAVE \
+
+\ calculations \
+
+ATTACK:d6      \ just 1 d6 die \
+TOSAVE:SAVE+AP \ total saveroll \
+
+function: hitstowound RLL:n if eqorabove CHANCE:n {
+ if RLL >= CHANCE {
+  result: [woundstosave d6 if eqorabove TOWOUND]
+ }
+ else{
+  result: 0
+ }
+}
+function: woundstosave RLL:n if eqorabove CHANCE:n {
+ if RLL >= CHANCE {
+  result: [troughsave d6 if eqorless TOSAVE]
+ }
+ else{
+  result: 0
+ }
+}
+function: troughsave RLL:n if eqorless CHANCE:n {
+ if RLL < CHANCE {
+  result: 1
+ }
+ result: 0
+}
+
+output [hitstowound d6 if eqorabove TOHIT] named "hit that pass wound roll and save"
+\ output [woundstosave d6 if eqorabove TOWOUND] named "check if correct wound roll passed through save"\
+\ output [troughsave d6 if eqorless TOSAVE] named "check if correct through save roll passed dmg"\

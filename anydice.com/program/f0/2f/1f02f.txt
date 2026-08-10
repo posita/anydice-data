@@ -1,0 +1,44 @@
+function: rolltwo MIN:n to MAX:n bonus BONUS:n {
+  A: d6
+  B: d6
+  result: [clamp [diff between A B BONUS] MIN to MAX]
+}
+
+function: diff between A:n B:n BONUS:n {
+  if A = B {
+    if A = 1 { result: -1 }
+    result: A + BONUS
+  }
+  result: [absolute A-B] + BONUS
+}
+
+\ unused \
+function: explode N:n MIN:n to MAX:n {
+  if N = 0 { N: 1 + [rolltwo MIN to MAX] }
+  result: N
+}
+
+function: absolute N:n {
+ if N < 0 { result: -N }
+ result: N
+}
+
+function: clamp N:n MIN:n to MAX:n {
+ if N >= 0 {
+   if N < MIN { result: MIN }
+   if N > MAX { result: MAX }
+ }
+ result: N
+}
+
+\rolling two same values yields value+1, i.e. 3+3 = 4\
+\rolling different values yields a difference, i.e. 3+5 = 2\
+
+function: success N:n defending from P:n {
+  if N >= P { result: 1 }
+  result: 0
+}
+
+loop FP over {1..6} {
+  output [success [rolltwo 1 to 6 bonus 0] defending from FP]
+}

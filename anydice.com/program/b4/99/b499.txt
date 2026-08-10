@@ -1,0 +1,66 @@
+
+
+function: ROLL:s ones give minus PEN:n {
+ BADONES: ROLL = 1
+ GOODONES: ROLL = 12
+ result: ({1}@ROLL-PEN*BADONES+PEN*GOODONES)
+}
+
+function: ROLL:s keep highest plus lowest {
+ BADONES: ROLL = 1
+ TOTAL: #ROLL
+ result: ({1}@ROLL+{TOTAL}@ROLL)
+}
+
+function: ROLL:s keep highest minus lowest {
+ BADONES: ROLL = 1
+ TOTAL: #ROLL
+ result: ({1}@ROLL-{TOTAL}@ROLL)
+}
+
+function: ROLL:s ones remove highest die {
+ BADONES: (ROLL = 1)
+ \if BADONES = #ROLL {result:1}\
+ result: {BADONES+1}@ROLL
+}
+
+function: ROLL:s ones remove highest die ace {
+ BADONES: (ROLL = 1)
+ if BADONES = #ROLL {result:1}
+ result: {BADONES+1}@ROLL
+}
+
+function: ROLL:s successes vs DC:n {
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ result: SUCCESSES
+}
+
+function: ROLL:s successes vs DC:n aces {
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ result: SUCCESSES-BADONES
+}
+ATTR:0
+DICE:5
+PEN:1
+DC:7
+ATTR:3
+loop DC over {9..9}{
+loop DICE over {5..5}{
+loop RISK over {1..1}{
+\output [DICEd12 keep highest plus lowest]+ATTR named "[DICE]d12 keep highest plus lowest"\
+\output [DICEd12 keep highest minus lowest]+ATTR named "[DICE]d12 keep highest minus lowest"\
+\output [DICEd12 ones give minus PEN] named "[DICE]d12 ones give minus [PEN]"\
+ 
+\output ([DICEd12 ones give minus PEN]>=DC) named "[DICE]d12 ones give minus [PEN] DC [DC]"\
+\output [DICEd12 ones remove highest die] named "[DICE]d12 ones remove highest die"\
+
+\output [DICEd12 successes vs DC] named "[DICE]d12 successes vs [DC]"\
+output [DICEd12 successes vs DC aces] named "[DICE]d12 successes vs [DC] aces" 
+output [(DICE+RISK)d12 successes vs (DC+1) aces] named "([DICE]+[RISK])d12 successes vs [[DC]+[RISK]] aces" 
+output [(DICE-RISK)d12 successes vs (DC-1) aces] named "([DICE]-[RISK])d12 successes vs [[DC]-[RISK]] aces" 
+\output [DICEd12 ones remove highest die ace] named "[DICE]d12 ones remove highest die ace"\
+}}
+}
+\output [1d12 ones give minus 1]+2 named "1d12+2"\

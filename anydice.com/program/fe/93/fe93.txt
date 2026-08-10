@@ -1,0 +1,38 @@
+function: ATTACK:n hit AC:n {
+  if ATTACK >= AC {
+    result: 1
+  }
+  else {
+    result: 0
+  }
+}
+
+function: calculate damage ATTACK:n DMG:n AC:n {
+  if [ATTACK hit AC] {
+    result: DMG
+  }
+  else {
+    result: 1d0
+  }
+}
+
+TARGET_AC: 18
+
+HALBERD_HIT: 1d20+10
+HALBERD_DMG: 1d20+5
+POLEARM_DMG: 1d4+5
+
+ELDRITCH_HIT: 1d20+9
+ELDRITCH_DMG: 1d20+5
+
+HALBERD_TARGET_DMG: [calculate damage HALBERD_HIT HALBERD_DMG TARGET_AC]
+HALBERD_TARGET_DMG: HALBERD_TARGET_DMG + [calculate damage HALBERD_HIT HALBERD_DMG TARGET_AC]
+HALBERD_TARGET_DMG: HALBERD_TARGET_DMG + [calculate damage HALBERD_HIT POLEARM_DMG TARGET_AC]
+
+ELDRITCH_TARGET_DMG: [calculate damage ELDRITCH_HIT ELDRITCH_DMG TARGET_AC]
+ELDRITCH_TARGET_DMG: ELDRITCH_TARGET_DMG + [calculate damage ELDRITCH_HIT ELDRITCH_DMG TARGET_AC]
+
+
+output HALBERD_TARGET_DMG named "melee damage"
+output ELDRITCH_TARGET_DMG named "ranged damage"
+

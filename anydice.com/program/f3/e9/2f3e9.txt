@@ -1,0 +1,36 @@
+set "maximum function depth" to 20
+
+function: depth { result: 1 + [depth] }
+output [depth] named "custom maximum function depth"
+
+function: sorcerer ROLLED:n ROLLS:n MANA:n {
+if ROLLS > 0 {
+ \ if 3, then +1 rolls \
+ if ROLLED = 3  {
+  ROLLS: ROLLS + 1
+ } else {
+ \ OR if 4 - 6, +1 mana \
+ if ROLLS >= 4 {
+  MANA: MANA + 1
+ }
+ }
+ \ expend roll, recursive \
+ ROLLS: ROLLS - 1
+ result: [sorcerer d6 ROLLS MANA]
+}
+\ if no rolls, return mana \
+\ result: MANA \
+result: ROLLS
+}
+
+output [sorcerer d6 15 0]
+named "Sorcerer"
+
+
+X: {0,0,1,2,2,2}
+ROLLS: 3
+output [count 2 in ROLLS dX]
+named "+mana in [ROLLS]"
+
+output [count 1 in ROLLS dX]
+named "+rolls in [ROLLS]"

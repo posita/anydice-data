@@ -1,0 +1,36 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n with CRITROLL:n crit vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITROLL { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] with 19 crit vs DEFENSE]]
+}
+
+MISSDAMAGE: 0
+DEFENSE: 11
+ATTACK: 0
+
+HITDAMAGE: 2d6
+CRITICALDAMAGE: 5d6
+output [attack] named "Greatsword"
+
+HITDAMAGE: 1d12
+CRITICALDAMAGE: 3d12
+output [attack] named "Greataxe"

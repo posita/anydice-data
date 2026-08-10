@@ -1,0 +1,26 @@
+\ Mutants & Masterminds 3E - Kampf-Simulator mit Differenzwerten \
+
+\ 1. ANGRiFFS-DIFFERENZ BERECHNEN \
+\ Formel: (Dein Angriffsbonus) - (Verteidigung des Gegners + 10) \
+\ Beispiel: Angriff +10 gegen Parry 18 (8+10(FIX)) -> Differenz ist -8 \
+ANGRIFFS_DIFFERENZ: -8
+
+\ 2. SCHADENS-DIFFERENZ BERECHNEN \
+\ Formel: (Deine Zähigkeit / Toughness) - (Schadens-DC des Gegners) \
+\ Wichtig: Rechne hier eventuelle Schrammen/Bruises bereits als Minus ein \
+\ Beispiel: Toughness +10 gegen Schaden-Rang 10 + 15(FIX) (DC 25) -> Differenz ist -15 \
+SCHADENS_DIFFERENZ: -5
+
+
+output 1d20 + ANGRIFFS_DIFFERENZ >= 0 named "Trifft der Angriff? (1 = Ja, 0 = Nein)"
+
+function: m und m schaden WURF:n vs DIFF:n {
+  V_WURF: WURF + DIFF
+  if V_WURF >= 0 { result: 0 } \ Erfolg: Kein Schaden \
+  if V_WURF >= -5 { result: 1 } \ 1. Grad: Schramme \
+  if V_WURF >= -10 { result: 2 } \ 2. Grad: Schramme + Benommen \
+  if V_WURF >= -15 { result: 3 } \ 3. Grad: Schramme + Wankend \
+  result: 4 \ 4. Grad: K.O. \
+}
+
+output [m und m schaden 1d20 vs SCHADENS_DIFFERENZ] named "Schadensgrad (0=Kein, 1-4=Fehlschlag-Grade)"

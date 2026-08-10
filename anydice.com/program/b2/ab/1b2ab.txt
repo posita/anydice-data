@@ -1,0 +1,55 @@
+STR:2
+DEX:1
+WIS:3
+PROF:2
+SPELL_DC:8+PROF+WIS
+
+ENEMYAC:15
+ENEMY_DEX:0
+
+MAUL:2d6
+MAUL_GWF:2d{{1..2}, {3..6}:4}
+WARHAMMER:1d8
+WARHAMMER_TH:1d10
+CROSSBOW:1d8
+SACRED_FLAME:1d8
+
+ATTACK_DIE_NORMAL:d20
+ATTACK_DIE_ADV:[highest 1 of 2d20]
+ATTACK_DIE_DIS:[lowest 1 of 2d20]
+ATTACK_DIE:ATTACK_DIE_NORMAL
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG_DIE:d plus DMG_BONUS:n crit on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG_DIE + DMG_DIE + DMG_BONUS
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG_DIE + DMG_BONUS
+    }
+    result: 0
+}
+
+function: save ROLL:n plus BONUS:n vs DC for DMG_DIE:d plus DMG_BONUS:n
+{   if ROLL + BONUS >= DC {
+        result: 0
+    }
+    else {
+        result: DMG_DIE + DMG_BONUS
+    }
+}
+
+output [attack ATTACK_DIE plus (PROF + STR) vs ENEMYAC for MAUL plus (STR) crit on 20] named "Normal Maul"
+output [attack ATTACK_DIE plus (PROF + STR - 5) vs ENEMYAC for MAUL plus (STR + 10) crit on 20] named "GWM Maul"
+
+output [attack ATTACK_DIE plus (PROF + STR) vs ENEMYAC for MAUL_GWF plus (STR) crit on 20] named "GWF Maul"
+output [attack ATTACK_DIE plus (PROF + STR - 5) vs ENEMYAC for MAUL_GWF plus (STR + 10) crit on 20] named "GWF + GWM Maul"
+
+output [attack ATTACK_DIE plus (PROF + STR) vs ENEMYAC for WARHAMMER plus (STR) crit on 20] named "Warhammer"
+output [attack ATTACK_DIE plus (PROF + STR) vs ENEMYAC for WARHAMMER_TH plus (STR) crit on 20] named "Warhammer 2H"
+
+output [attack ATTACK_DIE plus (PROF + DEX) vs ENEMYAC for CROSSBOW plus (DEX) crit on 20] named "Crossbow"
+
+output [save ATTACK_DIE plus (ENEMY_DEX) vs SPELL_DC for SACRED_FLAME plus 0] named "Sacred Flame"

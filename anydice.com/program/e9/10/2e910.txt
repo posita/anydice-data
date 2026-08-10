@@ -1,0 +1,55 @@
+function: roll ROLL:n plus MOD:n vs AC:n crit on CRITS:s {
+    if ROLL = 1 | ROLL+MOD < AC {
+        result: 0
+    }
+    if [CRITS contains ROLL] | ROLL+MOD >= AC {
+        result: 1
+    }
+}
+
+function: roll ROLL:n plus MOD:n vs DC:n {
+    if ROLL+MOD >= DC {
+        result: 1
+    }
+    else {
+        result: 0
+    }
+}
+
+function: save MOD:n vs DC:n {
+    result: [roll 1d20 plus MOD vs DC]
+}
+
+function: miss ROLL:n on RANGE:s from DIE:n {
+    if [RANGE contains DIE] {
+        result: 0
+    }
+    else {
+        result: ROLL
+    }
+} 
+
+function: negate ROLL:n on RANGE:s from DIE:n {
+    if [RANGE contains DIE] {
+        result: 1
+    }
+    else {
+        result: ROLL
+    }
+}
+
+DC: 18
+output [save +8 vs DC] named "Normal"
+output [highest 1 of 2d[save +8 vs DC]] named "Advantage"
+output [negate [save +8 vs DC] on 1 from 1d2] named "Negation"
+output [negate [highest 1 of 2d[save +8 vs DC]] on 1 from 1d2] named "Negation with Advantage"
+
+
+
+
+
+\ AC: 29
+output [roll 1d20 plus 8 vs AC crit on 20] named "Normal"
+output [roll [lowest 1 of 2d20] plus 8 vs AC crit on 20] named "Disadvantage" 
+output [miss [roll 1d20 plus 8 vs AC crit on 20] on 1 from 1d2] named "Miss Chance, 50%" \
+

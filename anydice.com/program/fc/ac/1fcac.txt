@@ -1,0 +1,55 @@
+function: astens A:n {
+if A = 10 {
+result: 0
+}
+result: A * 10
+}
+
+function: asones A:n {
+if A = 10 {
+result: 0
+}
+result: A
+}
+
+function: percentile X:n Y:n {
+if [astens X] = 0 & [asones Y] = 0 {
+result: 100
+}
+result: [astens X] + [asones Y]
+}
+
+
+function: damage A:n B:n SKILL {
+if [percentile A B] <= SKILL {
+result: A + B
+\ "0" counts as 10 \
+}
+}
+
+function: flipflop A:n B:n SKILL {
+if [percentile A B] > SKILL {
+result: [percentile B A]
+}
+result: [percentile A B]
+}
+
+
+function: hard A:n B:n SKILL {
+if [percentile A B] <= SKILL {
+if [percentile B A] <= SKILL {
+result: 1
+}
+result: 0
+}
+result: 0
+}
+
+RED: d10
+BLUE: d10
+
+SKILL: 40
+
+loop S over {1..100} {
+output [hard RED BLUE S] named "[S]"
+}

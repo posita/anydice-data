@@ -1,0 +1,59 @@
+ATTACKS: 10
+
+HIT:4
+
+WOUND:3
+
+REND:-1
+
+DAMAGE:1d3
+
+SAVE:3
+
+WARD:0
+
+AOA:1
+AOD:1
+
+
+RENDSAVE: SAVE-REND-AOD
+
+function: rhit {
+   result: [count {HIT-AOA..6} in ATTACKSd6] 
+}
+function: rwound A{
+   result: [count {WOUND..6} in Ad6]
+}
+function: rsave B{
+   if RENDSAVE > 6 {
+      result: [count {1..6} in Bd6]
+   }
+   else {
+      result: [count {1..RENDSAVE-1} in Bd6]
+   }
+}
+function: rward C{
+   if WARD > 0 {
+      result: [count {1..WARD-1} in Cd6]
+   }
+   else {
+      result: [count {1..6} in Cd6]
+   }
+}
+
+function: sucwound HITS:n {
+   result: [rwound HITS]
+}
+
+function: sucsave WOUNDS:n {
+   result: [rsave WOUNDS]
+}
+
+function: sucward WARDS:n {
+   result: [rward WARDS]
+}
+
+output [sucwound [rhit]] named "Wounds Succeeded"
+output [sucsave [sucwound [rhit]]] named "Unblocked Wounds"
+output [sucward [sucsave [sucwound [rhit]]]] named "Unwarded Wounds"
+output [sucward [sucsave [sucwound [rhit]]]]*DAMAGE named "Damage Dealt"

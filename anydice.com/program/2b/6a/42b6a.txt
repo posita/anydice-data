@@ -1,0 +1,517 @@
+
+set "maximum function depth" to 20
+\ -------------------------------------------------------------- \
+\ two digit values for all stats \
+function: mix base MAX:n {
+ result: (MAX*2)+1
+}
+function: mix base {
+ MAX: 9
+ result: (MAX*2)+1
+}
+function: parse VALUE:n x BASE:n {
+ if VALUE < 0 {
+  result: -(-VALUE+(BASE/2))/BASE
+ }
+ result: (VALUE+(BASE/2))/BASE
+}
+\ -------------------------------------------------------------- \
+\ ------------------- Structure Defines ------------------------ \
+\ -------------------------------------------------------------- \
+\ ATTACKER = {ABILITY_MOD, ADVANTAGE, DISADVANTAGE} ... no negative values \
+function: attacker {
+ result: [mix base]^3
+}
+function: ability mod {
+ result: [mix base]^2
+}
+function: advantage {
+ result: [mix base]^1
+}
+function: disadvantage {
+ result: [mix base]^0
+}
+\ ---- \
+function: ability mod ABILITY_MOD:n {
+ result: ABILITY_MOD*[ability mod]
+}
+function: advantage ADVANTAGE:n {
+ result: ADVANTAGE*[advantage]
+}
+function: disadvantage DISADVANTAGE:n {
+ result: DISADVANTAGE*[disadvantage]
+}
+\ ---- \
+function: get ability mod of ATTACKER:n {
+ MOD: ATTACKER-[attacker]
+ result: [parse MOD x [ability mod]]
+}
+function: get advantage of ATTACKER:n {
+ MOD: [get ability mod of ATTACKER]
+ ADV: ATTACKER-[attacker]-MOD*[ability mod]
+ result: [parse ADV x [advantage]]
+}
+function: get disadvantage of ATTACKER:n {
+ MOD: [get ability mod of ATTACKER]
+ ADV: [get advantage of ATTACKER]
+ DIS: ATTACKER-[attacker]-MOD*[ability mod]-ADV*[advantage]
+ result: [parse DIS x [disadvantage]]
+}
+ATTACKER_TEST: [attacker]+[ability mod -1]+[advantage 1]+[disadvantage 0]
+MOD_TEST: [get ability mod of ATTACKER_TEST]
+ADV_TEST: [get advantage of ATTACKER_TEST]
+DIS_TEST: [get disadvantage of ATTACKER_TEST]
+\ output 0 named "ATTACKER_TEST [ATTACKER_TEST]=>[MOD_TEST],[ADV_TEST],[DIS_TEST]" \
+\ -------------------------------------------------------------- \
+\ WEAPON = {SIZE, COUNT, BRUTAL, PRECISE, VERSATILE, CONTROLLED, GRAZE, DUAL_WIELD, RANGED} \
+function: weapon {
+ result: [mix base]^9
+}
+function: size {
+ result: [mix base]^8
+}
+function: count {
+ result: [mix base]^7
+}
+function: brutal {
+ result: [mix base]^6
+}
+function: precise {
+ result: [mix base]^5
+}
+function: versatile {
+ result: [mix base]^4
+}
+function: controlled {
+ result: [mix base]^3
+}
+function: graze {
+ result: [mix base]^2
+}
+function: dual wield{
+ result: [mix base]^1
+}
+function: ranged{
+ result: [mix base]^0
+}
+\ ---- \
+function: size SIZE:n {
+ result: SIZE*[size]
+}
+function: count COUNT:n {
+ result: COUNT*[count]
+}
+function: brutal BRUTAL:n {
+ result: BRUTAL*[brutal]
+}
+function: precise PRECISE:n {
+ result: PRECISE*[precise]
+}
+function: versatile VERSATILE:n {
+ result: VERSATILE*[versatile]
+}
+function: controlled CONTROLLED:n {
+ result: CONTROLLED*[controlled]
+}
+function: graze GRAZE:n {
+ result: GRAZE*[graze]
+}
+function: dual wield DUAL_WIELD:n {
+ result: DUAL_WIELD*[dual wield]
+}
+\ ---- \
+function: get size of WEAPON:n {
+ SIZE: WEAPON-[weapon]
+ result: [parse SIZE x [size]]
+}
+function: get count of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: WEAPON-[weapon]-SIZE*[size]
+ result: [parse COUNT x [count]]
+}
+function: get brutal of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: [get count of WEAPON]
+ BRUTAL: WEAPON-[weapon]-COUNT*[count]-SIZE*[size]
+ result: [parse BRUTAL x [brutal]]
+}
+function: get precise of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: [get count of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: WEAPON-[weapon]-COUNT*[count]-SIZE*[size]-BRUTAL*[brutal]
+ result: [parse PRECISE x [precise]]
+}
+function: get versatile of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: [get count of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE : WEAPON-[weapon]-COUNT*[count]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]
+ result: [parse VERSATILE x [versatile]]
+}
+function: get controlled of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: [get count of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE: [get versatile of WEAPON]
+ CONTROLLED: WEAPON-[weapon]-COUNT*[count]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]-VERSATILE*[versatile]
+ result: [parse CONTROLLED x [controlled]]
+}
+function: get graze of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: [get count of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE: [get versatile of WEAPON]
+ CONTROLLED: [get controlled of WEAPON]
+ GRAZE: WEAPON-[weapon]-COUNT*[count]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]-VERSATILE*[versatile]-CONTROLLED*[controlled]
+ result: [parse GRAZE x [graze]]
+}
+function: get dual wield of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: [get count of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE: [get versatile of WEAPON]
+ CONTROLLED: [get controlled of WEAPON]
+ GRAZE : [get graze of WEAPON]
+ DUAL_WIELD: WEAPON-[weapon]-COUNT*[count]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]-VERSATILE*[versatile]-CONTROLLED*[controlled]-GRAZE*[graze]
+ result: [parse DUAL_WIELD x [dual wield]]
+}
+function: get ranged of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ COUNT: [get count of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE: [get versatile of WEAPON]
+ CONTROLLED: [get controlled of WEAPON]
+ GRAZE : [get graze of WEAPON]
+ DUAL_WIELD: [get dual wield of WEAPON]
+ RANGED: WEAPON-[weapon]-COUNT*[count]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]-VERSATILE*[versatile]-CONTROLLED*[controlled]-GRAZE*[graze]-DUAL_WIELD*[dual wield]
+ result: [parse RANGED x [ranged]]
+}
+WEAPON_TEST: [weapon]+[size 8]+[brutal 3]+[precise 2]+[dual wield]+[versatile 2]+[ranged]
+SIZE: [get size of WEAPON_TEST]
+COUNT: [get count of WEAPON_TEST]
+BRUTAL: [get brutal of WEAPON_TEST]
+PRECISE: [get precise of WEAPON_TEST]
+VERSATILE: [get versatile of WEAPON_TEST]
+CONTROLLED: [get controlled of WEAPON_TEST]
+GRAZE: [get graze of WEAPON_TEST]
+DUAL_WIELD: [get dual wield of WEAPON_TEST]
+RANGED: [get ranged of WEAPON_TEST]
+\ output 0 named "WEAPON_TEST [WEAPON_TEST]=>[SIZE],[COUNT],[BRUTAL],[PRECISE],[VERSATILE],[CONTROLLED],[GRAZE],[DUAL_WIELD],[RANGED]" \
+\ -------------------------------------------------------------- \
+\ ENVIRONMENT = {DISTANCE, DARKNESS} ... no negative values \
+\ mix base 999 so distance can be in feet \
+function: environment {
+ result: [mix base 999]^2
+}
+function: distance {
+ result: [mix base 999]^1
+}
+function: darkness {
+ result: [mix base 999]^0
+}
+\ ---- \
+function: distance DISTANCE:n {
+ result: DISTANCE*[distance]
+}
+\ ---- \
+function: get distance of ENVIRONMENT:n {
+ DISTANCE: ENVIRONMENT-[environment]
+ result: [parse DISTANCE x [distance]]
+}
+function: get darkness of ENVIRONMENT:n {
+ DISTANCE: [get distance of ENVIRONMENT]
+ DARKNESS: ENVIRONMENT-[environment]-DISTANCE*[distance]
+ result: [parse DARKNESS x [darkness]]
+}
+ENVIRONMENT_TEST: [environment]+[distance 50]+[darkness]
+DISTANCE_TEST: [get distance of ENVIRONMENT_TEST]
+DARKNESS_TEST: [get darkness of ENVIRONMENT_TEST]
+\ output 0 named "ENVIRONMENT_TEST [ENVIRONMENT_TEST]=>[DISTANCE_TEST],[DARKNESS_TEST]" \
+\ -------------------------------------------------------------- \
+\ DEFENDER = {EVASION, ABSORPTION} ... no negative values \
+function: defender {
+ result: [mix base]^2
+}
+function: absorption {
+ result: [mix base]^1
+}
+function: evasion {
+ result: [mix base]^0
+}
+\ ---- \
+function: absorption ABSORPTION:n {
+ result: ABSORPTION*[absorption]
+}
+function: evasion EVASION:n {
+ result: EVASION*[evasion]
+}
+\ ---- \
+function: get absorption of DEFENDER:n {
+ ABS: DEFENDER-[defender]
+ result: [parse ABS x [absorption]]
+}
+function: get evasion of DEFENDER:n {
+ ABS: [get absorption of DEFENDER]
+ EVS: DEFENDER-[defender]-ABS*[absorption]
+ result: [parse EVS x [evasion]]
+}
+DEFENDER_TEST: [defender]+[absorption 3]+[evasion 5]
+ABS_TEST: [get absorption of DEFENDER_TEST]
+EVS_TEST: [get evasion of DEFENDER_TEST]
+\ output 0 named "DEFENDER_TEST [DEFENDER_TEST]=>[ABS_TEST],[EVS_TEST]" \
+\ -------------------------------------------------------------- \
+\ ------------------- Functionality Start ---------------------- \
+\ -------------------------------------------------------------- \
+
+function: get ability size by DISADVANTAGE:n {
+ if DISADVANTAGE < 1 {
+  result: 12
+ }
+ if DISADVANTAGE = 1 {
+  result: 8
+ }
+ if DISADVANTAGE > 1 {
+  result: 6
+ }
+}
+function: get challenge by DISTANCE:n {
+ if DISTANCE <= 5 {
+  result: 3
+ }
+ if DISTANCE <= 45 {
+  result: 1
+ }
+ if DISTANCE <= 120 {
+  result: 2
+ }
+ result: 99
+}
+function: ability distribution AWED:s {
+ ATTACKER:     1@AWED  \ {ABILITY_MOD, ADVANTAGE, DISADVANTAGE} \
+ WEAPON:       2@AWED  \ {SIZE, BRUTAL, PRECISE, VERSATILE, CONTROLLED, GRAZE, DUAL_WIELD, RANGED} \
+ ENVIRONMENT:  3@AWED  \ {DISTANCE, DARKNESS} \
+ DEFENDER:     4@AWED  \ {EVASION, ABSORPTION} \
+
+ \ extract attacker stats \
+ ATTACKER_MOD: [get ability mod of ATTACKER]
+ ADVANTAGE:    [get advantage of ATTACKER]+1
+ DISADVANTAGE: [get disadvantage of ATTACKER]
+
+ \ extract weapon effects \
+ DUAL_WIELD:   [get dual wield of WEAPON]    \ adjusts ABILITY_MOD  \
+ VERSATILE:    [get versatile of WEAPON]     \ adjusts ABILITY_DICE \
+ RANGED:       [get ranged of WEAPON]        \ adjusts ABILITY_MOD  \
+
+ \ extract environment effects \
+ DARKNESS:     [get darkness of ENVIRONMENT] \ adjusts ABILITY_SIZE \
+ DISTANCE:     [get distance of ENVIRONMENT] \ adjusts ABILITY_MOD  \
+
+ \ extract defender effects \
+ EVASION:      [get evasion of DEFENDER]     \ adjusts ABILITY_MOD  \
+
+ \ apply effects \
+ DISADVANTAGE: [lowest of 1 and DISADVANTAGE+DARKNESS]
+ ABILITY_SIZE: [get ability size by DISADVANTAGE]
+ ABILITY_DICE: 1d{1d(ABILITY_SIZE), 1d(ABILITY_SIZE)+VERSATILE}
+ ABILITY_MOD:  ATTACKER_MOD - (RANGED*[get challenge by DISTANCE]) - EVASION - DUAL_WIELD
+
+ \ create dice \
+ ABILITY_DICE: [highest 1 of ADVANTAGE d ABILITY_DICE] + ABILITY_MOD
+
+ result:       [highest of 0 and ABILITY_DICE]
+}
+ABILITY_DICE: [ability distribution {ATTACKER_TEST, WEAPON_TEST, ENVIRONMENT_TEST, DEFENDER_TEST}]
+\ output ABILITY_DICE named "ABILITY_DICE" \
+\ -------------------------------------------------------------- \
+function: might distribution AWED:s {
+ ATTACKER:     1@AWED  \ {ABILITY_MOD, ADVANTAGE, DISADVANTAGE} \
+ WEAPON:       2@AWED  \ {SIZE, BRUTAL, PRECISE, VERSATILE, CONTROLLED, GRAZE, DUAL_WIELD, RANGED} \
+ ENVIRONMENT:  3@AWED  \ {DISTANCE, DARKNESS} \
+ DEFENDER:     4@AWED  \ {EVASION, ABSORPTION} \
+
+ \ extract weapon effects \
+ SIZE:         [get size of WEAPON]
+ BRUTAL:       [get brutal of WEAPON]
+
+ \ apply effects \
+ MIGHT_SIZE:   SIZE
+ MIGHT_MOD:    BRUTAL
+
+ \ create dice \
+ MIGHT_DICE:  1d(MIGHT_SIZE) + MIGHT_MOD
+
+ result:      [highest of 0 and MIGHT_DICE]
+}
+MIGHT_DICE: [might distribution {ATTACKER_TEST, WEAPON_TEST, ENVIRONMENT_TEST, DEFENDER_TEST}]
+\ output MIGHT_DICE named "MIGHT_DICE" \
+\ -------------------------------------------------------------- \
+function: compare MIGHT:n with ABILITY:n using CONTROLLED:n {
+ DAMAGE:  MIGHT
+ CONTROL: ABILITY-MIGHT
+ loop N over {1..CONTROLLED}{
+  if CONTROL < 0 {
+   CONTROL: ABILITY-(MIGHT-N)
+   DAMAGE:  MIGHT-N
+  }
+ }
+ if CONTROL < 0 {
+  result: 0
+ }
+ result: DAMAGE
+}
+function: might roll AWED:s {
+ ATTACKER:     1@AWED  \ {ABILITY_MOD, ADVANTAGE, DISADVANTAGE} \
+ WEAPON:       2@AWED  \ {SIZE, BRUTAL, PRECISE, VERSATILE, CONTROLLED, GRAZE, DUAL_WIELD, RANGED} \
+ ENVIRONMENT:  3@AWED  \ {DISTANCE, DARKNESS} \
+ DEFENDER:     4@AWED  \ {EVASION, ABSORPTION} \
+
+ \ get dice \
+ ABILITY_DICE: [ability distribution AWED]
+ MIGHT_DICE:   [might distribution AWED]
+
+ \ extract weapon effects \
+ COUNT:        [highest of 1 and [get count of WEAPON]] \ default: 1 \
+ CONTROLLED:   [get controlled of WEAPON]
+ DUAL_WIELD:   [get dual wield of WEAPON]
+
+ \ apply effects \
+ WEAPON_COUNT: [lowest of 2 and (DUAL_WIELD+1)]
+ MIGHT_COUNT:  COUNT*WEAPON_COUNT
+ MIGHT_ROLL:   (MIGHT_COUNT)d[compare MIGHT_DICE with ABILITY_DICE using CONTROLLED]
+
+ result:      MIGHT_ROLL
+}
+
+MIGHT_ROLL: [might roll {ATTACKER_TEST, WEAPON_TEST, ENVIRONMENT_TEST, DEFENDER_TEST}]
+\ output MIGHT_ROLL named "MIGHT_ROLL" \
+\ -------------------------------------------------------------- \
+function: apply GRAZE:n graze to DMG:n dmg {
+ if DMG <= 0 {
+  result: GRAZE
+ }
+ result: DMG
+}
+function: dmg roll AWED:s {
+ ATTACKER:     1@AWED  \ {ABILITY_MOD, ADVANTAGE, DISADVANTAGE} \
+ WEAPON:       2@AWED  \ {SIZE, BRUTAL, PRECISE, VERSATILE, CONTROLLED, GRAZE, DUAL_WIELD, RANGED} \
+ ENVIRONMENT:  3@AWED  \ {DISTANCE, DARKNESS} \
+ DEFENDER:     4@AWED  \ {EVASION, ABSORPTION} \
+
+ \ get might roll \
+ MIGHT_ROLL: [might roll AWED]
+
+ \ extract weapon effects \
+ PRECISE:      [get precise of WEAPON]       \ adjusts ABSORPTION \
+ GRAZE:        [get graze of WEAPON]         \ adjusts DMG_ROLL \
+ DUAL_WIELD:   [get dual wield of WEAPON]
+
+ \ extract defender effects \
+ ABSORPTION:   [get absorption of DEFENDER]  \ adjusts ABILITY_MOD  \
+
+ \ apply effects \
+ WEAPON_COUNT: [lowest of 2 and (DUAL_WIELD+1)]
+ ABSORPTION: [highest of 0 and (ABSORPTION-PRECISE)]
+ GRAZE_DMG: [highest of 0 and (GRAZE*WEAPON_COUNT)-ABSORPTION]
+ DMG_ROLL: [apply GRAZE_DMG graze to (MIGHT_ROLL-ABSORPTION) dmg]
+
+ result: DMG_ROLL
+}
+function: hit check AWED:s {
+ ATTACKER:     1@AWED  \ {ABILITY_MOD, ADVANTAGE, DISADVANTAGE} \
+ WEAPON:       2@AWED  \ {SIZE, BRUTAL, PRECISE, VERSATILE, CONTROLLED, GRAZE, DUAL_WIELD, RANGED} \
+ ENVIRONMENT:  3@AWED  \ {DISTANCE, DARKNESS} \
+ DEFENDER:     4@AWED  \ {EVASION, ABSORPTION} \
+
+ \ get might roll \
+ MIGHT_ROLL: [might roll AWED]
+
+ result: [lowest of 1 and MIGHT_ROLL]
+}
+\ -------------------------------------------------------------- \
+\ ------------------- Test Environment ------------------------- \
+\ -------------------------------------------------------------- \
+
+ATTACKER_STAT: 4
+ATTACKER:    [attacker]+[ability mod ATTACKER_STAT]
+\ ---- \
+
+BASIC_S:     [weapon]+[size 6]
+BASIC_SD:    [weapon]+[size 6]+[dual wield 4]
+BASIC_M:     [weapon]+[size 8]
+BASIC_B:     [weapon]+[size 12]
+
+WEAPONS: {
+ BASIC_S,
+ BASIC_SD,
+ BASIC_M,
+ BASIC_B
+}
+\ ---- \
+
+MELEE:       [environment]
+\ ---- \
+
+DEFENDER_STAT: 5
+NEUTRAL:     [defender]+[absorption 0]+[evasion [get ability mod of ATTACKER]]
+CLOTH:       [defender]+[absorption 0]+[evasion [lowest of 2 and DEFENDER_STAT]]
+
+LEATHER:     [defender]+[absorption 0]+[evasion DEFENDER_STAT+1]
+HIDE:        [defender]+[absorption 1]+[evasion [lowest of 4 and DEFENDER_STAT]]
+RING_MAIL:   [defender]+[absorption 3]+[evasion 0]
+
+STUDDED:     [defender]+[absorption 0]+[evasion DEFENDER_STAT+2]
+BREASTPLATE: [defender]+[absorption 2]+[evasion [lowest of 4 and DEFENDER_STAT]]
+CHAIN_MAIL:  [defender]+[absorption 4]+[evasion 0]
+
+REINFORCED:  [defender]+[absorption 0]+[evasion DEFENDER_STAT+4]
+HALF_PLATE:  [defender]+[absorption 3]+[evasion [lowest of 4 and DEFENDER_STAT]]
+PLATE:       [defender]+[absorption 5]+[evasion 0]
+
+DEFENDERS: {
+ NEUTRAL,    CLOTH,                   0,
+ LEATHER,    HIDE,        RING_MAIL,  0,
+ STUDDED,    BREASTPLATE, CHAIN_MAIL, 0,
+ REINFORCED, HALF_PLATE,  PLATE
+}
+\ ---- \
+
+loop D over {1..#DEFENDERS}{
+ DEFENDER: D@DEFENDERS
+ if DEFENDER  = 0 {
+  output 0 named " === "
+ }
+ if DEFENDER != 0 {
+  EVASION: [get evasion of DEFENDER]
+  ABSORPTION: [get absorption of DEFENDER]
+  
+  SUM:0
+  loop W over {1..#WEAPONS}{
+   WEAPON: W@WEAPONS
+   SUM: SUM + [dmg roll {ATTACKER, WEAPON, MELEE, DEFENDER}]
+  }
+  output SUM named "A[ABSORPTION] E[EVASION]"
+  
+  loop W over {1..#WEAPONS}{
+   WEAPON: W@WEAPONS
+   SIZE: [get size of WEAPON]
+   COUNT: [highest of 1 and [get count of WEAPON]]
+   DUAL_WIELD: [get dual wield of WEAPON]
+   
+   CALC: [dmg roll {ATTACKER, WEAPON, MELEE, DEFENDER}]
+   if DUAL_WIELD = 0 {
+    output CALC named "[COUNT]d[SIZE] (dmg)"
+   }
+   if DUAL_WIELD > 0 {
+    output CALC named "2x[COUNT]d[SIZE] (dmg)"
+   }
+  }
+ }
+}
+
+

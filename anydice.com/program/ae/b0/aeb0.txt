@@ -1,0 +1,57 @@
+\ L is your level \
+\ K is the kindling level \
+function: estus L K
+{
+    result: ((L+3)/4)d6 + (L/2) + (K*4)
+}
+
+\ A is AC to hit \
+\ H is to-hit bonus \
+\ HC is the to-crit bonus \
+\ R is the attack roll \
+\ C is the crit confirm roll \
+\ D is the damage roll \
+\ CR is crit range \
+\ CM is crit mult \
+function: attack A:n H:n HC:n R:n C:n D:n CR:n CM:n
+{
+    if (R = 1)
+    {
+        result: 0
+    }
+    else if (R = 20) | ((R >= CR) & (R + H >= A))
+    {
+        if (C = 1)
+        {
+            result: D
+        }
+        else if (C = 20) | (C + HC >= A)
+        {
+            result: CM * D
+        }
+    }
+    else if R + H >= A
+    {
+        result: D
+    }
+    else
+    {
+        result: 0
+    }
+}
+
+
+AC:   25
+AB:   31
+DAM:  (2d6+13)
+CRIT: 19
+MULT: 2
+
+WAB:   30
+WDAM:  (1d4+1d6+6)
+WCRIT: 20
+WMULT: 2
+
+output [attack AC AB AB (d20)(d20) DAM CRIT MULT] + [attack AC AB-5 AB-5 (d20) (d20) DAM CRIT MULT] + [attack AC AB-10 AB-10 (d20) (d20) DAM CRIT MULT] + [attack AC AB-15 AB-15 (d20) (d20) DAM CRIT MULT] + [attack AC WAB WAB (d20)(d20) WDAM WCRIT WMULT] + [attack AC WAB-5 WAB-5 (d20)(d20) WDAM WCRIT WMULT]
+
+output [estus 20 5]

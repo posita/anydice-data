@@ -1,0 +1,25 @@
+CRIT_THRESH: 4
+
+function: combat helper AROLL:s ASKILL:n DROLL:s DSKILL:n MOD:n {
+  CRIT_LEVEL: AROLL + 2*ASKILL - (DROLL + 2*DSKILL)
+  ROLL_RESULT: CRIT_LEVEL + MOD
+  if ROLL_RESULT > 0 {
+    RESULT: 1 + CRIT_LEVEL / CRIT_THRESH
+    if RESULT > 3 { RESULT: 3 }
+  } else {
+    RESULT: CRIT_LEVEL / CRIT_THRESH
+    if RESULT < -2 { RESULT: -2 }
+  }
+  result: RESULT
+}
+
+function: combat result ASKILL:n with AMOD:n vs DSKILL:n with DMOD:n {
+  AROLL: [highest 2 of (2+ASKILL)d8]
+  DROLL: [highest 2 of (2+DSKILL)d8] 
+
+  result: [combat helper AROLL ASKILL DROLL DSKILL (AMOD - DMOD)]
+}
+
+output [combat result 1 with 0 vs 1 with 0]
+output [combat result 1 with 2 vs 1 with 0]
+output [combat result 2 with 0 vs 1 with 0] 

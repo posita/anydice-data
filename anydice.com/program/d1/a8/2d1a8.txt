@@ -1,0 +1,39 @@
+ATTACK_MOD: 3 \ put your total attack modifier here \
+AC: 11        \ put target AC value here \
+
+SAVE_MOD: 3   \ put your total save modifier here \
+DC: 16        \ put target DC value here \
+
+\ DO NOT CHANGE BELOW \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = {20} {
+  if ROLL + ATTACK_MOD >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK_MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+output [ attack [highest 1 of 2d20] vs AC] named "ATTACK_ADV"
+output [ attack [lowest 1 of 2d20] vs AC] named "ATTACK_DISAD"
+output [ attack 1d20 vs AC] named "ATTACK"
+
+FAIL: 0
+SAVE: 1
+
+function: save ROLL:n vs DC:n {
+ if ROLL + SAVE_MOD>= DC { result: SAVE}
+  result: FAIL
+}
+
+
+output [save [highest 1 of 2d20] vs DC] named "SAVE_ADV"
+output [save [lowest 1 of 2d20] vs DC] named "SAVE_DISAD"
+output [save 1d20 vs DC] named "SAVE"

@@ -1,0 +1,33 @@
+P_PERSUASION: 14+1@2d20
+P_DECEPTION:  14+1@2d20
+P_INSIGHT:    10+1@2d20
+P_INTIMIDATE: 11+1@2d20
+
+DAILY_MAX: 200
+DC_DECEPTION: 17
+DC_INSIGHT: 17
+DC_INTIMIDATE: 17
+
+function: daily max MAX:n PERSUASIONROLL:n {
+ if PERSUASIONROLL < 10 {result: MAX/2}
+ if PERSUASIONROLL < 15 {result: MAX*1}
+ if PERSUASIONROLL < 20 {result: MAX*2}
+ if PERSUASIONROLL < 25 {result: MAX*3}
+ if PERSUASIONROLL < 30 {result: MAX*4}
+ result: MAX*5
+}
+
+function: result check TOTAL:n DAILY_MAX:n {
+ if TOTAL<0 {result:   DAILY_MAX * (-3)} \ du mister din indsats, fÃ¥r en gÃ¦ld pÃ¥ dobbelt dens stÃ¸relse og bliver banlyst/angrebet \
+ if TOTAL=0 {result:   DAILY_MAX * (-2)} \ du mister din indsats og fÃ¥r en gÃ¦ld af samme stÃ¸relse \
+ if TOTAL=1 {result: -(DAILY_MAX / 2)}   \ indsats * 0.5 \
+ if TOTAL=2 {result:   DAILY_MAX / 2}    \ indsats * 1.5 \
+ if TOTAL>=3 {result:  DAILY_MAX}        \ indsats * 2 \
+}
+
+
+DAILY_MAX: [daily max DAILY_MAX P_PERSUASION]
+TOTAL: (P_DECEPTION>=DC_DECEPTION)+(P_INSIGHT>=DC_INSIGHT)+(P_INTIMIDATE>=DC_INTIMIDATE)
+EV: [result check TOTAL DAILY_MAX]
+output EV
+

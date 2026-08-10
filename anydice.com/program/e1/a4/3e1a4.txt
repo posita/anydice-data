@@ -1,0 +1,101 @@
+set "position order" to "lowest first"
+
+\**********************************************************************************************\
+
+function: roll ATT:n DEF:n ATT_TAR:n DEF_TAR:n{
+ result: [hit pass ATTd6 DEFd6 ATT_TAR DEF_TAR]
+}
+
+function: hit pass ATT_ROLL:s DEF_ROLL:s ATT_TAR:n DEF_TAR:n{
+ ATT_SUCCESSES: ATT_ROLL>=ATT_TAR
+ DEF_SUCCESSES: DEF_ROLL>=DEF_TAR
+ RES: ATT_SUCCESSES - DEF_SUCCESSES
+ if (RES>0){result: [find best sets ATT_ROLL DEF_ROLL]}
+ result: 0
+}
+
+function: find best sets ATT:s DEF:s {
+ ATT_SET: [test ATT]
+ DEF_SET: [test DEF]
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+function: compare sets ATT_SET:n DEF_SET:n {
+ if (ATT_SET<=3) {result: 1}
+ if (ATT_SET<=5) {
+  if (DEF_SET<=3) {result: 3}
+  if (DEF_SET<=5) {result: 2}
+  if (DEF_SET=6) {result: 1}
+ }
+ if (ATT_SET=6) {
+  if (DEF_SET<=3) {result: 4}
+  if (DEF_SET<=5) {result: 3}
+  if (DEF_SET=6) {result: 2}
+ }
+ result: 0
+}
+
+\**********************************************************************************************\
+
+function: roll ATT:n {
+ result: [test ATTd6]
+}
+
+function: test ROLL:s {
+ MAX_ROLLED: #ROLL@ROLL
+ MIN_ROLLED: 1@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+
+ SUBSETS: {ROLL=MIN_ROLLED}                     \count the size of the min value rolled\
+ loop M over {1..DIFF}{                         \assemble only the counts of values between min/max of the roll\
+   SUBSETS: {SUBSETS, ROLL=(MIN_ROLLED+M)}
+ }
+
+ TEMP: 1@SUBSETS
+ RES: MIN_ROLLED
+ loop N over {1..DIFF}{                         \find the higher count & its associated face value\
+   if (TEMP <= ((N+1)@SUBSETS)) {
+     RES: MIN_ROLLED + N
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+
+ result: RES
+}
+
+\**********************************************************************************************\
+
+function: phaseun ATT_ROLL:s DEF_DICES:n {
+ result: [phasedeux ATT_ROLL DEF_DICESd6]
+}
+function: phasedeux ATT_ROLL:s DEF_ROLL:s {
+ result: [find best sets bis ATT_ROLL DEF_ROLL]
+}
+
+function: testbis ROLL:s {
+ SIXES:  ROLL=6                      \test the value on each element of the Sequence parameter : optimized\
+ FIVES:  ROLL=5
+ FOURS:  ROLL=4
+ THREES: ROLL=3
+ TWOS:   ROLL=2
+ ONES:   ROLL=1
+ SUBSETS: {SIXES, FIVES, FOURS, THREES, TWOS, ONES}
+
+ result: SUBSETS
+}
+
+function: find best sets bis ATT:s DEF:s {
+ ATT_SET: [testbis ATT]
+ DEF_SET: [testbis DEF]
+ RES: ATT_SET - DEF_SET
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+\**********************************************************************************************\
+output [phaseun 14d6 4]
+
+\output [roll 15]
+output [test 15d6]\
+
+\output [hit pass 4d6 4d6 4 4]
+output [roll 6 4 4 4]\

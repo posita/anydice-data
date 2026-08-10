@@ -1,0 +1,22 @@
+DEX: 0
+
+function: notfail ROLL:n {
+  if (ROLL>1) {
+    result: ROLL+DEX
+  }
+  result: 0
+}
+
+set "maximum function depth" to 10
+
+function: explodey ROLL:n on THRESH:n {
+  if (ROLL>=THRESH) {
+    result: ROLL + [explodey dDIE on THRESH]
+  }
+  result: ROLL
+}
+
+loop DIE over {4, 6, 8, 10, 12} {
+  output [notfail [explodey dDIE on DIE-1]] named "DIE=d[DIE], 2 Highest, DEX=[DEX]"
+  output [notfail [explodey dDIE on DIE]] named "DIE=d[DIE], Normal, DEX=[DEX]"
+}

@@ -1,0 +1,32 @@
+
+
+function: attack ATK:d doing DMG:d vs AC:n {
+  result: (ATK > AC) * DMG
+}
+
+function: number of HIT:d to deal HP:n {
+  if HP <= 0 {
+    result: 0
+  } else {
+    RECURSE: [number of HIT to deal (HP - HIT)]
+    if #RECURSE = 0 {
+      result: 1
+    } else {
+      result: RECURSE + 1
+    }
+  }
+}
+
+ATTACK: 1d20+5
+DAMAGE: 1d8+2
+
+set "maximum function depth" to 10
+W_AC: 13
+W_HP: 7
+output [ number of [attack ATTACK doing DAMAGE vs W_AC] to deal W_HP ] named "Wizard Survivability"
+
+set "maximum function depth" to 10
+F_AC: 18
+F_HP: 12
+output [ number of [attack ATTACK doing DAMAGE vs F_AC] to deal F_HP ] named "Fighter Survivability"
+

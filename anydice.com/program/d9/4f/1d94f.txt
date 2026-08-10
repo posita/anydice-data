@@ -1,0 +1,41 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+X: [d6 reroll {1,2} as d6]
+
+output (d20 + 4 >= 15) * 4d6 named "Fireball"
+output [{7} vs 15 crit 19 2 dmg 2d6 4] named "Fel Maul"
+output [{7} vs 15 crit 19 2 dmg 2dX 4] named "Fel Maul"
+output [5 vs 15 crit 20 2 dmg 5d6] named "Guiding Bolt"
+output [{6,6,6,6} vs 15 crit 20 2 dmg 2d6 5] named "Scorching Ray"
+

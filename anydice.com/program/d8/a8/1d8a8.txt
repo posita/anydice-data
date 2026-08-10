@@ -1,0 +1,36 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n repeat REPEAT:n {
+    if(REPEAT > 0) {
+       if ROLL = 1 {
+          result: MISS + [attack ROLL plus BONUS vs AC hit HIT miss MISS crit CRIT on CRIT_RANGE repeat (REPEAT-1)]
+       }
+       if ROLL >= CRIT_RANGE {
+          result: CRIT + [attack ROLL plus BONUS vs AC hit HIT miss MISS crit CRIT on CRIT_RANGE repeat (REPEAT-1)]
+       }
+       if ROLL + BONUS >= AC {
+          result: HIT + [attack ROLL plus BONUS vs AC hit HIT miss MISS crit CRIT on CRIT_RANGE repeat (REPEAT-1)]
+       }
+       result: MISS + [attack ROLL plus BONUS vs AC hit HIT miss MISS crit CRIT on CRIT_RANGE repeat (REPEAT-1)]
+    }
+    else
+    {
+        if ROLL = 1 {
+           result: MISS
+        }
+        if ROLL >= CRIT_RANGE {
+            result: CRIT
+        }
+        if ROLL + BONUS >= AC {
+            result: HIT
+        }
+        result: MISS
+    }
+    
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+output [attack d20 plus 8 vs 16 hit 1d6+3+10 miss 0 crit 2d6+3+10 on 20 repeat 1]
+

@@ -1,0 +1,98 @@
+function: compare A:s and D:s {
+
+\ LÃ¤nge beider Vektoren angleichen: mit 1er aufstocken \
+
+  if #A > #D {
+    D: {D, 1:(#A-#D)}
+  }
+
+  if #A < #D {
+    A: {A, 1:(#D-#A)}
+  }
+
+\ HÃ¶chsten Werte vergleichen \
+
+  if 1@A < 1@D {
+    result: 0
+  }
+
+\ Recursion anstoÃŸen, falls 1@A >= 1@D \
+
+  if #A>1 {
+    RECURSION: [compare {2..#A}@A and {2..#D}@D]
+  } else {
+    RECURSION: 0
+  }
+
+  if 1@A = 1@D {
+    result: RECURSION
+  }
+
+  if 1@A > 1@D {
+    result: RECURSION + 1
+  }
+}
+
+\ 1 vs X \
+
+function: A:n vs D:n {
+  ATT: {A}
+  DEF: {D}
+  result: [compare ATT and DEF]
+}
+function: A:n vs D:n and E:n {
+  ATT: [sort {A}]
+  DEF: [sort {D,E}]
+  result: [compare ATT and DEF]
+}
+function: A:n vs D:n and E:n and F:n {
+  ATT: [sort {A}]
+  DEF: [sort {D,E,F}]
+  result: [compare ATT and DEF]
+}
+
+\ 2 vs X \
+
+function: A:n and B:n vs D:n {
+  ATT: [sort {A,B}]
+  DEF: {D}
+  result: [compare ATT and DEF]
+}
+function: A:n and B:n vs D:n and E:n {
+  ATT: [sort {A,B}]
+  DEF: [sort {D,E}]
+  result: [compare ATT and DEF]
+}
+function: A:n and B:n vs D:n and E:n and F:n {
+  ATT: [sort {A,B}]
+  DEF: [sort {D,E,F}]
+  result: [compare ATT and DEF]
+}
+
+\ 3 vs X \
+
+function: A:n and B:n and C:n vs D:n {
+  ATT: [sort {A,B,C}]
+  DEF: [sort {D}]
+  result: [compare ATT and DEF]
+}
+
+function: A:n and B:n and C:n vs D:n and E:n {
+  ATT: [sort {A,B,C}]
+  DEF: [sort {D,E}]
+  result: [compare ATT and DEF]
+}
+
+function: A:n and B:n and C:n vs D:n and E:n and F:n {
+  ATT: [sort {A,B,C}]
+  DEF: [sort {D,E,F}]
+  result: [compare ATT and DEF]
+}
+
+set "maximum function depth" to 100
+
+output [1d8 vs 1d6] named "d8 vs d6"
+output [1d8 and 1d4 vs 1d6] named "d8&d4 vs d6"
+output [1d8 and 1d4 and d4 vs 1d6] named "d8&d4&d4 vs d6"
+output [1d8 and 1d6 vs 1d6] named "d8&d6 vs d6"
+

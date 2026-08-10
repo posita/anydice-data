@@ -1,0 +1,43 @@
+CRITMAGI: 14
+DANOCRIT: 5d6+3
+DANO: 1d6+3
+DANOTOQUE: 2d8+2
+DANOTESTE: 1d8+7
+DANOTESTECRIT: 4d8+9
+function: atk ROLL:n {
+ if ROLL >= CRITMAGI {
+  result: DANOTESTECRIT
+ }
+ if ROLL < CRITMAGI {
+  result: DANOTESTE
+ }
+}
+
+function: atkmagi ROLL:n MANA:n ATK:n{
+ DANOTOTAL: 0
+ if ATK = 1 {
+  if ROLL >= CRITMAGI {
+   DANOTOTAL: DANOTOTAL + DANOCRIT
+  }
+  if ROLL < CRITMAGI {
+   DANOTOTAL: DANOTOTAL + DANO
+  }
+ }
+ if MANA = 0 {
+ 
+ }
+ if MANA = 1 {
+  DANOTOTAL: DANOTOTAL + DANOTOQUE
+ }
+ if MANA > 1 {
+  DANOTOTAL: DANOTOTAL + DANOTOQUE + (1d8+1)*(MANA-1)
+ }
+ result: DANOTOTAL
+}
+
+output [atkmagi 1d20 0 1] named "dano sem toque"
+output [atkmagi 1d20 1 1] named "dano toque"
+output [atkmagi 1d20 2 1] named "dano toque+1"
+output [atkmagi 1d20 4 0] named "dano toque+3"
+output 5d8+5 named "test"
+output [atk 1d20]

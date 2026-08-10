@@ -1,0 +1,107 @@
+\
+-- IPS-N STÃ–RTEBEKER @ LL6 --
+[ LICENSES ]
+  IPS-N RALEIGH 3, IPS-N BLACKBEARD 2, IPS-N CALIBAN 1
+[ CORE BONUSES ]
+  AUTO-STABILIZING HARDPOINTS, GYGES FRAME
+[ TALENTS ]
+  COMBINED ARMS 3, GUNSLINGER 3, EXECUTIONER 2, VANGUARD 1
+[ STATS ]
+  HULL:4 AGI:2 SYS:0 ENGI:2
+  STRUCTURE:4 HP:19 ARMOR:1
+  STRESS:4 HEATCAP:7 REPAIR:7
+  TECH ATK:0 LIMITED:+1
+  SPD:5 EVA:11 EDEF:7 SENSE:8 SAVE:13
+[ WEAPONS ]
+  Flex Mount: Hand Cannon / Hand Cannon
+  Flex Mount: Hand Cannon / Hand Cannon
+  Heavy Mount: Nanocarbon Sword (UNCLE-Class Comp/Con) // AUTO-STABILIZING HARDPOINTS
+[ SYSTEMS ]
+  Rapid Burst Jump Jet System, â€œRolandâ€ Chamber
+\
+
+EVASION: 8
+ARMOR: 3
+
+\ Do not edit below this line \
+function: attack A:n {
+  result: 1d20 + 3 + ((A < 0) * (-A) + (A > 0))@Ad6
+}
+
+function: mod N:n by D:n {
+  result: N - D * (N / D)
+}
+
+function: handcannon A:n with DH:n dice K:n {
+  D: DH / 2
+  H: DH - D * 2
+  result: D * 2 + [handdam [attack A] with H dice K]
+}
+
+function: handdam R:n with H:n dice K:n {
+  if (R < EVASION) {
+    result: H
+  } else if (R < 20) {
+    result: [highest of Kd6 - ARMOR and 0] * 2 + 1
+  } else {
+    result: [highest of {1..K}@(2*K)d6 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: nanocarbonlast A:n with DH:n {
+  D: DH / 2
+  H: DH - D * 2
+  result: 2 * D + [nanodamlast [attack (A + H)]]
+}
+
+function: nanodamlast R:n {
+  if (R < EVASION) {
+    result: 0
+  } else if (R < 20) {
+    result: [highest of 1d6 + 4 - ARMOR and 0] * 2
+  } else {
+    result: [highest of 1@2d6 + 4 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: nanofirst R:n {
+  if (R < EVASION) {
+    result: 0
+  } else if (R < 20) {
+    result: [highest of 1d6 + 4 - ARMOR and 0] * 2
+  } else {
+    result: [highest of 1@2d6 + 4 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: handlast DC:n {
+  D: DC / 2
+  C: DC - D * 2
+  if C {
+    HCF: [handcannon 3 with 0   dice 2]
+    HCS: [handcannon 1 with HCF dice 1]
+    result: 2 * D + 2 * (HCS / 2)
+  } else {
+    result: 2 * D + 1
+  }
+}
+
+HCA: [handcannon 2 with 0   dice 2]
+HCB: [handcannon 1 with HCA dice 1]
+HCC: [handcannon 1 with HCB dice 1]
+HCD: [handcannon 1 with HCC dice 1]
+DAMF: [nanocarbonlast (-1) with HCD] / 2
+
+NCZ: [nanofirst [attack 1]]
+DCZ: [handlast NCZ]
+
+DCT: [nanocarbonlast 1 with HCB]
+
+output DCZ / 2 named "Damage (0 loaded beforehand)"
+output 2 + [mod DCZ by 2] * 2 named "Loaded afterwards (0 loaded beforehand)"
+
+output DCT / 2 named "Damage (2 loaded beforehand)"
+output [mod DCT by 2] * 2 named "Loaded afterwards (2 loaded beforehand)"
+
+output DAMF named "Damage (4 loaded beforehand)"
+output 0 named "Loaded afterwards (4 loaded beforehand)"

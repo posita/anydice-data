@@ -1,0 +1,30 @@
+FAIL: 0
+SUCC: 1
+
+function: skillcheck ROLL:n vs SKILL:n {
+ if ROLL = 100 { result: FAIL }
+ if ROLL > SKILL { result: FAIL }
+ result: SUCC
+}
+
+function: improvementcheck ROLL:n vs SKILL:n if RESULT:n {
+ if RESULT = FAIL { result: SUCC }
+ if ROLL > SKILL { result: FAIL }
+ if ROLL > 95 { result: FAIL }
+ result: SUCC
+}
+
+IMPROVEMENT: 1d10
+
+function: improvementresult for RESULT:n and SKILL:n {
+ if RESULT = FAIL { result: IMPROVEMENT + SKILL}
+ result: SKILL
+}
+
+function: nextsession for CURRENT_SKILL:n {
+ result: [improvementresult for [improvementcheck 1d100 vs CURRENT_SKILL if [skillcheck 1d100 vs CURRENT_SKILL]] and CURRENT_SKILL]
+}
+
+loop SKILL over {30} {
+ output [nextsession for SKILL] named "[SKILL],Session 1"
+}

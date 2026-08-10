@@ -1,0 +1,66 @@
+Q: {0..5}
+
+function: limits SEQUENCE:n ZERO:n MIN:n {
+ if (SEQUENCE < ZERO){result: 0}
+ if (SEQUENCE < MIN){result: MIN}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n MIN:n MAX:n {
+ if (SEQUENCE <= MIN){result: 0}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+
+\************************** General Chart with modifiable thresholds ****************************\
+\the count target must always be fixed ??? : on 3+ for ex\
+\the nbr of dices must be fixed : depends of the Chart Categories : 14d(Heavy), 12d(Middle), 10d(Light)\
+
+
+\chaque chart a une forme de curve diffÃ©rente : basÃ©e sur le role plutot que sur le type ???\
+
+function: chart ROLL:n CHART:s MODS:s{
+\ if (ROLL >= 7@CHART+7@MODS){result: 7}
+ if (ROLL >= 6@CHART+6@MODS){result: 6}
+ if (ROLL >= 5@CHART+5@MODS){result: 5}\
+ if (ROLL >= 4@CHART+4@MODS){result: 4}
+ if (ROLL >= 3@CHART+3@MODS){result: 3}
+ if (ROLL >= 2@CHART+2@MODS){result: 2}
+ if (ROLL >= 1@CHART+1@MODS){result: 1}
+ if (ROLL < 1@CHART+1@MODS){result: 0}
+ result: 0
+}
+
+CHART_LIGHT: {4, 5, 6, 7, 8, 9}  \for Infantry\
+CHART_MIDDLE: {4, 6, 7, 8, 9, 10}  \for Heavy Inf & Monster\
+CHART_HEAVY: {5, 6, 8, 9, 10, 11}  \for Tank\
+CHART_ARTI: {4, 4, 4, 4, 5, 6}  \for Artillery\
+
+MA_ATT: {-2,-2,-2,-2,-4,-4}
+MA_DEF: {4,4,2,2,2,2}
+MA_MIX: {2,2,0,0,-2,-2}
+
+
+
+\A: 4dQ + 10d(dQ>=3)
+output 14d(dQ>=3)
+output [chart 10d(dQ>=3) CHART_ARTI 0]
+output [chart 10d(dQ>=3) CHART_LIGHT 0]
+output [chart 12d(dQ>=3) CHART_MIDDLE 0]
+output [chart 14d(dQ>=3) CHART_HEAVY 0]\
+
+B: {0,1}
+CHART_GENERIC:  {3, 5, 6, 7}                        \4 Life pts, based on 8d6(on4+)\
+output [chart [lowest 2 of 14d6]d(d6>=6) CHART_GENERIC 0]
+output [chart 3d(d6>=6) CHART_GENERIC 0]
+output [chart 8d(d6>=4) CHART_GENERIC 0]
+output [chart 15d(d6>=2) CHART_GENERIC 0]
+
+
+output 8dB named "8d"
+output 2dB named "2d"
+output 14dB named "14d"
+

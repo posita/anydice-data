@@ -1,0 +1,46 @@
+ROLL:1d20
+ATK:5
+AC:15
+CRIT_RANGE:20
+CRIT_FAIL:1
+DAMAGE:1d6+3
+CRIT_DAMAGE:1d6
+FH:3d6
+FHC:3d6
+ADV:0
+MULTIATTACK:2
+
+if ADV=1 {ROLL:1@2d20}
+if ADV=2 {ROLL:1@3d20}
+if ADV=-1 {ROLL:2@2d20}
+
+
+function: first ROLL:n {
+ if ROLL>=CRIT_RANGE {result:DAMAGE+CRIT_DAMAGE+FH+FHC}
+ if ROLL<=CRIT_FAIL {result:0}
+ if ROLL+ATK>=AC {result:DAMAGE+FH}
+ result:0
+ }
+
+function: next ROLL:n {
+ if ROLL>=CRIT_RANGE {result:DAMAGE+CRIT_DAMAGE}
+ if ROLL<=CRIT_FAIL {result:0}
+ if ROLL+ATK>=AC {result:DAMAGE}
+ result:0
+ }
+
+\output [first ROLL]\
+\output [next ROLL]\
+
+function: pick TOTAL:n ROLL:d{
+ if TOTAL!=0 {TEMP:TOTAL+[next ROLL]}
+ if TOTAL=0 {TEMP:TOTAL+[first ROLL]}
+ result:TEMP
+ }
+
+function: loop MULTIATTACK:n {
+ TOTAL:0
+ loop N over {1..MULTIATTACK} { TOTAL:[pick TOTAL ROLL]}
+ result:TOTAL
+ }
+output [loop MULTIATTACK]

@@ -1,0 +1,26 @@
+BASE: 17
+WEAPON: 10
+ARCHER: 1
+VORPAL: 1
+HD: 13
+
+AC: 24
+GDR: 37
+
+\FUNCTION DEFINITIONS\
+function: roll NUM:n of size SIZE:n {
+  result: NUMdSIZE
+}
+
+DAMAGE: 1dBASE + 1dWEAPON + (ARCHER*(2d(HD*4/3)-2)/2) - 1d3 - 1
+MAXDAMAGE: BASE + WEAPON
+
+ACDAMAGE: [highest of 0 and DAMAGE - 1d(AC + 1) + 1]
+GDRACDAMAGE: [highest of 0 and DAMAGE - [highest of 1d(AC + 1) - 1 and [lowest of MAXDAMAGE*GDR/100 and AC/2]]]
+
+BRANDEDACDAMAGE: ACDAMAGE+VORPAL*(ACDAMAGE>0)*(1+([roll 1 of size ACDAMAGE] - 1)/3)
+
+BRANDEDGDRACDAMAGE: GDRACDAMAGE+VORPAL*(GDRACDAMAGE>0)*(1+([roll 1 of size GDRACDAMAGE] - 1)/3)
+
+output BRANDEDACDAMAGE named "24 AC vs Merfolk Javelineer with silver jav"
+output BRANDEDGDRACDAMAGE  named "24 AC and 39% GDR vs Merfolk Javelineer with silver jav"

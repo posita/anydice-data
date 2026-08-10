@@ -1,0 +1,145 @@
+\Atyla-Ouroboros-Squads\
+Q: {0..3}
+
+function: crop SEQUENCE:n MIN:n MAX:n {                  \ limit the display range between [min;max] \
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+function: halve SEQUENCE:n {                  \ divide per 2, rounded up \
+ DIV: SEQUENCE/2
+ TEMP: DIV*2
+ if (DIV=TEMP){result: DIV}
+ result: (SEQUENCE+1)/2
+}
+
+\************************************************************************\
+
+function: phaseone ATT:s DEF:s {                \Find the environment modifiers\
+  SIZE_MODS: [compare bodies 11@ATT with 11@DEF]           \compare the nbr of bodies\
+  VELOCITY_MODS: [compare 10@DEF with 9@ATT]        \compare the velocity for the dodge capacity\
+
+  ATT_DICES: (1@ATT +SIZE_MODS)                      \final number of hits-dices to roll\
+  DEF_DICES: (5@DEF +VELOCITY_MODS)                  \final number of saves-dices to roll\
+
+  \freeze the hits-dices & saves-dices sequences\
+  result: [phasetwo [overflowing pairing ATT_DICESdQ on 2@ATT] [overflowing pairing DEF_DICESdQ on 6@DEF] ATT DEF]
+}
+
+function: phasetwo ATT_ROLL:n DEF_ROLL:n  ATT:s DEF:s {       \Analysis of the rolls\
+  HITS: ATT_ROLL+4@ATT                                        \add value modifiers to ???\
+  SAVES: DEF_ROLL+8@DEF                  \use the Save-Limits values\
+
+  DAMAGES: HITS - SAVES
+  \DAMAGES: [halve HITS] - [halve SAVES]\
+  result: [crop DAMAGES]
+}
+
+
+\******** Functions to find Successes on chosen target **********\
+
+function: overflowing pairing SEQUENCE:s on TARGET:n {
+  TOTAL: 0
+  \count of number in sequence\
+  UN:    SEQUENCE=1
+  DEUX:  SEQUENCE=2
+  TROIS: SEQUENCE=3
+  TEMP: {UN, DEUX, TROIS}
+  \sum of chosen numbers'occurencies\
+  TOTAL: {TARGET..3}@TEMP                        \final count of Successes\
+
+  \boolean checks : 0 or 1 multiplicators\
+  DT: DEUX>=TROIS
+  UT: UN>=TROIS
+  UD: UN>=DEUX
+
+  if(TARGET=6){result: TROIS/2}
+  if(TARGET=5){result: (TROIS+ (DT*TROIS)+(!DT*DEUX)) /2}
+  if(TARGET=4){result: (TROIS+ (UT*(TROIS+DEUX)) + (!UT*(UN+DEUX))) /2}
+  if(TARGET=3){result: TOTAL + ( (DEUX+ (UD*DEUX)+(!UD*UN)) /2)}
+  if(TARGET=2){result: TOTAL + (UN/2)}
+  if(TARGET=1){result: TOTAL}
+  result: TOTAL
+}
+
+
+
+\******** Functions to compare Sets of Dices (Optimized at max) **********\
+
+function: find damage bonus ATT:s DEF:s {
+ ATT_SET: [find best set ATT]
+ DEF_SET: [find best set DEF]
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+function: find best set ROLL:s {
+  \separate the sets in a roll\
+  THREES: ROLL=3                     \test the value on each element of the Sequence parameter : optimized\
+  TWOS:   ROLL=2
+  ONES:   ROLL=1
+
+  \compare the sets to find the more numerous one, choosing the higher if equal\
+  if (THREES>0) & (THREES>=TWOS) & (THREES>=ONES) { result: 3}
+  if (TWOS>0) & (TWOS>=ONES) { result: 2}
+  if (ONES>0) { result: 1}
+  result: 0
+}
+
+function: compare sets ATT_SET:n DEF_SET:n {
+\if Attacker has a higher set's face than Defender, add Damage Bonus\
+ if (ATT_SET>DEF_SET) { result: ATT_SET-DEF_SET }
+ result: 0
+}
+
+
+\************************************************************************\
+
+function: compare bodies ATT_B:n with DEF_B:n {
+  if(ATT_B > DEF_B) { result: ATT_B-DEF_B}
+  result: 0
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  result: -1       \VAL_X < VAL_Y\
+}
+
+
+\************************************************************************\
+\PD, ATT_TARGET, Lim Max, PD_MODS, RD, DEF_TARGET, Lim Max, RD_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {6, 0,50, 0,   4, 0,50, 0,   150, 9, 1}      \Mono, Light Armor, Sniper, Knife\
+B: {8, 0,50, 0,   5, 0,50, 0,   30, 9, 1}       \Mono, VeryLight Armor, Double Swords\
+C: {12, 0,50, 0,   10, 0,50, 0,   80, 4, 2}     \Multi, Heavy Armor, Shotgun, HandPunch\
+D: {8, 0,50, 0,   8, 0,50, 0,   90, 5, 4}     \Multi, Middle Armor, Fusils, Bayonet\
+E: {4, 0,50, 0,   6, 0,50, 0,   80, 9, 1}      \Mono, Light Armor, Wooden Bow, Sword\
+F: {8, 0,50, 0,   14, 0,50, 0,   50, 3, 1}      \Mono, Tank, Flamer Sponsons, TankFront\
+G: {12, 0,50, 0,   14, 0,50, 0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+H: {15, 0,50, 0,   10, 0,50, 0,   200, 3, 1}      \Mono, Drone, Heavy Laser Canon, DroneFront\
+
+GL: {12, 13,25, 0,   14, 20,35, 0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GM: {12, 0,50, 5,   14, 0,50, 5,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GA: {12, 13,25, 5,   14, 20,35, 5,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+\************************************************************************\
+
+output [phaseone A B] named "lone Sniper VS lone Sword Master"
+output [phaseone A G] named "lone Sniper VS Tank"
+output [phaseone E A] named "lone Archer VS lone Sniper"
+output [phaseone H G] named "Laser Canon VS Tank"
+output [phaseone A D] named "lone Sniper VS fusils Squad"
+output [phaseone D A] named "fusils Squad VS lone Sniper"
+
+\output [phaseone G G] named "Tanks no Limits/Modifiers"
+output [phaseone GL G] named "Tanks test: Att Limits"
+output [phaseone G GL] named "Tanks test: Def Limits"
+output [phaseone GM G] named "Tanks test: Att Modifier"
+output [phaseone G GM] named "Tanks test: Def Modifier"
+output [phaseone GA G] named "Tanks test: Att Lim & Mods"
+output [phaseone G GA] named "Tanks test: Def Lim & Mods"
+\
+
+

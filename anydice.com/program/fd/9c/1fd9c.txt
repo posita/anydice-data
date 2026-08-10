@@ -1,0 +1,77 @@
+DEFENSE: 14
+LEVEL: 4
+WEAPON_DICE: 2d6
+WEAPON_NUMBER: 1
+OTHER_DAMAGE_MOD: 0
+OTHER_DAMAGE_DICE: 0
+CRIT_RANGE: 20
+GWF: 1
+NORMAL_HIT: d20
+HIT_DIS: [lowest 1 of 2d20]
+SAVAGE: 0
+
+MOD: 3
+PROF: (LEVEL+7)/4
+GWMATTACK: -5
+GWMDAMAGE: 10
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll R:n under N:n {
+   if R <= N {result: WEAPON_DICE} else {result: R}
+}
+
+function: attack {
+ result: [damage for [attack NORMAL_HIT vs DEFENSE]]
+}
+
+function: attackdis {
+ result: [damage for [attack HIT_DIS vs DEFENSE]]
+}
+
+
+ATTACK: MOD + PROF
+HITDAMAGE: WEAPON_NUMBERd[reroll WEAPON_DICE under GWF] + MOD
+CRITICALDAMAGE: 2d(WEAPON_NUMBERd[reroll WEAPON_DICE under GWF]) + MOD
+MISSDAMAGE: 0
+output [attack] named "Normal"
+
+ATTACK: MOD + PROF
+HITDAMAGE: WEAPON_NUMBERd[reroll WEAPON_DICE under GWF] + MOD
+CRITICALDAMAGE: 2d(WEAPON_NUMBERd[reroll WEAPON_DICE under GWF]) + MOD
+MISSDAMAGE: 0
+output [attackdis] named "Disadvantage Normal"
+
+ATTACK: MOD + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBERd[reroll WEAPON_DICE under GWF] + MOD + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBERd[reroll WEAPON_DICE under GWF]) + MOD + GWMDAMAGE
+MISSDAMAGE: 0
+output [attack] named "GWM"
+
+ATTACK: MOD + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBERd[reroll WEAPON_DICE under GWF] + MOD + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBERd[reroll WEAPON_DICE under GWF]) + MOD + GWMDAMAGE
+MISSDAMAGE: 0
+output [attackdis] named "Disadvantage GWM"

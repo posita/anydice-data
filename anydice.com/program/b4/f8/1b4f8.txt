@@ -1,0 +1,73 @@
+function: explode DIE:d {
+ MAX: [maximum of DIE]
+ result: [explode DIE helper]
+}
+
+function: explode N:n helper {
+ if N = MAX { result: N - 1 + [explode DIE helper] }
+ result: N
+}
+
+function: attack DEF:n PRT:n {
+ if DEF <= 0 { result: 0 }
+ if PRT <= 0 { result: 0 }
+ result: PRT
+}
+
+function: roll Z:n {
+ ATT: 2d[explode d6] + Z
+ DEF: 2d[explode d6]
+ result: ATT - DEF
+}
+
+
+
+\
+DRN: 2d[explode d6] - 2d[explode d6]
+
+
+D: 7
+P: 14
+
+
+output 15*[attack [roll 12 - 9] [roll 14 - P]] named "15 Fir Bolg Javelins"
+output 48*[attack [roll 10 - 9] [roll 23 - P]] named "48 Fomorian Javelins"
+
+output [attack [roll 15 - 9] [roll 35]] named "tail sting on fomorian javelin"
+output 10*[attack 1 [roll 26 - 10]] named "1 t-strikes"
+
+
+
+function: hit X:n commanders with N:n arrows Z:n interesting {
+ F: d{1:Z, 0:X-Z}
+ 
+ result: Nd{1:Z, 0:X-Z}
+}\
+
+\
+
+function: roll R:n{
+ if R = 0 {
+   Z: Z - 1
+ }
+ else {
+   O: O - 1
+ }
+ result: R
+}
+
+O: 2
+Z: 10
+N: 5
+
+B: 0
+loop J over {1..N} {
+ Z: Z-1
+ B: B + [roll d{1:O, 0:Z}]
+}
+output B
+\
+
+D: 7
+P: 11
+output 20*[attack [roll -4] [roll 9 - P]] named "20 archers"

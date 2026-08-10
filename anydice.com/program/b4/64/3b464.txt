@@ -1,0 +1,88 @@
+function: highest long DIE_A:n DIE_B:n DIE_C:n DIE_D:n {
+ result: 1@[sort {DIE_A, DIE_B, DIE_C, DIE_D}]
+}
+
+function: highest DICE_TEMP:s {
+ DICE: DICE_TEMP
+
+ if #DICE > 4 | #DICE < 1{
+  result: 422
+ }
+
+ DICE: {DICE, 0:(4 - #DICE)}
+
+ DIE_A: 1@DICE
+ DIE_B: 2@DICE
+ DIE_C: 3@DICE
+ DIE_D: 4@DICE
+
+ result: [highest long 1dDIE_A 1dDIE_B 1dDIE_C 1dDIE_D]
+}
+
+function: highest with upgrade long DIE_A_TEMP:n DIE_A_SIZE_TEMP:n DIE_B_TEMP:n DIE_B_SIZE_TEMP:n DIE_C_TEMP:n DIE_C_SIZE_TEMP:n DIE_D_TEMP:n DIE_D_SIZE_TEMP:n {
+ DIE_A: DIE_A_TEMP
+ DIE_A_SIZE: DIE_A_SIZE_TEMP
+ DIE_B: DIE_B_TEMP
+ DIE_B_SIZE: DIE_B_SIZE_TEMP
+ DIE_C: DIE_C_TEMP
+ DIE_C_SIZE: DIE_C_SIZE_TEMP
+ DIE_D: DIE_D_TEMP
+ DIE_D_SIZE: DIE_D_SIZE_TEMP
+
+ if DIE_D = DIE_D_SIZE & (DIE_A >= DIE_D | DIE_B >= DIE_D | DIE_C >= DIE_D){
+  if DIE_A >= DIE_B & DIE_A >= DIE_C {
+   DIE_A: DIE_A + 1
+  } else {
+   if DIE_B >= DIE_C {
+    DIE_B: DIE_B + 1
+   } else {
+    DIE_C: DIE_C + 1
+   }
+  }
+  DIE_D: 0
+ }
+
+ if DIE_C = DIE_C_SIZE & (DIE_A >= DIE_C | DIE_B >= DIE_C){
+  if DIE_A >= DIE_B {
+   DIE_A: DIE_A + 1
+  } else {
+   DIE_B: DIE_B + 1
+  }
+  DIE_C: 0
+ }
+
+ if DIE_B = DIE_B_SIZE & DIE_A >= DIE_B {
+  DIE_A: DIE_A + 1
+  DIE_B: 0
+ }
+
+ result: 1@[sort {DIE_A, DIE_B, DIE_C, DIE_D}]
+}
+
+function: highest with upgrade DICE_TEMP:s {
+ DICE: DICE_TEMP
+
+ if #DICE > 4 | #DICE < 1{
+  result: 422
+ }
+
+ DICE: {DICE, 0:(4 - #DICE)}
+ DICE: [sort DICE]
+
+ DIE_A: 1@DICE
+ if DIE_A != 0 {DIE_A_SIZE: DIE_A} else {DIE_A_SIZE: 1}
+ DIE_B: 2@DICE
+ if DIE_B != 0 {DIE_B_SIZE: DIE_B} else {DIE_B_SIZE: 1}
+ DIE_C: 3@DICE
+ if DIE_C != 0 {DIE_C_SIZE: DIE_C} else {DIE_C_SIZE: 1}
+ DIE_D: 4@DICE
+ if DIE_D != 0 {DIE_D_SIZE: DIE_D} else {DIE_D_SIZE: 1}
+
+ result: [highest with upgrade long 1dDIE_A DIE_A_SIZE 1dDIE_B DIE_B_SIZE 1dDIE_C DIE_C_SIZE 1dDIE_D DIE_D_SIZE]
+}
+
+DICE: {8,10,4}
+
+output 1d(1@[sort DICE]) named "just biggest"
+output [highest DICE] named "without upgrade"
+output [highest with upgrade DICE] named "with upgrade"

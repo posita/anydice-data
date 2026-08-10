@@ -1,0 +1,34 @@
+function: woundtarget STRENGTH:n and TOUGHNESS:n {
+if STRENGTH >= 2*TOUGHNESS {result: 2}
+if STRENGTH > TOUGHNESS {result: 3}
+if STRENGTH = TOUGHNESS {result: 4}
+if 2*STRENGTH <= TOUGHNESS {result: 6}
+if STRENGTH < TOUGHNESS {result: 5}
+}
+
+function: savetarget SAVE:n and PENETRATION:n {
+result: SAVE - PENETRATION
+}
+
+function: attackonce HITROLL:n and WOUNDROLL:n and SAVEROLL:n and DAMAGE:n and POWER:n{
+ if HITROLL >= SKILL { 
+  if POWER = 1 {
+   if HITROLL = 6 { 
+    if WOUNDROLL >= [woundtarget STRENGTH and TOUGHNESS] {result: DAMAGE + 1 }
+    result: 0}}
+  if WOUNDROLL >= [woundtarget STRENGTH and TOUGHNESS] {
+   if SAVEROLL <= [savetarget SAVE and PENETRATION] { result: DAMAGE }
+   result: 0}
+  result:0}
+ result: 0
+}
+
+function: fullattack skill SKILL:n strength STRENGTH:n toughness TOUGHNESS:n save SAVE:n penetration PENETRATION:n damage DAMAGE:n attacks ATTACKS:n power POWER:n{
+ FINALDAMAGE: 0
+ loop N over {1..ATTACKS}{
+  FINALDAMAGE: FINALDAMAGE + ([attackonce 1d6 and 1d6 and 1d6 and DAMAGE and POWER])
+ }
+ result: FINALDAMAGE
+}
+
+output [fullattack skill 3 strength 6 toughness 3 save 4 penetration -1 damage 2 attacks 9 power 0]

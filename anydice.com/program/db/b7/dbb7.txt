@@ -1,0 +1,45 @@
+function: attack ROLL:n AB AC DAM  {
+  if (ROLL = 20) { result: DAM + DAM }
+  if (ROLL = 1) | (ROLL + AB < AC) { result: 0 }
+  result: DAM
+}
+
+function: attack AB AC DAM  {
+  result: [attack 1d20 AB AC DAM]
+}
+
+function: multiattack N FUNC {
+  NUM: 0
+  loop I over {1..N} { NUM: NUM + FUNC }
+  result: NUM
+}
+
+function: spell ROLL:n DC STB DAM {
+  if (ROLL = 1) | (ROLL + STB < DC) { result: DAM }
+  result: DAM / 2
+}
+
+function: spell DC STB DAM {
+  result: [spell 1d20 DC STB DAM]
+}
+
+LO:13
+AV:16
+HI:19
+
+output (1d20) >= 15 named "Test"
+output 0 named "Attack"
+output [attack 6 LO 2d6+4] named "AC:[LO]"
+output [attack 6 AV 2d6+4] named "AC:[AV]"
+output [attack 6 HI 2d6+4] named "AC:[HI]"
+
+output 0 named "Multi-Attack"
+output [multiattack 2 [attack 8 LO 1d4+4]] named "AC:[LO]"
+output [multiattack 2 [attack 8 AV 1d4+4]] named "AC:[AV]"
+output [multiattack 2 [attack 8 HI 1d4+4]] named "AC:[HI]"
+
+DC:15
+output 0 named "Spell (Save;1/2)"
+output [spell DC (LO - 10)/2 8d6] named "[DC]:[LO]"
+output [spell DC (AV - 10)/2 8d6] named "[DC]:[AV]"
+output [spell DC (HI - 10)/2 8d6] named "[DC]:[HI]"

@@ -1,0 +1,17 @@
+function: roll ROLL:s dice REROLL reroll POOL pool SUCCESS:n success FAIL:n fail{
+ SUCCESS: SUCCESS + (ROLL >= 5)
+ EXPLODE: ROLL = 6
+ FAIL: FAIL + (ROLL = 1)
+ if FAIL > 2 {result: -99}
+ if EXPLODE > 0 {
+  POOL: POOL + EXPLODE
+  result: [roll EXPLODE d6 dice REROLL reroll POOL pool SUCCESS success FAIL fail]
+ }
+ if (REROLL > 0) & ((POOL - SUCCESS - FAIL) > 0) { 
+  result: [roll (POOL - SUCCESS - FAIL) d6 dice(REROLL - 1) reroll POOL pool SUCCESS success FAIL fail]
+ }
+ if SUCCESS > 0 { result: SUCCESS }
+ result: 0
+}
+
+output [roll 4d6 dice 1 reroll 4 pool 0 success 0 fail]

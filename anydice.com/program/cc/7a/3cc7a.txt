@@ -1,0 +1,39 @@
+YES: 1
+NO: 0
+
+function: bounce DICE:s {
+  loop N over {1..8} {
+    if (DICE = N) > 1 {
+      result: YES
+    }
+  }
+  result: NO
+}
+
+function: orbhit HIT:n bonus BONUS:n ac AC:n adv ADV:n lvl LVL bounce BOUNCE:n dmg DAMAGE:s {
+  if HIT = 0 {
+    result: 0
+  }
+
+  if BOUNCE > 0 & [bounce DAMAGE] = YES {
+    result: DAMAGE + [orb bonus BONUS ac AC adv ADV lvl LVL bounce (BOUNCE-1)]
+  }
+
+  result: DAMAGE
+}
+
+function: orb bonus BONUS:n ac AC:n adv ADV:n lvl LVL:n bounce BOUNCE {
+  HIT: 0
+
+  if ADV {
+    HIT: ([highest 1 of 2d20] + BONUS) >= AC
+  } else {
+    HIT: (1d20 + BONUS) >= AC
+  }
+
+  result: [orbhit HIT bonus BONUS ac AC adv ADV lvl LVL bounce BOUNCE dmg (LVL+2)d8]
+}
+
+
+LEVEL: 1
+output [orb bonus 5 ac 15 adv YES lvl LEVEL bounce LEVEL] named "Chromatic Orb"

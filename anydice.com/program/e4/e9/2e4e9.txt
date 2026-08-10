@@ -1,0 +1,36 @@
+function: attack A:n plus B:n vs C:n{if A=20{result:CRIT} if A+B>=C{result:HIT} result:0} CRIT:100 HIT:101
+function: damage A:n for B:n plus C:n{if A=CRIT {result:(B*2+C)} if A=HIT {result:B+C} result:0}
+function: dc A:n save B:n plus C:n{if B=20{result:CRITS} if B=1{result:CRITF} if B+C>=A{result:SAVE} result:FAIL} CRITS:102 CRITF:103 SAVE:104 FAIL:105 
+function: damage A:n for B:n or C:n {if A=CRITS {result:0} if A=CRITF {result:(2*B)} if A=FAIL {result: B} if A=SAVE {result:C} result:0}
+
+R:d20
+RR:[highest 1 of 2d20] 
+
+AROLL:R
+PROFINCENCY:3
+
+HIT:8 
+AC:d9+11 
+NATTACKS:1
+WEAPONDAMAGE:1d6 
+DAMAGEBONUS:HIT-PROFINCENCY  
+
+R:d20
+RR:[highest 1 of 2d20] 
+
+SROLL:R
+SAVEDC:8+4+2 
+SAVETHROW:d2
+SPELLDAMAGE:2d10
+
+ROUNDSATTACKING:3
+TOTALROUNDS:3
+
+
+
+
+output ((ROUNDSATTACKING*([damage [dc SAVEDC save SROLL plus SAVETHROW] for SPELLDAMAGE or (SPELLDAMAGE/2)])/TOTALROUNDS)) named "Half Damage on a Failed Save" 
+output ((ROUNDSATTACKING*([damage [dc SAVEDC save SROLL plus SAVETHROW] for SPELLDAMAGE or (0)])/TOTALROUNDS)) named "0 Damage on a Failed Save" 
+output ((ROUNDSATTACKING*(NATTACKS*([damage [attack AROLL plus HIT vs AC] for WEAPONDAMAGE plus DAMAGEBONUS]))/TOTALROUNDS)) named "Weapon Attacks" 
+
+

@@ -1,0 +1,79 @@
+function: attack ROLL:n bonus ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: hamdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: HAMCRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HAMDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: ebdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: EBCRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: EBDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll D:d under N:n{
+   result: [rerollcore D die D under N]
+}
+
+function: rerollcore R:n die D:d under N:n{
+   if R < N { result: D } else {result: R}
+}
+
+function: burning hands diff D:n against W:n{
+   SAVE: d20 + W
+   if SAVE >= D{
+      result: BHSAVEDAMAGE
+   }
+   result: BHDAMAGE
+}
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+PROF: 3
+CHA: 4
+STR: 3
+ROUNDS:10
+DC: 15
+
+\opponent defense\
+DEF: 13 
+CON: 4
+DEX: 3
+
+MISSDAMAGE: 0
+EBDAMAGE: d10+CHA
+EBCRITDAMAGE: 2d10+CHA
+HAMDAMAGE: [reroll d10 under 3]+STR
+HAMCRITDAMAGE: 2d[reroll d10 under 3]+STR
+SSDAMAGE: 1d6
+SSCRITDAMAGE: 2d6
+BHDAMAGE: 3d6
+BHSAVEDAMAGE: 3d6 / 2
+
+\2dice\
+HAMBDAM: 2d[reroll d5 under 3]+STR
+HAMBCRIT: 4d[reroll d5 under 3]+STR
+
+output 2d[hamdamage for [attack d20 bonus PROF+STR vs DEF]] named "gw hammer"
+output 2d[ ebdamage for [attack d20 bonus PROF+CHA vs DEF]] named "EB"
+output [burning hands diff DC against DEX] named "BH"

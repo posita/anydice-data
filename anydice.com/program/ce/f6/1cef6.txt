@@ -1,0 +1,33 @@
+function: max sum M:n dice with K:n bonus and N:n rolls {
+  X: Md6+K
+  if N = 1 {
+    result: X
+  }
+  loop I over {1..N} {
+    X: [highest of Md6+K and X]
+  }
+  result: X
+}
+
+\ player 1 \
+N: 3            \ dice, 3 per \
+R: 1            \ rolls, 2 per \
+B: 0            \ bonus, 1 per \
+D: 11           \ difficulty \
+
+\ player 2 \
+NN: 3           \ dice, 3 per \
+RR: 1           \ rolls, 2 per \
+BB: 0           \ bonus, 1 per \
+DD: 11          \ difficulty \
+
+T: [max sum N dice with B bonus and R rolls]
+TT: [max sum NN dice with BB bonus and RR rolls]
+P: 3*(N-3) + 2*(R-1) + B
+PP: 3*(NN-3) + 2*(RR-1) + BB
+
+output (T >= D) & ((TT < DD) | (T > TT)) named "player 1 wins at difficulty [D], bet [P]"
+output (TT >= DD) & ((T < D) | (TT > T)) named "player 2 wins at difficulty [DD], bet [PP]"
+output (T < D) & (TT < DD) named "no one wins"
+output T named "player 1, difficulty [D], bet [P]"
+output TT named "player 2, difficulty [DD], bet [PP]"

@@ -1,0 +1,75 @@
+
+\**********************************************************************************************\
+function: roll ATT:s {
+ result: [testtris ATT]
+}
+
+function: test ROLL:s {
+ MAX_ROLLED: 1@ROLL
+
+ SUBSETS: {ROLL=MAX_ROLLED}                    \contain subsets from 6 to 1\
+ TEMP: 1@SUBSETS
+ RES: MAX_ROLLED
+
+ loop N over {1..MAX_ROLLED-1}{                
+   SUBSETS: {SUBSETS, ROLL=(MAX_ROLLED-N)}     \count the size of each face value (between 1/max) in the roll\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: MAX_ROLLED - N                       \keep the highest face value\
+     TEMP:(N+1)@SUBSETS                        \keep the subset count of the highest face value\
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+\contain subsets from 6 to 1\
+function: testbis ROLL:s {
+ MAX_ROLLED: 1@ROLL
+ MIN_ROLLED: (#ROLL)@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+
+ SUBSETS: {ROLL=MAX_ROLLED}                    \count the size of the max face value rolled\
+ TEMP: 1@SUBSETS
+ RES: MAX_ROLLED
+
+ loop N over {1..DIFF}{                
+   SUBSETS: {SUBSETS, ROLL=(MAX_ROLLED-N)}     \count the size of each face value (between min/max) in the roll\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: MAX_ROLLED - N                       \keep the highest face value\
+     TEMP:(N+1)@SUBSETS                        \keep the subset count of the highest face value\
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+\TODO : 6,6,5,3,3,3,3,3,1,1 \
+function: testtris ROLL:s {
+
+ CUR_COUNT: 0
+ LAST_COUNT: 0
+ RES: 0
+
+ loop N over {1..#ROLL} {
+   CUR_COUNT: CUR_COUNT+1
+   if (N@ROLL != (N+1)@ROLL){                 \count the size of each face value in the roll\
+     if(CUR_COUNT>LAST_COUNT){        \keep the highest subset face value\
+     RES: N@ROLL
+     LAST_COUNT: CUR_COUNT}
+     CUR_COUNT: 0
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+
+\output [roll 5d6]\
+output [test 5d6]   \best : max 18d6\ 
+\output [testbis 5d6] named "testbis"
+output [testtris 5d6] named "testtris"\
+
+
+

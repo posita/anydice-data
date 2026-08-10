@@ -1,0 +1,70 @@
+\--Input relevant attributes and stat modifiers.--\
+\----\
+\--Outputs -1 for Miss, 0 for Graze, and 1 for Hit.--\
+
+\--Attacker stats--\
+ATTACKER_LV: 20
+
+ATTACKER_STR: 0
+ATK_MOD: 0
+
+ATTACK_POWER: 2d6
+ATK_PWR_CONSISTENCY: 0
+
+ATTACKER_DEX: 0
+ACCURACY_MOD: 0
+ACCURACY_CONSISTENCY: 0
+
+\--Defender stats--\
+DEFENDER_LV: 20
+
+DEFENDER_CON: 0
+DEF_MOD: 5
+
+DEFENDER_DEX: 0
+SPD_MOD: -3
+
+\-----The following parameters are auto-generated.-----\
+ATTACKER_ADV_BONUS: ATTACKER_LV/2
+DEFENDER_ADV_BONUS: DEFENDER_LV/2
+
+\-Attack Power Consistency modification-\
+if ATK_PWR_CONSISTENCY > 0 {
+ ATTACK_POWER: [highest #ATTACK_POWER of (#ATTACK_POWER+ATK_PWR_CONSISTENCY)d6]
+}
+else if ATK_PWR_CONSISTENCY < 0 {
+ ATTACK_POWER: [lowest #ATTACK_POWER of (#ATTACK_POWER-ATK_PWR_CONSISTENCY)d6]
+}
+\-Accuracy Consistency modification-\
+HIT: 2d6
+if ACCURACY_CONSISTENCY > 0 {
+ HIT: [highest #HIT of (#HIT+ACCURACY_CONSISTENCY)d6]
+}
+else if ACCURACY_CONSISTENCY < 0 {
+ HIT: [lowest #HIT of (#HIT-ACCURACY_CONSISTENCY)d6]
+}
+HIT: HIT + ATTACKER_DEX + ATTACKER_ADV_BONUS + ACCURACY_MOD
+
+ATK: 10+ATTACKER_ADV_BONUS+ATTACKER_STR+ATK_MOD
+DEF: 10+DEFENDER_ADV_BONUS+DEFENDER_CON+DEF_MOD
+SPD: 10+DEFENDER_ADV_BONUS+DEFENDER_DEX+SPD_MOD
+
+function: attack calc with A:n B C:n D {
+
+X: C
+SUCCESS: 1
+
+ if A < B { \-Accuracy Check-\
+  if X > 6 { \-On failed accuracy check, reduce die by 1 if more than 1d6-\
+   X: X - 6
+  }
+  SUCCESS: SUCCESS - 1
+ }
+
+ if X < D { \-Power Check-\
+  SUCCESS: SUCCESS - 1
+ }
+ result: SUCCESS
+}
+
+output [attack calc with HIT SPD ATTACK_POWER+ATK DEF]

@@ -1,0 +1,64 @@
+AC: 18 - 6
+DC: 16 - 6
+PATH: 1d20 + 6
+EATH: 1d20 + 3
+ATKROLL: 1d20
+ADVROLL: [highest 1 of 2d20]
+BLESS: 1d4
+
+ADVROLLB: ADVROLL + BLESS
+ATKROLLB: ATKROLL + BLESS
+
+function: contest A:n vs B:n then C or D {
+  if (A > B) {
+    result: C
+  }
+  result: D
+}
+DISROLL: [lowest 1 of 2d20]
+DISTOHIT: DISROLL >= AC
+DISTOHITB: DISROLL + BLESS >= AC
+ADVTOHIT: ADVROLL >= AC
+ATKTOHIT: ATKROLL >= AC
+ATKTOHITB: ATKROLL + BLESS >= AC
+ADVTOHITB: ADVROLL + BLESS >= AC
+PAPR: 3
+HDMG:1d8+4
+PDMG:1d6+3
+LDMG:2d8
+SDMG:1d8
+
+GDPRP: PAPRd(ADVTOHIT*PDMG) +ADVTOHIT*HDMG+ 1d(DISTOHIT*LDMG)
+
+GDPRPB: PAPRd(ADVTOHITB*PDMG) +ADVTOHITB*HDMG+ 1d(DISTOHITB*LDMG)
+
+GDPR: PAPRd(ATKTOHIT*PDMG) + ATKTOHIT*HDMG  + ATKTOHIT*LDMG 
+
+GDPRS: PAPRd(ATKTOHIT*PDMG) + ATKTOHIT*HDMG  + ATKTOHIT*SDMG+ ATKTOHIT*LDMG
+
+GDPRSB: PAPRd(ATKTOHITB*PDMG) + ATKTOHITB*HDMG  + ATKTOHIT*SDMG+ ATKTOHITB*LDMG
+
+GDPRB: PAPRd(ATKTOHITB*PDMG) + ATKTOHITB*HDMG + ATKTOHITB*LDMG
+
+function: dmg A B {
+  result: [contest PATH vs EATH then A or B]
+}
+
+output [dmg GDPRPB GDPRB] named "group prone blessed dpr"
+output GDPRSB named "group sw BLESS"
+output GDPRS named "group sw"
+output [dmg GDPRP GDPR] named "group prone dpr"
+output GDPRB named "group dpr blessed"
+output GDPR named "group dpr"
+
+
+\
+output ATKROLL >= AC named "roll on AC"
+output ATKROLLB >= AC named "bless on AC"
+output [contest PATH vs EATH then ADVTOHIT or ATKTOHIT] named "contest then advantage"
+output [contest PATH vs EATH then ADVTOHITB or ATKTOHITB] named "contest then advantage + bless"
+
+
+output ADVROLL >= AC named "advantage on AC"
+output ADVROLLB >= AC named "advantage + bless on AC"
+\

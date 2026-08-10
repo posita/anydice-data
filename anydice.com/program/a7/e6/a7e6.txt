@@ -1,0 +1,32 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACKMOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {  result: CRITICALDAMAGE }
+ if ATTACKRESULT = HIT {  result: HITDAMAGE }
+ result: MISSDAMAGE
+}
+
+function: roundof NUMBEROFATTACKS:n attacks with ATTACKMOD:n bonus and DMGDICE:s and dmgmod DAMAGEMOD:n {
+HITDAMAGE: DMGDICE + DAMAGEMOD
+CRITICALDAMAGE: (DMGDICE)*2 + DAMAGEMOD
+if NUMBEROFATTACKS = 1 { result: [damage for [attack d20 vs AC]] }
+if NUMBEROFATTACKS = 2 { result: [damage for [attack d20 vs AC]] + [damage for [attack d20 vs AC]] }
+result: MISSDAMAGE
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+AC: 15
+
+output [roundof 2 attacks with +8 bonus and d10+d6 and dmgmod 5] named "Ethiron"
+output [roundof 2 attacks with +8 bonus and 2d6+d4 and dmgmod 2+2] named "Ragnar"
+output [roundof 1 attacks with +9 bonus and 4d6 and dmgmod 3] named "Wilvon"
+output [roundof 1 attacks with +20 bonus and 8d6 and dmgmod 5] named "Rhogar"
+output [roundof 2 attacks with +8 bonus and d10+d6 and dmgmod 5] + [roundof 2 attacks with +5 bonus and 2d6+d4 and dmgmod 3] + [roundof 1 attacks with +6 bonus and 4d6 and dmgmod 3] + [roundof 1 attacks with +8 bonus and 2d10 and dmgmod 5] named "total"

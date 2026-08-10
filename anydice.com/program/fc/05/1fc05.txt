@@ -1,0 +1,192 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+
+function: save ROLL:n plus BONUS:n vs DC:n for DMG:d save SAVE:d {
+    if ROLL + BONUS >= DC{
+        result: DMG
+    }
+    result:SAVE
+}
+
+function: turn ROLL:n vs CHANCE:n for ATTACK_YES:d vs ATTACK_NO:d {
+    if ROLL > CHANCE{
+          result: ATTACK_NO
+    }
+    result: ATTACK_YES
+}  
+
+TARGET: d{13..20}
+
+HASTETURN: [multiattack [highest 1 of 2d20] plus 5 vs TARGET
+    hit  2d6 + 16 + [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+         hit 2d6 + 16 + [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+             hit 2d6 + 16 + [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 4d6 + 1d8 on 20]
+             miss [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+             crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+         miss [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+             hit 2d6 + 16 + [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+             miss [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+             crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+
+         crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+
+                                                                                            
+    miss [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+         hit 2d6 + 16 + [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+             hit 2d6 + 16 + [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+             miss [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+             crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+         miss [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+             hit 2d6 + 16 + [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+             miss [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+             crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+
+         crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+
+    crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20 
+] 
+
+
+
+REGTURN: [multiattack [highest 1 of 2d20] plus 5 vs TARGET
+    hit  2d6 + 16 + [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+         hit 2d6 + 16 + [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+
+         miss [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+
+         crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+
+                                                                                           
+    miss [multiattack [highest 1 of 2d20] plus 5 vs TARGET 
+         hit 2d6 + 16 + [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+
+         miss [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+
+         crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20]
+
+
+    crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20 
+]
+
+FIRSTTURN: [multiattack [highest 1 of 2d20] plus 5 vs TARGET
+    hit  2d6 + 16 + [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+                                                                                            
+    miss [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d8 + 4 crit 1d8 + 4d6 on 20]
+
+    crit 8d6 + 16 + [attack [highest 1 of 2d20] plus 5 vs TARGET for 2d6 + 16 crit 2d6 on 20] on 20 
+]
+
+TWOOBJECT: [attack [highest 1 of 2d20] plus 8 vs TARGET for 1d4 + 4 crit 1d4 on 20] + [attack d20 plus 8 vs TARGET for 1d4 + 4 crit 1d4 on 20]
+
+EIGHTOBJECT: TWOOBJECT + TWOOBJECT + TWOOBJECT + TWOOBJECT + TWOOBJECT
+
+AXETURN: [attack [highest 1 of 2d20] plus 10 vs TARGET for 1d12 + 6 crit 1d12 on 20] + [attack [highest 1 of 2d20] plus 10 vs TARGET for 1d12 + 6 crit 1d12 on 20]
+
+ROGUETURN: [attack [highest 1 of 3d20] plus 9 vs TARGET for 3d8 + 5 + 4d6 crit 3d8 + 4d6 on 20] 
+
+BARRAGETURN: FIRSTTURN + [save d20 plus 3 vs 17 for 3d8 save 3d8/2] * 4
+
+PALADINTURN: [turn d10 vs 5 for [attack [highest 1 of 2d20] plus 9 vs TARGET for 2d6 + 15 crit 2d6 + 4d8 on 20] vs [attack d20 plus 9 vs TARGET for 2d6 + 15 crit 2d6 + 4d8 on 20]]
+           + [turn d10 vs 5 for [attack [highest 1 of 2d20] plus 9 vs TARGET for 2d6 + 15 crit 2d6 + 4d8 on 20] vs [attack d20 plus 9 vs TARGET for 2d6 + 15 crit 2d6 + 4d8 on 20]]
+           + [turn d10 vs 5 for [attack [highest 1 of 2d20] plus 9 vs TARGET for 1d4 + 15 crit 1d4 + 4d8 on 20] vs [attack d20 plus 9 vs TARGET for 1d4 + 15 crit 1d4 + 4d8 on 20]]
+
+
+output ROGUETURN named "one turn of rogue with booming/shadow blade"
+
+output AXETURN named "one turn with the axe"
+
+output EIGHTOBJECT named "one turn with 8 tiny animate objects"
+
+output REGTURN named "one battlesmith turn attacking normally" 
+
+output PALADINTURN named "one PAM/GWM paladin turn"
+
+output HASTETURN named "hasted battlesmith" 
+
+output BARRAGETURN named "hated battlesmith casting conjure barrage on 4 targets"
+
+output ROGUETURN + ROGUETURN named "2 turn rogue"
+
+output REGTURN + REGTURN named "2 turn regular"
+
+output FIRSTTURN + HASTETURN named "2 turn haste"
+
+output EIGHTOBJECT + EIGHTOBJECT + AXETURN named "2 turn bard"
+
+output ROGUETURN + ROGUETURN + ROGUETURN named "3 turn rogue"
+
+output REGTURN + REGTURN + REGTURN named "3 turn regular"
+
+output FIRSTTURN + HASTETURN + HASTETURN named "3 turn haste"
+
+output EIGHTOBJECT + EIGHTOBJECT + AXETURN + EIGHTOBJECT + AXETURN named "3 turn bard"
+
+output ROGUETURN + ROGUETURN + ROGUETURN + ROGUETURN named "4 turn rogue"
+
+output REGTURN + REGTURN + REGTURN + REGTURN named "4 turn regular"
+
+output FIRSTTURN + HASTETURN + HASTETURN + HASTETURN named "4 turn haste"
+
+output EIGHTOBJECT + EIGHTOBJECT + AXETURN + EIGHTOBJECT + AXETURN + EIGHTOBJECT + AXETURN named "4 turn bard"
+
+
+output ROGUETURN + ROGUETURN + ROGUETURN + ROGUETURN + ROGUETURN named "5 turn rogue"
+
+output REGTURN + REGTURN + REGTURN + REGTURN + REGTURN named "5 turn regular"
+
+output FIRSTTURN + HASTETURN + HASTETURN + HASTETURN + HASTETURN named "5 turn haste"
+
+output EIGHTOBJECT + EIGHTOBJECT + AXETURN + EIGHTOBJECT + AXETURN + EIGHTOBJECT + AXETURN + EIGHTOBJECT + AXETURN named "5 turn bard"
+
+
+
+

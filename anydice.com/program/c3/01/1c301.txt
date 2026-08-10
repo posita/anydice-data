@@ -1,0 +1,55 @@
+
+function: ROLL:n vs AC:n with HITBON:n at DAMAGEROLL:n and DAMAGEBON crit CRITDAMAGEROLL:n autocrit AUTOCRIT:n {
+  if ROLL = 20 {
+    result: [critical CRITDAMAGEROLL DAMAGEBON]
+  } if ROLL + HITBON >= AC {
+    if AUTOCRIT {
+      result: [critical CRITDAMAGEROLL DAMAGEBON]
+    }
+    result: DAMAGEROLL + DAMAGEBON
+  }
+  result: 0
+}
+
+function: critical CRITDAMAGEROLL:n DAMAGEBON:n{
+  result: CRITDAMAGEROLL + DAMAGEBON
+}
+
+OPPAC: d{14..20}
+OPPWISDOM: d{0..5}
+OPPCON: d{0..5}
+
+function: spiritualweapon BLESS:n ADVANTAGE:n AUTOCRIT:n{
+  if BLESS > 0 {
+    if ADVANTAGE > 0 {
+       result: [[highest 1 of 2d20] + 1d4 vs OPPAC with 7 at d8 and 5 crit 2d8 autocrit AUTOCRIT]
+    }
+    result: [[highest 1 of 1d20] + 1d4 vs OPPAC with 7 at d8 and 5 crit 2d8 autocrit AUTOCRIT]
+  }
+  if ADVANTAGE > 0 {
+    result: [[highest 1 of 2d20] vs OPPAC with 7 at d8 and 5 crit 2d8 autocrit AUTOCRIT]
+  }
+  result: [[highest 1 of 1d20] vs OPPAC with 7 at d8 and 5 crit 2d8 autocrit AUTOCRIT]
+}
+
+function: holdperson ROLL:n WIS:n SAVEDC:n {
+  if ROLL + WIS >= SAVEDC {
+    result: 0
+  }
+  result: 1
+}
+
+function: radianceofdawn ROLL:n CON:n SAVEDC:n {
+  if ROLL + CON >= SAVEDC {
+    result: 2d10+4
+  }
+  result: 2d10+4 / 2
+}
+
+function: radiance then sw then hp then sw WIS:n {
+  HOLD: [holdperson d20 WIS 15]
+
+  result: [spiritualweapon 0 1 HOLD]
+}
+
+output [radiance then sw then hp then sw OPPWISDOM]

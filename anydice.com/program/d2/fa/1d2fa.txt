@@ -1,0 +1,48 @@
+function: test ATTR:n v DIFF:n{
+   DIFDIE: [lowest 1 of DIFFd10]
+   ATTRDIE: [lowest 1 of ATTRd10]
+   DIE: -9
+   CHECK: 0
+   loop X over {1..ATTR} {
+      CHECK: [X@ATTRd10 atmost DIFDIE]
+         DIE: [CHECK atleast DIE]
+   }
+   DIE: [DIE isneg find DIFF under ATTRDIE] 
+   result: DIE
+}
+
+function: A:n atleast B:n {
+if [absolute A] >= [absolute B] {result: A}
+else {result: B}
+}
+
+function: A:n atmost B:n {
+if A < B {result: A}
+if B < A {result: -B}
+else {result: 0}
+}
+
+function: is A:n pos {
+if A > 0 {result: 1}
+else {result: 0}
+}
+
+function: is A:n neg {
+if A < 0 {result: -1}
+else {result: 0}
+}
+
+function: A:n isneg find N:n under B:n {
+   if A < 0 {
+      CHECK: 0
+      DIEVAL: 0
+         loop Y over {1..N} {
+            CHECK: [Y@Nd10 atmost B]
+            DIEVAL: -CHECK
+      }
+   }
+   result: DIEVAL
+}
+
+output [test 4 v 3]
+output 1d10-1d10

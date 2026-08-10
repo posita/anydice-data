@@ -1,0 +1,40 @@
+\VARIABLESm change modifier, ac of opposition and damage dices.\
+HD: 6
+LEVEL: 3
+MODIFIER: 2
+
+HDAVG: (HD/2)+1
+
+\SECRETTRESHOLD: (HD/2)\
+
+function: choose secret DIE:n if ROLL:n is lower then TRESHOLD:n{	
+	if TRESHOLD > ROLL{
+		result: 1dDIE
+	}	
+	result: ROLL
+}
+
+function: LVL:n level up secret DIE:n with MOD:n and SECRETTRESHOLD:n {
+	RSLT: DIE + MOD
+	loop I over {2..LVL}{
+		RSLT: RSLT + [choose secret DIE if 1dDIE is lower then SECRETTRESHOLD] + MOD
+	}
+	result: RSLT
+}
+
+function: LVL:n level up fixed DIE:n with MOD:n {
+	AVG: (DIE/2)+1
+	
+	result: DIE + AVG*(LVL-1) + MOD*LVL
+}
+
+function: LVL:n level up rolling DIE:n with MOD:n {		
+	result: DIE + (LVL-1)dDIE + MOD*LVL
+}
+
+output [LEVEL level up fixed HD with MODIFIER] named "health FIXED"
+output [LEVEL level up rolling HD with MODIFIER] named "health ROLLING"
+
+loop SECRETTRESHOLD over {1..HD}{
+	output [LEVEL level up secret HD with MODIFIER and SECRETTRESHOLD] named "health SECRET, chosen DM when under [SECRETTRESHOLD]"
+}

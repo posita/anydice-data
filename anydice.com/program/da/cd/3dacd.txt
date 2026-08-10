@@ -1,0 +1,83 @@
+function: count past VALUES:n in SEQUENCE:s {
+ COUNT:(VALUES <= SEQUENCE)
+ result: COUNT
+}
+
+function: count below VALUES:n in SEQUENCE:s {
+ COUNT:(VALUES >= SEQUENCE)
+ result: COUNT
+}
+
+function: pool DICESEQ:s threshold THRESH:n crit CRIT:n maxcrit MAX:n bonus BONUS:n stat STAT:n{
+ STAT: STAT/2
+ COUNT: 0
+ CRITCOUNT: [count past CRIT in DICESEQ]
+ if CRITCOUNT = 0 | MAX = 0| THRESH =6{ 
+   COUNT: [count past THRESH in DICESEQ]
+ }else if CRITCOUNT >= MAX{
+   COUNT: [count past THRESH in DICESEQ]
+   COUNT: COUNT + MAX
+ }else{
+   COUNT: [count past THRESH in DICESEQ]
+   COUNT: COUNT + CRITCOUNT
+ }
+if (BONUS >= 0){
+ result: (COUNT + [count past 5 in BONUS d6])
+}else{result: (COUNT - [count past 5 in (BONUS*-1) d6])}
+
+}
+
+function: limit SEQUENCE:s to NUMBER:n {
+ NEWSEQ : {}
+ loop P over {1..#SEQUENCE}{
+  if (P@SEQUENCE > NUMBER){
+  NEWSEQ: {NEWSEQ, NUMBER}
+ }else if (P@SEQUENCE <= -1){
+  NEWSEQ : {NEWSEQ, 0}
+ }else{
+  NEWSEQ : {NEWSEQ, P@SEQUENCE}
+ }
+}
+result: NEWSEQ
+}
+
+function: sspread SEQ:s{
+NEWSEQ: {}
+
+loop P over {1..#SEQ}{
+if P@SEQ < 0 {NEWSEQ : {0, NEWSEQ}}
+else if P@SEQ < 4{NEWSEQ : {P@SEQ,NEWSEQ}}
+else if P@SEQ < 6 {NEWSEQ :{4, NEWSEQ}}
+else{NEWSEQ:{6, NEWSEQ}}
+
+result: NEWSEQ
+}
+}
+\output [pool 5d6 threshold 3 crit 5 maxcrit 3] named "crits, unlimited"\
+\loop X over {0..4}{
+ Y : 6-X
+ output [limit [pool 5d6 threshold Y crit 6 maxcrit 1 bonus 0 anticrit 0] to 5] named "threshold [Y]"
+}\
+
+\loop X over {-2..2}{
+ output [limit [pool 5d6 threshold 4 crit 6 maxcrit 1 bonus X anticrit 0] to 5] named "threshold 4, [X] bonus"
+}\
+
+\loop X over {0..3}{
+ Y : 6-X
+ loop Z over {-2..2}{
+  output [limit [pool 5d6 threshold Y crit 6 maxcrit 1 bonus Z anticrit 0] to 5] named "threshold [Y], [Z] bonus"
+}}\
+
+TEST: 4
+
+output [sspread [pool 4d6 threshold TEST crit 6 maxcrit 1 bonus -1 stat 0]] named "0 stat"
+output [sspread[pool 5d6 threshold TEST crit 6 maxcrit 1 bonus -1 stat 1]] named "1 stat"
+output [sspread [pool 5d6 threshold TEST crit 6 maxcrit 1 bonus 0 stat 2]] named "2 stat"
+output [sspread [pool 5d6 threshold TEST crit 6 maxcrit 1 bonus 1 stat 3]] named "3 stat"
+output [sspread [pool 5d6 threshold TEST crit 6 maxcrit 1 bonus 2 stat 5]] named "5 stat"
+
+
+
+
+\output [count past 2 in 5d6] named "no crits"\

@@ -1,0 +1,52 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+
+
+
+
+function: attacknocrit DICE:n MOD:n vs AC:n{
+
+if DICE+MOD >= AC{
+result: HIT
+}
+else{
+result: MISS
+}
+}
+
+function: attackwithcrit DICE:n MOD:n vs AC:n{
+if DICE = 20{
+result: CRITICALHIT
+}
+if DICE+MOD >= AC{
+result: HIT
+}
+else{
+result: MISS
+}
+}
+
+function: rolldamage STATUS:n {
+if STATUS=MISS{result:0}
+if STATUS=HIT{result: d10}
+if STATUS=CRITICALHIT{result: 2d10}
+}
+function: rollexplodedamage STATUS:n {
+
+if STATUS=MISS{result:0}
+if STATUS=HIT{result: d[explode d10]}
+if STATUS=CRITICALHIT{result: 2d[explode d10]}
+}
+
+MOD: 5
+AC: 15
+
+output [rolldamage [attacknocrit d20 MOD vs AC]] named "d10_nocrit_noexplode"
+output [rollexplodedamage [attacknocrit d20 MOD vs AC]] named "d10_nocrit_explode"
+output [rolldamage [attackwithcrit d20 MOD vs AC]] named "d10_crit_noexplode"
+output [rollexplodedamage [attackwithcrit d20 MOD vs AC]] named "d10_crit_explode"
+
+

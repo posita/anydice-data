@@ -1,0 +1,51 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: sum for RESULT:n {
+  TOTAL: TOTAL + RESULT
+  result: TOTAL
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+ZOMAMOUNT: 150
+BONUS_PALADIN: 5
+NECROWIZPB: 6
+AC: 21
+ATTACK:3
+HITDAMAGE: d6 + 1 + BONUS_PALADIN + NECROWIZPB
+CRITICALDAMAGE: d6 + 7 + BONUS_PALADIN + NECROWIZPB
+MISSDAMAGE: 0
+TOTAL:0
+ZOMBIEATK: ZOMAMOUNT d [damage for [attack d20 vs AC]]
+ZOMBIEADV: ZOMAMOUNT d [damage for [attack [highest 1 of 2d20] vs AC]]
+
+output ZOMBIEATK named "[ZOMAMOUNT] zombies"
+output ZOMBIEADV named "[ZOMAMOUNT] advantage zombies"
+\ output [damage for [attack d20 vs AC]] named "zombie" \
+\ output [damage for [attack [highest 1 of 2d20] vs AC]] named "zombie adv" \
+
+output 1d20 +1 + BONUS_PALADIN named "str save"
+output 1d20 -4 + BONUS_PALADIN named "int save"
+output 1d20 -2 + BONUS_PALADIN named "dex save"
+output 1d20 +3 + BONUS_PALADIN named "con save"
+output 1d20 -3 + BONUS_PALADIN named "char save"
+output 1d20 -2 + BONUS_PALADIN named "wis save"

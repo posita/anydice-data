@@ -1,0 +1,23 @@
+set "maximum function depth" to 8
+
+function: wild check WILD:n with KEPT:n of DICE:s {
+  if WILD > {KEPT}@DICE {
+    result: WILD + {1..KEPT-1}@DICE
+  } else {
+    result: {1..KEPT}@DICE
+  }
+}
+
+function: wild roll COUNT:n die VALUE:n keeping KEPT:n {
+  WILD: [explode d VALUE]
+  OTHER: COUNT d VALUE
+  result: [wild check WILD with KEPT of OTHER]
+}
+
+\ and because I'm only working d6 here \
+function: wild COUNT:n keeping KEPT:n {
+  result: [wild roll COUNT die 6 keeping KEPT]
+}
+
+output [wild 4 keeping 4] named "4 keep 4"
+output [wild 6 keeping 3] named "6 keep 3"

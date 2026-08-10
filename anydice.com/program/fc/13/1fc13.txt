@@ -1,0 +1,39 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE }
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: spiritualattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SPCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SPDAMAGE }
+ result: 0
+}
+
+function: reroll D:d under N:n{
+   result: [rerollcore D die D under N]
+}
+
+function: rerollcore R:n die D:d under N:n{
+   if R < N { result: D } else {result: R}
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 1
+MATTACKTIMES: 2
+DAMAGE: 2d[reroll 1d6 under 2] + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d[reroll 1d6 under 2] + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Haru Bat"
+
+output 3d4+3 named "Magic Missle 1"

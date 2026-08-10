@@ -1,0 +1,25 @@
+function: search R:s at P:n from S:n {
+ \ test sum if value at current roll position is added \
+ T: S + P@R
+ 
+ \ exact match \
+ if T = 13 { result: 1 }
+
+ \ no match in entire roll via this route \
+ if P >= #R { result: 0 }
+ 
+ \ test sum too small \
+ if T < 13 {
+  
+  \ recursive search with test sum from next position \
+  C: [search R at P + 1 from T]
+  
+  \ recursive search found exact match \
+  if C { result: C }
+ }
+ 
+ \ alternative recursive search skipping current position \
+ result: [search R at P + 1 from S]
+}
+
+output [search 5d12 at 1 from 0]

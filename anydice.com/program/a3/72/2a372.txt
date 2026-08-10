@@ -1,0 +1,110 @@
+\ The function section, checking for crit hits/misses and normal hits, then calculates damage for given attack \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack 1d20 vs DEFENSE]]
+}
+
+\ set min & max AC range here \
+MINAC: 14
+MAXAC: MINAC
+DEFENSE: d{MINAC..MAXAC}
+POWER_HIT: -5
+POWER_DMG: 10
+PROF: 3
+STAT: 4
+ATTACK: PROF + STAT
+MISSDAMAGE: 0
+
+\ Precision attack, only added when NOT a Rune Knight based on assumption of battlemaster. \
+\ Could also be replaced with lower value to represent bless \
+PRECISION: 0 \ note: due to function BS, needs to be a set value instead of a range, went with just below average for battlemaster to show when its used \
+
+
+\ GWM MAUL, 1 ASI \
+ATTACK: PROF+STAT+POWER_HIT+PRECISION
+HITDAMAGE: 2d6 + STAT + POWER_DMG
+CRITICALDAMAGE: 4d6 + STAT + POWER_DMG
+POWER_MAUL: [attack]
+POWER_MAUL_ADV: [damage for [attack 1@2d20 vs DEFENSE]]
+
+\ Large GWM maul, 1 ASI \
+ATTACK: PROF + STAT + POWER_HIT
+HITDAMAGE: 4d6+STAT+POWER_DMG
+CRITICALDAMAGE: 8d6+STAT+POWER_DMG
+LARGE_MAUL_GWM: [attack]
+LARGE_MAUL_GWM_ADV: [damage for [attack 1@2d20 vs DEFENSE]]
+
+\ PAM & GWM, 0 ASI \
+STAT: 5
+ATTACK: PROF+STAT+POWER_HIT+PRECISION
+
+HITDAMAGE: 1d10+STAT+POWER_DMG
+CRITICALDAMAGE: 2d10+STAT+POWER_DMG
+POWER_GLAIVE: [attack]
+POWER_GLAIVE_ADV: [damage for [attack 1@2d20 vs DEFENSE]]
+HITDAMAGE: 1d4+STAT+POWER_DMG
+CRITICALDAMAGE: 2d4+STAT+POWER_DMG
+POWER_BLUNT: [attack]
+POWER_BLUNT_ADV: [damage for [attack 1@2d20 vs DEFENSE]]
+
+\ Straight Large weapons, no Feats \
+STAT: 5
+ATTACK: PROF + STAT
+
+HITDAMAGE: 2d6 + STAT
+CRITICALDAMAGE: 4d6+STAT
+MAUL: [attack]
+MAUL_ADV: [damage for [attack 1@2d20 vs DEFENSE]]
+
+HITDAMAGE: 4d6+STAT
+CRITICALDAMAGE: 8d6+STAT
+LARGE_MAUL: [attack]
+LARGE_MAUL_ADV: [damage for [attack 1@2d20 vs DEFENSE]]
+LARGE_MAUL_DIS: [damage for [attack 2@2d20 vs DEFENSE]]
+
+
+HITDAMAGE: 6d6+STAT
+CRITICALDAMAGE: 12d6+STAT
+HUGE_MAUL: [attack]
+HUGE_MAUL_ADV: [damage for [attack 1@2d20 vs DEFENSE]]
+
+HITDAMAGE: 1d10+STAT
+CRITICALDAMAGE: 2d10+STAT
+GLAIVE: [attack]
+HITDAMAGE: 1d4+STAT
+CRITICALDAMAGE: 2d4+STAT
+BLUNT: [attack]
+
+NUM_ATTACKS: 2
+
+\ Where we print out each of the attacks we put together up top. specifically so we can include the bonus action PAM attack \
+output NUM_ATTACKSdMAUL named "base"
+output NUM_ATTACKSdPOWER_MAUL named "GWM"
+output NUM_ATTACKSdPOWER_GLAIVE + POWER_BLUNT named "PAM & GWM"
+output NUM_ATTACKSdLARGE_MAUL named "large!"
+output NUM_ATTACKSdGLAIVE + BLUNT named "PAM"
+\ output NUM_ATTACKSdLARGE_MAUL_GWM named "large GWM!"
+output NUM_ATTACKSdLARGE_MAUL_DIS named "large! w/Disadv"
+output NUM_ATTACKSdPOWER_MAUL_ADV named "GWM adv"
+output NUM_ATTACKSdPOWER_GLAIVE_ADV + POWER_BLUNT_ADV named "PAM & GWM adv"
+output NUM_ATTACKSdHUGE_MAUL named "huge!"
+output NUM_ATTACKSdHUGE_MAUL_ADV named "huge adv!"
+\

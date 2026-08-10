@@ -1,0 +1,217 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+\------CREATURE------------------------\
+MOBAC: 15
+
+
+
+\------CHEG---------------------------\
+PROF:    3         \Level 5\
+MOD:     3         \16 Str\
+WPNA:    1         \shortsword +1\
+WPNADIE: 1d6
+WPNB:    0         \dagger\
+WPNBDIE: 1d4
+RAGEDMG: 2
+
+output [
+  attack d20 
+  plus PROF + MOD + WPNA
+  vs MOBAC
+  hit  WPNADIE + MOD + RAGEDMG
+    + 1d6 
+    + 1d6 +
+    [ attack d20 
+      plus PROF + MOD + WPNA 
+      vs MOBAC 
+      for WPNADIE + MOD + RAGEDMG
+      crit 1d6       on 20
+    ]
+  miss [
+    attack d20 
+    plus PROF + MOD + WPNB
+    vs MOBAC 
+    for WPNBDIE + 2d6 + RAGEDMG
+    crit WPNBDIE + WPNBDIE + 4d6 + RAGEDMG on 20]
+  crit 2d6 + 5 + 10d6 + 
+    [
+      attack d20 
+      plus PROF + MOD + WPNB
+      vs MOBAC 
+      for WPNBDIE + WPNB + RAGEDMG
+      crit WPNBDIE + WPNBDIE + WPNB + RAGEDMG on 20] on 20
+] named "Cheg 2wpn"
+
+
+output [
+  attack [highest 1 of 2d20] 
+  plus PROF + MOD + WPNA
+  vs MOBAC
+  hit  WPNADIE + MOD + RAGEDMG
+    + 1d6 
+    + 1d6 +
+    [ attack d20 
+      plus PROF + MOD + WPNA 
+      vs MOBAC 
+      for WPNADIE + MOD + RAGEDMG
+      crit 1d6       on 20
+    ]
+  miss [
+    attack d20 
+    plus PROF + MOD + WPNB
+    vs MOBAC 
+    for WPNBDIE + 2d6 + RAGEDMG
+    crit WPNBDIE + WPNBDIE + 4d6 + RAGEDMG on 20]
+  crit 2d6 + 5 + 10d6 + 
+    [
+      attack d20 
+      plus PROF + MOD + WPNB
+      vs MOBAC 
+      for WPNBDIE + WPNB + RAGEDMG
+      crit WPNBDIE + WPNBDIE + WPNB + RAGEDMG on 20] on 20
+] named "Cheg 2wpn ADV"
+
+
+output [
+  attack d20
+  plus PROF + MOD + WPNA +1d4
+  vs MOBAC
+  hit  WPNADIE + MOD + RAGEDMG
+    + 1d6 
+    + 1d6 +
+    [ attack d20 
+      plus PROF + MOD + WPNA +1d4
+      vs MOBAC 
+      for WPNADIE + MOD + RAGEDMG
+      crit 1d6       on 20
+    ]
+  miss [
+    attack d20 
+    plus PROF + MOD + WPNB + 1d4
+    vs MOBAC 
+    for WPNBDIE + 2d6 + RAGEDMG
+    crit WPNBDIE + WPNBDIE + 4d6 + RAGEDMG on 20]
+  crit 2d6 + 5 + 10d6 + 
+    [
+      attack d20 
+      plus PROF + MOD + WPNB +1d4
+      vs MOBAC 
+      for WPNBDIE + WPNB + RAGEDMG
+      crit WPNBDIE + WPNBDIE + WPNB + RAGEDMG on 20] on 20
+] named "Cheg 2wpn Bless"
+
+
+output [
+  attack [highest 1 of 2d20] 
+  plus PROF + MOD + WPNA +1d4
+  vs MOBAC
+  hit  WPNADIE + MOD + RAGEDMG
+    + 1d6 
+    + 1d6 +
+    [ attack d20 
+      plus PROF + MOD + WPNA +1d4
+      vs MOBAC 
+      for WPNADIE + MOD + RAGEDMG
+      crit 1d6       on 20
+    ]
+  miss [
+    attack d20 
+    plus PROF + MOD + WPNB + 1d4
+    vs MOBAC 
+    for WPNBDIE + 2d6 + RAGEDMG
+    crit WPNBDIE + WPNBDIE + 4d6 + RAGEDMG on 20]
+  crit 2d6 + 5 + 10d6 + 
+    [
+      attack d20 
+      plus PROF + MOD + WPNB +1d4
+      vs MOBAC 
+      for WPNBDIE + WPNB + RAGEDMG
+      crit WPNBDIE + WPNBDIE + WPNB + RAGEDMG on 20] on 20
+] named "Cheg 2wpn Bless ADV"
+
+
+output [
+  attack [highest 1 of 2d20] 
+  plus PROF + MOD + WPNA 
+  vs MOBAC
+  hit  WPNADIE + MOD + RAGEDMG
+    + 1d6 
+    + 1d6 +
+    [ attack [highest 1 of 2d20]
+      plus PROF + MOD + WPNA 
+      vs MOBAC 
+      for WPNADIE + MOD + RAGEDMG
+      crit 1d6       on 20
+    ]
+  miss [
+    attack [highest 1 of 2d20]
+    plus PROF + MOD + WPNB 
+    vs MOBAC 
+    for WPNBDIE + 2d6 + RAGEDMG
+    crit WPNBDIE + WPNBDIE + 4d6 + RAGEDMG on 20]
+  crit 2d6 + 5 + 10d6 + 
+    [
+      attack [highest 1 of 2d20]
+      plus PROF + MOD + WPNB 
+      vs MOBAC 
+      for WPNBDIE + WPNB + RAGEDMG
+      crit WPNBDIE + WPNBDIE + WPNB + RAGEDMG on 20] on 20
+] named "Cheg 2wpn Reckless"
+
+
+
+output [
+  attack [highest 1 of 2d20] 
+  plus PROF + MOD + WPNA +1d4
+  vs MOBAC
+  hit  WPNADIE + MOD + RAGEDMG
+    + 1d6 
+    + 1d6 +
+    [ attack [highest 1 of 2d20]
+      plus PROF + MOD + WPNA +1d4
+      vs MOBAC 
+      for WPNADIE + MOD + RAGEDMG
+      crit 1d6       on 20
+    ]
+  miss [
+    attack [highest 1 of 2d20]
+    plus PROF + MOD + WPNB + 1d4
+    vs MOBAC 
+    for WPNBDIE + 2d6 + RAGEDMG
+    crit WPNBDIE + WPNBDIE + 4d6 + RAGEDMG on 20]
+  crit 2d6 + 5 + 10d6 + 
+    [
+      attack [highest 1 of 2d20]
+      plus PROF + MOD + WPNB +1d4
+      vs MOBAC 
+      for WPNBDIE + WPNB + RAGEDMG
+      crit WPNBDIE + WPNBDIE + WPNB + RAGEDMG on 20] on 20
+] named "Cheg 2wpn Reckless Bless"
+
+
+
+

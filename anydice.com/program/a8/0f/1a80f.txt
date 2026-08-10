@@ -1,0 +1,80 @@
+function: check X:n vs Y:n debuff Z:n {
+  if X >= Y { result: 0 }
+  result: Z
+}
+
+LUCY_WILL: 1d20 + 6
+ULRN_WILL: 1d20 + 3
+SEPH_WILL: 1d20 + 3
+KARL_WILL: 1d20 + 11
+AMAL_WILL: 1d20 + 9
+ISAC_WILL: 1d20 + 11
+JORY_WILL: 1d20 + 2
+LUCY_CON: 1d20 + 5
+ULRN_CON: 1d20 + 10
+SEPH_CON: 1d20 + 4
+KARL_CON: 1d20 + -2
+AMAL_CON: 1d20 + 5
+ISAC_CON: 1d20 + 3
+JORY_CON: 1d20 + 0
+
+LUCY_MELEE:  1d20 + 4 + [check LUCY_WILL vs 15 debuff -2]
+LUCY_DEFEND: 1d20 + 6 + [check LUCY_WILL vs 15 debuff -2]
+
+function: ulrenextra X:n {
+  if X >= 13 { result: 1d7 }
+  result: 0
+}
+ULRN_MELEE:  1d20 + 15 + [check ULRN_WILL vs 15 debuff -2] + [check ULRN_CON vs 12 debuff -2]
+ULRN_EXTRA:  [ulrenextra ULRN_MELEE]
+ULRN_DEFEND: 1d20 + 17 + [check ULRN_WILL vs 15 debuff -2] + [check ULRN_CON vs 12 debuff -2]
+
+SEPH_MELEE:  1d20 + 10 + [check SEPH_WILL vs 15 debuff -2] + [check SEPH_CON vs 12 debuff -2]
+SEPH_DEFEND: 1d20 + 8  + [check SEPH_WILL vs 15 debuff -2] + [check SEPH_CON vs 12 debuff -2]
+
+KARL_ARCANE: 1d20 + 14 + [check KARL_WILL vs 15 debuff -2] + [check KARL_CON vs 12 debuff -2]
+KARL_DEFEND: 1d20 + 1  + [check KARL_WILL vs 15 debuff -2] + [check KARL_CON vs 12 debuff -2]
+
+AMAL_RANGED: 1d20 + 7 + [check AMAL_WILL vs 15 debuff -2]
+AMAL_DEFEND: 1d20 + 3 + [check AMAL_WILL vs 15 debuff -2]
+
+
+OFFENSE: LUCY_MELEE + ULRN_MELEE + ULRN_EXTRA + SEPH_MELEE + KARL_ARCANE / 2 + AMAL_RANGED
+DEFENSE: LUCY_DEFEND+ ULRN_DEFEND + SEPH_DEFEND + KARL_ARCANE + AMAL_DEFEND/2
+
+output OFFENSE>= 80 named "Offense"
+output DEFENSE>= 90 named "Defense"
+output OFFENSE>= 80 & DEFENSE >=90 named "Both"
+
+output ULRN_MELEE + ULRN_EXTRA + SEPH_MELEE + KARL_ARCANE / 2 + AMAL_RANGED >= 80 &
+       ULRN_DEFEND + SEPH_DEFEND + KARL_ARCANE + AMAL_DEFEND/2 >= 90 named "Fight w/o Lucy"
+
+function: horse X:n and Y:n {
+  if X >= 18 { result: 3 }
+  if X >= 11 { result: 2 }
+  if X < 11 & Y >= 11 {
+    result: 1
+  }
+  result: 0
+}
+ISACSTR: 1d20 + 1 + [check ISAC_WILL vs 15 debuff -2]
+ISACCON: 1d20 + 3 +[check ISAC_WILL vs 15 debuff -2]
+output [horse ISACSTR and ISACCON] named "Issac Horse Success"
+
+function: horsecha X:n and Y:n {
+  if X >= 23 { result: 3 }
+  if X >= 14 { result: 2 }
+  if X < 14 & Y >= 11 {
+    result: 1
+  }
+  result: 0
+}
+
+LSTR: 1d20 - 1  + [check LUCY_WILL vs 15 debuff -2]
+LCON: 1d20 + 5  + [check LUCY_WILL vs 15 debuff -2]
+LCHA: 1d20 + 10 + [check LUCY_WILL vs 15 debuff -2]
+output [horse LSTR and LCON] named "Lucy STR Horse"
+output [horsecha LCHA and LCON] named "Lucy CHA Horse"
+
+output [highest of [horsecha LCHA and LCON] and [horse ISACSTR and ISACCON]] named "Combo Horse"
+

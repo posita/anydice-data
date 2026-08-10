@@ -1,0 +1,37 @@
+function: count_matches(NUM: die, TARGETS: list) {
+  MATCHES: 0
+  loop I over {2, 3, 5} {
+    if I in TARGETS { MATCHES: MATCHES + (NUM = I) }
+  }
+  result: MATCHES
+}
+
+function: critical_success(NUM: die, TARGETS: list) {
+  if count_matches(NUM, TARGETS) < 2 { result: 0 }
+  if NUM@1 = NUM@2 & NUM@1 in TARGETS { result: 1 }
+  if NUM@1 = NUM@3 & NUM@1 in TARGETS { result: 1 }
+  if NUM@1 = NUM@4 & NUM@1 in TARGETS { result: 1 }
+  if NUM@2 = NUM@3 & NUM@2 in TARGETS { result: 1 }
+  if NUM@2 = NUM@4 & NUM@2 in TARGETS { result: 1 }
+  if NUM@3 = NUM@4 & NUM@3 in TARGETS { result: 1 }
+  result: 0
+}
+
+function: partial_success(NUM: die, TARGETS: list) {
+  if count_matches(NUM, TARGETS) = 1 { result: 1 }
+  result: 0
+}
+
+function: success(NUM: die, TARGETS: list) {
+  if count_matches(NUM, TARGETS) = 2 { result: 1 }
+  result: 0
+}
+
+function: failure(NUM: die, TARGETS: list) {
+  if count_matches(NUM, TARGETS) = 0 { result: 1 }
+  result: 0
+}
+
+TARGETS: {2, 3, 5}
+
+output [failure d6, partial_success d6, success d6, critical_success d6, failure d6 + partial_success d6 + success d6 + critical_success d6] named "Results of rolling 1d6"

@@ -1,0 +1,30 @@
+\ Structure damage and overheating use identical checks, so this code will work for both. \
+\ This took a fuckload of work - I learned a fair bit about AnyDice making this work.     \
+\ Initially tried plagiarising the Blades in the Dark program, but that didn't pan out.   \
+\ Eventually cracked it by editing code taken directly from AnyDice documentation.        \
+
+GLANCING: 10 \ Lowest value = 5 or 6 \\ Glancing Hit  \
+POWERFUL: 25 \ Lowest value = 3 or 4 \\ Powerful Hit  \
+DISMEMBR: 50 \ Lowest value = 2      \\ Dismemberment \ 
+DIRECTHT: 75 \ Lowest value = 1      \\ Direct Hit    \
+FATALHIT: 90 \ Multiple 1's rolled   \\ Fatal Hit     \
+
+\ Final code produced by BlueMonday1984, heavily based on code by Jasper Flick. \
+function: stresstest DICE:s
+{
+ VALUES: 1
+ COUNT: 0
+ loop P over {1..#VALUES}
+ { COUNT: COUNT + (P@VALUES = DICE) }
+ if COUNT >= 2 { result: FATALHIT }
+ else
+ {
+       if {(#DICE - VALUES + 1)..#DICE}@DICE = 1  { result: DIRECTHT }
+  else if {(#DICE - VALUES + 1)..#DICE}@DICE = 2  { result: DISMEMBR }
+  else if {(#DICE - VALUES + 1)..#DICE}@DICE >= 5 { result: GLANCING }
+  else {result: POWERFUL }
+ }
+}
+
+loop DAMAGE over {1..6} \ Players won't roll more than 3d under most circumstances, so going to 6d was purely for kicks \
+{ output [stresstest DAMAGEd6] named "[DAMAGE] stress/structure damage" }

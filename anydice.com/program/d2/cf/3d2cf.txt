@@ -1,0 +1,144 @@
+\HEROES - D6s\
+
+function: limits SEQUENCE:n ZERO:n MIN:n {
+ if (SEQUENCE < ZERO){result: 0}
+ if (SEQUENCE < MIN){result: MIN}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n MIN:n MAX:n {
+ if (SEQUENCE <= MIN){result: 0}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+
+\************************** Highest/Lowest into Target Count ****************************\
+
+\apply highest then target\
+function: highest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLL >= TARGET) }
+ result: COUNT
+}
+\apply lowest then target\
+function: lowest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ ROLLR: [reverse ROLL]
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLLR >= TARGET) }
+ result: COUNT
+}
+
+\apply target then limit the max (highest or lowest doesn't matter)\
+function: count from ROLL:s on TARGET:n keep NUMBER:n {
+ COUNT: ROLL >= TARGET
+ if(COUNT > NUMBER) { COUNT: NUMBER }
+ result: COUNT
+}
+
+
+POOL: 10
+KEEP: 5
+T: 2
+output [count from POOLd6 on T keep KEEP] named "t then h/l"
+output [highest KEEP of POOLd(d6>=T)] named "h then t"
+output [highest KEEP of POOLd6 on T] named "h then t"
+output [lowest  KEEP of POOLd(d6>=T)] named "l then t"
+output [lowest  KEEP of POOLd6 on T] named "l then t"
+output KEEPd(d6>=T)
+
+
+\************************** Comparison Functions *********************************\
+function: compare bodies ATT_B:n with DEF_B:n {
+  if(ATT_B > DEF_B) { result: ATT_B-DEF_B}
+  result: 0
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  result: -1       \VAL_X < VAL_Y\
+}
+
+\************************** Highest/Lowest Switch Function ****************************\
+function: highlow direction KEEP:n DIR_MOD:n T:n {
+ POOL: KEEP+[absolute DIR_MOD]
+ if (DIR_MOD >= 0) {result: [highest KEEP of POOLd(d6>=T)] }
+ else  {result: [lowest KEEP of POOLd(d6>=T)] }
+ result: 0
+}
+
+\************************** Sequence Functions ****************************\
+
+function: phaseone ATT:s DEF:s {                     \find the environment modifiers\
+  SIZE_MODS: [compare bodies 13@ATT with 13@DEF]     \compare the nbr of bodies\
+  VELOCITY_MODS: [compare 12@DEF with 11@ATT]        \compare the velocity for the dodge capacity\
+
+  ATT_DICES: (1@ATT +SIZE_MODS)                      \modifier to Hit-pool\
+  DEF_DICES: (6@DEF +VELOCITY_MODS)                  \modifier to of Save-pool\
+
+  ATT_DIR: 1@ATT-6@DEF                           \find H/L-modifiers for Hit, giving the keep direction\
+  DEF_DIR: 6@DEF-1@ATT                           \find H/L-modifiers for Save, giving the keep direction\
+
+  ATT_NEWTARGET: 2@ATT+5@ATT                         \apply target-modifiers for Hit\
+  DEF_NEWTARGET: 7@ATT+10@ATT                        \apply target-modifiers for Save\
+
+  ATT_SUCCESSES: [highlow direction ATT_DICES ATT_DIR ATT_NEWTARGET]     \find Hit-Successes\
+  DEF_SUCCESSES: [highlow direction DEF_DICES DEF_DIR DEF_NEWTARGET]     \find Save-Successes\
+
+  ATT_FINAL: ATT_SUCCESSES + (4@ATT)        \find bonus successes from value-modifiers to hit roll\
+  DEF_FINAL: DEF_SUCCESSES + (9@DEF)        \find bonus successes from value-modifiers to save roll\
+
+
+  \freeze the hits-dices & saves-dices sequences\
+  result: (ATT_FINAL > DEF_FINAL) \[phasetwo ATT_DICES DEF_DICES ATT DEF]\
+}
+
+function: phasetwo ATT_POOL:n DEF_POOL:n  ATT:s DEF:s {       \Analysis of the rolls\
+  result: (ATT_FINAL > DEF_FINAL)
+}
+
+
+
+\************************************************************************\
+\PD, ATT_TARGET, A_DICES_MODS, A_VALUES_MODS, A_TARGET_MODS, RD, DEF_TARGET, D_DICES_MODS, D_VALUES_MODS, D_TARGET_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {4,5,  0,0,0,   3,6,  0,0,0,   5, 5, 1}      \Mono, No Armor, Nurgling, Grind Teeth\
+B: {8,2,  0,0,0,   3,3,  0,0,0,   30, 9, 1}       \Mono, Light Armor, Sniper, Knife\
+C: {8,3,  0,0,0,   11,5,  0,0,0,   80, 4, 4}     \Multi, Light Armor, Swords Squad, Swords\
+D: {10,4,  0,0,0,   8,5,  0,0,0,   90, 5, 4}     \Multi, Heavy Armor, Shotguns, HandPunchs\
+E: {12,5,  0,0,0,   3,4,  0,0,0,   80, 9, 1}      \Mono, Tank, Wooden Bow, TankFront\
+F: {16,3,  0,0,0,   16,3,  0,0,0,   50, 3, 1}      \Mono, Titan, DoomLaser, EarthBreaker\
+\************************************************************************\
+\
+output [phaseone A A] named "lone Nurgling VS lone Nurgling"
+output [phaseone A B] named "lone Nurgling VS lone Sniper"
+output [phaseone A C] named "lone Nurgling VS Swords Squad"
+output [phaseone A D] named "lone Nurgling VS Heavy Squad"
+output [phaseone A E] named "lone Nurgling VS Tank"
+output [phaseone A F] named "lone Nurgling VS Titan"
+
+output [phaseone F F] named "Titan VS Titan"
+output [phaseone F E] named "Titan VS Tank"
+output [phaseone F D] named "Titan VS Heavy Squad"
+output [phaseone F C] named "Titan VS Swords Squad"
+output [phaseone F B] named "Titan VS lone Sniper"
+output [phaseone F A] named "Titan VS lone Nurgling"
+\
+
+\output [phaseone A A] named "lone Nurgling VS lone Nurgling"
+output [lowest 4 of 5d(d6>=4)] > [lowest 4 of 4d(d6>=4)]
+\
+
+SUM: 2d6
+POOL: 9
+KEEP: 8
+
+\loop T over {2..6}{
+output KEEPd(d6>=T)+SUM named "[KEEP]d6 then T on [T]+, without H/L"
+output [highest KEEP of POOLd(d6>=T)]+SUM named "[POOL]d6, H[KEEP] then T on [T]+"
+output [lowest  KEEP of POOLd(d6>=T)]+SUM named "[POOL]d6, L[KEEP] then T on [T]+"
+}\
+
+

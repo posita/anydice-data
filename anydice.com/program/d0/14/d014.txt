@@ -1,0 +1,64 @@
+function: crank harder { result: [crank harder roll d6] }
+function: crank harder roll DIE:n {
+  if DIE > 1 { result: 4d6 }
+  if DIE = 1 { result: [crank harder wound 1d3] }
+  result: 0
+}
+function: crank harder wound DIE:n {
+  result: 2d6 * (3 - DIE) \ the model takes d3 out of 3 wounds \
+}
+
+function: statline ATTACKS HITS WOUNDS DAMAGE {
+  result: (ATTACKS)d[hits on HITS]d[wounds on WOUNDS]*DAMAGE
+}
+function: hits on HITS:n { result: [succeeds on HITS] }
+function: wounds on WOUNDS:n { result: [succeeds on WOUNDS] }
+function: wounds on WOUNDS:n rerollable { result: [succeeds on WOUNDS plus 0 with reroll roll 1d6] }
+function: succeeds on VALUE:n { result: [succeeds on VALUE plus 0] }
+function: succeeds on VALUE:n plus BONUS:n { result: [succeeds on VALUE plus BONUS roll 1d6] }
+function: succeeds on VALUE:n plus BONUS:n roll DIE:n {
+  if DIE = 1 { result: 0 }
+  if DIE + BONUS >= VALUE { result: 1 }
+  result: 0
+}
+function: succeeds on VALUE:n plus BONUS:n with reroll roll DIE:n {
+  if DIE = 1 { result: [succeeds on VALUE plus BONUS roll 1d6] }
+  result: [succeeds on VALUE plus BONUS roll DIE]
+}
+function: shocks on SHOCKS:n hits on VALUE:n plus BONUS:n {
+  result: [shocks on SHOCKS hits on VALUE plus BONUS roll 1d6]
+}
+function: shocks on SHOCKS:n hits on VALUE:n plus BONUS:n roll DIE:n {
+  if DIE = 1 { result: 0 }
+  if DIE + BONUS >= SHOCKS { result: 1d6 }
+  if DIE + BONUS >= VALUE { result: 1 }
+  result: 0
+}
+function: rehits on REHIT:n hits on VALUE:n plus BONUS:n {
+  result: [rehits on REHIT hits on VALUE plus BONUS roll 1d6]
+}
+function: rehits on REHIT:n hits on VALUE:n plus BONUS:n roll DIE:n {
+  if DIE = 1 { result: 0 }
+  if DIE + BONUS >= REHIT { result: 1 + [succeeds on VALUE plus BONUS roll 1d6] }
+  if DIE + BONUS >= VALUE { result: 1 }
+  result: 0
+}
+function: saves on SAVE:n rend REND:n { result: [saves on SAVE rend REND roll 1d6] }
+function: saves on SAVE:n rend REND:n roll DIE:n {
+  if DIE = 1 { result: 1 }
+  if DIE - REND >= SAVE { result: 0 }
+  result: 1
+}
+\ rat ogres \
+\
+output [rehits on 6 hits on 4 plus 4]d[wounds on 3 rerollable]*2 named "rat ogor swing"
+output [wounds on 3 rerollable]*2 named "rat ogor swing"
+output [rehits on 6 hits on 4 plus 4] named "rat ogor swing"
+\
+
+output [crank harder]d[hits on 4]d[wounds on 4] named "Ratling Cannon Crank Harder"
+loop WHIPS over {0,2,4} {
+  output 4d[shocks on 6 hits on 4 plus WHIPS]d[wounds on 3] named "SF w/ Shock Gauntlets  plus [WHIPS]"
+}
+
+output [statline 4 4 3 3] named "SF w/ Grinder Fists"

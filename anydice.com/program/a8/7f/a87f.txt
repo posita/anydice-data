@@ -1,0 +1,43 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{15..20}
+ATTACK: 7
+HITDAMAGE: d6 + 17
+CRITICALDAMAGE: d6 + 40
+MISSDAMAGE: 0
+output [attack] named "Sharpshooter"
+
+ATTACK: 12
+HITDAMAGE: d6 + 7
+CRITICALDAMAGE: d6 + 20
+output [attack] named "Regular Shot"
+
+ATTACK: 12
+HITDAMAGE: d6 + d10 + 7
+CRITICALDAMAGE: 30 + d6 + d10
+output [attack] named "Trip / Disarm"

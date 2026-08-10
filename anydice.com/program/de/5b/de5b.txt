@@ -1,0 +1,40 @@
+function: GROLL:n gwf GREROLL:d reroll SEQUENCE:s{
+  if [SEQUENCE contains GROLL] {
+    result: GREROLL
+  }
+  else {
+    result: GROLL
+  }
+}
+
+DIE_ONE: [d6 gwf d6 reroll {1,2}]
+DIE_TWO: [d6 gwf d6 reroll {1,2}]
+DIE_THREE: [d6 gwf d6 reroll {1,2}]
+DIE_FOUR: [d6 gwf d6 reroll {1,2}]
+
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: DIE_ONE+DIE_TWO + ATTACKMOD + DMGBONUS
+CRITDAMAGE: DIE_ONE+DIE_TWO+DIE_THREE+DIE_FOUR + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Greatsword with Great Weapon Fighting, 2nd-level Divine Smite on critical hit"
+output ATTACKTIMESd[attackroll d20+d4 vs ENEMYAC] named "concentrating on bless spell"
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "advantage"
+output ATTACKTIMESd[attackroll [lowest 1 of 2d20] vs ENEMYAC] named "disadvantage"
+output ATTACKTIMESd[attackroll [highest 1 of 2d20]+d4 vs ENEMYAC] named "advantage, blessed"
+output ATTACKTIMESd[attackroll [lowest 1 of 2d20]+d4 vs ENEMYAC] named "disadvantage, blessed"

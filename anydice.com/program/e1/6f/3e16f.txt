@@ -1,0 +1,105 @@
+\Heroes - simplified\
+
+\**********************************************************************************************\
+
+function: roll ATT:n DEF:n ATT_TAR:n DEF_TAR:n{
+ result: [hit pass ATTd6 DEFd6 ATT_TAR DEF_TAR]
+}
+
+function: hit pass ATT_ROLL:s DEF_ROLL:s ATT_TAR:n DEF_TAR:n{
+ ATT_SUCCESSES: ATT_ROLL>=ATT_TAR
+ DEF_SUCCESSES: DEF_ROLL>=DEF_TAR
+ RES: ATT_SUCCESSES - DEF_SUCCESSES
+ if (RES>0){result: [find best sets ATT_ROLL DEF_ROLL]}
+ result: 0
+}
+
+\********Final Functions to compare Sets of Dices (Optimized at max) **********\
+
+function: find best sets ATT:s DEF:s {
+ ATT_SET: [best subset ATT]
+ DEF_SET: [best subset DEF]
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+function: best subset ROLL:s {       \Validated\
+ SIXES:  ROLL=6                      \test the value on each element of the Sequence parameter : optimized\
+ FIVES:  ROLL=5
+ FOURS:  ROLL=4
+ THREES: ROLL=3
+ TWOS:   ROLL=2
+ ONES:   ROLL=1
+ SUBSETS: {SIXES, FIVES, FOURS, THREES, TWOS, ONES}
+ \VALUES: {6,5,4,3,2,1}\
+
+\compare the sets to find the more numerous one, choosing the higher if equal\
+ \TEMP: 1@SUBSETS
+ RES: 6
+ loop N over {1..5}{                 
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: 6-N
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES\
+
+\?????????????????? \
+ RES: 1@ROLL
+ TEMP: (6-RES+1)@SUBSETS
+ Z: (6-RES+1)
+ loop N over {Z..5}{                 
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: RES-1
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES
+
+
+\compare the sets to find the more numerous one, choosing the higher if equal\
+\SIZE: (1+#ROLL)/2
+ if (SIXES>=SIZE){result: 6} 
+ if (FIVES>=SIZE){result: 5}
+ if (FOURS>=SIZE){result: 4}
+ if (THREES>=SIZE){result: 3}
+ if (TWOS>=SIZE){result: 2}
+ if (ONES>=SIZE){result: 1}
+
+ if (SIXES>0) & (SIXES>=FIVES) & (SIXES>=FOURS) & (SIXES>=THREES) & (SIXES>=TWOS) & (SIXES>=ONES) { result: 6}
+ if (FIVES>0) & (FIVES>=FOURS) & (FIVES>=THREES) & (FIVES>=TWOS) & (FIVES>=ONES) { result: 5}
+ if (FOURS>0) & (FOURS>=THREES) & (FOURS>=TWOS) & (FOURS>=ONES) { result: 4}
+ if (THREES>0) & (THREES>=TWOS) & (THREES>=ONES) { result: 3}
+ if (TWOS>0) & (TWOS>=ONES) { result: 2}
+ if (ONES>0) { result: 1}
+ result: 0\
+}
+
+function: compare sets ATT_SET:n DEF_SET:n {
+ if (ATT_SET<=3) {result: 1}
+ if (ATT_SET<=5) {
+  if (DEF_SET<=3) {result: 3}
+  if (DEF_SET<=5) {result: 2}
+  if (DEF_SET=6) {result: 1}
+ }
+ if (ATT_SET=6) {
+  if (DEF_SET<=3) {result: 4}
+  if (DEF_SET<=5) {result: 3}
+  if (DEF_SET=6) {result: 2}
+ }
+ result: 0
+}
+
+\**********************************************************************************************\
+
+\output 2d(d6>=6) named "if gap too big, need a double 6 to succeed (1 Damage passed or hits fail)"\
+
+loop ATT over {3..15}{
+loop DEF over {3..15}{
+ loop M over {2..6}{
+  loop N over {2..6}{
+   \output [roll ATT DEF M N] named "ATT: [ATT]d, DEF: [DEF]d, AT: [M], DT: [N]"\
+}}}}
+
+output [hit pass 4d6 4d6 4 4]
+\output [roll 4 4 4 4]\
+\output [best subset 2d6]\

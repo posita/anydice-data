@@ -1,0 +1,70 @@
+function: tohit ROLLEDVALUE:n ARMOUR:n DAMAGEDICE:d{
+ if ROLLEDVALUE >= ARMOUR { result: DAMAGEDICE } else { result: 0}
+}
+
+function: reroll FIRSTROLL:n DAMAGEDICE:d TRIGGER:n{
+ if FIRSTROLL <= TRIGGER { result: DAMAGEDICE } else { result: FIRSTROLL}
+}
+
+function: rerolltwohand DICEONE:n DICETWO:n DAMAGEDICE:d TRIGGER:n{
+ TOTAL:0
+ if DICEONE <= TRIGGER { TOTAL: DAMAGEDICE } else { TOTAL: 0}
+ if DICETWO <= TRIGGER { TOTAL: TOTAL + DAMAGEDICE } else { TOTAL: TOTAL + 0}
+}
+
+
+
+function: blunt DICEONE:n DICETWO:n { 
+ if DICEONE = 6 { result: 1 } 
+ else {
+  if DICETWO = 6 { result: 1}
+  else{ 
+   if  DICEONE = 5 { result: 1}
+   else{
+    if DICETWO = 5 { result: 1}
+    else {result: 0 }
+   }
+  }
+  
+ } 
+}
+
+function: macetohit DICEONE:n DICETWO:n MOD:n ARMOUR:n DAMAGEDICE:d {
+ if DICEONE + DICETWO + MOD >= ARMOUR { result: DAMAGEDICE } 
+ else { 
+  if DICEONE + DICETWO = 12 { result: DAMAGEDICE } 
+  else{
+   if [blunt DICEONE DICETWO]{ result: DAMAGEDICE / 2}
+   else{
+    result: 0
+   }
+  }
+ }
+}
+
+function: axetohit ROLLEDVALUE:n ARMOUR:n DAMAGEDICE:d DAMAGE:n{
+ if ROLLEDVALUE >= ARMOUR { 
+  if DAMAGE = [maximum of DAMAGEDICE]{ result: 1}else{result:0}
+ } else { result: 0}
+}
+
+ARMOUR: 7
+STRENGTH: 1
+
+output [tohit 2d6+STRENGTH ARMOUR 1d6] named "1d6 Norm Damage"
+output [tohit 2d6+STRENGTH ARMOUR [reroll 1d6 1d6 1]] named "Sword (Reliable - Reroll Damage on 1)"
+output [tohit 2d6+STRENGTH ARMOUR [reroll 1d6 1d6 1]+[reroll 1d6 1d6 1]] named "2H Sword (Reliable - Reroll Damage on 1)"
+output [macetohit 1d6 1d6 STRENGTH ARMOUR 1d6] named "Mace (Blunt - half Damage if 5 or 6 rolled on hit) "
+output [macetohit 1d6 1d6 STRENGTH ARMOUR 2d6] named "2H Mace (Blunt - half Damage if 5 or 6 rolled on hit)"
+
+output [tohit 2d6+STRENGTH ARMOUR 1d6] named "Axe Damage"
+output [axetohit 2d6+STRENGTH ARMOUR 1d6 1d6] named "Axes Chance to Damage Armour - If max damage rolled"
+
+
+
+
+
+
+
+
+

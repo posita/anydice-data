@@ -1,0 +1,33 @@
+LVL: 10
+PROF: 6
+WIS: 5
+TIER: 1
+
+function: critheal {
+if TIER=1 {result: 4d8} else if TIER=2 {result:4d8+10}
+else if TIER=3 {result: 4d8+30} else if TIER=4 {result:4d8+50}}
+
+function: heal {
+if TIER=1 {result: 2d8} else if TIER=2 {result:2d8+10}
+else if TIER=3 {result: 2d8+30} else if TIER=4 {result:2d8+50}}
+
+function: fail {result: 0}
+
+function: critfail {result: 0-1d8}
+
+function: treatwounds X:n {
+if X>=2 {result:[critheal]} else if X=1 {if B!=0 {result: [critheal]} else if B=0 {result:[heal]}}
+else if X=0 {result:0} else if X<0 {result:0-d8}}
+
+
+function: A:s treat wounds risky B dc C {
+if C=15 {TIER:1} else if C=20 {TIER:2} else if C=30 {TIER:3} else if C=40 {TIER:4}
+DC:C
+if B=0 {DMG:0} else if B!=0 {DMG:d8}
+if B=0 {RESULT:A+LVL+PROF+WIS} else if B!=0 {RESULT:A+LVL+PROF+WIS+2}
+if RESULT>=(DC+10) {X:2} else if RESULT>=(DC) {X:1} else if RESULT>(DC-10) {X:0} else {X:-1}
+if A=1 {X:X-1} else if A=20 {X:X+1}
+result:[treatwounds X]-DMG}
+
+output [d20 treat wounds risky 0 dc 15]
+output [d20 treat wounds risky 1 dc 15]

@@ -1,0 +1,30 @@
+
+SPELLDC: 17 SPELLATK: 9 WRATH: 4 
+AC: 16 DEXMOD: 3 CONMOD: 3 INTMOD: 3 \target's stats\
+
+function: eblastdamage HIT:n{
+if HIT = 0 {result: 0}
+else {result: HITd10 + HITd6 + (HIT-C)*5 + WRATH}}
+function: raydamage HIT:n{
+if(HIT = 0) {result: 0}
+else {result: (HIT*2)d6 + WRATH}}
+
+function: blightdamage SAVE:n {result: 9d8/SAVE}
+function: fballdamage SAVE:n {result: 10d6/SAVE}
+function: rebukedamage SAVE:n {result: 6d10/SAVE}
+function: lancedamage SAVE:n {result: 8d6/SAVE}
+
+C:0 function: spellattack ROLL:n {
+if ROLL = 20 {C: C + 1 result: 2}
+result: (ROLL + SPELLATK > AC)
+}
+function: save THROW:n plus BONUS{
+result:(SPELLDC > THROW + BONUS) + 1 \skibidi\
+}
+
+output [eblastdamage [spellattack d20] + [spellattack d20]] named "2 Eldritch Blast with Hex (AC)"
+A: 0 loop N over {1..6}{A: A + [spellattack d20]} output [raydamage A] named "6 Scorching Ray (AC)"
+output [blightdamage [save d20 plus CONMOD]] named "Blight (Con Save)"
+output [fballdamage [save d20 plus DEXMOD]] named "Fireball (Dex Save)"
+output [rebukedamage [save d20 plus DEXMOD]] named "Hellish Rebuke (Dex Save)"
+output [lancedamage [save 20 plus INTMOD]] named "Psychic Lance (Int Save)"

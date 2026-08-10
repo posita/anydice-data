@@ -1,0 +1,38 @@
+A: [highest 1 of 2d6]
+B: [highest 1 of 2d6]
+C: [highest 1 of 2d6]
+D: [highest 1 of 2d6]
+E: [highest 1 of 2d6]
+
+SNKATK_LV_VII: A+B+C+D
+SNKATK_LV_IX: A+B+C+D+E
+
+MODIFIER: 5
+PROFICIENCY: 3
+
+ENEMY_AC: 16
+
+function: attack roll X:d {
+  result: X+MODIFIER+PROFICIENCY-ENEMY_AC
+}
+
+function: check hit X:s {
+  if X<0 {
+    result: 0
+  }else {
+    result: 1
+  }
+}
+
+WEAPON_ATTACK_A: [highest 1 of 2d8]+MODIFIER
+WEAPON_ATTACK_B: [highest 1 of 2d8]+MODIFIER
+
+ATTACK_ROLL_A: [check hit [attack roll d20]]
+ATTACK_ROLL_B: [check hit [attack roll d20]]
+
+ATTACK_ROLL_SNKATK: ATTACK_ROLL_A | ATTACK_ROLL_B
+
+output ATTACK_ROLL_A named "attack roll"
+output ATTACK_ROLL_SNKATK named "attack roll sneak attack"
+output (SNKATK_LV_IX+WEAPON_ATTACK_A)*ATTACK_ROLL_A named "savage attacker 5d6"
+output SNKATK_LV_VII*ATTACK_ROLL_SNKATK+WEAPON_ATTACK_A*ATTACK_ROLL_A+WEAPON_ATTACK_B*ATTACK_ROLL_B named "savage attacker 4d6 extra attack"

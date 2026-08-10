@@ -1,0 +1,75 @@
+function: tier A skill B multiroll {
+ result: Ad10+B*A
+}
+
+function: tier A skill B {
+ result: (1d10+B*A)*A
+}
+
+function: roll R:s skill B {
+ result: ((R)+B)
+}
+
+function: sign of A {
+ result: [absolute A] / A
+}
+
+
+function: tier A skill B check tier T{
+ CTDIFF: A - T
+ ABSDIFF: [absolute CTDIFF] + 1
+ TMOD: B + (ABSDIFF * [sign of CTDIFF])
+ if A < T {
+  result: [roll [lowest 1 of ABSDIFFd10] skill TMOD]
+ } else {
+  if A > T {
+   result: [roll [highest 1 of ABSDIFFd10] skill TMOD]
+  } else {
+   result: [roll 1d10 skill B]
+  }
+ }
+}
+
+function: check R:d against dc C tier T {
+ if(R < (C*T / 2)) {
+  result: -1
+ } else {
+  if(R < C) {
+   result: 0
+  } else {
+   if(R < (C*T + (C*T/2))) {
+    result: 1
+   } else {
+    if(R < (C*T*2)) {
+     result: 2
+    } else {
+     result: 3
+    }
+   }
+  }
+ }
+}
+
+function: check R:n against dc C {
+ if(R < (C / 2)) {
+  result: -1
+ } else {
+  if(R < C) {
+   result: 0
+  } else {
+   if(R < (C + (C/2))) {
+    result: 1
+   } else {
+    if(R < (C*2)) {
+     result: 2
+    } else {
+     result: 3
+    }
+   }
+  }
+ }
+}
+
+ DC: 10
+ DCT: 1
+ output [check [tier 1 skill 0 check tier DCT] against dc DC] named "t[1]d10+[S] DC[DC]T[DCT]"

@@ -1,0 +1,34 @@
+\endurance,stamina; health; strength; Charisma; DEX: hand-eye, agility, reaction speed; Attractiveness; INT: Lang, maths, spatial,(analytical),(social); WIS: drive, common sense, intuition\
+\ TARGET: avg 10 for pop. 4/5 are fem, 1/5 m\
+
+function: femnorm CHANCE:n of FEMNORM:n or ORI {
+ if CHANCE >=15 {result: FEMNORM}
+ result:ORI
+} \normalise it to any value with a chance\
+
+function: femdecrease CHANCE:n by AMOUNT:n {
+ if CHANCE >=18 {result: -AMOUNT}
+ result:0
+} \reduce by amount according to a chance\
+
+function: femlow CHANCE:n of FEMLOW:n or ORI {
+ if CHANCE >=15 {result: FEMLOW}
+ result:ORI
+}
+
+function: mascnorm CHANCE:n of MASCNORM:n or ORI {
+ if CHANCE >=15 {result: MASCNORM}
+ result:ORI
+}
+MALE_ANA_INT:[highest of ([lowest of (9d4/3 + [lowest of (2d12/2) and 9] + d3) and 20]-d{0:3,1}) and 6]
+FEMALE_ANA_INT:[femnorm 2d8 of 8 or ([absolute[lowest of (8d4/3 + [lowest of (3d6/2) and 7]) and 17]-d4])]
+
+output MALE_ANA_INT named "Male Analytical Intelligence"
+output FEMALE_ANA_INT named "Female Analytical Intelligence"
+
+MALE_SOC_INT:[highest of 5 and ([mascnorm [lowest 2 of 3d8] of 10 or (8d4/4 + [lowest of (3d6/2) and 7]-d{0:12,1})])]
+FEMALE_SOC_INT:[highest of 1 and ([femnorm [middle 2 of 4d10] of 10 or ([lowest of 16 and ([femlow [lowest 2 of 3d9] of 5 or ([femnorm [middle 2 of 5d8] of 10 or (7d4/([middle 3 of 5d4]/3) + [lowest of (3d6/2) and 6])])]-d{0:18,1})] + [femdecrease d30 by 5])])]
+
+output MALE_SOC_INT named "Male Social Intelligence"
+output FEMALE_SOC_INT named "Female Social Intelligence"
+

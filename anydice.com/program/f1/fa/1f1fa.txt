@@ -1,0 +1,48 @@
+E: {5,20,30,50,80,100,200}
+T: {5,20,30,50,70,90,150}
+
+function: earn MOD:n SUCCESS:s TASK:n  {
+ INDEX: TASK+1
+ DC: INDEX@{14,15,16,18,19,20,22}-MOD
+ SEQ: {}
+
+ loop ROLL over {-9,2..19,30} {
+  if ROLL < DC-10 { SEQ: {SEQ,0} }
+  else if ROLL < DC { SEQ: {SEQ,INDEX@{1,2,4,8,10,20,30}} }
+  else if ROLL < DC+10 { SEQ: {SEQ,INDEX@SUCCESS} }
+  else { SEQ: {SEQ,(INDEX+1)@SUCCESS} }
+ }
+ result: SEQ
+}
+
+
+
+
+
+function: income ROLL:n MOD:n SUCCESS:s TASK:n  {
+ INDEX: TASK+1
+ DC: INDEX@{14,15,16,18,19,20,22}-MOD
+
+ if ROLL = 1 { ROLL: ROLL-10 }
+ else if ROLL = 20 { ROLL: ROLL+10 }
+
+ if ROLL < DC-10 { result: 0 }
+ else if ROLL < DC { result: INDEX@{1,2,4,8,10,20,30} }
+ else if ROLL < DC+10 { result: INDEX@SUCCESS }
+ else { result: (INDEX+1)@SUCCESS }
+}
+
+output [income 1d20 3 T 5]
+output 1d[earn 3 T 5]
+
+\
+loop N over {1..20}{
+ output [income N 3 T 5] named "roll [N] vs 20"
+}
+\
+
+\
+loop N over {0..5} {
+ output [income 1d20 3 T N] named "Task [N]"
+}
+\

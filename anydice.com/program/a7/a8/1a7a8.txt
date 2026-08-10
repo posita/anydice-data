@@ -1,0 +1,56 @@
+\ variables \
+CRIT: 20
+STR: 5
+RGE: 2
+
+
+
+\ rolls the correct number of d20s \
+function: attack NUMBER:n RAGE:d {
+ VALUE: 1@NUMBERd20
+ result: [check VALUE RAGE]
+}
+
+
+
+\ checks to see if the attack is a crit \
+function: check NUMBER:n RAGE:d {
+ if NUMBER >= CRIT {
+  result: [damage 3 RAGE]
+ } else {
+  result: [damage 1 RAGE]
+ }
+}
+
+
+
+\ calculates damage for each damage die \
+function: damage NUMBER:n RAGE:d {
+ ROLL: 0
+  
+ loop N over {1..NUMBER} {
+  ROLL: ROLL + [reroll 1d12]
+ }
+ 
+ result: ROLL + STR + RAGE
+}
+
+
+
+\ rerolls a damage die once if it is a 1 or a 2 \
+function: reroll ROLL:n {
+ if ROLL < 3 {
+  result: 1d12
+ } else {
+  result: ROLL
+ }
+}
+
+
+
+\ program outputs \
+output [attack 1 0] named "regular"
+output [attack 2 0] named "regular w/advantage"
+
+output [attack 1 RGE] named "regular rage"
+output [attack 2 RGE]  named "rage w/advantage"

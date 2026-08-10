@@ -1,0 +1,29 @@
+DISASTER: -1
+GRIM: 0
+MESSY: 1
+PERFECT: 2
+CRITICAL: 3
+
+function: fromhighest H:n {
+  if H <= 3 { result: GRIM }
+  if H < 6 { result: MESSY }
+  result: PERFECT
+}
+
+function: getoutcome HIGHONE:n HIGHTWO:n {
+  if HIGHTWO = 12 { result: CRITICAL }
+  OUTCOME: [fromhighest HIGHONE]
+  result: OUTCOME
+}
+
+function: getoutcomefromrolls ROLLS:s {
+  result: [getoutcome {1}@ROLLS {1,2}@ROLLS]
+}
+
+loop DICE over {1..6} {
+  ROLLS: DICEd6
+  output [getoutcome {1}@ROLLS {1,2}@ROLLS] named "using values directly: [DICE]d"
+  output [getoutcomefromrolls ROLLS] named "using a function: [DICE]d"
+}
+
+

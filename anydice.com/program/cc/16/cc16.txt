@@ -1,0 +1,106 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+DEFENSE: d{12..22}
+
+function: minimum of DIE:d
+{
+  result: 1@{DIE}
+}
+
+function: great weapon fighting DIE:d
+{
+  NUM_DICE: [minimum of DIE]
+  DIE_TYPE: [maximum of DIE] / NUM_DICE
+  FINAL_VALUE: 0
+  loop N over {1..NUM_DICE}
+  {
+    FINAL_VALUE: FINAL_VALUE + [get roll 1dDIE_TYPE]
+  }
+
+  result: FINAL_VALUE
+}
+
+function: get roll ROLL:n
+{
+  NUM_DICE: [minimum of ROLL]
+  DIE_TYPE: [maximum of ROLL] / NUM_DICE
+  if ROLL > 2
+  {
+    result: ROLL
+  }
+  result: 1dDIE_TYPE
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 19 {
+   result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE {
+   result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+ATTACK: 9
+HITDAMAGE: [great weapon fighting 1d10] + 5
+CRITICALDAMAGE: [great weapon fighting 1d10] * 2 + 1d10 + 5
+
+NOCRIT: 3d[attack]
+CRIT: 4d[attack]
+
+HITDAMAGE: [great weapon fighting 1d4] + 5
+CRITICALDAMAGE: [great weapon fighting 1d4] * 2 + 1d4 + 5
+
+NOCRIT: NOCRIT + [attack]
+
+output NOCRIT named "Glaive: No Crit"
+output CRIT named "Glaive: Crit"
+
+
+ATTACK: 4
+HITDAMAGE: [great weapon fighting 1d10] + 15
+CRITICALDAMAGE: [great weapon fighting 1d10] * 2 + 1d10 + 15
+NOCRIT: 3d[attack]
+CRIT: 4d[attack]
+
+HITDAMAGE: [great weapon fighting 1d4] + 15
+CRITICALDAMAGE: [great weapon fighting 1d4] * 2 + 1d4 + 15
+
+NOCRIT: NOCRIT + [attack]
+
+output NOCRIT named "Power Strike Glaive: No Crit"
+output CRIT named "Power Strike Glaive: Crit"
+
+ATTACK: 9
+HITDAMAGE: [great weapon fighting 2d6] + 5
+CRITICALDAMAGE: [great weapon fighting 2d6] * 2 + 1d6 + 5
+NOCRIT: 3d[attack]
+CRIT: 4d[attack]
+
+output NOCRIT named "Greatsword: No Crit"
+output CRIT named "Greatsword: Crit"
+
+
+ATTACK: 4
+HITDAMAGE: [great weapon fighting 2d6] + 15
+CRITICALDAMAGE: [great weapon fighting 2d6] * 2 + 1d6 + 15
+NOCRIT: 3d[attack]
+CRIT: 4d[attack]
+
+output NOCRIT named "Power Strike Greatsword: No Crit"
+output CRIT named "Power Strike Greatsword: Crit"

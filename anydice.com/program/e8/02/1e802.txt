@@ -1,0 +1,53 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+AC: 16
+
+/ Attack Rolls /
+output 1d20 named "Straight d20"
+output [highest 1 of 2d20] "Advantage d20"
+
+\ Rage + Great Weapon Fighting + STR 20 \
+GSDICE: 2d{1, 2, {3..6}:4}
+GS: GSDICE + 5 + 2
+
+\ Normal \
+output [attack 1d20 plus 9 vs AC for GS crit GSDICE on 20] named "Normal"
+
+\ Reckless, no GWM \
+output [attack [highest 1 of 2d20] plus 9 vs AC for GS crit GSDICE on 20] named "Reckless"
+
+\ GWM \
+output [attack 1d20 plus 4 vs AC for GS + 10 crit GSDICE on 20] named "GWM"
+
+\ Reckless, GWM \
+output [attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] named "Reckless, GWM"
+
+\ GWM, Flanking \
+output [attack 1d20 plus 6 vs AC for GS + 10 crit GSDICE on 20] named "Flanking GWM"
+
+\ Reckless, GWM, Flanking \
+output [attack [highest 1 of 2d20] plus 6 vs AC for GS + 10 crit GSDICE on 20] named "Flanking Reckless GWM"
+
+\ Reckless, GWM, BA on crit \
+\ output [attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE + [attack 1d20 plus 9 vs AC for GS crit 2d{1, 2, {3..6}:4} on 20] on 20] \
+
+
+\ Standard turn: 2x Reckless + GWM \
+output 2d[attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] named "2x Reckless, GWM"
+
+\ Straight Hits: no Reckless, no GWM \
+output 2d[attack 1d20 plus 9 vs AC for GS crit GSDICE on 20] named "2x Normal"
+
+\ Safe GWM: no Reckless, yes GWM \
+output 2d[attack 1d20 plus 4 vs AC for GS + 10 crit GSDICE on 20] named "2x GWM"

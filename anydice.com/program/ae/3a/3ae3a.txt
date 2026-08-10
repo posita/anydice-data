@@ -1,0 +1,33 @@
+\
+ Heart
+ 1: Critical Failure (take double stress) 
+ 2-5: Failure (take stress)
+ 6-7: Success at a cost (take stress)
+ 8-9: Success (take no stress)
+ 10: Critical success (increase outgoing stress dice by 1 step)
+\
+
+function: heart ROLL:s with RISK:n {
+REMOVE: RISK +1
+  if (REMOVE@ROLL = 10) {
+    result: 5
+  }
+  if (REMOVE@ROLL = 8 | REMOVE@ROLL = 9){
+    result: 4  
+  }
+  if (REMOVE@ROLL = 6 | REMOVE@ROLL = 7){
+    result: 3  
+  } 
+  if (REMOVE@ROLL >= 2 & REMOVE@ROLL <= 5){
+    result: 2  
+  } 
+  if (REMOVE@ROLL = 1){
+    result: 1  
+  }  
+}
+
+loop POOL_SIZE over {1..6} {
+  loop RISK over {0..2}{
+   output [heart POOL_SIZEd10 with RISK] named "[POOL_SIZE] dice at risk [RISK]"
+  }
+}

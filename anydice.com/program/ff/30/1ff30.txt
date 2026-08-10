@@ -1,0 +1,31 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BONUSHIT: 3
+
+function: attack ROLL:n plus ATTACKBONUS:n with crit at CRITTHRESH:n and with optional bonus die BONUSDIE:n vs DEFENSE:n
+{
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITTHRESH { result: CRITICALHIT }
+ if ROLL + ATTACKBONUS >= DEFENSE { result: HIT }
+ if ROLL + BONUSDIE + ATTACKBONUS >= DEFENSE { result: BONUSHIT }
+ result: MISS
+}
+
+function: damage ROLL:d with optional bonus die BONUSDIE:d plus DAMAGEBONUS:n for ATTACKRESULT:n 
+{
+ if ATTACKRESULT = CRITICALHIT { result: ROLL + ROLL + BONUSDIE + BONUSDIE + DAMAGEBONUS }
+ if ATTACKRESULT = BONUSHIT{ result: ROLL + DAMAGEBONUS }
+ if ATTACKRESULT = HIT { result: ROLL + BONUSDIE + DAMAGEBONUS }
+ result: 0
+}
+
+loop AC over {10..20} 
+{
+ SHOTONE: [damage d8 with optional bonus die d8 plus 13 for [attack d20 plus 2 with crit at 20 and with optional bonus die d8 vs AC]]
+ SHOTTWO: [damage d8 with optional bonus die d8 plus 13 for [attack d20 plus 2 with crit at 20 and with optional bonus die d8 vs AC]]
+ SHOTTHR: [damage d8 with optional bonus die d8 plus 13 for [attack d20 plus 2 with crit at 20 and with optional bonus die d8 vs AC]]
+ SHOTFOR: [damage d8 with optional bonus die d8 plus 13 for [attack d20 plus 2 with crit at 20 and with optional bonus die d8 vs AC]]
+ 
+ output SHOTONE+SHOTTWO+SHOTTHR+SHOTFOR named "Enemy AC:[AC]"
+}

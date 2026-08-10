@@ -1,0 +1,130 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d{
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        if ROLL + BONUS >= AC{
+            result: DMG * 2 + CRIT_DMG  
+        }
+        result: DMG
+    }
+    if ROLL + BONUS >= AC + 10 {
+        result: DMG * 2 + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        if ROLL + BONUS >= AC{
+            result: CRIT 
+        }
+        result: HIT
+    }
+    if ROLL + BONUS >= AC + 10{
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: save ROLL:n plus BONUS:n vs DC:n for DAMAGE:d save SAVE:d {
+    if ROLL + BONUS < DC {
+         result: DAMAGE
+    }
+    result: SAVE
+}
+
+function: check ROLL:n plus BONUS:n vs DC:n success DAMAGE:d fail FAIL:d { 
+    if ROLL + BONUS >= DC{
+        result: DAMAGE
+    }
+    result: FAIL
+}
+
+TARGET: 27
+
+
+HIT_DAMAGE: 2d6 + 4 + 4 + 2 + 2 + 4
+
+CRIT_DAMAGE: (2d6 + 4 + 4 + 2)*2 + 2 + 4
+
+REGULAR_AOO: [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 1 + 2 + 4 crit CRIT_DAMAGE]
+
+INTENSE_AOO: [multiattack d20 plus 20 vs TARGET hit HIT_DAMAGE miss 1 + 2 + 4 crit CRIT_DAMAGE]
+
+output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE + REGULAR_AOO] named "thaumaturge setup turn (move + exploit + strike)" 
+
+output [multiattack d20 plus 18 vs TARGET hit HIT_DAMAGE + [multiattack d20 plus 13 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE + REGULAR_AOO]
+        miss [multiattack d20 plus 13 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE + REGULAR_AOO]
+        crit CRIT_DAMAGE + REGULAR_AOO + [multiattack d20 plus 13 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE]]  named "thaumaturge intermediate turn (move or exploit, 2 strikes)"
+
+
+output [multiattack d20 plus 20 vs TARGET hit HIT_DAMAGE + [multiattack d20 plus 15 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE + INTENSE_AOO]
+        miss [multiattack d20 plus 15 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE + INTENSE_AOO]
+        crit CRIT_DAMAGE + INTENSE_AOO + [multiattack d20 plus 15 vs TARGET hit HIT_DAMAGE miss 0 crit CRIT_DAMAGE]]  named "thaumaturge full turn (intensify, 2 strikes)"
+
+
+
+output REGULAR_AOO named "thaumaturge AOO" 
+
+output INTENSE_AOO named "AOO (intensified)" 
+
+FIGHTER_HIT: 2d6 + 4 + 2
+
+FIGHTER_AOO: [attack d20 plus 20 vs TARGET for 2d6 + 4 + 2 crit 0]
+
+FRIGHTENED_AOO: [attack d20 plus 20 vs TARGET-1 for 2d6 + 4 + 2 crit 0]
+
+output [multiattack d20 plus 20 vs TARGET hit FIGHTER_HIT + [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT + FIGHTER_AOO]
+        miss [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT miss 0 crit FIGHTER_HIT + FIGHTER_AOO]
+        crit 2*FIGHTER_HIT + FIGHTER_AOO + [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT]]  named "fighter setup turn (move + double slice)"
+
+
+output [multiattack d20 plus 20 vs TARGET 
+
+        hit FIGHTER_HIT + [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT + [multiattack d20 plus 10 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT + FIGHTER_AOO]
+                           miss [multiattack d20 plus 10 vs TARGET hit FIGHTER_HIT miss 0 crit FIGHTER_HIT + FIGHTER_AOO]
+                           crit 2*FIGHTER_HIT + FIGHTER_AOO + [multiattack d20 plus 10 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT]]
+        
+
+        miss + [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT + [multiattack d20 plus 10 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT + FIGHTER_AOO]
+                           miss [multiattack d20 plus 10 vs TARGET hit FIGHTER_HIT miss 0 crit FIGHTER_HIT + FIGHTER_AOO]
+                           crit 2*FIGHTER_HIT + FIGHTER_AOO + [multiattack d20 plus 10 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT]]
+        
+
+        crit 2*FIGHTER_HIT + FIGHTER_AOO + [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT] + [multiattack d20 plus 10 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT]]  named "fighter full turn (double slice + strike)"
+
+output [check d20 plus 19 vs 28 
+
+       success [multiattack d20 plus 20 vs TARGET-1 hit FIGHTER_HIT + [multiattack d20 plus 18 vs TARGET-1 hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT + FRIGHTENED_AOO]
+        miss [multiattack d20 plus 18 vs TARGET-1 hit FIGHTER_HIT miss 0 crit FIGHTER_HIT + FRIGHTENED_AOO]
+        crit 2*FIGHTER_HIT + FRIGHTENED_AOO + [multiattack d20 plus 18 vs TARGET-1 hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT]]
+
+       fail [multiattack d20 plus 20 vs TARGET hit FIGHTER_HIT + [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT + FIGHTER_AOO]
+        miss [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT miss 0 crit FIGHTER_HIT + FIGHTER_AOO]
+        crit 2*FIGHTER_HIT + FIGHTER_AOO + [multiattack d20 plus 18 vs TARGET hit FIGHTER_HIT miss 0 crit 2*FIGHTER_HIT]]] named "fighter full turn (demoralize + double slice)"
+
+output FIGHTER_AOO named "fighter AOO"
+

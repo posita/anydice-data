@@ -1,0 +1,89 @@
+function: hit R:d on N:n {
+  result: R >= N
+}
+
+function: wound R:d on N:n {
+  result: R >= N
+}
+
+function: save R:d on N:n {
+  result: R < N
+}
+
+function: towound str S:n vs toughness T:n {
+  if S <= T/2 { result: 6 }
+  if S >= 2*T { result: 2 }
+  if S >    T { result: 3 }
+  if S =    T { result: 4 }
+  if S <    T { result: 5 }
+}
+
+function: attack with A:d attacks at bs BS:n and str S:n vs toughness T:n and ap AP:n vs save SV:n and damage D:d {
+  result: Ad([hit d6 on BS] * [wound d6 on [towound str S vs toughness T]] * [save d6 on (SV - AP)] * D)
+}
+
+
+\* Weapons *\
+
+
+function: heavy flamer vs toughness T:n and save SV:n {
+  result: [attack with d6 attacks at bs 1 and str 5 vs toughness T and ap -1 vs save SV and damage 1]
+}
+
+function: flamer vs toughness T:n and save SV:n {
+  result: [attack with d6 attacks at bs 1 and str 4 vs toughness T and ap 0 vs save SV and damage 1]
+}
+
+function: heavy bolter vs toughness T:n and save SV:n {
+  result: [attack with 3 attacks at bs 3 and str 5 vs toughness T and ap -1 vs save SV and damage 1]
+}
+
+function: multi melta vs toughness T:n and save SV:n {
+  result: [attack with 1 attacks at bs 3 and str 8 vs toughness T and ap -4 vs save SV and damage d6]
+}
+
+function: half range multi melta vs toughness T:n and save SV:n {
+  result: [attack with 1 attacks at bs 3 and str 8 vs toughness T and ap -4 vs save SV and damage [highest 1 of 2d6]]
+}
+
+function: exorcist vs toughness T:n and save SV:n {
+  result: [attack with d6 attacks at bs 3 and str 8 vs toughness T and ap -4 vs save SV and damage d3]
+}
+
+function: bolter vs toughness T:n and save SV:n {
+  result: [attack with 1 attacks at bs 3 and str 4 vs toughness T and ap 0 vs save SV and damage 1]
+}
+
+function: repentia with mistress vs toughness T:n and save SV:n {
+  result: 3d([hit [highest 1 of 2d6] on 4] * [wound d6 on [towound str 6 vs toughness 4]] * [save d6 on (SV + 2)] * 2)
+}
+
+function: penitent engine vs toughness T:n and save SV:n {
+  result: 4d([hit [highest 1 of 2d6] on 3] * [wound d6 on [towound str 10 vs toughness 4]] * [save d6 on (SV + 3)] * 3)
+}
+
+function: arcoflagellant vs toughness T:n and save SV:n {
+  result: (3d3)d([hit [highest 1 of 2d6] on 3] * [wound d6 on [towound str 5 vs toughness 4]] * [save d6 on (SV + 0)] * 1)
+}
+
+function: crusader vs toughness T:n and save SV:n {
+  result: 3d([hit [highest 1 of 2d6] on 3] * [wound d6 on [towound str 3 vs toughness 4]] * [save d6 on (SV + 3)] * 1)
+}
+
+function: dca vs toughness T:n and save SV:n {
+  result: 5d([hit [highest 1 of 2d6] on 3] * [wound d6 on [towound str 4 vs toughness 4]] * [save d6 on (SV + 2)] * 1)
+}
+
+output 7d([repentia with mistress vs toughness 4 and save 3]) named "7x repentia (with mistress + priest)"
+output 2d([penitent engine vs toughness 4 and save 3]) named "2x penitent engine"
+output 9d([crusader vs toughness 4 and save 3]) named "9x crusader (with priest)"
+output 9d([dca vs toughness 4 and save 3]) named "9x death cult assassin (with priest)"
+output 9d([arcoflagellant vs toughness 4 and save 3]) named "9x arco-flagellant (with priest)"
+
+output ([exorcist vs toughness 4 and save 3]) named "exorcist"
+output 2d([half range multi melta vs toughness 4 and save 3]) named "2x multi melta (half range)"
+output 2d([multi melta vs toughness 4 and save 3]) named "2x multi melta"
+output 2d([heavy bolter vs toughness 4 and save 3]) named "2x heavy bolter"
+output 2d([heavy flamer vs toughness 4 and save 3]) named "2x heavy flamer"
+output 4d([flamer vs toughness 4 and save 3]) named "4x flamer"
+output 20d([bolter vs toughness 4 and save 3]) named "20x bolter"

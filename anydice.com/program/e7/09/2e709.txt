@@ -1,0 +1,108 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+DEFENSE: d{10..16}
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of d20] vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+
+ATTACK: 20 + 4 
+HITDAMAGE: 1d12 + 8
+CRITICALDAMAGE: 3d12 + 8
+MISSDAMAGE: 0
+output [attack] named "20 Str M GA"
+
+ATTACK: 20 + 4 
+HITDAMAGE: 4d6 + 8
+CRITICALDAMAGE: 9d6 + 8
+MISSDAMAGE: 0
+output [attack] named "20 Str L GS"
+
+ATTACK: 20 + 4 
+HITDAMAGE: 2d12 + 8
+CRITICALDAMAGE: 3d12 + 8
+MISSDAMAGE: 0
+output [attack] named "20 Str L GA"
+
+ATTACK: 20 + 4 
+HITDAMAGE: 1d12 + 13
+CRITICALDAMAGE: 3d12 + 13
+MISSDAMAGE: 0
+output [attack] named "20 Str M GA + GWM"
+
+ATTACK: 20 + 4 
+HITDAMAGE: 4d6 + 13
+CRITICALDAMAGE: 9d6 + 13
+MISSDAMAGE: 0
+output [attack] named "20 Str L GS + GWM"
+
+ATTACK: 20 + 4 
+HITDAMAGE: 2d12 + 13
+CRITICALDAMAGE: 3d12 + 13
+MISSDAMAGE: 0
+output [attack] named "20 Str L GA + GWM"
+
+
+
+
+
+
+
+
+
+
+ATTACK: 4 + 3
+HITDAMAGE: d8
+CRITICALDAMAGE: 8
+MISSDAMAGE: 0
+QUARRY: d6
+
+output [2 attacks] named "Twin Strike, no Quarry"
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: [maximum of QUARRY]
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: QUARRY
+ }
+ result: 0
+}
+
+output [2 attacks] named "Twin Strike, with Quarry"

@@ -1,0 +1,43 @@
+function: explode N:n on SIZE:n {
+ if N >= SIZE {
+  result: N + [explode d(N)]
+ }
+ result: N
+}
+
+function: reduce N:n from B:n below M:n by AMOUNT:n {
+  if B<=M {
+    result: N - AMOUNT
+  }
+  result: N
+}
+
+function: diminish N:n on SIZE:n {
+ if N = SIZE & SIZE > 4 {
+  result: N + [diminish d(SIZE - 2) on SIZE - 2]
+ }
+ result: N
+}
+
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+
+set "maximum function depth" to 4
+
+output 9d(1d4+1)
+output 7d(1d8)
+output [reduce 8d6 from 1d12 below 10 by 8]
+output 3d8
+output 3d[explode 1d8 on 8] named "d8"
+output 4d6
+output 4d[explode 1d6 on 6] named "d6"
+output 3d4
+output 3d[explode 1d4 on 4] named "d4"
+output [reroll lowest of 2d[explode 1d6 on 6] as d6 if less than 2] named "d6 reroll"

@@ -1,0 +1,53 @@
+function: attack ATTACK:n hit HIT:n {
+    result: [count {HIT..6} in ATTACKd6]
+}
+
+function: hits HITS:n wound WOUND:n {
+    result: [count {WOUND..6} in HITSd6]
+}
+
+function: wounds WOUNDS:n vs SAVE:n rend REND:n for DAMAGE:n by MODELS:n {
+    if SAVE = 6 {
+        result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd6]) * DAMAGE * MODELS
+    }
+    result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd6]) * DAMAGE * MODELS
+}
+
+function: attack ATTACK:n hit HIT:n wound WOUND:n vs SAVE:n rend REND:n for DAMAGE:n by MODELS:n {
+    result: [wounds [hits [attack ATTACK hit HIT] wound WOUND] vs SAVE rend REND for DAMAGE by MODELS]
+}
+
+function: damage {
+    result: [attack ATTACK hit HIT wound WOUND vs SAVE rend REND for DAMAGE by MODELS]
+}
+
+
+
+
+
+SAVE: 3
+ATTACK: 1
+HIT: 3
+WOUND: 3
+REND: 0
+DAMAGE: 1
+MODELS: 1
+output [damage] named "1"
+
+SAVE: 4
+ATTACK: 1
+HIT: 3
+WOUND: 3
+REND: 0
+DAMAGE: 1
+MODELS: 1
+output [damage] named "2"
+
+SAVE: 5
+ATTACK: 1
+HIT: 3
+WOUND: 3
+REND: 0
+DAMAGE: 1
+MODELS: 1
+output [damage] named "3"

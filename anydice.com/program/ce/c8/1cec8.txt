@@ -1,0 +1,42 @@
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{9..25}
+
+ATTACK: 6 + 5
+HITDAMAGE: d8 + 5
+CRITICALDAMAGE: 2d8 + 5
+MISSDAMAGE: 0
+output 4d[attack] named "Fighter"
+
+ATTACK: 6 + 5
+HITDAMAGE: d8 + 10d6 + 5 
+CRITICALDAMAGE: 2d8 + 10d6 + 10d6 + 5 
+MISSDAMAGE: 0
+output [attack] named "Rogue"

@@ -1,0 +1,127 @@
+\\\
+output ( (1d8 + 3) + (1d8 + 3) + (1d8 + 3) )/3 named "Free: basic attack(1)"
+output (((1d8 + 3) + (1d8 + 3))+((1d8 + 3) + (1d8 + 3))+((1d8 + 3) + (1d8 + 3)))/3 named "Free: basic attack(1), Bonus attack "
+output ((2d8 + 3) + (2d8 + 3) + (2d8 + 3))/3 named "Free: Bonus mark, basic attack(1)"
+output ((1d8 + 1d6 + 3) + (1d8 + 1d6 + 3) + (1d8 + 1d6 + 3) + (1d8 + 1d6 + 3) + (1d8 + 1d6 + 3))/3 named "Spell: Hunters mark 1st, basic attack(1), bonus attack"
+output ((1d8 + 1d6 + 3) + (2d8 + 1d6 + 3) + (2d8 + 1d6 + 3))/3 named "Spell: Hunters mark 1st, bonus Mark after, basic attack(1)"
+\
+\------------------------------------------{ Level 5+ }---------------------------------------------------------\
+\
+output ( (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3)                                      )/3 named "Free: basic Atk(2)"
+output ( (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3)  )/3 named "Free: basic Atk(2), Bonus Atk"
+output ( (2d8 + 3) + (1d8 + 3) + (2d8 + 3) + (1d8 + 3) + (2d8 + 3)+ (1d8 + 3)                                       )/3 named "Free: Bonus mark, basic Atk(2)"
+output ((1d8+1d6+3)+(1d8+1d6+3) + (1d8+1d6+3)+(1d8+1d6+3)+(1d8+1d6+3) + (1d8+1d6+3)+(1d8+1d6+3)+(1d8+1d6+3))/3 named "Spell: HM 1st, basic Atk(2), bonus Atk"
+output ((1d8 + 1d6 + 3) + (1d8 + 1d6 + 3) + (2d8 + 1d6 + 3) + (1d8 + 1d6 + 3) + (2d8 + 1d6 + 3) + (1d8 + 1d6 + 3)   )/3 named "Spell: HM 1st, BM after, basic Atk(2)"
+output 1d20+6 ( (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3) + (1d8 + 3)  )/3 named "Free: basic Atk(2), Bonus Atk"
+output ( (2d8 + 3) + (1d8 + 3) + (2d8 + 3) + (1d8 + 3) + (2d8 + 3)+ (1d8 + 3)                                       )/3 named "Free: Bonus mark, basic Atk(2)"
+
+\\\
+
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+PASS:1
+FAIL:0
+
+function: attack ROLL:n vs DEFENSE:n 
+{
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: save ROLL:n svs SPELLSAVE:n 
+{
+ if ROLL = 1 { result: FAIL }
+ if ROLL = 20 { result: PASS}
+ if ROLL + SAVEBONUS >= SPELLSAVE { result: PASS}
+ result: FAIL
+}
+
+function: spelldamage for SPELLRESULT:n {
+ if SPELLRESULT = PASS {
+  result: SPELLSAVEDAMAGE
+ }
+ if SPELLRESULT = FAIL {
+  result: SPELLFAILDAMAGE
+ }
+ result: SPELLFAILDAMAGE
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damagetwo for ATTACKRESULTTWO:n {
+ if ATTACKRESULTTWO = CRITICALHIT {
+  result: CRITICALDAMAGETWO
+ }
+ if ATTACKRESULTTWO = HIT {
+  result: HITDAMAGETWO
+ }
+ result: MISSDAMAGE
+}
+
+function: damagethree for ATTACKRESULTTHREE:n {
+ if ATTACKRESULTTHREE = CRITICALHIT {
+  result: CRITICALDAMAGETHREE
+ }
+ if ATTACKRESULTTHREE = HIT {
+  result: HITDAMAGETHREE
+ }
+ result: MISSDAMAGE
+}
+
+\------------------------{v OUTPUT v}-----------------------------\
+
+\------{ Attacker }------\
+ATTACK: 3 + 3
+HITDAMAGE: (2d8 + 3)
+HITDAMAGETWO: (1d8 + 3)/2
+HITDAMAGETHREE: (1d8 + 1d6 + 3)/2
+CRITICALDAMAGE: (4d8 + 3)
+CRITICALDAMAGETWO: (2d8 + 3)/2
+CRITICALDAMAGETHREE: (2d8 + 2d6 + 3)/2
+MISSDAMAGE: 0
+
+SPELLSAVE: 17
+SPELLATTACK: 6
+SPELLSAVEDAMAGE: 0
+SPELLFAILDAMAGE: 0
+
+\------{ Target }------\
+SAVEBONUS:9
+TESTAC:8
+
+\
+loop AC over {TESTAC} {
+ output (3d[damage for [attack d20 vs AC]] + 3d[damagetwo for [attack d20 vs AC]])/3 named "AC [AC], Lv5 bonus mark"
+}
+loop AC over {TESTAC} {
+ output (9d[damagetwo for [attack d20 vs AC]])/3 named "AC [AC], Lv5 bonus attack"
+}
+loop AC over {TESTAC} {
+ output (8d[damagethree for [attack d20 vs AC]])/3 named "AC [AC], Lv5 Hunters mark, Bonus attack"
+}
+HITDAMAGE: (2d8+ 1d6 + 3)
+CRITICALDAMAGE: (4d8 + 2d6 + 3)
+loop AC over {TESTAC} {
+ output (4d[damagethree for [attack d20 vs AC]] + 2d[damage for [attack d20 vs AC]])/3 named "AC [AC], Lv5 Hunters mark, Bonus Mark"
+}
+\
+loop SAVE over {SPELLSAVE} {
+ output [spelldamage for [save d20 svs SAVE]] named "Savebonus [SAVEBONUS], Lv5 thunderwave"
+}
+
+loop SAVE over {SPELLSAVE} {
+ output (3d[spelldamage for [save [highest 1 of 2d20] svs SAVE]])/3 named "SavebonusXD [SAVEBONUS], Lv5 thunderwave"
+}

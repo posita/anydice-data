@@ -1,0 +1,61 @@
+
+function: ROLL:n hit TARGET:n {
+ if ROLL >= TARGET {
+  result: 1
+ }
+ result:0
+}
+
+function: hit TARGET:n {
+ result: [d6 hit TARGET]
+}
+
+function: dowound TOHIT:n TOWOUND:n REND:n {
+ result: [hit TOHIT]*[hit TOWOUND]*[hit (8-SAVE-REND)]
+}
+
+function: attacks ATTACKS:n hit TOHIT:n wound TOWOUND:n rend REND:n dmg DAMAGE:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+   TOTAL: TOTAL + DAMAGE * [dowound TOHIT TOWOUND REND]
+ }
+ result: TOTAL
+}
+
+function: retriattack HITROLL:n {
+ if HITROLL = 6 {
+   result: 2
+ }
+ result: [HITROLL hit 3]*[hit (3-PALAWOUNDBONUS)]*[hit (8-SAVE-1)]*2
+
+}
+
+function: retriattacks ATTACKS:n {
+ TOTAL: 0
+ loop N over {1..ATTACKS} {
+  TOTAL: TOTAL + [retriattack d6]
+ }
+ result: TOTAL
+}
+
+SAVE: 5
+PALAWOUNDBONUS: 1
+
+function: hammerstrike {
+  \ Prosecutors \
+  TOTAL: [attacks 2 hit 3 wound 3 rend 1 dmg 2]
+  TOTAL: TOTAL + [attacks 2 hit 3 wound 3 rend 0 dmg 2]
+
+  \ Retributors \
+  TOTAL: TOTAL + [retriattacks 11]
+
+  \ Protectors (Glaives) \
+  TOTAL: TOTAL + [attacks 10 hit 3 wound (3-PALAWOUNDBONUS) rend 1 dmg 1]
+
+  \ Protectors (Starsoul) \
+  TOTAL: TOTAL + 2d3
+
+  result: TOTAL
+}
+
+output[hammerstrike]

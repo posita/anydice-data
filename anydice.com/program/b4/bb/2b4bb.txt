@@ -1,0 +1,22 @@
+\**** Great Weapon Fighting modifiable Calculator ****\
+
+function: attackroll ROLL:n plus ACCBONUS:n vs AC:n with DAMBONUS:n {
+ if ROLL = 20 { result: CRITDAMAGE + DAMBONUS } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + STRENGTH + ACCBONUS >= AC { result: DAMAGE + DAMBONUS }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{11..25}
+
+STRENGTH: 4
+PROFICIENCY: 2
+DAMAGE: 2d{{d6}:2, {3..6}:6} + STRENGTH
+CRITDAMAGE: 4d{{d6}:2, {3..6}:6} + STRENGTH
+
+loop AC over {11..25} {
+ output [attackroll d20 plus 0 vs AC with 0] named "Baseline [AC]"
+ output [attackroll d20 plus -5 vs AC with 10] named "Old [AC]"
+ output [attackroll d20 plus 0 vs AC with PROFICIENCY] named "New [AC]"
+}

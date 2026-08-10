@@ -1,0 +1,43 @@
+\ based on http://anydice.com/articles/dnd4-attacks/ \
+
+\ Level 5 Barbarian w/ Great Ax \
+ATTACK: 4 + 3  \ modifiers to hit: +STR + PROFICIENCY \
+HITDMG: d12 + 4 \ Great Axe +STR modifier \
+CRITDMG: 2d12 + 4 
+MISSDMG:0
+
+MISS: 0
+HIT: 1
+CRIT: 2
+
+\ ATTACK FUNCTION \
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\ DAMAGE FUNCTION \
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRIT {
+  result: CRITDMG
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDMG
+ }
+ result: MISSDMG
+}
+
+loop AC over {17..17} {
+output [damage for [attack d20 vs AC]] named "Base DMG against AC[AC]"
+output [damage for [highest 1 of 2d[attack d20 vs AC]]] named "DMG w/ Advantage against AC[AC]"
+}
+
+loop AC over {17..17}{
+ output 2d[damage for [attack d20 vs AC]] named "Double ATK - Base DMG against AC[AC]"
+ output 2d[damage for [highest 1 of 2d[attack d20 vs AC]]] named "Double ATK - DMG w/ Advantage against AC[AC]"
+ } 

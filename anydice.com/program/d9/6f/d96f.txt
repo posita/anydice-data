@@ -1,0 +1,35 @@
+function: attack ROLL:d plus ATTACK:n vs DEFENSE:n {
+ MIN: 2
+ if DEFENSE-ATTACK > 1 {
+  MIN: (DEFENSE-ATTACK)+1
+ }
+ if MIN>6 { MIN: 6 }
+ result: [count {MIN..6} in ROLL]
+}
+
+function: attackstarlordextra ROLL:d plus ATTACK:n vs DEFENSE:n extra EXTRA:n times T:n max M:n {
+ if T<M { 
+  TH: 5
+  if T<4 {
+    TH: T+1
+  }
+  if EXTRA > TH {
+   MIN: 2
+   if DEFENSE-ATTACK > 2 {
+    MIN: DEFENSE-ATTACK
+   }
+   result: [count {MIN..6} in ROLL] + [attackstarlordextra ROLL plus ATTACK vs DEFENSE extra 1d6 times T+1 max M]
+  }
+ }
+ result: 0
+}
+
+function: attackstarlord ROLL:d plus ATTACK:n vs DEFENSE:n times TIMES:n {
+ COUNT: [attack ROLL plus ATTACK vs DEFENSE] + [attackstarlordextra ROLL plus ATTACK vs DEFENSE extra 1d6 times 0 max TIMES]
+
+ result: COUNT
+}
+
+loop N over {4..10} {
+ output [attack 10d6 plus N vs 10] named "Attack 10d6+[N] vs 8"
+}

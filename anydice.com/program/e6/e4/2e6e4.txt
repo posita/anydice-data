@@ -1,0 +1,36 @@
+function: add X:d highest to Y:d lowest of M {
+ result: 1@X + M@Y
+}
+
+function: test X:d against Y:d with M dice {
+ result: [add X highest to Y lowest of M] > 6
+}
+
+function: higher A:n than B:n {
+ result: A > B
+}
+function: roll X:d with P:n against Y:d with M:n {
+ if P = 1 {
+  result: [test X against Y with M dice]
+ }
+ else {
+  if [higher 1@Y than 1@X] {
+   NP: P-1
+   NPD: NPd6
+   NM: M-1
+   NMD: NMd6
+   result: [roll NPD with NP against NMD with NM]
+  }
+  else {
+   result: [test X against Y with M dice]
+  } 
+ }
+}
+
+loop P over {1..5} {
+ PD: Pd6
+ loop M over {1..5} {
+  MD: Md6
+  output [roll PD with P against MD with M] named "Player [P]d6, Moderator [M]d6"
+ }
+}

@@ -1,0 +1,70 @@
+CRITMISS: -1
+MISS: 0
+HIT: 1
+CRITHIT: 2
+
+function: baseoutcome SCORE:n vs DEFENCE:n {
+  if SCORE >= DEFENCE + 10 {
+    result: CRITHIT
+  }
+  if SCORE >= DEFENCE {
+    result: HIT
+  }
+  if SCORE >= DEFENCE - 10 {
+    result: MISS
+  }
+  if SCORE < DEFENCE - 10 {
+    result: CRITMISS
+  }
+}
+
+function: modoutcome ROLL:n with RESULT:n {
+  if ROLL = 1 & RESULT > CRITMISS {
+    result: RESULT - 1
+  }
+  if ROLL = 20 & RESULT < CRITHIT {
+    result: RESULT + 1
+  }
+  result: RESULT
+}
+
+function: attack ROLL:d with BONUS:n vs DEFENCE:n {
+  SCORE: ROLL + BONUS
+  BASE: [baseoutcome SCORE vs DEFENCE]
+  result: [modoutcome ROLL with BASE]
+}
+
+function: damage ROLL:d with BONUS:n of RESULT:n {
+  if RESULT <= MISS {
+    result: 0
+  }
+  if RESULT = HIT {
+    result: ROLL + BONUS
+  }
+  if RESULT = CRITHIT {
+    result: [maximum of ROLL] + ROLL + BONUS
+  }
+}
+
+\ MINAC: 8 \
+MINAC: 5
+\ MAXAC: 54 \
+MAXAC: 25
+
+ATTACKBONUS: 3
+DAMAGEROLLS: 1d8
+DAMAGEBONUS: 3
+
+\
+loop AC over {MINAC..MAXAC}{
+  output [baseoutcome d20 + ATTACKBONUS vs AC] named "B[AC]"
+}
+\
+
+loop AC over {MINAC..MAXAC}{
+  output [attack d20 with ATTACKBONUS vs AC] named "H[AC]"
+}
+
+loop AC over {MINAC..MAXAC}{
+  output [damage DAMAGEROLLS with DAMAGEBONUS of [attack d20 with ATTACKBONUS vs AC]] named "D[AC]"
+}

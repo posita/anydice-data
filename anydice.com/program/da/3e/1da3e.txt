@@ -1,0 +1,37 @@
+\stat input\
+\str is your modifere that is added to both attack and damage\
+STR:3
+\prof is your proficency, and is added only to the attack\
+PROF:2
+\misc is other things added to both damage and attack\
+MISC:0
+\wepdie is what die/dice your weapon use\
+WEPDIE:3d6
+\if you have disadvantage use a negativ number, 0 for nothing and a positive number for advantage\
+ADVANTAGE:2
+\other attack values\
+OAT:0
+\other damage values\
+ODA:2
+
+\calcs som variables based on input\
+ATTACK:STR+PROF+MISC+OAT
+DAMAGE:STR+MISC+WEPDIE+ODA
+GWMVALUE: {-5,10}
+
+
+\helper function to figur out what your attack die is based on advantage\
+function: advantage of ADV {
+if ADV > 0 {D: [highest 1 of 2d20]}
+if ADV < 0 {D: [lowest 1 of 2d20]}
+if ADV = 0 {D: 1d20}
+result: D
+}
+\variable based calling the helper function\
+DIE: [advantage of ADVANTAGE]  
+\loop that roles an attack against any AC from 10 to 20\
+loop AC over {10..20} {
+  output (DIE+ATTACK >=AC)* (DAMAGE) named "without gwm vs [AC]"
+  output (DIE+ATTACK+1@GWMVALUE >=AC)* (DAMAGE+2@GWMVALUE) named "with gwm vs [AC]" 
+} 
+

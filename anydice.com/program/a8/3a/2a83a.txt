@@ -1,0 +1,42 @@
+GRIT: 3
+ACCURACY: 0
+DAMAGE: 1d3+1
+CRITDAMAGE: 1@2d3+1
+EVASION: 5
+
+if (ACCURACY > 0) {
+  D: 1d20+GRIT+1@ACCURACYd6
+} else {
+  D: 1d20+GRIT-1@(-ACCURACY)d6
+}
+
+function: critchance R:n with C:n {
+  if (R < EVASION) {
+    result: C
+  } else if (R < 20) {
+    result: 2*DAMAGE+C
+  } else {
+    result: 2*CRITDAMAGE+1
+  }
+}
+
+function: critdamage DC:n {
+  DAM: DC / 2
+  C: DC - DAM * 2
+  result: 2*DAM+[critchance D with C]
+}
+
+function: mod X:n of Y:n {
+  result: X - Y * (X / Y)
+}
+
+BONE: [critdamage 0]
+BTWO: [critdamage BONE]
+BTHREE: [critdamage BTWO]
+BFOUR: [critdamage BTHREE]
+BFIVE: [critdamage BFOUR]
+
+output BFOUR/2 named "Total damage with four weapons"
+output [mod BFOUR of 2] named "Critical chance with four weapons"
+output BFIVE/2 named "Total damage with five weapons"
+output [mod BFIVE of 2] named "Critical chance with five weapons"

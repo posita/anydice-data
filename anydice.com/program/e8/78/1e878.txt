@@ -1,0 +1,30 @@
+set "maximum function depth" to 5
+
+function: nwod R:n again N:n {
+ if N >= R { result: 1 + [nwod R again d10] }
+ result: N >= 8
+}
+
+function: rote R:n again N:n {
+ if N >= R { result: 1 + [nwod R again d10] }
+ if N < 8 { result: [nwod R again d10] }
+ result: 1
+}
+
+function: rote R:n again N:n super {
+ if N >= R { result: 1 + [rote R again d10 super] }
+ if N < 8 { result: [nwod R again d10] }
+ result: 1
+}
+
+DICE: 10
+
+loop N over {8..10}{
+  NWOD: [nwod N again d10]
+  ROTE: [rote N again d10]
+  SROTE: [rote N again d10 super]
+
+  output [lowest of 10 and DICEdNWOD] named "Normal [N] Again"
+  output [lowest of 10 and DICEdROTE] named "Normal Rote [N] Again"
+  output [lowest of 10 and DICEdSROTE] named "Super Rote [N] Again"
+}

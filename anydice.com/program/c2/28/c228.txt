@@ -1,0 +1,104 @@
+\\
+NO:0
+YES:1
+\ attacker: \
+SHOTS:10
+BS: 3 \ enter 2 for BS 2+ \
+S: 4
+AP: 0
+
+REROLLS_ONES_TO_HIT: NO
+REROLLS_FAILED_TO_HIT: YES
+REROLLS_ONES_TO_WOUND: NO
+REROLLS_FAILED_TO_WOUND: YES
+
+\ target: \
+T: 4
+W: 1
+SAVE: 3 \ enter 2 for save 2+ \
+
+\ No need to go below this line. Just press "Calculate" \
+set "maximum function depth" to SHOTS+4
+
+function: X:n save
+{
+  if X >= SAVE-AP {result: 0}
+  else { result: 1}
+}
+
+function: wounding on
+{
+  if 2*T <= S {result:2}
+  if 2*S <= T {result:6}
+  if S > T {result:3}
+  if T > S {result:5}
+  result:4
+}
+WOUNDINGON:[wounding on]
+
+function: X:n wound without reroll
+{
+  if X < WOUNDINGON{result: 0}
+  else 
+  {
+    result: [d6 save]
+  }
+}
+
+function: X:n wound
+{
+  if X < WOUNDINGON
+  {
+    if REROLLS_ONES_TO_WOUND & X=1
+      {result: [d6 wound without reroll]}
+    else
+      {
+        if REROLLS_FAILED_TO_WOUND
+        {
+          result: [d6 wound without reroll]
+        }
+        else {result: 0}
+      }
+  }
+  else 
+  {
+    result: [d6 save]
+  }
+}
+
+function: X:n hit without reroll
+{
+  if X < BS{result: 0}
+  else 
+  {
+    result: [d6 wound]
+  }
+}
+
+function: X:n hit
+{
+  if X < BS{
+    if REROLLS_ONES_TO_HIT & X=1
+      {result: [d6 hit without reroll]}
+    else
+      {
+        if REROLLS_FAILED_TO_HIT
+        {
+          result: [d6 hit without reroll]
+        }
+        else {result: 0}
+      }
+  }
+    else 
+  {
+    result: [d6 wound]
+  }
+}
+
+function: shoot X:n times{
+  if X>0
+    {result: [d6 hit] + [shoot X-1 times]}
+  else {result: 0}
+}
+output [shoot SHOTS times] named "Failed saves"
+output [wounding on] named "Wounding on [WOUNDINGON]+"

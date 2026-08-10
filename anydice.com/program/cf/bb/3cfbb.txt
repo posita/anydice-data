@@ -1,0 +1,530 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n fail FAIL:n success SUCCESS:n{
+if SAVE >= DC {result: SUCCESS}
+if SAVE < DC {result: FAIL}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if ROLL = 1 {result: 0}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n onhit ONHIT onmiss ONMISS{
+if ROLL = 20 {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n onhit ONHIT onmiss ONMISS{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n io IO{
+if ROLL = 20 {result: DICE + DICE + FLOAT + IO}
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d6 plus 0]
+] named "TWF HaXBow 1"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 4]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4]
+] named "TWF HaXBow CBX 4"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4]
+] named "TWF HaXBow CBX + HeXBow 5"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10 plus 7] + [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10 plus 7] + [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4]
+] named "TWF HaXBow CBX + GWM HeXBow 8"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4]
+] named "TWF HaXBow CBX + HeXBow GWM 9"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4]
+] named "TWF HaXBow CBX + HeXBow GWM 11"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 9] + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 9] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10 plus 9] + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 9] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+] named "TWF HaXBow CBX + HeXBow GWM 12"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 10
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+	]
+] named "TWF HaXBow CBX + HeXBow GWM 13"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+	]
+] named "TWF HaXBow CBX + HeXBow GWM 17"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5
+				onhit 0
+				onmiss 1d6+5
+			]
+			onmiss 1d10+9 + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+		]
+		onmiss 1d10+9 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+		]
+	]
+	onmiss 1d6+5 + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+		]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+		]
+	]
+] named "TWF HaXBow CBX + HeXBow GWM CP 19"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+				onhit 1d10+9 + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5
+					onhit 0
+					onmiss 1d6+5
+				]
+				onmiss 1d10+11 + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+			]
+			onmiss 1d10+9 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+				onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+			]
+		]
+		onmiss 1d10+9 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+				onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+			]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+				onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+			]
+		]
+	]
+	onmiss 1d6+5 + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+				onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+			]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+				onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+			]
+		]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+				onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+			]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+				onhit [attack 1d20 plus 3 vs ac 10 for 1d6 plus 5]
+				onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 5]
+			]
+		]
+	]
+] named "TWF HaXBow CBX + HeXBow GWM CP 20"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 3] named "HeXBow 1"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] named "HeXBow CBX 4"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] named "HeXBow CBX 5"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d10 plus 7] + [attack 1d20 plus 2 vs ac 10 for 1d10 plus 7] named "HeXBow CBX 8"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] named "HeXBow CBX 9"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10 plus 8] named "HeXBow CBX 11"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 9] + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 9] + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 9] named "HeXBow CBX 12"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 10
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 10]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 10]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 10]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 10]
+	]
+] named "HeXBow GWM CBX +2 13"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11]
+	]
+] named "HeXBow GWM CBX +2 17"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit 0
+			onmiss 1d10+11
+		]
+		onmiss 1d10+11 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+	]
+	onmiss 1d10+11 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11]
+	]
+] named "HeXBow GWM CBX +2 CP 19"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+				onhit 0 
+				onmiss1d10+11
+			]
+			onmiss 1d10+11 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+		]
+		onmiss 1d10+11 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11]
+		]
+	]
+	onmiss 1d10+11 + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11]
+		]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d10 plus 11]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 11]
+		]
+	]
+] named "HeXBow GWM CBX +2 CP 20"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+] named "TWF Dag HaXBow 1"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+] named "TWF Dag HaXBow CBX 4"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+] named "TWF Dag HaXBow CBX + HeXBow 5"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10 plus 7] + [attack 1d20 plus 2 vs ac 10 for 1d4 plus 0]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10 plus 7] + [attack 1d20 plus 2 vs ac 10 for 1d4 plus 0]
+] named "TWF Dag HaXBow CBX + HeXBow 8"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d6 plus 0]
+] named "TWF HaXBow 1"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 4]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4]
+] named "TWF HaXBow CBX 4"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4]
+] named "TWF HaXBow CBX + HeXBow 5"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 4]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 4]
+] named "TWF HaXBow CBX + HeXBow HM 6"
+
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4]
+] named "TWF HaXBow CBX + GWM HeXBow HM 9"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4]
+] named "TWF HaXBow CBX + HeXBow GWM HM12"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+] named "TWF HaXBow CBX + HeXBow GWM HM 13"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6+1d6 plus 5]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6+1d6 plus 5]
+	]
+] named "TWF HaXBow CBX + HeXBow GWM HM 14"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6+1d6 plus 5]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6+1d6 plus 5]
+	]
+] named "TWF HaXBow CBX + HeXBow GWM HM 18"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5
+				onhit 0
+				onmiss 1d6+1d6+5
+			]
+			onmiss 1d10+1d6+9 + [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		]
+		onmiss 1d10+1d6+9 + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		]
+	]
+	onmiss 1d6+1d6+5 + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6+1d6 plus 5]
+		]
+	]
+] named "TWF HaXBow CBX + HeXBow GWM CP HM 20"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 3] named "HeXBow 1"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] named "HeXBow CBX 4"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] named "HeXBow CBX 5"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 4] named "HeXBow CBX HM 6"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] named "HeXBow CBX HM 9"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] named "HeXBow CBX HM 12"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] named "HeXBow CBX HM 13"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10]
+	]
+] named "HeXBow GWM CBX +2 HM 14"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11]
+	]
+] named "HeXBow GWM CBX +2 HM 17"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit 0
+			onmiss 1d10+1d6+11
+		]
+		onmiss 1d10+1d6+11 + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11]
+	]
+	onmiss 1d10+1d6+11 + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11]
+	]
+] named "HeXBow GWM CBX +2 CP HM 20"
+
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+] named "TWF Dag HaXBow 1"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+] named "TWF Dag HaXBow CBX 4"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d4 plus 0]
+] named "TWF Dag HaXBow CBX + HeXBow 5"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+] named "TWF Dag HaXBow CBX + HeXBow HM 6"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d4+1d6 plus 0]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d4+1d6 plus 0]
+] named "TWF Dag HaXBow CBX + HeXBow GWM HM 9"
+
+output [attack 1d20 plus 2 vs ac 10 for 1d6+1d6 plus 4
+	onhit [attack [highest 1 of 2d20] plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d4+1d6 plus 0]
+	onmiss [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d10+1d6 plus 8] + [attack 1d20 plus 2 vs ac 10 for 1d4+1d6 plus 0]
+] named "TWF Dag HaXBow CBX + HeXBow GWM HM 12"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+	onmiss [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10] + [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+] named "TWF Dag HaXBow CBX + HeXBow GWM HM 13"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4+1d6 plus 0]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 10
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4+1d6 plus 0]
+	]
+] named "TWF Dag HaXBow CBX + HeXBow GWM HM 14"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+	onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4+1d6 plus 0]
+	]
+	onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4+1d6 plus 0]
+	]
+] named "TWF Dag HaXBow CBX + HeXBow GWM HM 17"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6+1d6 plus 5
+	onhit [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0
+				onhit 0
+				onmiss 1d4+1d6+0
+			]
+			onmiss 1d10+1d6+9 + [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		]
+		onmiss 1d10+1d6+9 + [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		]
+	]
+	onmiss 1d4+1d6+0 + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+		onhit [attack 1d20 plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		]
+		onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d10+1d6 plus 11
+			onhit [attack 1d20 plus 3 vs ac 10 for 1d4+1d6 plus 0]
+			onmiss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d4+1d6 plus 0]
+		]
+	]
+] named "TWF Dag HaXBow CBX + HeXBow GWM CP HM 20"

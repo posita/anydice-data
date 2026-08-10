@@ -1,0 +1,40 @@
+function: pbta D:n plus N:n {
+ if D = 12 { result: 2 }
+ if D = 2 { result: 0 }
+ 
+ SUM: D+N
+ if SUM > 9 { result: 2 }
+ if SUM > 6 { result: 1 }
+
+ result: 0
+}
+
+function: read pool ROLL:s {
+  MAX: 0
+  loop DIE over ROLL {
+    if DIE > MAX { MAX: DIE }
+  }
+  if MAX = 6 { result: 2 }
+  if MAX >= 4 { result: 1 }
+  result: 0
+}
+
+function: read desperate ROLL:s {
+  MIN: 6
+  loop DIE over ROLL {
+    if DIE < MIN { MIN: DIE }
+  }
+  if MIN = 6 { result: 2 }
+  if MIN >= 4 { result: 1 }
+  result: 0
+}
+
+function: blades DICE:n {
+  if DICE = 0 { result: [read desperate 2d6] }
+  result: [read pool DICEd6]
+}
+
+loop M over {0..6} {
+output [pbta 2d6 plus M] named"LitM [M]"
+output [blades M] named "Blades [M]"
+}

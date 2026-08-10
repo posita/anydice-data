@@ -1,0 +1,139 @@
+set "maximum function depth" to 32
+
+\ ============================== SORCERER WILDMAGIC RULES ========================== \
+\ Every time a spell is cast, roll a die. If the die roll is lower than the DC, a    \
+\ surge happens. The DC is equal to the amount of spells cast since the last surge.  \
+\ E.g. the first spell cast has a DC of 1. If the die rolled is higher than 1, no    \
+\ surge happens. The second spell cast then has a DC of 2. Once a surge has occurred \
+\ the DC becomes 1 again.                                                            \
+\ Optional:                                                                          \
+\  - higher level spells use a smaller die, thus increasing the chance of a surge;   \
+\     e.g.: lvl 0: d20, lvl 1: d12, lvl 2: d10, lvl 3: d8, lvl 4: d6, lvl 5: d4.     \
+\  - as the sorcerer becomes more experienced, he can cast lower level spells        \
+\    without causing a wild magic surge.                                             \
+\                                                                                    \
+\ TO DO: contemplate effects of Tides of Chaos                                       \
+
+function: cast N:n times with S:n and DC:n {
+  if N > 1 {
+    if S { NEW_DC: 1 }
+    else { NEW_DC: DC + 1 }
+    result: S + [cast N - 1 times with D <= NEW_DC and NEW_DC]
+  }
+  result: S
+}
+
+function: cast N:n times with D:d
+{
+  if N < 1 { result: 0}
+  result: [cast N times with D <= 1 and 1]
+}
+
+function: cast N:n cantrips
+{
+  result: [cast N spells at level 0]
+}
+
+function: cast N:n spells at level L:n
+{
+  DIE: [get die for level L]
+  result: [cast N times with DIE]
+}
+
+
+SPELL_LEVEL_DICE: {20, 12, 10, 8, 6, 4}
+function: get die for level L:n
+{
+  if L = 0 { result: d20 }
+  D: L@SPELL_LEVEL_DICE
+  result: dD
+}
+
+
+
+\output [cast 5 cantrips] + [cast 4 spells at level 1] + [cast 2 spells at level 2]\
+
+
+\ ==================================== TEST CASE =================================== \
+\ Casting 3 spells using a d10                                                       \
+\ Odds of 0 surges: 9/10 * 8/10 * 7/10 = 504/1000                                    \
+\ Odds of 1 surge: 1/10 * 9/10 * 8/10 + 9/10*2/10*9/10 + 9/10 * 8/10*3/10 = 450/1000 \
+\ Odds of 2 surges: (1*1*9 + 1*8*3 + 9*2*1)/1000 = 45/1000                           \
+\ Odds of 3 surges: (1/10)^3 = 1/1000                                                \
+
+\ output [cast 3 times with d10] named "Test case: success!" \
+
+
+\ This function calculates odds according to the Rules As Written                    \
+\ Note: this gives a binomial distribution                                           \
+function: cast N:n times with S:n according to rules as written{
+
+  if N > 1 {
+    result: S + [cast N - 1 times with d20 <= 1 according to rules as written]
+  }
+  result: S
+}
+
+
+\ Number of surges according to Rules As Written \
+
+N: 10
+output [cast N times with d20 <= 1 according to rules as written] named "RAW"
+
+\ Number of surges according to own rules \
+DICE: {20, 12, 10, 8, 6, 4}
+DICE: {20} \, 12, 10}\
+loop D over DICE
+{
+  \output [cast N times with dD] named "d[D]"\
+}
+
+function: fac N:n {
+ if N > 1 { result: N * [fac (N-1)]}
+ result: N
+}
+
+
+\ Sorcerer spell slots at certain levels \
+\ Not including Flexible Casting w/ Sorcery Points \
+SPELLS_FIRST: {2, 0, 0, 0, 0, 0, 0, 0, 0}
+SPELLS_SECND: {3, 0, 0, 0, 0, 0, 0, 0, 0}
+SPELLS_THIRD: {4, 2, 0, 0, 0, 0, 0, 0, 0}
+SPELLS_FORTH: {4, 3, 0, 0, 0, 0, 0, 0, 0}
+SPELLS_FIFTH: {4, 3, 2, 0, 0, 0, 0, 0, 0}
+SPELLS_SIXTH: {4, 3, 3, 0, 0, 0, 0, 0, 0}
+SPELLS_SVNTH: {4, 3, 3, 1, 0, 0, 0, 0, 0}
+SPELLS_EIGTH: {4, 3, 3, 2, 0, 0, 0, 0, 0}
+SPELLS_NINTH: {4, 3, 3, 3, 1, 0, 0, 0, 0}
+
+
+
+\ Experiment: cantrips don't increase DC... \
+\ loop HL over SPELLSLOTS{ \
+\   CAN: N-HL \
+\  output [cast CAN times with d20 <= 1 according to rules as written] + [cast HL times with d20] named "[CAN] lvl 0 + [HL] lvl 1"\
+\}\
+
+
+\ cast as many spells as there are spell slots \
+\ cantrips don't count                         \
+
+function: calculate surges for spells S:s{
+  R: 0
+  loop N over {1..9}{
+    \ N@S gets the Nth value in S \
+    R: R + [cast N@S times with [get die for level N]]
+  }
+  result: R
+}
+
+output [calculate surges for spells SPELLS_FIRST] named "lvl 1"
+output [calculate surges for spells SPELLS_SECND] named "lvl 2"
+output [calculate surges for spells SPELLS_THIRD] named "lvl 3"
+output [calculate surges for spells SPELLS_FORTH] named "lvl 4"
+output [calculate surges for spells SPELLS_FIFTH] named "lvl 5"
+output [calculate surges for spells SPELLS_SIXTH] named "lvl 6"
+output [calculate surges for spells SPELLS_SVNTH] named "lvl 7"
+output [calculate surges for spells SPELLS_EIGTH] named "lvl 8"
+output [calculate surges for spells SPELLS_NINTH] named "lvl 9"
+

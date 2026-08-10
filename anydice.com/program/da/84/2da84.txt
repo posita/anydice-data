@@ -1,0 +1,214 @@
+\NOPAT JOITA HALUAT HEITTÃ„Ã„ HYÃ–KKÃ„YKSEEN:\
+ RED: 2
+BLUE: 2
+
+\NOPAT JOITA HALUAT HEITTÃ„Ã„ PUOLUSTUKSEEN:\
+PBLUE: 0
+
+\ERIKOISVAIKUTUKSET LÃ„PIMENEVIEN OSUMIEN LASKENTAAN / (AL_HIT = MONTA SALAMAA TARVII JA AL_HITA MONTA HITTIÃ„ ANTAA):\
+\ETUSIJAJÃ„RJESTYS: A > B(ELI ESIM AL_HIT > BL_HIT)\
+\HITS VALUE LISÃ„Ã„ SUORAAN HITTEIHIN\
+\ARMOR VALUE MIINUSTAA SUORAAN HITEISTÃ„\
+    HITS: 0
+  AL_HIT: 0
+ AL_HITA: 0
+  BL_HIT: 0
+ BL_HITA: 0
+  AS_HIT: 0
+ AS_HITA: 0
+  BS_HIT: 0
+ BS_HITA: 0
+  SS_HIT: 0
+ SS_HITA: 0
+   G_HIT: 0
+  G_HITA: 0
+    
+   ARMOR: 0
+   AL_SH: 0
+  AL_SHA: 0
+   BL_SH: 0
+  BL_SHA: 0
+   AS_SH: 0
+  AS_SHA: 0
+   BS_SH: 0
+  BS_SHA: 0
+    G_SH: 0
+   G_SHA: 0
+
+\MITÃ„ SYMBOLEJA HALUAT VÃ„HINTÃ„Ã„N SAADA HYÃ–KKÃ„YSHEITTOON:\
+      HIT: 0
+     STAR: 0
+LIGHTNING: 0
+  GREMLIN: 0
+SS_SYMBOL: 0
+
+\MITÃ„ SYMBOLEJA HALUAT VÃ„HINTÃ„Ã„N SAADA PUOLUSTUSHEITTOON:\
+   PSHIELD: 0
+     PSTAR: 0
+PLIGHTNING: 0
+  PGREMLIN: 0
+
+\FUNKTIOT ALLA____________________________________________________________________________________________________________FUNKTIOT ALLA\
+
+set "position order" to "lowest first"
+
+\_____________________________________________________________________________________________________________________ LÃ„PIMENEVÃ„T OSUMAT\
+
+\_________________________________________________________________________ETUSIJAFUNKTIOT\
+
+function: attlightningcomp Q:n {
+ if (((1@A + (2@A * 10)) * 2) + (3@A + (4@A * 10)) - Q) = 0 {result: 1}
+ if U > Q & (((1@A + (2@A * 10)) * 2) + (3@A + (4@A * 10)) - (Q + U)) < 0 {result:1}
+
+ result: 0
+}
+
+function: attstarcomp Q:n {
+ if ((5@A + (6@A * 10)) - Q)  = 0 {result: 1}
+ if U > Q & ((5@A + (6@A * 10)) - (Q + U)) < 0 {result:1}
+
+ result: 0
+}
+
+function: deflightningcomp Q:n {
+ if ((1@B + (2@B * 10)) - Q) = 0 {result: 1}
+ if U > Q & ((1@B + (2@B * 10)) - (Q + U)) < 0 {result:1}
+
+ result: 0
+}
+
+function: defstarcomp Q:n {
+ if ((3@B + (4@B * 10)) - Q) = 0 {result: 1}
+ if U > Q & ((3@B + (4@B * 10)) - (Q + U)) < 0 {result:1}
+
+ result: 0
+}
+
+\__________________________________________________________________________EFEKTIFUNKTIOT\
+
+\HYÃ–KKÃ„YS: 1,2 = TUPLASALAMA, 3,4 = HITTISALAMA, 5,6 = HITTITÃ„HTI, 7,8 = PELKÃ„T HITIT (1 ja 2), 9,10 = GREMLIN, 11,12 = SS \
+\PUOLUSTUS: 1,2 = HITTISALAMA, 3,4 = HITTITÃ„HTI, 5,6 = KILPI, 7,8 = GREMLIN \
+
+function: gh X:n {
+ if G_HIT <= 0 {result: 0}
+ if (9@A + (10@A * 10)) >= X {result: G_HITA}
+
+ result: 0
+}
+
+function: ssh X:n {
+ if SS_HIT <= 0 {result: 0}
+ if (11@A + (12@A * 10)) >= X {result: SS_HITA}
+
+ result: 0
+}
+
+function: sha X:n {
+ if AL_HIT <= 0 {result: 0}
+ if (((1@A + (2@A * 10)) * 2) + (3@A + (4@A * 10))) >= X {result: AL_HITA}
+
+ result: 0
+}
+
+function: shb X:n {
+ if BL_HIT <= 0 {result: 0}
+ U: BL_HIT
+ if ((1@A + (2@A * 10)) * 2) + (3@A + (4@A * 10)) >= X & [attlightningcomp AL_HIT] != 1 {result: BL_HITA}
+
+ result: 0
+}
+
+function: tha X:n {
+ if AS_HIT <= 0 {result: 0}
+ if ((5@A + (6@A * 10))) >= X {result: AS_HITA}
+
+ result: 0
+}
+
+function: thb X:n {
+ if BS_HIT <= 0 {result: 0}
+ U: BS_HIT
+ if (5@A + (6@A * 10)) >= X & [attstarcomp AS_HIT] != 1 {result: BS_HITA}
+
+ result: 0
+}
+
+function: spa X:n {
+ if AL_SH <= 0 {result: 0}
+ if (1@B + (2@B * 10)) >= X {result: AL_SHA}
+
+ result: 0
+}
+
+function: spb X:n {
+ if BL_SH <= 0 {result: 0}
+ U: BL_SH
+ if (1@B + (2@B * 10)) >= X & [deflightningcomp AL_SH] != 1 {result: BL_SHA}
+
+ result: 0
+}
+
+function: tpa X:n {
+ if AS_SH <= 0 {result: 0}
+ if (3@B + (4@B * 10)) >= X {result: AS_SHA}
+
+ result: 0
+}
+
+function: tpb X:n {
+ if BS_SH <= 0 {result: 0}
+ U: BS_SH
+ if (3@B + (4@B * 10)) >= X & [defstarcomp AS_SH] != 1 {result: BS_SHA}
+
+ result: 0
+}
+
+function: gpa X:n {
+ if G_SH <= 0 {result: 0}
+ if (7@B + (8@B * 10)) >= X {result: G_SHA}
+
+ result: 0
+}
+
+\___________________________________________________________________________LÃ„PIMENOFUNKTIO\
+
+function: compare A:n to B:n {
+ H: {((3@A + (4@A * 10)) + (5@A + (6@A * 10))) + ((7@A + (8@A * 10)))}
+ P: {(5@B + (6@B * 10))}
+
+ result: (H + HITS + [sha AL_HIT] + [shb BL_HIT] + [tha AS_HIT] + [thb BS_HIT] + [gh G_HIT] + [ssh SS_HIT]) - (P + ARMOR + [spa AL_SH] + [spb BL_SH] + [tpa AS_SH] + [tpb BS_SH] + [gpa G_SH])
+}
+
+output [compare REDd{10000000000:1,100000000:1,1000000:1,2000000:1,10000:2,100:3,1:1} + BLUEd{0:4,100000000:1,10000:3,100:2} to PBLUEd{1000000:1,10000:4,100:3,1:2}] named "LÃ„PIMENEVÃ„T HITIT:"
+
+\HYÃ–KKÃ„YS: 1,2 = TUPLASALAMA, 3,4 = HITTISALAMA, 5,6 = HITTITÃ„HTI, 7,8 = PELKÃ„T HITIT (1 ja 2), 9,10 = GREMLIN, 11,12 = SS \
+\PUOLUSTUS: 1,2 = HITTISALAMA, 3,4 = HITTITÃ„HTI, 5,6 = KILPI, 7,8 = GREMLIN \
+
+\________________________________________________________________________________________________________________________HYÃ–KKÃ„YSHEITTO\
+
+\10 MILJARDIA ON SS, 100 MILJOONAA ON GREMLIN, 2MILJOONAA ON TUPLAHITTI, MILJOONA ON HITTI, 10K ON TÃ„HTIHITTI, SATASET ON SALAMAHITTI, YKKÃ–SET ON TUPLASALAMA\
+\ (1:SaSa, 2:SaSa10 , 3:HSa , 4:HSa10 , 5:HT , 6:HT10, 7:H , 8:H10, 9:SS, 10:SS10, 11:G, 12:G10) \
+
+function: attackroll A:n {
+ 
+ if (((1@A + (2@A * 10)) * 2) + 3@A + (4@A * 10)) >= LIGHTNING & (5@A + (6@A * 10)) >= STAR & (3@A +(4@A * 10)) + (5@A + (6@A * 10)) + (7@A + (8@A * 10)) >= HIT & (9@A + 
+(10@A * 10)) >=GREMLIN & (11@A + (12@A * 10)) >= SS_SYMBOL {result: 1}
+ 
+ result: 0
+}
+
+output [attackroll REDd{10000000000:1,100000000:1,1000000:1,2000000:1,10000:2,100:3,1:1} + BLUEd{0:4,100000000:1,10000:3,100:2}] named "VÃ„HIMMÃ„ISMÃ„Ã„RÃ„T HYÃ–KKÃ„YKSESSÃ„:"
+
+\_______________________________________________________________________________________________________________________PUOLUSTUSHEITTO\
+
+\MILJOONA ON GREMLIN, 10K ON KILPI, SATASET ON TÃ„HTI, YKKÃ–SET ON SALAMA\
+\ (1:Sa, 2:Sa10 , 3:TÃ¤ , 4:TÃ¤10 , 5:Sh , 6:Sh10, 7:Gr , 8:Gr10) \
+
+function: defenseroll A:n {
+ 
+ if (1@A + (2@A * 10)) >= PLIGHTNING & (3@A + (4@A * 10)) >= PSTAR & (5@A +(6@A * 10)) >= PSHIELD & (7@A + (8@A * 10)) >= PGREMLIN {result: 1}
+ 
+ result: 0
+}
+
+output [defenseroll PBLUEd{1000000:1,10000:4,100:3,1:2}] named "VÃ„HIMMÃ„ISMÃ„Ã„RÃ„T PUOLUSTUKSESSA:"

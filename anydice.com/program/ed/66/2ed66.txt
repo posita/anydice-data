@@ -1,0 +1,25 @@
+ARMOR_CLASS: 15
+
+DEXTERITY_MODIFIER: 4
+PROFICIENCY_BONUS: 3
+ATTACK: DEXTERITY_MODIFIER + PROFICIENCY_BONUS
+
+function: attack ROLL:n vs DEFENSE:n {
+  MISS: 0
+  HIT: 1d8 + DEXTERITY_MODIFIER + SNEAK_ATTACK
+  CRITICAL_HIT: 2d8 + DEXTERITY_MODIFIER + SNEAK_ATTACK + SNEAK_ATTACK
+
+  if ROLL = 1 { result: MISS }
+  if ROLL >= 19 { result: CRITICAL_HIT }
+  if ROLL + ATTACK >= DEFENSE { result: HIT }
+  result: MISS
+}
+
+SNEAK_ATTACK: 4d6
+output [attack 1@3d20 vs ARMOR_CLASS] named "Rogue (8 level)"
+
+SNEAK_ATTACK: 2d6
+output [attack 1@3d20 vs ARMOR_CLASS] + [attack 1@3d20 vs ARMOR_CLASS] named "Rogue (3 level) + Fighter (5 level)"
+
+SNEAK_ATTACK: 0
+output [attack 1@3d20 vs ARMOR_CLASS] + [attack 1@3d20 vs ARMOR_CLASS] named "Fighter (8 level)"

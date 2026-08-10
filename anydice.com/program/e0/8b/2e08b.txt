@@ -1,0 +1,62 @@
+function: attack ATTACK:n hit HIT:n {
+    result: [count {HIT..6} in ATTACKd6]
+}
+
+function: hits HITS:n wound WOUND:n {
+    result: [count {WOUND..6} in HITSd6]
+}
+
+function: wounds WOUNDS:n vs SAVE:n rend REND:n {
+    if SAVE = 6 {
+        result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd6])
+    }
+    result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd6])
+}
+
+function: success SUCCESS:n for DAMAGE:n by MODELS:n {
+    result: SUCCESS * DAMAGE * MODELS
+}
+
+function: attack ATTACK:n hit HIT:n wound WOUND:n vs SAVE:n rend REND:n for DAMAGE:n by MODELS:n {
+    result: [success [wounds [hits [attack ATTACK hit HIT] wound WOUND] vs SAVE rend REND] for DAMAGE by MODELS]
+}
+
+function: damage {
+    result: [attack ATTACK hit HIT wound WOUND vs SAVE rend REND for DAMAGE by MODELS]
+}
+
+function: hit {
+    result: [wounds [hits [attack ATTACK hit HIT] wound WOUND] vs SAVE rend REND]
+}
+
+
+
+SAVE: 3
+ATTACK: 1
+HIT: 3
+WOUND: 3
+REND: 0
+DAMAGE: 1
+MODELS: 1
+output [hit] named "1 hits"
+output [damage] named "1 damage"
+
+SAVE: 4
+ATTACK: 1
+HIT: 3
+WOUND: 3
+REND: 0
+DAMAGE: 1
+MODELS: 1
+output [hit] named "2 hits"
+output [damage] named "2 damage"
+
+SAVE: 5
+ATTACK: 1
+HIT: 3
+WOUND: 3
+REND: 0
+DAMAGE: 1
+MODELS: 1
+output [hit] named "3 hits"
+output [damage] named "3 damage"

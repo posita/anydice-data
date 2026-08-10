@@ -1,0 +1,37 @@
+function: lostdays DISTANCE:n ROLL:n{
+ LOSTDAYS: DISTANCE
+ if ROLL >=  5 { LOSTDAYS: DISTANCE - 1 }
+ if ROLL >= 10 { LOSTDAYS: DISTANCE - 2 }
+ if ROLL >= 15 { LOSTDAYS: DISTANCE - 3 }
+ if ROLL >= 20 { LOSTDAYS: DISTANCE - 4 }
+ if ROLL >= 25 { LOSTDAYS: DISTANCE - 5 }
+ result: [highest of 0 and LOSTDAYS]
+}
+
+function: traveldays DISTANCE:n MODIFIER:n ISOUTLANDER:n{
+ if DISTANCE>=5{
+  REMAINING:DISTANCE-5
+  ACTUAL:5
+ }
+ if DISTANCE<5{
+  REMAINING:DISTANCE
+  ACTUAL:DISTANCE
+ }
+if ACTUAL=0{
+result:0
+}
+ if ISOUTLANDER=1{
+  if ACTUAL=5{
+   result: ACTUAL+[lostdays ACTUAL [highest 1 of 2d20]+MODIFIER]+[traveldays REMAINING MODIFIER ISOUTLANDER]
+  }
+   result: ACTUAL+[lostdays ACTUAL [highest 1 of 2d20]+MODIFIER]
+ }
+ if ACTUAL=5{
+  result: ACTUAL+[lostdays ACTUAL 1d20+MODIFIER]+[traveldays REMAINING MODIFIER ISOUTLANDER]
+ }
+  result: ACTUAL+[lostdays ACTUAL 1d20+MODIFIER]
+}
+loop N over {1..5}{
+ output [traveldays 5 N 0] named "Total Travel w/[N] Survival"
+}
+

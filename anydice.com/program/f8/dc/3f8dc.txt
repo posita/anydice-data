@@ -1,0 +1,55 @@
+STRENGTH: 6
+
+\ Modify to unclutter what is shown \
+SHOWATTACK: 1
+SHOWMELEEDAMAGE: 1
+SHOWRANGEDAMAGE: 1
+SHOWMELEEBREAKING: 1
+SHOWRANGEBREAKING: 1
+
+ACES: 2 
+\ ACES defines how many consecutive explosions we allow, default 2 which is reasonable \
+
+set "explode depth" to ACES
+STRD: dSTRENGTH
+
+
+\ ATTACK with hero d6, exploding \
+if SHOWATTACK = 1 {
+  output [highest of [explode d6] and [explode d4]] named "ATTACK: d4 | d6, max [ACES] Aces"
+  output [highest of [explode d6] and [explode d6]] named "ATTACK: d6 | d6, max [ACES] Aces"
+  output [highest of [explode d6] and [explode d8]] named "ATTACK: d8 | d6, max [ACES] Aces"
+  output [highest of [explode d6] and [explode d10]] named "ATTACK: d10 | d6, max [ACES] Aces"
+  output [highest of [explode d6] and [explode d12]] named "ATTACK: d12 | d6, max [ACES] Aces"
+}
+
+\ Typical MELEE/THROWN DAMAGE, exploding\
+if SHOWMELEEDAMAGE = 1 {
+  output [explode STRD] + [explode d4] named "DAMAGE: knife, rapier, shield bash, staff: d[STRENGTH] + d4, max [ACES] Aces"
+  output [explode STRD] + [explode d6] named "DAMAGE: axe, flail, spear, staff, sword, warhammer: d[STRENGTH] + d6, max [ACES] Aces"
+  output [explode STRD] + [explode d8] named "DAMAGE: battleaxe, longsword, lance, halberd, pike: d[STRENGTH] + d8, max [ACES] Aces"
+  output [explode STRD] + [explode d10] named "DAMAGE: greataxe, greatsword, maul: d[STRENGTH] + d10, max [ACES] Aces"
+}
+
+\ Typical RANGED DAMAGE, exploding\
+if SHOWRANGEDAMAGE = 1 {
+  output [explode d6] + [explode d6] named "DAMAGE: Bows, X-bow: 2d6 (max [ACES] Aces)"
+  output [explode d6] + [explode d6] +1 named "DAMAGE: Flintlock Pistol: 2d6+1 (max [ACES] Aces)"
+  output [explode d8] + [explode d8] named "DAMAGE: Musket, Heavy X-bow: 2d8 (max [ACES] Aces)"
+}
+
+\ MELEE DAMAGE breaking things, non-exploding \
+if SHOWMELEEBREAKING = 1 {
+  output STRD + d4 named "BREAKING DAMAGE: knife, rapier, shield bash, staff: d[STRENGTH] + d4, no Aces"
+  output STRD + d6 named "BREAKING DAMAGE: axe, flail, spear, staff, sword, warhammer: d[STRENGTH] + d6, no Aces"
+  output STRD + d8 named "BREAKING DAMAGE: battleaxe, longsword, lance, halberd, pike: d[STRENGTH] + d8, no Aces"
+  output STRD + d10 named "BREAKING DAMAGE: greataxe, greatsword: d[STRENGTH] + d10, no Aces"
+  output STRD + d10 +2 named "BREAKING DAMAGE: maul: d[STRENGTH] + d10 +2, no Aces"
+}
+
+\ RANGED DAMAGE breaking things, non-exploding \
+if SHOWRANGEBREAKING = 1 {
+  output 2d6 named "BREAKING DAMAGE: Bows, X-bow: 2d6 (no Aces)"
+  output 2d6+1 named "BREAKING DAMAGE: Flintlock Pistol: 2d6+1 (no Aces)"
+  output 2d8 named "BREAKING DAMAGE: Musket, Heavy X-bow: 2d8 (no Aces)"
+}

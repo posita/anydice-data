@@ -1,0 +1,95 @@
+ONCE: {1..6}
+TWICE: {ONCE, {1..6}:(#ONCE)}
+THRICE: {TWICE, {1..6}:(#TWICE)}
+
+HIGH_STRAIGHT: [reverse {2..6}]
+LOW_STRAIGHT: [reverse {1..5}]
+
+function: counts in S:s {
+  COUNTED: {}
+  COUNTS: {}
+  loop I over {1..#S} {
+    X: I@S
+    if ![COUNTED contains X] {
+      COUNTED: {COUNTED,X}
+      COUNTS: {COUNTS,[count X in S]}
+    }
+  }
+  result: [sort COUNTS]
+}
+
+function: S:s is N:n tet worth X:n {
+  if 1@[counts in S] = N {
+    result: X
+  } else {
+    result: 0
+  }
+}
+
+\50 pts\
+function: S:s is quintet {
+  result: [S is 5 tet worth 50]
+}
+
+\30 pts\
+function: S:s is quartet {
+  result: [S is 4 tet worth 30]
+}
+
+\20 pts\
+function: S:s is triplet {
+  result: [S is 3 tet worth 20]
+}
+
+\25 pts\
+function: S:s is full house {
+  COUNTS: [counts in S]
+  if 1@COUNTS = 3 & 2@COUNTS = 2 {
+    result: 25
+  } else {
+    result: 0
+  }
+}
+
+\30 pts\
+function: S:s is high straight {
+  if [sort S] = HIGH_STRAIGHT {
+    result: 30
+  } else {
+    result: 0
+  }
+}
+
+\40 pts\
+function: S:s is low straight {
+  if [sort S] = LOW_STRAIGHT {
+    result: 40
+  } else {
+    result: 0
+  }
+}
+
+\R pts\
+function: sum of N:n in S:s {
+  result: [count N in S] * N
+}
+
+\R pts\
+function: sum of S:s {
+  result: {1..#S}@S
+}
+
+function: scores of S:s {
+  result: [sort {[S is quintet], [S is quartet], [S is triplet],
+    [S is full house], [S is high straight], [S is low straight],
+    [sum of S], [sum of d6 in S]}]
+}
+
+function: highest N:n score of S:s {
+  result: N@[scores of S]
+}
+
+\-- Same ratios as ONCE.\
+\output [highest 1 score of 5dTHRICE] named "Single casting"\
+
+output [highest 1 score of 5dONCE] named "Single casting"

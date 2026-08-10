@@ -1,0 +1,42 @@
+MAX: 7
+
+PAC: 20
+PAB: 8
+PDA: 1
+PDS: 8
+PDB: 5
+
+EAC: 22
+EAB: 16
+EDA: 1
+EDS: 8
+EDB: 11
+
+function: damage DA:n dice DS:n plus DB:n minimum MIN:n{
+  if MIN = 20{
+    result: (2*DA)dDS+DB
+  }
+  result: DAdDS+DB
+}
+
+function: hit AC:n with TH:n {
+  if TH > AC {
+    result: 1
+  }
+  result: 0
+}
+
+output [damage PDA dice PDS plus PDB minimum 1d{EAC-PAB+1..20}] named "Player Damage"
+O: [hit EAC with 1d20+PAB]
+F: O
+loop N over {2..MAX} {
+  F: F+O^N
+}
+output F named "Player Hit Chance Over {MAX} Turns"
+output [damage EDA dice EDS plus EDB minimum 1d{PAC-EDB+1..20}] named "Enemy Damage"
+O: [hit PAC with 1d20+EAB]
+F: O
+loop N over {2..MAX} {
+  F: F+O^N
+}
+output F named "Enemy Hit Chance Over {MAX} Turns"

@@ -1,0 +1,24 @@
+function: blades ROLL:s {
+ result: (1@ROLL >= 4) + [count {6} in ROLL]
+}
+
+function: dataops DC ROLL:s {
+ M: 0
+ loop X over {DC..6} {
+  S: [count {X} in ROLL] - 1
+  if S>M { M: S }
+ }
+ result: M
+}
+
+output [blades 2@2d6] named "BitD 0d"
+loop P over {1..6} {
+ output [blades Pd6] named "BitD [P]d"
+}
+
+loop D over {1..6} {
+ output [dataops D 2@2d6] named "DC[D] 0d"
+ loop P over {2..8} {
+  output [dataops D Pd6] named "DC[D] [P]d"
+ }
+}

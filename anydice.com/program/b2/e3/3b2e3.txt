@@ -1,0 +1,57 @@
+set "maximum function depth" to 4
+
+set "position order" to "highest first" \ the default behavior \
+
+function: evaluate ROLL:s {
+ if ROLL >= 10 { result: 2}
+ if ROLL >= 7 { result: 1}
+ result: 0
+}
+function: evaluateten ROLL:s {
+ if ROLL >= 16 { result: 2}
+ if ROLL >= 11 { result: 1}
+ result: 0
+}
+function: evaluatethreedsix ROLL:s {
+ if ROLL >= 14 { result: 2}
+ if ROLL >= 10 { result: 1}
+ result: 0
+}
+
+function: bounded ROLL:s {
+ if ROLL >= 12 { result: 12}
+ if ROLL <= 0 { result: 0}
+ result: ROLL
+}
+
+function: advantagemod ROLL:s {
+ 
+ if ROLL < 0 { 
+  DICE: ROLL*-1+2
+  result: [lowest 2 of DICEd6]
+  }
+ DICE: ROLL+2
+ result: [highest 2 of DICEd6]
+}
+
+ADVANTAGE: [highest 2 of 3d6]
+DISADVANTAGE: [lowest 2 of 3d6]
+
+loop MOD over {-2..4} {
+ output [evaluate 2d6+MOD] named "2d6+[MOD]"
+ \output [evaluatethreedsix 3d6+MOD] named "3d6+[MOD]"\
+ \output [evaluateten 2d10+MOD] named "2d10+[MOD]"\
+ \output [evaluate ADVANTAGE+MOD] named "ADVANTAGE 2d6+[MOD]"\
+ \output [evaluate DISADVANTAGE+MOD] named "DISADVANTAGE 2d6+[MOD]"\
+ \ADVANTAGEROLL: [advantagemod MOD]\
+ \output [evaluate ADVANTAGEROLL] named "2+[MOD]d6"\
+}
+loop MOD over {-2..4} {
+ output [evaluate ADVANTAGE+MOD] named "ADVANTAGE 2d6+[MOD]"
+ ADVANTAGEROLL: [advantagemod MOD]
+}
+loop MOD over {-2..4} {
+ output [evaluate DISADVANTAGE+MOD] named "DISADVANTAGE 2d6+[MOD]"
+ ADVANTAGEROLL: [advantagemod MOD]
+}
+

@@ -1,0 +1,35 @@
+function: souldice ROLLS:s difficulty DIFFICULTY:n focus FOCUS:n {
+	SUCCESSES: 0
+	USABLEFOCUS: FOCUS
+	loop N over {1..#ROLLS}{
+		if N@ROLLS >= DIFFICULTY {
+			SUCCESSES: SUCCESSES + 1
+		}
+		else if N@ROLLS + USABLEFOCUS >= DIFFICULTY {
+			SUCCESSES: SUCCESSES + 1
+			USABLEFOCUS: USABLEFOCUS + N@ROLLS - DIFFICULTY
+		}
+		else
+		{
+			result: SUCCESSES
+		}
+	}
+	result: SUCCESSES
+}
+
+function: souldice ROLLS:s difficulty DIFFICULTY:n {
+	result: [souldice ROLLS difficulty DIFFICULTY focus 0]
+}
+
+function: souldice ROLLS:s focus FOCUS:n {
+	result: [souldice ROLLS difficulty 4 focus FOCUS]
+}
+
+function: souldice ROLLS:s {
+	result: [souldice ROLLS difficulty 4 focus 0]
+}
+
+output [souldice 4d6 focus 3] named "4 dice, 3 focus at diff 4"
+output [souldice 4d6] named "4 dice at diff 4"
+output [souldice 4d6 difficulty 3] named "4 dice at diff 3"
+output [souldice 4d6 difficulty 6 focus 3] named "4 dice, 3 focus at diff 6"

@@ -1,0 +1,131 @@
+function: absolute NUMBER:n{
+ if NUMBER < 0 { result: -NUMBER }
+ result: NUMBER
+}
+
+function: armorexplode N:n on ARMOR:n {
+ if N > ARMOR { result: N + 1d6 }
+ result: N
+}
+
+function: armorimplode N:n on ARMOR:n {
+ if N <= ARMOR { result: N + 1d6 }
+ result: N
+}
+
+function: critchance DICE:n CRITMIN:n{
+if DICE >= CRITMIN {result: 1}
+result: 0
+}
+
+function: specificcritchance DICE:n CRITVAL:n{
+if DICE = CRITVAL {result: 1}
+result: 0
+}
+
+function: specificinjurychance CRITROLLS:n INJURYNUM:n{
+if (CRITROLLS * (d6)) > (INJURYNUM - 1) {result: 1}
+result: 0
+}
+
+function: critdamagenullthing CRITDICE:s CRITMIN:n{
+if CRITMIN = 6 {if ([count 6 in CRITDICE] >= 2){result: 1}}
+if CRITMIN = 5 {if ([count 5 in CRITDICE] >= 2){result: 1}}
+if CRITMIN = 4 {if ([count 4 in CRITDICE] >= 2){result: 1}}
+result: 0
+}
+
+function: avgdamagecritweird DAMAGEDICE:n CRITDICE:s CRITMIN:n{
+ if (([critdamagenullthing CRITDICE CRITMIN]) >= 1) {result: DAMAGEDICE + 10}
+ result: 0
+}
+
+function: critdamage CRITDICE:s CRITMIN:n{
+if CRITMIN = 6 {if ([count 6 in CRITDICE] >= 2){result: 1}}
+if CRITMIN = 5 {if ([count 5 in CRITDICE] >= 2){result: 1}}
+if CRITMIN = 4 {if ([count 4 in CRITDICE] >= 2){result: 1}}
+result: 0
+}
+
+function: avgdamagecrit DAMAGEDICE:n CRITDICE:s CRITMIN:n {
+ if (([critdamage CRITDICE CRITMIN]) >= 1) {result: DAMAGEDICE + 5}
+ result: DAMAGEDICE
+}
+
+function: avgdamagecritpower DAMAGEDICE:n CRITDICE:s CRITMIN:n{
+ if (([critdamage CRITDICE CRITMIN]) >= 1) {result: DAMAGEDICE + 10}
+ result: DAMAGEDICE
+}
+
+function: headshot DAM:n MULT:n {
+ if MULT = 2 {result: DAM * 2}
+else if MULT = 3{
+result: DAM * 2
+}
+ result: 0
+}
+
+function: totaldamagechance DAM:n SP:n {
+ if DAM > SP {
+ result: 1
+ }
+ result: 0
+}
+
+function: avgdamagevsarmor DAM:n HALFSP:n TARGETSP:n IGNORESP:n{
+  if (IGNORESP >= 1){
+    if (TARGETSP < IGNORESP){result: [absolute DAM]}
+    else if ((TARGETSP >= IGNORESP) & (DAM > TARGETSP)) {
+      if (HALFSP = 1){result: [absolute (DAM - ((TARGETSP+1)/2))]}
+      else {result: [absolute (DAM - TARGETSP)]}}
+    }
+  else if (DAM > TARGETSP) {
+      if (HALFSP = 1){result: [absolute (DAM - ((TARGETSP+1)/2))]}
+      else {result: [absolute (DAM - TARGETSP)]}
+  }
+  else {result: 0}
+}
+
+function: avgetedamagevsarmor DAM:n HALFSP:n TARGETSP:n IGNORESP:n{
+  if (IGNORESP >= 1){
+    if (TARGETSP < IGNORESP){result: [absolute DAM]}
+    else if ((TARGETSP >= IGNORESP) & (DAM > TARGETSP)) {
+      if (HALFSP = 1){result: [absolute (DAM - ((TARGETSP+1)/2))]}
+      else {result: [absolute (DAM - TARGETSP)]}}
+    }
+  else if (DAM > TARGETSP) {
+      if (HALFSP = 1){result: [absolute (DAM - ((TARGETSP+1)/2))]}
+      else {result: [absolute ((DAM - TARGETSP)/2 + (DAM - TARGETSP))]}
+  }
+  else {result: 0}
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: overpressuredmg BASEDMG:d CHECKDIE:n {
+ if CHECKDIE = 10 {result: BASEDMG + 1d10}
+ result: BASEDMG
+}
+function: overpressuredmgtwo BASEDMG:d CHECKDIE:n {
+ if CHECKDIE = 10 {result: [highest of BASEDMG and BASEDMG]}
+ result: BASEDMG
+}
+
+function: overpressuredmgthree BASEDMG:d CHECKDIE:n {
+ if CHECKDIE = 10 {result: BASEDMG+5}
+ result: BASEDMG
+}
+
+\
+RE-ROLLING 1s AND 2s == output (([reroll {1,2} on 1d6 to d4+2] + [reroll {1,2} on 1d6 to d4+2] + [reroll {1,2} on 1d6 to d4+2] + [reroll {1,2} on 1d6 to d4+2])) named "VHP w/ Re-rolling 1s and 2s"
+\
+
+\====DAMAGE TESTING====\
+output ([avgdamagecritpower (11d6 * 2) 11d6 6]) named "omega bs rifle headshot damage (w/ Crits)"
+\======\
+

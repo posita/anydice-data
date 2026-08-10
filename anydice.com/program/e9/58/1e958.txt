@@ -1,0 +1,59 @@
+function: X:n attack AC:n ac M:n attackmod Y:n damage B:n critsrange C:n critmult D:n addcritconfirm{
+
+if X= 1 {result: 0} \sad crit\
+
+if X >=B { \crit chance\
+    if X+M+D >=AC { result: C*Y} \crit confirmed\
+    else if X=20 { result: Y}    \crit no confirm still hits on a 20\ 
+}
+
+if X+M >=AC {result: Y} \hit\
+
+else { result: 0 } \miss\
+
+}
+
+function: X:n toattack AC:n againstac M:n weaponattackmod B:n weaponcritsrange{
+
+NUM:0 
+
+if X= 1 {NUM: 0} \sad crit\
+
+if X >=B { \crit chance\
+    if X+M >=AC { NUM: 1} \crit confirmed\
+    else if X=20 { NUM:1}    \crit no confirm still hits on a 20\ 
+}
+
+if X+M >=AC {NUM: 1} \hit\
+
+else {NUM:0 } \miss\
+
+result: NUM
+
+}
+
+
+loop N over {12..30}{ \to set the AC range\
+
+ATTACKMOD: 17
+CRIT: 15
+CRITMUL: 2
+
+KUK_PRI_ATTACK_ONE: [d20 attack N ac 17 attackmod d4+6 damage CRIT critsrange CRITMUL critmult 4 addcritconfirm]
+KUK_SEC_ATTACK_ONE: [d20 attack N ac 17 attackmod d4+4 damage CRIT critsrange CRITMUL critmult 4 addcritconfirm]
+
+KUK_PRI_ATTACK_TWO: [d20 attack N ac 12 attackmod d4+6 damage CRIT critsrange CRITMUL critmult 4 addcritconfirm]
+KUK_SEC_ATTACK_TWO: [d20 attack N ac 12 attackmod d4+4 damage CRIT critsrange CRITMUL critmult 4 addcritconfirm]
+
+TOHIT: [d20 toattack N againstac 17 weaponattackmod CRIT weaponcritsrange]
+TOHITTWO: [d20 toattack N againstac 12 weaponattackmod CRIT weaponcritsrange]
+TOHITALL: TOHIT*TOHIT*TOHITTWO*TOHITTWO
+
+output KUK_PRI_ATTACK_ONE+KUK_SEC_ATTACK_ONE+KUK_PRI_ATTACK_TWO+KUK_SEC_ATTACK_TWO named "Kukri on [N] AC"
+
+output TOHIT named "hit chance wep1 on [N] AC"
+output TOHITTWO named "hit chance wep2 on [N] AC"
+output TOHITALL named "hit chance full attack on [N] AC"
+
+
+}

@@ -1,0 +1,101 @@
+\ Attack Sequence \
+
+\ Hit Values \
+A: 8 	\ # Attacks \
+H: 3 	\ Hit Roll Target \
+HR: 0   \ Hit Re-Roll \
+W: 3 	\ Wound Roll Target \
+WR: 0   \ Wound Re-Roll \
+R: -2 	\ Rend (Negative Number) \
+D: 2 	\ Damage \
+F: 7	\ Feel No Pain Roll Target \
+MWHT: 6 \ Mortal Wound on Hit Target \
+MWHD: 2 \ Mortal Wound on Hit Damage \
+MWWT: 6 \ Mortal Wound on Wound Target \
+MWWD: 1 \ Mortal Wound on Wound Damage \
+EDHT: 6 \ Extra Damage on Hit Target \
+EDHD: 0 \ Extra Damage on Hit Bonus \
+EDWT: 6 \ Extra Damage on Wound Target \
+EDWD: 0 \ Extra Damage on Wound Bonus \
+
+AT: 3 	\ # Attacks \
+HT: 3 	\ Hit Roll Target \
+HRT: 0   \ Hit Re-Roll \
+WT: 3 	\ Wound Roll Target \
+WRT: 0   \ Wound Re-Roll \
+RT: -3 	\ Rend (Negative Number) \
+DT: 4	\ Damage \
+FT: 7	\ Feel No Pain Roll Target \
+MWHTT: 6 \ Mortal Wound on Hit Target \
+MWHDT: 2 \ Mortal Wound on Hit Damage \
+MWWTT: 6 \ Mortal Wound on Wound Target \
+MWWDT: 1 \ Mortal Wound on Wound Damage \
+EDHTT: 6 \ Extra Damage on Hit Target \
+EDHDT: 0 \ Extra Damage on Hit Bonus \
+EDWTT: 6 \ Extra Damage on Wound Target \
+EDWDT: 0 \ Extra Damage on Wound Bonus \
+
+
+\ Die Values \
+HD: 1d6 \ Hit Die \
+HRD: 1d6\ Hit RR Die\
+WD: 1d6 \ Wound Die \
+WRD: 1d6\ Wound RR Die \
+SD: 1d6 \ Save Die\
+FD: 1d6 \ Feel No Pain Die \
+
+
+function: hit HIT:n TO_HIT:s HREROLL:s {
+	if TO_HIT <= HR {result: HREROLL >= HIT} 
+        result: TO_HIT >= HIT
+}
+
+function: wound WOUND:n TO_WOUND:s WREROLL:s {
+	if TO_WOUND <= WR {result: WREROLL >= WOUND} 
+        result: TO_WOUND >= WOUND
+}
+
+function: save SAVE:n REND:n TO_SAVE:s {
+	if TO_SAVE = 1 {result: 1}
+        result: TO_SAVE < SAVE-REND
+}
+
+function: gate HR:s WR:s SR:s D:s {
+	result: HR * WR * SR * D
+}
+
+function: fnp FNP:n DICE:s{
+	if DICE < FNP {result: 1}
+	result: 0
+}
+
+\ Bonus Damage Calc: Hit, Hit RR, Wound, Wound RR, Damage \
+
+function: damage DAMAGE:n HIT:s HITRR:s WOUND:s WOUNDRR:s{
+
+	if HIT <= HR {
+		if HITRR >= EDHT{DAMAGE: DAMAGE + EDHD}
+	}
+	else {
+		if HIT >= EDHT{DAMAGE: DAMAGE + EDHD}
+	}
+	if WOUND <= WR {
+		if WOUNDRR >= EDWT{DAMAGE: DAMAGE + EDWD}
+	}
+	else {
+		if WOUND >= EDWT{DAMAGE: DAMAGE + EDWD}
+	}
+	result: DAMAGE
+}
+
+\ Roll D6, ReRoll D6, RR Target, MW Target, MW Damage \
+function: mwonhit TO_HIT:s HREROLL:s RR:n MWT: n MWD: n{
+	if TO_HIT <= RR {result: (HREROLL >= MWT) * MWD} 
+        result: (TO_HIT >= MWT) * MWD
+}
+
+loop S over {-1..7}{
+
+output Ad([gate [hit H HD HRD] [wound W WD WRD] [save S R SD] [damage D HD HRD WD WRD]]d[fnp  F FD] + d[mwonhit HD HRD HR MWHT MWHD]+ [hit H HD HRD] * d[mwonhit WD WRD WR MWWT MWWD]) + Ad([gate [hit HT HD HRD] [wound WT WD WRD] [save S RT SD] [damage DT HD HRD WD WRD]]d[fnp FT FD] + d[mwonhit HD HRD HR MWHT MWHD]+ [hit HT HD HRD] * d[mwonhit WD WRD WR MWWT MWWD]) named "[S]+ Save"
+
+}

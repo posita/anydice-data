@@ -1,0 +1,56 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ADV:s {
+ result: [damage for [attack [highest 1 of {ADV}d20] vs DEFENSE]]
+}
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT}
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: DAM:n reroll as REROLL:d {
+  if DAM <=2 { result: REROLL }
+  result: DAM
+}
+
+DEFENSE: {15}
+ATTACK: 6-5
+HITDAMAGE: 2*[d6 reroll as d6]+4+10
+CRITICALDAMAGE: 4*[d6 reroll as d6]+4+10
+MISSDAMAGE: 0
+output [attack 1] named "Fighter 4"
+
+ATTACK: 7-5
+HITDAMAGE: 2*[d6 reroll as d6]+4+10
+CRITICALDAMAGE: 4*[d6 reroll as d6]+4+10
+MISSDAMAGE: 0
+output [attack 1]+[attack 1] named "Fighter 6"
+
+ATTACK: 7-5
+HITDAMAGE: 2*[d6 reroll as d6]+4+10
+CRITICALDAMAGE: 4*[d6 reroll as d6]+4+10
+output [attack 2]+[attack 2] named "Fighter 6 ADV"
+
+ATTACK: 6-5
+HITDAMAGE: 3*[d6 reroll as d6]+14
+CRITICALDAMAGE: 6*[d6 reroll as d6]+14
+output [attack 1]+[attack 1] named "Fighter 5 rogue 1"
+
+ATTACK: 6-5
+HITDAMAGE: 3*[d6 reroll as d6]+14
+CRITICALDAMAGE: 6*[d6 reroll as d6]+14
+output [attack 2]+[attack 2] named "Fighter 5 rogue 1 ADV"

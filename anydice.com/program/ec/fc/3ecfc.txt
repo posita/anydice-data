@@ -1,0 +1,37 @@
+\-- Fireball --\
+SPELLCASTER_LEVEL: 5
+SPELLCASTING_ABILITY: 18
+LEVEL: 3
+DC_BONUS: 0
+SAVE_FOR_HALF: 1
+HAS_EVASION: 0
+
+
+function: fireball{
+  if LEVEL < 3 {result: 0}
+  result : 8d8 + (LEVEL-3)d8
+}
+
+PROF_BONUS: (SPELLCASTER_LEVEL - 1)/4 + 2
+SPELL_MOD: SPELLCASTING_ABILITY/2 - 5
+SAVE_DC: 8 + SPELL_MOD + PROF_BONUS + DC_BONUS
+
+
+function: saving throw ROLL:n {
+  FULL_DMG: [fireball]
+  HALF_DMG: FULL_DMG/2
+
+  HAS_MADE_SAVE: (ROLL >= SAVE_DC)
+
+  if !HAS_MADE_SAVE & !(HAS_EVASION & SAVE_FOR_HALF ) {result: FULL_DMG}
+  if SAVE_FOR_HALF  & !(HAS_EVASION & HAS_MADE_SAVE ) {result: HALF_DMG}
+
+  result: 0
+}
+
+
+loop MOD over {(SAVE_DC - 21)..(SAVE_DC - 1)}{
+  ROLL:(d20 + MOD)
+  if MOD < 0 {output [saving throw (ROLL)] named  "[MOD] DEX Save"}
+  else       {output [saving throw (ROLL)] named "+[MOD] DEX Save"}
+}

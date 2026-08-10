@@ -1,0 +1,103 @@
+
+\**********************************************************************************************\
+function: roll ATT:s {
+ result: [test ATT]
+}
+
+function: test ROLL:s {
+ MAX_ROLLED: 1@ROLL
+
+ SUBSETS: {ROLL=MAX_ROLLED}                    \contain subsets from 6 to 1\
+ TEMP: 1@SUBSETS
+ RES: MAX_ROLLED
+
+ loop N over {1..MAX_ROLLED-1}{                
+   SUBSETS: {SUBSETS, ROLL=(MAX_ROLLED-N)}     \count the size of each face value (between 1/max) in the roll\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: MAX_ROLLED - N                       \keep the highest face value\
+     TEMP:(N+1)@SUBSETS                        \keep the subset count of the highest face value\
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+function: testbis ROLL:s {
+ SIXES:  ROLL=6                      \test the value on each element of the Sequence parameter : optimized\
+ FIVES:  ROLL=5
+ FOURS:  ROLL=4
+ THREES: ROLL=3
+ TWOS:   ROLL=2
+ ONES:   ROLL=1
+
+ SIZE: (1+#ROLL)/2
+ if (SIXES>=SIZE){result: 6} 
+ if (FIVES>=SIZE){result: 5}
+ if (FOURS>=SIZE){result: 4}
+ if (THREES>=SIZE){result: 3}
+ if (TWOS>=SIZE){result: 2}
+ if (ONES>=SIZE){result: 1}
+
+ if (SIXES>0) & (SIXES>=FIVES) & (SIXES>=FOURS) & (SIXES>=THREES) & (SIXES>=TWOS) & (SIXES>=ONES) { result: 6}
+ if (FIVES>0) & (FIVES>=FOURS) & (FIVES>=THREES) & (FIVES>=TWOS) & (FIVES>=ONES) { result: 5}
+ if (FOURS>0) & (FOURS>=THREES) & (FOURS>=TWOS) & (FOURS>=ONES) { result: 4}
+ if (THREES>0) & (THREES>=TWOS) & (THREES>=ONES) { result: 3}
+ if (TWOS>0) & (TWOS>=ONES) { result: 2}
+ if (ONES>0) { result: 1}
+ result: 0
+}
+
+\**********************************************************************************************\
+
+function: testtris ROLL:s {
+ MAX_ROLLED: 1@ROLL
+ MIN_ROLLED: (#ROLL)@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+
+ SUBSETS: {ROLL=MAX_ROLLED}                    \count the size of the max face value rolled\
+ TEMP: 1@SUBSETS
+ RES: MAX_ROLLED
+
+ loop N over {1..DIFF}{                        \contain subsets from 6 to 1\
+   SUBSETS: {SUBSETS, ROLL=(MAX_ROLLED-N)}     \count the size of each face value (between min/max) in the roll\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: MAX_ROLLED - N                       \keep the highest face value\
+     TEMP:(N+1)@SUBSETS                        \keep the subset count of the highest face value\
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+\TODO : 6,6,5,3,3,3,3,3,1,1 \
+function: testqris ROLL:s {
+
+ CUR_COUNT: 0
+ LAST_COUNT: 0
+ RES: 0
+
+ loop N over {1..#ROLL} {
+   CUR_COUNT: CUR_COUNT+1
+   if (N@ROLL != (N+1)@ROLL){                 \count the size of each face value in the roll\
+     if(CUR_COUNT>LAST_COUNT){        \keep the highest subset face value\
+     RES: N@ROLL
+     LAST_COUNT: CUR_COUNT}
+     CUR_COUNT: 0
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+
+\output [roll 5d6]\
+\output [test 5d6]\     \best generic : max 18d6\ 
+output [testbis 5d6]    \best specialized for d6s: max 20d6\
+\output [testtris 5d6]
+output [testqris 5d6]\
+
+
+

@@ -1,0 +1,44 @@
+function: minimum of DIE:d {
+ result: 1@{DIE}
+}
+
+function: aroll regular double N:n M:n O:n {
+ result: N + M + O
+}
+
+function: aroll DIE:d N:n M:n helper {
+ if N + M = MIN { result: 0 }
+ if N + M = MAX { result: MAX + [aroll DIE] }
+ if N = M { result: [aroll regular double N M DIE] }
+ result: N + M
+}
+
+function: aroll DIE:d {
+ MAX: [maximum of DIE + DIE]
+ MIN: [minimum of DIE + DIE]
+ result: [aroll DIE DIE DIE helper]
+}
+
+function: maybe add level N:n LEVEL:n {
+ if N = 0 { result: 0 }
+ result: N + LEVEL
+}
+
+function: aroll DIE:d at LEVEL:n {
+ result: [maybe add level [aroll DIE] LEVEL]
+}
+
+set "maximum function depth" to 5
+loop LEVEL over {0,2,4,6} {
+ loop DIFFICULTY over {8,16,24,32} {
+
+
+
+  D: d4
+
+  \output [aroll D at LEVEL] named "Lv [LEVEL] in 1 turn"\
+  output [aroll D at LEVEL] >= DIFFICULTY named "Lv [LEVEL] to [DIFFICULTY] in 1 turn"
+  output [aroll D at LEVEL] + [aroll D at LEVEL] >= DIFFICULTY named "Lv [LEVEL] to [DIFFICULTY] in 2 turns"
+  output [aroll D at LEVEL] + [aroll D at LEVEL] + [aroll D at LEVEL] >= DIFFICULTY named "Lv [LEVEL] to [DIFFICULTY] in 3 turns"
+ }
+}

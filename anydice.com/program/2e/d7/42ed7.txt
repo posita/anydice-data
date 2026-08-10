@@ -1,0 +1,71 @@
+\----------------------------------------
+Simulates various 3LA dice rolling situations.
+
+BASIC ROLL:
+Roll Nd8 and count successes
+(N = Talent Used + Committed Leads)
+
+| ROLL |   TOTAL    |
+|------|------------|
+|   1  | Subtract 1 |
+| 2-4  | No change  |
+| 5-7  | Add 1      |
+|   8  | Add 2      | 
+
+* Talent rank cannot exceed 5
+* Committed leads cannot exceed Talent
+* Talents are Fitness, Spirit, Instinct, Intellect, Social
+
+RESULT OF ROLLING:
+Compare roll total to TN (Target Number). A higher number is
+more difficult. Common values are 1-3, soft cap is 5.
+
+* Total is NEGATIVE -> CRIT FAIL (generate 2 Chaos)
+* Total < TN -> BASIC FAIL (generate 1 Chaos)
+* Total = TN -> BASIC SUCCESS
+* Total > TN -> CRIT SUCCESS
+
+EASE AND DIFFICULTY:
+If your roll has EASE or DIFFICULTY, roll one additional die. Then, 
+immediately after rolling but before calculating the total, drop
+one die from the pool: either the lowest (for Ease) or the 
+highest (for Difficulty). Do not count this die towards the total.
+
+TIP:
+To view a comparison of all the rolls, click the following settings:
+* View: Table
+* Data: Transposed
+* Scroll down to "1"
+
+AUTHOR:
+Written and coded by Alice Witchfire
+----------------------------------------\
+
+MAP: {-1,0,0,1,1,2}
+NONE: 0
+EASY: 10
+HARD: 20
+
+function: roll N:n MODE:n {
+  if MODE = EASY {
+    result: [highest N of (N+1)dMAP]
+  }
+  if MODE = HARD {
+    result: [lowest N of (N+1)dMAP]
+  }
+  result: NdMAP
+}
+
+function: test N:n TN:n MODE:n {
+  result: [roll N MODE] >= TN
+}
+
+loop N over {1..5}{
+  output [roll N NONE] < 0 named "[N]d8 crit fails"
+  
+  loop TN over {1..[lowest of 5 and N+1]}{
+    output [test N TN NONE] named "[N]d8 beats TN [TN]"
+    output [test N TN EASY] named "+Ease"
+    output [test N TN HARD] named "+Difficult"
+  }
+}

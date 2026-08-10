@@ -1,0 +1,32 @@
+function: collapse ROLL:n {
+  if (ROLL <= -6) { result: -4 }
+  if (ROLL <= -2) { result: -3 }
+  if (ROLL <= 2) { result: -2 }
+  if (ROLL < 8) { result: -1 }
+  if (ROLL = 8) { result: 0 }
+  if (ROLL < 12) { result: 1 }
+  if (ROLL < 16) { result: 2 }
+  if (ROLL < 20) { result: 3 }
+  if (ROLL < 24) { result: 4 }
+}
+
+loop BONUSDIE over {-6..6} {
+  AB: [absolute BONUSDIE]
+  loop STATICMOD over {0..AB} {
+    ABS: AB-STATICMOD
+    if ((BONUSDIE = 0) & (ABS = 0)) {
+      ROLL: (2d6)
+      output [collapse ROLL] named "2d6"
+    } else {
+      if ((BONUSDIE < 0) & (ABS > 0)) {
+        ROLL: (2d6-STATICMOD)-[highest 1 of ABSd6]
+        output [collapse ROLL] named "2d6-[STATICMOD]-[ABS]B"
+      } else {
+        if ((BONUSDIE > 0) & (ABS > 0)) {
+          ROLL: (2d6+STATICMOD)+[highest 1 of ABSd6]
+          output [collapse ROLL] named "2d6+[STATICMOD]+[ABS]B"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+function: mod VAL:n with DIVISOR: n {
+  R: (VAL / DIVISOR)
+  Z: (R * DIVISOR)
+  result: (VAL - Z)
+}
+
+function: skilltesthelper SKILL:n with POW:s resistedby RESIST:n {
+ SKILLBONUS: ((SKILL-1) / 6)
+ SKILLTARGET: [mod (SKILL - 1) with 6] + 1
+ HITS: ((SKILLTARGET = POW) + (SKILLTARGET >= POW) - (RESIST >= POW))
+ result: HITS + SKILLBONUS * #POW
+}
+
+function: skilltest SKILL:n with POW:n resistedby RESIST:n targeting TARGET:n {
+ ROLLS: POWd6
+ HITS: [ skilltesthelper SKILL with ROLLS resistedby RESIST ]
+ result: HITS / TARGET
+}
+
+BS: 8
+DEF: 2
+ARM: 4
+
+PISTOL: 6
+RIFLE: 9
+SNIPER: 12
+
+output [skilltest 4 with PISTOL resistedby DEF targeting ARM] named "Pistol BS 4"
+output [skilltest 5 with PISTOL resistedby DEF targeting ARM] named "Pistol BS 5"
+output [skilltest 6 with PISTOL resistedby DEF targeting ARM] named "Pistol BS 6"
+output [skilltest 7 with PISTOL resistedby DEF targeting ARM] named "Pistol BS 7"

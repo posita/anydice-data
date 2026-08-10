@@ -1,0 +1,38 @@
+\ This function returns +1 if player A wins, -1 if player B wins and 0 if it's a tie \
+
+\-------------------------------------------------------------\
+
+\ This is just a wrapper function that calls the second function\
+
+function: ATTRIBUTE_A:n versus ATTRIBUTE_B:n 
+{
+  result: [1d20 ATTRIBUTE_A versus 1d20 ATTRIBUTE_B]  
+}
+
+\-------------------------------------------------------------\
+
+\This is the important function that does all the stuff\
+
+function: ROLL_A:s ATTRIBUTE_A:n versus ROLL_B:s ATTRIBUTE_B:n 
+{
+  SUCCESS_A: ROLL_A <= ATTRIBUTE_A
+  SUCCESS_B: ROLL_B <= ATTRIBUTE_B
+
+  \ The higher number of successes wins \
+  if SUCCESS_A > SUCCESS_B { result: +1 }
+  if SUCCESS_A < SUCCESS_B { result: -1 }
+
+  \ If both player's rolls are a success, the highest roll wins \
+  if SUCCESS_A = 1 & ROLL_A > ROLL_B { result: +1 }
+  if SUCCESS_A = 1 & ROLL_A < ROLL_B { result: -1 }
+
+  \ Otherwise it's a tie \
+  result: 0
+}
+
+\-------------------------------------------------------------\
+
+A: 6 \ This is the attribute target value for player 1 \
+B: 5 \ This is the attribute target value for player 2 \
+
+output [A versus B] named "Player 1 (DC: [A]) vs. Player 2 (DC: [B])"

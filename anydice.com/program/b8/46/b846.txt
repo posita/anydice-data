@@ -1,0 +1,154 @@
+set "maximum function depth" to 20
+
+function: A mod B {
+  if [absolute A] >= B { 
+   if A > 0 { result: [ A - B mod B] }
+   result: [ A + B mod B]
+  }
+  result: A
+}
+
+
+function: get modifier for A:n{
+ \ turns an ability score into a modifier \
+ X: 0
+ if A < 10 {X: -1}
+ result: [(A - 10) invmod 2 - X]
+}
+
+function: A invmod B{
+  \ returns the amount of times A fits in B completely \
+  result: (A - [A mod B])/B
+}
+
+
+\
+output [highest 3 of 4d6] named "Attribute scores"
+
+output [get modifier for [highest 3 of 4d6]] named "Modifiers"
+\
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL >= CRIT_MINIMUM {
+    result: CRITICALHIT
+  }
+  if ROLL + ATTACK >= DEFENSE { result: HIT }
+  result: MISS
+}
+
+
+function: damage for ATTACKRESULT:n {
+  if ATTACKRESULT = CRITICALHIT {
+    result: CRITICALDAMAGE
+  }
+  if ATTACKRESULT = HIT {
+    result: HITDAMAGE
+  }
+  result: MISSDAMAGE
+}
+
+function: attack {
+  result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: attack with advantage {
+  result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+function: attack with disadvantage {
+  result: [damage for [attack [lowest 1 of 2d20] vs DEFENSE]]
+}
+
+
+DEFENSE: 12 \d{12..22}\
+
+
+\===========================\
+\ GROG WIELDING CRAVEN EDGE \
+\===========================\
+STRENGTH: 24
+
+STR_MODIFIER: [get modifier for STRENGTH]
+WEAPON_MODIFIER_TOHIT: +2
+WEAPON_MODIFIER_DMG: +2
+
+ATTACK: WEAPON_MODIFIER_TOHIT + STR_MODIFIER
+
+HITDAMAGE: d10 + STR_MODIFIER + WEAPON_MODIFIER_DMG
+CRITICALDAMAGE: 2*1d10 + STR_MODIFIER + WEAPON_MODIFIER_DMG
+CRIT_MINIMUM: 19
+MISSDAMAGE: 0
+
+\output [attack] named "Grog wielding Craven Edge"\
+
+\===========================\
+\ JIUTOU WIELDING CROWNREND \
+\===========================\
+
+STRENGTH: 18
+
+STR_MODIFIER: [get modifier for STRENGTH]
+WEAPON_MODIFIER_TOHIT: +2
+WEAPON_MODIFIER_DMG: +2
+
+ATTACK: WEAPON_MODIFIER_TOHIT + STR_MODIFIER
+
+HITDAMAGE: 1d8 + STR_MODIFIER + WEAPON_MODIFIER_DMG
+CRITICALDAMAGE: 2d8 + STR_MODIFIER + WEAPON_MODIFIER_DMG
+CRIT_MINIMUM: 20
+MISSDAMAGE: 0
+
+\output [attack] named "Jiutou wielding Crownrend"\
+
+
+\===========================\
+\ GROG WIELDING the BLOODAXE \
+\===========================\
+STRENGTH: 24
+
+STR_MODIFIER: [get modifier for STRENGTH]
+WEAPON_MODIFIER_TOHIT: +2
+WEAPON_MODIFIER_DMG: +2
+RAGE: +3
+
+ATTACK: WEAPON_MODIFIER_TOHIT + STR_MODIFIER
+
+HITDAMAGE: d12 + d6 + d4+ STR_MODIFIER + WEAPON_MODIFIER_DMG + RAGE
+CRITICALDAMAGE: 2*(d12+d6) + STR_MODIFIER + WEAPON_MODIFIER_DMG + RAGE
+CRIT_MINIMUM: 19
+MISSDAMAGE: 0
+
+\output [attack] named "Grog wielding Bloodaxe while enlarged"
+output [attack with advantage] named "Bloodaxe, reckless (adv)"\
+
+\===========================\
+\ GROG WIELDING the BLOODAXE \
+\===========================\
+STRENGTH: 24
+
+STR_MODIFIER: [get modifier for STRENGTH]
+WEAPON_MODIFIER_TOHIT: +2
+WEAPON_MODIFIER_DMG: +2
+RAGE: +3
+GWM_TOHIT: -5
+GWM_DMG: +10
+
+ATTACK: WEAPON_MODIFIER_TOHIT + STR_MODIFIER + GWM_TOHIT
+
+HITDAMAGE: d12 + d6 + d4+ STR_MODIFIER + WEAPON_MODIFIER_DMG + RAGE + GWM_DMG
+CRITICALDAMAGE: 2*(d12+d6) + STR_MODIFIER + WEAPON_MODIFIER_DMG + RAGE + GWM_DMG
+CRIT_MINIMUM: 19
+MISSDAMAGE: 0
+
+
+\output [attack] named "Bloodaxe, GWM"\
+loop DEFENSE over {10,12,14}{
+  output [attack] named "Bloodaxe, GWM, AC [DEFENSE]"
+  output [attack with advantage] named "Bloodaxe, GWM, reckless (adv), AC [DEFENSE]"
+}

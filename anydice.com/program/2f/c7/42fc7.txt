@@ -1,0 +1,41 @@
+\ ══════════════════════════════════════════════════════
+  Risky Income — Imperium Maledictum
+  Skill: 60 | Advantage | Income doubled by event
+  ══════════════════════════════════════════════════════ \
+
+\ ── Advantage dice ──────────────────────────────────────
+  Advantage: assemble the roll from the LOWER of two tens
+  dice and the HIGHER of two units dice (best possible roll
+  for a roll-under test while maximising the units digit). \
+
+TENS:  [lowest 1 of 2d10] - 1   \ 0–9, lower tens = better SL \
+UNITS: [highest 1 of 2d10] - 1  \ 0–9 \
+
+\ ── Income function ─────────────────────────────────────
+  T, U  : tens / units digits of the assembled roll (0–9)
+  P     : penalty taken (0, 10, 20, 30, or 40)
+  B     : base solars per SL BEFORE doubling
+           (set to your Lifestyle rate, e.g. 200 for Comfortable) \
+
+function: income T:n U:n penalty P:n base B:n {
+  EFF:  60 - P              \ effective skill after penalty \
+  ROLL: T * 10 + U          \ assembled d100 result \
+  if ROLL > EFF { result: 0 }  \ failure → 0 income \
+  SL:   EFF / 10 - T        \ integer division; tens of skill minus tens of roll \
+  RATE: B + (P / 10) * 100  \ base rate + 100 solars per −10 penalty taken \
+  result: SL * RATE * 2     \ × 2 from the event \
+}
+
+\ ── Set your base rate here ─────────────────────────────
+  Common lifestyle rates (solars per SL, before doubling):
+    Poor 50 | Meagre 100 | Comfortable 200 | Prosperous 300 \
+
+BASE: 200
+
+\ ── Outputs ─────────────────────────────────────────────\
+
+output [income TENS UNITS penalty 0  base BASE] named "No penalty  | rate: BASE×2/SL"
+output [income TENS UNITS penalty 10 base BASE] named "-10 penalty | rate: (BASE+100)×2/SL"
+output [income TENS UNITS penalty 20 base BASE] named "-20 penalty | rate: (BASE+200)×2/SL"
+output [income TENS UNITS penalty 30 base BASE] named "-30 penalty | rate: (BASE+300)×2/SL"
+output [income TENS UNITS penalty 40 base BASE] named "-40 penalty | rate: (BASE+400)×2/SL"

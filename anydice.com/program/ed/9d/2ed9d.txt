@@ -1,0 +1,77 @@
+MISSRESULT: 0
+HITRESULT: 1
+
+function: strikehit for DICERESULTS:s  {
+  if 1@DICERESULTS + TOHIT >= TARGET {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+function: marks for DICERESULTS:s range RANGE:n {
+  MARKS: 0
+
+  loop P over {1..10} {
+    NUM: [count P in DICERESULTS]
+    if NUM >= 2 {
+      MARKS: MARKS + NUM
+    }
+
+    if P >= RANGE {
+      MARKS: MARKS + NUM
+    }
+  }
+
+  result: MARKS
+}
+
+
+function: strikedamage for DICERESULTS:s {
+  MARKS: [marks for DICERESULTS range CRITRANGE]
+  DIDHIT: [strikehit for DICERESULTS]  
+
+  CRITDAMAGE: 0
+  INDEX: 1
+  loop A over CRITDAMAGES {
+    if MARKS = INDEX {
+      CRITDAMAGE: A
+    }
+    INDEX: INDEX + 1
+  }
+ 
+  if DIDHIT = 1 {
+    result: MARKS + BASEDAMAGE + CRITDAMAGE
+  } else {
+    result: 0
+  }
+}
+
+function: N:n dicestrike hit HIT:n damage DAMAGE:n range RANGE:n crits CRITS:s vs GUARD:n {
+  TOHIT: HIT
+  BASEDAMAGE: DAMAGE
+  CRITRANGE: RANGE
+  CRITDAMAGES: CRITS
+  TARGET: GUARD
+
+  result: [strikedamage for Nd10]
+}
+
+NOCRITS: {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+DAGGERCRITS: {0, 2, 0, 0, 0, 0, 0, 0, 0, 0}
+HIDDENDAGGERCRITS: {0, 6, 0, 0, 0, 0, 0, 0, 0, 0}
+TESTPRIMARYSTAT: 2
+TESTMIGHT: 2
+TESTGUARD: 9
+TESTDICE: 5
+
+MEDSWORD: [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 4+TESTMIGHT range 10 crits NOCRITS vs TESTGUARD]
+DAGGER: [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 3+TESTMIGHT range 10 crits DAGGERCRITS vs TESTGUARD]
+HIDDENDAGGER: [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 3+TESTMIGHT range 10 crits HIDDENDAGGERCRITS vs TESTGUARD]
+LRGAXE: [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 5+TESTMIGHT range 10 crits NOCRITS vs TESTGUARD]
+
+output MEDSWORD named "Sword"
+output DAGGER named "Dagger"
+output HIDDENDAGGER named "Hidden dagger"
+output LRGAXE named "Large Axe"
+

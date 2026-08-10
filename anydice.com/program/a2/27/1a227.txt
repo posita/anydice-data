@@ -1,0 +1,67 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ 
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{17..25}
+
+function: attacka {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+DEFENSE: d{17..25}
+
+ATTACK: 10
+output [attack d20 vs DEFENSE]
+
+
+HITDAMAGE: 1d8 + 4
+CRITICALDAMAGE: (1d8*2)+ 8
+MISSDAMAGE: 0
+output [attacka] named "Anxo"
+
+HITDAMAGE: 1d12 + 6 + 4
+CRITICALDAMAGE: (1d12*2) + 12 + 8
+MISSDAMAGE: 0
+output [attacka] named "Daenna"
+
+HITDAMAGE: 1d6 + 1d6 
+CRITICALDAMAGE: (1d6*2) + (1d6*2) + 1d10
+MISSDAMAGE: 0
+output [attack] named "Alva Sneak Attack"
+
+
+HITDAMAGE: 1d8 + 3 + 2
+CRITICALDAMAGE: (1d8*2) + 6 + 4
+MISSDAMAGE: 0
+output [attack] named "Iyax"
+
+
+HITDAMAGE: 1d8 + 3
+CRITICALDAMAGE: (1d6*2) + (1d6*2) + 1d10
+MISSDAMAGE: 0
+output [attack] named "Alva Sneak Attack"

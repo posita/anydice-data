@@ -1,0 +1,185 @@
+CRITICALFAIL: -1
+FAIL: 0
+SUCCESS: 1
+CRITICALSUCCESS: 2
+
+MISS: FAIL
+HIT: SUCCESS
+CRITICALHIT: CRITICALSUCCESS
+
+function: check ROLL:n vs DC:n {
+ TOTAL_ROLL: ROLL + CHECK_MOD
+ \ PF2E success requires check to beat DC \
+ if TOTAL_ROLL >= DC {
+
+   \ PF2E crit success requires check to beat DC + 10 \
+   if TOTAL_ROLL >= DC + 10 {
+     \ Nat 1 reduces crit to success \
+     if ROLL = 1 { result: SUCCESS }
+     \ Nat 20 increases crit, but nothing better than a crit \
+     result: CRITICALSUCCESS
+   }
+
+   \ Nat 1 reduces success to fail \
+   if ROLL = 1 { result: FAIL }
+
+   \ Nat 20 increases success to crit \
+   if ROLL = 20 { result: CRITICALSUCCESS }
+
+   \ a standard success \
+   result: SUCCESS
+ } else {
+
+   \ PF2E crit fail requires check to be 10 lower than DC \
+   if TOTAL_ROLL <= DC - 10 {
+     \ Nat 20 increases crit fail to fail \
+     if ROLL = 20 { result: FAIL }
+     \ Nat 1 reduces crit fail, but nothing worse than crit fail \
+     result: CRITICALFAIL
+   }
+
+   \ Nat 1 reduces fail to crit fail \
+   if ROLL = 1 { result: CRITICALFAIL }
+
+   \ Nat 20 increases fail to success \
+   if ROLL = 20 { result: SUCCESS }
+
+   \ a standard fail \
+   result: FAIL
+ }
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ TOTAL_ATK: ROLL + ATTACK_MOD
+ \ PF2E success requires attack to beat AC \
+ if TOTAL_ATK >= DEFENSE {
+
+   \ PF2E crit success requires attack to beat AC + 10 \
+   if TOTAL_ATK >= DEFENSE + 10 {
+     \ Nat 1 reduces success \
+     if ROLL = 1 { result: HIT }
+     \ Nat 20 increases success, but nothing better than a crit \
+     result: CRITICALHIT
+   }
+
+   \ Nat 1 reduces success \
+   if ROLL = 1 { result: MISS }
+
+   \ Nat 20 increases success \
+   if ROLL = 20 { result: CRITICALHIT }
+
+   \ a standard hit \
+   result: HIT
+ }
+ \ Nat 1 reduces success, but critical failures dont mean anything for attacks \
+ \ Nat 20 increases success, so counts as a hit \
+ if ROLL = 20 { result: HIT }
+ result: MISS
+}
+
+function: spell damage for CHECKRESULT:n {
+ if CHECKRESULT = CRITICALSUCCESS {
+  result: MISSDAMAGE
+ }
+ if CHECKRESULT = SUCCESS {
+  result: SAVEDAMAGE
+ }
+ if CHECKRESULT = FAIL {
+  result: HITDAMAGE
+ }
+ if CHECKRESULT = CRITICALFAIL {
+  result: CRITDAMAGE
+ }
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: counteract LEVEL:n against TARGET:n for CHECKRESULT:n {
+ if CHECKRESULT = CRITICALSUCCESS {
+  if (TARGET <= LEVEL + 3) { result: 1 }
+  result: 0
+ }
+ if CHECKRESULT = SUCCESS {
+  if (TARGET <= LEVEL + 1) { result: 1 }
+  result: 0
+ }
+ if CHECKRESULT = FAIL {
+  if (TARGET < LEVEL) { result: 1 }
+  result: 0
+ }
+ result: 0
+}
+
+function: spell {
+ result: [spell damage for [check d20 vs SPELLDC]]
+}
+
+function: dispel {
+ result: [counteract DISPEL_LEVEL against TARGET_SPELL_LEVEL for [check d20 vs SPELLDC]]
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: attacks N:n {
+  TOTAL: 0
+  CURRMAP: 0
+  loop I over {1..N} {
+    TOTAL: TOTAL + [damage for [attack (d20+CURRMAP) vs DEFENSE]]
+    CURRMAP: CURRMAP + MAP
+  }
+  result: TOTAL
+}
+
+\ ***** Example Weapon Attacks ***** \
+
+\ Weapons attacks don't do miss or save damage generally \
+MISSDAMAGE: 0
+SAVEDAMAGE: 0
+
+\ Durak's attack modifier with Bow is +14 \
+\ Durak's multiple attack penalty is -3 with Rapier \
+ATTACK_MOD: 14
+MAP: -3
+
+\ Shortbow +1 striking does 2d6 - ignore damage modifier \
+\ Shortbow has deadly dice so add 1d10 to crits \
+\ Note this is adjusted crit damage for reduced player count, normal crit would be 4d6 + 6 + 1d8 \
+HITDAMAGE: 2d6
+CRITDAMAGE: 2*(2d6) + 1d10
+
+\ Jungle Drake has 23 AC \
+DEFENSE: 23
+
+output [attack] named "Durak Flurry Edge 1ATK Shortbow"
+output [attacks 2] named "Durak Flurry Edge 2ATKs Shortbow"
+output [attacks 3] named "Durak Flurry Edge 3ATKs Shortbow"
+
+\ MAP with Precision is -5, but damage is higher \
+MAP: -5
+HITDAMAGE: 2d6 + 1d8
+CRITDAMAGE: 2*(2d6 + 1d8) + 1d10
+
+output [attack] named "Durak Precision Edge 1ATK Shortbow"
+
+function: precision {
+ HITDAMAGE: 2d6 + 1d8
+ CRITDAMAGE: (2*(2d6 + 1d8)) + 1d10
+ FIRSTATK: [damage for [attack d20 vs DEFENSE]]
+
+ HITDAMAGE: 2d6
+ CRITDAMAGE: (2*(2d6))+1d10
+ SECNDATK: [damage for [attack (d20-5) vs DEFENSE]]
+
+ result: FIRSTATK + SECNDATK
+}
+output [precision] named "Durak Precision Edge 2ATKs Shortbow"

@@ -1,0 +1,56 @@
+function: fishing S:s {
+  if [S is 5 of a kind] {
+    result: S * 5
+  }
+
+  if [S is straight] {
+    result: S * 4
+  }
+
+  if [S is 4 of a kind] {
+    result: S * 3
+  }
+
+  if [S is 3 of a kind] & [S is 2 of a kind] {
+    result: S * 2
+  }
+
+  result: S
+}
+
+function: S:s is N:n of a kind {
+  loop I over {1..6} {
+    if [count I in S] = N {
+      result: 1
+    }
+  }
+
+  result: 0
+}
+
+function: S:s is straight {
+  \ A straight is only possible on a collection of Nd6 for N <= 6.    \
+  \ The number of combinations of straights decreases as N increases. \
+  \ * 1d6 has 6 combinations (all rolls are straights).               \
+  \ * 5d6 has 2 combinations ({1..5} and {2..6}).                     \
+  \ * 6d6 has 2 combination ({1..6).                                  \
+  OFFSET: 6 - #S
+
+  \ Each possible combination is built and compared to the dice roll. \
+  loop I over {0 .. OFFSET} {
+    if [reverse S] = {1 + I .. #S + I} {
+      result: 1
+    }
+  }
+
+  result: 0
+}
+
+function: S:s is full house {
+  result: [S is 3 of a kind] & [S is 2 of a kind]
+}
+
+output 5d6 named "Fishing (No Mods)"
+output [fishing 5d6] named "Fishing"
+output [fishing 6d6] + 10 named "Fishing (Angler)"
+output [fishing 7d6] + 20 named "Fishing (Master Angler)"

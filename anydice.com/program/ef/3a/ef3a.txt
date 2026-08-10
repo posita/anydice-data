@@ -1,0 +1,247 @@
+\**** Damage calculator full basic damage dealing list ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: savehalfroll ROLL:n vs DC:n {
+ if ROLL + SAVINGTHROW < DC { result: DAMAGE }
+ if ROLL + SAVINGTHROW >= DC { result: HALFDAMAGE }
+ result: 0
+}
+
+function: saveroll ROLL:n vs DC:n {
+ if ROLL + SAVINGTHROW < DC { result: DAMAGE }
+ if ROLL >= DC { result: 0 }
+ result: 0
+}
+
+function: sneakattackdualwield ROLLA:n vs ROLLB:n vs AC:n {
+ if ROLLA + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC & ROLLB + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC {result: [calculatedmg ROLLA] +  [calculatedmg ROLLB]+ [calculatesneakdmg ROLLA]}
+ if ROLLA + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC & ROLLB + PROFICIENCY + ATTACKMOD + ACCBONUS < AC {result: [calculatedmg ROLLA] + [calculatesneakdmg ROLLA]}
+if ROLLA + PROFICIENCY + ATTACKMOD + ACCBONUS < AC & ROLLB + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC {result: [calculatedmg ROLLB] + [calculatesneakdmg ROLLB]}
+ if ROLLA + PROFICIENCY + ATTACKMOD + ACCBONUS < AC & ROLLB + PROFICIENCY + ATTACKMOD + ACCBONUS < AC { result: 0}
+}
+
+function: calculatedmg ROLL:n {
+ if ROLL >= CRITROLL {result: CRITDAMAGE}
+ if ROLL < CRITROLL {result: DAMAGE}
+}
+
+function: calculatesneakdmg ROLL:n {
+ if ROLL >= CRITROLL {result: CRITSNEAKDAMAGE}
+ if ROLL < CRITROLL {result: SNEAKDAMAGE}
+}
+\**** End of damage calculation functions ****\
+
+
+\**** Global variables ****\
+ENEMYAC: d{15}
+SAVINGTHROW: 2
+
+\**** End of Global variables ****\
+
+
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 3d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 3d6 + ATTACKMOD + DMGBONUS + 18
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Aswad normal Attack x2"
+
+ATTACKMOD: 5
+DMGBONUS: 10
+PROFICIENCY: 3
+ACCBONUS: -5
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 3d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 3d6 + ATTACKMOD + DMGBONUS + 18
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Aswad GWM Attack x2"
+
+ATTACKMOD: 5
+DMGBONUS: 10
+PROFICIENCY: 3
+ACCBONUS: -5
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 3d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 3d6 + ATTACKMOD + DMGBONUS + 18
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Aswad GWM Attack x2 w/Advantage"
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 1d8 + ATTACKMOD + DMGBONUS + 8
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Quass normal Attack x2"
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 3d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 3d8 + ATTACKMOD + DMGBONUS + 24
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Quass DivineSmite x2 @ Lvl 1"
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 4d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d8 + ATTACKMOD + DMGBONUS + 32
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Quass Divine Smite x2 @ Lvl 2"
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 4d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d8 + ATTACKMOD + DMGBONUS + 32
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Quass FULL NOVA Divine Smite x2 @ Lvl 2 w/Advantage"
+
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 1d8 + 3
+CRITDAMAGE: 1d8 + 3 + 8
+SNEAKDAMAGE: 3d6
+CRITSNEAKDAMAGE: 3d6 + 18
+output [sneakattackdualwield [highest 1 of 2d20] vs d20 vs ENEMYAC] named "Roscoe standard round (rapiers)"
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 2
+DAMAGE: 1d8 + 3
+CRITDAMAGE: 1d8 + 3 + 8
+SNEAKDAMAGE: 3d6 + 18
+CRITSNEAKDAMAGE: 3d6 + 18
+output [sneakattackdualwield [highest 1 of 2d20] vs [highest 1 of 2d20] vs ENEMYAC] named "Roscoe Surprise Attack round (rapiers)"
+
+
+
+DC: 15
+ATTACKTIMES: 1
+DAMAGE: 2d8
+output ATTACKTIMESd[saveroll d20 vs DC] named "Harbek (sacred flame)"
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 1
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 1d8 + ATTACKMOD + DMGBONUS + 8
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Spiritual Weapon"
+
+SAVINGTHROW: 1
+DC: 15
+ATTACKTIMES: 1
+DAMAGE: 3d8
+HALFDAMAGE: 3d8/2
+output ATTACKTIMESd[saveroll d20 vs DC] named "Harbek (spirit guardians affecting 1 badguy)"
+
+SAVINGTHROW: 1
+DC: 15
+ATTACKTIMES: 2
+DAMAGE: 3d8
+HALFDAMAGE: 3d8/2
+output ATTACKTIMESd[saveroll d20 vs DC] named "Harbek (spirit guardians affecting 2 badguys)"
+
+SAVINGTHROW: 1
+DC: 15
+ATTACKTIMES: 3
+DAMAGE: 3d8
+HALFDAMAGE: 3d8/2
+output ATTACKTIMESd[saveroll d20 vs DC] named "Harbek (spirit guardians affecting 3 badguys)"
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 2
+CRITROLL: 19
+ATTACKTIMES: 3
+DAMAGE: 1d8 + 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 1d8 + 1d6 + ATTACKMOD + DMGBONUS + 14
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Strum Opening Round"
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 2
+CRITROLL: 19
+ATTACKTIMES: 2
+DAMAGE: 1d8 + 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 1d8 + 1d6 + ATTACKMOD + DMGBONUS + 14
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Strum Attack x2"
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 4
+DAMAGE: 1d10 + 1d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d10 + 2d6 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Standard attack round for Sorcerer/Warlock Kobold build Curt's been working on"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

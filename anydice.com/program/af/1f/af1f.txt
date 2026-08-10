@@ -1,0 +1,51 @@
+\This is a HSD Successes Roller.\
+\Edit the variables below for different types of rolls.\
+\For SUCCESSAT, subtract the number of levels of proficiency from 8,\
+\  as in the number you need to hit in order to succeed.\
+\Since some abilities let you reroll failures, included are stats for rerolls.\
+
+\If you want more customization over what data is generated, edit the loops\
+\  at the bottom of the code.\
+
+DIETYPE: d12
+SUCCESSAT: 5
+
+
+
+function: reroll DIEONE:s with DIETWO:s if X:n
+{
+ if (DIEONE >= X) { result: DIEONE}
+ result: DIETWO
+}
+
+function: rrrlck X:n of DICE:d meeting Y:n
+{
+ TEST: 0
+ DIEONE: DICE
+ DIETWO: DICE
+ loop N over {1..X} {
+  TEST: TEST + ([reroll DIEONE with DIETWO if Y] >= Y)
+  
+ }
+ result: TEST
+}
+
+function: rlck X:n of DICE:d meeting Y:n
+{
+ TEST: 0
+ loop N over {1..X} {
+  TEST: TEST + (DICE >= Y)
+  
+ }
+ result: TEST
+}
+
+loop DICE over {1..5}
+{
+output [rlck DICE of DIETYPE meeting SUCCESSAT] named "Single Roll [DICE]d10"
+}
+
+loop DICE over {1..5}
+{
+output [rrrlck DICE of DIETYPE meeting SUCCESSAT] named "Rerolled [DICE]d10"
+}

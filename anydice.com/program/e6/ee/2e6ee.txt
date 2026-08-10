@@ -1,0 +1,56 @@
+function: add X:d highest to Y:d lowest {
+result: [highest 1 of X] + [lowest 1 of Y]
+}
+
+function: test X:d with Y:d fail {
+result: [add X highest to Y lowest] < 7
+}
+
+function: test X:d with Y:d penalty Z:n {
+result: [add X highest to Y lowest]-Z < 7
+}
+
+function: roll P:n dice against M:n dice {
+ if P = 1 | M = 1 {
+  result: [test Pd6 with Md6 fail]
+ }
+ else {
+  NP: P-1
+  NM: M-1
+  result: [test Pd6 with Md6 fail] | [roll NP dice against NM dice]
+ } 
+}
+
+function: helper P:n vs M:n penalty Z:n {
+ NP: P-1
+ NM: M-1
+ if P = 1 {
+  if M = 1 {
+   result: [test Pd6 with Md6 penalty Z]
+  }
+  else {
+   result: [helper P vs NM penalty Z+1]
+  }
+ }
+ else {
+  if M = 1 {
+   result: [test Pd6 with Md6 penalty Z]
+  }
+  else {
+   result: [test Pd6 with Md6 penalty Z] | [helper NP vs NM penalty Z]
+  }
+ } 
+}
+
+function: roll P:n against M:n dice {
+result: [helper P vs M penalty 0]
+}
+
+
+loop P over {1..5} {
+loop M over {1..5} {
+output ![test Pd6 with Md6 fail] named "direct win for Player [P]d6 vs [M]d6"
+output ![roll P dice against M dice] named "Player [P]d6 wins with knockout [M]d6"
+output ![roll P against M dice] named "Player [P]d6 wins with knockout [M]d6 and penalty"
+}
+}

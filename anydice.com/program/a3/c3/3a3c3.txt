@@ -1,0 +1,39 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n with confirmation CONFIRMATION:n plus CRIT_CONFIRM_BONUS:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        if CONFIRMATION + BONUS + CRIT_CONFIRM_BONUS >= AC {
+            result: DMG + CRIT_DMG
+        }
+        result: DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+RANGE: {10..25}
+
+SUM: 0
+loop AC over RANGE {
+    \output [attack d20 plus 10 vs AC for 5d6 + 8 crit 5d6 on 20 with confirmation d20 plus 0] named "psionic shot vs [AC] AC"\
+    SUM: SUM + [attack d20 plus 10 vs AC for 5d6 + 8 crit 5d6 on 20 with confirmation d20 plus 0]
+}
+output SUM / #RANGE named "psionic shot average DPR over RANGE AC"
+
+SUM: 0
+loop AC over RANGE {
+    \output 2 * [attack d20 plus 10 vs AC for 3d6 + 7 crit 3d6 on 20 with confirmation d20 plus 0] named "split ray vs [AC] AC"\
+    SUM: SUM + 2 * [attack d20 plus 10 vs AC for 3d6 + 7 crit 3d6 on 20 with confirmation d20 plus 0]
+}
+output SUM / #RANGE named "split ray average DPR over RANGE AC"
+
+\Just comparing the potential damage output available after combining several feats and buffs with an ~lvl 9 character\
+RANGE: {22..30} \Using a more extreme range of touch ACs\
+SUM: 0
+loop AC over RANGE {
+    SUM: SUM + 2 * [attack d20 plus 19 vs AC for 9d6 + 10 crit 9d6 on 20 with confirmation d20 plus 0] + 2 * [attack d20 plus 14 vs AC for 9d6 + 10 crit 9d6 on 20 with confirmation d20 plus 0]
+}
+output SUM / #RANGE named "Level 9 greater psionic shot + split ray + disrupting strikes, buffed average DPR over RANGE AC"

@@ -1,0 +1,102 @@
+\DnD5e Battle Calculator\
+
+\Variable Definitions (Put your raw data here)\
+
+MONSTER_AC: 13
+MONSTER_HP: 13
+MONSTER_DR: -1 \Use a -1 if there is vulnerability, a 0 for nothing, and a 1 for resistance\
+
+ATTACK_BONUS: 5
+DAMAGE_DICE: 1d8
+DAMAGE_MODIFIER: 5
+
+\Math (Do not change this unless you know what you're doing)\
+
+if MONSTER_DR = -1 {
+	DAMAGE: (DAMAGE_DICE + DAMAGE_MODIFIER) * 2
+	CRIT_DAMAGE: (DAMAGE_DICE + DAMAGE_DICE + DAMAGE_MODIFIER) * 2
+	MINIMUM_DAMAGE: (#DAMAGE_DICE + DAMAGE_MODIFIER) * 2
+	MAXIMUM_DAMAGE: ([maximum of DAMAGE_DICE] + DAMAGE_MODIFIER) * 2
+	MINIMUM_CRIT_DAMAGE: ((#DAMAGE_DICE * 2) + DAMAGE_MODIFIER) * 2
+	MAXIMUM_CRIT_DAMAGE: (([maximum of DAMAGE_DICE] * 2) + DAMAGE_MODIFIER) * 2
+} else {
+	if MONSTER_DR = 1 {
+		DAMAGE: (DAMAGE_DICE + DAMAGE_MODIFIER) / 2
+		CRIT_DAMAGE: (DAMAGE_DICE + DAMAGE_DICE + DAMAGE_MODIFIER) / 2
+		MINIMUM_DAMAGE: (#DAMAGE_DICE + DAMAGE_MODIFIER) / 2
+		MAXIMUM_DAMAGE: ([maximum of DAMAGE_DICE] + DAMAGE_MODIFIER) / 2
+		MINIMUM_CRIT_DAMAGE: ((#DAMAGE_DICE * 2) + DAMAGE_MODIFIER) / 2
+		MAXIMUM_CRIT_DAMAGE: (([maximum of DAMAGE_DICE] * 2) + DAMAGE_MODIFIER) / 2
+	} else {
+		DAMAGE: (DAMAGE_DICE + DAMAGE_MODIFIER)
+		CRIT_DAMAGE: (DAMAGE_DICE + DAMAGE_DICE + DAMAGE_MODIFIER)
+		MINIMUM_DAMAGE: #DAMAGE_DICE + DAMAGE_MODIFIER
+		MAXIMUM_DAMAGE: [maximum of DAMAGE_DICE] + DAMAGE_MODIFIER
+		MINIMUM_CRIT_DAMAGE: ((#DAMAGE_DICE * 2) + DAMAGE_MODIFIER)
+		MAXIMUM_CRIT_DAMAGE: (([maximum of DAMAGE_DICE] * 2) + DAMAGE_MODIFIER)
+	}
+}
+
+HIT_CHANCE: ((1d20 + ATTACK_BONUS) >= MONSTER_AC | (1d20 = 20 & MONSTER_AC > ATTACK_BONUS+20)) & !(1d20 = 1)
+HIT_CHANCE_ADVANTAGE: ([highest 1 of 2d20] + ATTACK_BONUS) >= MONSTER_AC
+HIT_CHANCE_DISADVANTAGE: ([lowest 1 of 2d20] + ATTACK_BONUS) >= MONSTER_AC
+
+CHANCE_TO_ONE_HIT_KILL_ON_HIT: DAMAGE >= MONSTER_HP
+CHANCE_TO_ONE_HIT_KILL_ON_ATTACK: HIT_CHANCE & CHANCE_TO_ONE_HIT_KILL_ON_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_ATTACK_ADVANTAGE: HIT_CHANCE_ADVANTAGE & CHANCE_TO_ONE_HIT_KILL_ON_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_ATTACK_DISADVANTAGE: HIT_CHANCE_DISADVANTAGE & CHANCE_TO_ONE_HIT_KILL_ON_HIT
+
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT: CRIT_DAMAGE >= MONSTER_HP
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK: (d20 = 20) & CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK_ADVANTAGE: ([highest 1 of 2d20] = 20) & CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT
+CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK_DISADVANTAGE: ([lowest 1 of 2d20] = 20) & CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT
+
+\Outputs (You can touch this, but it might give you wrong results if you do)\
+
+output HIT_CHANCE named "Chance to Hit"
+output HIT_CHANCE_ADVANTAGE named "Chance to Hit with Advantage"
+output HIT_CHANCE_DISADVANTAGE named "Chance to Hit with Disadvantage"
+
+output DAMAGE named "Damage Range"
+
+output CHANCE_TO_ONE_HIT_KILL_ON_HIT named "Chance for One Hit Kill On Non-Critical Hit"
+output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK named "Chance for One Hit Kill On Non-Critical Attack"
+output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK_ADVANTAGE named "Chance for One Hit Kill On Non-Critical Attack with Advantage"
+output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK_DISADVANTAGE named "Chance for One Hit Kill On Non-Critical Attack with Disadvantage"
+
+output CRIT_DAMAGE named "Critical Damage Range"
+
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_HIT named "Chance for One Hit Kill On Critical Hit"
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill On Critical Attack"
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK_ADVANTAGE named "Chance for One Hit Kill On Critical Attack with Advantage"
+output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK_DISADVANTAGE named "Chance for One Hit Kill On Critical Attack with Disadvantage"
+
+if MINIMUM_DAMAGE >= MONSTER_HP {
+	output HIT_CHANCE named "Chance for One Hit Kill Happening"
+} else {
+	if MAXIMUM_DAMAGE >= MONSTER_HP {
+		output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK | CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill Happening"
+	} else {
+		output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK named "Chance for One Hit Kill Happening"
+	}
+}
+
+if MINIMUM_DAMAGE >= MONSTER_HP {
+	output HIT_CHANCE_ADVANTAGE named "Chance for One Hit Kill Happening with Advantage"
+} else {
+	if MAXIMUM_DAMAGE >= MONSTER_HP {
+		output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK_ADVANTAGE | CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK_ADVANTAGE named "Chance for One Hit Kill Happening with Advantage"
+	} else {
+		output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK_ADVANTAGE named "Chance for One Hit Kill Happening with Advantage"
+	}
+}
+
+if MINIMUM_DAMAGE >= MONSTER_HP {
+	output HIT_CHANCE_DISADVANTAGE named "Chance for One Hit Kill Happening with Disadvantage"
+} else {
+	if MAXIMUM_DAMAGE >= MONSTER_HP {
+		output CHANCE_TO_ONE_HIT_KILL_ON_ATTACK_DISADVANTAGE | CHANCE_TO_ONE_HIT_KILL_ON_ATTACK_DISADVANTAGE named "Chance for One Hit Kill Happening with Disadvantage"
+	} else {
+		output CHANCE_TO_ONE_HIT_KILL_ON_CRIT_ATTACK_DISADVANTAGE named "Chance for One Hit Kill Happening with Disadvantage"
+	}
+}

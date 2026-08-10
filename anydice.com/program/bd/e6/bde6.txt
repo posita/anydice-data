@@ -1,0 +1,45 @@
+set "explode depth" to 3 \adv explode will explode once more than this limit\
+
+function: advexplode A:n B:n{  \Use the form [advexplode [highest/lowest X of (dice)] (die total e.g. 1d4 = 4)]\
+  TOTAL: A
+  if A = B {TOTAL: B+[explode 1dB]}
+  result: TOTAL
+}
+
+function: limit A:n from B:n to C:n{
+  if A > C {result:C}
+  if A < B {result:B}
+  result: A
+}
+
+function: mindamage A:n{
+  if A > 3 {result:A}
+  if A < 1 {result:0}
+  result: 3
+}
+
+
+LOWERBOUND: 0
+UPPERBOUND: 30
+LOWGUARD: 10
+HIGHGUARD: 16
+
+function: pd A:n B:n{
+  if A > 9 {result: A+B}
+  result: A
+}
+
+loop N over {LOWGUARD..HIGHGUARD}{output [limit [mindamage [pd [explode 1d20]+[advexplode [lowest 2 of 9d8] 10]-N 1d8]] from LOWERBOUND to UPPERBOUND] named "Derik, Guard [N]"}
+loop N over {LOWGUARD..HIGHGUARD}{output [limit [mindamage [pd [explode 1d20]+[advexplode [lowest 2 of 7d8] 10]-N 1d8]] from LOWERBOUND to UPPERBOUND] named "Derik, Guard [N], HI (adv)"}
+loop N over {LOWGUARD..HIGHGUARD}{output [limit [mindamage [pd [explode 1d20]+[advexplode [lowest 2 of 9d10] 10]-N 1d8]] from LOWERBOUND to UPPERBOUND] named "Derik, Guard [N], HI (dice)"}
+
+
+
+
+\loop N over {LOWGUARD..HIGHGUARD}{output [limit [mindamage [pd [explode 1d20]+[advexplode [highest 2 of 3d10] 10]-N 1d8]] from LOWERBOUND to UPPERBOUND] named "Jordan, Guard [N]"}
+
+loop N over {LOWGUARD..HIGHGUARD}{output [limit [mindamage [pd [explode 1d20]+[advexplode [highest 2 of 5d8] 8]-N 1d8]] from LOWERBOUND to UPPERBOUND] named "Zach, Guard [N]"}
+
+loop N over {LOWGUARD..HIGHGUARD}{output [limit [mindamage [pd [explode 1d20]+[advexplode [highest 2 of 3d8] 8]-N 1d8]] + [mindamage [explode 1d20]+[advexplode [highest 2 of 3d8] 8]-N] from LOWERBOUND to UPPERBOUND] named "Zach double, Guard [N]"}
+
+loop N over {LOWGUARD..HIGHGUARD}{output [limit [mindamage [pd [explode 1d20]+[advexplode [lowest 2 of 4d8] 8]-N 1d8]] + [mindamage [explode 1d20]+[advexplode [lowest 2 of 4d8] 8]-N] + [mindamage [explode 1d20]+[advexplode [lowest 2 of 4d8] 8]-N] from LOWERBOUND to UPPERBOUND] named "Zach triple, Guard [N]"}\

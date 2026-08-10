@@ -1,0 +1,41 @@
+START: 0
+THRESH: 75
+DICE: 1
+BONUS: 0
+
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+function: normsafe threshold C:n bonus D:n{
+E: [if C-D-5<=0 then 1 else C-D-5]
+result: E
+}
+function: normroll threshold C:n bonus D:n {
+result: 5+1d[C-D-5]+D
+}
+function: critclose threshold C:n bonus D:n {
+N: [if C-D > 5 then 0 else 1]
+X: [if C-D > 0 then C-D else 5]
+result: N*X
+}
+function: critroll threshold C:n bonus D:n {
+E: [critclose threshold C bonus D]
+result: C+2*1d[100-C+D-E]
+}
+
+function: fullroll threshold C:n bonus D:n{
+result: [if 1d100+D>=C then [critroll threshold C bonus D] else [normroll threshold C bonus D]]
+}
+
+loop N over {1..DICE}{
+FAIL: [if d100 < 6 then 0 else 1]
+NORM: [if d100+BONUS < THRESH then 1 else 0]
+NDIE: [normsafe threshold THRESH bonus BONUS]
+CRIT: [if d100+BONUS >= THRESH then 1 else 0]
+CSAFE: [critclose threshold THRESH bonus BONUS]
+CDIE: 100-THRESH+BONUS-CSAFE
+START: START + FAIL*(NORM*(dNDIE+BONUS)+CRIT*(2*(dCDIE)+THRESH-BONUS))
+}
+output [critclose threshold THRESH bonus BONUS]
+output START
+output 2*dBONUS

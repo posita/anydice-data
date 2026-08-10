@@ -1,0 +1,44 @@
+TOHIT: 12d6
+TODODGE: 10
+WEAPONDV: 12
+WEAPONAP: -9
+DEFENDERAV: 12
+DEFENDERBODY: 4
+
+function: net attack hits {
+result: [count {5, 6} in TOHIT] - [count {5, 6} in TODODGE]
+}
+
+function: NETHITS:s modified damage value{
+  if NETHITS > 0 {result: NETHITS + WEAPONDV}
+  if NETHITS <= 0 {result: 0}
+}
+
+function: MODDAMAGE:s final damage {
+  if MODDAMAGE = 0 {result: 0}
+  if MODDAMAGE > 0 {result: MODDAMAGE - (DEFENDERAV + WEAPONAP)}
+}
+
+function: FINALDAMAGE:s net damage dealt{
+  if FINALDAMAGE = 0 {result: 0}
+  else {result: FINALDAMAGE - [count {5, 6} in DEFENDERBODYd6]}
+}
+
+
+\OUTPUT1: NET ATTACK SUCCESSES
+ -1 is miss chance, 0 is a graze, > 0 is modified DV\
+output  [net attack hits]
+
+\OUTPUT2: TOTAL DAMAGE VALUE\
+output [[net attack hits] modified damage value]
+
+\OUTPUT3 FINAL DAMAGE TO SOAK: total damage - (AV - AP) \
+output [[[net attack hits] modified damage value] final damage]
+
+\OUTPUT4 NET DAMAGE DEALT\
+output [[[[net attack hits] modified damage value] final damage]net damage dealt]
+
+
+
+
+

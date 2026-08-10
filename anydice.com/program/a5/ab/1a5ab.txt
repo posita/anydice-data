@@ -1,0 +1,35 @@
+function: attackroll highest NUMBER:n of ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ else if ROLL = 1 { result: 0 }
+ else if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: axereroller R:n {
+   if R <= 2 { result: 1d10 } else {result: R}
+}
+
+
+ATTACKMOD: 4
+PROFICIENCY: 3
+CRITROLL: 20
+ATTACKTIMES: 2
+HUNTERSMARK: 1d6
+ACCBONUS: 1
+DMGBONUS: 1
+ORCFURY: 1d10
+GAUNTLET: 2d6
+
+
+loop ENEMYAC over {12,18}{
+DAMAGE: [axereroller 1d10] + ATTACKMOD + DMGBONUS + HUNTERSMARK
+CRITDAMAGE: [axereroller 1d10] + [axereroller 1d10] + ATTACKMOD + DMGBONUS + HUNTERSMARK + HUNTERSMARK + GAUNTLET + GAUNTLET + ORCFURY 
+output ATTACKTIMESd[attackroll highest 1 of 1d20 vs ENEMYAC] named "crit20 vs AC [ENEMYAC]"
+}
+
+loop ENEMYAC over {12,18}{
+CRITROLL: 19
+DAMAGE: [axereroller 1d10] + ATTACKMOD + DMGBONUS + HUNTERSMARK
+CRITDAMAGE: [axereroller 1d10] + [axereroller 1d10] + ATTACKMOD + DMGBONUS + HUNTERSMARK + HUNTERSMARK + GAUNTLET + GAUNTLET + ORCFURY
+output ATTACKTIMESd[attackroll highest 1 of 1d20 vs ENEMYAC] named "crit19+ vs AC [ENEMYAC]"
+}

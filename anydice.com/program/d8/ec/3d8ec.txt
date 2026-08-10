@@ -1,0 +1,31 @@
+function: hits ROLL:s vs TN {
+ HITS: [count {1..TN} in ROLL]
+ loop I over {1..(#ROLL-1)} {
+  if (I@ROLL = (I+1)@ROLL) {
+   HITS:HITS + (I@ROLL<=TN)
+  } 
+ }
+ DOS: HITS - #ROLL
+ if (DOS < -1) {
+  result: 0
+ }
+ result: DOS + 2
+}
+
+function: misses ROLL:s vs TN {
+ MISSES: [count {TN..20} in ROLL]
+ loop I over {1..(#ROLL-1)} {
+  if (I@ROLL = (I+1)@ROLL) {
+   MISSES:MISSES + (I@ROLL>TN)
+  } 
+ }
+ DOF: MISSES
+
+ result: DOF
+}
+
+\ Hits \
+output [hits 2d20 vs 12] named "Hits"
+
+\ Misses \
+output [misses 4d20 vs 12] named "Misses"

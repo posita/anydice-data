@@ -1,0 +1,38 @@
+function:rerX:n{if X<=LUCK {result:1d20} result:X}
+function:rrN{if RR=0 {result:N} result: {{1..RR}:RR, {RR+1..N}:N+RR}}
+function:hit{if ADV=0 {result:[lowest 1 of 2d[rer1d20]]} result:[highest 1 of ADVd[rer1d20]]}
+function:atkATKR:nDMGR:d{ATOT:SMOD+PMOD+WMOD+AMOD DTOT:SMOD+WMOD+DMOD
+ if ATKR=1{result:0}
+ if ATKR=20{result:DMGR+DMGR+DBON+DBON+DTOT+CMOD}
+ if ATKR+ATOT>=AC{
+   if ATKR>20-CRIT{result:DMGR+DMGR+DBON+DBON+DTOT+CMOD}
+   result:DMGR+DBON+DTOT}
+ result:0}
+function:turn{TOT:[atk[hit]DNUMd[rrDDIE]] if ATKS>1{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>2{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]}
+ if ATKS>3{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>4{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>5{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]}
+ if ATKS>6{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>7{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>8{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]}
+ if ATKS>9{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>10{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]} if ATKS>11{TOT:TOT+[atk[hit]DNUMd[rrDDIE]]}
+ result:TOT/RES}
+function:saveSAVR:nDMGR:d{DC:8+SMOD+PMOD+WMOD+AMOD
+ if SAVR=1{result:DMGR+DBON+DMOD}
+ if SAVR=20{if EVA=1{result:0} result: (DMGR+DBON+DMOD)/2}
+ if SAVR+SAVE>=DC{if EVA=1{result:0} result: (DMGR+DBON+DMOD)/2} result:DMGR+DBON+DMOD}
+function:cast{result:[save[hit] DNUMd[rrDDIE]]/RES}
+function: if CONDITION:n then A else B {if CONDITION { result: A } else { result: B }}
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\SMOD:Stat modifier; PMOD:Proficiency Bonus; WMOD:+X weapon or focus; AMOD:Other attack bonuses; DMOD:Other damage bonuses; CMOD:Extra damage on crit\
+\LUCK:Reroll on d20 up to X; PMOD:ADV Number of d20s rolled; CRIT: Crit range; RR:Reroll damage up to X;\
+\ATKS:Number of attacks; DNUM: Number of primary weapon dice; DDIE: Weapon Die; DBON: Extra damage dice\
+\AC: AC of target; SAVE: Save modifier of target; EVA: Ignore damage on success; RES: Divides damage by X\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+SMOD:4 PMOD:2 WMOD:0
+AMOD:0 DMOD:0 CMOD:0
+LUCK:0 ADV:1 CRIT:1 RR:0
+ATKS:1 DNUM:1 DDIE:8 DBON:0
+AC:10 SAVE:2 EVA:1 RES:1
+
+TOTAL:[turn]
+output TOTAL named "turn"
+TOTAL:[cast]
+output TOTAL named "cast"
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

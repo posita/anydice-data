@@ -1,0 +1,27 @@
+DICE : d{0,0,0,1,1,1}
+FDICE : d{0,0,-1,1,1,2}
+MDICE : d{0,0,0,1,1,2}
+RDICE : d{0,0,-1,1,1,1}
+
+
+function: interpret ROLL:s {
+VTOP:0
+VRISK: [count -1 in ROLL]
+VFAIL: [count 0 in ROLL]
+VSULT: [count {1,2} in ROLL]
+loop V over {-1..2} {
+VTOP: [highest of [count V in ROLL] and VTOP]
+}
+if VRISK = VTOP {result: -1}
+if VFAIL = VSULT {result: 0}
+else {result: 1}
+}
+
+
+K:6
+loop P over {1..K} {
+
+\output [interpret PdDICE] named "[P] Compass Dice" 
+output [interpret PdRDICE] named "[P] Risky Dice" \
+output [interpret PdFDICE] named "[P] Full Dice" 
+}

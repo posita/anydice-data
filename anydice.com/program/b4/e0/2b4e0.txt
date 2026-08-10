@@ -1,0 +1,26 @@
+function: attack ROLL:n minus PENALTY:n vs AC:n {
+  if ROLL = 20 { result: 2 }
+  if ROLL > 1 { result: ROLL + STRENGTH + PROFICIENCY - PENALTY >= AC }
+  result: 0
+}
+
+function: multiattack ROLL:s minus PENALTY:n vs AC:n N:n times with BONUS:n FIRST:n GWM:n {
+  result: [roll [attack ROLL minus PENALTY vs AC] to multiattack N times minus PENALTY vs AC with ROLL BONUS FIRST GWM]
+}
+
+function: roll HIT:n to multiattack N:n times minus PENALTY:n vs AC:n with ROLL:s BONUS:n FIRST:n GWM:n {
+  if N <= 0 {
+    result: 0
+  }
+  if HIT = 2 { result: 4d{{d6}:2, {3..6}:6} + BONUS + FIRST + [multiattack ROLL minus PENALTY vs AC N-1+GWM times with BONUS 0 0] }
+  if HIT = 1 { result: 2d{{d6}:2, {3..6}:6} + BONUS + FIRST + [multiattack ROLL minus PENALTY vs AC N-1 times with BONUS 0 GWM] }
+  result: [multiattack ROLL minus PENALTY vs AC N-1 times with BONUS FIRST GWM]
+}
+
+STRENGTH: 5
+PROFICIENCY: 3
+
+loop AC over {0, 11..25} {
+  output [multiattack d20 minus 5 vs AC 2 times with 10 0 1] named "Old GWM [AC]"
+  output [multiattack d20 minus 0 vs AC 2 times with 0 PROFICIENCY 1] named "New GWM [AC]"
+}

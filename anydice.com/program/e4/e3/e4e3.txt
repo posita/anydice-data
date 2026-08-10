@@ -1,0 +1,50 @@
+\http://anydice.com/\
+\SosenNoChi level 10\
+
+
+\Begin Script\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: [highest 2 of 3d6]+8  \AC 10-20 Centered around AC17\
+
+
+
+
+\Begin Attack calculations\
+
+ATTACK: 5+4+2 \CHA + Proficiency + Wand\
+MISSDAMAGE: 0
+HITDAMAGE: 1d10 + 5
+CRITICALDAMAGE: 2d10+5
+output [attack]+[attack]+[attack] named "Eldritch Blast"
+
+ATTACK: 0  \Unerringly\
+MISSDAMAGE: 3*(d4+6)
+HITDAMAGE: 3*(d4+6)
+CRITICALDAMAGE: 3*(d4+6)
+output [attack] named "Magic Missile Wand"

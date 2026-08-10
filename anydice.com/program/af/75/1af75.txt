@@ -1,0 +1,35 @@
+\Do a DC check, accounting for 1s and 20s\
+function: check ROLL:s BONUS:n dc DC:n {
+  if (ROLL + BONUS >= DC + 10) {
+    RES: 3
+  } else if (ROLL + BONUS >= DC) {
+    RES: 2
+  } else if (ROLL + BONUS >= DC - 10) {
+    RES: 1
+  } else {
+    RES: 0
+  }
+  if (ROLL = 1) { result: [highest of 0 and (RES - 1)] }
+  if (ROLL = 20) { result: [lowest of 3 and (RES + 1)] }
+  result: RES
+}
+
+function: sneak MOD:n PER:n {
+  result: [check d20 MOD dc (PER+10)] >= 2
+}
+
+
+\ Each character's stealth \
+ST: 6
+SG: 9
+SL: 2
+SH: 1
+
+PER: 8  \Perception of enemy\
+B: 2    \Bonus for Follow the Expert\
+L: 3    \Untrained characters add their level\
+WORST: [lowest of SL and [lowest of ST and SH]]
+
+output [sneak SH PER] & [sneak SL PER] & [sneak SG PER] & [sneak ST PER] named "Sneak +[SH],+[SL],+[ST],+[SG] vs [PER]"
+output [sneak (SH+B+L) PER] & [sneak (SL+B+L) PER] & [sneak SG PER] & [sneak (ST+B) PER] named "Sneak +[SH],+[SL],+[ST],+[SG] Follow Expert vs [PER]"
+output [sneak (WORST+B+L) PER] named "Sneak +[WORST], Follow Expert, Quiet Allies vs [PER]"

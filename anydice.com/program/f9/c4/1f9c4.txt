@@ -1,0 +1,30 @@
+function: select INDEX:n DISTRIBUTION:d {
+  result: INDEX@DISTRIBUTION
+}
+
+ARRAY: 7d(3d6)
+
+output 3d6 named "Roll 3d6"
+output [select 1d6 ARRAY]named "Roll 3d6 7 times, drop lowest"
+
+output [highest 3 of 4d6] named "Roll 4d6 drop low"
+ARRAY: 7d([highest 3 of 4d6])
+
+
+output [select 1d6 ARRAY]named "Roll 4d6 drop low 7 times, drop lowest"
+
+function: gwf DIE:d {
+  result: [reroll DIE as DIE if under 2]
+}
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL < LIMIT { result: DIE }
+  else { result: ROLL }
+}
+
+loop SIDES over {6} {
+  output 3d[gwf dSIDES] named "3d[SIDES], reroll 1s (once)"
+}
+ARRAY: 7d(3d[gwf dSIDES])
+
+
+output [select 1d6 ARRAY]named "Roll 3d[SIDES], reroll 1s (once) 7 times, drop lowest"

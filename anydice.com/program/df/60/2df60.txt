@@ -1,0 +1,29 @@
+function: explode ROLLEDVALUE:n depth DEPTH {
+ if ROLLEDVALUE = 6 & DEPTH < 5 { result: 1 + [explode d6 depth DEPTH+1] }
+ result: ROLLEDVALUE >= 4
+
+}
+
+function: explode ROLLEDVALUE:n {
+ if ROLLEDVALUE = 6 { result: 1 + [explode d6 depth 1] }
+ result: ROLLEDVALUE >= 4
+}
+
+function: cap N:n to CAP {
+  if (N > CAP) { result: CAP } else { result: N }
+}
+
+
+
+function: roll N:n {
+  TTL: 0
+  loop I over {1..N} {
+    TTL: TTL + [explode d6]
+  }
+
+  result: [cap TTL to 10]
+}
+
+loop D over {1..10} {
+ output [roll D]
+}

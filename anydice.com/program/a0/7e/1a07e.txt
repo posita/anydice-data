@@ -1,0 +1,70 @@
+function: rolls DICE:n threshold DC:n{
+ SUCCEEDS: 0
+ loop N over {1..DICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL DC]
+ }
+ result: SUCCEEDS
+}
+function: decide ROLL:n DC:n {
+ if ROLL >= DC {
+  result: 1 + (ROLL-DC)/4
+ } 
+ result: 0
+} 
+function: judge RESULTS:n {
+ if RESULTS >= 2 {
+  result: MORE
+ } 
+ if RESULTS = 1 {
+  result: ONLY
+ }
+ result: FAIL
+}
+FAIL: 0
+ONLY: 1
+MORE: 2
+function: brolls DICE:n threshold DC:n{
+ SUCCEEDS: 0
+ loop N over {1..DICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL DC]
+ }
+ result: [judge SUCCEEDS]
+}
+function: crolls DICE:n threshold DC:n rolls BDICE:n threshold BDC:n{
+ SUCCEEDS: 0
+ loop N over {1..DICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL DC]
+ }
+ loop N over {1..BDICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL BDC]
+ }
+ result: [judge SUCCEEDS]
+}
+function: drolls ADICE:n threshold ADC:n rolls BDICE:n threshold BDC:n rolls CDICE:n threshold CDC:n{
+ SUCCEEDS: 0
+ loop N over {1..ADICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL ADC]
+ }
+ loop N over {1..BDICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL BDC]
+ }
+ loop N over {1..CDICE} {
+  ROLL: [explode 1d10]
+  SUCCEEDS: SUCCEEDS + [decide ROLL CDC]
+ }
+ result: [judge SUCCEEDS]
+}
+\output [rolls 2 threshold 6] named "1 Stress, distribution"
+output [brolls 2 threshold 6] named "1 Stress, collected"\
+
+output [count {2..20} in [rolls 2 threshold 6] + [rolls 1 threshold 6] ] named "0 Stress, least 2"
+output [crolls 2 threshold 6 rolls 1 threshold 6] named "0 Stress, collected"
+
+output [count {2..20} in [rolls 2 threshold 6] + [rolls 1 threshold 7] + [rolls 3 threshold 8] ] named "1 Stress, least 2"
+output [drolls 2 threshold 6 rolls 1 threshold 7 rolls 3 threshold 8] named "1 Stress, collected"

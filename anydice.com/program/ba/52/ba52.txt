@@ -1,0 +1,35 @@
+SIDES: 6
+E: [explode dSIDES]
+
+function: explode highest N:n of ROLL:s {
+ result: {1..N}@ROLL + [lowest of N and (ROLL = SIDES)]dE
+}
+
+function: NUM:n dice SIDES:n adv ADV:n {
+ E: [explode dSIDES]
+ result: [explode highest NUM of (NUM+ADV)dSIDES]
+}
+
+function: attr ATTR:n adv ADV:n {
+ if ATTR = 0 { result: [1 dice 20 adv [lowest of 1 and ADV]] }
+ else if ATTR = 1 { result: [explode d20] + [1 dice 4 adv ADV] }
+ else if ATTR = 2 { result: [explode d20] + [1 dice 6 adv ADV] }
+ else if ATTR = 3 { result: [explode d20] + [1 dice 8 adv ADV] }
+ else if ATTR = 4 { result: [explode d20] + [1 dice 10 adv ADV] }
+ else if ATTR = 5 { result: [explode d20] + [2 dice 6 adv ADV] }
+ else if ATTR = 6 { result: [explode d20] + [2 dice 8 adv ADV] }
+ else if ATTR = 7 { result: [explode d20] + [2 dice 10 adv ADV] }
+ else if ATTR = 8 { result: [explode d20] + [3 dice 8 adv ADV] }
+ else if ATTR = 9 { result: [explode d20] + [3 dice 10 adv ADV] }
+ else if ATTR = 10 { result: [explode d20] + [4 dice 8 adv ADV] }
+}
+
+function: attr ATTR:n { result: [attr ATTR adv 0] }
+
+set "explode depth" to 3
+loop ATTR over {0..10}{
+ output [attr ATTR] named "Attribute [ATTR]"
+ loop ADV over {1}{
+  output [attr ATTR adv ADV] named "Attribute [ATTR] Advantage [ADV]"
+ }
+}

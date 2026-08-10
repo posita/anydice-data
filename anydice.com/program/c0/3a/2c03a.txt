@@ -1,0 +1,28 @@
+set "explode depth" to 1
+
+ARMOR: 6
+BONUS: 1
+HIT: 92
+
+BASE_ATTACK: 2d[explode d6]+BONUS
+SPECIAL_ATTACK: BASE_ATTACK+1d[explode d10]
+
+function: armor N:n {
+ if N - ARMOR<= 1 { result: 1 }
+ result: N - ARMOR
+}
+function: N:n attack S:n {
+ if N <= HIT { result: S }
+ result: 0
+}
+function: N:n attack armor S:n {
+ if N <= HIT - ARMOR * 5 { result: S }
+ if N <= HIT { result: S/2 }
+ result: 0
+}
+
+output [1d100 attack [armor SPECIAL_ATTACK]]+[1d100 attack [armor SPECIAL_ATTACK]]+[1d100 attack [armor BASE_ATTACK]] named "Triple attack, old armor"
+output [1d100 attack [armor 2dSPECIAL_ATTACK + BASE_ATTACK]] named "Single attack, old armor"
+
+output [1d100 attack armor SPECIAL_ATTACK]+[1d100 attack armor SPECIAL_ATTACK]+[1d100 attack armor BASE_ATTACK] named "Triple attack, new armor"
+output [1d100 attack armor 2dSPECIAL_ATTACK + BASE_ATTACK] named "Single attack, new armor"

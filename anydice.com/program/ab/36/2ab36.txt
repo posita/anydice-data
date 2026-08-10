@@ -1,0 +1,76 @@
+\ Grapple function to calculate grapple chance \
+\ Size adv/dis adv is ignored for simplicity \
+function: grapple if G_SRENGTH_ROLL:n vs E_STRENGTH_ROLL:n {
+ if G_SRENGTH_ROLL > E_STRENGTH_ROLL { result: 1 }
+ result: 0
+}
+
+\ Variables \
+G_STRENGTH_ROLL: [highest 1 of 2d20] + 4 \str\ + 4 \prof\
+E_STRENGTH_ROLL: d20 + d{0..8} \str\ + d{3..5}
+
+\--------------------------------------------------\
+
+\ Hitting with spiritual weapon \ 
+function: attackroll ROLL:n vs ENEMYAC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: DAMAGE }
+ result: 0
+}
+
+\ Spiritual Weapon - 2nd level \
+\ Variables: \
+ROLL: d20
+ABILITYMOD: 4
+PROFICIENCY: 4
+CRITROLL: 20
+DAMAGE: 1d8 + ABILITYMOD
+CRITDAMAGE: 2d8 + ABILITYMOD
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..19}
+
+\--------------------------------------------------\
+
+function: urchin dmg RES_CHANCE:n vs CHANCE_DIE:n {
+ if RES_CHANCE >= CHANCE_DIE { 
+  result: U_TWO_PI_DMG + (U_TWO_PO_DMG / 2)
+ }
+ else {
+  result: U_TWO_PI_DMG + U_TWO_PO_DMG
+ }
+}
+
+\ Urchin's Spines - 2nd level \
+\ Variables: \
+U_TWO_PI_DMG: 1d6 
+U_TWO_PO_DMG: 1d6
+RES_CHANCE: 30
+CHANCE_DIE: d100
+
+
+\ Calculate grapple chance \
+\ output [grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL] named "Grapple?" \
+
+\ Urchin - 1 Turn, half damage due to out of range chance \
+output ([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ([urchin dmg RES_CHANCE vs CHANCE_DIE] / 2) named "Urchin - 1 Turn - All Smart"
+
+output ([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ((2 * [urchin dmg RES_CHANCE vs CHANCE_DIE]) / 2) named "Urchin - 1 Turn - 1 Stupid"
+
+output ([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ((3 * [urchin dmg RES_CHANCE vs CHANCE_DIE]) / 2) named "Urchin - 1 Turn - 2 Stupid"
+
+\ Urchin - 4 Turns, half damage on first due to out of range chance \
+output (([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ([urchin dmg RES_CHANCE vs CHANCE_DIE] / 2)) + 4 * (([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ([urchin dmg RES_CHANCE vs CHANCE_DIE])) named "Urchin - 4 Turns - All Smart"
+
+output (([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ((2 * [urchin dmg RES_CHANCE vs CHANCE_DIE]) / 2)) + 4 * (([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ([urchin dmg RES_CHANCE vs CHANCE_DIE])) named "Urchin - 4 Turns - 1 Stupid"
+
+output (([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ((3 * [urchin dmg RES_CHANCE vs CHANCE_DIE]) / 2)) + 4 * (([grapple if G_STRENGTH_ROLL vs E_STRENGTH_ROLL]) * ([urchin dmg RES_CHANCE vs CHANCE_DIE])) named "Urchin - 4 Turns - 2 Stupid"
+
+\ Spiritual Weapon - 1 Turn \
+output [attackroll ROLL vs ENEMYAC] named "Spiritual - 1 Turn"
+
+
+\ Spiritual Weapon - 4 Turns \
+output 4 * [attackroll ROLL vs ENEMYAC] named "Spiritual - 4 Turns"
+

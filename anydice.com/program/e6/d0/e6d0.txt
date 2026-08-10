@@ -1,0 +1,42 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: elfacc {
+result: [highest of [highest of d20 and d20] and d20]
+}
+
+function: staticdmg {
+result: 4 + 0 + 3
+}
+
+function: basicdmgroll{
+result: 2d6 + 3d8
+}
+
+function: gfbdmgroll {
+result: 2d6 + 1d8 + 3d8
+}
+
+ATTACK: 7
+
+function: attack ROLL:n vs AC:n {
+if ROLL = 1 {result: MISS}
+if ROLL >= 19 {result: CRIT}
+if ROLL + ATTACK >= AC {result: HIT}
+result: MISS 
+}
+
+function: damage ATTACK:n {
+if ATTACK = MISS {result: 0}
+if ATTACK = HIT {result: [basicdmgroll] + [staticdmg]}
+if ATTACK = CRIT {result: [basicdmgroll] + [basicdmgroll] + [staticdmg]}
+}
+
+function: gfbdamage ATTACK:n {
+if ATTACK = MISS {result: 0}
+if ATTACK = HIT {result: [gfbdmgroll] + [staticdmg]}
+if ATTACK = CRIT {result: [gfbdmgroll] + [gfbdmgroll] + [staticdmg]}
+}
+AC: 15
+output [gfbdamage [attack [elfacc] vs AC]] + [gfbdamage [attack [elfacc] vs AC]]

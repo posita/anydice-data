@@ -1,0 +1,33 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 5 + 3 + 1
+HITDAMAGE: d8 + d6 + 8
+CRITICALDAMAGE: (d8*2) + (d6*2) + 8
+MISSDAMAGE: 0
+output [damage for [attack d20 vs d{10..25}]] named "Unmarked"
+
+HITDAMAGE: d8 + 2d6 + 8
+CRITICALDAMAGE: d8*2 + 2d6*2 + 8
+output [damage for [attack [highest 1 of 2d20] vs d{10..25}]] named "Marked"

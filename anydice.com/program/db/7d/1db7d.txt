@@ -1,0 +1,92 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s with advantage vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [[highest of 1d20 and 1d20] plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ATTACKS:s with advantage vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS with advantage vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+X: [d6 reroll {1,2} as d6]
+
+function: PROF:n vs dc DC:n dmg DAMAGE:d {
+  result: [PROF vs dc DC dmg DAMAGE 0]
+}
+function: PROF:n vs dc DC:n dmg DAMAGE:d EXTRA:d {
+  result: (1d20 + PROF >= DC) * (DAMAGE + EXTRA)
+}
+function: PROF:n vs dc DC:n half dmg DAMAGE:d {
+  result: [1d20 adding PROF vs dc DC half dmg DAMAGE 0]
+}
+function: PROF:n vs dc DC:n half dmg DAMAGE:d EXTRA:d {
+  result: [1d20 adding PROF vs dc DC half dmg DAMAGE EXTRA]
+}
+function: ROLL:n adding PROF:n vs dc DC:n half dmg DAMAGE:d EXTRA:d {
+  if (ROLL + PROF) >= DC { result: (DAMAGE + EXTRA)/ 2 }
+  result: DAMAGE + EXTRA
+}
+
+
+output [{7,7} vs 17 crit 20 2 dmg 1d10 4] named "lock"
+output [{7} vs 17 crit 20 2 dmg 1d10 4] + [{7} vs 17 crit 20 2 dmg 1d10 + [4 vs dc 15 half dmg 8d6] 4] named "lock + fireball"
+
+output [{7} with advantage vs 17 crit 19 3 dmg 1d6 6] named "raging reckless javelin"
+output [{6} vs 17 crit 20 2 dmg 2d10 0] named "fire bolt"
+
+output [{7,7} with advantage vs 17 crit 19 2 1d10 dmg 1d10+2d4 4] named "reckless booming spirit pike"
+output [{7,7} vs 17 crit 19 2 1d10 dmg 1d10+2d4 6] named "raging booming spirit pike"
+output [{7,7} with advantage vs 17 crit 19 2 1d10 dmg 1d10+2d4 6] named "raging reckless spirit pike"
+
+output [{7,7} vs 17 crit 20 2 dmg 1d6 + 1d8 4] + [{7} vs 17 crit 20 2 dmg 2d6 4] + 1d8 named "Gobo"
+
+output [{7} vs 17 crit 20 2 dmg 4d6 4] + 1d12 named "Sprite"
+
+output [{7,7} vs 15 crit 19 2 dmg 2dX 4] named "Lackman Maul"
+
+output [{6,6} vs 17 crit 20 2 dmg 3d8 + 1d6 5] named "Goth Hunter's Smite"
+output [{6,6} vs 17 crit 20 2 dmg 3d8 5] named "Goth Smite"
+output [{6,6} vs 17 crit 20 2 dmg 1d8 + 1d6 5] named "Goth Hunter1"
+
+output [3 vs dc 14 dmg 2d12] named "Poison Spray"
+output [6 vs dc 14 dmg 2d8 3] named "Bloody Sickness Ray"
+output [{5} vs 15 crit 20 2 dmg 4d6 3] named "Bloody Guiding Bolt"
+output [{6,6,6} vs 15 crit 20 2 dmg 2d6 4] named "Bloody Ray"
+output [{6,6,6,6} vs 15 crit 20 2 dmg 2d6 5] named "Bloody Ray 3"
+output [2 vs dc 14 dmg 5d6 5] named "Bloody Hands 3"
+output [4 vs dc 15 half dmg 8d6] named "Fireball"

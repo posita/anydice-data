@@ -1,0 +1,45 @@
+ATTACKER_AB: 25
+ATTACKER_DAMAGE: 3d8+8+1d6+1d6+6
+FIRST_STRIKE_BONUS_DAMAGE: 0
+DEADLY: 2d8+(2d10)
+
+ATTACKS: 1
+MAP: 0
+
+TARGET_AC: 30
+
+
+function: attack ROLL:n plus CHECK:n vs DC:n dealing DAMAGE:n {
+DOS: 0
+if ROLL + CHECK <= DC - 10 { DOS: -1 }
+if ROLL + CHECK >= DC      { DOS: 1 }
+if ROLL + CHECK >= DC + 10 { DOS: 2 }
+
+if ROLL = 1 { DOS: DOS - 1 }
+if ROLL = 20 { DOS: DOS + 1 }
+
+if DOS < -1 { DOS: -1 }
+if DOS > 2 { DOS: 2 }
+
+DEALT: 0
+if DOS > 0 { DEALT: DAMAGE * DOS }
+if DOS > 1 { DEALT: DEALT + DEADLY }
+
+result: DEALT
+}
+
+function: perform attacks with AB:n ab AC:n ac DAMAGE:n damage {
+DEALT: 0
+
+if (ATTACKS >= 1) { DEALT: DEALT + [attack d20 plus ATTACKER_AB - (MAP * 0) + AB vs TARGET_AC + AC dealing ATTACKER_DAMAGE + DAMAGE + FIRST_STRIKE_BONUS_DAMAGE] }
+if (ATTACKS >= 2) { DEALT: DEALT + [attack d20 plus ATTACKER_AB - (MAP * 1) + AB vs TARGET_AC + AC dealing ATTACKER_DAMAGE + DAMAGE] }
+if (ATTACKS >= 3) { DEALT: DEALT + [attack d20 plus ATTACKER_AB - (MAP * 2) + AB vs TARGET_AC + AC dealing ATTACKER_DAMAGE + DAMAGE] }
+if (ATTACKS >= 4) { DEALT: DEALT + [attack d20 plus ATTACKER_AB - (MAP * 2) + AB vs TARGET_AC + AC dealing ATTACKER_DAMAGE + DAMAGE] }
+
+result: DEALT
+}
+
+output [perform attacks with 0 ab 0 ac 0 damage] named "Normal"
+output [perform attacks with 0 ab -2 ac 0 damage] named "Flanking"
+output [perform attacks with 1 ab -2 ac 0 damage] named "Flanking + Bless"
+output [perform attacks with 1 ab -3 ac 0 damage] named "Flanking + Bless + Frightened 1"

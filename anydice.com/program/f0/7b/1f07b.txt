@@ -1,0 +1,217 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+function: advdiff ROLLONE:n and ROLLTWO:n vs DEFENSE:n {
+ A: [attack ROLLONE vs DEFENSE]
+ B: [attack ROLLTWO vs DEFENSE]
+ if A = CRITICALHIT {
+   result: MISS
+ }
+ if B= CRITICALHIT {
+   result: CRITICALHIT
+ }
+ if A= MISS {
+   result:B
+ }
+ else {
+ result: MISS
+ }
+}
+function: disadvdiff ROLLONE:n and ROLLTWO:n vs DEFENSE:n {
+ A: [attack ROLLONE vs DEFENSE]
+ B: [attack ROLLTWO vs DEFENSE]
+ if A = MISS {
+   result: MISS
+ }
+ if B= MISS {
+   result:A
+ }
+ if A= CRITICALHIT {
+   if B=HIT {
+     result: HIT
+   }
+ }
+ else {
+ result: MISS
+ }
+}
+function: gwf R:n {
+   if R < 3 { result: d12 } else {result: R}
+}
+
+function: save ROLL:n vs DC:n or DMG:n otherwise HALF:n{
+    if ROLL+BONUS >= DC {
+       if HALF =0 {result: 0} else {result: DMG/2}
+    }
+    else {
+       result: DMG
+    }
+}
+
+function: extra ROLLONE:n and ROLLTWO:n vs DEFENSE:n {
+ A: [attack ROLLONE vs DEFENSE]
+ B: [attack ROLLTWO vs DEFENSE]
+ if A = CRITICALHIT {
+   result: MISS
+ }
+
+ if A= MISS {
+   result:B
+ }
+ else {
+ result: MISS
+ }
+}
+
+function: savage extra ROLLONE:n and ROLLTWO:n {
+ if ROLLONE >= ROLLTWO {
+   result: 0
+ }
+ else {
+   result: ROLLTWO - ROLLONE
+ }
+}
+
+function: crit on CRIT:n attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: warlockbase STAT:n and PROF:n{
+ ATTACK: STAT + PROF
+ HITDAMAGE: 1d10 +d6 + STAT
+ CRITICALDAMAGE: 2d10+2d6 +STAT
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: champion STAT:n and PROF:n and CRIT:n{
+ ATTACK: STAT + PROF
+ HITDAMAGE: 2d6 + STAT
+ CRITICALDAMAGE: 4d6 +STAT
+ result: [damage for [crit on CRIT attack d20 vs DEFENSE]]
+}
+
+function: paladin STAT:n and PROF:n and SMITE:n and IMPROVED:n{
+ ATTACK: STAT + PROF
+ HITDAMAGE: 1d8 +2 + STAT + IMPROVEDd8
+ CRITICALDAMAGE: 2d8 +2 + SMITEd8 +STAT +(2*IMPROVED)d8
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: monk STAT:n and PROF:n and UNARMED:n{
+ ATTACK: STAT + PROF
+ HITDAMAGE: 1d8 + STAT
+ CRITICALDAMAGE: 2d8 +STAT
+ FIRST: [damage for [attack d20 vs DEFENSE]]
+ HITDAMAGE: 1dUNARMED + STAT
+ CRITICALDAMAGE: 2dUNARMED +2 +STAT
+ result: FIRST + [damage for [attack d20 vs DEFENSE]]
+}
+
+function: barb STAT:n and PROF:n and RAGE:n and SAVAGE:n{
+ ATTACK: STAT + PROF
+ HITDAMAGE: 1d12 + STAT + RAGE
+ CRITICALDAMAGE: 2d12 +STAT + RAGE + SAVAGEd12
+ result: [damage for [attack 1@2d20 vs DEFENSE]]
+}
+function: wizard STAT:n and PROF:n and TIER:n{
+ ATTACK: STAT + PROF
+ HITDAMAGE: TIERd10
+ CRITICALDAMAGE: (2*TIER)d10
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: psion STAT:n and PROF:n and TIER:n{
+ DC: STAT + PROF +8
+ EMPOWER: 0
+ SCHISM: 0
+ if TIER>1 { 
+   EMPOWER: STAT
+   SCHISM: [save d20 vs DC or 1d8+STAT otherwise 1]
+ }
+ HITDAMAGE: TIERd10 +d8 +EMPOWER
+ result: [save d20 vs DC or HITDAMAGE otherwise 1] +SCHISM
+}
+
+function: cleric STAT:n and PROF:n and TIER:n{
+ DC: STAT + PROF +8
+ ATTACK: 2+ PROF
+ HOLY:0
+ if TIER=3 { HOLY:1d8 }
+ if TIER=4 { HOLY:2d8 }
+ HITDAMAGE: 1d8 + 2 + HOLY
+ CRITICALDAMAGE: 2d8 +2 + 2*HOLY
+ MWEAPON:[damage for [attack d20 vs DEFENSE]]
+ ATTACK: STAT+ PROF
+ SWEAPON: 0
+ GUARDIAN: 0
+ HOLYW: 0
+ if TIER=1 { 
+   HITDAMAGE: 1d8 + STAT
+   CRITICALDAMAGE: 2d8 + STAT
+   SWEAPON: [damage for [attack d20 vs DEFENSE]]
+ }
+ if TIER=2 {
+   HITDAMAGE: 1d8 + STAT
+   CRITICALDAMAGE: 2d8 + STAT
+   SWEAPON: [damage for [attack d20 vs DEFENSE]]
+   GUARDIAN: [save d20 vs DC or 3d8 otherwise 1]
+ }
+ if TIER=3 {
+   HITDAMAGE: 2d8 + STAT
+   CRITICALDAMAGE: 4d8 + STAT
+   SWEAPON: [damage for [attack d20 vs DEFENSE]]
+   GUARDIAN: [save d20 vs DC or 4d8 otherwise 1]
+ }
+  if TIER=4 {
+   HITDAMAGE: 3d8 + STAT
+   CRITICALDAMAGE: 6d8 + STAT
+   SWEAPON: [damage for [attack d20 vs DEFENSE]]
+   GUARDIAN: [save d20 vs DC or 6d8 otherwise 1]
+ }
+ result:  MWEAPON + SWEAPON + GUARDIAN
+}
+
+
+DEFENSE: 17
+BONUS: 2
+DC:15
+
+DEFENSE: 14
+BONUS:2
+output [cleric 3 and 2 and 1] named "tier 1"
+DEFENSE: 17
+BONUS:5
+output d[cleric 4 and 3 and 2] named "tier 2"
+DEFENSE: 18
+BONUS:6
+output d[cleric 5 and 4 and 3] named "tier 3"
+DEFENSE: 19
+BONUS:7
+output d[cleric 5 and 6 and 4] named "tier 4"
+
+
+
+
+
+

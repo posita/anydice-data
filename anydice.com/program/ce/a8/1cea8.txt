@@ -1,0 +1,72 @@
+\Functions\
+\Public Functions\
+\Attack rolls\
+function: atk A:n B:n C:n D:n E:n F:n {
+   if F < 0 {
+      result: [p atk A B C D E [lowest 1 of ([absolute F]+1)d20]]
+   }
+   if F > 0 {
+      result: [p atk A B C D E [highest 1 of (F+1)d20]]
+   }
+   result: [p atk A B C D E 1d20]
+}
+\Saving throws\
+function: st A:n B:n C:n D:n E:n {
+   X: 0
+   loop Y over {1..C} {
+      X: X + [p st A B D E 1d20]
+   }
+   result: X
+}
+\Save or suck\
+function: sos A:n B:n C:n {
+   X: 0
+   loop Y over {1..C}{
+      X: X + [p sos A B 1d20]
+   }
+   result: X
+}
+\Private functions\
+\Attack rolls\
+function: p atk A:n B:n C:n D:n E:n P:n {
+   if P = 20 {
+      result: (2*B)d(C)+D
+   }
+   if P = 1 {
+      result: 0
+   }
+   if (P+A)>=E {
+      result: BdC+D
+   }
+   result: 0
+}
+\Saving throws\
+function: p st A:n B:n C:n D:n P:n {
+   if (P+B)>=A {
+      if D = 1 {
+         result: C/2
+      }
+      result: 0
+   }
+   result: C
+}
+\Save or suck\
+function: p sos A:n B:n P:n {
+   if (P+B)>=A {
+      result: 0
+   }
+   result: 1
+}
+
+
+
+
+\Functions to use:
+Attack rolls: atk (to hit mod) (# of damage dice) (damage die) (damage bonus) (AC) (advantage state: -1 disadv, 0 no adv, 1 adv, 2 adv + elven accuracy
+Saving throws: st (save dc) (save mod) (# hit) (damage) (half on success: 0 no, 1 yes)
+Save or suck: sos (save dc) (save mod) (# hit)\
+
+\Output\
+loop X over {1..30}{
+   output [atk 6 2 6 15 X 2] named "AC [X]"
+}

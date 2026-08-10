@@ -1,0 +1,63 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: vexattack TIMES:n times ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if TIMES = 0 {
+        result: 0
+    }
+    if (ROLL = 1) | ((ROLL < 20) & (ROLL + BONUS < AC)) {
+        result: [vexattack TIMES - 1 times 1d20 plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE]
+    }
+    else {
+        if ROLL < CRIT_RANGE {
+            DAMAGE: DMG
+        }
+        else {
+            DAMAGE: DMG + CRIT_DMG
+        }
+        result: DAMAGE + [vexattack TIMES - 1 times [highest 1 of 2d20] plus BONUS vs AC for DMG crit CRIT_DMG on CRIT_RANGE]
+    }
+}
+
+output [attack 1d20 plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20]
+     + [attack 1d20 plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20]
+     + [attack 1d20 plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20]
+     + [attack 1d20 plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20] named "level 5 monk"
+
+output [attack [highest 1 of 2d20] plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20]
+     + [attack [highest 1 of 2d20] plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20]
+     + [attack [highest 1 of 2d20] plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20]
+     + [attack [highest 1 of 2d20] plus 6 vs 15 for 1d6 + 4 crit 1d6 on 20] named "level 5 monk with advantage"
+
+output [attack [highest 1 of 2d20] plus 6 vs 15 for 2d6 + 8 crit 2d6 on 20]
+     + [attack [highest 1 of 2d20] plus 6 vs 15 for 2d6 + 8 crit 2d6 on 20] named "gwf world tree"
+
+output [attack [highest 1 of 2d20] plus 6 vs 15 for 1d6 + 1d4 + 4 crit 1d6 + 1d4 on 20]
+     + [attack [highest 1 of 2d20] plus 6 vs 15 for 1d6 + 1d4 + 4 crit 1d6 + 1d4 on 20]
+     + [attack [highest 1 of 2d20] plus 6 vs 15 for 1d6 + 1d4 + 4 crit 1d6 + 1d4 on 20] named "twf vengeance"
+
+output [vexattack 3 times 1d20 plus 9 vs 15 for 1d6 + 1d4 + 4 crit 1d6 + 1d4 on 20] named "twf devotion"
+output [vexattack 4 times 1d20 plus 9 vs 15 for 1d6 + 1d4 + 4 crit 1d6 + 1d4 on 20] named "twf devotion turn 2"

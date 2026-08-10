@@ -1,0 +1,51 @@
+DICE_NUMBER_SIDES: 12 \How many sides you want your dice to have\
+POOL_SIZE: 2 \Will create dice success probabilities from 1d[DICE_NUMBER_SIDES] to [POOL_SIZE]d[DICE_NUMBER_SIDES]\
+
+\Options\
+FAIL_ON_OR_BELOW_ALWAYS: 0 \Set to 0 to disable\
+EXPLODING: 0 \0 for off, non-zero number for on\
+
+\Helpers\
+
+\Explode\
+THRESHOLD: 0 \Predefine for exploding functions\
+
+function: explode DIE:d 
+{
+   MAX: [maximum of DIE]
+   result: [explode DIE helper]
+}
+
+function: explode N:n helper 
+{
+   if N = MAX 
+   {
+      result: DIE >= THRESHOLD | [explode DIE helper]
+   }
+   result: DIE >= THRESHOLD
+}
+
+
+\Main\
+
+loop NUM_DICE over {1..POOL_SIZE}
+{
+   LOOP_START_INDEX: [highest of 1 and FAIL_ON_OR_BELOW_ALWAYS]
+   loop THRESHOLD over {[highest of FAIL_ON_OR_BELOW_ALWAYS + 1 and 1]..DICE_NUMBER_SIDES}
+   {
+      OUT: 0
+      loop K over {1..NUM_DICE}
+      {
+         if EXPLODING != 0
+         {
+            OUT: OUT | [explode 1dDICE_NUMBER_SIDES]
+         }
+         else
+         {
+            OUT: OUT | 1dDICE_NUMBER_SIDES >= THRESHOLD
+         }
+      }
+      output OUT named "[NUM_DICE]d[DICE_NUMBER_SIDES](1) >= [THRESHOLD]"
+   }
+}
+

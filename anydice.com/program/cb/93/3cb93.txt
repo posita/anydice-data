@@ -1,0 +1,172 @@
+
+D: 1d8
+DH: 1d6
+UA: {15,6,12}
+LA: {13,7,13}
+MA: {11,8,14}
+HA: {8,10,16}
+
+\ Daggerheart pair multiply \
+function: dhpm N:n M:n {
+ if N = M {
+  result: N * 3
+ }
+ result: N + M
+}
+
+\ Daggerheart pair extra \
+function: dhpe N:n M:n O:n {
+ if N = M {
+  result: N * 2 + O
+ }
+ result: N + M
+}
+
+function: light weapon N:n {
+ if N >=5 {
+  result: N-5
+ }
+ result: N
+}
+
+function: heavy weapon N:n {
+ if N >=5 {
+  result: N+5
+ }
+ result: N
+}
+
+function: damage N:n {
+ if N < 0 {
+  result: 0
+ }
+ result: 1+N/5
+}
+
+function: damage N:n B:n {
+ if N < 0 {
+  result: 0
+ }
+ result: B+N/5
+}
+
+function: threshold damage N:n B:n T:s {
+ if N < 1@T {result: 0}
+ if N > 3@T {
+  result: 2 + B + (N-3@T)/5
+ }
+ if N > 2@T {
+  result: 1 + B
+ }
+ result: B
+}
+
+function: M:n damage N:n {
+ result: 1+N/5+M/5
+}
+
+function: dodge N:n {
+ if N >= 10 {
+  result: N
+ }
+ result: 0
+}
+
+function: brace N:n {
+ result: N-5
+}
+
+function: multihit threshold damage N:d B:n DT:s T:n FO:n {
+ R: 0
+ loop X over {0..T-1}{
+  R: R+[threshold damage [dhpm N N]-(X*FO) B DT]
+ }
+ result: R
+}
+
+output [threshold damage [dhpm D D] 1 UA] named "medium weapon vs dodging unarmored"
+output [threshold damage [dhpm D D] 0 {0, 2@UA, 3@UA}] named "medium weapon vs bracing unarmored"
+output [threshold damage [dhpm D D] 1 {0, 2@UA+5, 3@UA+5}] named "medium weapon vs bracing v2 unarmored"
+output [threshold damage [dhpm D D]-5 1 {0, 2@UA, 3@UA}] named "medium weapon vs bracing v3 unarmored"
+output [threshold damage [dhpm DH DH] 2 UA] named "heavy weapon vs dodging unarmored"
+output [threshold damage [dhpm DH DH] 1 {0, 2@UA, 3@UA}] named "heavy weapon vs bracing unarmored"
+output [threshold damage [dhpm DH DH] 2 {0, 2@UA+5, 3@UA+5}] named "heavy weapon vs bracing v2 unarmored"
+output [threshold damage [dhpm DH DH]-5 2 {0, 2@UA, 3@UA}] named "heavy weapon vs bracing v3 unarmored"
+output 0
+
+output [threshold damage [dhpm D D] 1 LA] named "medium weapon vs dodging light armor"
+output [threshold damage [dhpm D D] 0 {0, 2@LA, 3@LA}] named "medium weapon vs bracing light armor"
+output [threshold damage [dhpm D D] 1 {0, 2@LA+5, 3@LA+5}] named "medium weapon vs bracing v2 light armor"
+output [threshold damage [dhpm D D]-5 1 {0, 2@LA, 3@LA}] named "medium weapon vs bracing v3 light armor"
+output [threshold damage [dhpm DH DH] 2 LA] named "heavy weapon vs dodging light armor"
+output [threshold damage [dhpm DH DH] 1 {0, 2@LA, 3@LA}] named "heavy weapon vs bracing light armor"
+output [threshold damage [dhpm DH DH] 2 {0, 2@LA+5, 3@LA+5}] named "heavy weapon vs bracing v2 light armor"
+output [threshold damage [dhpm DH DH]-5 2 {0, 2@LA, 3@LA}] named "heavy weapon vs bracing v3 light armor"
+output 0
+
+output [threshold damage [dhpm D D] 1 MA] named "medium weapon vs dodging medium armor"
+output [threshold damage [dhpm D D] 0 {0, 2@MA, 3@MA}] named "medium weapon vs bracing medium armor"
+output [threshold damage [dhpm D D] 1 {0, 2@MA+5, 3@MA+5}] named "medium weapon vs bracing v2 medium armor"
+output [threshold damage [dhpm D D]-5 1 {0, 2@MA, 3@MA}] named "medium weapon vs bracing v3 medium armor"
+output [threshold damage [dhpm DH DH] 2 MA] named "heavy weapon vs dodging medium armor"
+output [threshold damage [dhpm DH DH] 1 {0, 2@MA, 3@MA}] named "heavy weapon vs bracing medium armor"
+output [threshold damage [dhpm DH DH] 2 {0, 2@MA+5, 3@MA+5}] named "heavy weapon vs bracing v2 medium armor"
+output [threshold damage [dhpm DH DH]-5 2 {0, 2@MA, 3@MA}] named "heavy weapon vs bracing v3 medium armor"
+output 0
+
+output [threshold damage [dhpm D D] 1 HA] named "medium weapon vs dodging heavy armor"
+output [threshold damage [dhpm D D] 0 {0, 2@HA, 3@HA}] named "medium weapon vs bracing heavy armor"
+output [threshold damage [dhpm D D] 1 {0, 2@HA+5, 3@HA+5}] named "medium weapon vs bracing v2 heavy armor"
+output [threshold damage [dhpm D D]-5 1 {0, 2@HA, 3@HA}] named "medium weapon vs bracing v3 heavy armor"
+output [threshold damage [dhpm DH DH] 2 HA] named "heavy weapon vs dodging heavy armor"
+output [threshold damage [dhpm DH DH] 1 {0, 2@HA, 3@HA}] named "heavy weapon vs bracing heavy armor"
+output [threshold damage [dhpm DH DH] 2 {0, 2@HA+5, 3@HA+5}] named "heavy weapon vs bracing v2 heavy armor"
+output [threshold damage [dhpm DH DH]-5 2 {0, 2@HA, 3@HA}] named "heavy weapon vs bracing v3 heavy armor"
+output 0
+
+output [multihit threshold damage D 1 UA 2 5] named "medium multihit vs 2 dodging unarmored"
+output [multihit threshold damage D 0 {0, 2@UA, 3@UA} 2 5] named "medium multihit vs 2 bracing unarmored"
+output [multihit threshold damage D 1 LA 2 5] named "medium multihit vs 2 dodging light armor"
+output [multihit threshold damage D 0 {0, 2@LA, 3@LA} 2 5] named "medium multihit vs 2 bracing light armor"
+output [multihit threshold damage D 1 MA 2 5] named "medium multihit vs 2 dodging medium armor"
+output [multihit threshold damage D 0 {0, 2@MA, 3@MA} 2 5] named "medium multihit vs 2 bracing medium armor"
+output [multihit threshold damage D 1 HA 2 5] named "medium multihit vs 2 dodging heavy armor"
+output [multihit threshold damage D 0 {0, 2@HA, 3@HA} 2 5] named "medium multihit vs 2 bracing heavy armor"
+
+output [multihit threshold damage D 1 UA 4 0] named "light 4AP vs dodging unarmored"
+output [multihit threshold damage D 0 {0, 2@UA, 3@UA} 4 0] named "light 4AP vs bracing unarmored"
+output [multihit threshold damage D 1 LA 4 0] named "light 4AP vs dodging light armor"
+output [multihit threshold damage D 0 {0, 2@LA, 3@LA} 4 0] named "light 4AP vs bracing light armor"
+output [multihit threshold damage D 1 MA 4 0] named "light 4AP vs dodging medium armor"
+output [multihit threshold damage D 0 {0, 2@MA, 3@MA} 4 0] named "light 4AP vs bracing medium armor"
+output [multihit threshold damage D 1 HA 4 0] named "light 4AP vs dodging heavy armor"
+output [multihit threshold damage D 0 {0, 2@HA, 3@HA} 4 0] named "light 4AP vs bracing heavy armor"
+
+output [multihit threshold damage D 1 {0, 2@UA, 3@UA} 4 0] named "light 4AP vs unarmored"
+output [multihit threshold damage D 1 {0, 2@LA, 3@LA} 4 0] named "light 4AP vs light armor"
+output [multihit threshold damage D 1 {0, 2@MA, 3@MA} 4 0] named "light 4AP vs medium armor"
+output [multihit threshold damage D 1 {0, 2@HA, 3@HA} 4 0] named "light 4AP vs heavy armor"
+
+
+output [multihit threshold damage D 2 UA 2 5] named "heavy multihit vs 2 dodging unarmored"
+output [multihit threshold damage D 2 LA 2 5] named "heavy multihit vs 2 dodging light armor"
+output [multihit threshold damage D 2 MA 2 5] named "heavy multihit vs 2 dodging medium armor"
+output [multihit threshold damage D 2 HA 2 5] named "heavy multihit vs 2 dodging heavy armor"
+
+output [multihit threshold damage D 1 {0, 2@UA, 3@UA} 2 5] named "heavy multihit vs 2 bracing unarmored"
+output [multihit threshold damage D 1 {0, 2@LA, 3@LA} 2 5] named "heavy multihit vs 2 bracing light armor"
+output [multihit threshold damage D 1 {0, 2@MA, 3@MA} 2 5] named "heavy multihit vs 2 bracing medium armor"
+output [multihit threshold damage D 1 {0, 2@HA, 3@HA} 2 5] named "heavy multihit vs 2 bracing heavy armor"
+
+\
+output [multihit threshold damage D 1 UA 3 5] named "medium multihit vs 3 dodging unarmored"
+output [multihit threshold damage D 1 LA 3 5] named "medium multihit vs 3 dodging light armor"
+output [multihit threshold damage D 1 MA 3 5] named "medium multihit vs 3 dodging medium armor"
+output [multihit threshold damage D 1 HA 3 5] named "medium multihit vs 3 dodging heavy armor"
+\
+
+
+output [threshold damage [dhpm D D] 1 UA] named "precision strike vs dodging unarmored"
+output [threshold damage [dhpm D D] 1 {1@LA, 2@UA, 3@UA}] named "precision strike vs dodging light armor"
+output [threshold damage [dhpm D D] 1 {1@MA, 2@UA, 3@UA}] named "precision strike vs dodging medium armor"
+output [threshold damage [dhpm D D] 1 {1@HA, 2@UA, 3@UA}] named "precision strike vs dodging heavy armor"

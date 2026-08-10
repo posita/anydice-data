@@ -1,0 +1,46 @@
+PROF: 3
+STR: 5
+RAGE: 2
+TO_HIT: PROF + STR
+
+
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL>= DEFENSE { result: CRIT }
+  result: HIT
+ }
+ if ROLL>= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n with DAMAGE and CRIT_DAMAGE{
+ if ATTACKRESULT = CRIT {
+  result: CRIT_DAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: DAMAGE
+ }
+ result: 0
+}
+
+
+AC: 15
+
+ATTACK: [damage for [attack d20+TO_HIT vs AC] with d12 + STR + PROF + RAGE and 2 * d12 + STR + PROF + RAGE]
+ATTACK_TWO: [damage for [attack d20+TO_HIT vs AC] with d12 + STR + PROF + RAGE and 2 * d12 + STR + PROF + RAGE]
+
+CLEAVE: [damage for [attack d20+TO_HIT vs AC] with d12 + PROF + RAGE and 2 * d12 + PROF + RAGE]
+
+BONUS: [damage for [attack d20+TO_HIT vs AC] with d4 + PROF + RAGE and 2 * d4 + PROF + RAGE]
+
+
+output ATTACK named "Action"
+output CLEAVE named "Cleave"
+output BONUS named "Bonus"
+
+output ATTACK + ATTACK_TWO + CLEAVE + BONUS named "total"

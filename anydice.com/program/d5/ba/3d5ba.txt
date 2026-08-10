@@ -1,0 +1,117 @@
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+function: limits SEQUENCE:n ZERO:n MAX:n {
+ if (SEQUENCE < ZERO){result: 0}
+ if (SEQUENCE >= MAX){result: MAX}
+ result: SEQUENCE
+}
+
+\********** basic curves of Highest/Lowest vs Target Count **********\
+
+Q: {0,1,1,1,1,1}    \XdQ=Xd(d6>=2) : used for the sum of successes (on 2+) instead of the sum of face's values\
+\output [highest 10 of 16dQ] named "H10 of 16"
+output 10d(d6>=2) named "10d6 on 2+"
+output [lowest 10 of 16dQ] named "L10 of 16"\
+
+
+
+\********** curves of Highest/Lowest then Target Count + Partial Sum **********\
+\Ex : roll x dices, keep highest/lowest y dices, then removes all under the target.\
+
+KEEP: 3
+POOL: 10
+SUM: 2d6
+
+\output SUMd6+ [highest KEEP of POOLd(d6>=2)] named "T(2+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [highest KEEP of POOLd(d6>=4)] named "T(4+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [highest KEEP of POOLd(d6>=6)] named "T(6+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=2)] named "T(2+) from [POOL] then L[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=4)] named "T(4+) from [POOL] then L[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=6)] named "T(6+) from [POOL] then L[KEEP] + Sum of [SUM]d6"\
+
+
+\************************** Functions : Highest/Lowest into Target Count (& vice versa) *******************\
+
+\apply Highest then Target Number\
+function: highest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLL >= TARGET) }
+ result: COUNT
+}
+\apply Lowest then Target Number\
+function: lowest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ ROLLR: [reverse ROLL]
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLLR >= TARGET) }
+ result: COUNT
+}
+
+\apply Target Number then limit the max (Highest or Lowest doesn't matter)\
+function: count from ROLL:s on TARGET:n keep NUMBER:n {
+ COUNT: ROLL >= TARGET
+ if(COUNT > NUMBER) { COUNT: NUMBER }
+ result: COUNT
+}
+
+
+
+\apply Highest then Target Number\
+function: highestbis NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLL <= TARGET) }
+ result: COUNT
+}
+\apply Lowest then Target Number\
+function: lowestbis NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ ROLLR: [reverse ROLL]
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLLR <= TARGET) }
+ result: COUNT
+}
+function: countbis from ROLL:s on TARGET:n keep NUMBER:n {
+ COUNT: ROLL <= TARGET
+ if(COUNT > NUMBER) { COUNT: NUMBER }
+ result: COUNT
+}
+
+
+POOL: 10
+KEEP: 5
+T: 4
+
+\Results Validated :
+H then T = T then H (without Fails) = T then L (without Fails) = T then H (with Fails)
+L then T = T then L (with Fails)\
+
+\output [count from POOLd6 on T keep KEEP] named "Target Number then Limit (don't considers Failures : H/L same)"
+output [highest KEEP of POOLd(d6>=T)] named "Target Number then H (considers Failures)"
+output [highest KEEP of POOLd6 on T] named "H then Target Number"
+output [limits POOLd(d6>=T) 0 (POOL-KEEP)] named "equivalent of 'H then Target Number' without H"
+
+output [lowest  KEEP of POOLd(d6>=T)] named "Target Number then L (considers Failures)"
+output [lowest  KEEP of POOLd6 on T] named "L then Target Number"
+output [crop POOLd(d6>=T)-(POOL-KEEP)] named "equivalent of 'L then Target Number' without L"\
+
+
+Q: {0..6}
+POOL: 4
+KEEP: 2
+T: 6
+
+output [count from POOLdQ on 6 keep KEEP] named "Target Number then Limit (don't considers Failures : H/L same)"
+output [highest KEEP of POOLd(dQ>=6)] named "Target Number then H (considers Failures)"
+output [highest KEEP of POOLdQ on 6] named "H then Target Number"
+output [limits POOLd(dQ>=6) 0 (POOL-KEEP)] named "equivalent of 'H then Target Number' without H"
+
+output [lowest  KEEP of POOLd(dQ>=6)] named "Target Number then L (considers Failures)"
+output [lowest  KEEP of POOLdQ on 6] named "L then Target Number"
+output [crop POOLd(dQ>=6)-(POOL-KEEP)] named "equivalent of 'L then Target Number' without L"
+
+output [countbis from POOLdQ on 0 keep KEEP] named "Target Number then Limit (don't considers Failures : H/L same)"
+output [highest KEEP of POOLd(dQ>=0)] named "Target Number then H (considers Failures)"
+output [highestbis KEEP of POOLdQ on 0] named "H then Target Number"
+
+output [lowest  KEEP of POOLd(dQ<=0)] named "Target Number then L (considers Failures)"
+output [lowestbis  KEEP of POOLdQ on 0] named "L then Target Number"

@@ -1,0 +1,45 @@
+
+
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+function: plussneakattack BASE_DAMAGE:n plus SA:d {
+ if BASE_DAMAGE = 0 { result: 0 }
+ result: BASE_DAMAGE + SA
+}
+
+AC: 21
+MYCRIT: 20
+ADVANTAGE: [highest 1 of 2d20]
+ABONUS: 10
+DREAD_ATTACK: 1d10
+DBONUS: 5
+DAMAGE: 1d10
+HITDMG: DAMAGE + DBONUS
+CRITDMG: DAMAGE
+
+\
+output EB_ATTACK named "EB One"
+output TOTAL_ATTACK named "EB Both"
+output TOTAL_DREAD named "EB w Dread"
+\
+
+loop AC over {15..25} {
+
+EB_ATTACK: [attack 1d20 plus ABONUS vs AC for HITDMG crit CRITDMG on MYCRIT]
+TOTAL_ATTACK: EB_ATTACK + EB_ATTACK
+TOTAL_DREAD: [plussneakattack TOTAL_ATTACK plus DREAD_ATTACK]
+
+output ((1d4+1)*(2+6)) - TOTAL_DREAD  named "[AC] MM-EB"
+ 
+}

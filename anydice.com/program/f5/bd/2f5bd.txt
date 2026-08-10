@@ -1,0 +1,51 @@
+\ THESE ARE VARIABLES \
+
+SMITELEVEL: 3
+
+ATTACK: 4 + 6 + 3
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+HITDAMAGE: d10 + 7 + (d8)
+CRITICALDAMAGE: 2d10 + 7 + (d8) + (2+SMITELEVELd8)
+MISSDAMAGE: 0
+
+\ THESE ARE FUNCTIONS \
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damagevsfiend for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE + (4d10) + (2d8)
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE + (2d10) + (1d8)
+ }
+ result: MISSDAMAGE
+}
+
+
+\ THESE ARE OUTPUTS \
+
+AC: 20
+output [damage for [attack d20 vs AC]] named "Hyram Damage vs [AC] AC"
+output [damagevsfiend for [attack d20 vs AC]] named "Hyram Damage on FiendUndead vs [AC] AC"
+

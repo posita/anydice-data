@@ -1,0 +1,53 @@
+function: advant ADVAR roll DI {
+if ADVAR > 0 {
+   result: [highest 1 of 2d{1..DI}]
+   }
+result: 1d{1..DI}
+}
+function: armor ARMOR with Z:n {
+if Z > ARMOR {
+    result: 1
+    }
+result: 0
+}
+function: same DIEONE:n and DIETWO:n {
+if DIEONE = DIETWO{
+result: 1
+   }
+result: 0
+}
+function: does M:n equal NUM {
+if M = NUM {
+   result: 1
+   }
+result: 0
+}
+function: multiply CHANCE:n and NUMBER:n {
+   if CHANCE = 1 {
+   result: NUMBER
+   }
+result: 0
+}
+
+ENEMIES: 3
+ADVANTAGE: 0 \ If we're calculating for AC, do we have advantage?\
+BONUS: 6 \ To Hit Bonus\
+ROLL: [advant ADVANTAGE roll 20] + BONUS
+DOAC: 1 \ Do we want to calculate for AC? \
+AC: 16
+CONTINUE: {1}
+\ 2d8 is always the damage, but there's the extra d6s \
+NUMDICE: 1
+DAMAGE: 6
+DEIGHTONE: d8
+DEIGHTTWO: d8
+
+loop I over {1..ENEMIES} {
+   if DOAC = 1 {
+   CONTINUE: [multiply CONTINUE and [armor AC with ROLL]]
+}
+   output [multiply CONTINUE and 2d8 + NUMDICEd{1..DAMAGE}] named "Enemy [I] Damage"
+   J: I+1
+   output CONTINUE named "Chance to hit Enemy [J]"
+   CONTINUE: [multiply CONTINUE and [same DEIGHTONE and DEIGHTTWO]]  
+}

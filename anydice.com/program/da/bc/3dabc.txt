@@ -1,0 +1,53 @@
+function: SIXES:n EIGHTS:n TENS:n hits MIN {
+TALLY: 0
+loop I over {1..SIXES}{
+ TALLY: TALLY + (1d6 >= MIN)
+}
+loop I over {1..EIGHTS}{
+ TALLY: TALLY + (1d8 >= MIN)
+}
+loop I over {1..TENS}{
+ TALLY: TALLY + (1d10 >= MIN)
+}
+result: TALLY
+}
+
+function: clamp NUMBER:n to MAX:n {
+  if NUMBER > MAX { result: MAX }
+  result: NUMBER
+}
+
+loop POOLMAX over {2..3} {
+  loop TARGETSUCCESS over {4..8} {
+    loop TOTALDICE over {3..11} {
+      loop NUMTENS over {0..TOTALDICE} {
+        TOTALEIGHTS: TOTALDICE - NUMTENS
+        if TOTALEIGHTS > 0 {
+          loop NUMEIGHTS over {0..TOTALEIGHTS} {
+            TOTALSIXES: TOTALDICE - NUMTENS - NUMEIGHTS
+            if TOTALSIXES > 0 {
+              loop NUMSIXES over {0..TOTALSIXES} {
+                if NUMSIXES + NUMEIGHTS + NUMTENS = TOTALDICE {
+                  output [clamp [NUMSIXES NUMEIGHTS NUMTENS hits TARGETSUCCESS] to POOLMAX] named "[TOTALDICE] total - [NUMTENS]d10 [NUMEIGHTS]d8 [NUMSIXES]d6 hits [TARGETSUCCESS]"
+                }
+              }
+            } else {
+              NUMSIXES: 0
+              if NUMSIXES + NUMEIGHTS + NUMTENS = TOTALDICE {
+                output [clamp [NUMSIXES NUMEIGHTS NUMTENS hits TARGETSUCCESS] to POOLMAX] named "[TOTALDICE] total - [NUMTENS]d10 [NUMEIGHTS]d8 [NUMSIXES]d6 hits [TARGETSUCCESS]"
+              }
+            } 
+          }
+        } else {
+          NUMEIGHTS: 0
+          TOTALSIXES: TOTALDICE - NUMTENS
+          loop NUMSIXES over {0..TOTALSIXES} {
+            if NUMSIXES + NUMEIGHTS + NUMTENS = TOTALDICE {
+              output [clamp [NUMSIXES NUMEIGHTS NUMTENS hits TARGETSUCCESS] to POOLMAX] named "[TOTALDICE] total - [NUMTENS]d10 [NUMEIGHTS]d8 [NUMSIXES]d6 hits [TARGETSUCCESS]"
+            }
+          }
+        }
+      }
+    }
+  }
+}

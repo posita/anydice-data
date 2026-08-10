@@ -1,0 +1,133 @@
+\
+
+Author: Slaktarfisken
+
+Version: 2020-11-06.2
+
+fixes:
+- set desired maximum exhaust limit
+\
+
+
+
+\#################################################################\
+\#################################################################\
+\#################################################################\
+\#####This program can calculate the chance of exhaustion    #####\
+\#####gain and roll for all exhaustion gain for travel       #####\
+\#####              EXHAUSTION                               #####\
+\##### Level |Effect                                         #####\
+\#####   1.  |Disadvantage on Ability Checks                 #####\
+\#####   2.  |Speed halved                                   #####\
+\#####   3.  |Disadvantage on Attack rolls and Saving Throws #####\
+\#####   4.  |Hit point maximum halved                       #####\
+\#####   5.  |Speed reduced to 0                             #####\
+\#####   6.  |Death                                          #####\
+\#################################################################\
+\#################################################################\
+\#################################################################\
+\#   DO NOT TOUCH THEESE IF YOU DO NOT KNOW WHAT YOU ARE DOING   #\
+\#                     #\SLOW:   2 \#                            #\
+\#                     #\NORMAL: 3 \#                            #\
+\#                     #\FAST:   4 \#                            #\
+\#################################################################\
+
+
+
+\#############     SETUP    ##################################\
+\change PARAMETERS to according to your Character and circumstances\
+\##############  PARAMETERS  #######################################################\
+LEVEL: 2                  \Character Level                                         #\    
+CON: 16                   \Character Constitution                                  #\     
+CONPROF: 1                \Character proficient in consaves 1 = true 0 = false     #\
+                          \                                                        #\
+EXHAUSTION:0              \Starting exhaustion                                     #\
+MAXEXHAUST: 5             \Set decided max exhaustion                              #\
+MILES: 46                 \Travel distance                                         #\
+SPEED: FAST               \travel pace slow = 18mpd, normal = 24mpd fast = 30mpd   #\
+\###################################################################################\
+
+
+\DO NOT CHANGE ## ANYTHING ## BELOW IF YOU DO NOT KNOW WHAT YOU ARE DOING\
+DC: 10                 \Base DC of saving throw\
+DICE: (1d20)           \Dice Value\
+PROF: LEVEL/4 + 1      \Proficiency bonus based on level\
+CONMOD:(CON-10)/2      \Constitution modifier\
+
+\calculate consve depending on proficiency\
+function: consave{if CONPROF {result: DICE + CONMOD + PROF} result: DICE + CONMOD}
+CONSAVE: [consave]
+
+
+
+\############### FUNCTIONS ######################\
+\Main Function that runs the program, Calculates the number of \
+\Hours spent traveling if trying to cover a distance in a day\
+   \@param M: miles to travel\
+   \@param SPEED: Travel Pace\
+   \@param E: exhaustion level at the start of travel\
+   \@result: return EXHAUSTION\
+function: travel M miles at SPEED speed in one day starting with E:n exhaustion {
+ H: 8 + (MILES-30)/SPEED           \calculate number of full hours traveling\
+ \loop over 1 to H and if over 8 check if need to apply exhaustion\
+ loop N over {1..H}{
+  if N > 8 {
+   DC: DC + 1
+   EX: [chose save E]
+   E: E + EX
+   E: [lowest of E and MAXEXHAUST]
+  }
+ }
+ EXHAUSTION: E
+ result: EXHAUSTION
+}
+
+
+
+\Check if the character succeeds on a normal CON save\
+   \@param A: Dice roll for CON save\
+   \@param DC: DC of the CON save\
+   \@result: value 1 or 0\
+function: normal save A:n DC:n{
+ if A < DC {
+  result: 1
+ }
+ result: 0
+}
+
+\Check if the character succeeds on a disadvantage CON save\
+   \@param A: Dice roll for consave\
+   \@param B: Dice roll for consave\
+   \@param DC: DC of the CON save\
+   \@result: value 1 or 0\
+function: disadvantage save A:n B:n DC:n{
+ if A < DC {
+  result: 1
+ }
+ if B < DC {
+  result: 1
+ }
+ result: 0
+}
+
+\Check current exhaustion level and make the correct number of dice rolls\
+    \@param A: Current EXHAUSTION\
+    \@result: 2, 1 or 0\
+function: chose save A:n { 
+ if A < 2 {result: [normal save DICE DC]}
+ if A = 2 {result: [normal save DICE DC] + [normal save DICE DC]}
+ if A > 2 {result: [disadvantage save DICE DICE DC] + [disadvantage save DICE DICE DC]}
+}
+
+
+TRAVEL: [travel MILES miles at SPEED speed in one day starting with EXHAUSTION exhaustion]
+output TRAVEL named "Travel"
+
+
+
+
+
+
+
+
+

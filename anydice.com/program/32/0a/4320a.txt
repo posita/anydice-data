@@ -1,0 +1,33 @@
+NUMBER_OF_DICE: {1, 2} \Put the number of dice to test here\
+DICE_SIZE: {4, 10} \Put the dice sizes to test here\
+BONUS_DAMAGE: {0, 3, 5, 10, 20} \Put the bonus damage values to test here\
+ARMOR: {0, 4, 15} \Put the armor values to test here\
+
+
+
+
+\DON'T TOUCH THE SHIT BELOW HERE\
+
+function: single die D:n SIDES:n BONUS:n ARMOR:n {
+  if D = SIDES {
+    result: [highest of 0 and BONUS-ARMOR] + D
+  }
+  result: [highest of 0 and D+BONUS-ARMOR]
+}
+
+function: damage DICE:n SIDES:n BONUS:n ARMOR:n {
+  T: 0
+  loop I over {1..DICE} {
+    T: T + [single die 1d(SIDES) SIDES BONUS ARMOR]
+  }
+  result: T
+}
+loop H over DICE_SIZE {
+  loop I over BONUS_DAMAGE {
+    loop J over ARMOR {
+      loop K over NUMBER_OF_DICE { 
+        output [damage K H I J] named "Rolled [K]d[H] with [I] bonus damage against [J] armor"
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+\HEROES - D6s\
+
+function: limits SEQUENCE:n ZERO:n MIN:n {
+ if (SEQUENCE < ZERO){result: 0}
+ if (SEQUENCE < MIN){result: MIN}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n MIN:n MAX:n {
+ if (SEQUENCE <= MIN){result: 0}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+
+\************************** Highest/Lowest into Target Count ****************************\
+
+\apply highest then target\
+function: highest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLL >= TARGET) }
+ result: COUNT
+}
+\apply lowest then target\
+function: lowest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ ROLLR: [reverse ROLL]
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLLR >= TARGET) }
+ result: COUNT
+}
+
+\apply target then limit the max (highest or lowest doesn't matter)\
+function: count from ROLL:s on TARGET:n keep NUMBER:n {
+ COUNT: ROLL >= TARGET
+ if(COUNT > NUMBER) { COUNT: NUMBER }
+ result: COUNT
+}
+
+
+POOL: 10
+KEEP: 5
+T: 2
+output [count from POOLd6 on T keep KEEP] named "t then h/l"
+output [highest KEEP of POOLd(d6>=T)] named "h then t"
+output [highest KEEP of POOLd6 on T] named "h then t"
+output [lowest  KEEP of POOLd(d6>=T)] named "l then t"
+output [lowest  KEEP of POOLd6 on T] named "l then t"
+output KEEPd(d6>=T)
+
+\************************** Sequence Functions ****************************\
+
+
+
+\************************** Generic Chart with Att & Def Modifiers ****************************\
+
+
+
+\************************************************************************************************\
+
+SUM: 2d6
+POOL: 9
+KEEP: 8
+
+\loop T over {2..6}{
+output KEEPd(d6>=T)+SUM named "[KEEP]d6 then T on [T]+, without H/L"
+output [highest KEEP of POOLd(d6>=T)]+SUM named "[POOL]d6, H[KEEP] then T on [T]+"
+output [lowest  KEEP of POOLd(d6>=T)]+SUM named "[POOL]d6, L[KEEP] then T on [T]+"
+}\
+
+

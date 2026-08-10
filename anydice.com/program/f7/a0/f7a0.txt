@@ -1,0 +1,40 @@
+function: clash ROLL:n {
+    if ROLL >= 7 { result:1 }
+    result:0
+}
+function: damage CLASHDIFF:s with DV:n with BONUS:n with BONUSP:n {
+    if CLASHDIFF+BONUS >= DV { result:DV+BONUSP}
+    if CLASHDIFF <= 0 { result:0 }
+    result:CLASHDIFF+BONUS+BONUSP
+}
+function: damagex CLASHDIFF:s with DV:n with BONUS:n with BONUSP:n {
+    if CLASHDIFF+BONUS >= DV { result:DV+BONUSP}
+    if CLASHDIFF < 0 { result: [damagex CLASHDIFF with DV with BONUS with BONUSP] } \ Exclude complete misses \
+    if CLASHDIFF = 0 { result: 0 }                                                  \ Include glances \
+    result:CLASHDIFF+BONUS+BONUSP
+}
+function: damagez CLASHDIFF:s with DV:n with BONUS:n with BONUSP:n {
+    if CLASHDIFF+BONUS >= DV { result:DV+BONUSP}
+    if CLASHDIFF <= 0 { result: [damagez CLASHDIFF with DV with BONUS with BONUSP] } \ Exclude all no dmg \
+    result:CLASHDIFF+BONUS+BONUSP
+}
+
+O: 36+3
+AUTO: 1
+D: 24
+DV: 5
+BONUS: 0
+BONUSP: 0
+R: 1
+C: [clash d10]
+CD: [damage OdC - DdC + AUTO with DV with BONUS with BONUSP]
+CDX: [damagex OdC - DdC + AUTO with DV with BONUS with BONUSP]
+CDZ: [damagez OdC - DdC + AUTO with DV with BONUS with BONUSP]
+
+
+output OdC - DdC + AUTO >= 0 named "Clash >=0"
+output OdC - DdC + AUTO >= 1 named "Clash >=1"
+output RdCD named "Damage (with misses)"
+output RdCDX named "Damage (on 'hit' >=0)"
+output RdCDZ named "Damage (on hit >=1)"
+output OdC - DdC + AUTO named "Clash Distribution"

@@ -1,0 +1,56 @@
+function: evaluate ROLL:s { 
+result: (ROLL >= 7)  + (ROLL = 10)+ (-1*(ROLL = 1))
+}
+
+function: bonus ROLL:s {
+NB: #ROLL-1
+EVA: 0
+loop X over {1..NB} {
+EVA : [evaluate X@ROLL] + EVA
+}
+result: EVA
+}
+
+function: malus ROLL:s {
+NB: #ROLL
+EVA: 0
+loop X over {2..NB} {
+EVA : [evaluate X@ROLL] + EVA
+}
+result: EVA
+}
+function: confrontation A_ROLL:s contre B_ROLL:s {
+if [evaluate A_ROLL]!=[evaluate B_ROLL]{
+   result: [evaluate A_ROLL]>[evaluate B_ROLL]
+}
+}
+
+function: combat ASS_ROLL:s contre DEF_ROLL:s degat DEGAT:s pr PR:n{
+if [evaluate ASS_ROLL]!=[evaluate DEF_ROLL]{
+   if [evaluate ASS_ROLL]>[evaluate DEF_ROLL]{
+result: DEGAT>PR}
+  }
+}
+
+function: epreuve A_ROLL:s dif EP:n {
+result : [evaluate A_ROLL]>=EP
+}
+
+
+MAX: 2
+MEX: 2
+\loop DICEA over {2..MAX}{
+loop DICED over {2..MEX}{
+output [epreuve DICED d10 dif [evaluate DICEA d10]] named "D[DICED]A[DICEA]"
+}
+}\
+
+loop DICEA over {1..MAX}{
+ loop DICED over {1..MEX}{
+  if [epreuve DICED d10 dif [evaluate DICEA d10]]=1{
+   [combat DICEA d10 contre DICED d10 degat 1d6 pr 3] named "D[DICED]c[DICEA]"
+  }
+ }
+}
+
+

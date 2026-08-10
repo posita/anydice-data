@@ -1,0 +1,36 @@
+function: interpret ROLL:s {
+  DHITS: 0   \ Variable to count the number of hits from 6s \
+  SHITS: 0   \ Variable to count the number of hits from 4s and 5s \
+  DMISS: 0   \ Variable to count the number of misses from 1s \
+  SMISS: 0   \ Variable to count the number of misses from 2s and 3s \
+  HITS:  0   \ Variable to store the total number of hits \
+  RROLL: [sort ROLL]  \ Sort the input sequence of dice rolls in ascending order \
+  loop I over {1 .. #RROLL} {
+    if I@RROLL = 1 {DMISS: DMISS + 3}  \ Increment DMISS if the value is 1 (NIX) \
+    if I@RROLL = 2 {SMISS: SMISS + 0}  \ Increment SMISS if the value is 2 (NON) \
+    if I@RROLL = 3 {SHITS: SHITS + 1}   \ Increment SMISS if the value is 3 (NON) \
+    if I@RROLL = 4 {SHITS: SHITS + 1}  \ Increment SHITS if the value is 4 (VEU) \
+    if I@RROLL = 5 {SHITS: SHITS + 1}  \ Increment SHITS if the value is 5 (VEU) \
+    if I@RROLL = 6 {DHITS: DHITS + 3}  \ Increment DHITS if the value is 6 (LUX) \
+  }
+  HITS: (DHITS - DMISS) + SHITS  \ Calculate the total number of hits \
+  if HITS < 0 { HITS: 0 }
+  if HITS = 1 | HITS = 2 { HITS: 1 }
+  if HITS >= 3 & HITS < 6 { HITS: 2 }
+  if HITS >= 6 { HITS: 3 }
+  result: HITS  \ Set the result of the function to HITS \
+}
+
+loop I over {1 .. 3} {
+  output [interpret Id6] named "[I]d6"  \ Call the interpret function with Id6 and output the result \
+}
+
+
+\ 
+
+  HITS: ([highest of (DHITS - DMISS) and 0]) + SHITS 
+
+      if ![count {4,5} in RROLL] { DHITS: DHITS + 2 }  
+      else { DHITS: DHITS + 1 }
+
+\

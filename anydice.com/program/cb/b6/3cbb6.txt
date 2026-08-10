@@ -1,0 +1,31 @@
+\set "explode depth" to 10\
+
+RANGE: 5
+D: {0,1}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: ez R:n tn TN:n crit CRIT:n {
+  if R < TN { result: 0 }
+  if R >= CRIT { result: 1 + [ez d6 tn TN crit 6] }
+  result: 1
+}
+
+loop CRIT over {5} {
+loop TN over {2..6} {
+  loop N over {2..4} {
+    X: 6-N
+    output [clamp [ez [lowest 1 of Xd6] tn TN crit CRIT] between -RANGE and RANGE] named "-[X]ez [TN]/[CRIT]"
+  }
+
+  output [clamp [ez d6 tn TN crit CRIT] between -RANGE and RANGE] named "ez [TN]/[CRIT]"
+
+  loop N over {2..4} {
+    output [clamp [ez [highest 1 of Nd6] tn TN crit CRIT] between -RANGE and RANGE] named "[N]ez [TN]/[CRIT]"
+  }
+}
+}

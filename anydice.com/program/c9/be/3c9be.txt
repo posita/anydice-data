@@ -1,0 +1,29 @@
+set "maximum function depth" to 23
+
+function: pull PULL:n ZEROS:n ONES:n REMAINING:n TARGET:n TOTAL:n {
+  if (TARGET = 1 & PULL = 1) | TARGET < 1 | ZEROS < 1 {
+    result: TOTAL - REMAINING
+  }
+
+  if REMAINING < 1 | ONES < 1{
+    result: -1
+  }
+
+  if PULL {
+    result: [pull (1d{0:ZEROS, 1:(ONES-1)}) ZEROS (ONES-1) (REMAINING-1) (TARGET-1) TOTAL]
+  }
+
+  result: [pull (1d{0:(ZEROS-1), 1:ONES}) (ZEROS-1) ONES (REMAINING-1) TARGET TOTAL]
+}
+
+
+function: draw ZEROES:n ONES:n TARGET:n {
+  TOTAL: ZEROES + ONES
+  result: [pull (1d{0:ZEROES, 1:ONES}) ZEROES ONES (TOTAL-1) TARGET TOTAL]
+}
+
+
+loop I over {6, 10, 16, 20} {
+  output [draw I 2 1] named "Herald [I]"
+  output [draw I 2 2] named "King [I]"
+}

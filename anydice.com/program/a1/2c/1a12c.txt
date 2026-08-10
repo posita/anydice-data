@@ -1,0 +1,64 @@
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL + ATTACK >= DEFENSE + 10 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack 2@3d10 vs DEFENSE]]
+}
+
+function: critexplode N:n {
+ if N >= 5 { result: N + [critexplode d6] }
+ result: N
+}
+
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+MISSDAMAGE: 0
+
+DEFENSE: d{6..15}
+
+ATTACK: 1
+LEVEL: 2
+CURSE: [explode 1d6]
+WEAPON: [explode 1d6] + 2
+
+
+\########################################################\
+
+ATTACK: 11 + 1 + 3
+HITDAMAGE: [explode 1d6] + 2 + LEVEL + CURSE
+CRITICALDAMAGE: [critexplode 1d6] + 2 + LEVEL + [critexplode 1d6]
+output [attack] named "Rayo sobrenatural"
+
+
+ATTACK: 7 + 3 + 3
+HITDAMAGE: WEAPON + LEVEL + CURSE
+CRITICALDAMAGE: ([critexplode 1d6] + 2) + LEVEL + [critexplode 1d6]
+output [attack] named "Estocada Glacial"
+
+
+HITDAMAGE: 2d(WEAPON) + LEVEL + CURSE
+CRITICALDAMAGE: 2d([critexplode 1d6] + 2) + LEVEL + [critexplode 1d6]
+output [attack] named "Fragmento Perforador"
+
+
+ATTACK: 1000
+HITDAMAGE: 2d[explode 1d6] + LEVEL + CURSE
+CRITICALDAMAGE: 2d[critexplode 1d6] + LEVEL + [critexplode 1d6]
+output [attack] named "Armadura del Yugo Invernal"

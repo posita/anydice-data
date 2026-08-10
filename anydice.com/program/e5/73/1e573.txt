@@ -1,0 +1,501 @@
+\ Bard Comparison \
+
+MISS: 0
+HIT: 1
+BGWF: {{1..2}, {3..10}:6}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 2
+SMALLATTACK: 2 + 2
+SKELEATTACK: 4
+MOUNTATTACK: 6
+BIGHITDAMAGE: 1d6 + 2
+BIGCRITICALDAMAGE: 2d6 + 2 
+SMALLHITDAMAGE: 1d4 + 2
+SMALLCRITICALDAMAGE: 2d4 + 2
+SKELEHITDAMAGE: 1d10 + 2
+SKELECRITICALDAMAGE: 2d10 + 2
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 1d8 + 4
+MOUNTSMALLCRITICALDAMAGE: 2d8 + 4 
+
+CHARACTERSPELLSAVEONE: 15
+CHARACTERSPELLSAVETWO: 12
+SAVESPELLHITDAMAGEONE: 5d8
+SAVESPELLMISSDAMAGEONE: (5d8)/2 
+SAVESPELLHITDAMAGETWO: 1d12
+SAVESPELLMISSDAMAGETWO: 0
+MISSDAMAGE: 0
+MONSTERSAVEONE: -1
+MONSTERSAVETWO: -1
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+
+function: save spell one ROLL:n {
+ if ROLL + MONSTERSAVEONE >= CHARACTERSPELLSAVEONE {result: SAVESPELLMISSDAMAGEONE}
+ result: SAVESPELLHITDAMAGEONE
+}
+
+function: save spell two ROLL:n {
+ if ROLL + MONSTERSAVEONE >= CHARACTERSPELLSAVETWO {result: SAVESPELLMISSDAMAGETWO}
+ result: SAVESPELLHITDAMAGETWO
+}
+
+
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [[highest 1 of 2d20] vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [[highest 1 of 2d20] vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [[highest 1 of 2d20] vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackspo NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell one d20]
+  }
+  result: TOTAL
+}
+
+function: multiattackspt NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell two d20]
+  }
+  result: TOTAL
+}
+
+\ Levels 1-3 \
+
+BIGATTACK: 2 + 2
+SMALLATTACK: 2 + 2
+BIGHITDAMAGE: 1d6 + 2
+BIGCRITICALDAMAGE: 2d6 + 2 
+SMALLHITDAMAGE: 1d4 + 2
+SMALLCRITICALDAMAGE: 2d4 + 2
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Swords w/ Polearm Master vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Swords w/ Polearm Master vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Swords w/ Polearm Master vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 1-3 Swords w/ Polearm Master vs AC[AC]"
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d6 + 3
+BIGCRITICALDAMAGE: 2d6 + 3 
+
+AC:10
+output [bigmultiattack 2] named "levels 1-3 Valor w/ Crossbow Expert vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] named "levels 1-3 Valor w/ Crossbow Expert vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] named "levels 1-3 Valor w/ Crossbow Expert vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] named "levels 1-3 Valor w/ Crossbow Expert vs AC[AC]"
+
+\ Levels 4-5 \
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d6 + 3 + 2
+BIGCRITICALDAMAGE: 2d6 + 3 + 2 
+SMALLHITDAMAGE: 1d4 + 5
+SMALLCRITICALDAMAGE: 2d4 + 3 + 2
+AC:10
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 4-5 Swords w/ Polearm Master, Duelist vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 4-5 Swords w/ Polearm Master, Duelist vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 4-5 Swords w/ Polearm Master, Duelist vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [smallmultiattack 1] named "levels 4-5 Swords w/ Polearm Master, Duelist vs AC[AC]"
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d6 + 3
+BIGCRITICALDAMAGE: 2d6 + 3 
+
+AC:10
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+BIGATTACK: 2 + 3 - 5
+SMALLATTACK: 2 + 3 - 5
+BIGHITDAMAGE: 1d6 + 3 + 10
+BIGCRITICALDAMAGE: 2d6 + 3 + 10
+
+AC:10
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] named "levels 4-5 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+\ Levels 6-9 \
+
+BIGATTACK: 3 + 3
+SMALLATTACK: 3 + 3
+BIGHITDAMAGE: 1d6 + 3 + 2
+BIGCRITICALDAMAGE: 2d6 + 3 + 2
+SMALLHITDAMAGE: 1d4 + 1d8 + 3 + 2
+SMALLCRITICALDAMAGE: 2d4 + 2d8 + 3 + 2
+
+AC:10
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 6-9 Swords w/ Polearm Master, Duelist, Defensive Flourish vs AC[AC]"
+
+AC:15
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 6-9 Swords w/ Polearm Master, Duelist, Defensive Flourish vs AC[AC]"
+
+AC:20
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 6-9 Swords w/ Polearm Master, Duelist, Defensive Flourish vs AC[AC]"
+
+AC:25
+output [bigmultiattack 2] + [smallmultiattack 1] named "levels 6-9 Swords w/ Polearm Master, Duelist, Defensive Flourish vs AC[AC]"
+
+
+
+BIGATTACK: 3 + 3
+SMALLATTACK: 3 + 3
+BIGHITDAMAGE: 1d6 + 3
+BIGCRITICALDAMAGE: 2d6 + 3 
+
+AC:10
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+AC:15
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+AC:20
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+AC:25
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert w/o Sharpshooter vs AC[AC]"
+
+BIGATTACK: 3 + 3 - 5
+SMALLATTACK: 3 + 3 - 5
+BIGHITDAMAGE: 1d6 + 3 + 10
+BIGCRITICALDAMAGE: 2d6 + 3 + 10
+
+AC:10
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+AC:15
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+AC:20
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+AC:25
+output [bigmultiattack 3] named "levels 6-9 Valor w/ Crossbow Expert, Sharpshooter vs AC[AC]"
+
+\ Levels 10-13 \
+
+BIGATTACK: 4 + 4
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d6 + 4 + 2
+BIGCRITICALDAMAGE: 2d6 + 4 + 2
+SMALLHITDAMAGE: 1d4 + 1d10 + 4 + 2
+SMALLCRITICALDAMAGE: 2d4 + 2d10 + 4 + 2
+
+AC:10
+MONSTERSAVEONE: -1
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 10-13 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+AC:15
+MONSTERSAVEONE: 0
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 10-13 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+AC:20
+MONSTERSAVEONE: +1
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 10-13 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+AC:25
+MONSTERSAVEONE: +2
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 10-13 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+BIGATTACK: 4 + 4
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d6 + 4
+BIGCRITICALDAMAGE: 2d6 + 4 
+
+AC:10
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Griffon w/o Sharpshooter, Haste vs AC[AC]"
+
+AC:15
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Griffon w/o Sharpshooter, Haste vs AC[AC]"
+
+AC:20
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Griffon w/o Sharpshooter, Haste vs AC[AC]"
+
+AC:25
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Griffon w/o Sharpshooter, Haste vs AC[AC]"
+
+BIGATTACK: 4 + 4 - 5
+SMALLATTACK: 4 + 4 - 5
+BIGHITDAMAGE: 1d6 + 4 + 10
+BIGCRITICALDAMAGE: 2d6 + 4 + 10
+
+AC:10
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Haste vs AC[AC]"
+
+AC:15
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Haste vs AC[AC]"
+
+AC:20
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Haste vs AC[AC]"
+
+AC:25
+output [bigmultiattack 4] + [mountbigmultiattack 2] + [mountsmallmultiattack 1] named "levels 10-13 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Haste vs AC[AC]"
+
+
+\ Levels 14-20 \
+
+CHARACTERSPELLSAVEONE: 16
+SAVESPELLHITDAMAGEONE: 7d8
+SAVESPELLMISSDAMAGEONE: (7d8)/2
+BIGATTACK: 5 + 5
+SMALLATTACK: 5 + 5
+BIGHITDAMAGE: 1d6 + 5 + 2
+BIGCRITICALDAMAGE: 2d6 + 5 + 2
+SMALLHITDAMAGE: 1d4 + 1d10 + 5 + 2
+SMALLCRITICALDAMAGE: 2d4 + 2d10 + 5 + 2
+
+AC:10
+MONSTERSAVEONE: -1
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 14-20 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+AC:15
+MONSTERSAVEONE: 0
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 14-20 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+AC:20
+MONSTERSAVEONE: +1
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 14-20 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+AC:25
+MONSTERSAVEONE: +2
+output [bigmultiattack 2] + [smallmultiattack 1] + [multiattackspo 2] + [mountbigmultiattack 1] + [mountsmallmultiattack 1] named "levels 14-20 Swords w/ Polearm Master, Duelist, Defensive Flourish, Spirit Guardians, Griffon vs AC[AC]/Wis[MONSTERSAVEONE]"
+
+BIGATTACK: 5 + 5
+SMALLATTACK: 5 + 5
+BIGHITDAMAGE: 1d6 + 2d12 + 5
+BIGCRITICALDAMAGE: 2d6 + 4d12 + 5
+MOUNTBIGHITDAMAGE: 2d6 + 2d12 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 2d12 + 4 
+
+AC:10
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/o Crossbow Expert w/ Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/o Crossbow Expert w/ Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/o Crossbow Expert w/ Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/o Crossbow Expert w/ Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+BIGATTACK: 5 + 5 - 5
+SMALLATTACK: 5 + 5 - 5
+BIGHITDAMAGE: 1d6 + 2d12 + 5 + 10
+BIGCRITICALDAMAGE: 2d6 + 4d12 + 5 + 10
+MOUNTBIGHITDAMAGE: 2d6 + 2d12 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 2d12 + 4
+
+AC:10
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 3] + [mountbigmultiattackadvantage 2] named "levels 14-20 Valor w/ Crossbow Expert, Sharpshooter, Griffon, Tesners Transformation vs AC[AC]"
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,37 @@
+CRIT: 20
+ABILITYMOD: 5
+PROF: 3
+DAMAGEDICE: 1d8 + 4d6
+CRITDICE: DAMAGEDICE
+NUMATTACKS: 1
+
+function: attack ROLL:n vs DEFENSE:n {
+ ATTACK: ABILITYMOD + PROF
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT { result: DAMAGEDICE + CRITDICE + ABILITYMOD }
+ if ROLL + ATTACK >= DEFENSE { result: DAMAGEDICE + ABILITYMOD }
+ result: 0
+}
+
+loop AC over {7..28}{
+    TOTAL: 0
+    loop N over {1..NUMATTACKS}{
+       TOTAL: TOTAL + [attack [highest 1 of 2d20] vs AC]
+    }
+    output TOTAL named "AC: [AC] (Drell)"
+}
+
+
+ABILITYMOD: 4
+DAMAGEDICE: 1d10
+CRITDICE: 1d10
+NUMATTACKS: 2
+
+
+loop AC over {7..28}{
+    TOTAL: 0
+    loop N over {1..NUMATTACKS}{
+       TOTAL: TOTAL + [attack 1d20 vs AC]
+    }
+    output TOTAL named "AC: [AC] (Armand)"
+}

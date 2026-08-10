@@ -1,0 +1,26 @@
+NUM_DICE: 10
+DIE_MAX: 4
+DIE_SIZE: {2, 2, 3..4}   
+CHA_MOD:  5    
+
+
+
+DAMAGE: NUM_DICEd[explode dDIE_SIZE]
+TOTAL_DAMAGE: 0
+
+function: reroll R:n {
+  if R > 2 { result: R }
+  result: 1d[explode dDIE_SIZE]
+}
+
+loop X over {1..NUM_DICE} {
+  if X <= NUM_DICE - CHA_MOD {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + X @ DAMAGE
+  }
+  else {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + [reroll X @ DAMAGE]
+  }
+}
+
+output DAMAGE named "Normal Damage"
+output TOTAL_DAMAGE named "Empowered Spell"

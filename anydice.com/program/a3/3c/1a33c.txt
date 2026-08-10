@@ -1,0 +1,35 @@
+function: checkhelpera ROLL:s SKILL:n TARGET:n {
+ DOUBLES: 1@ROLL= 2@ROLL
+ OUTCOME: ROLL+SKILL
+ if DOUBLES & (OUTCOME < TARGET) {result: -2}
+ if !DOUBLES & (OUTCOME < TARGET) {result: -1}
+ if OUTCOME = TARGET {result: 0}
+ if !DOUBLES & (OUTCOME > TARGET) {result: 1}
+ if DOUBLES & (OUTCOME > TARGET) {result: 2}
+}
+
+function: checka SKILL:n TARGET:n {
+ result: [checkhelpera 2d10 SKILL TARGET]
+}
+
+function: check VALA:s MODA:n VALB:s MODB:n {
+ A: VALA + MODA
+ B: VALB + MODB
+ C: A=B
+ D: 1@VALA = 2@VALA | 1@VALB = 2@VALB
+ result: (2*(A>B) - !C)*(D+1) \-2 disaster, -1 failure, 0 critical, 1 success, 2 triumph\
+}
+
+function: unopposed SKILL:n TARGET:n {
+ result: [check 2d10 SKILL TARGET 0]
+}
+
+function: opposed SKILLA:n SKILLB:n {
+ result: [check 2d10 SKILLA 2d10 SKILLB]
+}
+
+\first argument is skill, second is difficulty\
+output [unopposed 0 10] named "unskilled v minimal difficulty"
+\first argument is skill of character A, second is skill of character B\
+output [opposed 0 0] named "unskilled v unskilled"
+\results are for character A: -2 disaster, -1 failure, 0 critical, 1 success, 2 triumph\

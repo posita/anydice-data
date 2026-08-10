@@ -1,0 +1,145 @@
+function: reroll X:n under Y:n as Z:d {
+  if X < Y {
+    result: Z
+  } else {
+    result: X
+  }
+}
+
+function: reroll X:d under Y:n {
+  result: [reroll X under Y as X]
+}
+
+function: weapon die {
+  result: [reroll d6 under 3]
+}
+
+function: smite die {
+  result: [reroll d8 under 3]
+}
+
+function: weapon {
+  result: 2d[weapon die]
+}
+
+function: smite one {
+  result: 2d[smite die]
+}
+
+function: smite two {
+  result: 3d[smite die]
+}
+
+function: damage bonus WILD:n {
+  result: 3 + 10 * WILD
+}
+
+function: basic damage WILD {
+  result: [weapon] + [damage bonus WILD]
+}
+
+function: basic crit WILD {
+  result: 2d[weapon] + [damage bonus WILD]
+}
+
+function: smite one damage WILD {
+  result: [basic damage WILD] + [smite one]
+}
+
+function: smite one crit WILD {
+  result: [basic crit WILD] + 2d[smite one]
+}
+
+function: smite two damage WILD {
+  result: [basic damage WILD] + [smite two]
+}
+
+function: smite two crit WILD {
+  result: [basic crit WILD] + 2d[smite two]
+}
+
+function: tohit {
+  result: d20
+}
+
+function: advantage {
+  result: [highest 1 of 2d20]
+}
+
+function: disadvantage {
+  result: [lowest 1 of 2d20]
+}
+
+function: HIT:n hits AC:n WILD:n {
+  result: (HIT > 1) & ((HIT + 6 - 5 * WILD) >= AC)
+}
+
+function: bonus attack HIT:n AC:n SMITES:n WILD:n {
+  if HIT = 20 {
+    if SMITES > 0 {
+      result: [smite two crit WILD]
+    } else {
+      result: [smite one crit WILD]
+    }
+  } else if [HIT hits AC WILD] {
+    if SMITES > 0 {
+      result: [smite two damage WILD]
+    } else {
+      result: [smite one damage WILD]
+    }
+  } else {
+    result: 0
+  }
+}
+
+function: attack two HIT:n DIE:d AC:n SMITES:n WILD:n BONUS:n {
+  if HIT = 20 {
+    DAMAGE: [bonus attack DIE AC (SMITES - 1) WILD]
+    if SMITES > 0 {
+      result: DAMAGE + [smite two crit WILD]
+    } else {
+      result: DAMAGE + [smite one crit WILD]
+    }
+  } else if [HIT hits AC WILD] {
+    DAMAGE: (BONUS > 0) * [bonus attack DIE AC (SMITES - 1) WILD]
+    if SMITES > 0 {
+      result: DAMAGE + [smite two damage WILD]
+    } else {
+      result: DAMAGE + [smite one damage WILD]
+    }
+  } else {
+    result: (BONUS > 0) * [bonus attack DIE AC SMITES WILD]
+  }
+}
+
+function: full attack HIT:n DIE:d AC:n SMITES:n WILD:n {
+  if HIT = 20 {
+    DAMAGE: [attack two DIE DIE AC (SMITES - 1) WILD 1]
+    if SMITES > 0 {
+      result: DAMAGE + [smite two crit WILD]
+    } else {
+      result: DAMAGE + [smite one crit WILD]
+    }
+  } else if [HIT hits AC WILD] {
+    DAMAGE: [attack two DIE DIE AC (SMITES - 1) WILD 0]
+    if SMITES > 0 {
+      result: DAMAGE + [smite two damage WILD]
+    } else {
+      result: DAMAGE + [smite one damage WILD]
+    }
+  } else {
+    result: [attack two DIE DIE AC SMITES WILD 0]
+  }
+}
+
+DIE: [advantage]
+AC: 18
+\output [bonus attack DIE AC 0 1] named "wild attack"\
+\output [attack two DIE DIE AC 1 1 0] named "wild no bonus"\
+\output [attack two DIE DIE AC 1 1 1] named "wild bonus"\
+output [full attack DIE DIE AC 2 1] named "full wild attack"
+
+\output [bonus attack DIE AC 0 0] named "normal attack"\
+\output [attack two DIE DIE AC 1 0 0] named "no bonus normal"\
+\output [attack two DIE DIE AC 1 0 1] named "bonus normal"\
+\output [full attack DIE DIE AC 2 0 ] named "full normal"\

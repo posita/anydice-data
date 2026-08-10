@@ -1,0 +1,28 @@
+ARMOR : 0
+
+function: check X:n accuracy A:n bonus B:n target T:n {
+    if X + A + B >= 20 { result : 2 }
+    if X + A + B >= T { result : 1 }
+    result : 0
+}
+
+function: attack X:n accuracy A:n grit G:n evasion E:n damage N:n F:n M:n {
+    X : [check X accuracy A bonus G target E]
+    if X > 0 {
+        H : {1..N}@(X*N)dF + M
+    } else { H : 0 }
+    result : [highest of H - ARMOR and 0]
+}
+
+function: attack X:n accuracy A:n grit G:n evasion E:n damage N:n F:n M:n reliable R:n {
+    X : [check X accuracy A bonus G target E]
+    if X > 0 {
+        H : {1..N}@(X*N)dF + M
+    } else { H : 0 }
+    H : [highest of H and R]
+    result : [highest of H - ARMOR and 0]
+}
+
+output [attack 1d20 accuracy 0 grit 3 evasion 11 damage 1 6 0 reliable 2] named "1d6 Reliable 2"
+output [attack 1d20 accuracy -(1d6) grit 3 evasion 11 damage 2 6 4] named "2d6+4 Inaccurate"
+output [attack 1d20 accuracy 1d6 grit 3 evasion 11 damage 1 6 3] named "1d6+3 Accurate"

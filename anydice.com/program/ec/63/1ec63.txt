@@ -1,0 +1,67 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n {
+  SUM: {0}
+  loop ATTACK over ATTACKS { SUM: SUM + [[highest 1 of TRIESd20] plus ATTACK ac AC crit THREAT MULT dmg DAMAGE mod EXTRA] }
+  result: SUM
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d {
+  if (ROLL >= THREAT) { result: [crit MULT DAMAGE] + EXTRA }
+  if (ROLL = 1) { result: 0 }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} { SUM: SUM + DAMAGE }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n dmg DAMAGE:d { result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod 0 tries 1] }
+function: ATTACKS:s vs AC:n dmg DAMAGE:d mod EXTRA:d { result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod EXTRA tries 1] }
+function: ATTACKS:s vs AC:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n { result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod EXTRA tries TRIES] }
+function: ATTACKS:s vs AC:n crit THREAT:n dmg DAMAGE:d { result: [ATTACKS vs AC crit THREAT mult 2 dmg DAMAGE mod 0 tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n dmg DAMAGE:d mod EXTRA:d { result: [ATTACKS vs AC crit THREAT mult 2 dmg DAMAGE mod EXTRA tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n { result: [ATTACKS vs AC crit THREAT mult 2 dmg DAMAGE mod EXTRA tries TRIES] }
+function: ATTACKS:s vs AC:n crit THREAT:n mult MULT:n dmg DAMAGE:d { result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod 0 tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n mult MULT:n dmg DAMAGE:d mod EXTRA:d { result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod EXTRA tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n mult MULT:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n { result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod EXTRA tries TRIES] }
+
+function: DC:n save SAVE:n dmg DMG:d half ROLL:n {
+  if (ROLL + SAVE >= DC) { result: DMG / 2 }
+  if (ROLL + SAVE < DC) { result: DMG }  
+}
+function: DC:n save SAVE:n dmg DMG:d none { result: (1d20 + SAVE >= DC) * DMG }
+function: dc DCS:s save SAVE:n dmg DMG:d half {
+  SUM: {0}
+  loop DC over DCS { SUM: SUM + [DC save SAVE dmg DMG half 1d20] }
+  result: SUM
+}
+function: dc DCS:s save SAVE:n dmg DMG:d none {
+  SUM: {0}
+  loop DC over DCS { SUM: SUM + [DC save SAVE dmg DMG none] }
+  result: SUM
+}
+
+\ Add some styling to the legends table \
+output 0 named "<style>table.jqplot-table-legend > tbody > tr:first-child { display: none; } .jqplot-table-legend p { margin: 0px; display: inline-block; width: 250px; overflow: hidden; text-overflow: ellipsis; } .jqplot-table-legend td { white-space: nowrap; }</style>"
+
+AC: 20
+
+
+output [{7} vs AC dmg 2d8+1d6 mod +0] named "<p>Warcerer 3/3</p><p>Chaos Bolt</p> AC [AC]"
+
+output [{7,7} vs AC dmg 1d10 mod +4] named "<p>Warcerer 3/3</p><p>EB</p> AC [AC]"
+output [{7,7} vs AC dmg 1d10 mod +4 tries 2] named "<p>Warcerer 3/3</p><p>EB + ADV</p> AC [AC]"
+
+output [{7,7} vs AC dmg 1d10+1d6 mod +4] named "<p>Warcerer 3/3</p><p>Hex + EB</p> AC [AC]"
+output [{7,7} vs AC dmg 1d10+1d6 mod +4 tries 2] named "<p>Warcerer 3/3</p><p>Hex + EB + ADV</p> AC [AC]"
+
+output [{7,7,7,7} vs AC dmg 1d10+1d6 mod +4] named "<p>Warcerer 3/3</p><p>Hex + EB + QEB</p> AC [AC]"
+output [{7,7,7,7} vs AC dmg 1d10+1d6 mod +4 tries 2] named "<p>Warcerer 3/3</p><p>Hex + EB + QEB + ADV</p> AC [AC]"
+
+output [{7,7} vs AC crit 19 dmg 1d10 mod +7] named "<p>Warcerer 3/3</p><p>Curse + EB</p> AC [AC]"
+output [{7,7} vs AC crit 19 dmg 1d10 mod +7 tries 2] named "<p>Warcerer 3/3</p><p>Curse + EB + ADV</p> AC [AC]"
+
+output [{7,7} vs AC crit 19 dmg 1d10+1d6 mod +7] named "<p>Warcerer 3/3</p><p>Curse + Hex + EB</p> AC [AC]"
+output [{7,7} vs AC crit 19 dmg 1d10+1d6 mod +7 tries 2] named "<p>Warcerer 3/3</p><p>Curse + Hex + EB + ADV</p> AC [AC]"
+
+output [{7,7,7,7} vs AC crit 19 dmg 1d10+1d6 mod +7] named "<p>Warcerer 3/3</p><p>Curse + Hex + EB + QEB</p> AC [AC]"
+output [{7,7,7,7} vs AC crit 19 dmg 1d10+1d6 mod +7 tries 2] named "<p>Warcerer 3/3</p><p>Curse + Hex + EB + QEB + ADV</p> AC [AC]"
+

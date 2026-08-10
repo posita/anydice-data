@@ -1,0 +1,31 @@
+\change a value (of the roll) on the fly\
+\change the value by a new dice rolled\
+
+Q: d{0..3}
+
+function: reroll one of TARGETS:s from ROLL:n as another NEW_DICE:d {
+    if [TARGETS contains ROLL] {
+        result: NEW_DICE
+    }
+    result: ROLL
+}
+
+function: ROLL:n replace FILTER:s with REROLL:d {
+  if ROLL = FILTER { result: REROLL }
+  result: ROLL
+}
+
+function: reroll one of TARGETS:s as same DICE:d {
+    result: [reroll one of TARGETS from DICE as another DICE]
+}
+\ Same function with Custom D4 by default \
+function: reroll one of TARGETS:s {
+    DICE: dQ
+    result: [reroll one of TARGETS from DICE as another DICE]
+}
+
+output 3d(dQ>=3)
+output 3d([reroll one of {0,1} as same Q]>=3) named "Roll 3d4 on 3+ & reroll fails on 2+"
+output 3d([reroll one of {0,1}]>=3) named "Roll 3d4 on 3+ & reroll fails on 2+"
+output 3d([dQ replace {0..1} with Q] >= 3) named "Roll 3d4 on 3+ & reroll fails on 2+"
+

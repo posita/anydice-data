@@ -1,0 +1,50 @@
+set "maximum function depth" to 50
+
+PSIX: {0,0,1,1,2,3}
+
+PEIGHT: {0,0,0,1,1,1,2,3}
+
+PTEN: {0,0,0,0,1,1,1,2,2,3}
+
+function: tail N:n D M T {
+  if N < M {result: 0}
+  if (T = 1) {result: 1 + [tail dD D M T]}
+  result: N + [tail dD D M T]
+}
+
+\ 
+  N = a single roll of a poisson die
+  D = a poisson die
+  M = the maximum value of the poisson die
+  T = 0: no exploding dice
+  T = 1: Nerfed Value chained dice
+  T = 2: Face Value chained dice
+\
+function: poissonimpl N:n D M T {
+  if (N < M) {result: N}
+  if (T != 0) {result: N + [tail dD D M T]}
+  result: N
+}
+
+function: poisson D T {
+  M: [maximum of dD]
+  result: [poissonimpl dD D M T]
+}
+
+function: success D:n on D at least N explode M {
+ if (D >= M) {result: 1 + [success dD on D at least N explode M]}
+ if (D >= N) {
+  result: 1
+ }
+ result: 0
+}
+
+output [lowest of 4d[poisson PEIGHT 0] and 20] named "4d8 poisson no chain"
+output [lowest of 4d[poisson PEIGHT 1] and 20] named "4d8 poisson NF chain"
+output [lowest of 4d[poisson PEIGHT 2] and 20] named "4d8 poisson FV chain"
+output [lowest of 4d[poisson PTEN 0] and 20] named "4d10 poisson no chain"
+output [lowest of 4d[poisson PTEN 1] and 20] named "4d10 poisson NF chain"
+output [lowest of 4d[poisson PTEN 2] and 20] named "4d10 poisson FV chain"
+output [lowest of 4d[success d10 on d10 at least 6 explode 10] and 20] named "exploding success 4d10 at least 6"
+output [lowest of 6d[success d10 on d10 at least 6 explode 10] and 20] named "exploding success 6d10 at least 6"
+output [lowest of 8d[success d10 on d10 at least 6 explode 10] and 20] named "exploding success 8d10 at least 6"

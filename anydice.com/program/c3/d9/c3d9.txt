@@ -1,0 +1,114 @@
+\ helper function for smarter recursion: returns a number encoding the reqs we could meet \
+\ as a bitmap and the number of unused dice left \
+function: get bitmap for ROLL:s to meet SREQ:s sword PREQ:s poli CREQ:s castle WREQ:s wiz {
+  \ initialize bitmap and current bit value \
+  BITMAP: 0
+  BIT: 1
+
+  \ meet as many Sword reqs as possible; this is harder because it's a knapsack problem! \
+  \ FIXME: this greedy implementation is not optimal; for example, trying to meet the  \
+  \ requirements {4,3} with a roll of {3,2,2} will first spend {3,2} on meeting the 4, \
+  \ and then fail to meet the remaining 3. \
+  SAVAIL: {}
+  loop X over ROLL {
+    if X <= 3 { SAVAIL: {SAVAIL, X} }
+  }
+  loop S over SREQ {
+    if S <= (0+SAVAIL) {
+      SLEFT: {}
+      loop N over SAVAIL {
+        if S > 0 { S: S - N }
+        else { SLEFT: {SLEFT, N} } 
+      }
+      SAVAIL: SLEFT
+      BITMAP: BITMAP + BIT
+    }
+    BIT: BIT * 2
+  }
+
+  \ meet as many Political reqs as possible \
+  PTOT: ROLL = 4
+  loop P over PREQ {
+    if P <= PTOT {
+      PTOT: PTOT - P
+      BITMAP: BITMAP + BIT
+    }
+    BIT: BIT * 2
+  }
+
+  \ meet as many Castle reqs as possible \
+  CTOT: ROLL = 5
+  loop C over CREQ {
+    if C <= CTOT {
+      CTOT: CTOT - C
+      BITMAP: BITMAP + BIT
+    }
+    BIT: BIT * 2
+  }
+
+  \ meet as many Wizard reqs as possible \
+  WTOT: ROLL = 6
+  loop W over WREQ {
+    if W <= WTOT {
+      WTOT: WTOT - W
+      BITMAP: BITMAP + BIT
+    }
+    BIT: BIT * 2
+  }
+
+  \ failing to meet any goals costs one die \
+  DICE: #SAVAIL + PTOT + CTOT + WTOT - (BITMAP = 0)
+
+  \ return the final bitmap + remaining dice count \
+  result: BITMAP + BIT * DICE
+}
+
+\ helper function for smarter recursion: decodes the bitmap and rerolls based on it \
+function: apply BITMAP:n to meet SREQ:s sword PREQ:s poli CREQ:s castle WREQ:s wiz {
+  \ decode the bitmap \
+  BITS: BITMAP
+  SNEW: {}
+  loop S over SREQ {
+    PREV: BITS
+    BITS: BITS / 2
+    if BITS * 2 = PREV { SNEW: {SNEW, S} }
+  }
+  PNEW: {}
+  loop P over PREQ {
+    PREV: BITS
+    BITS: BITS / 2
+    if BITS * 2 = PREV { PNEW: {PNEW, P} }
+  }
+  CNEW: {}
+  loop C over CREQ {
+    PREV: BITS
+    BITS: BITS / 2
+    if BITS * 2 = PREV { CNEW: {CNEW, C} }
+  }
+  WNEW: {}
+  loop W over WREQ {
+    PREV: BITS
+    BITS: BITS / 2
+    if BITS * 2 = PREV { WNEW: {WNEW, W} }
+  }
+  \ the number of dice left over is given in the highest bits of the bitmap \
+  DICE: BITS
+
+  \ did we meet all the reqs? \
+  REQS: #SNEW + #PNEW + #CNEW + #WNEW 
+  if REQS = 0 { result: 1 }
+  \ did we run out of dice? \
+  if DICE < REQS { result: 0 }
+  \ neither, roll again \ 
+  result: [roll DICE d 6 to meet SNEW sword PNEW poli CNEW castle WNEW wiz]
+}
+
+\ main recursive function \
+function: roll ROLL:d to meet SREQ:s sword PREQ:s poli CREQ:s castle WREQ:s wiz {
+  BITMAP: [get bitmap for ROLL to meet SREQ sword PREQ poli CREQ castle WREQ wiz]
+  result: [apply BITMAP to meet SREQ sword PREQ poli CREQ castle WREQ wiz]
+}
+
+set "maximum function depth" to 99
+output [roll 6d6 to meet {4,1} sword {1} poli {1} castle {} wiz] named "6d6 to meet 4S 1S 1P 1C"
+output [roll 7d6 to meet {4,1} sword {2} poli {} castle {} wiz] named "7d6 to meet 4S 1S 2P"

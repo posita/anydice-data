@@ -1,0 +1,72 @@
+AM: 5   \damage attribute bonus [-4,-3,-2,-1,0,+1,+2,+3,+4+5]\
+WM: 0   \weapon bonus [+1,+2,+3]\
+SH: 10  \sharpshooter +10\
+HWM: 10 \heavy weapon master +10\
+D: 2    \dueling(onehanded melee) +2\ 
+BA: 2   \bracers of archery(bow) +2\
+BR: 2   \barbarian rage lvl1:2 lvl9:3\
+
+function: melee twohanded damage DMG:n{
+ result: DMG + WM + AM + HWM \dmg dice + weapon bonus + damage attribute bonus\
+}
+
+function: melee onehanded damage DMG:n {
+ result: DMG + WM + AM \dmg dice + weapon bonus + damage attribute bonus\
+}
+
+function: ranged crossbow damage DMG:n {
+ result: DMG + WM + AM + SH\dmg dice + weapon bonus + damage attribute bonus + sharpshooter\
+}
+
+function: ranged bow damage DMG:n {
+ result: DMG + WM + AM + BA + SH \dmg dice + weapon bonus + damage attribute bonus + bracers of archery + sharpshooter\
+}
+
+function: dmg reroll DMG:n DICE:n {
+ if DMG = 1 {
+  result: dDICE
+ }
+ result: DMG
+}
+
+function: fighter melee twohanded damage N DICE {
+DMG:0
+loop I over {1..N}{
+ DMG: DMG + [dmg reroll dDICE DICE]
+}
+result: DMG + WM + AM + HWM
+}
+function: barbarian melee twohanded damage N DICE {
+DMG:0
+loop I over {1..N}{
+ DMG: DMG + dDICE
+}
+result: DMG + WM + AM + BR + HWM
+}
+
+output [melee twohanded damage 2d6]            named "melee twohanded damage 2d6 +[HWM]"
+output [fighter melee twohanded damage 2 6]    named "fighter melee twohanded damage 2d6 +[HWM]"
+output [barbarian melee twohanded damage 2 6]  named "barbarian melee twohanded damage 2d6 +[HWM]"
+
+output [melee twohanded damage d12]            named "melee twohanded damage d12 +[HWM]"
+output [fighter melee twohanded damage 1 12]   named "fighter melee twohanded damage d12 +[HWM]"
+output [barbarian melee twohanded damage 1 12] named "barbarian melee twohanded damage d12 +[HWM]"
+
+output [melee onehanded damage d6] + D         named "melee onehanded damage d6 +[D]"
+output [melee onehanded damage d8] + D         named "melee onehanded damage d8 +[D]"
+
+output [ranged bow damage d6]          named "ranged bow damage d6"
+output [ranged bow damage d8]          named "ranged bow damage d8"
+
+output [ranged crossbow damage d6]     named "ranged crossbow damage d6"
+output [ranged crossbow damage d8]     named "ranged crossbow damage d8"
+output [ranged crossbow damage d10]    named "ranged crossbow damage d10"
+output [ranged bow damage d8] +d6      named "ranged bow damage d8 +hunter mark"
+output [ranged bow damage d8] +d8 +d6  named "ranged bow damage d8 +collosus slayer +hunter mark"
+
+output [melee onehanded damage d8] + D +d8 + d6  named "melee onehanded damage d8 +[D] +collosus slayer +hunter mark"
+
+output [melee onehanded damage d8] + 2d6 named "melee onehanded damage d8 +sneak damage lvl3"
+output [melee onehanded damage d8] + 3d6 named "melee onehanded damage d8 +sneak damage lvl5"
+output [melee onehanded damage d8] + 4d6 named "melee onehanded damage d8 +sneak damage lvl7"
+output [melee onehanded damage d8] + 5d6 named "melee onehanded damage d8 +sneak damage lvl9"

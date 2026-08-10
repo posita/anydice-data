@@ -1,0 +1,45 @@
+MISS:0
+DAMAGED:1
+COUNTERATTACK:2
+REROLL: 3
+function: attack HIT:n vs DODGE:n {if HIT <= DODGE - 3 { result: COUNTERATTACK
+}
+ if HIT > DODGE { result: DAMAGED }
+ if HIT = DODGE { result: REROLL }
+ result: MISS
+}
+output [attack d20+1 vs d12] named "Result of Calc (Dodge)"
+output [attack d12 vs d12] named "For Comparison (Dodge)"
+NODMG:4
+HALF:5
+MOREHALF:6
+INSTAKILL:7
+function: damage DMG:n vs HEALTH:n {if DMG >= HEALTH  { result: INSTAKILL
+}
+ if DMG <= 0 {result:NODMG}
+ if DMG <= HEALTH/2 { result: HALF }
+ if DMG > HEALTH/2 { result: MOREHALF }
+ result: NODMG
+}
+output [damage d15 vs 12] named "Damage test"
+output [damage d25-2 vs 12] named "Damage Compare"
+NODAMG:8
+XORSMALL:9
+XDOUBLE:10
+XTRIPLE:11
+XQUAD:12
+XFIVE:13
+XSIX:14
+XMORE:15
+function: damage category DAMG:n X:n {
+if DAMG <= 0 { result:NODAMG }
+if DAMG <= X { result:XORSMALL }
+if DAMG <= X*2 { result: XDOUBLE }
+if DAMG <= X*3 { result: XTRIPLE }
+if DAMG <= X*4 { result: XQUAD }
+if DAMG <= X*5 { result: XFIVE }
+if DAMG <= X*6 { result: XSIX }
+result: XMORE
+}
+output [damage category d20+2 3]named "Damage Category"
+output [damage category 2d10 3]named "Damage Category Compare"

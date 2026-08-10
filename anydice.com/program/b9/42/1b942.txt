@@ -1,0 +1,56 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+DEFENSE: d{14..18}
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+
+
+ATTACK: 5 + 3 + 2
+HITDAMAGE: 2d{{1..2}, {3..6}:4} + 5 + 2
+CRITICALDAMAGE: 4d{{1..2}, {3..6}:4} + 5 + 2
+MISSDAMAGE: 0
+output [attack] named "20 Str noGWM +2"
+
+ATTACK: 5 + 3 + 2 - 5
+HITDAMAGE: 2d{{1..2}, {3..6}:4} + 5 + 12
+CRITICALDAMAGE: 4d{{1..2}, {3..6}:4} + 5 + 12
+MISSDAMAGE: 0
+output [attack] named "20 Str GWM +2"
+
+
+
+ATTACK: 5 + 3
+HITDAMAGE: 4d{{1..2}, {3..6}:4} + 5
+CRITICALDAMAGE: 8d{{1..2}, {3..6}:4} + 5
+MISSDAMAGE: 0
+output [attack] named "20 Str noGWM FT"
+
+ATTACK: 5 + 3 - 5
+HITDAMAGE: 4d{{1..2}, {3..6}:4} + 5 + 10
+CRITICALDAMAGE: 8d{{1..2}, {3..6}:4} + 5 + 10
+MISSDAMAGE: 0
+output [attack] named "20 Str GWM FT"

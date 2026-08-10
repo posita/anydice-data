@@ -1,0 +1,88 @@
+function: damage from SHOTS:n shots hitting on HITS:n up pm HACC:n rr RRH:n wounding on WOUNDS:n up pm WACC:n rr RRW:n with ap AP:n against SAVE:n up save INVULN:n up invuln NOPAIN:n up fnp dealing DAMAGE:d damage to MODELW:n w models {
+ HIT: 0
+ WOUND: 0
+ FAIL: 0
+ DAMAGED: 0
+
+ HACCURACY: (HITS-HACC)
+ if HACCURACY < 2 {
+  HITTING: {2..20}
+  HMISS: {1}
+ }
+ else {
+  HITTING: {HACCURACY..20}
+  HMISS: HACCURACY-1
+ }
+ RRHIT: {0}
+ if RRH = 1 {
+  RRHIT: {1}
+ }
+ if RRH = 2 {
+  if HACC < 0 {
+   RRHIT: {1..HITS-1}
+  }
+  else {
+   RRHIT: {1..HMISS}
+  }
+ }
+
+ WACCURACY: (WOUNDS-WACC)
+ if WACCURACY < 2 {
+  WOUNDING: {2..20}
+  WMISS: {1}
+ }
+ else {
+  WOUNDING: {WACCURACY..20}
+  WMISS: WACCURACY-1
+ }
+ RRWOUND: {0}
+ if RRW = 1 {
+  RRWOUND: {1}
+ }
+ if RRW = 2 {
+  if WACC < 0 {
+   RRWOUND: {1..WOUNDS-1}
+  }
+  else {
+   RRWOUND: {1..WMISS}
+  }
+ }
+
+ INVULNBETTER: (INVULN <= SAVE-AP)
+ if INVULNBETTER = 1 {
+  SAVEFAIL: INVULN-1
+ }
+ else {
+  SAVEFAIL: SAVE-AP-1
+ }
+ FAILING: {1..SAVEFAIL}
+ PAINFAIL: NOPAIN-1
+ PAINFUL: {1..PAINFAIL}
+
+ loop P over {1..SHOTS} {
+  HROLL: 1d6
+  \creates a set of 0's and 1's where 1's are misses, then multiplies by the set of reroll hits\
+  HITNOW: ([HITTING contains HROLL] < 1)*((([HITTING contains HROLL])*([RRHIT contains d{1..HMISS}]))<1)
+  HIT: HITNOW < 1
+  WROLL: 1d6
+  WOUNDNOW: ([WOUNDING contains WROLL] < 1)*((([WOUNDING contains WROLL])*([RRWOUND contains d{1..WMISS}]))<1)
+  WOUND: WOUNDNOW < 1
+
+  FAIL: ([FAILING contains 1d6])
+  PAIN: ([PAINFAIL contains 1d6])
+  DAMAGED: DAMAGED + HIT*WOUND*FAIL*(DAMAGE<=MODELW)
+ }
+
+ result: DAMAGED
+}
+
+\INSTRUCTIONS:\
+\write a line of output that contains one function for each weapon in the squad\
+\shots can be entered as either a set number or as XdZ\
+\include the negative sign on the AP of the attack\
+\put in an invuln of 7 or higher to indicate no invulnerable or no fnp\
+\put in 0 after rr to indicate no rerolls, 1 for reroll 1's, 2 for reroll misses\
+\note: this code does properly account for rerolls before bonuses\
+\pm is for bonuses(positive) or penalties(negative) that happen to the dice before the rerolls\
+
+output [damage from 20 shots hitting on 3 up pm 0 rr 2 wounding on 3 up pm 1 rr 1 with ap -2 against 5 up save 7 up invuln 7 up fnp dealing 1 damage to 1 w models] named "DW Intercessors shoot Guardsmen"

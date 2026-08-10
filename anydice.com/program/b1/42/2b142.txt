@@ -1,0 +1,32 @@
+function: base N:n {
+ result: 1@ N d{-1, 0, 1}
+}
+
+function: if CONDITION:n then A else B {
+ if CONDITION { result: A } else { result: B }
+}
+
+function: good N:n {
+ ROLL: N d{-1, 0, 1}
+ CRIT: ([highest 2 of ROLL]>=2)
+ BOTCH: ([highest 2 of ROLL]<=-2)
+ KEEP: [highest 1 of ROLL]
+ result: [if CRIT then 2 else [if BOTCH then -2 else KEEP]]
+}
+
+function: poor N:n {
+ ROLL: N d{-1, 0, 1}
+ CRIT: ([lowest 2 of ROLL]>=2)
+ BOTCH: ([lowest 2 of ROLL]<=-2)
+ KEEP: [lowest 1 of ROLL]
+ result: [if BOTCH then -2 else [if CRIT then 2 else KEEP]]
+}
+
+output [base 1] named "base 1"
+
+loop N over {2,3,4,5}{
+ output [good N] named "good [N]"
+ output [poor N] named "poor [N]"
+}
+
+output 0 named "0"

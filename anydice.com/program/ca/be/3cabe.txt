@@ -1,0 +1,44 @@
+DICE: {4,6,8,10,12,20}
+
+function: fumble A:n at L:n {
+  if A <= L { result: 0 }
+  result: A
+}
+
+function: check A:d S:n {
+  result: [fumble [explode A] at S]
+}
+
+function: cost J:n {
+  COSTDIE: 0
+  loop DIE over DICE {
+    COSTDIE: COSTDIE + DIE ^ 2
+    if J = DIE { result: COSTDIE - 4^2}
+  }
+  result: COSTDIE -4^2
+}
+
+function: cost N:n by J:n {
+  COST: 0
+  loop I over {1..N} {
+    COST: COST + I * 4
+  }
+  result: COST + [cost J]
+}
+
+
+
+loop J over DICE {
+  loop I over {0..5} {
+    if I = 0 {
+      output 1d[check dJ 2] = 0 named "0d[J] fumble"
+      output 1d[check dJ 2] > 8 named "0d[J] hit"
+      output 1d[check dJ 2] > 16 named "0d[J] crit"
+    }
+    else {
+      output Id[check dJ 1] = 0 named "[I]d[J] fumble"
+      output Id[check dJ 1] > 8 named "[I]d[J] hit"
+      output Id[check dJ 1] > 8*(1+I) named "[I]d[J] crit"
+    }
+  }
+}

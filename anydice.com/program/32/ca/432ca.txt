@@ -1,0 +1,69 @@
+\ Time to kill calculation \
+function: ttk HP:n with DMG:d {
+  if HP<=0 { result: 0 }
+  result: 1+[ttk HP-DMG with DMG]
+}
+
+\ Rolling dice to determine degree of success: \
+function: auxroll D:d rolled N:n vs TN:n {
+  RES: 0
+  if N>=(TN+10) { RES: 2}
+  if N>=TN { RES: 1 }
+  if N<=(TN-10) { RES: -1 }
+  if N=[maximum of D] { RES: [lowest of RES+1 and 2] }
+  if N=(1@{D}) { RES: [highest of RES-1 and -1] }
+  result: RES
+}
+function: roll D:d vs TN:n {
+  result: [auxroll D rolled D vs TN]
+}
+FORTUNE: 1@2d20
+MISSFORTUNE: 2@2d20
+
+\ Attacking for damage: \
+function: attack SUCCESS:n for DMG:n on crit CRIT:n on miss MISS:n {
+  if SUCCESS=2 { result: 2*DMG+CRIT }
+  if SUCCESS=1 { result: DMG }
+  if SUCCESS=0 { result: MISS }
+  result: 0
+}
+function: attack SUCCESS:n for DMG:n on crit CRIT:n {
+  result: [attack SUCCESS for DMG on crit CRIT on miss 0]
+}
+function: attack SUCCESS:n for DMG:n on miss MISS:n {
+  result: [attack SUCCESS for DMG on crit 0 on miss MISS]
+}
+function: attack SUCCESS:n for DMG:n {
+  result: [attack SUCCESS for DMG on crit 0 on miss 0]
+}
+
+\ Basic save against damaging effect \
+function: save SUCCESS:n for DMG:n on crit CRIT:n {
+  if SUCCESS=-1 { result: DMG*2+CRIT }
+  if SUCCESS=0 { result: DMG }
+  if SUCCESS=1 { result: DMG/2 }
+  result: 0
+}
+function: save SUCCESS:n for DMG:n {
+  result: [save SUCCESS for DMG on crit 0]
+}
+
+\ Enemy defenses: \
+TERRIBLE_AC: {12,13,13,15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40,42,43,45,46,48}
+LOW_AC: TERRIBLE_AC+2
+MODERATE_AC: LOW_AC+1
+HIGH_AC: MODERATE_AC+1
+EXTREME_AC: HIGH_AC+2
+TERRIBLE_SAVE: {0..4,6..8,10..12,14..16,18..20,22..24,26..28,30..32}
+MODERATE_SAVE: {5..9,11,12,14..16,18,19,21..23,25,26,28..30,32,33,35..37,39}
+EXTREME_SAVE: {9..12,14,15,17,18,20,21,23,24,26,27,29,30,32,33,35,36,38,39,41,43,44,46}
+LOW_SAVE: MODERATE_SAVE-3
+HIGH_SAVE: MODERATE_SAVE+3
+\ Note: sequences are 1-based, so to get a level X statistic, use (X+2)@ \
+
+\ Ally offenses \
+SPELL_ATTACK: {7..12,15..17,19..23,26,27,29,30,33,35}
+SPELL_DC: SPELL_ATTACK+10
+MARTIAL_STRIKE: {7,9..11,14..18,21..23,26..28,30,32..34,36}
+
+output 3d6

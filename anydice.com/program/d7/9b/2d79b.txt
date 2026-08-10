@@ -1,0 +1,87 @@
+CRIT: 0
+MAXDICE: 5
+set "maximum function depth" to MAXDICE
+
+function: brilliant of DICE:d {
+  MAX: [maximum of DICE] +2
+  if MAX = 8 { result: { 6 } } 
+  BR: {}
+  loop N over {1..#DICE} {
+    if N = 1 {
+      BR: BR
+    }
+    else {
+      BR: {BR, MAX-N}
+    }
+  }
+  result: {BR}
+}
+function: critical of DICE:d {
+  if #DICE > 4 { 
+    result: {#DICE,#DICE+1} 
+  }
+  else {  
+    result: #DICE 
+  }
+}
+function: critplusone of DICE:d {
+  if #DICE > 4 { 
+    result: {#DICE, #DICE+1,#DICE+2} 
+  }
+  else { 
+    result: {#DICE,#DICE+1} 
+  }
+}
+function: critplustwo of DICE:d {
+  result: {#DICE,#DICE+1,#DICE+2}
+}
+function: explodeb ROLLEDVALUE:n {
+ if ROLLEDVALUE = 6 { 
+   result: 2 + [explodeb d6] 
+ }
+  else {
+    result: ROLLEDVALUE
+  }
+}
+function: explodec ROLLEDVALUE:n {
+  if ROLLEDVALUE = 6 { result: 2 + [explodec d6] }
+  result: 0
+}
+function: explode ROLLEDVALUE:n crit CRITR:s bril BRIL:s {
+if ROLLEDVALUE = CRITR { result: CRIT }
+ if BRIL = 6 &  ROLLEDVALUE = 6 { result: ROLLEDVALUE + [ explodec d6 ] }
+ if ROLLEDVALUE = BRIL { result: ROLLEDVALUE + [explodeb d6] }
+ result: ROLLEDVALUE
+}
+function: explode DICE:d {
+  if [maximum of DICE] = 6 {
+    result: [explode DICE crit 1 bril 6]
+  }
+  result: [explode DICE crit [critical of DICE] bril [brilliant of DICE]]
+}
+function: atune DICE:d {
+  NUM: #(DICE)
+  MORE: NUM+1
+  result: [explode [highest NUM of MOREd6] crit [critplusone of DICE] bril [brilliant of DICE]]
+}
+
+function: atunetwo DICE:d {
+  NUM: #(DICE)
+  MORE: NUM+2
+  result: [explode [highest NUM of MOREd6] crit [critplustwo of DICE] bril [brilliant of DICE]]
+}
+
+\ Main Program \
+loop N over {1..MAXDICE} {
+  TEST: Nd6
+  PLUSONE: N+1
+  PLUSTWO: N+2
+  \ output [lowest N of PLUSTWOd6] named "double shortcoming [TEST]" \
+  output [lowest N of PLUSONEd6] named "shortcoming [TEST]" 
+  output [explode TEST] named "explode [TEST]"
+  output [atune TEST] named "attunement [TEST]"
+  \ List every set you want double attune for \
+  if N = {4,5} {  
+    output [atunetwo TEST] named "double attune [TEST]"
+  }
+}

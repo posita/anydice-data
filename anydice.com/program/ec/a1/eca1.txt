@@ -1,0 +1,53 @@
+SUCCESS: 4
+BOTCH: 1
+CRIT: 6
+set "maximum function depth" to 5
+
+function: explode EXPLDROLL:n {
+  SUCCESSES: EXPLDROLL >= SUCCESS
+  BOTCHES: EXPLDROLL <= BOTCH
+  EXPLDTOTAL: SUCCESSES - BOTCHES
+
+  result: EXPLDTOTAL
+}
+
+function: explodea EXPLDROLL:n {
+  CRITS: EXPLDROLL >= CRIT
+  SUCCESSES: EXPLDROLL >= SUCCESS
+  BOTCHES: EXPLDROLL <= BOTCH
+
+  EXPLDCOUNT: CRITS - BOTCHES
+
+  if EXPLDCOUNT > 0 {
+    EXPLDTOTAL: EXPLDCOUNTd[explodea d6]
+    EXPLDSUCCESS: SUCCESSES + EXPLDTOTAL
+    DICETOTAL: EXPLDSUCCESS - BOTCHES
+  }else{
+    if BOTCHES > SUCCESSES { result: -1 }
+    DICETOTAL: SUCCESSES - BOTCHES
+  }
+
+  result: DICETOTAL
+}
+
+function: evaluate ROLL:s {
+   CRITS: ROLL >= CRIT
+   SUCCESSES: ROLL >= SUCCESS
+   BOTCHES: ROLL <= BOTCH
+   EXPLDCOUNT: CRITS - BOTCHES
+
+   if EXPLDCOUNT > 0 {
+     EXPLDTOTAL: EXPLDCOUNTd[explodea d6]
+     EXPLDSUCCESS: SUCCESSES + EXPLDTOTAL
+     DICETOTAL: EXPLDSUCCESS - BOTCHES
+   }else{
+     if BOTCHES > SUCCESSES { result: -1 }
+     DICETOTAL: SUCCESSES - BOTCHES
+   }
+
+   result: DICETOTAL
+}
+
+loop DICE over {1,3,6,10} {
+  output [evaluate DICE d6] named "[DICE]d6"
+}

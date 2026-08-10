@@ -1,0 +1,19 @@
+D_MAX: 12
+MOD: 0
+
+function: check D:n {
+ if D > TARGET + M {result: -1}
+ result: 1
+}
+
+function: roll M:n vs D_A:n and D_B:n {
+ TOTAL: ([check D_A] + [check D_B]) / 2
+ if D_A = D_B {TOTAL: TOTAL * 2}
+ if TOTAL > -2 & [highest of D_A and D_B] = D_MAX {TOTAL: TOTAL - 1}
+ if TOTAL < 2 & (D_A = TARGET + M | D_B = TARGET + M) {TOTAL: TOTAL + 1}
+ result: TOTAL
+}
+
+loop TARGET over {1..7} {
+ output [roll MOD vs d(D_MAX) and d(D_MAX)] named "Target: [TARGET]"
+}

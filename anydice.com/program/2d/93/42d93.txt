@@ -1,0 +1,260 @@
+# All KDC2 dice (from your table)
+# Percentages are converted to integer weights (multiplied by ~3 and rounded)
+
+ARANKA: {1:86, 2:14, 3:86, 4:14, 5:86, 6:14}
+CHEATER: {1:71, 2:43, 3:29, 4:43, 5:71, 6:43}
+CI: {1:43, 2:43, 3:43, 4:43, 5:43, 6:86}
+DEVIL: {1:50, 2:50, 3:50, 4:50, 5:50, "W":50}
+
+MISFORTUNE: {1:14, 2:68, 3:68, 4:68, 5:68, 6:14}
+EVEN: {1:20, 2:80, 3:20, 4:80, 5:20, 6:80}
+FAVOURABLE: {1:100, 2:0, 3:17, 4:17, 5:100, 6:67}
+FER: {1:43, 2:43, 3:43, 4:43, 5:43, 6:86}
+GREASY: {1:53, 2:35, 3:53, 4:35, 5:53, 6:71}
+GRIMY: {1:19, 2:94, 3:19, 4:19, 5:131, 6:19}
+GROZAV: {1:20, 2:200, 3:20, 4:20, 5:20, 6:20}
+HEAVENLY: {1:111, 2:32, 3:32, 4:32, 5:32, 6:63}
+HOLY_TRINITY: {1:63, 2:79, 3:111, 4:16, 5:16, 6:16}
+HUGO: {1:50, 2:50, 3:50, 4:50, 5:50, 6:50}
+KING: {1:38, 2:59, 3:66, 4:75, 5:38, 6:28}
+LOUSY: {1:30, 2:45, 3:30, 4:45, 5:105, 6:45}
+LU: {1:43, 2:43, 3:43, 4:43, 5:43, 6:86}
+LUCKY: {1:82, 2:14, 3:27, 4:41, 5:55, 6:82}
+MATH: {1:50, 2:63, 3:75, 4:88, 5:13, 6:13}
+MOLAR: {1:50, 2:50, 3:50, 4:50, 5:50, 6:50}
+MOTHER: {1:75, 2:25, 3:25, 4:25, 5:75, 6:75}
+ODD: {1:80, 2:20, 3:80, 4:20, 5:80, 6:20}
+ORDINARY: {1:50, 2:50, 3:50, 4:50, 5:50, 6:50}
+PAINTED: {1:60, 2:20, 3:20, 4:20, 5:120, 6:60}
+PB: {1:27, 2:82, 3:55, 4:55, 5:55, 6:27}
+PG: {1:27, 2:82, 3:55, 4:55, 5:55, 6:27}
+PR: {1:27, 2:82, 3:55, 4:55, 5:55, 6:27}
+PIE: {1:139, 2:23, 3:69, 4:69, 5:0, 6:0}
+PREMOLAR: {1:50, 2:50, 3:50, 4:50, 5:50, 6:50}
+SAD_GREASER: {1:78, 2:78, 3:13, 4:13, 5:78, 6:39}
+ANTIOCHUS: {1:60, 2:20, 3:120, 4:20, 5:20, 6:60}
+SHRINKING: {1:67, 2:33, 3:33, 4:33, 5:33, 6:100}
+STEPHEN: {1:50, 2:50, 3:50, 4:50, 5:50, 6:50}
+STRIP: {1:75, 2:38, 3:38, 4:38, 5:56, 6:56}
+THREE: {1:55, 2:27, 3:109, 4:27, 5:55, 6:27}
+UNBALANCED: {1:75, 2:100, 3:25, 4:25, 5:50, 6:25}
+UNLUCKY: {1:27, 2:82, 3:55, 4:55, 5:55, 6:27}
+WAGONER: {1:17, 2:83, 3:100, 4:33, 5:33, 6:33}
+WEIGHTED: {1:200, 2:20, 3:20, 4:20, 5:20, 6:20}
+WISDOM: {1:50, 2:50, 3:50, 4:50, 5:50, 6:50}
+
+# Straight scoring function
+# Returns:
+#   2 = large straight (6 consecutive values)
+#   1 = small straight (5 consecutive values)
+#   0 = no straight
+FUNCTION: straight_score(POOL) {
+    # Convert POOL into list of values: 1-6 or "W"
+    LIST: {}
+    for V in POOL {
+        if V = "W" {
+            LIST: LIST + "W"
+        } else {
+            LIST: LIST + V
+        }
+    }
+
+    # Count wilds and which values we have
+    WILD_COUNT: 0
+    HAVE: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0}
+
+    for V in LIST {
+        if V = "W" {
+            WILD_COUNT: WILD_COUNT + 1
+        } else {
+            HAVE[V]: HAVE[V] + 1
+        }
+    }
+
+    # Build set of values we have at least one of
+    HAS: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0}
+    for V in 1..6 {
+        if HAVE[V] > 0 {
+            HAS[V]: 1
+        }
+    }
+
+    # Try all start positions 1..6 and measure max run length
+    MAX_RUN: 0
+
+    for START in 1..6 {
+        RUN: 0
+        GAP_FILL_NEED: 0
+
+        for V in START..6 {
+            if HAS[V] = 1 {
+                RUN: RUN + 1
+            } else {
+                # We don't have V; must use a wild to fill
+                if WILD_COUNT > GAP_FILL_NEED {
+                    GAP_FILL_NEED: GAP_FILL_NEED + 1
+                    RUN: RUN + 1
+                } else {
+                    break
+                }
+            }
+        }
+
+        if RUN > MAX_RUN {
+            MAX_RUN: RUN
+        }
+    }
+
+    # Classify
+    if MAX_RUN >= 6 {
+        return 2  # large straight
+    }
+    if MAX_RUN >= 5 {
+        return 1  # small straight
+    }
+    return 0
+}
+
+# --- Core 6-dice combos (all same type) ---
+output [straight_score(6 * ARANKA)] named "6 ARANKA - straight"
+output [straight_score(6 * CHEATER)] named "6 CHEATER - straight"
+output [straight_score(6 * CI)] named "6 CI - straight"
+output [straight_score(6 * DEVIL)] named "6 DEVIL - straight"
+output [straight_score(6 * MISFORTUNE)] named "6 MISFORTUNE - straight"
+output [straight_score(6 * EVEN)] named "6 EVEN - straight"
+output [straight_score(6 * FAVOURABLE)] named "6 FAVOURABLE - straight"
+output [straight_score(6 * FER)] named "6 FER - straight"
+output [straight_score(6 * GREASY)] named "6 GREASY - straight"
+output [straight_score(6 * GRIMY)] named "6 GRIMY - straight"
+output [straight_score(6 * GROZAV)] named "6 GROZAV - straight"
+output [straight_score(6 * HEAVENLY)] named "6 HEAVENLY - straight"
+output [straight_score(6 * HOLY_TRINITY)] named "6 HOLY_TRINITY - straight"
+output [straight_score(6 * HUGO)] named "6 HUGO - straight"
+output [straight_score(6 * KING)] named "6 KING - straight"
+output [straight_score(6 * LOUSY)] named "6 LOUSY - straight"
+output [straight_score(6 * LU)] named "6 LU - straight"
+output [straight_score(6 * LUCKY)] named "6 LUCKY - straight"
+output [straight_score(6 * MATH)] named "6 MATH - straight"
+output [straight_score(6 * MOLAR)] named "6 MOLAR - straight"
+output [straight_score(6 * MOTHER)] named "6 MOTHER - straight"
+output [straight_score(6 * ODD)] named "6 ODD - straight"
+output [straight_score(6 * ORDINARY)] named "6 ORDINARY - straight"
+output [straight_score(6 * PAINTED)] named "6 PAINTED - straight"
+output [straight_score(6 * PB)] named "6 PB - straight"
+output [straight_score(6 * PG)] named "6 PG - straight"
+output [straight_score(6 * PR)] named "6 PR - straight"
+output [straight_score(6 * PIE)] named "6 PIE - straight"
+output [straight_score(6 * PREMOLAR)] named "6 PREMOLAR - straight"
+output [straight_score(6 * SAD_GREASER)] named "6 SAD_GREASER - straight"
+output [straight_score(6 * ANTIOCHUS)] named "6 ANTIOCHUS - straight"
+output [straight_score(6 * SHRINKING)] named "6 SHRINKING - straight"
+output [straight_score(6 * STEPHEN)] named "6 STEPHEN - straight"
+output [straight_score(6 * STRIP)] named "6 STRIP - straight"
+output [straight_score(6 * THREE)] named "6 THREE - straight"
+output [straight_score(6 * UNBALANCED)] named "6 UNBALANCED - straight"
+output [straight_score(6 * UNLUCKY)] named "6 UNLUCKY - straight"
+output [straight_score(6 * WAGONER)] named "6 WAGONER - straight"
+output [straight_score(6 * WEIGHTED)] named "6 WEIGHTED - straight"
+output [straight_score(6 * WISDOM)] named "6 WISDOM - straight"
+
+# --- Mixed 6-dice combos (examples using key dice) ---
+output [straight_score(3 * ARANKA + 3 * DEVIL)] named "3A+3D - straight"
+output [straight_score(3 * CHEATER + 3 * DEVIL)] named "3C+3D - straight"
+output [straight_score(3 * CI + 3 * DEVIL)] named "3I+3D - straight"
+output [straight_score(3 * MISFORTUNE + 3 * DEVIL)] named "3M+3D - straight"
+output [straight_score(3 * EVEN + 3 * DEVIL)] named "3E+3D - straight"
+output [straight_score(3 * GRIMY + 3 * DEVIL)] named "3G+3D - straight"
+output [straight_score(3 * GROZAV + 3 * DEVIL)] named "3GROZAV+3D - straight"
+output [straight_score(3 * KING + 3 * DEVIL)] named "3K+3D - straight"
+output [straight_score(3 * LUCKY + 3 * DEVIL)] named "3LUCKY+3D - straight"
+output [straight_score(3 * MATH + 3 * DEVIL)] named "3MATH+3D - straight"
+output [straight_score(3 * MOTHER + 3 * DEVIL)] named "3MOTHER+3D - straight"
+output [straight_score(3 * PAINTED + 3 * DEVIL)] named "3PAINTED+3D - straight"
+output [straight_score(3 * PIE + 3 * DEVIL)] named "3PIE+3D - straight"
+output [straight_score(3 * WAGONER + 3 * DEVIL)] named "3W+3D - straight"
+output [straight_score(3 * WEIGHTED + 3 * DEVIL)] named "3WEIGHTED+3D - straight"
+
+output [straight_score(2 * ARANKA + 2 * CHEATER + 2 * DEVIL)] named "2A+2C+2D - straight"
+output [straight_score(2 * ARANKA + 2 * CI + 2 * DEVIL)] named "2A+2I+2D - straight"
+output [straight_score(2 * CHEATER + 2 * CI + 2 * DEVIL)] named "2C+2I+2D - straight"
+output [straight_score(2 * ARANKA + 2 * MISFORTUNE + 2 * DEVIL)] named "2A+2M+2D - straight"
+output [straight_score(2 * ARANKA + 2 * GRIMY + 2 * DEVIL)] named "2A+2GR+2D - straight"
+output [straight_score(2 * ARANKA + 2 * GROZAV + 2 * DEVIL)] named "2A+2GROZAV+2D - straight"
+output [straight_score(2 * ARANKA + 2 * KING + 2 * DEVIL)] named "2A+2K+2D - straight"
+output [straight_score(2 * ARANKA + 2 * LUCKY + 2 * DEVIL)] named "2A+2LUCKY+2D - straight"
+output [straight_score(2 * ARANKA + 2 * MATH + 2 * DEVIL)] named "2A+2MATH+2D - straight"
+output [straight_score(2 * ARANKA + 2 * PAINTED + 2 * DEVIL)] named "2A+2PAINTED+2D - straight"
+output [straight_score(2 * ARANKA + 2 * WAGONER + 2 * DEVIL)] named "2A+2W+2D - straight"
+output [straight_score(2 * ARANKA + 2 * WEIGHTED + 2 * DEVIL)] named "2A+2WEIGHTED+2D - straight"
+
+output [straight_score(5 * ARANKA + 1 * DEVIL)] named "5A+1D - straight"
+output [straight_score(5 * CHEATER + 1 * DEVIL)] named "5C+1D - straight"
+output [straight_score(5 * CI + 1 * DEVIL)] named "5I+1D - straight"
+output [straight_score(5 * MISFORTUNE + 1 * DEVIL)] named "5M+1D - straight"
+output [straight_score(5 * EVEN + 1 * DEVIL)] named "5E+1D - straight"
+output [straight_score(5 * GRIMY + 1 * DEVIL)] named "5GR+1D - straight"
+output [straight_score(5 * GROZAV + 1 * DEVIL)] named "5GROZAV+1D - straight"
+output [straight_score(5 * KING + 1 * DEVIL)] named "5K+1D - straight"
+output [straight_score(5 * LUCKY + 1 * DEVIL)] named "5LUCKY+1D - straight"
+output [straight_score(5 * MATH + 1 * DEVIL)] named "5MATH+1D - straight"
+output [straight_score(5 * MOTHER + 1 * DEVIL)] named "5MOTHER+1D - straight"
+output [straight_score(5 * PAINTED + 1 * DEVIL)] named "5PAINTED+1D - straight"
+output [straight_score(5 * PIE + 1 * DEVIL)] named "5PIE+1D - straight"
+output [straight_score(5 * WAGONER + 1 * DEVIL)] named "5W+1D - straight"
+output [straight_score(5 * WEIGHTED + 1 * DEVIL)] named "5WEIGHTED+1D - straight"
+
+output [straight_score(4 * ARANKA + 2 * DEVIL)] named "4A+2D - straight"
+output [straight_score(4 * CHEATER + 2 * DEVIL)] named "4C+2D - straight"
+output [straight_score(4 * CI + 2 * DEVIL)] named "4I+2D - straight"
+output [straight_score(4 * MISFORTUNE + 2 * DEVIL)] named "4M+2D - straight"
+output [straight_score(4 * EVEN + 2 * DEVIL)] named "4E+2D - straight"
+output [straight_score(4 * GRIMY + 2 * DEVIL)] named "4GR+2D - straight"
+output [straight_score(4 * GROZAV + 2 * DEVIL)] named "4GROZAV+2D - straight"
+output [straight_score(4 * KING + 2 * DEVIL)] named "4K+2D - straight"
+output [straight_score(4 * LUCKY + 2 * DEVIL)] named "4LUCKY+2D - straight"
+output [straight_score(4 * MATH + 2 * DEVIL)] named "4MATH+2D - straight"
+output [straight_score(4 * MOTHER + 2 * DEVIL)] named "4MOTHER+2D - straight"
+output [straight_score(4 * PAINTED + 2 * DEVIL)] named "4PAINTED+2D - straight"
+output [straight_score(4 * PIE + 2 * DEVIL)] named "4PIE+2D - straight"
+output [straight_score(4 * WAGONER + 2 * DEVIL)] named "4W+2D - straight"
+output [straight_score(4 * WEIGHTED + 2 * DEVIL)] named "4WEIGHTED+2D - straight"
+
+# --- Probabilities for large and any straight (for a few key combos) ---
+output [straight_score(6 * ARANKA) >= 2] named "6 ARANKA - large straight %"
+output [straight_score(6 * ARANKA) >= 1] named "6 ARANKA - any straight %"
+
+output [straight_score(6 * CHEATER) >= 2] named "6 CHEATER - large straight %"
+output [straight_score(6 * CHEATER) >= 1] named "6 CHEATER - any straight %"
+
+output [straight_score(6 * CI) >= 2] named "6 CI - large straight %"
+output [straight_score(6 * CI) >= 1] named "6 CI - any straight %"
+
+output [straight_score(6 * DEVIL) >= 2] named "6 DEVIL - large straight %"
+output [straight_score(6 * DEVIL) >= 1] named "6 DEVIL - any straight %"
+
+output [straight_score(6 * MISFORTUNE) >= 2] named "6 MISFORTUNE - large straight %"
+output [straight_score(6 * MISFORTUNE) >= 1] named "6 MISFORTUNE - any straight %"
+
+output [straight_score(6 * GRIMY) >= 2] named "6 GRIMY - large straight %"
+output [straight_score(6 * GRIMY) >= 1] named "6 GRIMY - any straight %"
+
+output [straight_score(6 * GROZAV) >= 2] named "6 GROZAV - large straight %"
+output [straight_score(6 * GROZAV) >= 1] named "6 GROZAV - any straight %"
+
+output [straight_score(6 * KING) >= 2] named "6 KING - large straight %"
+output [straight_score(6 * KING) >= 1] named "6 KING - any straight %"
+
+output [straight_score(6 * LUCKY) >= 2] named "6 LUCKY - large straight %"
+output [straight_score(6 * LUCKY) >= 1] named "6 LUCKY - any straight %"
+
+output [straight_score(6 * MATH) >= 2] named "6 MATH - large straight %"
+output [straight_score(6 * MATH) >= 1] named "6 MATH - any straight %"
+
+output [straight_score(6 * PAINTED) >= 2] named "6 PAINTED - large straight %"
+output [straight_score(6 * PAINTED) >= 1] named "6 PAINTED - any straight %"
+
+output [straight_score(6 * PIE) >= 2] named "6 PIE - large straight %"
+output [straight_score(6 * PIE) >= 1] named "6 PIE - any straight %"
+
+output [straight_score(6 * WEIGHTED) >= 2] named "6 WEIGHTED - large straight %"
+output [straight_score(6 * WEIGHTED) >= 1] named "6 WEIGHTED - any straight %"

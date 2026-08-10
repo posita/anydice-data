@@ -1,0 +1,62 @@
+
+function: precise reroll R:n aka RESULT:n under N:n {
+ if R < N { result: RESULT } else { result: R }
+}
+
+function: save DIE:n SAVE rend REND {
+ if DIE = 6 { result: 0 } 
+ if DIE = 1 { result: 1 }
+ result: (DIE - REND) < SAVE
+}
+
+
+function: stabbas auxiliary LOONBOSS loonboss HIT tohit DHIT:n and WOUND wound DWOUND:n vs SAVE save REND rend {
+ result: ((DHIT >= HIT) * (DWOUND >= WOUND) * [save d6 SAVE rend REND]) + LOONBOSS * ((DHIT >= HIT) * (DWOUND = 6))
+}
+
+function: NUM stabbas ATTACKMOD extra attacks RENDMOD rendmod LOONBOSS loonboss fighting RANK per rank vs SAVE save {
+ if (NUM/15 > 0) { WOUNDMOD: 1 }
+ if (NUM/30 > 0) { WOUNDMOD: 2 }
+
+ MAX_NETS: NUM/20 * 3
+ MAX_SPEARS: NUM/30
+ MAX_STABBAS: NUM - MAX_NETS - MAX_SPEARS
+ NET_NUM: 0
+ SPEAR_NUM: 0
+ STABBA_NUM: 0
+ 
+ loop N over {1..RANK} {
+  if (NET_NUM < MAX_NETS) {
+   NET_NUM: NET_NUM + 1
+  } else {
+\   STABBA_NUM: STABBA_NUM + 1\
+   SPEAR_NUM: SPEAR_NUM + 1
+  }
+ }
+ loop N over {1..RANK} {
+  if (NET_NUM < MAX_NETS) {
+   NET_NUM: NET_NUM + 1
+  } else {
+   SPEAR_NUM: SPEAR_NUM + 1
+  }
+ }
+ 
+
+ NET_ATTACKS: 3 + ATTACKMOD
+ SPEAR_ATTACKS: 1 + ATTACKMOD
+ STABBA_ATTACKS: 1 + ATTACKMOD
+ 
+ SINGLE_NET: [stabbas auxiliary LOONBOSS loonboss 4 tohit d6 and (5 - WOUNDMOD) wound d6 vs SAVE save RENDMOD rend]
+ SINGLE_SPEAR: [stabbas auxiliary LOONBOSS loonboss 5 tohit d6 and (4 - WOUNDMOD) wound d6 vs SAVE save RENDMOD rend]
+ SINGLE_STABBA: [stabbas auxiliary LOONBOSS loonboss 4 tohit d6 and (4 - WOUNDMOD) wound d6 vs SAVE save RENDMOD rend]
+ result: (NET_NUM * NET_ATTACKS)dSINGLE_NET + (SPEAR_NUM * SPEAR_ATTACKS)dSINGLE_SPEAR + (STABBA_NUM * STABBA_ATTACKS)dSINGLE_STABBA
+}
+
+
+
+loop S over {3..6} {
+ output [60 stabbas 2 extra attacks 1 rendmod 1 loonboss fighting 15 per rank vs S save] named "function 60 stabbas vs [S]"
+ 
+}
+
+

@@ -1,0 +1,46 @@
+LOWMAX: 1
+DICESEQ: 2d6
+ADVANTAGESEQ: {}
+DISADVANTAGESEQ: {}
+POSTOOUTPUT: {1..2}
+
+function: POSITION:s DICEPARAM:s with ADVANTAGEPARAM:s advantage and DISADVANTAGEPARAM:s disadvantage
+{
+ ADVANTAGE: 0
+ ADVANTAGEPROCESSED: {}
+ DISADVANTAGEPROCESSED: {}
+
+ if ADVANTAGEPARAM = {} & DISADVANTAGEPARAM = {} \ If there is neither advantage nor disadvantage \
+ {
+  result: POSITION@DICEPARAM \ Output the dice sequence unaltered \
+ }
+
+ if ADVANTAGEPARAM != {} \ If there is advantage\
+ {
+  if ADVANTAGEPARAM > LOWMAX
+  {
+   ADVANTAGE: 1 \ Flag advantage as having been added to the sequence \
+   ADVANTAGEPROCESSED: {ADVANTAGEPARAM}
+  }
+  
+  ADVANTAGEPROCESSED: [sort {DICEPARAM, ADVANTAGEPROCESSED}]
+
+ }
+
+ if DISADVANTAGEPARAM != {} \If there is disadvantage \
+ {
+
+  DISADVANTAGEPROCESSED:{ADVANTAGEPROCESSED}
+
+  if DISADVANTAGEPARAM >= ADVANTAGEPROCESSED & DISADVANTAGEPARAM > LOWMAX
+  {
+   DISADVANTAGEPROCESSED: {}
+  }
+ }
+
+ COMBINED: [sort {DISADVANTAGEPROCESSED}]
+ result: POSITION@COMBINED
+
+}
+
+output [POSTOOUTPUT DICESEQ with ADVANTAGESEQ advantage and DISADVANTAGESEQ disadvantage] named "[DICESEQ] with [ADVANTAGESEQ] advantage and [DISADVANTAGESEQ] disadvantage"

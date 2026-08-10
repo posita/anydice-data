@@ -1,0 +1,143 @@
+AM: 5   \damage attribute bonus [-4,-3,-2,-1,0,+1,+2,+3,+4+5]\
+PB: 3   \proficiensy bonus\
+AMPB: AM+PB \full attack modifier\
+WM: 0   \weapon bonus [+1,+2,+3]\
+SH: 10  \sharpshooter +10\
+HWM: 10 \heavy weapon master +10\
+D: 2    \dueling(onehanded melee) +2\ 
+BA: 2   \bracers of archery(bow) +2\
+BR: 2   \barbarian rage lvl1:2 lvl9:3\
+AC: 18  \armor class\
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\attack rols start\
+function: advantage A:n plus B:n{
+ if  A > B{
+  result: A
+ }
+ else {
+  result: B
+ }
+}
+
+function: disadvantage A:n plus B:n{
+ if  A > B{
+  result: B
+ }
+ else {
+  result: A
+ }
+}
+
+function: halfling A:n roll {
+ if A = 1 {
+  result: d20
+ }
+ result: A
+}
+
+function: attack ROLL:n modifier MOD vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + MOD >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\attack rolls end\
+
+\damage rolls start\
+function: weapon damage DMG:n crit CRIT{
+ result: DMG*CRIT + WM + AM \dmg dice + weapon bonus + damage attribute bonus\
+}
+
+function: melee twohanded damage DMG:n crit CRIT {
+ result: [weapon damage DMG crit CRIT] + HWM \weapon dmg + heavy weapon master\
+}
+
+function: melee onehanded damage DMG:n crit CRIT {
+ result: [weapon damage DMG crit CRIT] + D \weapon dmg + dueling\
+}
+
+function: ranged crossbow damage DMG:n crit CRIT {
+ result: [weapon damage DMG crit CRIT] + SH\weapon dmg + sharpshooter\
+}
+
+function: ranged bow damage DMG:n crit CRIT {
+ result: [weapon damage DMG crit CRIT] + BA + SH \dmg dice + weapon bonus + damage attribute bonus + bracers of archery + sharpshooter\
+}
+
+function: dmg reroll DMG:n DICE:n {
+ if DMG = 1 {
+  result: dDICE
+ }
+ result: DMG
+}
+
+function: fighter melee twohanded damage N DICE crit CRIT {
+DMG:0
+loop I over {1..N}{
+ DMG: DMG + [dmg reroll dDICE DICE]
+}
+result: [weapon damage DMG crit CRIT] + HWM
+}
+function: barbarian melee twohanded damage N DICE crit CRIT {
+DMG:0
+loop I over {1..N}{
+ DMG: DMG + dDICE
+}
+result: [weapon damage DMG crit CRIT] + BR + HWM
+}
+
+function: rogue damage DMG crit CRIT {
+ result: [weapon damage DMG crit CRIT] + 5d6*CRIT
+}
+\damage rolls end\
+\full attack action start\
+function: attack HITDAMAGE:n CRITICALDAMAGE:n for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+function: hunter long bow {
+FATK: [attack [ranged bow damage d8 crit HIT]+d6 [ranged bow damage d8 crit CRITICALHIT]+d6 for [attack d20 modifier AMPB+2-5 vs AC]]
+SATK: [attack [ranged bow damage d8 crit HIT]+d8+d6 [ranged bow damage d8 crit CRITICALHIT]+d8+d6 for [attack d20 modifier AMPB+2-5 vs AC]]
+result: FATK + FATK
+}
+
+function: fighter hand crossbow {
+FATK: [attack [ranged crossbow damage d6 crit HIT] [ranged crossbow damage d6 crit CRITICALHIT] for [attack d20 modifier AMPB+2-5 vs AC]]
+SATK: [attack [ranged crossbow damage d6 crit HIT] [ranged crossbow damage d6 crit CRITICALHIT] for [attack d20 modifier AMPB+2-5 vs AC]]
+TATK: [attack [ranged crossbow damage d6 crit HIT] [ranged crossbow damage d6 crit CRITICALHIT] for [attack d20 modifier AMPB+2-5 vs AC]]
+result: FATK + FATK + TATK
+}
+function: berserk {
+FATK: [berserk reckless]
+SATK: [berserk reckless]
+TATK: [berserk reckless]
+result: FATK + FATK + TATK
+}
+function: berserk reckless {
+result: [attack [barbarian melee twohanded damage 2 6 crit HIT] [barbarian melee twohanded damage 2 6 crit CRITICALHIT] for [attack [advantage d20 plus d20]  modifier AMPB-5 vs AC]]
+}
+\full attack action end\
+
+output [attack [rogue damage d8 crit HIT] [rogue damage d8 crit CRITICALHIT] for [attack [advantage d20 plus d20] modifier AMPB vs AC]] named "rogue advantage attack vs AC [AC]"
+
+output [attack [rogue damage d8 crit HIT] [rogue damage d8 crit CRITICALHIT] for [attack d20 modifier AMPB vs AC]] named "rogue plain sneack attack vs AC [AC]"
+
+
+output [hunter long bow] named "hunter full bonuses vs AC [AC]"
+
+output [fighter hand crossbow] named "fighter hand crossbow vs AC [AC]"
+
+output [berserk] named "berserk vs AC [AC]"

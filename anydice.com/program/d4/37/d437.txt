@@ -1,0 +1,43 @@
+function: vote {
+  result: d100 > 49
+  \result: 1d2 - 1\
+}
+
+output [vote] named "Chance of each voter voting for PARTY Z"
+
+function: result of district vote {
+  RESULTS: 0
+  loop N over {1..100}{
+    VOTE: [vote]>0
+    RESULTS: RESULTS + VOTE
+  }
+  \ Only win this district if they have 50 votes or more (we'll tie in their favor!) \
+  \ change >= to be > if you want to break ties against party Z \
+  RESULTS: RESULTS >= 50
+  result: RESULTS
+}
+
+output [result of district vote] named "Chance of PARTY Z winning a district"
+
+function: result of vote {
+  RESULTS: 0
+  loop N over {1..100}{
+    VOTE: [result of district vote]>0
+    RESULTS: RESULTS + VOTE
+  }
+  result: RESULTS
+}
+
+function: won A seats {
+  RESULTS: [result of vote]
+  result: RESULTS >= A
+}
+
+\ Put in the number of seats that you want to check for here. Update it in the [won X seats] section \
+\ Don't put in too many of these. If it takes too long to calculate, it won't give you any results. So just edit the ones already here. \
+output [won 51 seats] named "Chance of PARTY Z winning 51 seats"
+output [won 60 seats] named "Chance of PARTY Z winning 60 seats"
+output [won 75 seats] named "Chance of PARTY Z winning 75 seats"
+\output [won 100 seats] named "Chance of PARTY Z winning 100 seats"\
+
+output [result of vote] named "Chance of PARTY Z winning X seats"

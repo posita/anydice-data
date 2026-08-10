@@ -1,0 +1,29 @@
+function: mtasrev COUNT:n dice difficulty DIFFICULTY:n threshold THRESHOLD:n specialty SPECIALTY:n willpower WILLPOWER:n {
+ STORYTELLER:{1,2:(DIFFICULTY-2),9:(10-DIFFICULTY),10}
+ result:[mtasrev COUNT d STORYTELLER difficulty DIFFICULTY threshold THRESHOLD specialty SPECIALTY willpower WILLPOWER]
+}
+
+function: mtasrev ROLL:s difficulty DIFFICULTY:n threshold THRESHOLD:n specialty SPECIALTY:n willpower WILLPOWER:n {
+ SUCCESSES:(ROLL>=9)
+ ONES:(ROLL=1)
+ TENS:(ROLL=10)
+ if SPECIALTY>=1 {
+\ exploding code \ 
+\  } \
+  if (SUCCESSES+TENS+WILLPOWER-THRESHOLD)>0 & (SUCCESSES+TENS+WILLPOWER-THRESHOLD)>ONES {result:SUCCESSES+TENS+WILLPOWER-THRESHOLD-ONES}
+  if (SUCCESSES+TENS+WILLPOWER-THRESHOLD)<=0 & ONES>0 {result:-1}
+  result:0
+ }
+ if (SUCCESSES+WILLPOWER-THRESHOLD)>0 & (SUCCESSES+WILLPOWER-THRESHOLD)>ONES {result:SUCCESSES+WILLPOWER-THRESHOLD-ONES}
+ if (SUCCESSES+WILLPOWER-THRESHOLD)<=0 & ONES>0 {result:-1}
+ result:0
+}
+
+output [mtasrev 5 dice difficulty 6 threshold 0 specialty 0 willpower 0]
+output [mtasrev 5 dice difficulty 6 threshold 0 specialty 1 willpower 0] named "Specialty"
+
+\ loop X over {1..10} { \
+\  loop Y over {3..9} { \
+\   output [mtasrev X dice difficulty Y threshold 0 specialty 0 willpower 0] named "Pool [X] Difficulty [Y]" \
+\  } \
+\ } \

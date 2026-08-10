@@ -1,0 +1,40 @@
+function: right part of ROLL:d {
+ result: (#{ROLL} + #ROLL - 1) / #ROLL
+}
+
+function: count all FACE in ROLL:s{
+ result: ( ROLL=FACE )
+}
+
+function: count max identical in ROLL:s {
+ MAXCOUNT: 0
+ FACE:0
+ loop I over ROLL {
+  NEWMAXCOUNT: [highest of [count all I in ROLL] and MAXCOUNT]
+  if (NEWMAXCOUNT!=MAXCOUNT) {
+   FACE:I
+   MAXCOUNT: NEWMAXCOUNT
+  }
+ }
+ result: {MAXCOUNT, FACE}
+}
+
+function: roll ROLL:s ROLLD:d with REROLL:n reroll{
+ RESULT: [count max identical in ROLL]
+ FINALCOUNT : 1@RESULT
+ FACE: 2@RESULT
+ loop J over {1..REROLL} {
+  if (#ROLLD - FINALCOUNT > 0) {
+    FINALCOUNT: (FINALCOUNT + (#ROLLD - FINALCOUNT)d[right part of ROLLD])
+  }
+ }
+ result: FINALCOUNT
+}
+
+C: 3
+\D: 6\
+S: 2
+
+loop D over {4,6,8,10,12} {
+ output [roll CdD CdD with S reroll] named "[C]d[D] with [S] reroll"
+}

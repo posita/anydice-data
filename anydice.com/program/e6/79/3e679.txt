@@ -1,0 +1,44 @@
+function: tmod of A:n {
+ result:
+  (A <= 0) * -3 +
+  (A = 1 | A = 2) * -2 +
+  (A = 3 | A = 4 | A = 5) * -1 +
+  (A = 6 | A = 7 | A = 8) * 0 +
+  (A = 9 | A = 10 | A = 11) * 1 +
+  (A = 12 | A = 13 | A = 14) * 2 +
+  (A >= 15) * 3
+}
+
+N: 6
+
+function: total mod with N_BOOSTED boosted {
+ N_REGULAR: (N - N_BOOSTED)
+ BOOSTED_MOD: N_BOOSTED d [tmod of [highest 2 of 3d6]]
+ REGULAR_MOD: N_REGULAR d [tmod of 2d6]
+ T:0
+ loop P over {1..N_BOOSTED} {
+  T: T + P @ BOOSTED_MOD
+ }
+ loop P over {1..N_REGULAR} {
+  T: T + P @ REGULAR_MOD
+ }
+ result: T
+}
+
+output [total mod with 0 boosted] named "Total mod with 0 boosted"
+output [total mod with 2 boosted] named "Total mod with 2 boosted"
+\
+N_BOOSTED: 2
+
+N_REGULAR: (N - N_BOOSTED)
+BOOSTED: N_BOOSTED d [highest 2 of 3d6]
+REGULAR: N_REGULAR d (2d6)
+
+loop P over {1..N_BOOSTED} {
+ output P @ BOOSTED named "Ability [P]"
+}
+loop P over {1..N_REGULAR} {
+ X: P+N_BOOSTED
+ output P @ REGULAR named "Ability [X]"
+}
+\

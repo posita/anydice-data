@@ -1,0 +1,32 @@
+NATT: 2
+AB: 5
+ATTABILITYBONUS: 0
+ATTCHARBONUS: 2
+DMGDICE: 1
+DMGDICESIZE: 12
+DMGBONUS: 2
+
+ACN: 20
+ACMAX:25
+
+function: attack ATTRES:n vs ACEFF:n {
+if ATTRES = 1 {result: 0}
+if ATTRES = 20{result: [damage 2]}
+if ATTRES > ACEFF {result: [damage 1]}
+else {result:0}
+}
+
+function: damage MULT{
+result: MULT * DMGDICEdDMGDICESIZE +DMGBONUS
+}
+
+function: attacks NAT:n{
+if NAT <= 0 {result: 0}
+ATTREMAINING: NAT -1 
+result: [attack 1d20 vs ACEFF] + [attacks ATTREMAINING]
+}
+
+loop ACEF over {ACN..ACMAX} {
+ACEFF: ACEF - AB - ATTABILITYBONUS - ATTCHARBONUS
+ output [attacks NATT] named "[ACEF] AC with [NATT] attacks"
+}

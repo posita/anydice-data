@@ -1,0 +1,75 @@
+function: roll A {
+ result: Ad2-A
+}
+
+function: count VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over VALUES {
+  COUNT: COUNT + (P = SEQUENCE)
+ }
+ result: COUNT
+}
+
+function: SEQUENCE:s contains NUMBER:n{
+ result: (SEQUENCE = NUMBER) > 0
+}
+
+function: ONE:n beats TWO:n simple{
+ result: ([roll ONE] >= [roll TWO])
+}
+
+function: ONE:n beats TWO:n include SEQUENCE:s{
+ ONES: {[roll ONE]}
+ TWOS: {[roll TWO]}
+ OUT: {}
+ loop A over {1..#ONES} {
+  loop B over {1..#TWOS} {
+   NEW: ((A@ONES > B@TWOS) - (A@ONES < B@TWOS))
+   if ([SEQUENCE contains NEW]) {
+    OUT: {OUT, NEW}
+   }
+  }
+ }
+ \result: {{-1}:([count {-1} in OUT]),{1}:([count {1} in OUT])}\
+ result: OUT
+}
+
+function: ONE:n beats TWO:n {
+ result: [ONE beats TWO include {-1,1}]
+}
+
+function: compare ONE:n beats TWO:n {
+ result: [ONE beats TWO include {-1,0,1}]
+}
+
+function: compare X:n to all MIN:n to MAX:n {
+ if MAX<MIN {
+  result: {}
+ }
+
+ if MIN!=MAX {
+  result: {[X beats MIN], [compare X to all MIN+1 to MAX]}
+ }
+ else {
+  result: [X beats MIN]
+ }
+}
+
+\set "maximum function depth" to 24\
+L: {0..12}
+
+loop H over L {
+ loop K over L {
+  output [H beats K simple] named "[H] beats [K]"
+ }
+}
+
+\loop H over L {
+ output [compare H to all 0 to 12]
+}\
+
+\loop H over L {
+ loop K over L {
+  output [H beats K] named "[H] beats..."
+ }
+}\

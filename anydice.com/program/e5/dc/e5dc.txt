@@ -1,0 +1,53 @@
+function: hitcheck ROLL:n vs AC:n with HITDIE {
+  if ROLL=20 { result: HITDIE+HITDIE+HITDAMAGE }
+  else if ROLL+TOHIT >= AC { result: HITDIE+HITDAMAGE }
+  else {result: 0 }
+}
+
+function: precisionhitcheck ROLL:n and PDIE:n vs AC:n with HITDIE {
+  if ROLL=20 { result: HITDIE+HITDIE+HITDAMAGE }
+  else if ROLL+PDIE+TOHIT >= AC { result: HITDIE+HITDAMAGE }
+  else {result: 0 }
+}
+
+AC: 17
+
+\Fighter\
+DEX: 5
+PROF: 4
+ARCHERY: 2
+SHARPSHOOTER: 5
+TOHIT: PROF+ARCHERY+DEX-SHARPSHOOTER
+WEPONEHITDIE: 1d10
+MENACINGWEPONE:2d10
+WEPTWOHITDIE: 1d6
+MENACINGWEPTWO: 1d6+1d10
+HITDAMAGE: DEX+10
+output [precisionhitcheck d20 and d10 vs AC with WEPONEHITDIE]+[precisionhitcheck d20 and d10 vs AC with WEPONEHITDIE]+[precisionhitcheck d20 and d10 vs AC with WEPONEHITDIE]+[precisionhitcheck d20 and d10 vs AC with WEPTWOHITDIE]+[precisionhitcheck d20 and d10 vs AC with WEPTWOHITDIE] named "1st Round Precision Fighter lvl10 vs [AC]"
+output [hitcheck d20 vs AC with WEPTWOHITDIE]+[hitcheck d20 vs AC with WEPTWOHITDIE]+[hitcheck d20 vs AC with WEPTWOHITDIE] named "2nd Round Precision Fighter lvl10 vs [AC]"
+output [hitcheck d20 vs AC with MENACINGWEPONE]+[hitcheck d20 vs AC with MENACINGWEPONE]+[hitcheck d20 vs AC with MENACINGWEPONE]+[hitcheck d20 vs AC with MENACINGWEPTWO]+[hitcheck d20 vs AC with MENACINGWEPTWO] named "1st Round Menacing Fighter lvl10 vs [AC]"
+output [hitcheck d20 vs AC with WEPTWOHITDIE]+[hitcheck d20 vs AC with WEPTWOHITDIE]+[hitcheck d20 vs AC with WEPTWOHITDIE] named "2nd Round Menacing Fighter lvl10 vs [AC]"
+
+\Warlock\
+function: hitcheck ROLL:n vs AC:n with HITDIE and HITDAMAGE {  
+  if ROLL>=19 { result: HITDIE+HITDIE+HITDAMAGE }
+  else if ROLL+TOHIT >= AC { result: HITDIE+HITDAMAGE }
+  else {result: 0 }
+}
+
+AC: 17
+
+CHA: 4
+PROF: 4
+CQF: 1
+TOHIT: CHA+PROF+CQF
+HITDIEONE: 1d10
+HITDIEONEHEX: 1d10+1d6
+HITDIETWOHEX: 2d6+1d6
+HITDAMAGEONE: CHA+PROF
+HITDAMAGETWO: PROF
+output [hitcheck d20 vs AC with HITDIEONE and HITDAMAGEONE]+[hitcheck d20 vs AC with HITDIEONE and HITDAMAGEONE] named "1st Round Hexblade Warlock vs [AC]"
+output [hitcheck d20 vs AC with HITDIEONEHEX and HITDAMAGEONE]+[hitcheck d20 vs AC with HITDIEONEHEX and HITDAMAGEONE]+[hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO]+[hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO]+[hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO]+[hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO] named "2nd Round Hexblade Warlock vs [AC]"
+output [hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO]+[hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO]+[hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO]+[hitcheck d20 vs AC with HITDIETWOHEX and HITDAMAGETWO]+[hitcheck d20 vs AC with HITDIEONEHEX and HITDAMAGEONE]+[hitcheck d20 vs AC with HITDIEONEHEX and HITDAMAGEONE] named "3rd Round Hexblade Warlock vs [AC]"
+
+

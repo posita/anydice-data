@@ -1,0 +1,102 @@
+TAC: 20
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+AUTOCRIT: 0
+
+
+function: attackwparm ROLL:n vs DEFENSE:n bab MYBAB:n strength MYSTRENGTH:n threat MYTHREAT:n size MYSIZE:n magic MYMAGIC:n pa MYPA:n threatmod MYTHREATMOD:n other MYOTHER:n {
+ MYPAPENALTY: -MYPA * (1 + MYBAB/4)
+ MYATTACK: MYBAB + MYSTRENGTH + MYSIZE + MYMAGIC + MYOTHER + MYPAPENALTY
+ if ROLL = 1 { result: MISS }
+ if (ROLL >= MYTHREAT & ROLL + MYATTACK >= DEFENSE) | ROLL = 20 {result: [threat d20 mod MYTHREATMOD attack MYATTACK]}
+ if ROLL + MYATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+function: threat ROLL:n mod MYMOD attack MYATTACK {
+  if AUTOCRIT {result: CRITICALHIT}
+  if ROLL + MYATTACK + MYMOD >= AC | ROLL = 20 {result: CRITICALHIT}
+ result: HIT
+}
+
+
+
+function: damagewparm for ATTACKRESULT:n damage MYDAMAGEDICE:d bab MYBAB:n twoh MYTWOH:n strength MYSTRENGTH:n pa MYPA:n magic MYMAGIC:n crit MYCRITICAL:n sneakdice MYSNEAKATTACKDAMAGE:n killer MYKILLERBONUS:n missdamage MYMISSDAMAGE:n{
+ MYPADAMAGEBONUS: MYPA * (2 + 2*MYBAB/4 + 2*MYBAB/8*MYTWOH)
+ MYDAMAGEBONUS: MYSTRENGTH + MYTWOH*MYSTRENGTH/2 + MYMAGIC + MYPADAMAGEBONUS
+ MYDAMAGE: MYDAMAGEDICE + MYDAMAGEBONUS
+ if ATTACKRESULT = CRITICALHIT {
+  result: (MYCRITICAL d MYDAMAGE) + MYSNEAKATTACKDAMAGE + MYKILLERBONUS*MYCRITICAL
+ }
+ if ATTACKRESULT = HIT {
+  result: MYDAMAGE + MYSNEAKATTACKDAMAGE
+ }
+ result: MYMISSDAMAGE
+}
+
+function: loadedattack  {result: [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 0 pa 0 threatmod 0 other 0]}
+\ Monk \
+
+MYSNEAKDICE: 0
+
+loop AC over {TAC} {
+
+
+output 2d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 0 threatmod 2 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 0 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+
+[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 0 threatmod 2 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 0 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 3 Flurry attacks against AC [AC]"
+
+}
+
+output 2d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 3 Flurry Power attacks against AC [AC]"
+
+\
+output 3d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] + [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 3 Flurry and 1 Ki Power attacks against AC [AC]"
+\
+
+output [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 2] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+       [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+       [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 3 Furious Flurry Power attacks against AC [AC]"
+
+
+
+
+output 2d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 19 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] + [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 19 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 3 Flurry Power Improved Critical attacks against AC [AC]"
+
+output 2d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 1] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] + [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -4] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 3 Flurry Power Weapon Focus attacks against AC [AC]"
+
+
+\ 4 attacks \
+
+
+loop AC over {TAC} {
+
+
+output 3d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 0 threatmod 2 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 0 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+
+[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 0 threatmod 2 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 0 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 4 Flurry attacks against AC [AC]"
+
+}
+
+output 3d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 4 Flurry Power attacks against AC [AC]"
+
+\
+output 4d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] + [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 3 Flurry and 1 Ki Power attacks against AC [AC]"
+\
+
+output [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 2] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+       [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+       [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] +
+       [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 4 Furious Flurry Power attacks against AC [AC]"
+
+
+
+
+output 3d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 19 size 1 magic 1 pa 1 threatmod 0 other 0] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] + [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 19 size 1 magic 1 pa 1 threatmod 0 other -5] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 4 Flurry Power Improved Critical attacks against AC [AC]"
+
+output 3d[damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other 1] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] + [damagewparm for [attackwparm d20 vs AC bab 6 strength 2 threat 20 size 1 magic 1 pa 1 threatmod 0 other -4] damage 1d8 bab 6 twoh 1 strength 2 pa 1 magic 1 crit 3 sneakdice MYSNEAKDICE killer 0 missdamage 0] named "Monk/Rogue 4 Flurry Power Weapon Focus attacks against AC [AC]"
+

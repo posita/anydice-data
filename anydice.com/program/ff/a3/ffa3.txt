@@ -1,0 +1,53 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+DEXBONUS: 5
+PROFICIENCYBONUS: 6
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+
+function: ssattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + SSATTACK >= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: ssdamage for SSATTACKRESULT:n {
+ if SSATTACKRESULT = CRITICALHIT {
+  result: SSCRITICALDAMAGE
+ }
+ if SSATTACKRESULT = HIT {
+  result: SSHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ATTACK: 2 + DEXBONUS + PROFICIENCYBONUS
+SSATTACK: ATTACK - 5
+HITDAMAGE: d8 + DEXBONUS
+CRITICALDAMAGE: 2d8 + DEXBONUS
+SSHITDAMAGE: HITDAMAGE + 10
+SSCRITICALDAMAGE: CRITICALDAMAGE + 10
+MISSDAMAGE: 0
+
+
+loop AC over {10..30} {
+ output [ssdamage for [ssattack d20 vs AC]] named "ss[AC]"
+ output [damage for [attack d20 vs AC]] named "[AC]"
+}

@@ -1,0 +1,73 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ TOTAL_ATK: ROLL + ATTACK_MOD
+ \ PF2E success requires attack to beat AC \
+ if TOTAL_ATK >= DEFENSE {
+
+   \ PF2E crit success requires attack to beat AC + 10 \
+   if TOTAL_ATK >= DEFENSE + 10 {
+     \ Nat 1 reduces success \
+     if ROLL = 1 { result: HIT }
+     \ Nat 20 increases success, but nothing better than a crit \
+     result: CRITICALHIT
+   }
+
+   \ Nat 1 reduces success \
+   if ROLL = 1 { result: MISS }
+
+   \ Nat 20 increases success \
+   if ROLL = 20 { result: CRITICALHIT }
+
+   \ a standard hit \
+   result: HIT
+ }
+ \ Nat 1 reduces success, but critical failures dont mean anything for attacks \
+ \ Nat 20 increases success, so counts as a hit \
+ if ROLL = 20 { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: adjusted damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: ADJUSTEDCRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: adjusted attack {
+ result: [adjusted damage for [attack d20 vs DEFENSE]]
+}
+
+MISSDAMAGE: 0
+
+ATTACK_MOD: 14
+HITDAMAGE: 2d6 + 3
+CRITDAMAGE: 12 + 6 + 1d8
+DEFENSE: 21
+output [attack] named "Yoletchka using Rapier against Zyk"
+
+DEFENSE: 19
+output [attack] named "Yoletchka using Rapier against Woochi"
+
+DEFENSE: 16
+output [attack] named "Yoletchka using Rapier against Rigmar"

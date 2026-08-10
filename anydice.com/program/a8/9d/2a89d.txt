@@ -1,0 +1,27 @@
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+function: reroll lowest then gwm of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    if (REST >= 3) {
+      result: REST + [highest 1 of 2d{{3..6}:2, {1..2}}]
+    } else {
+      result: [highest 1 of 2d{{3..6}:2, {1..2}}]+[highest 1 of 2d{{3..6}:2, {1..2}}]
+    }
+  }
+}
+
+output 2d6 named "Great Sword"
+output [highest 2 of 2d{{3..6}:2, {1..2}}] named "Great Sword with GWM"
+output [reroll lowest of 2d6 as d6 if less than 4] named "Master Work Great Sword"
+output [reroll lowest then gwm of 2d6 as d6 if less than 4] named "Master Work Great Sword"

@@ -1,0 +1,55 @@
+function: bonushit N:n TN:n{
+ COUNT: 0
+ ROLLD: 1d100
+ loop P over {1..N} {
+  if [ROLLD+5] > TN {result: COUNT}
+  ROLLD: ROLLD + 5
+  COUNT: COUNT + 1
+ }
+ result: COUNT
+}
+
+
+function: rfury CFROLL:n{
+ if CFROLL > TN {result: 0}
+ result: [explode d10]
+}
+
+function: regular HR:n dmg DROLL:n {
+ ABLOCK: 0
+ if HR > TN {result: 0}
+ if AP > PEN {ABLOCK: AP-PEN}
+ if DROLL = 10 {result: [highest of DROLL + [rfury d100] + BDMG - TB - ABLOCK and 0]}
+ result: [highest of DROLL + BDMG - TB - ABLOCK and 0]
+}
+
+function: pknife HR:n dmg DROLL:n {
+ ABLOCK: 0
+ if HR > TN {result: 0}
+ if AP > PEN {ABLOCK: AP-PEN}
+ if DROLL = 10 {result: [highest of 5 + [rfury d100] + BDMG - TB - ABLOCK and 0]}
+ if DROLL < 7 {result: [highest of 3 + BDMG - TB - ABLOCK and 0]}
+ result: [highest of (DROLL+1)/2 + BDMG - TB - ABLOCK and 0]
+}
+
+function: pneumatic HR:n{
+ ABLOCK: 0
+ DROLL: [explode d10]
+ if HR > TN {result: 0}
+ if AP > PEN {ABLOCK: AP-PEN}
+ result: [highest of DROLL + BDMG - TB - ABLOCK and 0]
+}
+
+
+TN: 46
+BDMG: 5+3
+PEN: 2
+TB: 4
+AP: 4
+
+output [pneumatic d100] named "pneumatic hammer vs Sachiel Body"
+
+BDMG: 3+3
+PEN: 4
+
+output [pknife d100 dmg [highest 1 of 2d10]] named "pknife vs Sachiel Body"

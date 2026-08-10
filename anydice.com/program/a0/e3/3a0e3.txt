@@ -1,0 +1,167 @@
+\ Echo \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BIGATTACK: 5
+SMALLATTACK: 5
+BIGHITDAMAGE: 1d6 + 3
+BIGCRITICALDAMAGE: 2d6 + 3
+SMALLHITDAMAGE: 1d6
+SMALLCRITICALDAMAGE: 2d6 
+MISSDAMAGE: 0
+AC: 10
+WEAPONDIE: 2d6
+EWEAPONDIE: 1d6
+
+SCORCHDIE: 2d6
+BUGBEAR: 2d6
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+function:  ecrit ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL = 19 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+\ EXTRA CRIT \
+function: bigmultiattackecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [ecrit d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantageecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [ecrit [highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+function: smallmultiattackecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [ecrit d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantageecrit NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [ecrit [highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+\ END OF EXTRA CRIT \
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+\ Scorching Ray \
+
+BIGATTACK: 5
+BIGHITDAMAGE: SCORCHDIE + BUGBEAR
+BIGCRITICALDAMAGE: SCORCHDIE*2 + BUGBEAR*2
+
+AC:10
+output [bigmultiattack 3] named "3ScorchRay turn1 vs AC[AC]"
+AC:15
+output [bigmultiattack 3] named "3ScorchRay turn1 vs AC[AC]"
+AC:20
+output [bigmultiattack 3] named "3ScorchRay turn1 vs AC[AC]"
+AC:25
+output [bigmultiattack 3] named "3ScorchRay turn1 vs AC[AC]"
+
+\ Fighter 2 Chronurgury 4 \
+
+BIGATTACK: 5
+BIGHITDAMAGE: SCORCHDIE + BUGBEAR
+BIGCRITICALDAMAGE: SCORCHDIE*2 + BUGBEAR*2
+
+AC:10
+output [bigmultiattack 6] named "3ScorchRay+Surge turn1 vs AC[AC]"
+AC:15
+output [bigmultiattack 6] named "3ScorchRay+Surge turn1 vs AC[AC]"
+AC:20
+output [bigmultiattack 6] named "3ScorchRay+Surge turn1 vs AC[AC]"
+AC:25
+output [bigmultiattack 6] named "3ScorchRay+Surge turn1 vs AC[AC]"
+
+\ ECHO KNIGHT \
+
+\ Fighter 5 \
+BIGATTACK: 7
+BIGHITDAMAGE: WEAPONDIE + 5
+BIGCRITICALDAMAGE: WEAPONDIE *2 + EWEAPONDIE + 5
+

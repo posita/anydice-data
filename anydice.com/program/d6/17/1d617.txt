@@ -1,0 +1,34 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+AC: 20
+
+output
+[attack d20 plus 4 + 5 vs AC
+    hit  1d6 + 6 + 5d6  + [attack d20 plus 4 + 5 vs 20 for 1d6+1       crit 1d6       on 20]
+    miss                  [attack d20 plus 4 + 5 vs 20 for 1d6+1 + 5d6 crit 1d6 + 5d6 on 20]
+    crit 2d6 + 6 + 10d6 + [attack d20 plus 4 + 5 vs 20 for 1d6+1       crit 1d6       on 20] on 20
+] named "[9] Two-weapon rogue"

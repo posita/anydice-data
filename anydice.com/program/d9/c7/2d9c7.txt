@@ -1,0 +1,47 @@
+function: attackcomp  ATTACKDIE:n ATTACKMOD:n DAMAGE:n DEADLYDAMAGE:n FATALDAMAGE:n AC:n {
+	ATKROLL: ATTACKDIE + ATTACKMOD
+	CRITDAMAGE: DEADLYDAMAGE + DEADLYDAMAGE + FATALDAMAGE
+	if ATKROLL < AC {
+		result: 0
+	}
+	else {
+		if ATTACKDIE = 20 {
+			result: CRITDAMAGE
+		}
+		
+		if ATKROLL >= AC + 10 {
+			result: CRITDAMAGE
+		}
+	}
+		
+	result: DAMAGE
+}
+
+function: atk ATTACKMOD:n DAMAGE:n DEADLYDAMAGE:n FATALDAMAGE:n AC:n {
+	result: [attackcomp 1d20 ATTACKMOD DAMAGE DEADLYDAMAGE FATALDAMAGE AC]
+}
+
+function: atks COUNT:n ATTACKMOD:n MAP:n DAMAGE:n DEADLYDAMAGE:n FATALDAMAGE:n AC:n FLURRY:n {
+  TOTAL: [atk ATTACKMOD DAMAGE DEADLYDAMAGE FATALDAMAGE AC]
+
+  loop N over {1..COUNT-1} {
+    if FLURRY = 1 {
+      TEMPATK: ATTACKMOD - (MAP*(N-1))
+    }
+    else {
+      TEMPATK: ATTACKMOD - MAP*N
+    }
+
+    TOTAL: TOTAL + [atk TEMPATK DAMAGE DEADLYDAMAGE FATALDAMAGE AC]
+  }
+
+  result: TOTAL
+}
+
+TARGETAC: 17
+
+output [atks 1 7 5 1d12+10 1d12+10 0    TARGETAC 0] named "giant barb maul"
+output [atks 1 7 5 1d10+10 1d10+10 1d10 TARGETAC 0] named "giant barb scythe"
+output [atks 1 7 5 1d10+1d8+4 1d10+1d8+4 1d10 TARGETAC 0] named "precision ranger scythe"
+output [atks 2 7 2 1d4+1d4+4 1d4+1d4+4 0 TARGETAC 1] named "flurry poi ranger"
+output [atks 1 9 5 2d10+4 2d10+4 1d10 TARGETAC 0] named "power attack fighter"

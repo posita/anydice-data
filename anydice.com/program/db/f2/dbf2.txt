@@ -1,0 +1,48 @@
+function: attack ROLL:n AB AC DAM  {
+  if (ROLL = 20) { result: DAM + DAM }
+  if (ROLL = 1) | (ROLL + AB < AC) { result: 0 }
+  result: DAM
+}
+
+function: attack AB AC DAM  {
+  result: [attack 1d20 AB AC DAM]
+}
+
+function: multiattack N FUNC {
+  NUM: 0
+  loop I over {1..N} { NUM: NUM + FUNC }
+  result: NUM
+}
+
+function: spell ROLL:n DC STB SAVEFORHALF DAM {
+  if (ROLL = 1) | (ROLL + STB < DC) { result: DAM }
+  if SAVEFORHALF = 1 { result: DAM / 2 } else { result: 0 }
+}
+
+function: spell DC STB SAVEFORHALF DAM {
+  result: [spell 1d20 DC STB SAVEFORHALF DAM]
+}
+
+LO:13
+AV:16
+HI:19
+
+output [multiattack 2 1d10+1d6+5] named "Eldritch Blast with Hex"
+output [multiattack 2 [attack 9 LO 1d10+1d6+5]] named "EB (AC:[LO])"
+output [multiattack 2 [attack 9 AV 1d10+1d6+5]] named "EB (AC:[AV])"
+output [multiattack 2 [attack 9 HI 1d10+1d6+5]] named "EB (AC:[HI])"
+
+output 0 named ""
+output 3d6 named "Black Tentacles"
+output [spell 17 (LO-10)/2 0 3d6] named "BT (DEX:[LO])"
+output [spell 17 (AV-10)/2 0 3d6] named "BT (DEX:[AV])"
+output [spell 17 (HI-10)/2 0 3d6] named "BT (DEX:[HI])"
+
+output 0 named ""
+output 2d6 + 2d6 named "Hunger of Hadar"
+output 2d6 + [spell 17 (LO-10)/2 0 2d6] named "HH Stays (DEX:[LO])"
+output 2d6 + [spell 17 (AV-10)/2 0 2d6] named "HH Stays (DEX:[AV])"
+output 2d6 + [spell 17 (HI-10)/2 0 2d6] named "HH Stays (DEX:[HI])"
+output 2d6 named "HH Moves (DEX:[LO])"
+output 2d6 named "HH Moves (DEX:[AV])"
+output 2d6 named "HH Moves (DEX:[HI])"

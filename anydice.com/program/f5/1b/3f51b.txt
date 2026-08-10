@@ -1,0 +1,26 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: tohit ROLL:n plus ATK:n vs DEF:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATK >= DEF { result: HIT }
+ result: MISS
+}
+
+function: damage DICE:d plus MOD:n which TOHIT:n {
+ if TOHIT = 0 {result: MISS}
+ DICE: (DICE * TOHIT) + MOD
+ result: DICE
+}
+
+\\\ CAN CHANGE BELOW \\\
+
+IFHIT: [tohit d20 plus 8 vs 15]
+output IFHIT named "Normal tohit"
+output [damage 1d6+1d4 plus 4 which IFHIT]+[damage 1d6+1d8 plus 4 which IFHIT]+[damage 1d6 plus 4 which IFHIT] named "Normal"
+
+IFHIT: [tohit d20 plus 3 vs 15]
+output IFHIT named "Feat tohit"
+output [damage 1d6+1d4 plus 14 which IFHIT]+[damage 1d6+1d8 plus 14 which IFHIT]+[damage 1d6 plus 14 which IFHIT] named "Feat"

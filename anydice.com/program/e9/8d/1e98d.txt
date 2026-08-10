@@ -1,0 +1,117 @@
+
+CRIT_THRESHOLD: 20
+TARGET_AC: 18
+CRITICAL_DICE: 2
+BASE_DICE: 1
+DISADVANTAGE_ROLL: [lowest 1 of 2d20]
+ADVANTAGE_ROLL: [highest 1 of 2d20]
+ELVEN_ADVANTAGE_ROLL: [highest 1 of 3d20]
+ROLL: 1d20
+TARGET_SPELL_SAVE: 5
+
+
+
+function: R:n spelldcattack{
+    if (R + TARGET_SPELL_SAVE) < SPELL_DC {result: SPELL_DICE d SPELL_DMG_DIE}
+    if (R + TARGET_SPELL_SAVE) >= SPELL_DC {result: (SPELL_DICE d SPELL_DMG_DIE)/2}
+}
+
+
+SPELL_DICE: 1
+SPELL_DMG_DIE: 8d6
+SPELL_DC: 17
+output [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack]  named "lvl 3 fireball"
+
+
+SPELL_DICE: 1
+SPELL_DMG_DIE: 10d6
+SPELL_DC: 17
+output [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack]  named "lvl 5 fireball"
+
+
+SPELL_DICE: 1
+SPELL_DMG_DIE: 12d6
+SPELL_DC: 17
+output [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack]  named "lvl 7 fireball"
+
+
+
+
+SPELL_DICE: 1
+SPELL_DMG_DIE: 10d8
+SPELL_DC: 17
+output [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] named "lvl 6 Chain Lightning"
+
+SPELL_DICE: 1
+SPELL_DMG_DIE: 10d8
+SPELL_DC: 17
+output [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] + [ROLL spelldcattack] named "lvl 7 Chain Lightning"
+
+
+function: R:n basicattack{
+    if R >= CRIT_THRESHOLD {result: CRITICAL_DICE d DMG_A + DMG_MOD_A}
+    if (R + HIT_MOD_A) >= TARGET_AC {result: BASE_DICE d DMG_A + DMG_MOD_A}
+    if (R + HIT_MOD_A) < TARGET_AC {result: 0}
+}
+
+
+HIT_MOD_A: 9
+DMG_A: 6d10
+DMG_MOD_A: 0 
+output [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack]  named "lvl 5 steel wind strike"
+
+HIT_MOD_A: 9
+DMG_A: 6d10
+DMG_MOD_A: 0 
+output [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] named "lvl 6 steel wind strike"
+
+HIT_MOD_A: 9
+DMG_A: 6d10
+DMG_MOD_A: 0 
+output [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] + [ROLL basicattack] named "lvl 7 steel wind strike"
+
+
+function: R:n secondattack{
+    if R >= CRIT_THRESHOLD {result: CRITICAL_DICE d DMG_B + DMG_MOD_B}
+    if (R + HIT_MOD_B) >= TARGET_AC {result: BASE_DICE d DMG_B + DMG_MOD_B}
+    if (R + HIT_MOD_B) < TARGET_AC {result: 0}
+}
+
+\output [ADVANTAGE_ROLL attack] + [ADVANTAGE_ROLL attack]  named "advantage rapier"\
+
+HIT_MOD: 7
+DMG: 2d8
+DMG_MOD: 3 
+\output [ROLL attack] + [ROLL attack] + 2d6 + 5 named "dawn blade + grasping talon"\
+
+HIT_MOD_A: 9
+DMG_A: 1d8
+DMG_MOD_A: 5
+HIT_MOD_B: 9
+DMG_B: 4d8
+DMG_MOD_B: 0
+\output [ROLL firstattack] + [ROLL firstattack] + [ROLL secondattack] named "dawn blade + smashing talon"\
+
+
+HIT_MOD: 7
+DMG: 4d8
+DMG_MOD: 3 
+\output [ROLL firstattack] + [ROLL firstattack] named "shadow blade lvl 5"\
+
+
+HIT_MOD_A: 9
+DMG_A: 1d8 + 2d12
+DMG_MOD_A: 5
+HIT_MOD_B: 7
+DMG_B: 1d4 + 2d12
+DMG_MOD_B: 0
+
+\output [ADVANTAGE_ROLL firstattack] + [ADVANTAGE_ROLL firstattack] + [ADVANTAGE_ROLL secondattack] named "TT"\
+
+
+
+HIT_MOD: 9
+DMG: 3d8 
+DMG_MOD: 0
+
+\output [ROLL attack] named "talon"\

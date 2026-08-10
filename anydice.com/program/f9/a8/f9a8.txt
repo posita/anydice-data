@@ -1,0 +1,37 @@
+function: high NUMBER:n of DICE:s {
+ result: {1..NUMBER}@DICE
+}
+
+function: evaluate D:n opposed O:n {
+  if D >= 6 {result: 1}
+  if D >= O {result: 0}
+  result: -1
+}
+
+function: dsix D:n dice rolled R:s opposed O:n {
+  CRITS: R >= 6
+  if CRITS > 1 {result: 10}
+  if D <= 0 {result: [evaluate [lowest 1 of 2d6] opposed O]}
+  result: [evaluate [high 1 of R] opposed O]
+}
+
+function: dtwelve D:n dice rolled R:s {
+  CRITS: R >= 12
+  if CRITS > 1 {result: 10}
+  if D <= 0 {result: [lowest 1 of 2d12]}
+  result: [high 1 of R]
+}
+
+
+
+loop N over {0..4} {
+\  output [dtwelve N dice rolled Nd12] named "Magic [N]d12"\
+}
+
+loop OPP over {3..6} {
+ loop N over {0..4} {
+  output [dsix N dice rolled Nd6 opposed OPP] named "Opposing Momentum: [OPP], Pool: [N]d6"
+ }
+}
+
+

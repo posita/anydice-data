@@ -1,0 +1,71 @@
+\ Cyberpunk RED Crit Success/Fail \
+function: cyberexplode N:n {
+if N = 10 { result: 10 + 1d10 }
+if N = 1 { result: 1 - 1d10 }
+result: N }
+
+\ Variables and Inputs \
+BASE: 0           \ Stat + Skill \
+ATK_MOD: 0            \ Any attack modifiers, i.e. Weapon quality, smartlink, conditions \
+DV: 0             \ By range, or target's evasion \
+DMG_DIE: 2        \ Number of damage dice \
+DMG_MOD: 0        \ Any modifiers to damage \
+AUTOFIRE: 0       \ Autofire multiplier. AR = 4, SMG = 3. Single Shot = 1 \
+SOLO_ATK: 0       \ Attack bonus for Precision Attack \
+SOLO_DMG: 0       \ Damage bonus for Spot Weakness \
+
+\ Attack Roll \
+function: attackroll {result: [cyberexplode 1d10] + BASE + ATK_MOD + SOLO_ATK}
+
+\ Damage Roll Math \
+\ Critical Hit Check \
+DMG_ROLL: DMG_DIE d 6
+function: critcheck SIXES:n {
+if SIXES >= 2 {result: 5}
+result: 0}
+
+\ Autofire Multiplier \
+function: autodmg DMG_ROLL:d ATTACK_RESULT:n vs TGT:n {
+MARGIN: ATTACK_RESULT - TGT
+if AUTOFIRE = 4 {if MARGIN >= 4 {result: DMG_ROLL * 4 + DMG_MOD + SOLO_DMG}}
+if AUTOFIRE >= 3 {if MARGIN >= 3 {result: DMG_ROLL * 3 + DMG_MOD + SOLO_DMG}}
+if AUTOFIRE >= 2 { if MARGIN >= 2 {result: DMG_ROLL * 2 + DMG_MOD + SOLO_DMG}}
+if AUTOFIRE >= 1 {if MARGIN = 1 {result: DMG_ROLL + DMG_MOD + SOLO_DMG}}
+result: 0}
+
+\ Total Damage \
+function: dmgroll {result: [autodmg DMG_DIE d 6 [attackroll] vs DV] + [critcheck [count 6 in DMG_DIE d 6]]}
+
+\ ========== EDIT HERE ========== \
+\ ATTACK 1 \
+BASE: 14          \ Stat + Skill \
+ATK_MOD: 0            \ Any attack modifiers, i.e. Weapon quality, smartlink, conditions \
+DV: 17            \ DV for the attack; reference CP:Red page 173 \
+DMG_DIE: 2        \ Number of damage dice for weapon \
+DMG_MOD: 0        \ Any modifiers to damage \
+AUTOFIRE: 4       \ Autofire multiplier. AR = 4, SMG = 3. Single Shot = 1 \
+SOLO_ATK: 0       \ Attack bonus from Solo's Precision Attack ability. Should be 1, 2, or 3 \
+SOLO_DMG: 0       \ Damage bonus from Solo's Spot Weakness ability. \
+output [dmgroll] named "Attack 1"
+
+\ ATTACK 1 \
+BASE: 14          \ Stat + Skill \
+ATK_MOD: 2            \ Any attack modifiers, i.e. Weapon quality, smartlink, conditions \
+DV: 17            \ DV for the attack; reference CP:Red page 173 \
+DMG_DIE: 2        \ Number of damage dice for weapon \
+DMG_MOD: 0        \ Any modifiers to damage \
+AUTOFIRE: 4       \ Autofire multiplier. AR = 4, SMG = 3. Single Shot = 1 \
+SOLO_ATK: 0       \ Attack bonus from Solo's Precision Attack ability. Should be 1, 2, or 3 \
+SOLO_DMG: 0       \ Damage bonus from Solo's Spot Weakness ability. \
+output [dmgroll] named "Attack 1"
+
+\ ATTACK 1 \
+BASE: 14          \ Stat + Skill \
+ATK_MOD: 2            \ Any attack modifiers, i.e. Weapon quality, smartlink, conditions \
+DV: 17            \ DV for the attack; reference CP:Red page 173 \
+DMG_DIE: 2        \ Number of damage dice for weapon \
+DMG_MOD: 0        \ Any modifiers to damage \
+AUTOFIRE: 4       \ Autofire multiplier. AR = 4, SMG = 3. Single Shot = 1 \
+SOLO_ATK: 1       \ Attack bonus from Solo's Precision Attack ability. Should be 1, 2, or 3 \
+SOLO_DMG: 1       \ Damage bonus from Solo's Spot Weakness ability. \
+output [dmgroll] named "Attack 1"

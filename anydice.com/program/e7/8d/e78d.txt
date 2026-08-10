@@ -1,0 +1,26 @@
+TALENT: 6    
+MAXDEPTH: 3
+
+function: argent VAL:n with DEPTH:n {
+    if DEPTH = 0 {result: 0}
+    if VAL = 1 { result:1 + [argent d10 with DEPTH-1] }
+    if VAL < TALENT { result:1 }
+    result:0
+}
+
+function: qisea NUM:n with DIE:d {
+    result: NUM+(NUM dDIE)
+}
+
+AD: [argent d10 with MAXDEPTH] \ argent-enhanced cultivation die \
+QD: [qisea AD with AD]         \ Qi sea + argent die \
+
+CUTOFF: 30 \ how much above/below target xp to show \
+
+DICE: 100 \ dice rolled \
+AUTOS: 10 \ autos roll \
+TARGET: 50 \ target xp \
+
+output AUTOS+DICEdAD>=TARGET named "% rolled at or above target"
+output [highest of -CUTOFF and [lowest of CUTOFF and AUTOS+DICEdAD-TARGET]] named "distribution around target Â± [CUTOFF]"
+

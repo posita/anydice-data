@@ -1,0 +1,88 @@
+
+\**********************************************************************************************\
+function: roll ATT:s {
+ result: [testbis ATT]
+}
+
+function: test ROLL:s {
+ MAX_ROLLED: 1@ROLL
+
+ SUBSETS: {ROLL=MAX_ROLLED}                    \contain subsets from 6 to 1\
+ TEMP: 1@SUBSETS
+ RES: MAX_ROLLED
+
+ loop N over {1..MAX_ROLLED-1}{                
+   SUBSETS: {SUBSETS, ROLL=(MAX_ROLLED-N)}     \count the size of each face value (between 1/max) in the roll\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: MAX_ROLLED - N                       \keep the highest face value\
+     TEMP:(N+1)@SUBSETS                        \keep the subset count of the highest face value\
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+function: testtris ROLL:s {
+ MAX_ROLLED: 1@ROLL
+ MIN_ROLLED: (#ROLL)@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+
+ SUBSETS: {ROLL=MAX_ROLLED}                    \contain subsets from 6 to 1\
+ TEMP: 1@SUBSETS
+ RES: MAX_ROLLED
+
+ loop N over {1..DIFF}{                
+   SUBSETS: {SUBSETS, ROLL=(MAX_ROLLED-N)}     \count the size of each face value (between min/max) in the roll\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: MAX_ROLLED - N                       \keep the highest face value\
+     TEMP:(N+1)@SUBSETS                        \keep the subset count of the highest face value\
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+\TODO : 6,6,5,3,3,3,3,3,1,1 \
+
+function: testbis ROLL:s {
+ VAL_ROLLED: 1@ROLL
+ 
+ COUNT: 1
+ SUBSETS: {}                           \contain subsets from 6 to 1\
+ \SEQ: {}\
+ RES: 0
+ IDX: 0
+ loop N over {1..#ROLL} {
+   if (VAL_ROLLED = (N+1)@ROLL){                 \count the size of each face value in the roll\
+     COUNT: COUNT+1
+   }else{
+     if(COUNT>IDX@SUBSETS){ RES: N@ROLL }       \keep the highest subset face value\
+     IDX: IDX+1
+
+     \SEQ: {SEQ, N@ROLL}\                 \assemble only the face values present in the roll\
+     SUBSETS: {SUBSETS, COUNT}          \assemble only the counts of each face value present in the roll\
+
+     COUNT: 1
+     VAL_ROLLED: (N+1)@ROLL
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+Q: {3,3,3,2,1}
+
+\output [roll 5d3]\   \max 18d6\
+output [test 6d6]   \best\ \1s in 5d3 : 51 out of 243\
+output [testtris 6d6] named "testtris"
+output [testbis 6d6]
+
+\output 5d[test 1d6]
+output 5d[roll 1]\
+
+\loop N over Q {
+   output N
+}\
+

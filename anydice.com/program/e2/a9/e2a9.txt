@@ -1,0 +1,33 @@
+function : replacenum SEQ:s with NUM:n at POS:n {
+    RESULTSEQ : {}
+    loop I over {1 .. #SEQ} {
+        if I = POS { RESULTSEQ : {RESULTSEQ, NUM}}
+        else { RESULTSEQ : {RESULTSEQ, I@SEQ}}
+    }
+    result : RESULTSEQ 
+}
+
+function : interpret ROLL:s NEGATEROLL:s {
+    ROLLB : [sort ROLL]
+    NEGATEROLLB : [sort NEGATEROLL]
+    ROLLRESULT : 0
+    loop I over {1 .. #ROLLB} {
+        loop J over {1 .. #NEGATEROLLB} {
+            if I@ROLLB <= J@NEGATEROLLB{ 
+                ROLLB : [replacenum ROLLB with 0 at I]
+                NEGATEROLLB : [replacenum NEGATEROLLB with 0 at J]
+            }
+        }
+    }
+    result : ROLLB
+} 
+
+PLAYERABASEDICE : 2d6
+
+PLAYERBBASEDICE : 2d6
+
+loop I over {0 .. 4} {
+    PLAYERANEGATEDICE : Id6
+    output PLAYERABASEDICE - [interpret PLAYERBBASEDICE PLAYERANEGATEDICE ]named "2d6 + [PLAYERANEGATEDICE] vs 2d6"
+
+}

@@ -1,0 +1,60 @@
+MISSDAMAGE: 0
+HITDAMAGE: 4d{1d4, 1d4, {3, 4}:4} + 15 + 3d{1d8, 1d8, {3..8}:8}
+CRITDAMAGE: 8d{1d4, 1d4, {3, 4}:4} + 15 + 6d{1d8, 1d8, {3..8}:8}
+LOWHITDAMAGE: 4d{1d4, 1d4, {3, 4}:4} + 15 + 2d{1d8, 1d8, {3..8}:8}
+LOWCRITDAMAGE: 8d{1d4, 1d4, {3, 4}:4} + 15 + 4d{1d8, 1d8, {3..8}:8}
+
+AC: 18
+ATKMOD: 3
+CRITTHRESH: 20
+ADVANTAGE: 1
+ADVANTAGEDICE: 3
+
+MYDEFENDER: AC
+MYATTACKROLL: {ATKMOD, ADVANTAGE, ADVANTAGEDICE, CRITTHRESH}
+
+function: squish A:n in DIE:n to B:n {
+ if DIE = A { result: B }
+ result: DIE
+}
+
+function: compress A:s in DIE:d to B:n {
+ loop N over {1..#A}{
+ DIE: [squish N@A in DIE to B]
+}
+ result: DIE
+}
+
+function: attack DEFENDER:s with ATTACKROLL:s for MISSDAMAGE:d or HITDAMAGE:d or CRITDAMAGE:d {
+
+AC: 1@DEFENDER
+ATKMOD: 1@ATTACKROLL
+ADVANTAGE: 2@ATTACKROLL
+ADVANTAGEDICE: 3@ATTACKROLL
+CRITTHRESH: 4@ATTACKROLL
+
+if ADVANTAGE = 1 {
+ X: 1@(ADVANTAGEDICE)d20
+}
+else if ADVANTAGE = -1 {
+ X: 2@2d20
+}
+else {
+ X: 1d20
+}
+
+X: [compress {1..(AC-ATKMOD-1)} in X to -1]
+X: [compress {(AC-ATKMOD)..(CRITTHRESH-1)} in X to -2]
+X: [compress {CRITTHRESH..20} in X to -3]
+X: [compress -2 in X to HITDAMAGE]
+X: [compress -3 in X to CRITDAMAGE]
+X: [compress -1 in X to 0]
+
+result: X
+}
+
+X: 2d[attack MYDEFENDER with MYATTACKROLL for MISSDAMAGE or HITDAMAGE or CRITDAMAGE]
+
+X: X + [attack MYDEFENDER with MYATTACKROLL for MISSDAMAGE or LOWHITDAMAGE or LOWCRITDAMAGE]
+
+output X

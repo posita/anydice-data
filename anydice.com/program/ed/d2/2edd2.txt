@@ -1,0 +1,50 @@
+ARMOR_CLASS: 15
+
+WEAPON_DICE: 1d8
+DEXTERITY_MODIFIER: 4
+PROFICIENCY_BONUS: 3
+ATTACK_BONUS: DEXTERITY_MODIFIER + PROFICIENCY_BONUS + 1
+
+function: sneak attack ROLL:n {
+  MISS: 0
+  HIT: WEAPON_DICE + SNEAK_DICE + DEXTERITY_MODIFIER
+  CRITICAL_HIT: 2d(WEAPON_DICE + SNEAK_DICE) + DEXTERITY_MODIFIER
+
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRITICAL_HIT }
+  if ROLL + ATTACK_BONUS >= ARMOR_CLASS { result: HIT }
+  result: MISS
+}
+
+function: common attack ROLL:n {
+  MISS: 0
+  HIT: WEAPON_DICE+ DEXTERITY_MODIFIER
+  CRITICAL_HIT: 2d(WEAPON_DICE) + DEXTERITY_MODIFIER
+
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRITICAL_HIT }
+  if ROLL + ATTACK_BONUS >= ARMOR_CLASS { result: HIT }
+  result: MISS
+}
+
+function: sneak attacks DICE:d {
+  FIRST_ATTACK: [sneak attack DICE]
+  ATTACKS: [second attack FIRST_ATTACK DICE]
+  result: ATTACKS
+}
+
+function: second attack FIRST_ATTACK_DAMAGE:n DICE:d {
+  if (FIRST_ATTACK_DAMAGE > 0) {
+    result: FIRST_ATTACK_DAMAGE + [common attack DICE]
+  }
+  else {
+    result: [sneak attack DICE]
+  }
+}
+
+
+SNEAK_DICE: 4d6
+output [sneak attack 1@3d20] named "Rogue (8 level)"
+
+SNEAK_DICE: 2d6
+output [sneak attacks 1@3d20] named "Rogue (3 level) + Fighter (5 level)"

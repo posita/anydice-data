@@ -1,0 +1,61 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if (CRITRANGE = ROLL) >= 1 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: offhand for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGEOFF
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGEOFF
+ }
+ result: MISSDAMAGE
+}
+
+
+
+MISSDAMAGE: 0
+ATTACK: 5 + 3
+
+
+loop AC over {16} {
+ HITDAMAGE: 2d6 + 6 + 2
+ HITDAMAGEOFF: 2d6 + 2
+ CRITICALDAMAGE: 3d6 + 6 + 2
+ CRITICALDAMAGEOFF: 3d6 
+ CRITRANGE: {19..20}
+ output [damage for [attack d20 vs AC]] + [offhand for [attack d20 vs AC]] named "AC[AC] With offhand attack + hex + hexblade"
+
+ HITDAMAGE: 1d8+1d6 + 6
+ output [damage for [attack d20 vs AC]] named "AC[AC] With Shield + hex + hexblade"
+
+ HITDAMAGE: 1d6 + 6 + 2
+ HITDAMAGEOFF: 1d6 + 2
+ CRITICALDAMAGE: 2d6 + 6 + 2
+ CRITICALDAMAGEOFF: 2d6 
+ CRITRANGE: {19..20}
+ output [damage for [attack d20 vs AC]] + [offhand for [attack d20 vs AC]] named "AC[AC] With offhand attack + hexblade"
+
+ HITDAMAGE: 1d8 + 6
+ output [damage for [attack d20 vs AC]] named "AC[AC] With Shield + hexblade"
+ HITDAMAGE: 1d10 + 6
+ output [damage for [attack d20 vs AC]] named "AC[AC] With twohander"
+}
+
+

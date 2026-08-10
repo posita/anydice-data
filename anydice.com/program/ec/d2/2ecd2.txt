@@ -1,0 +1,46 @@
+\ Attacker in Attack  \ MPA: 3
+\ Defender in Defence \ MPD: 2
+\ currently assumes all tie breaks won by Attacker \
+
+\ don't change anything below \
+function: bushido ROLL:s {
+  if 1@ROLL = 1 { result: 0 }
+  else {
+    if 2@ROLL > 1 {
+        TOTAL: 1@ROLL + 1
+    }
+    if 3@ROLL > 1 {
+        TOTAL: TOTAL + 1
+    }
+    result: TOTAL
+  }
+}
+
+function: melee ATT:n DEF:n {
+  DIFF: [bushido ATTd6] - [bushido DEFd6]
+  result: DIFF
+}
+
+function: damage SL rolling DAMROLL:s {
+  TOTAL: 1@DAMROLL + 2@DAMROLL
+    WNDS: SL
+    if TOTAL = 2 { WNDS: SL -3 }
+    if TOTAL = 3 { WNDS: SL -2 }
+    if TOTAL = 4 | TOTAL = 5 { WNDS: SL -1 }
+    if TOTAL = 9 | TOTAL = 10 { WNDS: SL +1 }
+    if TOTAL = 11 { WNDS: SL +2 }
+    if TOTAL = 12 { WNDS: SL +3 }
+    if WNDS < 1 { WNDS: 0 }
+    result: WNDS
+}
+
+function: calculate damage from INPUT:s {
+  if INPUT >= 0 { result: [damage INPUT rolling 2d6] }
+  else { result: 0 }
+}
+
+OPP: [melee MPA MPD]
+DMG: [calculate damage from OPP]
+
+output DMG named "Damage"
+output OPP named "[MPA] Attack dice vs. [MPD] Defence dice"

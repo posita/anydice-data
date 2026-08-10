@@ -1,0 +1,80 @@
+
+\ P = pyro level \
+\ C = caster level \
+\ S = save DC \
+\ B = save bonus \
+\ R = save roll \
+\ E = evasion level (1: evasion, 2: improved evasion) \
+
+function: fireball P:n C:n S:n B:n R:s E:n
+{
+    if (E > 1)
+    {
+        if (R = 20 | (R != 1 & R+B >= S)) { D:0 }
+        else { D:C/2 }
+    }
+    else
+    {
+        if (R = 20 | (R != 1 & R+B >= S))
+        {
+            if (E = 1) { D:0 }
+            else       { D:C/2 }
+        }
+        else
+        {
+            D:C
+        }
+    }
+    
+    if (P < 3)
+    {
+        result:Dd8
+    }
+    else if (P < 5)
+    {
+        result:Dd10
+    }
+    else
+    {
+        result:Dd12
+    }
+}
+
+\ A is AC to hit \
+\ H is to-hit bonus \
+\ HC is the to-crit bonus \
+\ R is the attack roll \
+\ C is the crit confirm roll \
+\ D is the damage roll \
+\ CT is crit target \
+\ CM is crit mult \
+function: attack A:n H:n HC:n R:n C:n D:n CT:n CM:n
+{
+    if (R = 1)
+    {
+        result: 0
+    }
+    else if (R = 20) | ((R >= CT) & (R + H >= A))
+    {
+        if (C = 1)
+        {
+            result: D
+        }
+        else if (C = 20) | (C + HC >= A)
+        {
+            result: CM * D
+        }
+    }
+    else if R + H >= A
+    {
+        result: D
+    }
+    else
+    {
+        result: 0
+    }
+}
+
+output [fireball 3 8 16 7 (d20) 0]
+output [attack 20 16 18 (d20) (d20) (7d6+10) 19 2] + [attack 20 11 13 (d20) (d20) (7d6+10) 19 2]
+output [attack 8 10 12 (d20) (d20) (8d10) 20 2]

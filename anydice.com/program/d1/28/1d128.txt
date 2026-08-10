@@ -1,0 +1,102 @@
+\ COMBAT PARAMETERS \
+
+DEFEND_DICE:     1
+DEFEND_WARBANDS: 1
+ATTACK_WARBANDS: 3
+ATTACK_LIMIT:    3  \ The attacker may choose to limit the number of dice before applying battle plans \
+ATTACK_MOD:      0  \ modifier to the number of dice from battle plans \
+
+\ END PARAMETERS \
+
+function: defence dice helper ROLL_RESULT:s {
+  MULT: [count -1 in ROLL_RESULT]
+  BASE: 0
+  loop P over ROLL_RESULT {
+    if P > 0 {
+      BASE: BASE + P
+    }
+  }
+  result: (2^MULT)*BASE
+}
+
+function: roll N:n defence dice {
+  result: [defence dice helper Nd{0,0,1,1,2,-1}]
+}
+
+ATTACK_DICE: ATTACK_WARBANDS
+if ATTACK_LIMIT < ATTACK_DICE {
+  ATTACK_DICE: ATTACK_LIMIT
+}
+ATTACK_DICE: ATTACK_DICE + ATTACK_MOD
+DEFEND_RESULT: DEFEND_WARBANDS + [roll DEFEND_DICE defence dice]
+ATTACK_RESULT: ATTACK_DICE d {1,1,1,2,2,4}/2
+EXTRA_LOSSES: ATTACK_DICE d {0,0,0,0,0,1}
+
+\ For each 1 point that ATTACK RESULT falls short the attacker needs to sac 1 warband.
+  If ATTACK RESULT and DEFEND RESULT are equal then 1 warband needs to be sac'd since defender wins ties, hence the +1 \
+COMBAT_RESULT: 1 + DEFEND_RESULT - ATTACK_RESULT
+
+function: attacker casualties from COMBAT_RESULT:n with EXTRA_LOSSES:n {
+  if COMBAT_RESULT < 0 {
+    \ attacker wins without sacrificing any warbands \
+    result: EXTRA_LOSSES
+  } else if COMBAT_RESULT > ATTACK_WARBANDS - EXTRA_LOSSES {
+    \ attacker cannot win, lose half of force rounded down AFTER extra losses from dice \ 
+    REMAINING_FORCE: ATTACK_WARBANDS - EXTRA_LOSSES
+    result: REMAINING_FORCE/2 + EXTRA_LOSSES
+  } else {
+    \ attacker wins and sacrifices COMBAT_RESULT warbands \
+    result: COMBAT_RESULT + EXTRA_LOSSES 
+  }  
+}
+
+function: attacker outcome from COMBAT_RESULT:n with EXTRA_LOSSES:n {
+  if COMBAT_RESULT < 0 {
+    \ attacker wins without sacrificing any warbands \
+    result: EXTRA_LOSSES
+  } else if COMBAT_RESULT > ATTACK_WARBANDS - EXTRA_LOSSES {
+    \ attacker cannot win, lose half of force rounded down AFTER extra losses from dice \ 
+    result: -1
+  } else {
+    \ attacker wins and sacrifices COMBAT_RESULT warbands \
+    result: COMBAT_RESULT + EXTRA_LOSSES 
+  }  
+}
+
+function: defender casualties from COMBAT_RESULT:n with EXTRA_LOSSES:n {
+  if COMBAT_RESULT < 0 {
+    \ attacker wins without sacrificing any warbands \
+    result: DEFEND_WARBANDS/2
+  } else if COMBAT_RESULT > ATTACK_WARBANDS - EXTRA_LOSSES {
+    \ attacker cannot win, lose half of force rounded down AFTER extra losses from dice \ 
+    result: 0
+  } else {
+    \ attacker wins and sacrifices COMBAT_RESULT warbands \
+    result: DEFEND_WARBANDS/2
+  }  
+}
+
+
+function: attacker win probability from COMBAT_RESULT:n with EXTRA_LOSSES:n {
+  if COMBAT_RESULT < 0 {
+    result: 1
+  } else if COMBAT_RESULT > ATTACK_WARBANDS - EXTRA_LOSSES {
+    result: 0
+  } else {
+    result: 1
+  }  
+}
+
+output [attacker win probability from COMBAT_RESULT with EXTRA_LOSSES] named "Attacker Wins (At Any Cost)"
+
+output [attacker outcome from COMBAT_RESULT with EXTRA_LOSSES] named "Attacker Casualties (-1 = Attacker Lost)"
+
+\ The number of losses the attacker can expect, regardless of outcome \
+output ATTACK_WARBANDS - [attacker casualties from COMBAT_RESULT with EXTRA_LOSSES] named "Attacker Remaining Warbands (Post-Campaign)"
+
+\ This is the graph that requires the most explaination. This is the # of warbands the attacker must sacrifice
+  in order to win plus the losses due to skull face results. If this exceeds the number of attacking warbands,
+  the attacker loses. Otherwise, this number is the number of warbands the attacker will lose. \
+\ output COMBAT_RESULT + EXTRA_LOSSES named "Campaign Outcome / Attacker Failure Margin (#<0 means attacker wins with 0 losses, #>ATTACK_WARBANDS means attacker loses, otherwise # is the total number of attacker casualties)" \
+
+output DEFEND_WARBANDS - [defender casualties from COMBAT_RESULT with EXTRA_LOSSES] named "Defender Remaining Warbands (Post-Campaign)"

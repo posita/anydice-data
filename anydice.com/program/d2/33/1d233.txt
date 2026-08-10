@@ -1,0 +1,505 @@
+\ Master Summoner\
+
+MISS: 0
+HIT: 1
+BGWF: {{1..2}, {3..10}:6}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 2
+SMALLATTACK: 2 + 2
+SKELEATTACK: 4
+MOUNTATTACK: 6
+BIGHITDAMAGE: 1d8 + 2
+BIGCRITICALDAMAGE: 2d8 + 2
+SMALLHITDAMAGE: 1d4 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+SKELEHITDAMAGE: 1d10 + 2
+SKELECRITICALDAMAGE: 2d10 + 2
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 2d6 + 4
+MOUNTSMALLCRITICALDAMAGE: 4d6 + 4 
+
+SUMMONERSPELLSAVECHA: 13
+SUMMONERSPELLSAVEINT: 11
+DBHITDAMAGE: 3d6
+DBMISSDAMAGE: 0 
+PSHITDAMAGE: 1d12
+PSMISSDAMAGE: 0
+MISSDAMAGE: 0
+MONSTERCONMOD: -1
+MONSTERDEXMOD: -1
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: poison spray ROLL:n {
+ if ROLL + MONSTERCONMOD >= SUMMONERSPELLSAVECHA {result: PSMISSDAMAGE}
+ result: PSHITDAMAGE
+}
+
+function: dragons breath ROLL:n {
+ if ROLL + MONSTERCONMOD >= SUMMONERSPELLSAVEINT {result: DBMISSDAMAGE}
+ result: DBHITDAMAGE
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [[highest 1 of 2d20] vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackps NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [poison spray d20]
+  }
+  result: TOTAL
+}
+
+function: multiattackdb NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [dragons breath d20]
+  }
+  result: TOTAL
+}
+
+
+
+\ Level 1
+
+MONSTERCONMOD: -1
+output [multiattackps 1] named "level 1 poison spray  vs Con[MONSTERCONMOD]"
+
+MONSTERCONMOD: 0
+output [multiattackps 1] named "level 1 poison spray  vs Con[MONSTERCONMOD]"
+
+MONSTERCONMOD: 1
+output [multiattackps 1] named "level 1 poison spray  vs Con[MONSTERCONMOD]"
+
+MONSTERCONMOD: 2
+output [multiattackps 1] named "level 1 poison spray  vs Con[MONSTERCONMOD]"
+
+\
+
+\ Level 3
+
+MONSTERCONMOD: -1
+MONSTERDEXMOD: -1
+output [multiattackps 1] + [multiattackdb 1] named "level 3 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+MONSTERCONMOD: 0
+MONSTERDEXMOD: 0
+output [multiattackps 1] + [multiattackdb 1] named "level 3 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+MONSTERCONMOD: 1
+MONSTERDEXMOD: 1
+output [multiattackps 1] + [multiattackdb 1] named "level 3 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+MONSTERCONMOD: 2
+MONSTERDEXMOD: 2
+output [multiattackps 1] + [multiattackdb 1] named "level 3 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+\
+
+\ Level 4 
+
+SUMMONERSPELLSAVECHA: 14
+MONSTERCONMOD: -1
+MONSTERDEXMOD: -1
+output [multiattackps 1] + [multiattackdb 1] named "level 4 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+MONSTERCONMOD: 0
+MONSTERDEXMOD: 0
+output [multiattackps 1] + [multiattackdb 1] named "level 4 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+MONSTERCONMOD: 1
+MONSTERDEXMOD: 1
+output [multiattackps 1] + [multiattackdb 1] named "level 4 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+MONSTERCONMOD: 2
+MONSTERDEXMOD: 2
+output [multiattackps 1] + [multiattackdb 1] named "level 4 poison spray w/ dragon breath  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD]"
+
+\
+
+
+\ Level 5 
+SUMMONERSPELLSAVECHA: 15
+AC:10
+MONSTERCONMOD: -1
+MONSTERDEXMOD: -1
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 12] named "level 5 poison spray w/ dragon breath, 12 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+AC:15
+MONSTERCONMOD: 0
+MONSTERDEXMOD: 0
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 12] named "level 5 poison spray w/ dragon breath, 12 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+AC:20
+MONSTERCONMOD: 1
+MONSTERDEXMOD: 1
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 12] named "level 5 poison spray w/ dragon breath, 12 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+AC:25
+MONSTERCONMOD: 2
+MONSTERDEXMOD: 2
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 12] named "level 5 poison spray w/ dragon breath, 12 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+\
+
+
+\ Level 6  
+SUMMONERSPELLSAVECHA: 15
+SKELEHITDAMAGE: 1d10 + 5
+SKELECRITICALDAMAGE: 2d10 + 5
+AC:10
+MONSTERCONMOD: -1
+MONSTERDEXMOD: -1
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 16] named "level 6 poison spray w/ dragon breath, 16 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+AC:15
+MONSTERCONMOD: 0
+MONSTERDEXMOD: 0
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 16] named "level 6 poison spray w/ dragon breath, 16 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+AC:20
+MONSTERCONMOD: 1
+MONSTERDEXMOD: 1
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 16] named "level 6 poison spray w/ dragon breath, 16 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+AC:25
+MONSTERCONMOD: 2
+MONSTERDEXMOD: 2
+output [multiattackps 1] + [multiattackdb 1] + [skelemultiattack 16] named "level 6 poison spray w/ dragon breath, 16 skeletons  vs con[MONSTERCONMOD] and dex [MONSTERDEXMOD] and AC[AC]"
+
+\
+
+\ Level 7   
+
+BIGATTACK: 4 + 3
+BIGHITDAMAGE: 1d10
+BIGCRITICALDAMAGE: 2d10
+SKELEHITDAMAGE: 1d10 + 5
+SKELECRITICALDAMAGE: 2d10 + 5
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 7 Eldritch Blast w/ Faerie Fire, Familiar 16 skeletons(60% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 7 Eldritch Blast w/ Faerie Fire, Familiar 16 skeletons(60% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 7 Eldritch Blast w/ Faerie Fire, Familiar 16 skeletons(60% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 7 Eldritch Blast w/ Faerie Fire, Familiar 16 skeletons(60% adv) vs AC[AC]"
+
+\
+
+
+\ Level 8 
+
+BIGATTACK: 4 + 3
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 4
+SKELEHITDAMAGE: 1d10 + 5
+SKELECRITICALDAMAGE: 2d10 + 5
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 8 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiar, 16 skeletons(60% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 8 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiar, 16 skeletons(60% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 8 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiar, 16 skeletons(60% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 9] + [skelemultiattack 7] named "level 8 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiar, 16 skeletons(60% adv) vs AC[AC]"
+
+\
+
+\ Level 9 
+
+BIGATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 4
+BIGCRITICALDAMAGE: 2d10 + 4
+SKELEHITDAMAGE: 1d10 + 6
+SKELECRITICALDAMAGE: 2d10 + 6
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 15] + [skelemultiattack 9] named "level 9 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiarm, 24 skeletons(65% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 15] + [skelemultiattack 9] named "level 9 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiarm, 24 skeletons(65% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 15] + [skelemultiattack 9] named "level 9 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiarm, 24 skeletons(65% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 1] + [skelemultiattackadvantage 15] + [skelemultiattack 9] named "level 9 Eldritch Blast w/ Agonizing Blast, Faerie Fire, Familiarm, 24 skeletons(65% adv) vs AC[AC]"
+
+\
+
+\ Level 11 
+
+BIGATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 4
+BIGCRITICALDAMAGE: 2d10 + 4
+SKELEHITDAMAGE: 1d10 + 6
+SKELECRITICALDAMAGE: 2d10 + 6 
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 20] + [skelemultiattack 12] named "level 11 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 32 skeletons(65% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 20] + [skelemultiattack 12] named "level 11 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 32 skeletons(65% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 20] + [skelemultiattack 12] named "level 11 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 32 skeletons(65% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 20] + [skelemultiattack 12] named "level 11 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 32 skeletons(65% adv) vs AC[AC]"
+
+\
+
+\ Level 13 
+BIGATTACK: 5 + 5
+BIGHITDAMAGE: 1d10 + 5
+BIGCRITICALDAMAGE: 2d10 + 5
+SKELEHITDAMAGE: 1d10 + 7
+SKELECRITICALDAMAGE: 2d10 + 7
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 24] + [skelemultiattack 8] named "level 13 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar,  32 skeletons(75% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 24] + [skelemultiattack 8] named "level 13 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar,  32 skeletons(75% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 24] + [skelemultiattack 8] named "level 13 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar,  32 skeletons(75% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 24] + [skelemultiattack 8] named "level 13 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar,  32 skeletons(75% adv) vs AC[AC]"
+
+\
+
+\ Level 14 
+
+BIGATTACK: 5 + 5
+BIGHITDAMAGE: 1d10 + 5
+BIGCRITICALDAMAGE: 2d10 + 5
+SKELEHITDAMAGE: 1d10 + 7
+SKELECRITICALDAMAGE: 2d10 + 7
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 45] + [skelemultiattack 15] named "level 14 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar 62 skeletons(75% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 45] + [skelemultiattack 15] named "level 14 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar 62 skeletons(75% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 45] + [skelemultiattack 15] named "level 14 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar 62 skeletons(75% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 45] + [skelemultiattack 15] named "level 14 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar 62 skeletons(75% adv) vs AC[AC]"
+
+\
+
+\ Level 16
+
+
+BIGATTACK: 5 + 5
+BIGHITDAMAGE: 1d10 + 5
+BIGCRITICALDAMAGE: 2d10 + 5
+SKELEHITDAMAGE: 1d10 + 7
+SKELECRITICALDAMAGE: 2d10 + 7
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 57] + [skelemultiattack 19] named "level 16 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(75% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 57] + [skelemultiattack 19] named "level 16 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(75% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 57] + [skelemultiattack 19] named "level 16 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(75% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 2] + [skelemultiattackadvantage 57] + [skelemultiattack 19] named "level 16 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(75% adv) vs AC[AC]"
+
+\
+
+\ Level 17 
+
+BIGATTACK: 5 + 6
+BIGHITDAMAGE: 1d10 + 5
+BIGCRITICALDAMAGE: 2d10 + 5
+SKELEHITDAMAGE: 1d10 + 8
+SKELECRITICALDAMAGE: 2d10 + 8
+AC:10
+output [bigmultiattack 1] + [bigmultiattackadvantage 3] + [skelemultiattackadvantage 60] + [skelemultiattack 16] named "level 17 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(80% adv) vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] + [bigmultiattackadvantage 3] + [skelemultiattackadvantage 60] + [skelemultiattack 16] named "level 17 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(80% adv) vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] + [bigmultiattackadvantage 3] + [skelemultiattackadvantage 60] + [skelemultiattack 16] named "level 17 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(80% adv) vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 3] + [skelemultiattackadvantage 60] + [skelemultiattack 16] named "level 17 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 76 skeletons(80% adv) vs AC[AC]"
+
+\
+
+\ Level 18 
+
+BIGATTACK: 5 + 6
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+SKELEHITDAMAGE: 1d10 + 8
+SKELECRITICALDAMAGE: 2d10 + 8
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 3] + [skelemultiattackadvantage 73] + [skelemultiattack 19] named "level 18 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar 92 skeletons(80% adv) vs AC[AC]"
+
+\
+
+\ Level 20 \
+
+BIGATTACK: 5 + 6
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+SKELEHITDAMAGE: 1d10 + 8
+SKELECRITICALDAMAGE: 2d10 + 8
+AC:25
+output [bigmultiattack 1] + [bigmultiattackadvantage 3] + [skelemultiattackadvantage 99] + [skelemultiattack 25] named "level 20 Eldritch Blast w/ agonizing blast, Faerie fire, Familiar, 124 skeletons(80% adv) vs AC[AC]"
+
+
+
+

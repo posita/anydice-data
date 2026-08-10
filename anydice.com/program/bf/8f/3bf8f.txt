@@ -1,0 +1,50 @@
+Q: {0..3}
+
+\******************************************************************\
+\Freezing a sequence\
+
+POOL: 5dQ
+HITS: [count {2..3} in POOL]
+THREES: [count 3 in POOL]
+output HITS named "hits"
+output THREES named "3s - criticals"
+output HITS - THREES named "this should never be negative, right?"
+
+function: freeze DICE:s {
+  HITS: [count {2..3} in DICE]
+  THREES: [count 3 in DICE]
+  result: HITS - THREES
+}
+output [freeze POOL] named "this really is always non-negative"
+
+\******************************************************************\
+\Thresholds Difference\
+
+function: crop SEQUENCE:n {                  \ limit the display range between [min;max] \
+ MIN: 0
+ MAX: 100
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+
+PD: 8
+PD_THRESHOLDS: {4,8,10,12}
+RD: 10
+RD_THRESHOLDS: {4,27,28,29}
+
+function: countt THRESHOLDS:s in POOL:n {
+ RES: 0
+ if(POOL >= 1@THRESHOLDS) { RES: 1}
+ if(POOL >= 2@THRESHOLDS) { RES: 2}
+ if(POOL >= 3@THRESHOLDS) { RES: 3}
+ if(POOL >= 4@THRESHOLDS) { RES: 4}
+ result: RES
+}
+A: [countt PD_THRESHOLDS in PDdQ]
+B: [countt RD_THRESHOLDS in RDdQ]
+output A named "Potential Damages"
+output B named "Damages Reduction"
+output A-B named "should not be negative ? -> can be because it's 2 different rolls"
+output [crop A-B] named "cropped to never be negative"
+

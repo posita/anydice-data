@@ -1,0 +1,169 @@
+\Playing with Damage Pools\
+\Crit on "threat" dice?\
+\Certain weapons & abilities add/remove threat dice from the pool?\
+\Crits then also scale with Attack Skill (smaller die = more crits)\
+
+\I want to compare attacking/defending within a tier easily\
+TIER: 2
+
+POOR :  2d10 \ATK lookup: 1\
+AVER :  3d 8 \ATK lookup: 2\
+TRND :  4d 6 \ATK lookup: 3\
+SKIL :  6d 4 \ATK lookup: 4\
+EXPT :  8d 3 \ATK lookup: 5\
+AXIM :  1d{3,4,4,4,5,5,5,6} \Special 1d8 that takes the place of 3d2\
+RNWN : 12d 2 \ATK lookup: 6\
+
+STR: TIER
+AGI: TIER
+TGH: TIER
+INT: TIER
+WIT: TIER
+WIS: TIER
+WLP: TIER
+CHA: TIER
+RES: TIER
+
+\output 1d12 + (2*STR) named "Axe"    Brutal (add STR modifier again)\
+\output 2d 6 +    STR  named "Sword"  Keen (add threat die)\
+\output 3d 4 +    STR  named "G. Bow" Base Line?\
+\output 6d 2 +    STR  named "Hammer" Blunt (remove threat die)\
+
+\
+Modifier MOD definition:
+1@ +/- Threat dice  (Lethality/Blunt;  1 by default)
+2@ +/- STR modifier (Brutal/Temperate; 1 by default)
+\
+
+function: ATK:n with bonus B:n to hit TGT:n for DAM:n with MOD:s
+{
+  C:0 \Total Dice Count\
+  T:0 \Threat Dice Count\
+  D:0 \Dice Scale\
+  \Set up ATK Dice\
+       if ATK = 1{C:2  D:10}
+  else if ATK = 2{C:3  D: 8}
+  else if ATK = 3{C:4  D: 6}
+  else if ATK = 4{C:6  D: 4}
+  else if ATK = 5{C:8  D: 3}
+  else if ATK = 6{C:12 D: 2}
+  T:1 + 1@MOD
+  \Cleanup, such as out of bounds threat count\
+  if T < 0 {T: 0} else if T > C {T: C}
+
+  \Roll to-hit dice\
+  TOHIT:B
+  CRT:0
+  \Start with the thread dice\
+  loop N over {1..T}
+  {
+    A: 1dD
+    CRT: CRT + [flag crit A D]
+    TOHIT: TOHIT + A
+  }
+  \Then the rest of the dice\
+  TOHIT: TOHIT + (C-T)dD
+
+  \Do we hit the target?\
+  HIT: (TOHIT > TGT)
+  
+  \How much damage do we do?\
+  R: DAM
+  \STR Modifier Multiplier\
+  MULT: 1 + 2@MOD
+  if MULT < 0 {MULT: 0}
+  R: R+(MULT * STR)
+  \Now + crits (1d4 per crit)\
+  R: R + CRTd4
+  result: (R * HIT)
+}
+
+function: flag crit R:n D:n
+{
+  if R = D {result: 1} else {result: 0}
+}
+
+TGT : 10 + (2*TIER )
+
+\Small Arms - Smaller weapons like daggers, hand axes, hand cross bows, ect. These are also /usually/ characterized by a increased lethality, but not always\
+\Light - These weapons are smaller and more wield friendly weapons\
+\Heavy - require two hands to properly wield, though when not being actively used they can be held in a single hand. These may exaggerate any modifiers on the weapon\
+\Reach - extend attack range by 1 meter; Reachx2 extends attack range by 2 meters\
+\Lethality  - Increase threat dice count by 1\
+\Blunt      - Decrease threat dice count by 1\
+\Brutal     - Increase modifier multiplier by 1\
+\Temperate  - Decrease modifier multiplier by 1\\Name Pending\
+\Physical Damage Types - (S)lashing, (P)iercing, (I)mpact\
+
+output 0 named "swords"
+\Outputs are assuming two attack actions in a turn\
+\Sword - These weapons are known for increa sed Lethality\
+output 2d[TIER with bonus AGI to hit TGT for  2d 6   with { 2, 0}] named "SM Sword (p - Dagger)"
+output 2d[TIER with bonus AGI to hit TGT for  4d 6   with { 1, 0}] named "1H Sword (p - Rapier/s - Longsword)"
+output 2d[TIER with bonus AGI to hit TGT for  6d 6   with { 2, 0}] named "2H Sword (s - Great Sword)"
+
+output 0 named "axes"
+\Axe - These are known for increased variability and Brutality\
+output 2d[TIER with bonus AGI to hit TGT for  1d12   with { 1, 1}] named "SM Axe (s - Hand Axe)"
+output 2d[TIER with bonus AGI to hit TGT for  2d12   with { 0, 1}] named "1H Axe (s - Battle Axe)"
+output 2d[TIER with bonus AGI to hit TGT for  3d12   with { 0, 2}] named "2H Axe (s - Great Axe)"
+
+output 0 named "hammers"
+\Hammers - These are known for their consistency and Bluntness\
+output 2d[TIER with bonus AGI to hit TGT for  2dAXIM with { 0, 0}] named "SM Hammer (i - Hand Hammer)"   \ 6d2\
+output 2d[TIER with bonus AGI to hit TGT for  4dAXIM with {-1, 0}] named "1H Hammer (i - Battle Hammer)" \12d2\
+output 2d[TIER with bonus AGI to hit TGT for  6dAXIM with {-1, 0}] named "2H Hammer (i - Maul)"          \18d2\
+
+output 0 named "spears"
+\Spears - Weapons that trade Lethality for Reach\
+output 2d[TIER with bonus AGI to hit TGT for  4d 6   with {-1, 0}] named "1H Spear (p - Spear)"
+output 2d[TIER with bonus AGI to hit TGT for  6d 6   with {-1, 0}] named "2H Spear (p - Anti-Cav Spear}"
+
+output 0 named "halberds"
+\Halberd - Polearm axe weapons, they trade damage for Reach\
+output 2d[TIER with bonus AGI to hit TGT for  2d10   with { 0, 1}] named "1H Halberd (s - Glaive)"
+output 2d[TIER with bonus AGI to hit TGT for  3d10   with { 0, 2}] named "2H Halberd (s - Halberd)"
+
+output 0 named "long hammers"
+\Lucerne Hammers - Polearm Hammers that trade Temperance for Reach\
+output 2d[TIER with bonus AGI to hit TGT for  4dAXIM with {-1,-1}] named "1H Lucerne (b - War Hammer)"     \12d2\
+output 2d[TIER with bonus AGI to hit TGT for  6dAXIM with {-1,-1}] named "2H Lucerne (b - Lucerne Hammer)" \18d2\
+
+output 0 named "soft"
+\Soft Weapons - These weapons do not have a rigid form (such as a blade or shaft) and their flexibility often allows extrreme range (Reach x2)\
+output 2d[TIER with bonus AGI to hit TGT for  2d 4   with { 1,-1}] named "SM Soft (i - Whip)"
+output 2d[TIER with bonus AGI to hit TGT for  4d 4   with { 0,-1}] named "1H Soft (i - Combat Whip)"
+output 2d[TIER with bonus AGI to hit TGT for  4d 4   with {-1, 1}] named "1H Soft (i - Nunchucks)"     \Special tag: Momentum - If at least 2 attack actions are made in a single turn while wielding this weapon, a bonus attack may be made with this weapon.\
+output 3d[TIER with bonus AGI to hit TGT for  6d 4   with {-1,-1}] named "2H Soft (i - Meteor Hammer)" \Special tag: Momentum - If at least 2 attack actions are made in a single turn while wielding this weapon, a bonus attack may be made with this weapon.\
+
+output 0 named "bow"
+\Bows - Simple ranged weapons that rely on the strength of the user to fire, always require 2 hands\
+output 2d[TIER with bonus AGI to hit TGT for  3d 4   with {-1, 1}] named "SM Bow (p - Short Bow)"
+output 2d[TIER with bonus AGI to hit TGT for  6d 4   with {-1, 2}] named "1H Bow (p - Great Bow)"
+output 2d[TIER with bonus AGI to hit TGT for  9d 4   with {-1, 3}] named "2H Bow (p - Composite Bow)"
+
+output 0 named "cbow"
+\Crossbows - Mechanical ranged weapons that provide their own firing force instead of the user\
+output 2d[TIER with bonus AGI to hit TGT for  3d 4   with { 1,-99}] named "SM Crossbow (p - Hand Crossbow}" \Cannot apply STR modifier, ever\
+output 2d[TIER with bonus AGI to hit TGT for  6d 4   with { 1,-99}] named "1H Crossbow (p - Crossbow}" \Cannot apply STR modifier, ever\
+output 2d[TIER with bonus AGI to hit TGT for  9d 4   with { 1,-99}] named "2H Crossbow (p - Portable Ballista}" \Cannot apply STR modifier, ever\
+
+output 0 named "twf"
+\
+TWF comparison:
+  1) Off hand weapons must be light, or incur a difficulty + 1 penalty
+  2) TWF imposes one stack of Blunt on each weapon.
+\
+
+output 4d[TIER with bonus AGI to hit TGT for  2d 6   with { 2,-1}] named "Dual SM Sword (p - Dagger)"
+output 4d[TIER with bonus AGI to hit TGT for  1d12   with { 1, 0}] named "Dual SM Axe (s - Hand Axe)"
+output 4d[TIER with bonus AGI to hit TGT for  2dAXIM with { 0,-1}] named "Dual SM Hammer (i - Hand Hammer)"   \ 6d2\
+
+output 2d[TIER with bonus AGI to hit TGT for  4d 6   with { 1,-1}] + 2d[TIER with bonus AGI to hit TGT for  2d 6   with { 2,-1}] named "1H Sword / SM Sword"
+output 2d[TIER with bonus AGI to hit TGT for  2d12   with { 0, 0}] + 2d[TIER with bonus AGI to hit TGT for  1d12   with { 1, 0}] named "1H Axe / SM Axe"
+output 2d[TIER with bonus AGI to hit TGT for  4dAXIM with {-1,-1}] + 2d[TIER with bonus AGI to hit TGT for  2dAXIM with { 0,-1}] named "1H Hammer / SM Hammer"
+
+TGT: TGT + 1 \Increase Difficulty by 1 for 2 larger weapons.\
+output 4d[TIER with bonus AGI to hit TGT for  4d 6   with { 1,-1}] named "Dual 1H Sword"
+output 4d[TIER with bonus AGI to hit TGT for  2d12   with { 0, 0}] named "Dual 1H Axe"
+output 4d[TIER with bonus AGI to hit TGT for  4dAXIM with {-1,-1}] named "Dual 1H Hammer"

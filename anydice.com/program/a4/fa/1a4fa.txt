@@ -1,0 +1,49 @@
+function: spellattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + SPELLATTACK >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: zapmedaddy ROLL:n vs AC:n {
+ TOTAL: 0
+ ZAP: 5
+ loop N over {1..3} {
+ if ROLL >= CRITROLL { 
+  TOTAL: TOTAL + CRITDAMAGE + ZAP 
+  ZAP: 0} 
+ else if ROLL + SPELLATTACK >= AC { 
+  TOTAL: TOTAL + DAMAGE + ZAP
+  ZAP: 0}
+}
+ result: TOTAL
+}
+
+function: spellsaveroll ROLL:n vs SPELLSAVE:n {
+ if ROLL + ENEMYDEXMOD <= SPELLSAVE { result: DAMAGE }
+ result: DAMAGE / 2
+}
+
+CRITROLL: 20
+ATTACKTIMES: 3
+SPELLATTACK: 8
+SPELLSAVE: 16
+DMGBONUS: 5
+CRITMISS: 1
+
+loop ENEMYAC over {12..18}{
+DAMAGE: 2d10 + DMGBONUS
+CRITDAMAGE: 4d10 + DMGBONUS
+output [spellattackroll 1d20 vs ENEMYAC] named "Firebolt vs AC [ENEMYAC]"
+}
+
+loop ENEMYAC over {12..18}{
+DAMAGE: 2d6
+CRITDAMAGE: 4d6
+output [zapmedaddy 1d20 vs ENEMYAC] named "Scorching Ray ZAPPER vs AC [ENEMYAC]"
+}
+
+loop ENEMYDEXMOD over {-1..3}{
+DAMAGE: 8d6 + DMGBONUS
+output [spellsaveroll 1d20 vs SPELLSAVE] named "Lightning Bolt vs DexMod [ENEMYDEXMOD]"
+}

@@ -1,0 +1,55 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE }
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: spiritualattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SPCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SPDAMAGE }
+ result: 0
+}
+
+
+function: battackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: PSICRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: PSIDAMAGE }
+ result: 0
+}
+
+function: reroll D:d under N:n{
+   result: [rerollcore D die D under N]
+}
+
+function: rerollcore R:n die D:d under N:n{
+   if R < N { result: D } else {result: R}
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+ATTACKTIMES: 1
+MATTACKTIMES: 2
+DAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d6 + ATTACKMOD + DMGBONUS
+SPDAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+SPCRITDAMAGE: 2d8 + 4d8 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Level 3 Maul 16 STR"
+
+CRITDAMAGE: 4d6 + 10 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Level 3 Maul 16 STR Lifestealing"
+
+DMGBONUS: 1
+ACCBONUS: 1
+CRITDAMAGE: 4d6 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Level 3 Maul 16 STR +1"

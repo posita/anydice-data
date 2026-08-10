@@ -1,0 +1,36 @@
+LVL: 7
+PROF: 4
+WIS: 2
+MED: LVL+PROF+WIS
+RISKY: MED+2
+DC: 20
+
+function: critfail {result: 0-1d8}
+function: fail {result: 0}
+function: heal {result: 2d8+10}
+function: crit {result: 4d8+10}
+function: risky critfail {result: 0-2d8}
+function: risky fail {result: 0-1d8}
+function: risky crit {result: 4d8+10-1d8}
+
+function: roll A:s normal {
+if A=0
+{if A+MED>=DC+10 {result:[heal]} else if A+MED>=DC {result:[fail]} else {result:[critfail]}}
+else if A=20
+{if A+MED>=DC {result:[crit]} else if A+MED>=DC-10 {result:[heal]} else {result:[fail]}}
+else
+{if A+MED >= DC+10 {result: [crit]} else if A+MED >= DC {result: [heal]}
+else if A+MED <= DC-10 {result:[critfail]} else {result: [fail]}}}
+
+function: roll A:s risky {
+if A=0
+{if A+RISKY>=DC+10 {result:[heal]} else if A+MED>=DC {result:[fail]} else {result:[critfail]}}
+else if A=20
+{if A+MED>=DC {result:[crit]} else if A+MED>=DC-10 {result:[heal]} else {result:[fail]}}
+else
+{if A+MED >= DC+10 {result: [crit]} else if A+MED >= DC {result: [heal]}
+else if A+MED <= DC-10 {result:[critfail]} else {result: [fail]}}}
+
+
+output [roll d20 normal]
+output [roll d20 risky]

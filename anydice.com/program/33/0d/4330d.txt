@@ -1,0 +1,55 @@
+\ ========================================== \
+\ 1. Standard WoD Roll                       \
+\ ========================================== \
+
+function: wod standard POOL:s difficulty DIFF:n {
+  SUCCESSES: POOL >= DIFF
+  ONES: POOL = 1
+  
+  \ Botch check: No raw successes, at least one 1 \
+  if SUCCESSES = 0 & ONES > 0 { result: -1 }
+  
+  \ Normal failure: 1s cancel all successes, flooring at 0 \
+  if SUCCESSES - ONES < 0 { result: 0 }
+  
+  \ Success: Return remaining successes \
+  result: SUCCESSES - ONES
+}
+
+\ ========================================== \
+\ 2. Specialty Roll (10s=2, 1s eat 10s first)\
+\ ========================================== \
+
+function: wod specialty POOL:s difficulty DIFF:n {
+  RAW_SUCS: POOL >= DIFF
+  TENS: POOL = 10
+  NORMAL_SUCS: RAW_SUCS - TENS
+  ONES: POOL = 1
+  
+  \ Botch check remains the same \
+  if RAW_SUCS = 0 & ONES > 0 { result: -1 }
+  
+  \ Scenario A: There are enough 10s to absorb all the 1s \
+  if ONES <= TENS {
+    REMAINING_TENS: TENS - ONES
+    result: (REMAINING_TENS * 2) + NORMAL_SUCS
+  }
+  
+  \ Scenario B: 1s wipe out all 10s and eat into normal successes \
+  LEFTOVER_ONES: ONES - TENS
+  FINAL: NORMAL_SUCS - LEFTOVER_ONES
+  
+  \ If 1s wipe out everything, it floors at 0 (since it wasn't a botch) \
+  if FINAL < 0 { result: 0 }
+  
+  result: FINAL
+}
+
+\ ========================================== \
+\ Outputs for Comparison                     \
+\ ========================================== \
+
+\ Change 5d10 to your dice pool, and 6 to your difficulty \
+
+output [wod standard 5d10 difficulty 6] named "Standard: 5d10 vs Diff 6"
+output [wod specialty 5d10 difficulty 6] named "Specialty: 5d10 vs Diff 6"

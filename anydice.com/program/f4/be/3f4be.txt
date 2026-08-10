@@ -1,0 +1,132 @@
+B: 2 \ # of boost die \
+S: 1 \ # of setback die \
+A: 4 \ # of ability die \
+D: 1 \ # of difficulty die \
+P: 0 \ # of proficiency die \
+C: 1 \ # of challenge die \
+SOAK: 3
+
+BOOST: {0, 0, 100, 101, 2, 1}
+ABILITY: {0, 100, 100, 200, 1, 1, 101, 2}
+DIFFICULTY: {0, -100, -200, -1, -1, -1, -2, -101}
+PROFICIENCY: {0, 100, 100, 200, 200, 1, 101, 101, 101, 2, 2, 102}
+SETBACK: {0, 0, -100, -100, -1, -1}
+CHALLENGE: {0, -100, -100, -200, -200, -1, -1, -101, -101, -2, -2, -100}
+
+\Original dice definitions preserved for checksums\
+\ Success and Failure Faces \ 
+BOOS: {0, 0, 1, 1, 0, 0}
+ABIS: {0, 1, 1, 2, 0, 0, 1, 0}
+PROS: {0, 1, 1, 2, 2, 0, 1, 1, 1, 0, 0, 1}
+SETF: {0, 0, 1, 1, 0, 0}
+DIFF: {0, 1, 2, 0, 0, 0, 0, 1}
+CHAF: {0, 1, 1, 2, 2, 0, 0, 1, 1, 0, 0, 1}
+
+\ Advantage and Threat Faces \
+BOOA: {0, 0, 0, 1, 2, 1}
+ABIA: {0, 0, 0, 0, 1, 1, 1, 2}
+PROA: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+SETT: {0, 0, 0, 0, 1, 1}
+DIFT: {0, 0, 0, 1, 1, 1, 2, 1}
+CHAT: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+
+function: A:n mod B:n {
+ result: A-(A/B)*B
+}
+
+function: successes from A:n {
+ R: [A mod 100]
+ S: A / 100
+ if R > 50 {result: S+1}
+ if R < -50 {result: S-1}
+ result: S
+
+}
+
+function: advantages from A:n {
+  R: [A mod 100]
+  if R > 50 {result: R-100}
+  if R < -50 {result: R+100}
+  result: R
+}
+
+function: count linked RATING:n hits from ADVANTAGE:n {
+ LINKEDHITS: [lowest of ADVANTAGE/2 and RATING]
+ result: [highest of 0 and LINKEDHITS]
+}
+
+function: lazax pistol damage ROLL:n {
+ BASEDAMAGE: 3
+ PIERCE: 3
+ LINKRATING: 3
+ S: [successes from ROLL]
+ ESOAK: [highest of 0 and SOAK-PIERCE]
+ ADVANTAGE: [advantages from [add superior 1 to ROLL]]
+ if S < 1 {result: 0}
+ if S < ESOAK - BASEDAMAGE+ 1 {result:0}
+ LINKEDHITS: [count linked LINKRATING hits from ADVANTAGE]
+ result: (S+BASEDAMAGE-ESOAK)*(1+LINKEDHITS)
+}
+
+function: burn RATING:n damage BASEDAMAGE:n from ADVANTAGE:n against SOAK:n {
+  if ADVANTAGE < 2 {result: 0}
+  result: ([highest of 0 and BASEDAMAGE-SOAK])*RATING
+}
+
+function: plasma damage ROLL:n {
+ BASEDAMAGE: 10
+ BURNRATING: 1
+ S: [successes from ROLL]
+ ADVANTAGE: [advantages from ROLL]
+ if S < 1 {result:0}
+ if S < SOAK - BASEDAMAGE + 1 {result:0}
+ result: BASEDAMAGE + S - SOAK + [burn BURNRATING damage BASEDAMAGE from ADVANTAGE against SOAK]
+}
+
+function: pistol damage ROLL:n {
+ S: [successes from ROLL]
+ A: [advantages from ROLL]
+ BASEDAMAGE: 6
+ PIERCE: 0
+ ESOAK: [highest of SOAK - PIERCE and 0]
+ if S<1 {result:0}
+ DAMAGE: BASEDAMAGE + S - ESOAK
+ result: [highest of DAMAGE and 0]
+}
+
+function: dual pistol damage ROLL:n {
+ S: [successes from ROLL]
+ A: [advantages from ROLL]
+ BASEDAMAGE: 6
+ PIERCE: 0
+ ESOAK: [highest of SOAK - PIERCE and 0]
+ if S<1 {result:0}
+ DAMAGE: BASEDAMAGE + S - ESOAK
+ if A > 1 {result: [highest of DAMAGE * 2 and 0]}
+ result: [highest of DAMAGE and 0]
+}
+
+function: add superior RATING:n to ROLL:n {
+ result: ROLL+1
+}
+
+function: upgrade difficulty from DICEPOOL:d {
+ result: DICEPOOL + 1dDIFFICULTY
+}
+
+DICEPOOL: PdPROFICIENCY + AdABILITY + BdBOOST + CdCHALLENGE + SdSETBACK + DdDIFFICULTY
+
+ADVANTAGES: BdBOOA + AdABIA + PdPROA - SdSETT - DdDIFT - CdCHAT
+SUCCESSES: BdBOOS + AdABIS + PdPROS - SdSETF - DdDIFF - CdCHAF 
+CHECKSUMADVANTAGES: [advantages from DICEPOOL]
+CHECKSUMSUCCESSES: [successes from DICEPOOL]
+
+output [lazax pistol damage DICEPOOL] named "lazax pistols damage"
+output [plasma damage DICEPOOL] named "plasma damage"
+output [pistol damage DICEPOOL] named "pistol damage"
+output [dual pistol damage [upgrade difficulty from DICEPOOL]] named "dual pistol damage"
+
+output CHECKSUMSUCCESSES named "checksum successes"
+output SUCCESSES named "Successes"
+output CHECKSUMADVANTAGES named "checksum advantages"
+output ADVANTAGES named "Advantages"

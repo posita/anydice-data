@@ -1,0 +1,78 @@
+
+D: 1d8
+DH: 1d6
+UA: {8,8,13}
+LA: {7,9,14}
+MA: {6,10,15}
+HA: {4,12,17}
+
+\ Daggerheart pair multiply \
+function: dhpm N:n M:n {
+ if N = M {
+  result: N * 3
+ }
+ result: N + M
+}
+
+\ Daggerheart pair extra \
+function: dhpe N:n M:n O:n {
+ if N = M {
+  result: N * 2 + O
+ }
+ result: N + M
+}
+
+function: threshold damage N:n B:n T:s {
+ if N < 1@T {result: -1}
+ if N >= 3@T {
+  result: 2 + B + (N-3@T)/5
+ }
+ if N >= 2@T {
+  result: 1 + B
+ }
+ result: B
+}
+
+function: multihit threshold damage N:d B:n DT:s T:n FO:n {
+ R: 0
+ loop X over {0..T-1}{
+  R: R+[threshold damage [dhpm N N]-(X*FO) B DT]
+ }
+ result: R
+}
+
+output [threshold damage [dhpe D D 8] 1 UA] named "medium weapon vs dodging unarmored"
+output [threshold damage [dhpe DH DH 6] 2 UA] named "heavy weapon vs dodging unarmored"
+output 0
+
+output [threshold damage [dhpe D D 8] 1 LA] named "medium weapon vs dodging light armor"
+output [threshold damage [dhpe DH DH 6] 2 LA] named "heavy weapon vs dodging light armor"
+output 0
+
+output [threshold damage [dhpe D D 8] 1 MA] named "medium weapon vs dodging medium armor"
+output [threshold damage [dhpe DH DH 6] 2 MA] named "heavy weapon vs dodging medium armor"
+output 0
+
+output [threshold damage [dhpe D D 8] 1 HA] named "medium weapon vs dodging heavy armor"
+output [threshold damage [dhpe DH DH 6] 2 HA] named "heavy weapon vs dodging heavy armor"
+output 0
+
+output [multihit threshold damage D 1 UA 2 5] named "medium multihit vs 2 dodging unarmored"
+output [multihit threshold damage D 1 LA 2 5] named "medium multihit vs 2 dodging light armor"
+output [multihit threshold damage D 1 MA 2 5] named "medium multihit vs 2 dodging medium armor"
+output [multihit threshold damage D 1 HA 2 5] named "medium multihit vs 2 dodging heavy armor"
+
+output [multihit threshold damage D 1 UA 4 0] named "light 4AP vs dodging unarmored"
+output [multihit threshold damage D 1 LA 4 0] named "light 4AP vs dodging light armor"
+output [multihit threshold damage D 1 MA 4 0] named "light 4AP vs dodging medium armor"
+output [multihit threshold damage D 1 HA 4 0] named "light 4AP vs dodging heavy armor"
+
+output [multihit threshold damage D 2 UA 2 5] named "heavy multihit vs 2 dodging unarmored"
+output [multihit threshold damage D 2 LA 2 5] named "heavy multihit vs 2 dodging light armor"
+output [multihit threshold damage D 2 MA 2 5] named "heavy multihit vs 2 dodging medium armor"
+output [multihit threshold damage D 2 HA 2 5] named "heavy multihit vs 2 dodging heavy armor"
+
+output [threshold damage [dhpm D D] 1 UA] named "precision strike vs dodging unarmored"
+output [threshold damage [dhpm D D] 1 {1@LA, 2@UA, 3@UA}] named "precision strike vs dodging light armor"
+output [threshold damage [dhpm D D] 1 {1@MA, 2@UA, 3@UA}] named "precision strike vs dodging medium armor"
+output [threshold damage [dhpm D D] 1 {1@HA, 2@UA, 3@UA}] named "precision strike vs dodging heavy armor"

@@ -1,0 +1,129 @@
+AC:              19  \ target AC: attack hits if ATK + HIT >= AC \
+ATK:           1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+ATKBONUS:        11  \ bonus to attack roll for base and TWF attacks \
+CRIT:            20  \ minimum attack roll to crit \
+CRITMULTI:        2  \ number of times to roll damage dice on a crit \
+DMG:            1d6  \ weapon damage die rolled on successful hit for base attacks \
+TWFDMG:         1d6  \ weapon damage die rolled on successful hit for TWF attacks \
+DMGMODS:          5  \ integer modifiers added to damage rolls for base attacks \
+TWFDMGMODS:       0  \ integer modifiers added to damage rolls for TWF attacks \
+DMGBONUSDICE:     0  \ extra dice added on top of DMG to each damage roll \
+TWFDMGBONUSDICE:  0  \ extra dice added on top of DMG to each damage roll for TWF attacks \
+DMGOPTDICE:       0  \ extra dice added on top of DMG to first hit of base attack \
+DMGOPTMODS:       0  \ integer modifiers added to first hit of base attack \
+BRUTALMULTI:      0  \ number of barbarian's brutal critical dice \
+BRUTALDIE:        0  \ die that is rolled for barbarian's brutal critical for base attacks \
+TWFBRUTALDIE:     0  \ die that is rolled for barbarian's brutal critical for TWF attacks \
+GWMASTER:         0  \ grants an extra attack on a base attack crit which overrides TWF attacks \
+
+set "maximum function depth" to 20
+
+function: attackroll ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: CRITMULTI }  \ critical hit multiplies damage dice \
+  result: ROLL + ATKBONUS >= AC
+}
+
+ATKRESULT: [attackroll ATK]  \ optimization: precalculate the miss/hit/crit probabilities \
+BONUSATKRESULT: [attackroll ATK] \ allows for different attack mod for TWF attacks \
+
+function: reroll NEWDIE:d for ORIGDIE:n { \ Great Weapon Fighting damage die rerolls on 1 or 2 \
+ if ORIGDIE <= 2 { result: NEWDIE }
+ result: ORIGDIE
+}
+
+function: baseattack ATKA:n times and bonusattack ATKB:n times {
+  result: [roll ATKRESULT to baseattack ATKA times and bonusattack ATKB times]
+}
+
+function: bonusattack ATKC:n times {
+  result: [roll BONUSATKRESULT to bonusattack ATKC times]
+}
+
+function: roll BASEDMGMULTI:n to baseattack ATKD:n times and bonusattack ATKE:n times {
+	ATKCOUNT: ATKD
+	BONUSATKS: ATKE
+	GWMATK: 0
+	TOTALDMG: 0
+	if ATKCOUNT > 0 {
+		if BASEDMGMULTI > 0 {
+			TOTALDMG: TOTALDMG + (BASEDMGMULTI d DMGOPTDICE + DMGOPTMODS)
+			if BASEDMGMULTI > 1 {
+				if GWMASTER > 0 {
+					TOTALDMG: TOTALDMG + (BASEDMGMULTI d (DMG + DMGBONUSDICE) + (BRUTALMULTI d BRUTALDIE) + DMGMODS)
+					GWMATK: 1
+					GWMASTER: 0
+				}
+				TOTALDMG: TOTALDMG + ATKCOUNT d (BRUTALMULTI d BRUTALDIE)
+			}
+			TOTALDMG: TOTALDMG + ATKCOUNT d (BASEDMGMULTI d (DMG + DMGBONUSDICE) + DMGMODS)
+		} 
+	}
+	if BONUSATKS > 0 {
+		if GWMATK != 1 {
+			BONUSTOTALDMG: [bonusattack BONUSATKS times]
+			TOTALDMG: TOTALDMG + BONUSTOTALDMG
+		}
+	}
+	result: TOTALDMG
+}
+
+function: roll BONUSDMGMULTI:n to bonusattack AF:n times {
+	BONUSATKCOUNT: AF
+	TWFTOTALDMG: 0
+	if BONUSATKCOUNT > 0 {
+		if BONUSDMGMULTI > 0 {
+			if BONUSDMGMULTI > 1 {
+				TWFTOTALDMG: TWFTOTALDMG + BONUSATKCOUNT d (BRUTALMULTI d TWFBRUTALDIE)
+			}
+			TWFTOTALDMG: TWFTOTALDMG + BONUSATKCOUNT d (BONUSDMGMULTI d (TWFDMG + TWFDMGBONUSDICE) + TWFDMGMODS)
+		}
+	}
+	result: TWFTOTALDMG
+}
+
+\ ---------------------- BARBARIAN ATTACKS ---------------------- \
+
+ATK: 1@2d20
+ATKBONUS: 13
+ATKRESULT: [attackroll ATK]
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d6
+TWFDMG: 1d6
+DMGMODS: 11
+TWFDMGMODS: 4
+DMGBONUSDICE: 0
+TWFDMGBONUSDICE: 0
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+BRUTALMULTI: 3
+BRUTALDIE: 1d6
+TWFBRUTALDIE: 1d6
+GWMASTER: 0
+
+DMG: 1d8
+TWFDMG: 1d8
+BRUTALDIE: 1d8
+TWFBRUTALDIE: 1d8
+
+ATKBONUS: 11
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d6
+TWFDMG: 1d6
+BRUTALDIE: 1d6
+TWFBRUTALDIE: 1d6
+
+ATKBONUS: 8
+ATKRESULT: [attackroll ATK]
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d10
+TWFDMG: 1d4
+DMGMODS: 21
+TWFDMGMODS: 21
+BRUTALDIE: 1d10
+TWFBRUTALDIE: 1d4
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Bar] (PHB GWM/PAM - 2 Feats) 2 d10 2H attacks (+1 BA attack on crit), 1 d4 PAM attack at +8 vs AC 19 - +10 damage bonus, Rage, Reckless Attack, Brutal Critical, Primal Champion"
+

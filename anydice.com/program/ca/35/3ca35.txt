@@ -1,0 +1,47 @@
+set "explode depth" to 10
+
+RANGE: 40
+D: {0,1}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: luck PIP:n {
+  result: [luck d6 and PIP]
+}
+function: luck ROLL:n and PIP:n {
+  if ROLL > 5 { result: 1 + [luck 0] }
+  if ROLL+PIP > 3 { result: 1 }
+  result: 0
+}
+\
+loop N over {1..11} {
+  output [clamp (N-1)dD+[luck -1] between -RANGE and RANGE] named "[N]D-1"
+  output [clamp (N-1)dD+[luck 0] between -RANGE and RANGE] named "[N]D"
+  output [clamp (N-1)dD+[luck 1] between -RANGE and RANGE] named "[N]D+1"
+}
+\
+\
+loop N over {1..11} {
+  output [clamp (N-1)dD+[luck 0] between -RANGE and RANGE] named "[N]D"
+}
+\
+
+output [clamp 3dD+[luck 0]-3dD-[luck 0]-dD between -RANGE and RANGE] named "4D vs 4D"
+output [clamp 6dD+[luck 0]-6dD-[luck 0]-dD between -RANGE and RANGE] named "7D vs 7D"
+output [clamp 9dD+[luck 0]-9dD-[luck 0]-dD between -RANGE and RANGE] named "10D vs 10D"
+output [clamp 9dD+[luck 1]-0dD-[luck -1]-dD between -RANGE and RANGE] named "10D+1 vs 1D-1"
+
+\
+loop DICE over {1,3,5,7,9} {
+  SKILL: DICE - 1
+  TN: (DICE+1)/2
+  if TN = 0 { TN: 1 }
+  output [clamp SKILLdD+[luck -1]-TN between -RANGE and RANGE] named "[DICE]D-1 TN[TN]"
+  output [clamp SKILLdD+[luck 0]-TN between -RANGE and RANGE] named "[DICE]D TN[TN]"
+  output [clamp SKILLdD+[luck 1]-TN between -RANGE and RANGE] named "[DICE]D+1 TN[TN]"
+}
+\

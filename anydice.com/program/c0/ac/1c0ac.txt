@@ -1,0 +1,203 @@
+AC:              19  \ target AC: attack hits if ATK + HIT >= AC \
+ATK:           1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+ATKBONUS:        11  \ bonus to attack roll for base and TWF attacks \
+CRIT:            20  \ minimum attack roll to crit \
+CRITMULTI:        2  \ number of times to roll damage dice on a crit \
+DMG:            1d6  \ weapon damage die rolled on successful hit for base attacks \
+TWFDMG:         1d6  \ weapon damage die rolled on successful hit for TWF attacks \
+DMGMODS:          5  \ integer modifiers added to damage rolls for base attacks \
+TWFDMGMODS:       0  \ integer modifiers added to damage rolls for TWF attacks \
+DMGBONUSDICE:     0  \ extra dice added on top of DMG to each damage roll \
+TWFDMGBONUSDICE:  0  \ extra dice added on top of DMG to each damage roll for TWF attacks \
+DMGOPTDICE:       0  \ extra dice added on top of DMG to first hit of base attack \
+DMGOPTMODS:       0  \ integer modifiers added to first hit of base attack \
+BRUTALMULTI:      0  \ number of barbarian's brutal critical dice \
+BRUTALDIE:        0  \ die that is rolled for barbarian's brutal critical for base attacks \
+TWFBRUTALDIE:     0  \ die that is rolled for barbarian's brutal critical for TWF attacks \
+GWMASTER:         0  \ grants an extra attack on a base attack crit which overrides TWF attacks \
+
+set "maximum function depth" to 20
+
+function: attackroll ROLL:n {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: CRITMULTI }  \ critical hit multiplies damage dice \
+  result: ROLL + ATKBONUS >= AC
+}
+
+ATKRESULT: [attackroll ATK]  \ optimization: precalculate the miss/hit/crit probabilities \
+BONUSATKRESULT: [attackroll ATK] \ allows for different attack mod for TWF attacks \
+
+function: reroll NEWDIE:d for ORIGDIE:n { \ Great Weapon Fighting damage die rerolls on 1 or 2 \
+ if ORIGDIE <= 2 { result: NEWDIE }
+ result: ORIGDIE
+}
+
+function: baseattack N:n times and bonusattack M:n times {
+  result: [roll ATKRESULT to baseattack N times and roll BONUSATKRESULT to bonusattack M times]
+}
+
+function: roll BASEDMGMULTI:n to baseattack N:n times and roll BADMGMULTI:n to bonusattack M:n times {
+    TOTALDMG: 0
+	GWMHIT: 0
+    if N <= 0 & M <= 0 {
+      result: 0
+    } else {
+		if N > 0 {
+			if BASEDMGMULTI > 0 {
+				TOTALDMG: TOTALDMG + BASEDMGMULTI d DMGOPTDICE + DMGOPTMODS
+				if GWMASTER > 0 & BASEDMGMULTI > 1 {
+					GWMASTER: 0
+					result: [roll ATKRESULT to baseattack N+1 times and roll BONUSATKRESULT to bonusattack 0 times]
+				}
+			}
+			loop I over {1..N} {
+				if BASEDMGMULTI > 0 {
+					if BASEDMGMULTI > 1 {
+						TOTALDMG: TOTALDMG + BASEDMGMULTI d (DMG + DMGBONUSDICE) + DMGMODS + (BRUTALMULTI * BRUTALDIE)
+					} else {
+						TOTALDMG: TOTALDMG + BASEDMGMULTI d (DMG + DMGBONUSDICE) + DMGMODS
+					}
+				} else {
+					result: [roll ATKRESULT to baseattack N-1 times and roll BONUSATKRESULT to bonusattack M times]
+				}
+			}
+		}
+		if M > 0 {
+			loop I over {1..M} {
+				if BADMGMULTI > 0 {
+					if BADMGMULTI > 1 {
+						TOTALDMG: TOTALDMG + BADMGMULTI d (TWFDMG + TWFDMGBONUSDICE) + TWFDMGMODS + (BRUTALMULTI * TWFBRUTALDIE)
+					} else {
+						TOTALDMG: TOTALDMG + BADMGMULTI d (TWFDMG + TWFDMGBONUSDICE) + TWFDMGMODS
+					}
+				} else {
+					result: [roll ATKRESULT to baseattack N times and roll BONUSATKRESULT to bonusattack M-1 times]
+				}
+			}
+		}
+		result: TOTALDMG
+	}
+}
+
+\ ---------------------- BASIC ATTACK VALUES ---------------------- \
+ 
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB TWF - 0 Feats) 2 1H attacks, 1 TWF attack at +11 vs AC 19 - d6 damage"
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Basic] (MMFS TWF - 0 Feats) 2 1H attacks, 2 TWF attacks at +11 vs AC 19 - d6 damage"
+
+DMG: 1d8
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB TWF - 1 Feat) 2 1H attacks, 1 TWF attack at +11 vs AC 19 - d8 damage, Dual Wielder"
+
+ATKBONUS: 9
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d6
+TWFDMG: 1d6
+TWFDMGBONUSDICE: 1d6
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Basic] (MMFS TWF - 1 Feat) 2 1H attacks (at +11), 2 TWF attacks (at +9) vs AC 19 - d6 damage, Two Weapon Master"
+
+ATKBONUS: 11
+TWFATKRESULT: [attackroll ATK]
+DMGBONUSDICE: 1d6
+TWFDMGBONUSDICE: 1d6
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB TWF - 0 Feats) 2 1H attacks, 1 TWF attack at +11 vs AC 19 - d6 damage, Hex/H.M."
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Basic] (MMFS TWF - 0 Feats) 2 1H attacks, 2 TWF attacks at +11 vs AC 19 - d6 damage, Hex/H.M."
+
+DMG: 1d8
+TWFDMG: 1d8
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB TWF - 1 Feat) 2 1H attacks, 1 TWF attack at +11 vs AC 19 - d8 damage, Hex/H.M., Dual Wielder"
+
+ATKBONUS: 9
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d6
+TWFDMG: 1d6
+TWFDMGBONUSDICE: 2d6
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Basic] (MMFS TWF - 1 Feat) 2 1H attacks (at +11), 2 TWF attacks (at +9) vs AC 19 - d6 damage, Hex/H.M., Two Weapon Master"
+
+ATKBONUS: 11
+TWFATKRESULT: [attackroll ATK]
+DMGBONUSDICE: 2d8
+TWFDMGBONUSDICE: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB TWF - 0 Feats) 2 1H attacks, 1 TWF attack at +11 vs AC 19 - d6 damage, Holy Weapon on main"
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Basic] (MMFS TWF - 0 Feats) 2 1H attacks, 2 TWF attacks at +11 vs AC 19 - d6 damage, Holy Weapon on main"
+
+DMG: 1d8
+TWFDMG: 1d8
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB TWF - 1 Feat) 2 1H attacks, 1 TWF attack at +11 vs AC 19 - d8 damage, Holy Weapon on main, Dual Wielder"
+
+ATKBONUS: 9
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d6
+TWFDMG: 1d6
+TWFDMGBONUSDICE: 1d6
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Basic] (MMFS TWF - 1 Feat) 2 1H attacks (at +11), 2 TWF attacks (at +9) vs AC 19 - d6 damage, Holy Weapon on main, Two Weapon Master"
+
+ATKBONUS: 11
+ATKRESULT: [attackroll ATK]
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d10
+TWFDMG: 1d4
+DMGMODS: 5
+TWFDMGMODS: 5
+DMGBONUSDICE: 0
+TWFDMGBONUSDICE: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB PAM - 1 Feat) 2 d10 2H attacks, 1 d4 PAM attack at +11 vs AC 19"
+
+ATKBONUS: 13
+ATKRESULT: [attackroll ATK]
+TWFATKRESULT: [attackroll ATK]
+DMG: 1d10
+TWFDMG: 1d4
+DMGMODS: 7
+TWFDMGMODS: 7
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (MMFS SF FS - 1 Feat) 2 d10 2H attacks, 1 d4 FS attack (Switch Fighting style) at +13 vs AC 19"
+
+ATKBONUS: 6
+ATKRESULT: [attackroll ATK]
+TWFATKRESULT: [attackroll ATK]
+DMGMODS: 15
+TWFDMGMODS: 15
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB GWM/PAM - 2 Feats) 2 d10 2H attacks (3 on critical), 1 d4 PAM attack at +6 vs AC 19 - +10 damage mod per attack"
+
+DMGBONUSDICE: 1d6
+TWFDMGBONUSDICE: 1d6
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB GWM/PAM - 2 Feats) 2 d10 2H attacks (3 on critical), 1 d4 PAM attack at +6 vs AC 19 - +10 damage mod per attack, Hex/H.M."
+
+DMGBONUSDICE: 2d8
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Basic] (PHB GWM/PAM - 2 Feats) 2 d10 2H attacks (3 on critical), 1 d4 PAM attack at +6 vs AC 19 - +10 damage mod per attack, Holy Weapon"
+
+ATKBONUS: 6
+ATKRESULT: [attackroll ATK]
+TWFATKRESULT: [attackroll ATK]
+DMG: 2d6
+TWFDMG: 0
+DMGMODS: 15
+TWFDMGMODS: 0
+DMGBONUSDICE: 0
+TWFDMGBONUSDICE: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Basic] (PHB GWM - 1 Feat) 2 2H attacks (3 on critical) at +6 vs AC 19 - 2d6 damage, Great Weapon Master - +10 damage mod per attack"
+
+DMGBONUSDICE: 1d6
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Basic] (PHB GWM - 1 Feat) 2 2H attacks (3 on critical) at +6 vs AC 19 - 2d6 damage, Great Weapon Master - +10 damage mod per attack, Hex/H.M."
+
+DMGBONUSDICE: 2d8
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Basic] (PHB GWM - 1 Feat) 2 2H attacks (3 on critical) at +6 vs AC 19 - 2d6 damage, Great Weapon Master - +10 damage mod per attack, Holy Weapon"

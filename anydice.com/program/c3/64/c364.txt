@@ -1,0 +1,43 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 10
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = MISS { result: MISSDAMAGE }
+ CRITS: ATTACKRESULT/CRITICALHIT
+ HITS: ATTACKRESULT - (CRITS*CRITICALHIT)
+ result: SNEAKDAMAGE + HITS*HITDAMAGE + CRITS*CRITDAMAGE
+}
+
+DEFENSE: d{12..18}
+ATTACK: 8
+HITDAMAGE: d8 + 2
+SNEAKDAMAGE: 3d6
+CRITDAMAGE: 2d8 + 2 + SNEAKDAMAGE
+MISSDAMAGE: 0
+
+output [damage for 2d[attack d20 vs DEFENSE]] named "Damned rogue"
+
+ATTACK: 8
+HITDAMAGE: 2d6 + 4
+SNEAKDAMAGE: 0
+CRITDAMAGE: 4d6 + 4
+
+output [damage for 2d[attack d20 vs DEFENSE]] named "Stinking Fighter"
+
+ATTACK: 5
+HITDAMAGE: 1d6 + 14
+SNEAKDAMAGE: 0
+CRITDAMAGE: 2d6 + 14
+
+output [damage for 3d[attack d20 vs DEFENSE]] named "Blasted Archer"

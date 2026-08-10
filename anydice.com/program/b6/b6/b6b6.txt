@@ -1,0 +1,391 @@
+function: test ROLL:n vs AC:n {
+ if ROLL = 1 { result: 0 }
+ else {
+  result: 1
+ }
+}
+
+function: roll B:n A:n{
+ result: BdA
+}
+
+function: gwf B:n A:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA A]
+ }
+ result: X
+}
+
+function: reroll A:n B:n{ 
+ if A <= 2 { 
+  A: 1dB 
+ }  
+ result: A 
+}
+
+\--HIT VARIABLES--\
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRITMISS: -1
+
+\--ATK_TYPE VARIABLES--\
+NORMAL: 0
+ADV:    1
+DIS:    2
+YES:    1
+NO:     0
+
+function: attackroll ROLL:n vs AC:n {
+ ATTACK: ATK_AND_DMG_MOD + PROFICIENCY_MOD
+ if ROLL = 1 { result: CRITMISS }
+ if ROLL >= CRITICAL_ON {
+  result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:s BONUSATTACKRESULT:s {
+ if GREAT_WEAPON_FIGHTING = 1 {
+  HITDMG:         [gwf  DMG_DICE_NUM        DMG_DICE]       + XTRA_DMG_PER_HIT
+  BONUSHITDMG:    [gwf  BONUS_DMG_DICE_NUM  BONUS_DMG_DICE] + XTRA_DMG_PER_HIT
+  CRITDMG:        HITDMG      + HITDMG      + [gwf  XTRA_CRIT_DICE  DMG_DICE]
+  BONUSCRITDMG:   BONUSHITDMG + BONUSHITDMG + [gwf  XTRA_CRIT_DICE  BONUS_DMG_DICE]
+ }
+ else {
+  HITDMG:         [roll  DMG_DICE_NUM        DMG_DICE]       + XTRA_DMG_PER_HIT
+  BONUSHITDMG:    [roll  BONUS_DMG_DICE_NUM  BONUS_DMG_DICE] + XTRA_DMG_PER_HIT
+  CRITDMG:        HITDMG      + HITDMG      + [roll  XTRA_CRIT_DICE  DMG_DICE]
+  BONUSCRITDMG:   BONUSHITDMG + BONUSHITDMG + [roll  XTRA_CRIT_DICE  BONUS_DMG_DICE]
+ }
+ D: 0
+ loop A over ATTACKRESULT {
+  if A = CRITICALHIT {
+   D: D + CRITDMG + (MOD_ON_ATTACK_DMG * ATK_AND_DMG_MOD) + MISC_DMG_MOD
+  }
+  else if A = HIT {
+   D: D + HITDMG + (MOD_ON_ATTACK_DMG * ATK_AND_DMG_MOD) + MISC_DMG_MOD
+  }
+  else {
+   D: D + 0
+  }
+ }
+ loop B over BONUSATTACKRESULT {
+  if B = CRITICALHIT {
+   D: D + BONUSCRITDMG + (MOD_ON_ATTACK_DMG * ATK_AND_DMG_MOD) + MISC_DMG_MOD
+  }
+  else if B = HIT {
+   D: D + BONUSHITDMG + (MOD_ON_ATTACK_DMG * ATK_AND_DMG_MOD) + MISC_DMG_MOD
+  }
+  else {
+   D: D + 0
+  }
+ }
+ result: D + [oncextradmg for {ATTACKRESULT,BONUSATTACKRESULT}]
+}
+
+function: oncextradmg for RESULTS:s {
+ if [RESULTS contains CRITICALHIT] {
+   result: ONCEXTRA_CRITABLE + ONCEXTRA_CRITABLE + ONCEXTRA_NOCRIT
+ }
+ if [RESULTS contains HIT] {
+   result: ONCEXTRA_CRITABLE + ONCEXTRA_NOCRIT
+ }
+ result: 0
+}
+
+function: A:n B:n attacks {
+ if ATK_TYPE = ADV {
+  result: [damage for Ad[attackroll [highest 1 of 2d20] vs AC] Bd[attackroll [lowest 1 of 2d20] vs AC]]
+ }
+ else if ATK_TYPE = DIS {
+  result: [damage for Ad[attackroll [lowest 1 of 2d20] vs AC] Bd[attackroll [lowest 1 of 2d20] vs AC]]
+ }
+ else {
+  result: [damage for Ad[attackroll 1d20 vs AC] Bd[attackroll 1d20 vs AC]]
+ }
+}
+
+\__________________________ AC attacking against __________________________\
+
+                              AC: d{16..21}
+
+\********************************************************************************\
+\__________________________________ RyokuMav8_React __________________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   4 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3        \--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          3        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    1        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        1      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            10     \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  1      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      4      \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        2      \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    0      \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   0      \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       YES    \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "RyokuMav8_React"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+
+
+\********************************************************************************\
+\__________________________________ TGOO8_Hex __________________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   4 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3        \--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          2        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    0        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        2      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            6      \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  0      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      0      \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        0      \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    1d6    \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   0    \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       NO     \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "TGOO8_Hex"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+
+\********************************************************************************\
+\__________________________________ Tyr8_Smite_React __________________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   4 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3        \--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          3        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    1        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        1      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            10     \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  1      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      4      \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        0      \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    2d8    \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   0      \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       YES    \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "Tyr8_Smite_React"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+
+
+\********************************************************************************\
+\__________________________________ Rhogar_8_Smite __________________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   4 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3        \--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          2        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    0        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        1      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            8      \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  0      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      0      \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        0      \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    3d8    \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   0      \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       NO     \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "Rhogar_8_Smite"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+
+
+\********************************************************************************\
+\__________________________________ ZEDD_8_Frenzy __________________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   4 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3        \--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          2        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    1        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        1      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            12     \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  1      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      12     \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        2      \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    0      \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   0      \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       YES    \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "ZEDD_8_Frenzy"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+
+
+\********************************************************************************\
+\__________________________________ Molikroth_8_Hex __________________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   5 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3        \--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          2        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    0        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        1      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            10     \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  0      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      0      \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        0      \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    d6     \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   0      \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       NO     \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "Molikroth_8_Hex"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+
+
+\********************************************************************************\
+\__________________________ Artimus Peacox_8_XBow __________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   5 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3        \--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          1        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    0        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        1      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            8      \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  0      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      0      \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        0      \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    0      \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   4d6    \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       NO    \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "Artimus Peacox_8_XBow"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+
+
+\********************************************************************************\
+\__________________________ Kosef8_Sharps_Mark __________________________\
+
+\____Attack Variables____\
+     ATK_TYPE:          ADV      \--NORMAL, ADV, or DIS... **Must be in all Caps**\
+     ATK_AND_DMG_MOD:   5 + 1    \--example: Strength Modifier to Melee\
+     PROFICIENCY_MOD:   3 + 2 - 5\--Place Xtra bonuses to Hit here while NOT adding to Damage\
+     CRITICAL_ON:       20       \--Crit on attack roll Greater or Equal to Value\
+     XTRA_CRIT_DICE:    0        \--example: Brutal Crit... Adds DMG_DICE_NUM on a Crit...\
+     NUM_ATKS:          2        \--Number Attack Action Attacks...Reaction Attacks go here if desired\
+     NUM_BONUS_ATKS:    0        \--Number Bonus Action Attacks\
+
+\____Damage Variables____\
+     DMG_DICE_NUM:        1      \--Number of Dice Rolled for Attack Damage\
+     DMG_DICE:            8      \--Dice Value Rolled for Attack Damage\
+     BONUS_DMG_DICE_NUM:  0      \--Number of Dice Rolled for Bonus Attack Damage\
+     BONUS_DMG_DICE:      0      \--Dice Value Rolled for Bonus Attack Damage\
+     MISC_DMG_MOD:        10     \--example: Rage, Dueling, GreatWeaponMaster, ect...  **CAN NOT CRIT**\
+     ONCEXTRA_NOCRIT:     0      \--example: 10d10 for Hurl Through Hell, ect...       **CAN NOT CRIT**\
+     XTRA_DMG_PER_HIT:    d6     \--example: 1d6 for Hex or Hunter's Mark, ect...           **CAN CRIT**\
+     ONCEXTRA_CRITABLE:   d8     \--example: Xd6 for Sneak, 1d8 for Colossus Slayer, ect... **CAN CRIT**\
+
+\____YES or NO Variables____\
+     MOD_ON_ATTACK_DMG:      YES    \Add ATK_AND_DMG_MOD to Attack Damage,       YES or NO?  **Must be in all Caps**\
+     MOD_ON_BONUS_DMG:       NO     \Add ATK_AND_DMG_MOD to Bonus Attack Damage, YES or NO?  **Must be in all Caps**\
+     GREAT_WEAPON_FIGHTING:  NO     \Do you have Great Weapon Fighting,          YES or NO?  **Must be in all Caps**\
+
+
+\____Roll Attacks and Name____\
+output [NUM_ATKS NUM_BONUS_ATKS attacks] named "Kosef8_Sharps_Mark"
+
+\________________________________________________________________________________\
+\********************************************************************************\
+

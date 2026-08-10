@@ -1,0 +1,45 @@
+
+SPELL_LEVEL:0
+
+DC: 12
+INT_MOD: 4
+PROFICIENCY: 3
+EXPERTISE: PROFICIENCY*2
+ARCANA_MOD: EXPERTISE+INT_MOD
+CRITFAIL: 1
+
+function: overflow A:n over B:n {
+if A > B { result: B }
+if B < 0 { result: 0 }
+result: A}
+
+function: cast A:n with B:n{
+if A = 0 {result: B} 
+if A <= B { result: 1 }
+result: 0}
+
+
+function: fail A:n B:n {
+if A = 0 { result: B }
+if B < 0 { result:0 }
+result: [cast SPELL_LEVEL with [overflow B over 9]]
+}
+
+function: star A:n {
+if A = 1 {result: -10}
+if A < 10 { result: 10 }
+result: A
+}
+
+function: whoops A:n {
+if A = 1 {result: -10}
+result: A
+}
+
+output [fail CRITFAIL ([star 1d20]+1d4+(ARCANA_MOD-DC))/2] named "Dragon Starry Form + Guidance"
+
+output [fail CRITFAIL ([star 1d20]+(ARCANA_MOD-DC))/2] named "Dragon Starry Form"
+
+output [fail CRITFAIL ([whoops 1d20]+1d4+(ARCANA_MOD-DC))/2] named "Guidance"
+
+output [fail CRITFAIL ([whoops 1d20]+(ARCANA_MOD-DC))/2] named "Standard"

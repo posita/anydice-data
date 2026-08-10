@@ -1,0 +1,71 @@
+\***** Echo Knight Fighter Nova Comparison *****\
+
+function: attack ROLL:n plus BONUS:n vs AC:s for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {result: 0}
+    if ROLL >= CRIT_RANGE {result: DMG + CRIT_DMG}
+    if ROLL + BONUS >= AC {result: DMG}
+    result: 0
+}
+
+function: build reaction flag F_REACT:n bonus action flag F_BA accuracy bonus ACCBONUS:n damage dice DMGDICE:d damage bonus DMGBONUS:n {
+	\*** Round 1 ***\
+	\Readied Action Necrotic Shroud, Bonus Action Hexblade's Curse, X attacks, X echo attacks, 1 AoO by echo as mount disengages enemy approaches if F_REACTION\
+	if (F_REACT>0) {F_REACT_ATK : 1} else {F_REACT_ATK : 0}
+	if (ECHOTIMES>=5) {ECHOATTACKS: 1} else {ECHOATTACKS: 0}
+	A:       (1+F_REACT_ATK)d[attack ROLL plus PROFICIENCY+ATTACKMOD+ACCBONUS vs AC for DMGDICE+ATTACKMOD+DMGBONUS+LEVEL+PROFICIENCY crit DMGDICE on 19]
+	B: (ATTACKS+ECHOATTACKS)d[attack ROLL plus PROFICIENCY+ATTACKMOD+ACCBONUS vs AC for DMGDICE+ATTACKMOD+DMGBONUS      +PROFICIENCY crit DMGDICE on 19]
+
+	\*** Round 2-4 ***\
+	\Action Surge, Bonus Action Hex, X attacks, X echo attacks, 2 Bonus Action attacks if F_BA_ATK, 3 AoO by echo as mount disengages enemy approaches if F_REACTION\
+	if (F_BA>0) {F_BA_ATK : 1} else {F_BA_ATK : 0}
+	if (ECHOTIMES>4) {ECHOATTACKS: 4} else {ECHOATTACKS: ECHOTIMES}
+	C:                    (3+(3*F_REACT_ATK))d[attack ROLL plus PROFICIENCY+ATTACKMOD+ACCBONUS vs AC for DMGDICE+ATTACKMOD+DMGBONUS+LEVEL+PROFICIENCY+1d6 crit DMGDICE+1d6 on 19]
+	D: ((4*ATTACKS)+(2*F_BA_ATK)+ECHOATTACKS)d[attack ROLL plus PROFICIENCY+ATTACKMOD+ACCBONUS vs AC for DMGDICE+ATTACKMOD+DMGBONUS      +PROFICIENCY+1d6 crit DMGDICE+1d6 on 19]
+
+	\*** Result ***\
+	result: A+B+C+D+(4*((LEVEL+1)/2))
+}
+
+ROLL: [highest 1 of 1d20]
+AC: d{16..20}
+LEVEL: 15
+ATTACKS: 3
+ATTACKMOD: (20-10)/2
+ECHOTIMES: (18-10)/2
+
+if LEVEL < 5 {PROFICIENCY: 2}
+else if LEVEL > 5 & LEVEL < 9 {PROFICIENCY: 3}
+else if LEVEL > 10 & LEVEL < 13 {PROFICIENCY: 4}
+else if LEVEL > 13 & LEVEL < 17 {PROFICIENCY: 5}
+else if LEVEL > 17 {PROFICIENCY: 6}
+
+
+\*Fighter X Warlock 2, Aasimar Fallen, 4 Rounds*\
+
+output 0 named "Perfect Situation"
+
+\output 1d[build reaction flag 1 bonus action flag 1 accuracy bonus 1 damage dice 1d12 damage bonus 1] named "DW Lance +1 TWF"\
+
+\output 1d[build reaction flag 1 bonus action flag 1 accuracy bonus 1-5 damage dice 2d{{1..2}, {3..6}:4} damage bonus 1+10] named "Sent. GWM Greatsword +1 GWF"\
+
+\output 1d[build reaction flag 1 bonus action flag 1 accuracy bonus 1 damage dice 2d{{1..2}, {3..6}:4} damage bonus 1] named "Sent. GWM(no -5) Greatsword +1 GWF"\
+
+output 1d[build reaction flag 1 bonus action flag 1 accuracy bonus 3 damage dice 1d{{1..2}, {3..10}:6} damage bonus 3] named "Sent. Rod of Lordly Might Battleaxe GWF"
+
+output 1d[build reaction flag 1 bonus action flag 1 accuracy bonus -5 damage dice 4d{{1..2}, {3..6}:4} damage bonus 10] named "Sent. GWM Rod of Lordly Might Flame Tongue Greatsword GWF"
+
+output 1d[build reaction flag 1 bonus action flag 1 accuracy bonus 0 damage dice 4d{{1..2}, {3..6}:4} damage bonus 0] named "Sent. GWM(no -5) Rod of Lordly Might Flame Tongue Greatsword GWF"
+
+output 0 named "Basic Situation"
+
+\output 1d[build reaction flag 0 bonus action flag 1 accuracy bonus 1 damage dice 1d12 damage bonus 1] named "DW Lance +1 TWF"\
+
+\output 1d[build reaction flag 1 bonus action flag 0 accuracy bonus 1-5 damage dice 2d{{1..2}, {3..6}:4} damage bonus 1+10] named "Sent. GWM Greatsword +1 GWF"\
+
+\output 1d[build reaction flag 1 bonus action flag 0 accuracy bonus 1 damage dice 2d{{1..2}, {3..6}:4} damage bonus 1] named "Sent. GWM(no -5) Greatsword +1 GWF"\
+
+output 1d[build reaction flag 1 bonus action flag 0 accuracy bonus 3 damage dice 1d{{1..2}, {3..10}:6} damage bonus 3] named "Sent. Rod of Lordly Might Battleaxe GWF"
+
+output 1d[build reaction flag 1 bonus action flag 0 accuracy bonus -5 damage dice 4d{{1..2}, {3..6}:4} damage bonus 10] named "Sent. GWM Rod of Lordly Might Flame Tongue Greatsword GWF"
+
+output 1d[build reaction flag 1 bonus action flag 0 accuracy bonus 0 damage dice 4d{{1..2}, {3..6}:4} damage bonus 0] named "Sent. GWM(no -5) Rod of Lordly Might Flame Tongue Greatsword GWF"

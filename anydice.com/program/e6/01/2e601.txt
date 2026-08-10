@@ -1,0 +1,229 @@
+\ WÃœRFEL-DEFINITIONEN \
+
+\ output d{-2,6:2} named "1orange"
+output d{1,2,3:2,4,5} named "2green"
+output d{0:2,8} named "3blue"
+output d{-1,7} named "4yellow" \
+
+DIE_A_DREI: d{2,6,7}  
+
+
+\VERGLEICHS-LOOP\
+
+
+loop T over {1..3}{
+if T=1{
+ATT_TOD: 5
+DEF_TOD: 6
+}
+if T=2{
+ATT_TOD: 6
+DEF_TOD: 7
+}
+if T=3{
+ATT_TOD: 7
+DEF_TOD: 5
+}
+
+\ KAMPF-PARAMETER \
+
+\ATT_TOD: 7  ATTACKER'S TYPE OF DICE: 1=orange 2=grÃ¼n 3=blau 4=gelb 5=rot 6=grÃ¼n 7=gelb\
+ATT_MIN_NOD: 1  \ATTACKER'S (min) NUMBER OF DICE\
+ATT_MAX_NOD: 6  \ATTACKER'S (max) NUMBER OF DICE\
+
+
+\DEF_TOD: 5  DEFENDER'S TYPE OF DICE 1=orange 2=grÃ¼n 3=blau 4=gelb\
+DEF_MIN_NOD: 1   \DEFENDER'S (min) NUMBER OF DICE\
+DEF_MAX_NOD: 6  \DEFENDER'S (max) NUMBER OF DICE\
+
+\EQUALS_ONLY: nur gleiche WÃ¼rfel-Anzahlen vergleichen 1=JA, 0=alles mit allem kombinieren \
+EQUALS_ONLY: 1
+
+\  VERGLEICHS-FUNKTION VON JASPER  \
+
+function: A:s vs B:s {
+ W: 0
+ loop P over {1..[highest of #A and #B]} {
+  W: W + (P@A > P@B)
+ }
+ result: W
+}
+
+
+\  MEINE VERGLEICHS-FUNKTION - robust gegen negative Zahlen auf dem WÃ¼rfel\
+
+ function: A:s vsa B:s {
+ W: 0
+ loop P over {1..[lowest of #A and #B]} {
+  W: W + (P@A > P@B)
+ }
+
+\DIESE LOOP KANN RAUS LAUT BENNI\
+\                        loop P over {[lowest of #A and #B]+1..[highest of #A and #B]} {
+                          if #A > #B {W: W + ([absolute P@A] >= P@B)
+                             } else { 
+                          W: W + (P@A > [absolute P@B]) 
+                           }
+                              }
+\
+
+W: W +#A - #B                  \DIESE ZEILE MUSS DAFÃœR REIN LAUT BENNI\
+result: W
+}   
+
+if ATT_TOD = 1 {
+if DEF_TOD = 2 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{-2,6:2} vsa Md{1,2,3:2,4,5}] named "[N] orange(*) gegen [M] grÃ¼ne(**) WÃ¼rfel"
+}}}
+if DEF_TOD = 3 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{-2,6:2} vsa Md{0:2,8}] named "[N] orange(*) gegen [M] blaue(***) WÃ¼rfel"
+}}}
+if DEF_TOD = 4 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{-2,6:2} vsa Md{-1,7}] named "[N] orange(*) gegen [M] gelbe(****) WÃ¼rfel"
+}}}}
+
+if ATT_TOD = 2 {
+if DEF_TOD = 1 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{1,2,3:2,4,5} vsa Md{-2,6:2}] named "[N] grÃ¼ne(**) gegen [M] orange(*) WÃ¼rfel"
+}}}
+if DEF_TOD = 3 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{1,2,3:2,4,5} vsa Md{0:2,8}] named "[N] grÃ¼ne(**) gegen [M] blaue(***) WÃ¼rfel"
+}}}
+if DEF_TOD = 4 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{1,2,3:2,4,5} vsa Md{-1,7}] named "[N] grÃ¼ne(**) gegen [M] gelbe(****) WÃ¼rfel"
+}}}}
+
+if ATT_TOD = 3 {
+if DEF_TOD = 1 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{0:2,8} vsa Md{-2,6:2}] named "[N] blaue(***) gegen [M] orange(*) WÃ¼rfel"
+}}}
+if DEF_TOD = 2 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{0:2,8} vsa Md{1,2,3:2,4,5}] named "[N] blaue(***) gegen [M] grÃ¼ne(**) WÃ¼rfel"
+}}}
+if DEF_TOD = 4 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{0:2,8} vsa Md{-1,7}] named "[N] blaue(***) gegen [M] gelbe(****) WÃ¼rfel"
+}}}}
+
+if ATT_TOD = 4 {
+if DEF_TOD = 1 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{-1,7} vsa Md{-2,6:2}] named "[N] gelbe(****) gegen [M] orange(*) WÃ¼rfel"
+}}}
+if DEF_TOD = 2 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{-1,7} vsa Md{1,2,3:2,4,5}] named "[N] gelbe(****) gegen [M] grÃ¼ne(**) WÃ¼rfel"
+}}}
+if DEF_TOD = 3 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{-1,7} vsa Md{0:2,8}] named "[N] gelbe(****) gegen [M] blaue(***) WÃ¼rfel"
+}}}}
+
+\ AB HIER NEUE WÃœRFEL 3ER-SET   \
+
+
+if EQUALS_ONLY = 1
+
+{
+if ATT_TOD = 5 {
+if DEF_TOD = 6 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{2,6,7} vs Nd{1,5,9}] named "[N] rote(A) gegen [N] grÃ¼ne(B) WÃ¼rfel"
+}}
+if DEF_TOD = 7 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{2,6,7} vs Nd{3,4,8}] named "[N] rote(A) gegen [N] gelbe(C) WÃ¼rfel"
+}}
+if DEF_TOD = 5 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{2,6,7} vs Nd{2,6,7}] named "[N] rote(A) gegen [N] rote(A) WÃ¼rfel"
+}}}
+
+
+if ATT_TOD = 6 {
+if DEF_TOD = 7 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{1,5,9} vs Nd{3,4,8}] named "[N] grÃ¼ne(B) gegen [N] gelbe(C) WÃ¼rfel"
+}}
+if DEF_TOD = 5 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{1,5,9} vs Nd{2,6,7}] named "[N] grÃ¼ne(B) gegen [N] rote(A) WÃ¼rfel"
+}}
+if DEF_TOD = 6 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{1,5,9} vs Nd{1,5,9}] named "[N] grÃ¼ne(B) gegen [N] grÃ¼ne(B) WÃ¼rfel"
+}}}
+
+if ATT_TOD = 7 {
+if DEF_TOD = 5 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{3,4,8} vs Nd{2,6,7}] named "[N] gelbe(C) gegen [N] rote(A) WÃ¼rfel"
+}}
+if DEF_TOD = 6 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{3,4,8} vs Nd{1,5,9}] named "[N] gelbe(C) gegen [N] grÃ¼ne(B) WÃ¼rfel"
+}}
+if DEF_TOD = 7 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {
+output [Nd{3,4,8} vs Nd{3,8,4}] named "[N] gelbe(C) gegen [N] gelbe(C) WÃ¼rfel"
+}}}
+}
+
+
+
+
+else
+{
+
+if ATT_TOD = 5 {
+if DEF_TOD = 6 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{2,6,7} vs Md{1,5,9}] named "[N] rote(A) gegen [M] grÃ¼ne(B) WÃ¼rfel"
+}}}
+if DEF_TOD = 7 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{2,6,7} vs Md{3,4,8}] named "[N] rote(A) gegen [M] gelbe(C) WÃ¼rfel"
+}}}
+if DEF_TOD = 5 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{2,6,7} vs Md{2,6,7}] named "[N] rote(A) gegen [M] rote(A) WÃ¼rfel"
+}}}}
+
+
+if ATT_TOD = 6 {
+if DEF_TOD = 7 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{1,5,9} vs Md{3,4,8}] named "[N] grÃ¼ne(B) gegen [M] gelbe(C) WÃ¼rfel"
+}}}
+if DEF_TOD = 5 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{1,5,9} vs Md{2,6,7}] named "[N] grÃ¼ne(B) gegen [M] rote(A) WÃ¼rfel"
+}}}
+if DEF_TOD = 6 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{1,5,9} vs Md{1,5,9}] named "[N] grÃ¼ne(B) gegen [M] grÃ¼ne(B) WÃ¼rfel"
+}}}}
+
+if ATT_TOD = 7 {
+if DEF_TOD = 5 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{3,4,8} vs Md{2,6,7}] named "[N] gelbe(C) gegen [M] rote(A) WÃ¼rfel"
+}}}
+if DEF_TOD = 6 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{3,4,8} vs Md{1,5,9}] named "[N] gelbe(C) gegen [M] grÃ¼ne(B) WÃ¼rfel"
+}}}
+if DEF_TOD = 7 {
+loop N over {ATT_MIN_NOD..ATT_MAX_NOD} {loop M over {DEF_MIN_NOD..DEF_MAX_NOD}{
+output [Nd{3,4,8} vs Md{3,8,4}] named "[N] gelbe(C) gegen [M] gelbe(C) WÃ¼rfel"
+}}}}
+}
+}

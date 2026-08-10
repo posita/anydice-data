@@ -1,0 +1,38 @@
+
+\-- Death Save --\
+
+
+SAVE_DC: 10
+BONUS: +0
+
+function: save N:n {
+  if N  = 20      {result:  2} \ Conscious   \
+  if N  = 1       {result: -2} \ Two Failures\
+  if N + BONUS >= SAVE_DC {result:  1} \ Success     \
+  result: -1                   \ One Failure \
+}
+
+
+function: has survived ABC:s D:s E:s{
+  if [count  2 in ABC] >= 1 {result: 1}
+  if [count  1 in ABC] >= 3 {result: 1}
+  if ([count -1 in ABC]  + 2 * [count -2 in ABC]) >= 3 {result: 0}
+
+  if [count  2 in D] >= 1 {result: 1}
+  if ([count  1 in ABC] + [count 1 in D]) >= 3 {result: 1}
+  if ( [count -1 in ABC] + 2 * [count -2 in ABC] 
+     + [count -1 in D  ] + 2 * [count -2 in D  ]) >= 3 {result: 0}
+
+  if [count 2 in E] >= 1 {result: 1}
+  if ([count 1 in ABC] + [count 1 in D]+ [count 1 in E]) >= 3 {result: 1} 
+  if (  [count -1 in ABC] + 2 * [count -2 in ABC] 
+      + [count -1 in D  ] + 2 * [count -2 in D  ] 
+      + [count -1 in E  ] + 2 * [count -2 in E  ]) >= 3 {result: 0} 
+  result: -1 \ Should be unreachable\
+}
+
+function: death save {result: [has survived 3d[save d20] [save d20] [save d20]]}
+
+output [death save] named "Death Save Survival"
+
+

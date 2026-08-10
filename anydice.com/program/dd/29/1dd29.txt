@@ -1,0 +1,148 @@
+\function: roll D:s T:n {
+ if 2@D > T {result: 2}
+ if 1@D > T {result: 1}
+ else {result: 0}
+}\
+
+function: pbta R:n B:n F:n S:n {
+ if R+B>S {result: 2}
+ if R+B<F {result: 0}
+ else {result: 1}
+}
+
+function: iron R:s T:n {
+ if 2@R > T {result: 2}
+ if 1@R > T {result: 1}
+ else {result: 0}
+}
+
+function: steel R:s T:n {
+ result: [count {1,1..T} in R] - [count 10 in R]
+}
+
+function: plus B:n {
+ result: [pbta 2d10 B 11 15]
+}
+
+function: adv N:n {
+ result: [pbta {1,2}@(2+N)d10 0 12 17]
+}
+
+function: roll DA:n DB:n SKILL:n STAT:n {
+ if DA <= SKILL {
+  if DB <= STAT {result: 1}
+  if DB > STAT {result: 2}
+ }
+ if DA > SKILL {
+  if DB <= STAT {result: 3}
+  if DB > STAT {result: 4}
+ }
+}
+
+\ 
+1 skill hit, stat hit - complete success
+2 skill hit, stat miss - qualified success
+3 skill miss, stat hit - mitigated failure
+4 skill miss, stat miss - total failure
+\
+
+function: test S:s E:s T:s W:s {
+ X: [count 6 in S]+[count {6..8} in E]+[count {6..10} in T]+[count {6..12} in W]
+ if X = 0 {result: 0}
+ if X = 1 {result: 1}
+ result: 2
+}
+
+function: default N:n {
+ result: [test Nd6 0 0 0]
+}
+
+function: skilled N:n {
+ result: [test Nd6 1d8 0 0]
+}
+
+function: expert N:n {
+ result: [test Nd6 0 1d10 0]
+}
+
+function: pushed N:n {
+ result: [test Nd6 0 0 1d12]
+}
+
+function: spearmint F:s S:s E:s T:s W:s {
+ X: [count 6 in S]+[count {6..8} in E]+[count {6..10} in T]+[count {6..12} in W]
+ Y: [count 1 in F]+[count 1 in S]+[count 1 in E]+[count 1 in T]+[count 1 in W]
+ if X > Y {result: X - Y}
+ result: 0
+}
+
+function: julep S:s E:s T:s W:s {
+ result: [count 6 in S]+[count {6..8} in E]+[count {6..10} in T]+[count {6..12} in W]
+}
+
+function: tulip F:s S:s E:s T:s W:s {
+ FMAX: 1@F
+ SMAX: 1@S
+ EMAX: 1@E
+ TMAX: 1@T
+ WMAX: 1@W
+ result: [highest of FMAX and [highest of SMAX and [highest of EMAX and [highest of TMAX and WMAX]]]]
+}
+
+function: rose F:s S:s E:s T:s W:s {
+ MAX: [tulip F S E T W]
+ if MAX < 4 {result: 0}
+ if MAX < 6 {result: 1}
+ if MAX < 8 {result: 2}
+ result: 3
+}
+
+function: winter F:s S:s E:s T:s W:s {
+ X: [count 6 in S]+[count {6..8} in E]+[count {6..10} in T]+[count {6..12} in W]
+ Y: [count 1 in F]+[count 1 in S]+[count 1 in E]+[count 1 in T]+[count 1 in W]
+ if X = 0 {result: 0}
+ if Y > 0 {result: 1}
+ result: 2
+}
+
+function: summer F:s S:s E:s T:s W:s {
+ X: [count 6 in S]+[count {6..8} in E]+[count {6..10} in T]+[count {6..12} in W]
+ Y: [count 1 in F]+[count 1 in S]+[count 1 in E]+[count 1 in T]+[count 1 in W]
+ if X > 0 {result: 2}
+ if Y > 0 {result: 0}
+ result: 1
+}
+
+function: autumn F:s S:s E:s T:s W:s {
+ X: [count 4 in F]+[count {4..6} in S]+[count {4..8} in E]+[count {4..10} in T]+[count {4..12} in W]
+ if X = 2 {result: 2}
+ if X > 0 {result: 1}
+ result: 0
+}
+
+function: harvest F:s S:s E:s T:s W:s {
+ result: [pbta F+S+E+T+W 0 7 9]
+}
+
+function: roll F:n S:n E:n T:n W:n {
+ result: [harvest Fd4 Sd6 Ed8 Td10 Wd12]
+}
+
+\
+loop X over {1..5}{
+ output [roll 1 X 0 0 0] named "[X]d6 hindered"
+ output [roll 0 X 0 0 0] named "[X]d6 flat"
+ output [roll 0 X 1 0 0] named "[X]d6 skilled"
+ output [roll 0 X 0 1 0] named "[X]d6 expert"
+ output [roll 0 X 0 0 1] named "[X]d6 pushed"
+}
+\
+
+output [pbta 2d6 (-1) 7 9] named "PbtA minimum"
+output [pbta 2d6 3 7 9] named "PbtA maximum"
+
+loop X over {4,6,8,10,12} {
+loop Y over {4,6,8,10,12} {
+if X<=Y {
+ output [pbta 1dX 1dY 7 9] named "d[X], d[Y]"
+}}}

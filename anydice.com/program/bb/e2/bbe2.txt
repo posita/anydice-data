@@ -1,0 +1,31 @@
+function: damage ROLL:n plus BONUS:n {
+  if ROLL = 1 {result: 0}
+  if ROLL = 20 {result: 2dDAMAGEDIE + DAMAGEMOD}
+  if (ROLL + BONUS) >= HITTARGET {result: DAMAGEDIE + DAMAGEMOD}
+  result: 0
+}
+function: damage ROLL:n {
+  result: [damage ROLL plus 0]
+}
+
+function: faerie ROLL:n {
+  if ROLL >= SAVETARGET {result: [damage 1d20]}
+  result: [damage [highest 1 of 2d20]]
+}
+
+DC: 30 \ assume save against faerie fire always fail \
+DEXSAVEMOD: +2
+SAVETARGET: DC - DEXSAVEMOD
+
+DAMAGEDIE: 1d12
+DAMAGEMOD: +4
+
+loop AC over {10..40} {
+  TOHITMOD: +6
+  HITTARGET: AC - TOHITMOD
+
+  \ output [damage d20] named "Normal (AC [AC])" \
+  output [damage d20 plus d4] named "Bless (AC [AC])"
+  output [faerie 1d20] named "Faerie (AC [AC])"
+  \ output [damage d20 plus d4] - [faerie 1d20] named "Bless - Faerie (AC [AC])" \
+}

@@ -1,0 +1,140 @@
+DAM:1d10
+
+ADV:[highest 1 of 2d20]
+DIS:[lowest 1 of 2d20]
+NOR:1d20
+
+\consider AC the effective AC (i.e., AC of target - to hit bonus)\
+ACLOW:20 - 5
+ACHIGH:20 - 7
+
+CRITNOR:20
+CRITEXP:19
+
+ATHLETICS:1d20
+OPP_ATH:1d20
+ADVATHLETICS:[highest 1 of 2d20]
+
+
+function: ROLL:n AC:n CRIT:n crit 
+{
+if ROLL<CRIT
+   {if ROLL-AC>=0
+       {result:DAM}
+    else
+       {result:0}
+   }
+else
+   {result:DAM*2}
+}
+
+
+function: ROLL:n AC:n CRIT:n critresist 
+{
+if ROLL<CRIT
+   {if ROLL-AC>=0
+       {result:DAM/2}
+    else
+       {result:0}
+   }
+else
+   {result:DAM}
+}
+
+
+function: ROLL:n AC:n CRIT:n critorc 
+{
+if ROLL<CRIT
+   {if ROLL-AC>=0
+       {result:DAM}
+    else
+       {result:0}
+   }
+else
+   {result:DAM*2 + DAM}
+}
+
+
+function: ROLL:n AC:n CRIT:n critgreatweap 
+{
+if ROLL<CRIT
+   {if ROLL-5-AC>=0
+       {result:DAM+10}
+    else
+       {result:0}
+   }
+else
+   {result:(DAM*2)+10}
+}
+
+
+function: ROLL:n AC:n CRIT:n critorcgreatweap 
+{
+if ROLL<CRIT
+   {if ROLL-5-AC>=0
+       {result:DAM+10}
+    else
+       {result:0}
+   }
+else
+   {result:DAM*2 + DAM +10}
+}
+
+
+function: PUSH:n CONTEST:n prone
+{
+if PUSH<CONTEST
+   {result:[NOR ACLOW CRITEXP crit] + [NOR ACLOW CRITEXP crit]}
+else
+   {result:[ADV ACLOW CRITEXP crit] + [ADV ACLOW CRITEXP crit]}
+}
+
+
+
+function: PUSH:n CONTEST:n pronegreatweap
+{
+if PUSH<CONTEST
+   {result:[NOR ACLOW CRITEXP critgreatweap] + [NOR ACLOW CRITEXP critgreatweap]}
+else
+   {result:[ADV ACLOW CRITEXP critgreatweap] + [ADV ACLOW CRITEXP critgreatweap]}
+}
+
+
+
+function: PUSH:n CONTEST:n proneorc
+{
+if PUSH<CONTEST
+   {result:[NOR ACLOW CRITEXP critorc] + [NOR ACLOW CRITEXP critorc]}
+else
+   {result:[ADV ACLOW CRITEXP critorc] + [ADV ACLOW CRITEXP critorc]}
+}
+
+
+function: PUSH:n CONTEST:n proneorcgreatweap
+{
+if PUSH<CONTEST
+   {result:[NOR ACLOW CRITEXP critorcgreatweap] + [NOR ACLOW CRITEXP critorcgreatweap]}
+else
+   {result:[ADV ACLOW CRITEXP critorcgreatweap] + [ADV ACLOW CRITEXP critorcgreatweap]}
+}
+
+output [ATHLETICS+3 OPP_ATH prone] named "Shove (sometimes Adv on att)"
+output [ATHLETICS+6 OPP_ATH prone] named "Shove (sometimes Adv on att) Expertise"
+output [ADVATHLETICS+3 OPP_ATH prone] named "Shove (sometimes Adv on att) w/Rage"
+output [ADVATHLETICS+6 OPP_ATH prone] named "Shove (sometimes Adv on att) Expertise w/Rage "
+
+
+\
+output [ATHLETICS+6 OPP_ATH prone] named "Shove (sometimes Adv) Expertise"
+output [ATHLETICS+6 OPP_ATH proneorc] named "Shove (sometimes Adv) Expertise: Half-orc"
+output [ADV ACLOW CRITEXP critresist] named "Damage taken when using Reckless Attack w/resist to damage"
+output [NOR ACHIGH CRITEXP crit] named "Damage taken when normally attacking with 3 higher AC"
+output [ATHLETICS+3 OPP_ATH prone] named "Shove (sometimes Adv)"
+output [ATHLETICS+3 OPP_ATH pronegreatweap] named "Shove (sometimes Adv) - GWM"
+output [ATHLETICS+3 OPP_ATH proneorc] named "Shove (sometimes Adv): Half-orc"
+output [ATHLETICS+3 OPP_ATH proneorcgreatweap] named "Shove (sometimes Adv) - GWM: Half-orc"
+output [NOR ACLOW CRITEXP crit] + [NOR ACLOW CRITEXP crit] + [NOR ACLOW CRITEXP crit] named "3 attacks Normal"
+output [NOR ACLOW CRITEXP critorc] + [NOR ACLOW CRITEXP critorc] + [NOR ACLOW CRITEXP critorc] named "3 attacks Normal: Half-orc"
+output [NOR ACLOW CRITEXP critorcgreatweap] + [NOR ACLOW CRITEXP critorcgreatweap] + [NOR ACLOW CRITEXP critorcgreatweap] named "3 attacks Normal - GWM: Half-orc"
+\
+

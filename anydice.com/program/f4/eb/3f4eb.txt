@@ -1,0 +1,64 @@
+DIE: 6
+POOL: 6
+START: 0
+CRIT: 2
+WTN: {5..6}
+BTN: {5..6}
+FAIL: 1
+
+function: roll WHITE:s BLACK:s {
+  WHITE_SUCCESSES: [count WTN in WHITE]
+  BLACK_WITH_SUCCESSES: [count BTN in BLACK]
+  BLACK_FAILURES: [count FAIL in BLACK]
+
+  if BLACK_FAILURES > 0
+  {
+      if BLACK_WITH_SUCCESSES >= 1
+      {
+		BLACK_WITH_SUCCESSES: BLACK_WITH_SUCCESSES - BLACK_FAILURES
+		if BLACK_WITH_SUCCESSES < 0
+		{
+		  TOTAL_SUCCESSES: WHITE_SUCCESSES + BLACK_WITH_SUCCESSES
+		  if TOTAL_SUCCESSES < 0
+		  {
+			result: -1
+		  }
+		  else
+		  {
+			result: TOTAL_SUCCESSES
+		  }
+		}
+		if BLACK_WITH_SUCCESSES = 0
+		{
+			TOTAL_SUCCESSES: WHITE_SUCCESSES
+			result: TOTAL_SUCCESSES
+		}
+		
+		if BLACK_WITH_SUCCESSES > 0
+		{
+			TOTAL_SUCCESSES: WHITE_SUCCESSES + BLACK_WITH_SUCCESSES*CRIT
+			result: TOTAL_SUCCESSES
+		}
+      }
+      if BLACK_WITH_SUCCESSES = 0
+      {
+		TOTAL_SUCCESSES: WHITE_SUCCESSES - BLACK_FAILURES
+		if TOTAL_SUCCESSES < 0 {
+			result: -1
+		}
+		else
+		{
+			result: TOTAL_SUCCESSES
+		}
+      }
+  }
+  if BLACK_FAILURES = 0
+  {
+    result: WHITE_SUCCESSES + BLACK_WITH_SUCCESSES*CRIT
+  }
+}
+
+loop B over {START..POOL} {
+  W: POOL - B
+  output [roll WdDIE BdDIE] named "[POOL] dice: [B] Black + [W] White"
+}

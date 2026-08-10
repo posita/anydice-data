@@ -1,0 +1,105 @@
+
+function: ROLL:n bonus B:n dc DC:n {
+  if ROLL=1 { result: 0 }
+  if ROLL=20 { result: 2 }
+  result: (ROLL+B) >= DC
+}
+
+function: attack ac AC:n ab AB:n adv ADV:n dm DM:d dmb DMB:n {
+  result: [dmg hit [[adv ADV] bonus AB dc AC] dm DM dmb DMB]
+}
+
+function: dmg hit HIT:n dm DM:d dmb DMB:n {
+  if HIT=0 { result: 0 }
+  if HIT=1 { result: DM + DMB }
+  if HIT=2 { result: 2 * (DM + DMB) }
+}
+
+function: adv ADVS {
+  ADV:0
+  BREAK:0
+  loop X over {ADVS} { if !BREAK {
+    if ADV=0 { ADV: X }
+    if (ADV>0&X<0)|(ADV<0&X>0) { ADV:0 BREAK:1 }
+  } }
+  if ADV<0 { result: 2@2d20 }
+  if ADV>0 { result: 1@2d20 }
+  result: 1d20
+}
+
+function: adv A:n B:n {
+  if A<0 & B>0 { result: 0 }
+  if A=0 { result: B }
+  result: A
+}
+
+function: C:n then T else F {
+  if C { result: T }
+  result: F
+}
+
+function: C:n and then T {
+  if C { result: C + T }
+  result: 0
+}
+
+function: dagger ac AC:n adv ADV:n sa SA {
+  result: [attack ac AC ab DEX + PB adv ADV dm 1d4 + SA dmb DEX]
+}
+
+function: daggers ac AC:n adv ADV:n sa SA {
+  result: [daggers ac AC adv ADV sa SA first [dagger ac AC adv ADV sa SA]]
+}
+
+function: daggers ac AC:n adv ADV:n sa SA first FIRST:n {
+  result: FIRST + [dagger ac AC adv ADV sa [FIRST then 0 else SA]]
+}
+
+function: shadow ac AC:n adv ADV:n sa SA {
+  result: [attack ac AC ab DEX + PB adv ADV dm 2d8 + SA dmb DEX]
+}
+
+function: two X {
+  result: X + X
+}
+
+function: X {
+  result: X
+}
+
+PB:3
+DEX:3
+SA:3d6
+F:0
+
+loop AC over {10,15,18,20} {
+  if 0 {
+    output [[dagger  ac AC adv  1 sa SA]] named "AC[AC] + dagger " 
+    output [[daggers ac AC adv  1 sa SA]] named "AC[AC] + daggers"
+    output [[shadow  ac AC adv  1 sa SA]] named "AC[AC] + shadow "
+    output [[dagger  ac AC adv  0 sa  0]] named "AC[AC] 0 dagger "
+    output [[daggers ac AC adv  0 sa  0]] named "AC[AC] 0 daggers"
+    output [[shadow  ac AC adv  0 sa  0]] named "AC[AC] 0 shadow "
+    output [[dagger  ac AC adv -1 sa  0]] named "AC[AC] - dagger "
+    output [[daggers ac AC adv -1 sa  0]] named "AC[AC] - daggers"
+    output [[shadow  ac AC adv -1 sa  0]] named "AC[AC] - shadow "
+  }
+  if 0 {
+    output [[dagger  ac AC adv  1 sa SA]] named "AC[AC] dagger  +"
+    if F { output [[dagger  ac AC adv  0 sa SA]] named "AC[AC] dagger  F" }
+    output [[dagger  ac AC adv  0 sa  0]] named "AC[AC] dagger  0"
+    output [[dagger  ac AC adv -1 sa  0]] named "AC[AC] dagger  -"
+  }
+  if 1 {
+    output [[daggers ac AC adv  1 sa SA]] named "AC[AC] daggers +"
+    if F { output [[daggers ac AC adv  0 sa SA]] named "AC[AC] daggers F" }
+    output [[daggers ac AC adv  0 sa  0]] named "AC[AC] daggers 0"
+    output [[daggers ac AC adv -1 sa  0]] named "AC[AC] daggers -"
+  }
+  if 0 {
+    output [[shadow  ac AC adv  1 sa SA]] named "AC[AC] shadow  +"
+    if F { output [[shadow  ac AC adv  0 sa SA]] named "AC[AC] shadow  F" }
+    output [[shadow  ac AC adv  0 sa  0]] named "AC[AC] shadow  0"
+    output [[shadow  ac AC adv -1 sa  0]] named "AC[AC] shadow  -"
+  }
+}

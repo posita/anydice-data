@@ -1,0 +1,146 @@
+function: rolla ROLL:s {
+
+ if [count 6 in ROLL] >= 2 {
+  result: 4
+ }
+ if 1@ROLL = 6 {
+  result: 2 + ([count 1 in ROLL] <= 1)
+ }
+
+ if 1@ROLL >= 4 {
+  result: 1 + ([count 1 in ROLL] <= 1)
+ }
+ 
+ if 1@ROLL >= 2 {
+  result: 0 + ([count 1 in ROLL] <= 1)
+ 
+ }
+ 
+ result: 0
+ 
+}
+
+function: rollb ROLL:s {
+
+ if 1@ROLL = 6 & 2@ROLL = 6  {
+  result: 3 + ([count 1 in ROLL] <= 1)
+ }
+ if 1@ROLL = 6 {
+  result: 2 + ([count 1 in ROLL] <= 1)
+ }
+
+ if 1@ROLL >= 4 {
+  result: 1 + ([count 1 in ROLL] <= 1)
+ }
+ 
+ if 1@ROLL >= 2 {
+  result: 0 + ([count 1 in ROLL] <= 1)
+ 
+ }
+ 
+ result: 0
+ 
+}
+
+function: rollc ROLL:s {
+
+ if 1@ROLL = 6 & 2@ROLL = 6  {
+  result: 3 + ([count 1 in ROLL] <= 1)
+ }
+ if 1@ROLL = 6 {
+  result: 2 + ([count 1 in ROLL] <= 1)
+ }
+
+ if 1@ROLL >= 4 {
+  
+  result: 1 + ([count 1 in ROLL] <= 1)
+ }
+ 
+ result: 1
+ 
+}
+
+function: eclipse ROLL:s by VALUE:n {
+
+ START: VALUE + 1
+ END: #ROLL
+ if START > END {
+    START: END
+ }
+ 
+ if START@ROLL = 6{
+  if START < END {
+    if {START + 1}@ROLL = 6 {
+      result: 3 + ([count 1 in ROLL] <= 1)
+    }
+  }
+  result: 2 + ([count 1 in ROLL] <= 1)
+ }
+
+ if START@ROLL >= 4 {
+  result: 1 + ([count 1 in ROLL] <= 1)
+ }
+ 
+ if START@ROLL >= 2 {
+  result: 0 + ([count 1 in ROLL] <= 1)
+ 
+ }
+ 
+ result: 0
+
+ 
+}
+
+function: eclipsec ROLL:s by VALUE:n {
+
+ START: VALUE + 1
+ END: #ROLL
+ if START > END {
+    START: END
+ }
+ 
+ if START@ROLL = 6{
+  if START < END {
+    if {START + 1}@ROLL = 6 {
+      result: 3 + ([count 1 in ROLL] <= 1)
+    }
+  }
+  result: 2 + ([count 1 in ROLL] <= 1)
+ }
+
+ if START@ROLL >= 4 {
+  result: 1 + ([count 1 in ROLL] <= 1)
+ }
+ 
+ result: 1
+ 
+}
+
+
+function: rollc zero ROLL:s {
+
+ if 2@ROLL = 6 {
+  result: 2 + ([count 1 in ROLL] <= 1)
+ }
+
+ if 2@ROLL >= 4 {
+  
+  result: 1 + ([count 1 in ROLL] <= 1)
+ }
+ 
+ result: 1
+ 
+}
+
+function: eclipse NUMBER:n dice by ECL:n {
+  
+  DICE: NUMBER + ECL + 1
+  result: [eclipsec DICEd6 by ECL]
+
+}
+
+
+output [rollc zero 2d6] named "0d"
+loop P over {1..8} {
+ output [rollc Pd6 ] named "[P]d"
+}

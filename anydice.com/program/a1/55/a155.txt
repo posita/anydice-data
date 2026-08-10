@@ -1,0 +1,204 @@
+function: X:n Y:n AC:n conditional {
+if X = 1 {result: 0}
+if X = 20 {result: 3}
+if X >= (AC - Y) {result: 2}
+else { result: 1 }
+}
+
+function: X:n repeatdsix{
+if X < 3 {result: d6}
+else {result: X}
+}
+
+function: X:n loopdsix{
+TOTAL: 0
+loop N over {1..X}
+{
+TOTAL: TOTAL + [d6 repeatdsix]
+}
+result: TOTAL
+}
+
+function: X:n repeatdeight{
+if X < 3 {result: d8}
+else {result: X}
+}
+
+function: X:n loopdeight{
+TOTAL: 0
+loop N over {1..X}
+{
+TOTAL: TOTAL +  [d8 repeatdeight]
+}
+result: TOTAL
+}
+
+AC: 18
+MOD: 8
+output [d20 MOD AC conditional] named "Monk (Level 7, 20 Dex) hit chance against 18 AC "
+
+function: mdmg{
+DAMAGE:  ((4d6 + 20)  / 2)
+DAMAGE: DAMAGE + ((8d6 + 20) / 20)
+result: DAMAGE
+}
+
+output [mdmg] named "Monk (Level 7, 20 Dex) aprox average dmg against 18 AC" 
+
+function: X:n Y:n AC:n mdmgrange{
+if X = 1 {result: 0}
+if X = 20 {result: (8d6 + 20) }
+if X >= (AC - Y) {result: (4d6 + 20)}
+else { result: 0 }
+}
+
+output [d20 MOD AC mdmgrange] named "Monk (Level 7, 20 Dex) damage range against 18 AC (OUTDATED, JUST TO MEASURE THE IMPROVEMENT)" 
+
+function: X:n Y:n AC:n mdmgrangetwo{
+DAMAGE: 0
+if X = 1 {DAMAGE: DAMAGE + 0}
+if X = 20 {DAMAGE: DAMAGE + (2d6 + 5) }
+else if X >= (AC - Y) {DAMAGE: DAMAGE + (d6 + 5)}
+else { DAMAGE: DAMAGE + 0 }
+result: DAMAGE
+}
+function: X:n Y:n AC:n mdmgrangetwoloop{
+DAMAGE: 0
+loop N over {1..4}{
+DAMAGE: DAMAGE + [d20 MOD AC mdmgrangetwo] 
+}
+result: DAMAGE
+}
+
+output [d20 MOD AC mdmgrangetwoloop] named "Monk (Level 7, 20 Dex) damage range more precise against 18 AC" 
+
+AC: 18 
+MOD: 7
+output [d20 MOD AC conditional] named "Paladin (Level 7, 18 Strength) hit chance against 18 AC" 
+
+function: pdmg{
+DAMAGE:  (([4 loopdsix] + 8 ) * 45 / 100)
+DAMAGE: DAMAGE + (([8 loopdsix] + 8 ) / 20)
+result: DAMAGE
+}
+
+output [pdmg] named "Paladin (Level 7, 18 Strength, greatsword) aprox damage against 18 AC" 
+
+function: X:n Y:n AC:n pdmgrangethree{
+DAMAGE: 0
+if X = 1 {DAMAGE: DAMAGE + 0}
+if X = 20 {DAMAGE: DAMAGE + ([4 loopdsix] + 4 ) }
+else if X >= (AC - Y) {DAMAGE: DAMAGE + ([2 loopdsix] + 4)}
+else { DAMAGE: DAMAGE + 0 }
+result: DAMAGE
+}
+function: X:n Y:n AC:n pdmgrangethreeloop{
+DAMAGE: 0
+loop N over {1..2}{
+DAMAGE: DAMAGE + [d20 MOD AC pdmgrangethree] 
+}
+result: DAMAGE
+}
+
+output [d20 MOD AC pdmgrangethreeloop] named "Paladin (Level 7, 18 Strength, greatsword) damage range against 18 AC (COUNTING THE REROLL OF 1-2)" 
+
+
+function: pdmgsmite{
+DAMAGE:  (([4 loopdsix] + 8 + [1 loopdeight]) * 45 / 100)
+DAMAGE: DAMAGE + (([8 loopdsix] + 8 + [2 loopdeight]) / 20)
+result: DAMAGE
+}
+
+output [pdmgsmite] named "Paladin (Level 7, 18 Strength, greatsword) aprox damage average using lvl1smite against 18 AC" 
+
+function: X:n Y:n AC:n pdmgsmiterangethree{
+DAMAGE: 0
+if X = 1 {DAMAGE: DAMAGE + 0}
+if X = 20 {DAMAGE: DAMAGE + ([4 loopdsix] + 4 + [2 loopdeight]) }
+else if X >= (AC - Y) {DAMAGE: DAMAGE + ([2 loopdsix] + 4 + [1 loopdeight])}
+else { DAMAGE: DAMAGE + 0 }
+result: DAMAGE
+}
+function: X:n Y:n AC:n pdmgsmiterangethreeloop{
+DAMAGE: 0
+loop N over {1..2}{
+DAMAGE: DAMAGE + [d20 MOD AC pdmgsmiterangethree] 
+}
+result: DAMAGE
+}
+
+output [d20 MOD AC pdmgsmiterangethreeloop] named "Paladin (Level 7, 18 Strength, greatsword) damage range using lvl1smite against 18 AC (COUNTING THE REROLL OF 1-2)" 
+
+AC: 18
+MOD: 2
+output [d20 MOD AC conditional ] named "Paladin (Level 7, 18 Strength) hit chance with powerful strike against 18 AC" 
+
+function: pdmgpower{
+DAMAGE:  (([4 loopdsix] + 28 ) * 45 / 100)
+DAMAGE: DAMAGE + (([8 loopdsix] + 28 + [1 loopdeight]) / 20)
+result: DAMAGE
+}
+
+output [pdmgpower] named "Paladin (Level 7, 18 Strength, greatsword) aprox damage average using powerful strike against 18 AC"  
+
+function: X:n Y:n AC:n pdmgpowerrangetwo{
+DAMAGE: 0
+if X = 1 {DAMAGE: DAMAGE + 0}
+if X = 20 {DAMAGE: DAMAGE + ([4 loopdsix] + 14 )}
+else if X >= (AC - Y) {DAMAGE: DAMAGE + ([2 loopdsix] + 14)}
+else { DAMAGE: DAMAGE + 0 }
+result: DAMAGE
+}
+function: X:n Y:n AC:n pdmgpowerrangetwoloop{
+DAMAGE: 0
+loop N over {1..2}{
+DAMAGE: DAMAGE + [d20 MOD AC pdmgpowerrangetwo] 
+}
+result: DAMAGE
+}
+
+output [d20 MOD AC pdmgpowerrangetwoloop] named "Paladin (Level 7, 18 Strength, greatsword) damage range using powerfulstrike against 18 AC (COUNTING THE REROLL OF 1-2)" 
+
+
+AC: 18
+MOD: 2
+output [[highest d20 of 2d20] MOD AC conditional ] named "Paladin (Level 7, 18 Strength) hit chance with powerful strike and advantage against 18 AC"  
+
+
+function: pdmgpoweradvsmite{
+DAMAGE:  (([4 loopdsix] + 28 + [1 loopdeight]) * 67 / 100)
+DAMAGE: DAMAGE + (([8 loopdsix] + 28 + [2 loopdeight]) / 10)
+result: DAMAGE
+}
+
+output [pdmgpoweradvsmite] named "Paladin (Level 7, 18 Strength, greatsword) aprox damage average using lvl1smite, powerfulstrike and advantage against 18 AC"  
+
+function: X:n Y:n AC:n pdmgpoweradvsmiterangetwo{
+DAMAGE: 0
+if X = 1 {DAMAGE: DAMAGE + 0}
+if X = 20 {DAMAGE: DAMAGE + ([4 loopdsix] + 14 + [2 loopdeight]) }
+else if X >= (AC - Y) {DAMAGE: DAMAGE + ([2 loopdsix] + 14 + [1 loopdeight])}
+else { DAMAGE: DAMAGE + 0 }
+result: DAMAGE
+}
+function: X:n Y:n AC:n pdmgpoweradvsmiterangetwoloop{
+DAMAGE: 0
+loop N over {1..2}{
+DAMAGE: DAMAGE + [[highest d20 of 2d20] MOD AC pdmgpoweradvsmiterangetwo] 
+}
+result: DAMAGE
+}
+
+output [[highest d20 of 2d20] MOD AC pdmgpoweradvsmiterangetwoloop] named "Paladin (Level 7, 18 Strength, greatsword) damage range using lvl1smite, powerful strike and advantage against 18 AC (COUNTING THE REROLL OF 1-2)" 
+
+
+AC: 20
+MOD: 9
+output [d20 MOD AC conditional] named "monk hitchance level 11 (WIP)"
+
+function: mdmgeleven{
+DAMAGE:  ((4d8 + 20) * 45 / 100)
+DAMAGE: DAMAGE + ((8d8 + 20) / 20)
+result: DAMAGE
+}
+output [mdmgeleven] named "monk dmg level 11 (WIP)"

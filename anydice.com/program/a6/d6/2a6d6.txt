@@ -1,0 +1,157 @@
+\Damage Distrobution Calculator
+Takes crits, probability to hit, (dis)advantage, etc it to account 
+This is written for Ian's House rules\
+\Global Constants\
+MISS: 0
+HIT: 1
+CRIT: 2
+
+\User Variable Input\
+TOHIT: 14 \to hit modifier - should be a constant\
+DMG: 1d10+13 \attack damage - should be dice + modifier\
+MISSDMG: 0 \damage done on a miss - usually 0 but some abilities may deal damage on miss\
+AC: 30 \enemy AC - should be constant\
+
+\Normal Attack Function\
+function: attack ROLL:n vs AC:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRIT}
+ if ROLL + TOHIT > AC {result: HIT}
+ else {result: MISS}
+}
+
+function: damage for RESULT:n {
+ if RESULT = CRIT {result: CRIT * DMG}
+ if RESULT = HIT {result: DMG}
+ if RESULT = MISS {result: MISSDMG}
+}
+
+function: attack {
+ result: [damage for [attack 1d20 vs AC]]
+}
+
+function: advantage attack {
+ result: [damage for [attack [highest 1 of 2d20] vs AC]]
+}
+
+function: super advantage attack {
+ result: [damage for [attack [highest 1 of 3d20] vs AC]]
+}
+
+function: disadvantage attack {
+ result: [damage for [attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: super disadvantage attack {
+ result: [damage for [attack [lowest 1 of 3d20] vs AC]]
+}
+
+\Expanded Crit Functions\
+function: exp crit attack ROLL:n vs AC:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL >= 19 {result: CRIT}
+ if ROLL + TOHIT > AC {result: HIT}
+ else {result: MISS}
+}
+
+function: exp crit attack {
+ result: [damage for [exp crit attack 1d20 vs AC]]
+}
+
+function: exp crit advantage attack {
+ result: [damage for [exp crit attack [highest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super advantage attack {
+ result: [damage for [exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+function: exp crit disadvantage attack {
+ result: [damage for [exp crit attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super disadvantage attack {
+ result: [damage for [exp crit attack [lowest 1 of 3d20] vs AC]]
+}
+
+\Extra Expanded Crit Functions\
+function: extra exp crit attack ROLL:n vs AC:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL >= 18 {result: CRIT}
+ if ROLL + TOHIT > AC {result: HIT}
+ else {result: MISS}
+}
+
+function: extra exp crit attack {
+ result: [damage for [extra exp crit attack 1d20 vs AC]]
+}
+
+function: exp crit advantage attack {
+ result: [damage for [extra exp crit attack [highest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super advantage attack {
+ result: [damage for [extra exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+function: exp crit disadvantage attack {
+ result: [damage for [exp crit attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: exp crit super disadvantage attack {
+ result: [damage for [extra exp crit attack [lowest 1 of 3d20] vs AC]]
+}
+
+\Blade of Disaster Functions\
+function: blade of disaster damage for RESULT:n {
+ if RESULT = CRIT {result: 12d12}
+ if RESULT = HIT {result: 4d12}
+ if RESULT = MISS {result: 0}
+}
+
+function: blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack 1d20 vs AC]]
+}
+
+function: advantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [highest 1 of 2d20] vs AC]]
+}
+
+function: super advantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+function: disadvantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [lowest 1 of 2d20] vs AC]]
+}
+
+function: super disadvantage blade of disaster attack {
+ result: [blade of disaster damage for [extra exp crit attack [highest 1 of 3d20] vs AC]]
+}
+
+\Main\
+VENGANCE: [attack] 
+DMG: 1d10+3d8+13
+VENGANCE_BB: [attack] 
+DMG: 1d10+2d6+13
+VENGANCE_EB: [attack]
+TOHIT: 14
+DMG: 2d4+12
+SCOURGE: [attack]
+DMG: 2d4+2d6+12
+SCOURGE_EB: [attack]
+TOHIT: 13
+DMG: 5d8+5
+SHADOWBLADE: [advantage attack]
+TOHIT: 11
+BLADEOFDISASTER: [blade of disaster attack]
+
+\Outputs\
+output 2dVENGANCE + SCOURGE named "base"
+output 3dVENGANCE + SCOURGE named "haste"
+output VENGANCE_BB + VENGANCE + SCOURGE named "base bb"
+output VENGANCE_BB + 2dVENGANCE + SCOURGE named "haste bb"
+output 2dSHADOWBLADE + VENGANCE named "2sb 1v"
+output 2dVENGANCE + SHADOWBLADE named "2v 1sb"
+output 2dVENGANCE_EB + SCOURGE_EB named "eb"
+output VENGANCE_BB + VENGANCE + SCOURGE + 2dBLADEOFDISASTER named "blade of disaster"

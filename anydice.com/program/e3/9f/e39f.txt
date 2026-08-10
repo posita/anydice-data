@@ -1,0 +1,88 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: strbruteattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + STRBRUTEATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + STRBRUTEATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: dexattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + DEXATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + DEXATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: champattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 18 {
+  if ROLL + STRCHAMPATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + STRCHAMPATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: dexattack {
+ result: [damage for [dexattack [highest 1 of 3d20] vs DEFENSE]]
+}
+
+function: strchampattack {
+ result: [damage for [champattack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+function: strbruteattack {
+ result: [damage for [strbruteattack [highest 1 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{12..25}
+
+LEVEL: 20
+MOD: 5
+MAGIC: 3
+PROF: 6
+BRUTEDICE: 1d10
+ROUNDS: 10
+GWMATTACK: -5
+GWMDAMAGE: 10
+
+STRBRUTEATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: 2d6 + MOD + BRUTEDICE + GWMDAMAGE
+CRITICALDAMAGE: 4d6 + MOD + 2dBRUTEDICE + GWMDAMAGE + LEVEL
+MISSDAMAGE: 0
+output [strbruteattack] named "Str Brute"
+
+DEXATTACK: MOD + MAGIC + PROF
+HITDAMAGE: 1d8 + MOD + BRUTEDICE
+CRITICALDAMAGE: 2d8 + MOD + 2dBRUTEDICE + LEVEL
+output [dexattack] named "Dex Brute"
+
+STRCHAMPATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: 1d12 + MOD + GWMDAMAGE
+CRITICALDAMAGE: 3d12 + MOD + GWMDAMAGE
+output [strchampattack] named "Str Champ"
+
+STRBRUTEATTACK: MOD + MAGIC + PROF
+HITDAMAGE: 2d6 + MOD + BRUTEDICE
+CRITICALDAMAGE: 4d6 + MOD + 2dBRUTEDICE + LEVEL
+MISSDAMAGE: 0
+output [strbruteattack] named "Str Brute w/o GWM"

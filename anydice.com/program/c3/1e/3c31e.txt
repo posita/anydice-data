@@ -1,0 +1,42 @@
+function: blades DICE:s {
+  PART: 1@DICE >= 4
+  FULL: 1@DICE = 6
+  CRIT: 2@DICE = 6
+  result: PART + FULL + CRIT
+}
+
+function: evens DICE:s {
+  ACC: 0
+  loop I over {1..#DICE} {
+    EVEN: (I@DICE / 2) = ((I@DICE + 1) / 2)
+    ACC: EVEN + ACC
+  }
+  result: ACC
+}
+
+function: odds DICE:s {
+  ACC: 0
+  loop I over {1..#DICE} {
+    ODD: (I@DICE / 2) != ((I@DICE + 1) / 2)
+    ACC: ODD + ACC
+  }
+  result: ACC
+}
+
+function: even blades DICE:s {
+  SUCCESS: [blades DICE]
+  EVENS: [evens DICE]
+
+  result: SUCCESS * 10 + EVENS
+}
+
+function: odd blades DICE:s {
+  SUCCESS: [blades DICE]
+  ODDS: [odds DICE]
+
+  result: SUCCESS * 10 + ODDS
+}
+
+output [odd blades 1d6]
+output [odd blades 2d6]
+output [odd blades 3d6]

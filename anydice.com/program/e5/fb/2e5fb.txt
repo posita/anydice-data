@@ -1,0 +1,52 @@
+
+function: hit ROLL:n with BONUS:n vs AC:n {
+  if ROLL = 1 {
+    result: 0
+  }
+  if ROLL = 20 {
+    result: 2
+  }
+  if ROLL + BONUS >= AC {
+    result: 1
+  }
+}
+
+function: damage ROLL:d ATTACK_MODIF:n with BONUS:n {
+  if ATTACK_MODIF = 0 {
+    result: 0
+  }
+  ERG: ROLL
+  if ATTACK_MODIF = 2 {
+    ERG: ERG + ROLL
+  }
+  result: ERG + BONUS
+}
+
+function: attack HIT_ROLL:d BONUS_HIT:n vs AC:n with ROLL:d bonus BONUS_ATK:n {
+  ATTACK_MODIFIER: [hit HIT_ROLL with BONUS_HIT vs AC]
+  DAMAGE: [damage ROLL ATTACK_MODIFIER with BONUS_ATK]
+  result: DAMAGE
+}
+
+AC_ENEMY: 19
+ATTACK_MOD: 7
+NORMAL: 1d20
+ADVANTAGE: [highest 1 of 2d20]
+DISADVANTAGE: [lowest 1 of 2d20]
+FIRST_ATTACK: 1d8 + 1d6 
+SECOND_ATTACK: 1d8
+
+DAMAGE: [attack NORMAL ATTACK_MOD vs AC_ENEMY with FIRST_ATTACK bonus 1]
+DAMAGE: DAMAGE + [attack NORMAL ATTACK_MOD vs AC_ENEMY with SECOND_ATTACK bonus 1]
+output DAMAGE named "Normal Extra Attack"
+
+DAMAGE: [attack ADVANTAGE ATTACK_MOD vs AC_ENEMY with FIRST_ATTACK bonus 1]
+DAMAGE: DAMAGE + [attack ADVANTAGE ATTACK_MOD vs AC_ENEMY with SECOND_ATTACK bonus 1]
+output DAMAGE named "Advantage Extra Attack"
+
+DAMAGE: [attack DISADVANTAGE ATTACK_MOD vs AC_ENEMY with FIRST_ATTACK bonus 1]
+DAMAGE: DAMAGE + [attack DISADVANTAGE ATTACK_MOD vs AC_ENEMY with SECOND_ATTACK bonus 1]
+output DAMAGE named "Disadvantage Extra Attack"
+
+DAMAGE: [attack NORMAL 5 vs AC_ENEMY with 5d6 bonus 0]
+output DAMAGE named "Guiding Bolt 2nd LvL"

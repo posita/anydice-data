@@ -1,0 +1,67 @@
+function: X:n attack AC:n ac M:n attackmod Y:n damage B:n critsrange C:n critmult D:n addcritconfirm{
+\calculates damage from an attack considering crit\
+
+if X= 1 {result: 0} \sad crit\
+
+if X >=B { \crit chance\
+    if X+M+D >=AC { result: C*Y} \crit confirmed\
+\this has a huge problem because its using a single roll to crit chance and confirm. It needs to roll a whole new dice here...but how can that be done\
+
+    else if X=20 { result: Y}    \crit no confirm still hits on a 20\ 
+}
+
+if X+M >=AC {result: Y} \normal hit\
+
+else { result: 0 } \miss\
+
+}
+
+function: X:n toattack AC:n againstac M:n weaponattackmod B:n weaponcritsrange{ 
+\returns one on a hit, otherwise zero \
+
+NUM:0 
+
+if X= 1 {NUM: 0} \sad crit\
+
+if X >=B { \crit chance\
+    if X+M >=AC { NUM: 1} \crit confirmed\
+    else if X=20 { NUM:1}    \crit no confirm still hits on a 20\ 
+}
+
+if X+M >=AC {NUM: 1} \hit\
+
+else {NUM:0 } \miss\
+
+result: NUM
+
+}
+
+
+loop N over {12..30}{ \to set the AC range\
+DAMONE: d4+4 \damage first weapon\
+DAMTWO: d4+3 \damage second weapon\
+AMODFIR: 17 \chance to hit, first strike\
+AMODSEC: 12 \chance to hit, second strike\
+CRITR: 15 \crit range X-20\
+CRITMUL: 2 \crit multiplier\
+ADDCRITCONF: 4 \additional crit confirm\
+
+
+KUK_PRI_ATTACK_ONE: [d20 attack N ac AMODFIR attackmod DAMONE damage CRITR critsrange CRITMUL critmult ADDCRITCONF addcritconfirm]
+KUK_SEC_ATTACK_ONE: [d20 attack N ac AMODFIR attackmod DAMTWO damage CRITR critsrange CRITMUL critmult ADDCRITCONF addcritconfirm]
+
+KUK_PRI_ATTACK_TWO: [d20 attack N ac AMODSEC attackmod DAMONE damage CRITR critsrange CRITMUL critmult ADDCRITCONF addcritconfirm]
+KUK_SEC_ATTACK_TWO: [d20 attack N ac AMODSEC attackmod DAMTWO damage CRITR critsrange CRITMUL critmult ADDCRITCONF addcritconfirm]
+
+TOHIT: [d20 toattack N againstac AMODFIR weaponattackmod CRITR weaponcritsrange]
+TOHITTWO: [d20 toattack N againstac AMODSEC weaponattackmod CRITR weaponcritsrange]
+TOHITALL: TOHIT*TOHIT*TOHITTWO*TOHITTWO
+
+output KUK_PRI_ATTACK_ONE+KUK_SEC_ATTACK_ONE+KUK_PRI_ATTACK_TWO+KUK_SEC_ATTACK_TWO named "Kukri on [N] AC"
+
+output TOHIT named "hit chance wep1 on [N] AC"
+output TOHITTWO named "hit chance wep2 on [N] AC"
+output TOHITALL named "hit chance full attack on [N] AC"
+
+
+}

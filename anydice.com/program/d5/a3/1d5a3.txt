@@ -1,0 +1,26 @@
+function: nwod R:n again N:n {
+ if N >= R { result: 1 + [nwod R again d10] }
+ result: N >= 8
+}
+
+function: simple N:n {
+ if N = 10 { result: 1 + [simple d10] }
+ result: N = 10
+}
+
+function: chancedie N:s with DICE:n {
+ SUCCESS: (N = 10)
+ if (N = 1) { result: -1 }
+ SUCCESS: SUCCESS + SUCCESS d[simple d10]
+ if SUCCESS >= 0 { result: SUCCESS +1}
+}
+function: total T:n
+{ result: T }
+
+
+
+NWOD: [nwod 10 again d10]
+
+loop N over {0..4} {
+ output [lowest of 5 and [chancedie (N+1)d10 with (N+1)]] named "-[N]d"
+}

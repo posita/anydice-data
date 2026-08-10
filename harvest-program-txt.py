@@ -19,7 +19,7 @@ import logging
 from pathlib import Path
 
 from anydyce.anydice.fetch import (
-    extract_program_id_and_url,
+    extract_program_id_hex_and_url,
     fetch_anydice_program,
     sharded_subpath_from_program_id,
 )
@@ -67,7 +67,7 @@ def main() -> None:
     shard_dirs_seen: set[Path] = set()
     for html_file in args.html_locs:
         try:
-            program_id, initial_url = extract_program_id_and_url(html_file)
+            program_id, initial_url = extract_program_id_hex_and_url(html_file)
         except Exception as exc:
             _LOGGER.error(f"{exc} (skipping {html_file})")
             continue

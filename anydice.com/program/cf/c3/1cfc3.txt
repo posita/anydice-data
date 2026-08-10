@@ -1,0 +1,189 @@
+\ Master Summoner\
+
+MISS: 0
+HIT: 1
+BGWF: {{1..2}, {3..10}:6}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 2
+SMALLATTACK: 2 + 2
+SKELEATTACK: 4
+MOUNTATTACK: 6
+BIGHITDAMAGE: 1d8 + 2
+BIGCRITICALDAMAGE: 2d8 + 2
+SMALLHITDAMAGE: 1d4 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+SKELEHITDAMAGE: 1d10 + 2
+SKELECRITICALDAMAGE: 2d10 + 2
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 2d6 + 4
+MOUNTSMALLCRITICALDAMAGE: 4d6 + 4 
+
+SUMMONERSPELLSAVE: 13
+PSHITDAMAGE: 1d12
+PSMISSDAMAGE: 0
+MISSDAMAGE: 0
+MONSTERWISMOD: -2
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+function: poison spray ROLL:n {
+ if ROLL + MONSTERWISMOD >= SUMMONERSPELLSAVE {result: PSMISSDAMAGE}
+ result: PSHITDAMAGE
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackps NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [poison spray d20]
+  }
+  result: TOTAL
+}
+
+\ Level 1 \
+
+
+AC:10
+output [bigmultiattack 1] named "level 1  vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 1  vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 1  vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 1  vs AC[AC]"

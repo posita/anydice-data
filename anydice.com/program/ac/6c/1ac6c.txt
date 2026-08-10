@@ -1,0 +1,47 @@
+ACRANGE: {0..20}
+WISRANGE: {-5..5}
+
+CHA: 4
+PROF: 3
+
+DC: 8 + CHA + PROF
+SPELL: CHA + PROF
+
+function: cast DAMAGE:d if CHECK:n succeeds with MOD:d against AC:n ac {
+ if CHECK = 20 {result: 2dDAMAGE + MOD}
+ else if CHECK = 0 {result: 0}
+ else if CHECK + SPELL < AC {result: 0}
+ else {result: DAMAGE + MOD}
+}
+
+function: save with SAVE:n against DAMAGE:d with WIS:n wisdom {
+ if SAVE + WIS >= DC {result: DAMAGE/2}
+ else {result: DAMAGE}
+}
+
+BLASTDMG: 1d10
+HEXDMG: 1d6
+SPIKEDMG: 4d8
+
+loop A over ACRANGE{
+
+ BLAST: BLASTDMG+HEXDMG
+ BLAST: [cast BLAST if 1@2d20 succeeds with CHA against A ac]
+
+ output 4dBLAST named "EB @ [A]AC"
+
+ loop W over WISRANGE{
+
+  SPIKE: [save with d20 against SPIKEDMG with W wisdom]
+  SPIKE: SPIKE + HEXDMG 
+
+  output 2dBLAST + SPIKE named "MS+EB @ [W]WIS/[A]AC"
+ }
+}
+
+loop W over WISRANGE{
+
+ SPIKE: [save with d20 against SPIKEDMG with W wisdom]
+
+ output 2dSPIKE named "MS @ [W]WIS"
+}

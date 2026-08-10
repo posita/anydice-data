@@ -1,0 +1,78 @@
+
+\FUNCTIONS=====================\
+\ Combined Hit Chance with Multiple attacks  \
+function: sum N:n times D:d {
+ if N > 1 {result: D + [sum N-1 times D]}
+ result: D
+}
+\ Hit chance with Disadvantage \
+function: hit with D:n on N:n {
+ if N = 4 { result: D }
+ if D = 0 { result: [hit with DIS on N+1] }
+
+ result: 1 + [sum 4-N times ATT]
+}
+
+\ Damage, affected by Disadvantaged Hit Chance \
+function: dmg with D:n on N:n {
+ if N = 4 { result: D }
+ if D = 0 { result: [dmg with DIS*EB on N+1] }
+
+ result: EB + [sum 4-N times ATT*EB]
+}
+\==============================\
+
+
+\-VARIABLES--------\
+AC: 18   \ TARGET \
+
+AB: 8   \ ATTACK BONUS \
+
+\ MAIN  ACTION \
+ADMGA: 1d8+4
+ADMGB: 1d8+4
+\ BONUS ACTION \
+SDMGA: 1d8+4+1d8
+SDMGB: 1d8+4     \2ND Target\
+\ PER ATK \
+HEXDMG: 1d6
+\ PER TURN \
+SNKDMG: 2d6
+\---------------\
+
+\-CALCULATIONS--\
+ATT: 1d20+AB>=AC
+ADV: [highest 1 of 2d20]+AB>=AC
+DIS: [lowest 1 of 2d20]+AB>=AC
+\---------------\
+
+
+output 
+(ATT*(ADMGA+HEXDMG)) +
+(ATT*(ADMGB+HEXDMG)) +
+(ATT*(SDMGA+HEXDMG)) +
+( ([sum 3 times ATT]>1) * SNKDMG)
+named "/w Miss Chance, /w Hex, DMG"
+
+output 
+ADMGA +
+ADMGB +
+SDMGA + SNKDMG
+named "DMG"
+
+output 
+(ATT*(ADMGA)) +
+(ATT*(ADMGB)) +
+(ATT*(SDMGA)) +
+( ([sum 3 times ATT]>1) * SNKDMG)
+named "/w Miss Chance, DMG"
+
+output 
+(ADMGA+HEXDMG) +
+(ADMGB+HEXDMG) +
+(SDMGA+HEXDMG) + SNKDMG
+named "/w Hex, DMG"
+
+
+\output [sum 3 times ATT] named "Hit% 3 ATKs"\
+\output [hit with DIS on 1] named "5a) 4 Eldritch Blast /w disadvantage until first hit, chance to hit"\

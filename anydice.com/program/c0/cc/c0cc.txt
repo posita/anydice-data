@@ -1,0 +1,40 @@
+ATK: 1d20 + 9
+ATKADV: [highest 1 of 2d20] + 9
+ATKDIS: [lowest 1 of 2d20] + 9
+
+DMG: 1d8 + 5
+SNEK: 1d8 + 3d6 + 5
+ASSASSINATE: 2d8 + 6d6 + 10
+
+function: average damage AC ADVORDIS ATKTYPE {
+ if ADVORDIS = 0 {
+  PROBHIT: ATK >= AC
+ }
+ if ADVORDIS = 1 {
+  PROBHIT: ATKADV >= AC
+ }
+ if ADVORDIS = 2 {
+  PROBHIT: ATKDIS >= AC
+ }
+ if ATKTYPE = 0 {
+  ATKINDEX: DMG
+ }
+ if ATKTYPE = 1 {
+  ATKINDEX: SNEK
+ }
+ if ATKTYPE = 2 {
+  ATKINDEX: ASSASSINATE
+ }
+ DMGTOTAL: PROBHIT * ATKINDEX
+ result: DMGTOTAL
+}
+
+
+\ Usage: Input [average damage X Y Z] where X is AC, Y is ADVORDIS, and Z is ATKTYPE. \
+\ AC represents an approximation of the enemy's armor class. \
+\ ADVORDIS is 1 if you have advantage, 2 if you have disadvantage, and 0 if you have neither. \
+\ ATKTYPE is 0 if a normal attack, 1 if a sneak attack, and 2 if assassinate (auto-crit). \
+\ Note that putting a 2 in ATKTYPE doesn't give you advantage (remember to change ADVORDIS). \
+\ In summary: AC, advantage or disadvantage, then attack type.
+
+output [average damage 20 0 0]

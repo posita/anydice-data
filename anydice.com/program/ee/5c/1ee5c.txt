@@ -1,0 +1,37 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: att ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: advantage vs DEFENSE:n {
+ result: [att [highest 1 of 2d20] vs DEFENSE]
+}
+
+function: attack vs DEFENSE:n {
+ result: [att d20 vs DEFENSE]
+}
+
+function: damage for ATTACK_RESULT:n {
+ if ATTACK_RESULT = CRITICALHIT { result: CRITICAL_DAMAGE }
+ if ATTACK_RESULT = HIT { result: HIT_DAMAGE }
+ if ATTACK_RESULT = MISS { result: MISS_DAMAGE }
+}
+
+CRITICAL_DAMAGE: 4d6+5
+HIT_DAMAGE: 2d6+5
+MISS_DAMAGE: 0
+ATTACK: 11
+
+loop AC over {5, 10, 15, 20, 25} {
+ CRITICAL_DAMAGE: 4d6+5
+ HIT_DAMAGE: 2d6+5
+ MISS_DAMAGE: 0
+ ATTACK: 11
+ output 3d(3d[damage for [advantage vs AC]] + 2d[damage for [attack vs AC]]) named "[AC]"
+}

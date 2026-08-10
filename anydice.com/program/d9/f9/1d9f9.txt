@@ -1,0 +1,62 @@
+CRITFAIL: 0
+FAIL: 1
+SUCCESS: 2
+CRITSUCCESS: 3
+
+
+function: save ROLL:n vs MODIFICADOR:n {
+ if ROLL = 1 {
+  if ROLL + MODIFICADOR >= DC { result: FAIL}
+  result: CRITFAIL 
+}
+ if ROLL = 20 {
+  if ROLL + MODIFICADOR >= DC { result: CRITSUCCESS }
+  result: SUCCESS
+ }
+ if ROLL + MODIFICADOR >= DC { 
+  if ROLL + MODIFICADOR - 10 >= DC{ result: CRITSUCCESS }
+  result: SUCCESS
+}
+ if ROLL + MODIFICADOR < DC{
+ if ROLL + MODIFICADOR + 10 < DC { result: CRITFAIL }
+ result: FAIL}
+}
+
+
+function: damage for SAVERESULT:n {
+ if SAVERESULT = CRITSUCCESS {
+  result: NODAMAGE
+ }
+if SAVERESULT = CRITFAIL {
+  result: DOUBLEDAMAGE
+ }
+ if SAVERESULT = SUCCESS {
+  result: HALFDAMAGE
+ }
+ if SAVERESULT = FAIL{
+  result: NORMALDAMAGE
+ }
+}
+
+DC: 17
+
+MODIFICADOR: 7
+
+function: damage {
+ result: [damage for [save d20 vs MODIFICADOR]]
+}
+
+output [save d20 vs MODIFICADOR]
+
+HALFDAMAGE: (1d4+2)/2
+NORMALDAMAGE: (1d4+2)
+NODAMAGE: 0
+DOUBLEDAMAGE: (1d4+2)*2
+
+output [damage] named "Damage"
+
+
+function: double {
+result: [damage] + ([damage]*d{0..1})
+}
+output [double]

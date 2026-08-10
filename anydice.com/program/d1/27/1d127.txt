@@ -1,0 +1,57 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: gloomattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: GLOOMCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: GLOOMDAMAGE }
+ result: 0
+}
+
+function: gloomattackrollautocrit ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: GLOOMCRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: GLOOMCRITDAMAGE }
+ result: 0
+}
+
+function: attackrollautocrit ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: CRITDAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 5
+DMGBONUS: 2
+PROFICIENCY: 5
+ACCBONUS: 2
+CRITROLL: 20
+DAMAGE: 2d12 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d12 + ATTACKMOD + DMGBONUS
+GLOOMDAMAGE: 2d12 + ATTACKMOD + DMGBONUS + 1d8
+GLOOMCRITDAMAGE: 4d12 + ATTACKMOD + DMGBONUS + 2d8
+ATTACKTIMES: 2
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Storm Silver, No Advantage 2 Hits, No Gloom"
+
+output ATTACKTIMESd[attackroll [highest 1 of 3d20] vs ENEMYAC] named "Storm Silver Elven Accuracy 2 Hits, No Gloom"
+
+output ATTACKTIMESd[attackroll [highest 1 of 3d20] vs ENEMYAC] + 1d[gloomattackroll [highest 1 of 3d20] vs ENEMYAC] named "Storm Silver Elven Accuracy 2 Hits, Gloom Bonus"
+
+ATTACKTIMES: 6
+output ATTACKTIMESd[attackrollautocrit [highest 1 of 3d20] vs ENEMYAC] + 2d[gloomattackrollautocrit [highest 1 of 3d20] vs ENEMYAC] named "Storm Silver, Elven Accuracy 2 Hits, Gloom Bonus, Action Surge, Double Invocation, Auto Crit"
+
+DMGBONUS: 12
+ACCBONUS: -3
+
+ATTACKTIMES: 6
+output ATTACKTIMESd[attackrollautocrit [highest 1 of 3d20] vs ENEMYAC] named "Storm Silver, Ranged, Elven Accuracy 2 Hits, Gloom Bonus, Action Surge, Auto Crit"

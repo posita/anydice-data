@@ -1,0 +1,23 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+output d20 named "Normal"
+output [reroll {1} on d20] named "Halfling Normal"
+
+X: 2d20
+Y: [highest 1 of X]
+output 1@2d20 named "Advantage"
+output [highest of Y and [reroll {1} on [lowest 1 of X] to d20]] named "Halfling Advantage"
+output 1@3d20 named "Lucky (Dis)advantage"
+output [highest of [highest of Y and [reroll {1} on [lowest 1 of X] to d20]] and d20] named "Lucky Halfling (Dis)advantage"
+
+output 2@2d20 named "Disadvantage" 
+output [lowest of Y and [reroll {1} on [lowest 1 of X] to d20]] named "Halfling Disadvantage"
+

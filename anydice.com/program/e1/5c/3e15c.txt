@@ -1,0 +1,208 @@
+\HEROES - D6s\
+
+function: limits SEQUENCE:n ZERO:n MIN:n {
+ if (SEQUENCE < ZERO){result: 0}
+ if (SEQUENCE < MIN){result: MIN}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n MIN:n MAX:n {
+ if (SEQUENCE <= MIN){result: 0}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+
+
+\************************** Comparison Functions *********************************\
+function: compare bodies ATT_B:n with DEF_B:n {
+  if(ATT_B > DEF_B) { result: ATT_B-DEF_B}
+  result: 0
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  result: -1       \VAL_X < VAL_Y\
+}
+
+\Distribute the dices adaptation between Attack Roll & Save Roll\
+function: compare potentials ATT_VAL:n DEF_VAL:n {
+ BASE_DICES: 9
+ MAX_DICES: 15
+ MIN_DICES: 3
+
+ VAL: ATT_VAL-DEF_VAL                \VAL = difference between Att Potential & Def Potential\
+ ATT_BONUS: 0
+ DEF_BONUS: 0
+ if (VAL>=7) { result: {16, 0} }       \if Att is too high, then there is no Def\
+ if (VAL<=-7) { result: {0, 16} }      \if Def is too high, then there is no Att\
+
+ ATT_BONUS: VAL
+ DEF_BONUS: -VAL
+ ATT_DICES: BASE_DICES + ATT_BONUS
+ DEF_DICES: BASE_DICES + DEF_BONUS
+ result: {ATT_DICES, DEF_DICES}
+}
+
+function: compare potentials bis ATT_VAL:n DEF_VAL:n {
+ BASE_DICES: 9
+ MAX_DICES: 15
+ MIN_DICES: 3
+
+ VAL: ATT_VAL-DEF_VAL                \VAL = difference between Att Potential & Def Potential\
+ ATT_BONUS: 0
+ DEF_BONUS: 0
+ if (VAL>=13) { result: {16, 0} }       \if Att is too high, then there is no Def\
+ if (VAL<=-13) { result: {0, 16} }      \if Def is too high, then there is no Att\
+
+ if (VAL>=0 & VAL<13) {
+  if VAL>6 {
+    ATT_BONUS: 6
+    DEF_BONUS: -VAL+6
+  }else {
+    ATT_BONUS: VAL
+  }
+ }
+ if (VAL<0 & VAL>-13) {
+  if VAL<-6 {
+    ATT_BONUS: VAL+6
+    DEF_BONUS: 6
+  }else {
+    DEF_BONUS: -VAL
+  }
+ }
+
+ ATT_DICES: BASE_DICES + ATT_BONUS
+ DEF_DICES: BASE_DICES + DEF_BONUS
+ result: {ATT_DICES, DEF_DICES}
+}
+
+\compare potentials : test A : Att-Def -> +X Att & -X Def\
+\compare potentials bis : test B : Att-Def -> +X Att then -X Def if surplus\
+
+\************************** Highest/Lowest Switch Function ****************************\
+
+function: highlow direction KEEP:n DIR_MOD:n T:n {
+ POOL: KEEP+[absolute DIR_MOD]
+ if (DIR_MOD >= 0) {result: [highest KEEP of POOLd(d6>=T)] }
+ else  {result: [lowest KEEP of POOLd(d6>=T)] }
+ result: 0
+}
+
+\************************** Subsets Search Functions ****************************\
+
+function: find best sets ATT:s DEF:s {
+ ATT_SET: [best subset ATT]
+ DEF_SET: [best subset DEF]
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+function: best subset ROLL:s {       \Validated\
+ SIXES:  ROLL=6                      \test the value on each element of the Sequence parameter : optimized\
+ FIVES:  ROLL=5
+ FOURS:  ROLL=4
+ THREES: ROLL=3
+ TWOS:   ROLL=2
+ ONES:   ROLL=1
+ SUBSETS: {SIXES, FIVES, FOURS, THREES, TWOS, ONES}
+ VALUES: {6,5,4,3,2,1}
+
+ TEMP: 1@SUBSETS
+ RES: 1@VALUES
+ loop N over {1..5}{                 \compare the sets to find the more numerous one, choosing the higher if equal\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: (N+1)@VALUES
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES
+}
+
+function: compare sets ATT_SET:n DEF_SET:n {    \transform Subsets into Damages\
+ if (ATT_SET<=3) {result: 1}
+ if (ATT_SET<=5) {
+  if (DEF_SET<=3) {result: 3}
+  if (DEF_SET<=5) {result: 2}
+  if (DEF_SET=6) {result: 1}
+ }
+ if (ATT_SET=6) {
+  if (DEF_SET<=3) {result: 4}
+  if (DEF_SET<=5) {result: 3}
+  if (DEF_SET=6) {result: 2}
+ }
+ result: 0
+}
+
+\************************** Sequence Functions ****************************\
+
+function: phaseone ATT:s DEF:s {                     \find the environment modifiers\
+  SIZE_MODS: [compare bodies 13@ATT with 13@DEF]     \compare the nbr of bodies\
+  VELOCITY_MODS: [compare 12@DEF with 11@ATT]        \compare the velocity for the dodge capacity\
+
+  ATT_DICES: (1@ATT +SIZE_MODS)                      \modifier to Hit-pool\
+  DEF_DICES: (6@DEF +VELOCITY_MODS)                  \modifier to of Save-pool\
+
+  ATT_NEWTARGET: 2@ATT+5@ATT                         \apply target-modifiers for Hit\
+  DEF_NEWTARGET: 7@ATT+10@ATT                        \apply target-modifiers for Save\
+
+  BASE_DICES: [compare potentials bis 1@ATT 6@DEF]
+  ATT_BASE_DICES: 1@BASE_DICES                         \base number of hit-dices\
+  ATT_MODS_DICES: ATT_BASE_DICES+SIZE_MODS              \final number of added hit-dices\
+
+  DEF_BASE_DICES: 2@BASE_DICES                         \base number of save-dices\
+  DEF_MODS_DICES: DEF_BASE_DICES+VELOCITY_MODS          \final number of added save-dices\
+
+  result: [hit pass ATT_MODS_DICESd6 DEF_MODS_DICESd6 ATT_NEWTARGET DEF_NEWTARGET]
+}
+
+function: hit pass ATT_ROLL:s DEF_ROLL:s ATT_TAR:n DEF_TAR:n {
+ ATT_SUCCESSES: ATT_ROLL>=ATT_TAR
+ DEF_SUCCESSES: DEF_ROLL>=DEF_TAR
+ RES: ATT_SUCCESSES - DEF_SUCCESSES
+ if (RES>0){result: [find best sets ATT_ROLL DEF_ROLL]}
+ result: 0
+}
+
+\************************************************************************\
+\PD, ATT_TARGET, A_DICES_MODS, A_VALUES_MODS, A_TARGET_MODS, RD, DEF_TARGET, D_DICES_MODS, D_VALUES_MODS, D_TARGET_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {4,5,  0,0,0,   3,6,  0,0,0,   5, 5, 1}      \Mono, No Armor, Nurgling, Grind Teeth\
+B: {8,2,  0,0,0,   3,3,  0,0,0,   30, 9, 1}       \Mono, Light Armor, Sniper, Knife\
+C: {8,3,  0,0,0,   11,5,  0,0,0,   80, 4, 4}     \Multi, Light Armor, Swords Squad, Swords\
+D: {10,4,  0,0,0,   8,5,  0,0,0,   90, 5, 4}     \Multi, Heavy Armor, Shotguns, HandPunchs\
+E: {12,5,  0,0,0,   3,4,  0,0,0,   80, 9, 1}      \Mono, Tank, Wooden Bow, TankFront\
+F: {16,3,  0,0,0,   16,3,  0,0,0,   50, 3, 1}      \Mono, Titan, DoomLaser, EarthBreaker\
+\************************************************************************\
+\
+output [phaseone A A] named "lone Nurgling VS lone Nurgling"
+output [phaseone A B] named "lone Nurgling VS lone Sniper"
+output [phaseone A C] named "lone Nurgling VS Swords Squad"
+output [phaseone A D] named "lone Nurgling VS Heavy Squad"
+output [phaseone A E] named "lone Nurgling VS Tank"
+output [phaseone A F] named "lone Nurgling VS Titan"
+
+output [phaseone F F] named "Titan VS Titan"
+output [phaseone F E] named "Titan VS Tank"
+output [phaseone F D] named "Titan VS Heavy Squad"
+output [phaseone F C] named "Titan VS Swords Squad"
+output [phaseone F B] named "Titan VS lone Sniper"
+output [phaseone F A] named "Titan VS lone Nurgling"
+\
+
+output [phaseone A A] named "lone Nurgling VS lone Nurgling"
+output [lowest 4 of 5d(d6>=4)] > [lowest 4 of 4d(d6>=4)]
+
+
+SUM: 2d6
+POOL: 9
+KEEP: 8
+
+\loop T over {2..6}{
+output KEEPd(d6>=T)+SUM named "[KEEP]d6 then T on [T]+, without H/L"
+output [highest KEEP of POOLd(d6>=T)]+SUM named "[POOL]d6, H[KEEP] then T on [T]+"
+output [lowest  KEEP of POOLd(d6>=T)]+SUM named "[POOL]d6, L[KEEP] then T on [T]+"
+}\
+
+

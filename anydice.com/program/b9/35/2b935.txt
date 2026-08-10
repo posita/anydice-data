@@ -1,0 +1,92 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+\attack simulates the average damage of an attack in D&D 5e\
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+\attackcrange accommodates for edge cases with the customization of hit damage effects, miss effects, critical hit damage effects, and expanded critical hit range\
+function: attackcrange ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+\reroll replaces the result of a given DIE (any die) with a given minimum (MIN) if the result is lower than the given minimum\
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+\lucky simulates using the Lucky feat on an attack roll. LUCKY always picks the highest die.\
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+output [attackcrange 1d20 plus 1 vs ac 10
+	hit 2d[reroll 1d6 as 1d6 if less than 3] + 7 + [attackcrange 1d20 plus 1 vs ac 10
+		hit 2d[reroll 1d6 as 1d6 if less than 3] + 4
+		miss 0
+		crit 4d[reroll 1d6 as 1d6 if less than 3] + 4 + [attack 1d20 plus 1 vs ac 10 for 2d[reroll 1d6 as 1d6 if less than 3] plus 4]
+		crange 20]
+	miss 0 + [attackcrange 1d20 plus 1 vs ac 10
+		hit 2d[reroll 1d6 as 1d6 if less than 3] + 7
+		miss 0
+		crit 4d[reroll 1d6 as 1d6 if less than 3] + 7 + [attack 1d20 plus 1 vs ac 10 for 2d[reroll 1d6 as 1d6 if less than 3] plus 4]
+		crange 20]
+	crit 4d[reroll 1d6 as 1d6 if less than 3] + 7 + [attack 1d20 plus 1 vs ac 10 for 2d[reroll 1d6 as 1d6 if less than 3] plus 4] + [attackcrange 1d20 plus 1 vs ac 10
+		hit 2d[reroll 1d6 as 1d6 if less than 3] + 4
+		miss 0
+		crit 4d[reroll 1d6 as 1d6 if less than 3] + 4
+		crange 20]
+	crange 20]
+named "Greatsword FS:GWF, GWM +4 level 5"
+
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 4] named "Hand Crossbow Juggle FS:Archery, CBX +4 level 5"
+
+output [attackcrange [highest 1 of 2d20] plus 1 vs ac 10
+	hit 2d[reroll 1d6 as 1d6 if less than 3] + 7 + [attackcrange [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d[reroll 1d6 as 1d6 if less than 3] + 4
+		miss 0
+		crit 4d[reroll 1d6 as 1d6 if less than 3] + 4 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d[reroll 1d6 as 1d6 if less than 3] plus 4]
+		crange 20]
+	miss 0 + [attackcrange [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d[reroll 1d6 as 1d6 if less than 3] + 7
+		miss 0
+		crit 4d[reroll 1d6 as 1d6 if less than 3] + 7 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d[reroll 1d6 as 1d6 if less than 3] plus 4]
+		crange 20]
+	crit 4d[reroll 1d6 as 1d6 if less than 3] + 7 + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d[reroll 1d6 as 1d6 if less than 3] plus 4] + [attackcrange [highest 1 of 2d20] plus 1 vs ac 10
+		hit 2d[reroll 1d6 as 1d6 if less than 3] + 4
+		miss 0
+		crit 4d[reroll 1d6 as 1d6 if less than 3] + 4
+		crange 20]
+	crange 20]
+named "Greatsword FS:GWF, GWM +4 level 5 ADV"
+
+output [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 4] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 4] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 4] named "Hand Crossbow Juggle FS:Archery, CBX +4 level 5 ADV"
+
+output [attack 1d20 plus 1 vs ac 10 for 2d6 plus 6] + [attack 1d20 plus 1 vs ac 10 for 2d6 plus 6] + [attack 1d20 plus 1 vs ac 10 for 2d6 plus 6] named "Double shortsword FS:Dueling, FS TWF, Hunter's Mark +4 level 5"
+
+output [attack 1d20 plus 3 vs ac 10 for 2d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 2d6 plus 4] + [attack 1d20 plus 3 vs ac 10 for 2d6 plus 4] named "Hand Crossbow Juggle FS:Archery, CBX, Hunter's Mark +4 level 5"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 6] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 2d6 plus 6] named "Double shortsword FS:Dueling, FS TWF, Hunter's Mark +4 level 5"
+
+output [attack [highest 1 of 2d20] plus 3 vs ac 10 for 2d6 plus 4] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 2d6 plus 4] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 2d6 plus 4] named "Hand Crossbow Juggle FS:Archery, CBX, Hunter's Mark +4 level 5 ADV"

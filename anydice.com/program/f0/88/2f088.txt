@@ -1,0 +1,39 @@
+function: sample ROLL:s with TN:n and ARMTN:n {
+  \ Count hits for dices above TN \
+  HITS: ROLL > TN
+
+  \ Add 1 hit for each 6 \
+  HITS: HITS + [count 6 in ROLL]
+
+  \ Subtract 1 hit for each 1 \
+  HITS: HITS - [count 1 in ROLL]
+
+  \ If the sum of dices is <= ARMTN then subtract 1 hit \
+  HITS: HITS - ((ROLL + 0) <= ARMTN) 
+
+  \ Clamp negative hits to 0 \
+  if HITS < 0 {
+    HITS: 0
+  }
+
+
+  result: HITS
+}
+
+function: best of ROLL:s with TN:n and ARMTN:n {
+  SAMPLED_ROLL: [sort ROLL]
+  result: [sample {1@SAMPLED_ROLL, 2@SAMPLED_ROLL, 3@SAMPLED_ROLL} with TN and ARMTN]
+}
+
+function: worst of ROLL:s with TN:n and ARMTN:n {
+  SAMPLED_ROLL: [sort ROLL]
+  SAMPLED_ROLL: [reverse SAMPLED_ROLL]
+  result: [sample {1@SAMPLED_ROLL, 2@SAMPLED_ROLL, 3@SAMPLED_ROLL} with TN and ARMTN]
+}
+
+\ ------------------------------------------------------------------------------------------------------ \
+
+TN: 0
+ARMTN: 3
+
+output [best of 3d6 with TN and ARMTN] named "Hits"

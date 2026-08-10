@@ -1,0 +1,78 @@
+function: modifier POINT:n {
+ MOD: 0
+ SEQ: {1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153, 171, 190, 210, 231, 253, 276, 300, 325, 351, 378, 406, 435, 465, 496, 528, 561, 595, 630, 666}
+ loop N over SEQ {
+  if POINT < N { result: MOD}
+  MOD: MOD + 1
+}
+result: MOD
+} 
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+GRAZE: 1
+WOUND: 2
+INJURY: 3
+DEATH: 4
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage DMG_ROLL:n vs TOUGH:n {
+  VALUE: -1
+  if (DMG_ROLL - TOUGH < 1 ) {VALUE: MISS } 
+  if (DMG_ROLL - TOUGH >= 1) {VALUE: GRAZE}
+  if (DMG_ROLL - TOUGH >= 5) {VALUE: WOUND}
+  if (DMG_ROLL - TOUGH >= 10) {VALUE: INJURY}
+  if (DMG_ROLL - TOUGH >= 15) {VALUE: DEATH}
+  result: VALUE
+}
+
+
+INQR_L: 5
+BMGE_L: 0 
+
+STR_VALUE: 3 + 0 + 0 + 1*INQR_L + 1*BMGE_L  
+AGI_VALUE: 3 + 0 + 0 + 0*INQR_L + 1*BMGE_L
+END_VALUE: 3 + 2 + 2 + 1*INQR_L + 0*BMGE_L
+INT_VALUE: 3 + 0 + 1 + 1*INQR_L + 0*BMGE_L
+LOG_VALUE: 3 + 0 + 0 + 0*INQR_L + 1*BMGE_L
+WIL_VALUE: 3 + 1 + 1 + 1*INQR_L + 0*BMGE_L
+CHA_VALUE: 3 + 0 + 0 + 0*INQR_L + 0*BMGE_L
+MAG_VALUE: 0 + 0 + 0 + 1*INQR_L + 1*BMGE_L
+VIT_VALUE: END_VALUE + WIL_VALUE + MAG_VALUE
+
+STR_MOD: [modifier STR_VALUE]
+AGI_MOD: [modifier AGI_VALUE]
+END_MOD: [modifier END_VALUE]
+INT_MOD: [modifier INT_VALUE]
+LOG_MOD: [modifier LOG_VALUE]
+WIL_MOD: [modifier WIL_VALUE]
+CHA_MOD: [modifier CHA_VALUE]
+VIT_MOD: [modifier VIT_VALUE]
+
+SOAK: 6
+TOUGH_MOD: VIT_MOD + SOAK
+ARMOR: 0
+SKILL_DIFF: 0
+DEFENSE: 10+[maximum of {STR_MOD, AGI_MOD}] + ARMOR + SKILL_DIFF 
+ATTK_MOD: STR_MOD    
+
+loop AC over {0..10} {
+ \ output [attack 1d20+ATTK_MOD+AC vs DEFENSE] named "Hit" \
+    output [damage 7d5+ATTK_MOD+AC vs 1d20+TOUGH_MOD] named "Damage"
+}
+
+
+
+

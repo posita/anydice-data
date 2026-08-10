@@ -1,0 +1,57 @@
+function: damage for attack ATTACK:s size ATKSIZE:n miss MISS:s aim AIM:n vs defense DEFENSE:s size DEFSIZE:n dodge DODGE:n {
+  MODDEDATTACK:  [maximize AIM dice of ATTACK to ATKSIZE avoid MISS]
+  MODDEDATTACK:  [remove MISS from MODDEDATTACK]
+  MODDEDDEFENSE: [maximize DODGE dice of DEFENSE to DEFSIZE avoid {}]
+  result:        [calculate damage MODDEDATTACK vs MODDEDDEFENSE]
+}
+
+function: maximize X:n dice of ROLL:s to MAX:n avoid MISS:s {
+  BESTDIE: [get best die with max size MAX avoid MISS]
+  R: {}
+  STARTINDEX: #ROLL - (X-1)
+  loop P over {1..#ROLL} {
+    N: P@ROLL
+    if ( [MISS contains N] & (STARTINDEX <= #ROLL) ) {
+      N: BESTDIE
+      STARTINDEX: STARTINDEX + 1
+    }
+    else if ( P >= STARTINDEX ) { N: BESTDIE }
+    R: {R, N}
+  }
+  result: R
+}
+
+function: get best die with max size MAX:n avoid MISS:s {
+  BESTDIE: MAX
+  if ( [MISS contains BESTDIE] ){
+    BESTDIE: [get best die with max size (MAX-1) avoid MISS]
+  }
+  result: BESTDIE
+}
+
+function: remove MISS:s from ROLL:s {
+  R: {}
+  loop P over {1..#ROLL}{
+    N: P@ROLL
+    if ![MISS contains N]{ R: {R, N} }
+  }
+  result: R
+}
+
+function: calculate damage ATKROLL:s vs DEFROLL:s {
+  UNBLOCKED: 0
+  D: 1
+  loop A over {1..#ATKROLL}{
+    ATK: A@ATKROLL
+    DEF: D@DEFROLL
+    if (D > #DEFROLL) | (ATK > DEF) {
+      UNBLOCKED: UNBLOCKED + 1
+    }
+    else{
+      D: D + 1
+    }
+  }
+  result: UNBLOCKED
+}
+
+output [damage for attack 3d6 size 6 miss {1,6} aim 1 vs defense 3d6 size 6 dodge 1]

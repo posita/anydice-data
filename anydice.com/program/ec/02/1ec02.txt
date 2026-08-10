@@ -1,0 +1,150 @@
+AUTHOR: Slaktarfisken
+VERSION: 2020-11-12.1
+
+
+TODOO:
+- Make feats that give attack bonus "toggleable" in PARAMETER SETTING"
+- Incorporate Remarkable Athlete form Champion and similar abilities if any
+
+
+
+
+TRUE:1
+FALSE:0
+
+
+\#####################                     PARAMETER SETTINGS              ################################\
+\##################### CHANGE THESE PARAMETERS ACCORDING TO YOUR CHARACTER ################################\
+
+
+                          LVL:  2                       \Character LVL\
+                          STR: 14                       \Character Strength score\
+                          DEX: 14                       \Character Dexterity score\
+                          CON: 16                       \Character Constitution score\
+                          INT: 9                        \Character Intelligence score\
+                          WIS: 14                       \Character Wisdom score\
+                          CHA: 8                        \Character Charisma score\
+                          HD: d8                        \Characters HIGHEST hit dice\
+                      ATTACK: DEX                       \Weapon Attack Ability Modifier\
+                      WEAPON: TRUE                      \Proficiency in Weapon\
+                  BACKGROUND: TRUE                      \Relevant Background\
+                     ATHLETICS: {TRUE, TRUE}              \{PROFICIENCY, EXPERTICE} in Athletics\
+                  ACROBATICS: {TRUE, TRUE}              \{PROFICIENCY, EXPERTICE} in Acrobatics\
+       FEATS_BONUS_TO_ATTACK: 0                         \SUM of Bonus to Attack From Class/Race/Feats\
+
+
+
+
+
+
+\############### FUNCTIONS AND HELPER VARIBLES########################\
+\################### DO NOT TOUCH BELOW ##############################\
+
+
+\calculate ability modifier
+@param ABILITY: ability score of character
+@result: Ability modifier\
+function: ABILITY:n modifier {
+ if ABILITY = 9 {result: -1}
+ if ABILITY = 7 {result: -2}
+ if ABILITY = 5 {result: -3}
+ if ABILITY = 3 {result: -4}
+ if ABILITY = 1 {result: -5}
+ result: (ABILITY - 10)/2
+}
+
+\Calculate rank based of LVL
+@result: Characters Rank\
+function: rank {
+ if LVL > 19 {result: 7}
+ if LVL > 14 {result: 6}
+ if LVL > 10 {result: 5}
+ if LVL > 7 {result: 4}
+ if LVL > 4 {result: 3}
+ if LVL > 2 {result: 2}
+ result: 1
+}
+
+
+\Calculate Proficiency bonus
+@param PROF: Ability or WEAPON proficiency to calculate
+@result: If not proficient return 0
+         If proficient return modifier dependent on level\
+function: if prof in PROF:s{
+ if #PROF < 1 {result: 0}
+ if #PROF > 3 {result: 0}
+ if !(1@PROF) {result: 0}
+ if 1 <= LVL < 5 {result: 2}
+ if 5 <= LVL < 9 {result: 3}
+ if 9 <= LVL < 13 {result: 4}
+ if 13 <= LVL < 17 {result: 5}
+ if 17 <= LVL < 21 {result: 6}
+}
+
+\Calculate ecpertice bonus
+@param PROF: Ability expertice to calculate
+@result: If not Expertice return 0
+         If Expertise call [if prof in ?]\
+function: if exp in EXP:s{
+ if #EXP = 1 {result: 0}
+ if !(2@EXP) {result: 0}
+ result: [if prof in EXP]
+}
+
+
+\Calculate Modifiers for checks\
+
+ATH_MODIFIERS:([STR modifier] + [if prof in ATHLETICS] + [if exp in ATHLETICS] + BACKGROUND)
+ACR_MODIFIERS:([DEX modifier] + [if prof in ACROBATICS] + [if exp in ACROBATICS] + BACKGROUND)
+CON_MODIFIERS:(HD + [CON modifier] + BACKGROUND)
+WEAPON_MODIFIERS:([ATTACK modifier] + [if prof in WEAPON] + BACKGROUND)
+
+\Create Check DICE\
+
+ATH: d20 + ATH_MODIFIERS
+ACR: d20 + ACR_MODIFIERS
+CON: d20 + CON_MODIFIERS
+WEAPON: d20 + WEAPON_MODIFIERS
+
+\Create DC dice\
+DC: [highest 3 of 4d8] + [rank]
+
+
+
+\Check if A is lower than B
+@param A: A value
+@Param B: A value
+@result: return 0 if false and 1 if true\
+function: is A:n lower than B:n {
+ if A < B {result:1}
+ result: 0
+}
+
+
+
+\Create weight coin flips for each check\
+ATH_C: [is DC lower than ATH]
+ACR_C: [is DC lower than ACR]
+CON_C: [is DC lower than CON]
+WEAPON_C: [is DC lower than WEAPON]
+
+\sum the number of successes
+@param A: Check one
+@param B: Check two
+@param C: Check three\
+@result: return number of successes
+function: how many of A:n B:n and C:n succeed {
+ R: 0
+ if A {R: R + 1}
+ if B {R: R + 1}
+ if C {R: R + 1}
+ result: R
+}
+
+output [how many of ATH_C ACR_C and CON_C succeed] named "ATHLETICS, ACROBATIC, CONSTITUTION"
+output [how many of ATH_C ACR_C and WEAPON_C succeed] named "ATHLETICS, ACROBATIC, WEAPON"
+output [how many of ATH_C WEAPON_C and CON_C succeed] named "ATHLETICS, WEAPON, CONSTITUTION"
+output [how many of WEAPON_C ACR_C and CON_C succeed] named "WEAPON, ACROBATIC, CONSTITUTION"
+
+
+

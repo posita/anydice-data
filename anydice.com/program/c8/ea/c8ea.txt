@@ -1,0 +1,45 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL < 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+function: savage DIE:d {
+  result: [reroll DIE as DIE if under 2]
+}
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL <= LIMIT { result: DIE }
+  else { result: ROLL }
+}
+
+ATTACK: 5
+HITDAMAGE: 2d4+3+d{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8} 
+CRITICALDAMAGE: 4d4+3+2d{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8}
+MISSDAMAGE: 0
+loop AC over {10..20} {
+output [damage for [attack d20 vs AC]] named "[AC]"
+}
+
+
+
+
+

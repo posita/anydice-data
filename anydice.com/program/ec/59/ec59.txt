@@ -1,0 +1,68 @@
+DEFENSE: 0
+LEVEL: 5
+WEAPON_DICE: 1d8
+WEAPON_NUMBER: 1
+OTHER_DAMAGE_MOD: 2
+OTHER_DAMAGE_DICE: 0
+CRIT_RANGE: 20
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+SAVAGE: 0
+
+MOD: 3
+MAGIC: 0
+PROF: (LEVEL+7)/4
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackadv ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack NORMAL_HIT vs DEFENSE]]
+}
+
+function: attackadv {
+ result: [damage for [attackadv HIT_ADV vs DEFENSE]]
+}
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_NUMBERdWEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBERdWEAPON_DICE) + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE + SAVAGEdWEAPON_DICE
+MISSDAMAGE: 0
+output [attack] named "Normal"
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_NUMBERdWEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBERdWEAPON_DICE) + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE + SAVAGEdWEAPON_DICE
+MISSDAMAGE: 0
+output [attackadv] named "Adv Normal"

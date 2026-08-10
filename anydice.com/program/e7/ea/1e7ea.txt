@@ -1,0 +1,936 @@
+AC:               19  \ target AC: attack hits if ATK + all mods >= AC \
+LEVEL:            20  \ character's level, can be used for some formulas \
+ATK:            1d20  \ attack roll: use 1@2d20 for advantage or 2@2d20 for disadvantage \
+ATKABILITY:        5  \ bonus to attack and damage contributed by ability score modifier \
+PROFBONUS:         6  \ proficiency bonus added to attack roll and some damage rolls \
+ATKMOD:            0  \ modifier, either positive or negative, to attack rolls for base and bonus attacks \
+MAGICBONUS:        0  \ bonus from magical weapons, usually +1-3 \
+CRIT:             20  \ minimum attack roll to crit \
+CRITMULTI:         2  \ number of times to roll damage dice on a crit \
+DMG:               0  \ weapon damage die rolled on successful hit for base attacks \
+BONUSDMG:          0  \ weapon damage die rolled on successful hit for bonus attacks \
+DMGMODS:           0  \ integer modifiers added to damage rolls for base attacks \
+BONUSDMGMODS:      0  \ integer modifiers added to damage rolls for bonus attacks \
+DMGADDLDICE:       0  \ extra dice added on top of DMG to each damage roll \
+BONUSDMGADDLDICE:  0  \ extra dice added on top of DMG to each damage roll for bonus attacks \
+DMGOPTDICE:        0  \ extra dice added on top of total damage once per turn \
+DMGOPTMODS:        0  \ integer modifiers added to total damage once per turn \
+CRITDMGDICE:       0  \ bonus damage dice added when you trigger a critical hit (damage is doubled) \
+CRITDMGMODS:       0  \ integer modifiers added to critical hits \
+CRITOPTDICE:       0  \ once per turn, bonus damage dice added when you trigger a critical hit (damage is doubled) \
+CRITOPTMODS:       0  \ once per turn, integer modifiers added to critical hits \
+RAGEDMGMOD:        4  \ bonus damage from rage for barbarians \
+CHAMPIONCRIT:     17  \ champions score a critical hit on a roll of this or higher \
+KENSEIACCURACY:    0  \ rerolls the first missed attack if set to 1 \
+MASTRIKES:         0  \ number of monk's unarmed strikes, adds extra attacks with separate rules \
+MADMG:             0  \ the damage dice that are used when making monk unarmed strikes \
+MADMGMODS:         0  \ the integer modifiers that are added to monk unarmed strikes, unaffected by critical hits \
+MARTIALARTSDIE: 1d10  \ the die that determines monk's damage with weapons and unarmed strikes \
+IMPDSDMG:        1d8  \ the extra damage from paladin's improved divine smite \
+SMITEDMG:        5d8  \ the extra damage added by paladin's divine smite \
+SCAGTRIPDMG:     3d8  \ the extra damage dealt by using a SCAGtrip (Green-Flame Blade, Booming Blade) \
+SNEAKDICE:      10d6  \ the extra dice rolled for rogue's sneak attack \
+LIFEDRINKINVO:     1  \ for warlock - 1 if lifedrinker is on, 0 if lifedrinker is off \
+BRUTALMULTI:       3  \ number of barbarian's brutal critical dice \
+BRUTALDIE:         0  \ die that is rolled for barbarian's brutal critical for base attacks \
+BONUSBRUTALDIE:    0  \ die that is rolled for barbarian's brutal critical for bonus attacks \
+GWMASTER:          0  \ grants a bonus attack on a base attack crit which overrides other bonus attacks \
+
+set "maximum function depth" to 20
+
+function: attackroll ROLL:n {
+	\ return the number of times damage is applied on an attack roll of ROLL \
+	if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+	if ROLL >= CRIT { result: CRITMULTI }  \ critical hit multiplies damage dice \
+	result: ROLL + ATKABILITY + PROFBONUS + ATKMOD + MAGICBONUS >= AC
+}
+
+ATKRESULT: [attackroll ATK]  \ optimization: precalculate the miss/hit/crit probabilities \
+BONUSATKRESULT: [attackroll ATK] \ allows for different attack mod for TWF attacks \
+MAATKRESULT: [attackroll ATK] \ allows for different attack mod for monk martial arts attacks \
+
+function: baseattack N:n times and bonusattack M:n times {
+	result: [roll ATKRESULT to baseattack N times and bonusattack M times]
+}
+
+function: roll BASEDMGMULTI:n to baseattack N:n times and bonusattack M:n times {
+	ATKS: N
+	BATKS: M
+	TOTALDMG: 0
+	GWMATK: 0
+	if ATKS > 0 {
+		if BASEDMGMULTI > 0 {
+			if BASEDMGMULTI > 1 {
+				if GWMASTER > 0 & GWMATK < 1 { 
+					GWMATK: 1
+                                        ATKS: ATKS + 1
+				}
+				TOTALDMG: TOTALDMG + BASEDMGMULTI d (CRITOPTDICE) + [lowest of 1 and BASEDMGMULTI] * (CRITOPTMODS)
+			}
+			TOTALDMG: TOTALDMG + BASEDMGMULTI d (DMGOPTDICE) + [lowest of 1 and BASEDMGMULTI] * (DMGOPTMODS)
+		} else if KENSEIACCURACY > 0 {
+                        ATKS: ATKS + 1
+                }
+		loop I over {1..ATKS} {
+			TOTALDMG: TOTALDMG + [roll ATKRESULT to baseattack]
+		}
+	}
+	if BATKS > 0 {
+		if GWMATK < 1 {
+			loop I over {1..BATKS} {
+				TOTALDMG: TOTALDMG + [roll BONUSATKRESULT to bonusattack]
+			}
+		}
+	}
+        if MASTRIKES > 0 {
+                loop I over {1..MASTRIKES} {
+                        TOTALDMG: TOTALDMG + [roll MAATKRESULT to maattack]
+                }
+        }
+	result: TOTALDMG
+}
+
+function: roll ATKDMGMULTI:n to baseattack {
+	ATKTOTALDMG: 0
+	if ATKDMGMULTI > 0 {
+		if ATKDMGMULTI > 1 {
+			ATKTOTALDMG: ATKTOTALDMG + ATKDMGMULTI d (CRITDMGDICE) + [lowest of 1 and ATKDMGMULTI] * (CRITDMGMODS) + MAGICBONUS + BRUTALMULTI d BRUTALDIE
+		}
+		ATKTOTALDMG: ATKTOTALDMG + ATKDMGMULTI d (DMG + DMGADDLDICE) + [lowest of 1 and ATKDMGMULTI] * (DMGMODS)
+	}
+	result: ATKTOTALDMG
+}
+
+function: roll BONUSDMGMULTI:n to bonusattack {
+	BONUSTOTALDMG: 0
+        if BONUSDMGMULTI > 0 {
+	        if BONUSDMGMULTI > 1 {
+		        BONUSTOTALDMG: BONUSTOTALDMG + BONUSDMGMULTI d CRITDMGDICE + [lowest of 1 and BONUSDMGMULTI] * CRITDMGMODS + MAGICBONUS + BRUTALMULTI d BONUSBRUTALDIE
+	        }
+	        BONUSTOTALDMG: BONUSTOTALDMG + BONUSDMGMULTI d (BONUSDMG + BONUSDMGADDLDICE) + [lowest of 1 and BONUSDMGMULTI] * (BONUSDMGMODS)
+        }
+	result: BONUSTOTALDMG
+}
+
+function: roll MADMGMULTI:n to maattack {
+	MATOTALDMG: 0
+        if MADMGMULTI > 0 {
+	        if MADMGMULTI > 1 {
+		        MATOTALDMG: MATOTALDMG + MADMGMULTI d CRITDMGDICE + [lowest of 1 and MADMGMULTI] * CRITDMGMODS
+	        }
+	        MATOTALDMG: MATOTALDMG + MADMGMULTI d (MADMG) + [lowest of 1 and MADMGMULTI] * (MADMGMODS)
+        }
+	result: MATOTALDMG
+}
+
+function: reroll NEWDIE:d for ORIGDIE:n { \ Great Weapon Fighting damage die rerolls on 1 or 2 \
+	if ORIGDIE <= 2 { result: NEWDIE }
+	result: ORIGDIE
+}
+
+output 0 named "-------------------------------------------------- BARBARIAN ATTACKS --------------------------------------------------"
+
+ATK: 1@2d20
+ATKABILITY: ATKABILITY + 2
+CRIT: 20
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: ATKABILITY + RAGEDMGMOD
+BONUSDMGMODS: RAGEDMGMOD
+DMGADDLDICE: 0
+BONUSDMGADDLDICE: 0
+DMTOPTDICE: 0
+DMGOPTMODS: 0
+CRITDMGDICE: 0
+CRITDMGMODS: 0
+CRITOPTDICE: 0
+CRITOPTMODS: 0
+BRUTALDIE: 1d6
+BONUSBRUTALDIE: 1d6
+
+output [baseattack 3 times and bonusattack 0 times] named "[L20 Bar] (PHB TWF - 0 Feats) 2 1H attacks, 1 Tiger totem attack @ 1d6 + STR + Rage damage - +13 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion"
+
+output [baseattack 3 times and bonusattack 1 times] named "[L20 Bar] (MMFS TWF - 0 Feats) 2 1H attacks, 1 Tiger totem attack @ 1d6 + STR + Rage damage - 1 TWF attack @ 1d6 + Rage damage - +13 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion"
+
+DMG: 1d8
+BONUSDMG: 1d8
+BRUTALDIE: 1d8
+BONUSBRUTALDIE: 1d8
+
+output [baseattack 3 times and bonusattack 0 times] named "[L20 Bar] (PHB TWF - 1 Feat) 2 1H attacks, 1 Tiger totem attack @ 1d8 + STR + Rage damage - +13 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion, Dual Wielder"
+
+DMG: 1d6
+BONUSDMG: 1d6
+BRUTALDIE: 1d6
+BONUSBRUTALDIE: 1d6
+
+output [baseattack 3 times and bonusattack 2 times] named "[L20 Bar] (MMFS TWF - 1 Feat) 2 1H attacks, 1 Tiger totem attack @ 1d6 + STR + Rage damage - 2 TWF attacks @ 1d6 + Rage damage - +13 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion, Two Weapon Master"
+
+DMG: 1d10
+BONUSDMG: 1d4
+BONUSDMGADDLDICE: d0
+DMGMODS: ATKABILITY + RAGEDMGMOD
+BONUSDMGMODS: ATKABILITY + RAGEDMGMOD
+BRUTALDIE: 1d10
+BONUSBRUTALDIE: 1d4
+
+output [baseattack 3 times and bonusattack 0 times] named "[L20 Bar] (PHB PAM - 1 Feat) 2 2H attacks, 1 Tiger totem attack @ 1d10 + STR + Rage - +13 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Primal Champion, Polearm Master"
+
+BONUSDMG: 1d0
+BONUSDMGMODS: 1 + ATKABILITY + RAGEDMGMOD
+BONUSBRUTALDIE: 1d0
+
+output [baseattack 3 times and bonusattack 1 times] named "[L20 Bar] (MMFS FS - 1 Feat) 2 2H attacks, 1 Tiger totem attack @ 1d10 + STR + Rage - 1 FS attack @ 1 + STR + Rage - +13 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion, Flowing Stance"
+
+ATKMOD: -5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+BONUSDMG: 1d4
+DMGMODS: ATKABILITY + RAGEDMGMOD + 10
+BONUSDMGMODS: ATKABILITY + RAGEDMGMOD + 10
+BONUSBRUTALDIE: 1d4
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Bar] (PHB GWM/PAM - 2 Feats) 2 2H attacks (+1 BA attack on crit) @ 1d10 + STR + Rage - 1 PAM attack @ 1d4 + STR + Rage - +8 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Primal Champion, Great Weapon Master, Polearm Master"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 2d6
+BONUSDMG: 2d6
+DMGMODS: ATKABILITY + RAGEDMGMOD
+BONUSDMGMODS: ATKABILITY + RAGEDMGMOD
+BRUTALDIE: 1d6
+GWMASTER: 0
+
+output [baseattack 3 times and bonusattack 0 times] named "[L20 Bar] (PHB GWF - 0 Feats) 2 2H attacks, 1 Tiger totem attack @ 2d6 + STR + Rage damage - +13 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion"
+
+ATKMOD: -5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + RAGEDMGMOD + 10
+BONUSDMGMODS: ATKABILITY + RAGEDMGMOD + 10
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Bar] (PHB GWM - 1 Feat) 2 2H attacks, 1 Tiger totem attack @ 2d6 + STR + Rage + 10 damage - +8 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion, Great Weapon Master"
+
+ATKMOD: - 3
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + RAGEDMGMOD
+BONUSDMGMODS: ATKABILITY + RAGEDMGMOD
+DMGOPTDICE: DMG
+DMGOPTMODS: ATKABILITY + PROFBONUS + LEVEL
+GWMASTER: 1
+
+output [baseattack 1 times and bonusattack 1 times] named "[L20 Bar] (MMFS GWM - 1 Feat) 1 2H attack @ 4d6 + 2xSTR + Rage + ProfBonus + Level, 1 Tiger totem attack @ 2d6 + STR + Rage - +10 vs AC 19 - Rage, Reckless Attack, Brutal Critical, Totemic Attunement: Tiger, Primal Champion, Great Weapon Master"
+
+output 0 named "-------------------------------------------------- FIGHTER ATTACKS --------------------------------------------------"
+
+ATK: 1d20
+ATKABILITY: ATKABILITY - 2
+ATKMOD: 0
+CRIT: CHAMPIONCRIT
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGADDLDICE: 0
+BONUSDMGADDLDICE: 0
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+CRITDMGDICE: 0
+CRITDMGMODS: 0
+CRITOPTDICE: 0
+CRITOPTMODS: 0
+BRUTALMULTI: 0
+BRUTALDIE: 0
+BONUSBRUTALDIE: 0
+GWMASTER: 0
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (PHB TWF - 0 Feats) 4 1H attacks @ 1d6 + STR - 1 TWF attack @ 1d6 + STR - +11 vs AC 19 - Two Weapon Fighting Style, Superior Critical"
+
+DMG: 1d8
+BONUSDMG: 1d8
+DMGMODS: ATKABILITY + 1
+BONUSDMGMODS: 1
+
+output [baseattack 4 times and bonusattack 2 times] named "[L20 Fig] (MMFS TWF - 0 Feats) 4 1H attacks @ 1d8 + STR + 1 - 3 TWF attacks @ 1d8 + 1 - +11 vs AC 19 - Dual Wielding Style, Superior Critical"
+
+BONUSDMGMODS: ATKABILITY
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (PHB TWF - 1 Feat) 4 1H attacks @ 1d8 + STR - 1 TWF attack @ 1d8 + STR - +11 vs AC 19 - Two Weapon Fighting Style, Superior Critical, Dual Wielder"
+
+DMGMODS: ATKABILITY + 1
+BONUSDMGMODS: 1
+
+output [baseattack 4 times and bonusattack 4 times] named "[L20 Fig] (MMFS TWF - 1 Feat) 4 1H attacks @ 1d8 + STR + 1 - 4 TWF attacks @ 1d8 + 1 - +11 vs AC 19 - Dual Wielding Style, Superior Critical, Two Weapon Master"
+
+DMG: [reroll 1d10 for 1d10]
+BONUSDMG: [reroll 1d4 for 1d4]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (PHB PAM - 1 Feat) 4 d10 2H attacks - 1 PAM attack @ 1d4 + STR - +11 vs AC 19 - Great Weapon Fighting Style, Superior Critical, Polearm Master"
+
+ATKMOD: 1
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d10
+DMGMODS: ATKABILITY + 1
+
+output [baseattack 4 times and bonusattack 0 times] named "[L20 Fig] (MMFS SF - 0 Feats) 4 2H attacks @ 1d10 + STR + 1 - +13 vs AC 19 - Switch Fighting Style, Superior Critical"
+
+BONUSDMG: 1d0
+BONUSDMGMODS: 1 + ATKABILITY + 1
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (MMFS SF FS - 1 Feat) 4 2H attacks @ 1d10 + STR + 1, 1 FS attack @ 1 + STR + 1 - +13 vs AC 19 - Switch Fighting Style, Superior Critical, Flowing Stance"
+
+ATKMOD: -5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: [reroll 1d10 for 1d10]
+BONUSDMG: [reroll 1d4 for 1d4]
+DMGMODS: ATKABILITY + 10
+DMGMODS: ATKABILITY + 10
+GWMASTER: 1
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (PHB GWM/PAM - 2 Feats) 4 2H attacks (+1 BA attack on crit) @ 1d10 + STR, 1 PAM attack @ 1d4 + STR - +6 vs AC 19 - Great Weapon Fighting Style, Superior Critical, Great Weapon Master, Polearm Master"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: [reroll 1d6 for 1d6]+[reroll 1d6 for 1d6]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+GWMASTER: 0
+
+output [baseattack 4 times and bonusattack 0 times] named "[L20 Fig] (PHB GWF - 0 Feats) 4 2H attacks @ 2d6 + STR - +11 vs AC 19 - Great Weapon Fighting Style, Superior Critical"
+
+ATKMOD: -5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + 10
+BONUSDMGMODS: ATKABILITY + 10
+GWMASTER: 1
+
+output [baseattack 4 times and bonusattack 0 times] named "[L20 Fig] (PHB GWM - 1 Feat) 4 2H attacks (+1 BA attack on crit) @ 2d6 + STR + 10 - +6 vs AC 19 - Great Weapon Fighting Style, Superior Critical, Great Weapon Master"
+
+ATKMOD: -3
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGOPTDICE: 3 d DMG
+DMGOPTMODS: 3 * ATKABILITY + PROFBONUS + LEVEL
+GWMASTER: 1
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 Fig] (MMFS GWM - 1 Feat) 1 2H attack (+1 BA attack on crit) @ 8d6 + 4xStr + Level + ProfBonus damage - +8 vs AC 19 - Great Weapon Fighting Style, Superior Critical, Great Weapon Master"
+
+ATKMOD: 2
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d8
+DMGMODS: ATKABILITY
+DMGADDLDICE: 0
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+GWMASTER: 0
+
+output [baseattack 4 times and bonusattack 0 times] named "[L20 Fig] (PHB & MMFS Bow - 0 Feats) 4 2H attacks @ 1d8 + DEX - +13 vs AC 19 - Archery Style, Superior Critical"
+
+ATKMOD: 2 - 5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + 10
+
+output [baseattack 4 times and bonusattack 0 times] named "[L20 Fig] (PHB SS - 1 Feat) 4 2H attacks @ 1d8 + DEX + 10 - +8 vs AC 19 - Archery Style, Superior Critical, Sharpshooter"
+
+DMG: 1d6
+BONUSDMG: 1d6
+BONUSDMGMODS: ATKABILITY + 10
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (PHB SS - 2 Feats) 5 1H attacks @ 1d6 + DEX + 10 - +8 vs AC 19 - Archery Style, Superior Critical, Sharpshooter, Crossbow Expert"
+
+ATKMOD: 2 - 3
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d0
+DMGMODS: ATKABILITY + PROFBONUS + ATKRESULT * 8
+
+output [baseattack 4 times and bonusattack 0 times] named "[L20 Fig] (MMFS SS - 1 Feat) 4 2H attacks @ 8 + DEX + ProfBonus - +10 vs AC 19 - Archery Style, Superior Critical, Sharpshooter"
+
+DMG: 1d0
+BONUSDMG: 1d0
+DMGMODS: ATKABILITY + PROFBONUS + ATKRESULT * 6
+BONUSDMGMODS: ATKABILITY + PROFBONUS  + BONUSATKRESULT * 6
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (MMFS SS - 2 Feats) 5 1H attacks @ 6 + DEX + ProfBonus - +10 vs AC 19 - Archery Style, Superior Critical, Sharpshooter, Crossbow Expert"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+
+output [baseattack 4 times and bonusattack 1 times] named "[L20 Fig] (MMFS PUG - 0 Feats) 5 unarmed strikes @ 1d6 + STR - +11 vs AC 19 - Pugilism Style, Superior Critical"
+
+output 0 named "-------------------------------------------------- MONK ATTACKS --------------------------------------------------"
+
+ATK: 1d20
+ATKMOD: 3
+CRIT: 20
+ATKRESULT: [attackroll ATK]
+ATKMOD: 0
+BONUSATKRESULT: [attackroll ATK]
+MAATKRESULT: [attackroll ATK]
+DMG: [highest of 1d8 and MARTIALARTSDIE]
+BONUSDMG: MARTIALARTSDIE
+DMGMODS: ATKABILITY + 3
+BONUSDMGMODS: ATKABILITY
+DMGADDLDICE: 0
+BONUSDMGADDLDICE: 0
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+CRITDMGDICE: 0
+CRITDMGMODS: 0
+CRITOPTDICE: MARTIALARTSDIE
+CRITOPTMODS: 0
+KENSEIACCURACY: 1
+MASTRIKES: 1
+MADMG: MARTIALARTSDIE
+MADMGMODS: ATKABILITY
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Mon] (PHB - 0 Feats) 2 1H attacks @ 1d10 + DEX + 3 - 1 unarmed strike @ 1d10 + DEX - Once-per-turn 1d10 damage - +14/+11 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Martial Arts"
+
+MASTRIKES: 2
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Mon] (PHB - 0 Feats) 2 1H attacks @ 1d10 + DEX + 3 - 2 unarmed strikes @ 1d10 + DEX - Once-per-turn 1d10 damage -+14/+11 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Flurry of Blows"
+
+BONUSDMGMODS: 0
+MASTRIKES: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Mon] (MMFS TWF - 0 Feats) 2 1H attacks @ 1d10 + DEX + 3 - 1 TWF attack @ 1d10 - 1 unarmed strike @ 1d10 + DEX - +14/+11 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Martial Arts"
+
+MASTRIKES: 2
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Mon] (MMFS TWF - 0 Feats) 2 1H attacks @ 1d10 + DEX + 3 - 1 TWF attack @ 1d10 - 2 unarmed strikes @ 1d10 + DEX - +14/+11 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Flurry of Blows"
+
+MASTRIKES: 1
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Mon] (MMFS TWF - 1 Feat) 2 1H attacks @ 1d10 + DEX - 2 TWF attacks @ 1d10 + 3 - 1 unarmed strike @ 1d10 + DEX - +14/+11 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Martial Arts, Unerring Accuracy, Two Weapon Master"
+
+MASTRIKES: 2
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Mon] (MMFS TWF - 1 Feat) 2 1H attacks @ 1d10 + DEX - 2 TWF attacks @ 1d10 + 3 - 2 unarmed strikes @ 1d10 + DEX - +14/+11 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Flurry of Blows, Unerring Accuracy, Two Weapon Master"
+
+ATKMOD: 3
+BONUSATKRESULT: [attackroll ATK]
+BONUSDMG: 1d0
+BONUSDMGMODS: 1 + ATKABILITY + 3
+MASTRIKES: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Mon] (MMFS FS - 1 Feat) 2 1H attacks @ 1d10 + DEX + 3 - 1 FS attack @ 1 + DEX + 3 - 1 unarmed strike @ 1d10 + DEX - +14/+11 vs AC 19 - Martial Arts, Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Flowing Stance"
+
+MASTRIKES: 2
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Mon] (MMFS FS - 1 Feat) 2 1H attacks @ 1d10 + DEX + 3 - 1 FS attack @ 1 + DEX + 3 - 2 unarmed strikes @ 1d10 + DEX - +14/+11 vs AC 19 - Flurry of Blows, Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Flowing Stance"
+
+DMG: [highest of 1d8 and MARTIALARTSDIE]
+DMGADDLDICE: 1d4
+MASTRIKES: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Mon] (PHB & MMFS Bow - 0 Feats) 2 2H attacks @ 1d10 + DEX + 3 + 1d4 - +14 vs AC 19 - Kensei's Shot, Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy"
+
+ATKMOD: 3 - 5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + 3 + 10
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Mon] (PHB SS - 1 Feat) 2 1H attacks @ 1d10 + DEX + 3 + 1d4 + 10 - +9 vs AC 19 - Kensei's Shot, Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Sharpshooter"
+
+BONUSDMG: [highest of 1d8 and MARTIALARTSDIE]
+BONUSDMGMODS: ATKABILITY + 3 + 10
+DMGADDLDICE: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Mon] (PHB SS - 2 Feats) 3 1H attacks @ 1d10 + DEX + 3 + 10 - +9 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Sharpshooter, Crossbow Expert"
+
+ATKMOD: 3 - 3
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d0
+DMGMODS: ATKABILITY + 3 + PROFBONUS + ATKRESULT * 10
+DMGADDLDICE: d4
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Mon] (MMFS SS - 1 Feat) 2 1H attacks @ 10 + DEX + 3 + 1d4 + ProfBonus - +11 vs AC 19 - Kensei's Shot, Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Sharpshooter"
+
+BONUSDMG: 1d0
+BONUSDMGMODS: ATKABILITY + 3 + PROFBONUS + BONUSATKRESULT * 10
+DMGADDLDICE: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Mon] (MMFS SS - 2 Feats) 3 1H attacks @ 10 + DEX + 3 + ProfBonus - +11 vs AC 19 - Sharpen the Blade, Deft Strike (on crit only), Unerring Accuracy, Sharpshooter, Crossbow Expert"
+
+output 0 named "-------------------------------------------------- PALADIN ATTACKS --------------------------------------------------"
+
+ATK: 1d20
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: ATKABILITY
+BONUSDMGMODS: 0
+DMGADDLDICE: IMPDSDMG + 1d6
+BONUSDMGADDLDICE: IMPDSDMG + 1d6
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+CRITDMGDICE: SMITEDMG
+CRITDMGMODS: 0
+CRITOPTDICE: 0
+CRITOPTMODS: 0
+KENSEIACCURACY: 0
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Pal] (PHB & MMFS TWF - 0 Feats) 2 1H attacks @ 1d6 + STR + 1d8 + 1d6, 1 TWF attack @ 1d6 + 1d8 + 1d6 - +11 vs AC 19 - Hunter's Mark, Improved DS, 3rd-level Smite on crit"
+
+DMG: 1d8
+BONUSDMG: 1d8
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Pal] (PHB TWF - 1 Feat) 2 1H attacks @ 1d8 + STR + 1d8 + 1d6 - 1 TWF attack @ 1d8 + 1d8 + 1d6 - +11 vs AC 19 - Hunter's Mark, Improved DS, 3rd-level Smite on crit, Dual Wielder"
+
+DMG: 1d6
+BONUSDMG: 1d6
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Pal] (MMFS TWF - 1 Feat) 2 1H attacks @ 1d6 + STR + 1d8 + 1d6 - 2 TWF attacks @ 1d6 + 1d8 + 1d6 - +11 vs AC 19 - Hunter's Mark, Improved DS, 3rd-level Smite on crit, Two Weapon Master"
+
+DMG: [reroll 1d10 for 1d10]
+BONUSDMG: [reroll 1d4 for 1d4]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Pal] (PHB PAM - 1 Feat) 2 2H attacks @ 1d10 + STR + 1d8 + 1d6 - 1 PAM attack @ 1d4 + STR + 1d8 + 1d6 - +11 vs AC 19 - Great Weapon Fighting Style, Hunter's Mark, Improved DS, Polearm Master, 3rd-level Smite on crit"
+
+ATKMOD: 1
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d10
+DMGMODS: ATKABILITY + 1
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Pal] (MMFS SF - 0 Feats) 2 2H attacks @ 1d10 + STR + 1 + 1d8 + 1d6 - +12 vs AC 19 - Switch Fighting Style, Hunter's Mark, Improved DS, 3rd-level Smite on crit"
+
+BONUSDMG: 1d4
+BONUSDMGMODS: ATKABILITY + 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Pal] (MMFS SF FS - 1 Feat) 2 2H attacks @ 1d10 + STR + 1 + 1d8 + 1d6 - 1 FS attack @ 1 + STR + 1 + 1d8 + 1d6 - +12 vs AC 19 - Switch Fighting Style, Hunter's Mark, Improved DS, Flowing Stance, 3rd-level Smite on crit"
+
+ATKMOD: -5 + 1d4
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: [reroll 1d10 for 1d10]
+BONUSDMG: [reroll 1d4 for 1d4]
+DMGMODS: ATKABILITY + 10
+BONUSDMGMODS: ATKABILITY + 10
+DMGADDLDICE: IMPDSDMG
+BONUSDMGADDLDICE: IMPDSDMG
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Pal] (PHB GWM/PAM - 2 Feats) 2 2H attacks (+1 BA attack on crit) @ 1d10 + STR + 10 + 1d8 - 1 PAM attack @ 1d4 + STR + 10 + 1d8 - +6(1d4) vs AC 19 - Great Weapon Fighting Style, Bless, Improved DS, Great Weapon Master, Polearm Master, 3rd-level Smite on crit"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: [reroll 1d6 for 1d6]+[reroll 1d6 for 1d6]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGADDLDICE: IMPDSDMG + 1d6
+BONUSDMGADDLDICE: IMPDSDMG + 1d6
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Pal] (PHB GWF - 0 Feats) 2 2H attacks @ 2d6 + STR + 1d8 + 1d6 - +11 vs AC 19 - Great Weapon Fighting Style, Hunter's Mark, Improved DS, 3rd-level Smite on crit"
+
+ATKMOD: -5 + 1d4
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + 10
+BONUSDMGMODS: ATKABILITY + 10
+DMGADDLDICE: IMPDSDMG
+BONUSDMGADDLDICE: IMPDSDMG
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Pal] (PHB GWM - 1 Feat) 2 2H attacks (+1 BA attack on crit) @ 2d6 + STR + 10 + 1d8 - +6(1d4) vs AC 19 - Great Weapon Fighting Style, Bless, Improved DS, Great Weapon Master, 3rd-level Smite on crit"
+
+ATKMOD: -3 + 1d4
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGOPTDICE: DMG
+DMGOPTMODS: ATKABILITY + PROFBONUS + LEVEL
+GWMASTER: 1
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 Pal] (MMFS GWM - 1 Feat) 1 2H attack (+1 BA attack on crit) @ 4d6 + 2xSTR + ProfBonus + Level + 1d8 damage - +8(1d4) vs AC 19 - Great Weapon Fighting Style, Bless, Improved DS, Great Weapon Master, 3rd-level Smite on crit"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGADDLDICE: IMPDSDMG + 1d6
+BONUSDMGADDLDICE: IMPDSDMG + 1d6
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+GWMASTER: 0
+
+output [baseattack 3 times and bonusattack 0 times] named "[L20 Pal] (MMFS PUG - 0 Feats) 3 unarmed strikes @ 1d6 + STR + 1d8 + 1d6 - +11 vs AC 19 - Pugilism Style, Hunter's Mark, Improved DS, 3rd-level Smite on crit"
+
+output 0 named "-------------------------------------------------- RANGER ATTACKS --------------------------------------------------"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGADDLDICE: 1d6
+BONUSDMGADDLDICE: 1d6
+DMGOPTDICE: 1d8
+DMGOPTMODS: 5
+CRITDMGDICE: 0
+CRITDMGMODS: 0
+CRITOPTDICE: 0
+CRITOPTMODS: 0
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (PHB TWF - 0 Feats) 2 1H attacks, 1 TWF attack @ 1d6 + DEX + 1d6 - Once-per-turn 1d8 + WIS damage - +11 vs AC 19 - Two Weapon Fighting Style, Hex/H.M., Colossus Slayer, Foe Slayer"
+
+DMG: 1d8
+BONUSDMG: 1d8
+DMGMODS: ATKABILITY + 1
+BONUSDMGMODS: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (MMFS TWF - 0 Feats) 2 1H attacks @ 1d8 + DEX + 1 + 1d6 - 1 TWF attack @ 1d8 + 1 + 1d6 - Once-per-turn 1d8 + WIS damage - +11 vs AC 19 - Dual Wielding Style, Hex/H.M., Colossus Slayer, Foe Slayer"
+
+BONUSDMGMODS: ATKABILITY
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (PHB TWF - 1 Feat) 2 1H attacks, 1 TWF attack @ 1d8 + DEX + 1d6 - Once-per-turn 1d8 + WIS damage - +11 vs AC 19 - Two Weapon Fighting Style, Hex/H.M., Colossus Slayer, Foe Slayer"
+
+DMGMODS: ATKABILITY + 1
+BONUSDMGMODS: 1
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 Ran] (MMFS TWF - 1 Feat) 2 1H attacks @ 1d8 + DEX + 1 + 1d6 - 2 TWF attacks @ 1d8 + 1 + 1d6 - Once-per-turn 1d8 + WIS damage - +11 vs AC 19 - Dual Wielding Style, Hex/H.M., Colossus Slayer, Foe Slayer, Two Weapon Master"
+
+ATKMOD: 1
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d10
+DMGMODS: ATKABILITY + 1
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Ran] (MMFS SF - 0 Feats) 2 2H attacks @ 1d10 + STR + 1 + 1d6 - Once-per-turn 1d8 + WIS damage - +12 vs AC 19 - Switch Fighting Style, Hex/H.M., Colossus Slayer, Foe Slayer"
+
+BONUSDMG: 1d4
+BONUSDMGMODS: ATKABILITY + 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (MMFS SF FS - 1 Feat) 2 2H attacks @ 1d10 + STR + 1 + 1d6 - 1 FS attack @ 1 + STR + 1 + 1d6 - Once-per-turn 1d8 + WIS damage - +12 vs AC 19 - Switch Fighting Style, Hex/H.M., Colossus Slayer, Foe Slayer, Flowing Stance"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (PHB PAM - 1 Feat) 2 2H attacks @ 1d10 + STR + 1d6 - 1 PAM attack @ 1d4 + STR + 1d6 - Once-per-turn 1d8 + WIS damage - +11 vs AC 19 - Hex/H.M., Colossus Slayer, Foe Slayer, Polearm Master"
+
+ATKMOD: -5
+ATKRESULT: [attackroll ATK]
+ATKMOD: -5 + 5
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + 10
+BONUSDMGMODS: ATKABILITY + 10
+DMGOPTMODS: 0
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (PHB PAM/GWM - 2 Feats) 2 2H attacks (+1 BA attack on crit) @ 1d10 + STR + 10 + 1d6 - 1 PAM attack @ 1d4 + STR + 10 + 1d6 - Once-per-turn 1d8 damage - +11/+6 vs AC 19 - Hex/H.M., Colossus Slayer, Foe Slayer, Polearm Master, Great Weapon Master"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 2d6
+BONUSDMG: 2d6
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGOPTMODS: 5
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Ran] (PHB GWF - 0 Feats) 2 2H attacks @ 2d6 + STR + 1d6 - Once-per-turn 1d8 + WIS damage - +11 vs AC 19 - Hex/H.M., Colossus Slayer, Foe Slayer"
+
+ATKMOD: -5
+ATKRESULT: [attackroll ATK]
+ATKMOD: -5 + 5
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + 10
+BONUSDMGMODS: ATKABILITY + 10
+DMGOPTMODS: 0
+GWMASTER: 1
+
+output [baseattack 1 times and bonusattack 1 times] named "[L20 Ran] (PHB GWM - 1 Feat) 2 2H attacks (+1 BA attack on crit) @ 2d6 + STR + 1d6 - Once-per-turn 1d8 damage - +11/+6 vs AC 19 - Colossus Slayer, Foe Slayer, Hex/H.M., Great Weapon Master"
+
+ATKMOD: -3 + 5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGOPTDICE: 1d8 + DMG
+DMGOPTMODS: ATKABILITY + PROFBONUS + LEVEL
+GWMASTER: 1
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 Ran] (MMFS GWM - 1 Feat) 1 2H attack (+1 BA attack on crit) @ 4d6 + 2xSTR + ProfBonus + Level + 1d6 - Once-per-turn 1d8 damage - +13 vs AC 19 - Colossus Slayer, Foe Slayer, Hex/H.M., Great Weapon Master"
+
+ATKMOD: 2
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d8
+DMGOPTDICE: 1d8
+DMGOPTMODS: 5
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 Ran] (PHB & MMFS Bow - 0 Feats) 2 2H attacks @ 1d8 + DEX + 1d6 - Once-per-turn 1d8 + WIS damage - +13 vs AC 19 - Archery Style, Hex/H.M., Colossus Slayer, Foe Slayer"
+
+ATKMOD: 2 - 5
+ATKRESULT: [attackroll ATK]
+ATKMOD: 2 - 5 + 5
+BONUSATKRESULT: [attackroll ATK]
+BONUSDMG: 1d8
+DMGMODS: ATKABILITY + 10
+BONUSDMGMODS: ATKABILITY + 10
+BONUSDMGADDLDICE: 1d6
+DMGOPTMODS: 0
+
+output [baseattack 1 times and bonusattack 1 times] named "[L20 Ran] (PHB SS - 1 Feat) 2 2H attacks @ 1d8 + DEX + 10 + 1d6 - Once-per-turn 1d8 damage - +13/+8 vs AC 19 - Archery Style, Hex/H.M., Colossus Slayer, Foe Slayer, Sharpshooter"
+
+DMG: 1d6
+BONUSDMG: 1d6
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (PHB SS - 2 Feats) 3 1H attacks @ 1d6 + DEX + 10 + 1d6 - Once-per-turn 1d8 damage - +13/+8 vs AC 19 - Archery Style, Hex/H.M., Colossus Slayer, Foe Slayer, Sharpshooter, Crossbow Expert"
+
+ATKMOD: 2 - 3
+ATKRESULT: [attackroll ATK]
+ATKMOD: 2 - 3 + 5
+BONUSATKRESULT: [attackroll ATK]
+DMG: d0
+DMGMODS: ATKABILITY + PROFBONUS + ATKRESULT * 8
+BONUSDMG: d0
+BONUSDMGMODS: ATKABILITY + PROFBONUS + ATKRESULT * 8
+
+output [baseattack 1 times and bonusattack 1 times] named "[L20 Ran] (MMFS SS - 1 Feat) 2 2H attacks @ 8 + DEX + ProfBonus + 1d6 - Once-per-turn 1d8 damage - +15/+10 vs AC 19 - Archery Style, Hex/H.M., Colossus Slayer, Foe Slayer, Sharpshooter"
+
+DMGMODS: ATKABILITY + PROFBONUS + ATKRESULT * 6
+BONUSDMGMODS: ATKABILITY + PROFBONUS  + BONUSATKRESULT * 6
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (MMFS SS - 2 Feats) 3 1H attacks @ 6 + DEX + ProfBonus + 1d6 - Once-per-turn 1d8 damage - +15/+10 vs AC 19 - Archery Style, Hex/H.M., Colossus Slayer, Foe Slayer, Sharpshooter, Crossbow Expert"
+
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: ATKABILITY
+BONUSDMGMODS: ATKABILITY
+DMGOPTDICE: 1d8
+DMGOPTMODS: 5
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 Ran] (MMFS PUG - 0 Feats) 3 unarmed strikes @ 1d6 + STR + 1d6 - Once-per-turn 1d8 + WIS damage - +11 vs AC 19 - Pugilism Style, Hex/H.M., Colossus Slayer, Foe Slayer"
+
+output 0 named "-------------------------------------------------- ROGUE ATTACKS --------------------------------------------------"
+ 
+ATK: 1@2d20
+ATKMOD: 0
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d8
+DMGMODS: ATKABILITY
+BONUSDMGMODS: 0
+DMGADDLDICE: SCAGTRIPDMG
+BONUSDMGADDLDICE: 0
+DMGOPTDICE: SNEAKDICE
+DMGOPTMODS: 0
+CRITDMGDICE: 0
+CRITDMGMODS: 0
+CRITOPTDICE: 0
+CRITOPTMODS: 0
+GWMASTER: 0
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 Rog] (PHB - 0 Feats) 1 1H attack @ 1d8 + DEX + 3d8 - Once-per-turn 10d6 damage - +11 vs AC 19 - Sneak Attack, Booming Blade, Versatile Trickster"
+
+DMG: 1d6
+BONUSDMG: 1d6
+DMGADDLDICE: 0
+
+output [baseattack 1 times and bonusattack 1 times] named "[L20 Rog] (PHB & MMFS TWF - Any Feats) 1 1H attack @ 1d6 + DEX - 1 TWF attack @ 1d6 - Once-per-turn 10d6 damage - +11 vs AC 19 - Sneak Attack, Versatile Trickster"
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 Rog] (PHB & MMFS Bow - 0 Feats) 1 2H attack @ 1d8 + DEX - Once-per-turn 10d6 damage - +11 vs AC 19 - Sneak Attack, Versatile Trickster"
+
+ATKMOD: -5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: ATKABILITY + 10
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 Rog] (PHB SS - 1 Feat) 1 2H attack @ 1d8 + DEX + 10 - Once-per-turn 10d6 damage - +6 vs AC 19 - Sneak Attack, Versatile Trickster, Sharpshooter"
+
+DMG: 1d6
+BONUSDMG: 1d6
+BONUSDMGMODS: ATKABILITY + 10
+
+output [baseattack 1 times and bonusattack 1 times] named "[L20 Rog] (PHB SS - 2 Feats) 2 1H attacks @ 1d6 + DEX + 10 - Once-per-turn 10d6 damage - +6 vs AC 19 - Sneak Attack, Versatile Trickster, Sharpshooter, Crossbow Expert"
+
+ATKMOD: -3
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: d0
+DMGMODS: ATKABILITY + PROFBONUS + ATKRESULT * 8
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 Rog] (MMFS SS - 1 Feat) 1 2H attack @ 8 + DEX + ProfBonus - Once-per-turn 10d6 damage - +8 vs AC 19 - Sneak Attack, Versatile Trickster, Sharpshooter"
+
+DMG: d0
+BONUSDMG: d0
+DMGMODS: ATKABILITY + PROFBONUS + ATKRESULT * 6
+BONUSDMGMODS: ATKABILITY + PROFBONUS  + BONUSATKRESULT * 6
+
+output [baseattack 1 times and bonusattack 1 times] named "[L20 Rog] (MMFS SS - 2 Feats) 2 1H attacks @ 6 + DEX + ProfBonus - Once-per-turn 10d6 damage - +8 vs AC 19 - Sneak Attack, Versatile Trickster, Sharpshooter, Crossbow Expert"
+
+output 0 named "-------------------------------------------------- WARLOCK ATTACKS --------------------------------------------------"
+
+ATK: 1@2d20
+ATKMOD: 1
+ATKRESULT: [attackroll ATK]
+ATKMOD: 0
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d6
+BONUSDMG: 1d6
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1
+BONUSDMGMODS: 0
+DMGADDLDICE: 0
+BONUSDMGADDLDICE: 0
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+CRITDMGDICE: 0
+CRITDMGMODS: 0
+CRITOPTDICE: 6d8
+CRITOPTMODS: 0
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 War] (PHB & MMFS TWF - 0 Feats) 2 1H attacks @ 1d6 + 2xCHA + 1 + 1d6 - 1 TWF attack @ 1d6 + CHA + 1d6 - +12/+11 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil"
+
+DMG: 1d8
+BONUSDMG: 1d8
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 War] (PHB TWF - 1 Feat) 2 1H attacks @ 1d8 + 2xCHA + 1 - 1 TWF attack @ 1d8 + CHA - +12/+11 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Dual Wielder"
+
+DMG: 1d6
+BONUSDMG: 1d6
+
+output [baseattack 2 times and bonusattack 2 times] named "[L20 War] (MMFS TWF - 1 Feat) 2 1H attacks @ 1d6 + 2xCHA + 1 - 2 TWF attacks @ 1d6 + CHA - +12/+11 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Two Weapon Master"
+
+ATKMOD: 1
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d10
+BONUSDMG: 1d4
+BONUSDMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 War] (PHB PAM - 1 Feat) 2 2H attacks @ 1d10 + 2xCHA + 1 - 1 PAM attack @ 1d4 + 2xCHA + 1 - +12 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Polearm Master"
+
+BONUSDMG: 1d0
+BONUSDMGMODS: 1 + (1 + LIFEDRINKINVO) * ATKABILITY + 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 War] (MMFS FS - 1 Feat) 2 2H attacks @ 1d10 + 2xCHA + 1 - 1 PAM attack @ 1 + 2xCHA + 1 - +12 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Flowing Stance"
+
+ATKMOD: 1 - 5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d10
+BONUSDMG: 1d4
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 11
+BONUSDMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 11
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 War] (PHB PAM/GWM - 2 Feats) 2 2H attacks (+1 BA attack on crit) @ 1d10 + 2xCHA + 1 + 10 - 1 PAM attack @ 1d4 + 2xCHA + 1 + 10 - +7 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Polearm Master, Great Weapon Master"
+
+ATKMOD: 1
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 2d6
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1
+BONUSDMGMODS: 0
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 War] (PHB GWF - 0 Feats) 2 2H attacks @ 2d6 + 2xCHA + 1 - +12 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil"
+
+ATKMOD: 1 - 5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 11
+GWMASTER: 1
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 War] (PHB GWM - 1 Feat) 2 2H attacks (+1 BA attack on crit) @ 2d6 + 2xCHA + 1 + 10 - +7 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Great Weapon Master"
+
+ATKMOD: 1 - 3
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1
+DMGOPTDICE: DMG
+DMGOPTMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1 + PROFBONUS + LEVEL
+GWMASTER: 1
+
+output [baseattack 1 times and bonusattack 0 times] named "[L20 War] (MMFS GWM - 1 Feat) 1 2H attack @ 2d6 + 4xCHA + ProfBonus + Level damage (+1 BA attack on crit) - +9 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Great Weapon Master"
+
+ATKMOD: 1
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: 1d8
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1
+DMGOPTDICE: 0
+DMGOPTMODS: 0
+GWMASTER: 0
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 War] (PHB & MMFS Bow - 0 Feats) 2 2H attacks @ 1d8 + 2xCHA + 1 - +12 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil"
+
+ATKMOD: 1 - 5
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 11
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 War] (PHB SS - 1 Feat) 2 2H attacks @ 1d8 + 2xCHA + 1 + 10 - +7 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Sharpshooter"
+
+DMG: 1d6
+BONUSDMG: 1d6
+BONUSDMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 11
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 War] (PHB SS - 2 Feats) 3 1H attacks @ 1d6 + 2xCHA + 1 + 10 - +7 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Sharpshooter, Crossbow Expert"
+
+ATKMOD: 1 - 3
+ATKRESULT: [attackroll ATK]
+BONUSATKRESULT: [attackroll ATK]
+DMG: d0
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1 + PROFBONUS + ATKRESULT * 8
+
+output [baseattack 2 times and bonusattack 0 times] named "[L20 War] (MMFS SS - 1 Feat) 2 2H attacks @ 8 + 2xCHA + 1 + ProfBonus - +9 vs AC 19 - Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Sharpshooter"
+
+DMG: d0
+BONUSDMG: d0
+DMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1 + PROFBONUS + ATKRESULT * 6
+BONUSDMGMODS: (1 + LIFEDRINKINVO) * ATKABILITY + 1 + PROFBONUS + BONUSATKRESULT * 6
+
+output [baseattack 2 times and bonusattack 1 times] named "[L20 War] (MMFS SS - 2 Feats) 3 1H attacks @ 6 + 2xCHA + 1 + ProfBonus - +9 vs AC 19 - 1xProf damage bonus, d6 damage, Improved Pact Weapon, Thirsting Blade, Eldritch Smite (on crit only), Lifedrinker, Shadow of Moil, Sharpshooter, Crossbow Expert"
+

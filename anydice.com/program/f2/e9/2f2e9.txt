@@ -1,0 +1,59 @@
+function: explodem ROLL:s limit LIMIT:n rerolls REROLLS:n {
+  if #ROLL = 0 {
+    result: 0
+  }
+
+  X: 0
+
+  if REROLLS > 0 {
+    X: [count 1 in ROLL]
+    if X < REROLLS {
+      X: [count {1,2} in ROLL]
+    }
+    if X < REROLLS {
+      X: [count {1,2,3} in ROLL]
+    }
+    X: [lowest of X and REROLLS]
+  }
+
+  KEEPER: ROLL
+
+  if X > 0 {
+    KEEPER: {}
+    KEEP: #ROLL - X
+    if KEEP > 0 {
+      loop N over {1..KEEP} {
+        KEEPER: {KEEPER, N@ROLL}
+      }
+    }
+    KEEPER: [adddice KEEPER Xd6]
+  }
+
+  result: [explodem helper KEEPER limit LIMIT rerolls REROLLS - X]
+}
+
+function: explodem helper ROLL:s limit LIMIT:n rerolls REROLLS:n {
+  W: [lowest of [count 6 in ROLL] and LIMIT]
+  result: KEEPER + [explodem Wd6 limit LIMIT - W rerolls REROLLS]
+}
+
+function: adddice SET:s DICE:s {
+  result: {SET, DICE}
+}
+
+
+output [explodem 2d6 limit 4 rerolls 4] named "Explodem Empower Level 5"
+
+\
+output [explodem 1d6 limit 3 rerolls 0] named "Explodem Level 1"
+output [explodem 2d6 limit 4 rerolls 0] named "Explodem Level 5"
+output [explodem 3d6 limit 5 rerolls 0] named "Explodem Level 11"
+output [explodem 4d6 limit 5 rerolls 0] named "Explodem Level 17"
+output [explodem 4d6 limit 6 rerolls 0] named "Explodem Level 20"
+
+output [explodem 1d6 limit 3 rerolls 3] named "Explodem Empower Level 1"
+output [explodem 2d6 limit 4 rerolls 4] named "Explodem Empower Level 5"
+output [explodem 3d6 limit 5 rerolls 5] named "Explodem Empower Level 11"
+output [explodem 4d6 limit 5 rerolls 5] named "Explodem Empower Level 17"
+output [explodem 4d6 limit 6 rerolls 6] named "Explodem Empower Level 20"
+\

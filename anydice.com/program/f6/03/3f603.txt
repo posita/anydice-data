@@ -1,0 +1,24 @@
+
+function : step N:n {
+ if (N >= 0) {result : 1}
+ result : 0
+}
+
+function : pf roll ROLL:n DC:n {
+ ISMAX : ROLL = 20
+ ISMIN : (ROLL = 1) * -1
+ CS : [step ROLL-DC-10]
+ S : [step ROLL-DC]
+ F : [step ROLL-DC+9]
+ U : 2@[sort {0,S + CS + F + ISMIN + ISMAX,3}]
+ result : U
+}
+
+function : pf strike ROLL:n DC:n {
+ U : [pf roll ROLL DC]+1
+ result : U@{0,0,1,2}
+}
+
+output 1d20
+output [step (1d20-6)]
+output [pf strike 1d20 6]*(2d10+11)

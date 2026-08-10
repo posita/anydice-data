@@ -1,0 +1,27 @@
+function: roll ROLL:s SKILL:n{
+ HIGH_DIE: 1@ROLL
+ LOW_DIE: [highest of 2@ROLL and SKILL]
+ if HIGH_DIE = 1 {result: 2}
+ else {result: HIGH_DIE + LOW_DIE}
+}
+function: A:n vs B:n{
+ if A >= B {result: A}
+ else {result:0}
+}
+function: damage ATTACK:n DEFENCE:n BLOCK:n ARMOUR:n DAMAGE:n{
+ if ATTACK<DEFENCE {result: 0}
+ if ATTACK=20 {result: 100}
+ if ATTACK > BLOCK {result: [highest of DAMAGE-ARMOUR and 1]}
+ else {result: [highest of DAMAGE/2-ARMOUR and 1]}
+}
+function: AS:n AD:n attacks BS:n BD:n BA:n{
+ ATTACK: [roll 2d10 AS]
+ DEFENCE: [roll 2d10 BS]
+ result: [damage ATTACK DEFENCE BD BA AD]
+}
+
+output [roll 2d10 5] > [roll 2d10 3]
+output [[roll 2d10 5] vs [roll 2d10 3]]
+output [5 8 attacks 3 10 2]
+output [3 8 attacks 3 12 2]
+output [3 8 attacks 3 13 2]

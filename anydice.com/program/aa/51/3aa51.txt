@@ -1,0 +1,51 @@
+CRITFAIL: 0 \ Double odds   (1, 3, 5, 7, 9) \
+FAIL: 1     \ Red > Black   (e.g.: B5 / R8) \
+SUCCESS: 2  \ Black > Red   (e.g.: B9 / R4) \
+CRITICAL: 3 \ Double evens (2, 4, 6, 8, 10) \
+TESTVAR: 10 \ Used for testing only.        \
+
+EVEN: 20
+ODD: 40
+
+\ Initial idea, abadoned pretty quickly. \
+function: profittest BLACK and RED           
+{                                             
+ if BLACK > RED {result: SUCCESS}          
+ else if RED >= BLACK {result:FAIL}       
+}                                              
+
+function:eventest BLACK:s and RED:s
+{
+ if 1@BLACK = 2@RED {result: EVEN}
+ else {result: ODD}
+}
+
+\ Second idea, ultimately got. \
+function: redmarkets BLACK:n and RED:n with MODIFIER:n
+{
+ if BLACK = RED \ Criticals happen on natural doubles. \
+ {
+  if BLACK = {2, 4, 6, 8, 10} {result: CRITICAL} \ Crit successes on evens... \
+  else {result: CRITFAIL}                        \ ...and crit fails on odds. \
+ }
+ else
+ { 
+  PROFIT: (BLACK - RED) + MODIFIER
+  if PROFIT > 0 {result: SUCCESS}
+  else if PROFIT <= 0 {result:FAIL} \ Ties (PROFIT = 0) go to the Market. \
+ }
+}
+
+\ Side-diversion, which helped me get crits working. \
+function: profittest DICE:s
+{
+ if 1@DICE = 2@DICE
+ {
+  if 1@DICE = {2, 4, 6, 8, 10} {result: CRITICAL}
+  else {result: CRITFAIL}
+ }
+ else {result: FAIL}
+}
+
+loop MODIFIER over {-3..5}
+{ output [redmarkets d10 and d10 with MODIFIER] named "Modifier: [MODIFIER]" }

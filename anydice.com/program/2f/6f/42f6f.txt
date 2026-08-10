@@ -1,0 +1,33 @@
+function: healing A:n B:n SKILL:n DAMAGE:n OUCH:n{
+ RESULT: 0
+ if A = 10 { \tens die comes up 00\
+  RESULT: B \just what the units die says, 01-09\
+  if B = 10 {RESULT: 100} \00 and 0 is 100\
+ }
+ if A!= 10 & B = 10 { \when you roll 10,20,30,etc\
+  RESULT: A*10
+ }
+ if A!=10 & B!=10 {RESULT: A*10+B \X1-X9 for X:1-9\
+ }
+ if RESULT <= SKILL{
+  if RESULT = 1 {result: [minimum DAMAGE-20]} \crit heals 20 wounds\
+  if RESULT=11|RESULT=22|RESULT=33|RESULT=44|RESULT=55|RESULT=66|RESULT=77|RESULT=88|RESULT=99 {
+   result: [minimum DAMAGE-(A+B)] \a match heals wounds equal to the sum\
+  }
+  result: [minimum DAMAGE-A] \a regular success heals wounds equal to the tens die\
+ }
+ if RESULT = 100 {result: DAMAGE+OUCH} \a fumble inflicts 1d5 wounds\
+ if RESULT > SKILL {result: DAMAGE}
+}
+ 
+function: minimum A:n {
+ if A < 0 {result: 0}
+ result: A
+}
+ 
+function: sigcharge A:n B:n {
+ if A = B {result: A+B+3}
+ result: A+B
+}
+ 
+output [healing 1d10 1d10 89 [sigcharge 1d10 1d10] 1d5]

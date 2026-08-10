@@ -1,0 +1,407 @@
+\
+
+Fighting styles
+* Dueling
+When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon.
+* Great Weapon Fighting
+When you roll a 1 or 2 on a damage die for an Attack you make with a melee weapon that you are wielding with two hands, you can re-roll the die and must use the new roll, even if the new roll is a 1 or a 2.
+\
+
+
+CRIT_THRESHOLD: 20
+HEX_CRIT_THRESHOLD: 19
+TARGET_AC: 14
+ADVANTAGE_ROLL: [highest 1 of 2d20]
+
+ADV_ROLL: [highest 1 of 2d20]
+EA_ROLL: [highest 1 of 3d20] \ELVEN_ADVANTAGE\
+ROLL: 1d20
+
+
+
+
+SPELL_SAVE: 14
+SPELL_DMG: 1d6
+function: R:n halfsavespellattack{
+    if R < SPELL_SAVE {result: SPELL_DMG}
+    if R > SPELL_SAVE {result: SPELL_DMG / 2}
+}
+
+
+function: R:n savespellattack{
+    
+    if R < SPELL_SAVE {result: SPELL_DMG}
+    if R > SPELL_SAVE {result: 0}
+}
+
+
+function: R:n basicattack{
+    if R = 1 {result: 0}
+    if R >= CRIT_THRESHOLD {result: 2 d DMG + DMG_MOD}
+    if (R + HIT_MOD) >= TARGET_AC {result: 1 d DMG + DMG_MOD}
+    if (R + HIT_MOD) < TARGET_AC {result: 0}
+}
+
+
+function: R:n secondattack{
+
+    if R = 1 {result: 0}
+    if R >= CRIT_THRESHOLD {result: 2 d SCND_DMG + SCND_DMG_MOD}
+    if (R + SCND_HIT_MOD) >= TARGET_AC {result: 1 d SCND_DMG + SCND_DMG_MOD}
+    if (R + SCND_HIT_MOD) < TARGET_AC {result: 0}
+}
+
+function: R:n gwfattack{
+if R = 1 {result: 0}
+    if R >= CRIT_THRESHOLD {result: 4d{{1..2}:2, {3..6}:8} + DMG_MOD}
+    if (R + HIT_MOD) >= TARGET_AC {result: 2d{{1..2}:2, {3..6}:8} + DMG_MOD}
+    if (R + HIT_MOD) < TARGET_AC {result: 0}
+}
+
+function: R:n hexgwfattack{
+if R = 1 {result: 0}
+    if R >= HEX_CRIT_THRESHOLD {result: 4d{{1..2}:2, {3..6}:8} + DMG_MOD}
+    if (R + HIT_MOD) >= TARGET_AC {result: 2d{{1..2}:2, {3..6}:8} + DMG_MOD}
+    if (R + HIT_MOD) < TARGET_AC {result: 0}
+}
+
+
+
+
+NIKOLA_HIT_MOD: 7 \prof+3, char+3, pact+1\
+NIKOLA_DMG_MOD: 4 \char+3, pact+1\
+
+
+XAR_HIT_MOD: 7 \prof+3, char+4, pact+1\
+XAR_DMG_MOD: 4 \char+4, pact+1\
+
+
+EUBALDU_HIT_MOD: 6 \prof+3, str+3\
+EUBALDU_DMG_MOD: 3 \str+3\
+
+QUIN_SPELL_SAVE: 14
+QUIN_SPELL_DMG: 2d12
+
+
+\ *** *** *** lvl~5 *** *** *** \
+
+
+DMG: 1d8 
+DMG_MOD: NIKOLA_DMG_MOD
+HIT_MOD: NIKOLA_HIT_MOD
+\output [ROLL basicattack]+[ROLL basicattack] named "Nikola Pact LngSwrd (5 Wrlck)"\
+
+
+DMG: 1d8 
+DMG_MOD: NIKOLA_DMG_MOD
+HIT_MOD: NIKOLA_HIT_MOD
+SPELL_DMG: 2d6
+SPELL_SAVE: 14 
+\output [ROLL basicattack]+[ROLL basicattack]+[ROLL savespellattack] named "Nikola MndSlvr Pact LngSwrd (5 Wrlck)"\
+
+
+
+DMG: 1d8 
+DMG_MOD: EUBALDU_DMG_MOD
+HIT_MOD: EUBALDU_HIT_MOD
+\output [ROLL basicattack]+[ROLL basicattack] named "Eubaldu Hammer (5 Pal)"\
+
+
+DMG: 2d6 
+DMG_MOD: XAR_DMG_MOD
+HIT_MOD: XAR_HIT_MOD
+\output [ROLL basicattack]+[ROLL basicattack] named "Xar Greatsword (5 Wrlck)"\
+
+
+
+
+SPELL_DMG: QUIN_SPELL_DMG
+SPELL_SAVE: 14 \ QUIN_SPELL_SAVE\
+\output [ROLL savespellattack] named "Quincy Toll The Dead (5 Cleric)"\
+
+
+
+
+DMG: 1d8
+DMG_MOD: NIKOLA_DMG_MOD
+HIT_MOD: NIKOLA_HIT_MOD
+SPELL_DMG: 2d6
+SPELL_SAVE: 14 
+output [ADVANTAGE_ROLL basicattack]+[ADVANTAGE_ROLL basicattack]+[ROLL savespellattack] named "Nikola Adv MndSlvr Pact LngSwrd (5 Wrlck)"
+CRIT_THRESHOLD: 20
+
+
+
+
+DMG: 1d8
+DMG_MOD: NIKOLA_DMG_MOD + 3
+HIT_MOD: NIKOLA_HIT_MOD
+SPELL_DMG: 2d6
+SPELL_SAVE: 14 
+CRIT_THRESHOLD: 19
+output [ADVANTAGE_ROLL basicattack]+[ADVANTAGE_ROLL basicattack]+[ROLL savespellattack] named "Nikola Adv PactHex MndSlvr Pact LngSwrd (5 Wrlck)"
+CRIT_THRESHOLD: 20
+
+
+DMG: 1d8 
+DMG_MOD: EUBALDU_DMG_MOD
+HIT_MOD: EUBALDU_HIT_MOD
+\output [ADVANTAGE_ROLL basicattack]+[ADVANTAGE_ROLL basicattack] named "Eubaldu Adv Hammer (5 Pal)"\
+
+
+
+DMG: 1d8 
+DMG_MOD: EUBALDU_DMG_MOD
+HIT_MOD: EUBALDU_HIT_MOD
+\output [ADVANTAGE_ROLL basicattack]+[ADVANTAGE_ROLL basicattack] + 6d8 named "Eubaldu Adv CritSmite Hammer (5 Pal)"\
+
+
+
+DMG: 2d6 
+DMG_MOD: XAR_DMG_MOD
+HIT_MOD: XAR_HIT_MOD
+CRIT_THRESHOLD: 20
+output [EA_ROLL basicattack]+[EA_ROLL basicattack] named "Xar Adv Greatsword (5 Wrlck)"
+
+
+
+DMG: 2d6 
+DMG_MOD: XAR_DMG_MOD + 3
+HIT_MOD: XAR_HIT_MOD
+CRIT_THRESHOLD: 19
+output [EA_ROLL basicattack]+[EA_ROLL basicattack] named "Xar Adv PactHex Greatsword (5 Wrlck)"
+
+
+
+
+
+DMG: 2d6 
+DMG_MOD: XAR_DMG_MOD + 3
+HIT_MOD: XAR_HIT_MOD
+CRIT_THRESHOLD: 19
+\output [EA_ROLL basicattack]+[EA_ROLL basicattack] + 8d8 named "Xar Adv CritSmite Hex Greatsword pact (5 Wrlck)"\
+
+
+
+
+
+SPELL_DMG: QUIN_SPELL_DMG
+SPELL_SAVE: 14 \ QUIN_SPELL_SAVE\
+DMG: 2d8 
+DMG_MOD: 4
+HIT_MOD: 4
+\output [ROLL savespellattack] + [ADVANTAGE_ROLL basicattack]named "Quincy Adv SprtWpn (3rd) TollDead (5 Cleric)"\
+
+
+
+DMG: 2d8 + 3d6  + (2d8 + 3d6) / 8
+DMG_MOD: 0
+HIT_MOD: 4
+\output [ADVANTAGE_ROLL basicattack]named "Liara Adv Chaos  (5 Sorc)"\
+
+
+SPELL_DMG: 8d6
+SPELL_SAVE: 17
+\output [ROLL halfsavespellattack] + [ROLL halfsavespellattack] + [ROLL halfsavespellattack] named "Liara  LgtningBolt (3rd lvl, 3 targets)  (5 Sorc)"\
+
+
+
+CRIT_THRESHOLD: 20
+DMG: 3d6
+DMG_MOD: 4 \char+4,\
+HIT_MOD: 7 \prof+3, char+4\
+\output [ROLL basicattack]+[ROLL basicattack] named "GrtSwrd 5 Wrlck"\
+
+
+\output [EA_ROLL basicattack]+[EA_ROLL basicattack] named "ElvenAd GrtSwrd 5 Wrlck"\
+
+
+\output [ROLL gwfattack]+[ROLL gwfattack] named "GWF GrtSwrd 5 Wrlck"\
+\output [EA_ROLL gwfattack] + [EA_ROLL gwfattack] named "ElvenAdv GWF GrtSwrd 5 Wrlck 1Ftr"\
+
+
+
+CRIT_THRESHOLD: 20
+DMG: 2d6
+DMG_MOD: 5 \char+4, +1 pact\
+HIT_MOD: 8 \prof+3, char+4, +1pact\
+\output [ROLL basicattack]+[ROLL basicattack] named "Pact GrtSwrd 5 Wrlck"\
+
+
+
+
+
+DMG: 2d6
+DMG_MOD: 5 \char+4, pact+1\
+HIT_MOD: 8 \prof+3, char+4, pact+1\
+\output [EA_ROLL basicattack]+[EA_ROLL basicattack] named "ElvenAdv Pact GrtSwrd 5 Wrlck"\
+CRIT_THRESHOLD: 20
+
+
+CRIT_THRESHOLD: 19
+DMG: 2d6 + 2d8
+DMG_MOD: 8 \hexprof+3, char+4, pact+1\
+HIT_MOD: 8 \prof+3, char+4, pact+1\
+\output [EA_ROLL basicattack]+[EA_ROLL basicattack] named "ElvenAdv Hex spirit shroud GrtSwrd 5 Wrlck"\
+CRIT_THRESHOLD: 20
+
+
+
+
+
+
+
+
+
+
+CRIT_THRESHOLD: 20
+DMG: 1d6
+DMG_MOD: 4 \char +3, +1 pact\
+HIT_MOD: 7 \prof+3, char+3, +1 pact\
+
+SCND_DMG: 1d4
+SCND_DMG_MOD: 4 \char +3, magic+1\
+SCND_HIT_MOD: 7 \prof+3, char+3, magic+1\
+\output [ROLL basicattack] + [ROLL basicattack] + [ROLL secondattack] named "Pact ShrtSwrd + Dagger 5Wrlck"\
+
+
+
+DMG: 1d6
+DMG_MOD: 4 \char +3, +1 pact\
+HIT_MOD: 6 \prof+3, char+3, +1 pact\
+
+SCND_DMG: 3d8
+SCND_DMG_MOD: 2 \ dex +2 \
+SCND_HIT_MOD: 5 \ prof+3, dex+2 \
+\output [ROLL basicattack] + [ROLL basicattack] + [ROLL secondattack] named "Pact ShrtSwrd + ShdwBld 5Wrlck"\
+
+\output [ADV_ROLL basicattack] + [ADV_ROLL basicattack] + [ADV_ROLL secondattack] named "Advantage Pact ShrtSwrd + ShdwBld 5Wrlck"\
+
+
+DMG: 1d6
+DMG_MOD: 4 \char +3, +1 pact\
+HIT_MOD: 6 \prof+3, char+3, +1 pact\
+
+SCND_DMG: 3d8
+SCND_DMG_MOD: 4 \char +3, +1 pact\
+SCND_HIT_MOD:6 \prof+3, char+3, +1 pact\
+\output [ADV_ROLL basicattack] + [ADV_ROLL secondattack] + [ADV_ROLL secondattack] named "Advantage Pact ShdwBld + ShrtSwrd  5Wrlck"\
+
+
+
+DMG: 1d6
+DMG_MOD: 4 \char +3, +1 pact\
+HIT_MOD: 7 \prof+3, char+3, +1 pact\
+
+SCND_DMG: 3d8
+SCND_DMG_MOD: 3 \ char +3 \
+SCND_HIT_MOD: 6 \ prof+3, char+3 \
+\output [ROLL basicattack] + [ROLL basicattack] + [ROLL secondattack] named "Pact ShrtSwrd + HexWarrior ShdwBld 5Wrlck"\
+
+
+\output [ADV_ROLL basicattack] + [ADV_ROLL basicattack] + [ADV_ROLL secondattack] named "Advantage Pact ShrtSwrd + HexWarrior ShdwBld 5Wrlck"\
+
+
+
+
+
+
+DMG: 1d10 
+DMG_MOD: 4 \char +4\
+HIT_MOD: 7 \prof+3, char+4\
+\output [ROLL basicattack] + [ROLL basicattack] named "Agonizing EldrBlast 5Wrlck"\
+
+
+
+
+\Once per turn when you hit a creature with your pact weapon, you can expend a warlock spell slot to deal an extra 1d8 force damage to the target, plus another 1d8 per level of the spell slot, and you can knock the target prone if it is Huge or smaller.\
+
+
+
+DMG: 2d6
+DMG_MOD: 4 \char+4\
+HIT_MOD: 7 \prof+3, char+4\
+SMITE: 4d6 + 8d8 + DMG_MOD \1d8 base, 3d8 for 3rdlvl spell slot, assume critical x2\
+\output [EA_ROLL basicattack] + SMITE named "Smite ElvenAdv GrtSwrd 5 Wrlck"\
+CRIT_THRESHOLD: 20
+CRIT_THRESHOLD: 20
+
+
+
+CRIT_THRESHOLD: 19
+DMG: 2d6
+DMG_MOD: 8 \hexprof+3, char+4, pact+1\
+HIT_MOD: 8 \prof+3, char+4, pact+1\
+SMITE: 4d6 + 8d8 + DMG_MOD \1d8 base, 3d8 for 3rdlvl spell slot, assume critical x2\
+\output [EA_ROLL basicattack] + SMITE named "Smite ElvenAdv Hex GrtSwrd 5 Wrlck"\
+CRIT_THRESHOLD: 20
+
+
+
+
+
+
+\ *** *** *** lvl~6 *** *** *** \
+\lvl 6, 3Wrlck 3Ftr\
+
+
+DMG_MOD: 4 \prof+3, pact+1\
+HIT_MOD: 7 \prof+3, char+3, pact+1\
+\output [ROLL gwfattack]+[ROLL gwfattack]+[ROLL gwfattack] named "GrtSwrd GWF ActSrg Echo 3Wrlck 3Ftr"\
+
+
+
+
+
+\ *** *** *** lvl~8 *** *** *** \
+\lvl 8, 5Wrlck 3Ftr\
+
+DMG_MOD: 4 \char+4\
+HIT_MOD: 8 \prof+4, char+4\
+
+\output [ROLL gwfattack]+[ROLL gwfattack]+[ROLL gwfattack]+[ROLL gwfattack]+[ROLL gwfattack] named  "ActSrg GWF GrtSwrd Echo 5Wrlck 3Ftr"\
+DMG: 2d6
+\output [ROLL basicattack]+[ROLL basicattack]+[ROLL basicattack]+[ROLL basicattack]+[ROLL basicattack] named  "ActSrg GrtSwrd Echo 5Wrlck 3Ftr"\
+
+
+
+DMG_MOD: 4 \char+4\
+HIT_MOD: 8 \prof+4, char+4\
+\output [EA_ROLL gwfattack]+[EA_ROLL gwfattack]+[EA_ROLL gwfattack]+[EA_ROLL gwfattack]+[EA_ROLL gwfattack] named  "ActSrg ElvenAdv GWF GrtSwrd Echo 5Wrlck 3Ftr"\
+DMG: 2d6
+\output [EA_ROLL basicattack]+[EA_ROLL basicattack]+[EA_ROLL basicattack]+[EA_ROLL basicattack]+[EA_ROLL basicattack] named  "ActSrg ElvenAdv GrtSwrd Echo 5Wrlck 3Ftr"\
+
+
+
+DMG: 1d10
+DMG_MOD: 4 \char+4\
+HIT_MOD: 7 \prof+3, char+4\
+\output [ROLL basicattack]+[ROLL basicattack]+[ROLL basicattack]+[ROLL basicattack] named "EldrBlast AgnBlst ActSrg 5Wrlk"\
+
+
+\ *** *** *** lvl~8 & Smites *** *** *** \
+
+
+
+
+
+\Once per turn when you hit a creature with your pact weapon, you can expend a warlock spell slot to deal an extra 1d8 force damage to the target, plus another 1d8 per level of the spell slot, and you can knock the target prone if it is Huge or smaller.\
+
+DMG: 3d8 \shadow blade lvl 3\
+DMG_MOD: 7 \char+4, pact+1, dueling+2\
+HIT_MOD: 8 \prof+3, char+4, pact+1\
+SMITE: 6d8 + 8d8 + DMG_MOD \1d8 base, 3d8 for 3rdlvl spell slot, assume critical x2\
+\output [EA_ROLL basicattack]+[EA_ROLL basicattack]+[EA_ROLL basicattack]+[EA_ROLL basicattack]+SMITE named "ShdwBld Dueling ActSrg Echo Smite Hex ElvnAdv 5Wrlck 3Ftr"\
+
+
+DMG_MOD: 5 \char+4, pact+1\
+HIT_MOD: 8 \prof+3, char+4, pact+1\
+SMITE: 4d6 + 8d8 + DMG_MOD \1d8 base, 3d8 for 3rdlvl spell slot, assume critical x2\
+\output [ROLL gwfattack]+[ROLL gwfattack]+[ROLL gwfattack]+[ROLL gwfattack]+SMITE named "GrtSwrd GWF ActSrg Echo Smite 5Wrlck 3Ftr"\
+
+
+DMG_MOD: 8 \char+4, pact+1, hex+3, 1d6 from hex spell\
+\output [ROLL hexgwfattack]+[ROLL hexgwfattack]+[ROLL hexgwfattack]+[ROLL hexgwfattack]+SMITE named "ActSrg Echo Smite HexHex GWF GrtSwrd 5Wrlck 3Ftr"\
+
+\output [EA_ROLL hexgwfattack]+[EA_ROLL hexgwfattack]+[EA_ROLL hexgwfattack]+[EA_ROLL hexgwfattack]+SMITE named "ActSrg Echo Smite Hex x GWF GrtSwrd ElvnAdv 5Wrlck 3Ftr"\
+

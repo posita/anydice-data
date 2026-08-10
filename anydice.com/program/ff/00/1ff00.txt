@@ -1,0 +1,27 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n plus ATTACKBONUS:n with crit at CRITTHRESH:n vs DEFENSE:n
+{
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITTHRESH { result: CRITICALHIT }
+ if ROLL + ATTACKBONUS >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage ROLL:d plus DAMAGEBONUS:n for ATTACKRESULT:n 
+{
+ if ATTACKRESULT = CRITICALHIT { result: ROLL + ROLL + DAMAGEBONUS }
+ if ATTACKRESULT = HIT { result: ROLL + DAMAGEBONUS }
+ result: 0
+}
+
+
+loop AC over {10..20} 
+{
+ WARHAMMER: [damage d8 plus 2 for [attack d20 plus 4 with crit at 19 vs AC]]
+ LONGSWORD: [damage d8 plus 2 for [attack d20 plus 4 with crit at 19 vs AC]]
+ 
+ output WARHAMMER + LONGSWORD named "Enemy AC:[AC]"
+}

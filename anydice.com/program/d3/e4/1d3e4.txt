@@ -1,0 +1,484 @@
+\ Wardlock \
+
+MISS: 0
+HIT: 1
+BGWF: {{1..2}, {3..10}:6}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+SKELEATTACK: 4
+MOUNTATTACK: 6
+BIGHITDAMAGE: 1d8 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d8 + 2d6 + 3
+SMALLHITDAMAGE: 1d4 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+SKELEHITDAMAGE: 1d10 + 2
+SKELECRITICALDAMAGE: 2d10 + 2
+MOUNTBIGHITDAMAGE: 2d6 + 4
+MOUNTBIGCRITICALDAMAGE: 4d6 + 4
+MOUNTSMALLHITDAMAGE: 2d6 + 4
+MOUNTSMALLCRITICALDAMAGE: 4d6 + 4 
+
+SUMMONERSPELLSAVECHA: 13
+SUMMONERSPELLSAVEINT: 12
+SAVESPELLHITDAMAGEONE: 3d6
+SAVESPELLMISSDAMAGEONE: (3d6)/2 
+SAVESPELLHITDAMAGETWO: 1d12
+SAVESPELLMISSDAMAGETWO: 0
+MISSDAMAGE: 0
+MONSTERCONMOD: -1
+MONSTERDEXMOD: -1
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+
+function: save spell one ROLL:n {
+ if ROLL + MONSTERCONMOD >= SUMMONERSPELLSAVEINT {result: SAVESPELLMISSDAMAGEONE}
+ result: SAVESPELLHITDAMAGEONE
+}
+
+function: save spell two ROLL:n {
+ if ROLL + MONSTERCONMOD >= SUMMONERSPELLSAVECHA {result: SAVESPELLMISSDAMAGETWO}
+ result: SAVESPELLHITDAMAGETWO
+}
+
+
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [[highest 1 of 2d20] vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackspo NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell one d20]
+  }
+  result: TOTAL
+}
+
+function: multiattackspt NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell two d20]
+  }
+  result: TOTAL
+}
+
+
+
+\ Level 1 \
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d8 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d8 + 2d6 + 3
+AC:10
+output [bigmultiattack 1] named "level 1 boomingblade w/ hex  vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 1 boomingblade w/ hex  vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 1 boomingblade w/ hex  vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 1 boomingblade w/ hex  vs AC[AC]"
+
+
+\ Level 2 \
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 3
+AC:10
+output [bigmultiattack 1] named "level 2 eldritch blast w/ hex vs AC[AC]"
+
+AC:15
+output [bigmultiattack 1] named "level 2 eldritch blast w/ hex  vs AC[AC]"
+
+AC:20
+output [bigmultiattack 1] named "level 2 eldritch blast w/ hex  vs AC[AC]"
+
+AC:25
+output [bigmultiattack 1] named "level 2 eldritch blast w/ hex  vs AC[AC]"
+
+\ Level 3 \
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 3
+AC:10
+output [bigmultiattackadvantage 1] named "level 3 eldritch blast w/ hex, find familiar vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] named "level 3 eldritch blast w/ hex, find familiar vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] named "level 3 eldritch blast w/ hex, find familiar vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] named "level 3 eldritch blast w/ hex, find familiar vs AC[AC]"
+
+\ Level 4 \
+
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 3
+AC:10
+output [bigmultiattackadvantage 1] + 5 named "level 4 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + 5 named "level 4 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + 5 named "level 4 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + 5 named "level 4 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+
+\ Level 5 \
+
+BIGATTACK: 3 + 3
+SMALLATTACK: 2 + 3
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 3
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 10 named "level 5 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 10 named "level 5 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 10 named "level 5 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 10 named "level 5 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+\ Level 7 \
+
+BIGATTACK: 3 + 3
+SMALLATTACK: 3 + 3
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 3
+SMALLHITDAMAGE: 1d8 + 3
+SMALLCRITICALDAMAGE: 2d8 + 3
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 15 named "level 7 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 15 named "level 7 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 15 named "level 7 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 15 named "level 7 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+\ Level 9 \
+
+BIGATTACK: 4 + 3
+SMALLATTACK: 4 + 3
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 3
+SMALLHITDAMAGE: 1d8 + 3
+SMALLCRITICALDAMAGE: 2d8 + 3
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 9 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 9 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 9 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 9 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+\ Level 10 \
+
+BIGATTACK: 4 + 4
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 4
+SMALLHITDAMAGE: 1d8 + 4
+SMALLCRITICALDAMAGE: 2d8 + 4
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 10 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 10 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 10 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 1] + 20 named "level 10 eldritch blast w/ hex, find familiar, armor of agathys vs AC[AC]"
+
+\ Level 11 \
+
+BIGATTACK: 4 + 4
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 4
+BIGCRITICALDAMAGE: 2d10 + 4
+SMALLHITDAMAGE: 1d4 + 4
+SMALLCRITICALDAMAGE: 2d4 + 4
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 25 named "level 11 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 25 named "level 11 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 25 named "level 11 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 25 named "level 11 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+\ Level 13 \
+
+BIGATTACK: 5 + 4
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 4
+SMALLHITDAMAGE: 1d4 + 4
+SMALLCRITICALDAMAGE: 2d4 + 4
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 13 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 13 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 13 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 13 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+\ Level 14 \
+
+BIGATTACK: 5 + 5
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+SMALLHITDAMAGE: 1d4 + 4
+SMALLCRITICALDAMAGE: 2d4 + 4
+AC:10
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 14 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 14 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 14 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 1] + [bigmultiattack 2] + [smallmultiattack 10] + 30 named "level 14 eldritch blast w/ animate objects, find familiar, armor of agathys vs AC[AC]"
+
+\ Level 15 \
+
+BIGATTACK: 5 + 5
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+SMALLHITDAMAGE: 1d4 + 4
+SMALLCRITICALDAMAGE: 2d4 + 4
+AC:10
+output [bigmultiattackadvantage 2] + [bigmultiattack 4] + [smallmultiattack 20] + 70 named "level 15 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 2] + [bigmultiattack 4] + [smallmultiattack 20] + 70 named "level 15 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 2] + [bigmultiattack 4] + [smallmultiattack 20] + 70 named "level 15 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 2] + [bigmultiattack 4] + [smallmultiattack 20] + 70 named "level 15 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+\ Level 17 \
+
+BIGATTACK: 5 + 6
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+SMALLHITDAMAGE: 1d4 + 4
+SMALLCRITICALDAMAGE: 2d4 + 4
+AC:10
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 80 named "level 17 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 80 named "level 17 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 80 named "level 17 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 80 named "level 17 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+\ Level 19 \
+
+BIGATTACK: 5 + 6
+SMALLATTACK: 4 + 4
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+SMALLHITDAMAGE: 1d4 + 4
+SMALLCRITICALDAMAGE: 2d4 + 4
+AC:10
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 90 named "level 19 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:15
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 90 named "level 19 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:20
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 90 named "level 19 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+AC:25
+output [bigmultiattackadvantage 2] + [bigmultiattack 6] + [smallmultiattack 20] + 90 named "level 19 eldritch blast w/ animate objects, find familiar, armor of agathys, simulacrum vs AC[AC]"
+
+
+
+
+
+
+
+

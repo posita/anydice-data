@@ -1,0 +1,54 @@
+\==================================================================
+| inputs
+\
+ROLLA: 1d20    \ Attack vs AC \ \ Change modifiers to attack mod \
+
+\==================================================================
+| functions
+\
+\ determines if a roll beats the given AC \
+
+function: check A:n is above B:n {
+ if A + ATKMOD >= B & A != 20{ result: 1 }
+ if A = 20 { result: 2 }
+ result: 0
+}
+function: check A:n is below B:n and C:n {
+ if A + SAVEMOD >= B & C = 1{ result: 1}
+ if A + SAVEMOD < B = 1{ result: 2}
+ result: 0
+}
+\ DAMAGE \
+function: winnings from A:n {
+ if A = 0 { result: 0 }                          \Miss LMAO\      
+ if A = 1 { result: ATKDAMAGE + ATKDAMAGEMOD }    \normal hit\
+ if A = 2 { result: ATKDAMAGE*2 + ATKDAMAGEMOD }  \crit damage\
+ result: 0
+}
+function: winnings of A:n {
+ if A = 0 { result: 0 }                               \they succeeded on the save and took no damage\
+ if A = 1 { result: (SAVEDAMAGE + SAVEDAMAGEMOD) / 2 }  \they failed, but took half damage\
+ if A = 2 { result: SAVEDAMAGE + SAVEDAMAGEMOD}       \they failed yay\
+
+}
+
+
+\==================================================================
+| simulation
+\
+AC: 16
+ATKMOD: 8           \Attack modifier\
+ATKDAMAGEMOD: 0     \mod for damage if applicable\
+ATKDAMAGE: 3d10     \attack damage (crits auto calc'd)\
+
+DC: 16
+SAVEMOD: 7          \IMPORTANT this is the enemy save modifier\
+SAVEDAMAGEMOD: 0
+SAVEDAMAGE: 2d12
+HALF: 0             \Do you take half damage on a save? 1 = yes 0 = no\
+
+ATK: [check ROLLA is above AC] 
+SAVE: [check ROLLA is below DC and HALF]
+
+output [winnings from ATK] named "Inflict Wounds" \ Attack spell \
+output [winnings of SAVE] named "Toll The Dead" \ Save spell \

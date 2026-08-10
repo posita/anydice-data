@@ -1,0 +1,31 @@
+function: targetdie TARGET:n {
+  R: {}
+  loop N over {1..6} {
+   if N >= TARGET {R: {R, 1}}
+   if N < TARGET {R: {R, 0}}
+  }
+  result: R
+}
+
+function: hits ATTACKS:n TARGET:n {
+  result: ATTACKSd[targetdie TARGET]
+}
+
+function: wounds HITS:n TARGET:n {
+  result: HITSd[targetdie TARGET]
+}
+
+function: regenerate WOUNDS:n TARGET:n {
+  result: WOUNDS - WOUNDSd[targetdie TARGET]
+}
+
+\functions work by having a keyword and then variables.
+The function definition for rolling hits is above - but here is an expanded function call to demonstrate:\
+output [hits \attacks=\20 \target=\4] \ This will calculate the odds of hitting with 20 attacks on 4s.\
+output [wounds \hits=\10 \target=\4] \ This will calculate the odds of wounding with 10 hits on 4s.\
+
+\They can be combined! I'm going to remove the variable names\
+output [wounds [hits 20 4] 4] \This will calculate the odds of wounding with 20 attacks, hitting on 4s and wounding on 4s.\
+
+\ You can also do multi-charges!\
+output [wounds [hits 20 5] 5] + [wounds [hits 30 5] 4]

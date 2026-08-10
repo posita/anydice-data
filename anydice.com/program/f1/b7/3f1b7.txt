@@ -1,0 +1,35 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ATTACK: 11
+HITDAMAGE: 1d8 + 5
+CRITICALDAMAGE: 3d8 + 5
+MISSDAMAGE: 0
+loop AC over {15, 20, 25} {
+ output [damage for [attack d20 vs AC]] named "Punching at AC[AC]"
+}
+
+ATTACK: 13
+HITDAMAGE: 3d6 + 7
+CRITICALDAMAGE: 7d6 + 7
+loop AC over {15, 20, 25} {
+ output [damage for [attack d20 vs AC]] named "Greatsword at AC[AC]"
+}

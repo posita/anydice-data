@@ -1,0 +1,78 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+ADVANTAGE: [highest 1 of 2d20]
+
+DISADVANTAGE: [lowest 1 of 2d20]
+
+AC: d{13..20}
+
+LEVEL: 7
+THR: 1@1d20  \* To-hit roll *\
+
+\**  Levels                         1 1 1 1 1 1 1 1 1 1 2
+**                1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0  ***\
+STR:       LEVEL@{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+DEX:       LEVEL@{3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5}
+CHA:       LEVEL@{3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5}
+SPELLSLOT: LEVEL@{1,1,1,2,2,3,3,4,4,5,5,5,5,5,5,5,5,5,5,5}
+MULTA:     LEVEL@{1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2} \* Multi attack *\
+LD:        LEVEL@{0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5} \* Lifedrain *\
+
+\* Scaling parameters *\
+PROF: LEVEL@{2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6}  \* Proficiency Bonus *\
+CANT: LEVEL@{1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4}  \* Cantrip Scaling *\
+BB: (CANT-1)d8                         \* Booming Blade *\
+BOM: (CANT)d8                          \* Booming Blade extra damage *\
+SB: (SPELLSLOT@{0,2,3,3,4,4,5,5,5})d8  \* Shadow Blade *\
+SW: (SPELLSLOT@{0,1,1,2,2,3,3,4,4})d8  \* Spiritual Weapon *\
+TTD: (CANT)d12                         \* Toll the Dead *\
+
+output
+(MULTA)d[attack THR plus PROF+DEX vs AC for 1d6+DEX crit 1d6 on 20] +
+[attack THR plus PROF+DEX vs AC for 1d6+DEX crit 1d6 on 20]
+named "Two-weapon fighting"
+
+output
+(MULTA)d[attack THR plus PROF+DEX vs AC for 1d8+DEX+2 crit 1d8 on 20]
+named "Dueling"
+
+output
+(MULTA)d[attack THR plus PROF+DEX-3 vs AC for 1d10+DEX+10 crit 1d10 on 20]
+named "Archery SS"
+
+output
+(MULTA)d[attack THR plus PROF+DEX vs AC for [gwf d10]+DEX crit d[gwf d10] on 20] +
+[attack THR plus PROF+DEX vs AC for d4+DEX crit d4 on 20]
+named "Great-weapon fighting"

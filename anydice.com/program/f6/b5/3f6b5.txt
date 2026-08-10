@@ -1,0 +1,65 @@
+
+\ This function simulates a percentile roll using two d10s \
+function: percentile {
+  result: (1d10 - 1) * 10 + 1d10
+}
+
+\ This function compares two rolls based on the custom rules \
+function: compare ROLL_A:n and ROLL_B:n with TARGET:n {
+  \ The sub-target is the main target divided by 10, rounded up. \
+  SUB_TARGET: (TARGET + 9) / 10
+
+  \ Check for special successes (under the rounded-up sub-target) \
+  A_SPECIAL: ROLL_A <= SUB_TARGET
+  B_SPECIAL: ROLL_B <= SUB_TARGET
+  
+  \ Check for standard successes (under the main target) \
+  A_STANDARD: ROLL_A <= TARGET
+  B_STANDARD: ROLL_B <= TARGET
+
+  \ Handle the case where both rolls are special successes \
+  if A_SPECIAL& B_SPECIAL{
+    if ROLL_A > ROLL_B { result: 2 }
+    if ROLL_B > ROLL_A { result: 2 }
+    \ Tie: default to the first roll's success level \
+    result: 2
+  } else if A_SPECIAL{
+    \ Only A is a special success, so A wins \
+    result: 2
+  } else if B_SPECIAL{
+    \ Only B is a special success, so B wins \
+    result: 2
+  } else if A_STANDARD& B_STANDARD{
+    \ Both are standard successes. Highest number under target wins \
+    if ROLL_A > ROLL_B { result: 1 }
+    if ROLL_B > ROLL_A { result: 1 }
+    \ Tie: default to the first roll's success level \
+    result: 1
+  } else if A_STANDARD{
+    \ Only A is a standard success, so A wins \
+    result: 1
+  } else if B_STANDARD{
+    \ Only B is a standard success, so B wins \
+    result: 1
+  }
+  
+  \ Neither roll succeeded \
+  result: 0
+}
+
+function: straight roll X:n against TARGET:n {
+  SUB_TARGET: (TARGET + 9) / 10
+  A_SPECIAL: X <= SUB_TARGET
+  A_STANDARD: X <= TARGET
+  if A_SPECIAL{
+   result: 2 }
+  if A_STANDARD{ 
+   result: 1 }
+  result: 0
+}
+
+\ Output the comparison result for two percentile rolls \
+loop TARGET over {30,50,70,90} {
+output [straight roll 1d100 against TARGET] named "roll against skill [TARGET]"
+output [compare [percentile] and [percentile] with TARGET] named "reroll against skill [TARGET]"
+}

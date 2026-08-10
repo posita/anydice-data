@@ -1,0 +1,46 @@
+
+MOD:0     \This is the damage modifier. I.E. Strength modifier, etc.\
+DIE_A:6
+NUMDIE_A:2
+DIE_B:12
+NUMDIE_B:1
+MIN:2     \Lower limit for Great Weapon Fighter. Default of 2       \
+CRIT: 19  \Minimum roll for a crit. Default 20                      \
+    
+
+function: reroll A:n B:n { 
+ if A <= 2 { 
+  A: 1dB 
+ }  
+ result: A 
+}
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA A]
+ }
+ result: X
+}
+
+function: getcrit DIE:n THRESHOLD:n NUMDIE:n ADDDIE:n { 
+ if DIE >= THRESHOLD { 
+  result: NUMDIE * 2 + ADDDIE
+ }
+ else { 
+  result: NUMDIE 
+ } 
+}
+
+HIT: [highest 1 of 2d20] 
+HIT_LOW: [highest 1 of 1d20] 
+
+NUMDIE_ACTUAL_A: [getcrit HIT 20 1 4]
+NUMDIE_ACTUAL_B: [getcrit HIT 18 2 1]
+NUMDIE_ACTUAL_B_LOW: [getcrit HIT_LOW 18 2 1]
+NUMDIE_ACTUAL_C: [getcrit HIT_LOW 20 2 1]
+
+output 2 * ([greatweaponmaster 12 NUMDIE_ACTUAL_A MIN] + MOD + 4)
+output 3 * ([greatweaponmaster 6 NUMDIE_ACTUAL_B MIN] + MOD + 2)
+output 4 * ([greatweaponmaster 6 NUMDIE_ACTUAL_B_LOW MIN] + MOD)
+output 4 * ([greatweaponmaster 6 NUMDIE_ACTUAL_C MIN] + MOD)

@@ -1,0 +1,35 @@
+ATT: 6     \ The Attribute Die type (2,4,6,8,10,12) \
+SKI: 3     \ The Skill Die Amount (0-5) \
+LUK: 4     \ The Luck Die type (2,4,6,8,10,12) \
+TAR: 4     \ The Success Target Number (1 or more) \
+
+ROLL: SKId[explode dATT]
+LUCK: 1d[explode dLUK]
+SUCCESS: 0
+
+function: AA:s dice {
+ result: (AA >= TAR) - (AA = 1)
+}
+
+function: AA:s BB:s luck {
+ result: (AA >= TAR) - (AA = 1) + (BB / TAR) - (BB = 1)
+}
+
+function: BB:s botch {
+ result: (BB = 1)
+}
+
+function: AA:s BB:s critfail {
+ if (AA >= TAR) - (AA = 1) + (BB / TAR) - (BB = 1) < 1 {
+  if BB = 1 {
+   result: 1
+  }
+ }
+ else { result: 0 }
+}
+
+output [ ROLL dice ] named "SUCCESS for rolling [SKI]d[ATT] against target [TAR] without Luck"
+output [ ROLL LUCK luck ] named "SUCCESS for rolling [SKI]d[ATT] against target [TAR] with 1d[LUK] Luck"
+output [ LUCK botch ] named "COMPLICATIONS with a 1d[LUK]"
+output [ ROLL LUCK critfail ] named "CRITICAL FAILURE with a [SKI]d[ATT] and 1d[LUK] against target [TAR]"
+

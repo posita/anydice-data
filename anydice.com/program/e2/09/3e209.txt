@@ -1,0 +1,84 @@
+
+\**********************************************************************************************\
+
+\**********************************************************************************************\
+function: roll ATT:n {
+ result: [test ATTd6]
+}
+
+function: test ROLL:s {
+ MAX_ROLLED: 1@ROLL
+ MIN_ROLLED: #ROLL@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+
+ SUBSETS: {ROLL=MIN_ROLLED}  
+ loop M over {1..DIFF}{                
+   SUBSETS: {SUBSETS, ROLL=(MIN_ROLLED+M)}
+ }
+
+ TEMP: 1@SUBSETS
+ RES: MIN_ROLLED
+ loop N over {1..DIFF}{                         
+   if (TEMP <= ((N+1)@SUBSETS)) {
+     RES: MIN_ROLLED + N
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES
+}
+
+
+function: testbis ROLL:s {
+ MAX_ROLLED: 1@ROLL
+ MIN_ROLLED: #ROLL@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+ 
+ COUNT: 0
+ SUBSETS: {} 
+ SEQ: {MAX_ROLLED}
+ loop N over ROLL {
+   if (ROLL = MAX_ROLLED){                 \count the size of the each face value in the roll\
+     COUNT: COUNT+1
+   }else{
+     SEQ: {SEQ, N@ROLL}               \assemble only the face values present in the roll\
+     SUBSETS: {SUBSETS, COUNT}        \assemble only the counts of each face value present in the roll\
+     COUNT: 0
+     MAX_ROLLED: N@ROLL
+   }
+ }
+
+ \find the highest count & its associated face value\
+ TEMP: 1@SUBSETS
+ RES: MIN_ROLLED
+ loop N over SEQ{                         
+   if (TEMP <= ((N+1)@SUBSETS)) {
+     RES: N@SEQ
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES
+
+
+
+ \SUBSETS: {ROLL=MIN_ROLLED}  
+ loop M over {1..DIFF}{                
+   SUBSETS: {SUBSETS, ROLL=(MIN_ROLLED+M)}
+ }
+
+ TEMP: 1@SUBSETS
+ RES: MIN_ROLLED
+ loop N over {1..DIFF}{                         
+   if (TEMP <= ((N+1)@SUBSETS)) {
+     RES: MIN_ROLLED + N
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES\
+}
+
+output [roll 5]  \max 18d6\
+output [test 5d6]
+output [testbis 5d6]
+
+\output 5d[test 1d6]
+output 5d[roll 1]\

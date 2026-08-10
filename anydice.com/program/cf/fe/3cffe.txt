@@ -1,0 +1,39 @@
+
+\-- Elemental Burst --\
+
+MONK_LEVEL: 6
+WISDOM: 16
+SAVE_FOR_HALF: 1
+HAS_EVASION: 0
+
+
+function: martial arts die LEVEL:n{
+  if LEVEL <= 4 {result: d6}
+  if LEVEL <= 10 {result: d8}
+  if LEVEL <= 16 {result: d10}
+  result: d12
+}
+
+PROF_BONUS: (MONK_LEVEL - 1)/4  + 2
+WIS_MOD: (WISDOM/2 - 5)
+SAVE_DC: 8 + WIS_MOD + PROF_BONUS
+
+
+function: saves ROLL:n {
+  FULL_DMG: 3d[martial arts die MONK_LEVEL] * (MONK_LEVEL >= 6)
+  HALF_DMG: FULL_DMG/2
+
+  HAS_MADE_SAVE: (ROLL >= SAVE_DC)
+
+  if (!HAS_MADE_SAVE) & !(HAS_EVASION & SAVE_FOR_HALF ) {result: FULL_DMG}
+  if (SAVE_FOR_HALF ) & !(HAS_EVASION & HAS_MADE_SAVE ) {result: HALF_DMG}
+
+  result: 0
+}
+
+
+loop MOD over {(SAVE_DC - 21)..(SAVE_DC - 1)}{
+  ROLL:(d20 + MOD)
+  if MOD < 0 {output [saves (ROLL)] named  "[MOD] DEX Save"}
+  else       {output [saves (ROLL)] named "+[MOD] DEX Save"}
+}

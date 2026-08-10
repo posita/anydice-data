@@ -1,0 +1,184 @@
+MISS: 0
+HIT: 1
+MAGICMISS: 2
+
+SMALLHIT: 3
+REGHIT: 4
+BIGHIT: 5
+VBIGHIT: 6
+
+DFOUR: 0
+DSIX: 0
+DEIGHT: 0
+DTEN: 0
+DTWELVE: 0
+
+function: check wound ROLL:n{
+ if ROLL > 1 {result: 1}
+ result: 0
+}
+
+function: damage for DIE:n rolling ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL + ATTACK >= DEFENSE { 
+  if DIE > 1{result: 1}
+  result: 0
+ }
+ result: 0
+}
+
+function: check die step DIE:n for HITSIZE:n{
+ if HITSIZE = SMALLHIT{
+  TEMP: DIE-2
+  if TEMP < 3 {TEMP: 3}
+  result: TEMP
+ }
+ if HITSIZE = BIGHIT{
+  if DIE = 8{
+   result: 20
+  }
+  result: DIE+2
+ }
+ result: DIE
+}
+
+function: attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+ }
+ result: RESULT
+}
+
+function: multiattack against DIE:n with NUM:n attacks doing NUMWOUNDS:n DAMAGE:n with CHANCE:n to hit against AC:n{
+ RESULT: 0
+
+ loop N over{1..NUM}{
+  RESULT: RESULT + [attack against DIE doing NUMWOUNDS DAMAGE rolling 1d20 plus CHANCE to hit against AC]
+ }
+ result: RESULT
+}
+
+function: magic attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+  else{
+   RESULT: RESULT + [check wound [lowest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+ }
+ result: RESULT
+}
+
+function: area magic attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+  else{
+   RESULT: RESULT + [check wound [lowest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+ }
+ result: RESULT
+}
+
+function: unfavorable magic attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound [highest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+  else{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+ }
+ result: RESULT
+}
+
+function: favorable magic attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound [lowest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+  else{
+   RESULT: RESULT + [check wound [lowest 1 of 2d[check die step DIE - 2 for DAMAGE]]]
+  }
+ }
+ result: RESULT
+}
+
+function: explosive attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+  else{
+   RESULT: RESULT + [check wound [lowest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+  DIE: DIE + 2
+  if DIE > 8 {DIE: 8}
+ }
+ result: RESULT
+}
+
+function: area magic against DIE:n with NUM:n hits doing NUMWOUNDS:n DAMAGE:n with CHANCE:n to hit against AC:n{
+ RESULT: 0
+
+ loop N over{1..NUM}{
+  RESULT: RESULT + [area magic attack against DIE doing NUMWOUNDS DAMAGE rolling 1d20 plus CHANCE to hit against AC]
+ }
+ result: RESULT
+}
+
+output [magic attack against 4 doing 7 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Normal (d4)"
+output [magic attack against 4 doing 7 REGHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Touch (d4)"
+output [unfavorable magic attack against 4 doing 5 BIGHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Empowered (d4)"
+output [explosive attack against 4 doing 10 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Explosive (d4)"
+output [area magic against 4 with 3 hits doing 5 REGHIT with 3 to hit against 18] named "AOE Nuke Default (d4)"
+
+output [area magic against 4 with 3 hits doing 2 REGHIT with 3 to hit against 18] named "Area Magic Default (d4)"
+output [area magic against 4 with 3 hits doing 3 SMALLHIT with 3 to hit against 18] named "Area Magic Boosted (d4)"
+
+output [unfavorable magic attack against 4 doing 5 REGHIT rolling 1d20 plus 3 to hit against 15] named "Consistent Normal (d4)"
+output [unfavorable magic attack against 4 doing 6 REGHIT rolling 1d20 plus 3 to hit against 15] named "Consistent Touch (d4)"
+
+output [magic attack against 8 doing 7 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Normal (d8)"
+output [magic attack against 8 doing 7 REGHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Touch (d8)"
+output [unfavorable magic attack against 8 doing 5 BIGHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Empowered (d8)"
+output [explosive attack against 8 doing 10 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "Nuke Explosive (d8)"
+output [area magic against 8 with 3 hits doing 5 REGHIT with 3 to hit against 18] named "AOE Nuke Default (d8)"
+
+output [area magic against 8 with 3 hits doing 2 REGHIT with 3 to hit against 18] named "Area Magic Default (d8)"
+output [area magic against 8 with 3 hits doing 3 SMALLHIT with 3 to hit against 18] named "Area Magic Boosted (d8)"
+
+output [unfavorable magic attack against 8 doing 5 REGHIT rolling 1d20  plus 3 to hit against 15] named "Consistent Normal (d8)"
+output [unfavorable magic attack against 8 doing 6 REGHIT rolling 1d20  plus 3 to hit against 15] named "Consistent Touch (d8)"
+
+
+output [magic attack against 8 doing 5 REGHIT rolling 1d20 plus 3 to hit against 15] named "Benchmark"
+output [favorable magic attack against 8 doing 5 REGHIT rolling 1d20 plus 3 to hit against 15] named "Favorable test"
+output [magic attack against 8 doing 3 REGHIT rolling 1d20 plus 3 to hit against 15] named "Lower slot test"

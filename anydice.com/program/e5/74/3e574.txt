@@ -1,0 +1,47 @@
+\ This function generates basic odds for a d10 equal or higher then Target Number "TN" with rule of 1s \
+function: odds DICE:s TN:n{
+ ASUCCESS: DICE >=TN
+ AONES: DICE = 1
+ result: ASUCCESS - AONES
+}
+
+\ This function directly compares two sets of rolls. The A should be higher than B to calculate odds of victory \
+
+function: comparison A:s and B:s {
+ ASUCCESS: A >=6
+ AONES: A = 1
+ ARESULT: ASUCCESS - AONES
+ BSUCCESS: B >=6
+ BONES: B = 1
+ BRESULT: BSUCCESS - BONES
+ result: ARESULT - BRESULT
+}
+
+\Test to see a call of a function within a function\
+function: adding A:n and B:n {
+ result: A+B
+}
+
+\The actual Attack + Damage Calculator\
+\This calculates the number of damage dice to roll, and if to roll them\
+function: damagedicecalculator A:n and B:n {
+ if A < 1 {result: 0}
+ result: A+B
+}
+
+
+\This should calculate total dice and then run odds\
+function: attacker A:n and B:n{
+ DICE: A
+ SOAK: B
+ result: [odds DICEd10 SOAK]
+ 
+}
+
+
+\OK this calculates how much damage DICE you will roll\
+output [odds 5d10 6] named "Basic"
+\Testing damagedicecalculator\
+output [damagedicecalculator [odds 5d10 6] and 5] named "Calculator"
+\Testing Attack Generator\
+output [attacker [damagedicecalculator [odds 5d10 6] and 5] and 6] named "Total Test"

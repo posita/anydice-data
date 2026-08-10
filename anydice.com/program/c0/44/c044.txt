@@ -1,0 +1,56 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if CRITRANGE = ROLL >= 1 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+
+MISSDAMAGE: 0
+ATTACK: 5 + 2
+
+
+loop AC over {16..18} {
+ HITDAMAGE: d8 + 5
+ CRITICALDAMAGE: 2d8 + 5
+ CRITRANGE: {20..20}
+ output [damage for [attack d20 vs AC]] named "AC[AC] melee"
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "AC[AC] melee advantage"
+
+ HITDAMAGE: d8 + d6 + 5
+ CRITICALDAMAGE: 2d8 + d6 + 5
+ CRITRANGE: {20..20}
+ output [damage for [attack d20 vs AC]] named "AC[AC] melee Hex"
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "AC[AC] melee advantage Hex"
+
+
+
+ CRITRANGE: {19..20}
+ HITDAMAGE: d8 + 7
+ CRITICALDAMAGE: 2d8 + 7
+ output [damage for [attack d20 vs AC]] named "AC[AC] melee Hexblade Curse"
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "AC[AC] melee advantage Hexblade Curse"
+
+ CRITRANGE: {19..20}
+ HITDAMAGE: d8 + d6 + 7
+ CRITICALDAMAGE: 2d8 + d6 + 7
+ output [damage for [attack d20 vs AC]] named "AC[AC] melee Hexblade Curse and Hex"
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "AC[AC] melee advantage Hexblade Curse and Hex"
+}
+
+

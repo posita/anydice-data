@@ -1,0 +1,25 @@
+DP: 12
+GLITCHED: 0
+ATTEMPTS: 6
+SUM: 0
+
+
+function: ROLL:s glitch
+{
+ result: ((ROLL >= 5)>0) & ((ROLL = 1)>=5)
+}
+
+
+function: ROLL:s cglitch
+{
+ result: ((ROLL >= 5)=0) & ((ROLL = 1)>=GLITCHED)
+}
+
+
+loop N over 
+   {(DP-ATTEMPTS+1)..DP}
+   {
+   GLITCHED: N / 2 + 1
+    SUM: SUM + Nd{0,0,1} - [N d6 glitch] * d6 - [N d6 cglitch] * -999
+   }
+output SUM>11 named "Expected success on [ATTEMPTS] attempts with [DP] dice"

@@ -1,0 +1,69 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+AC: 16
+
+\ Attack Rolls \
+output 1d20 named "Straight d20"
+output [highest 1 of 2d20] named "Advantage d20"
+output [highest 1 of 4d20] = 20 named "Crit %, 1 turn Reckless"
+
+\ Rage + Great Weapon Fighting + STR 20 \
+GSDICE: 2d{1, 2, {3..6}:4}
+GS: GSDICE + 5 + 2
+
+\ Normal \
+output [attack 1d20 plus 9 vs AC for GS crit GSDICE on 20] named "Normal"
+
+\ Reckless, no GWM \
+output [attack [highest 1 of 2d20] plus 9 vs AC for GS crit GSDICE on 20] named "Reckless"
+
+\ GWM \
+output [attack 1d20 plus 4 vs AC for GS + 10 crit GSDICE on 20] named "GWM"
+
+\ Reckless, GWM \
+output [attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] named "Reckless, GWM"
+
+\ GWM, Flanking \
+output [attack 1d20 plus 6 vs AC for GS + 10 crit GSDICE on 20] named "Flanking GWM"
+
+\ Reckless, GWM, Flanking \
+output [attack [highest 1 of 2d20] plus 6 vs AC for GS + 10 crit GSDICE on 20] named "Flanking Reckless GWM"
+
+\ Reckless, GWM, BA on crit \
+\ output [attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE + [attack 1d20 plus 9 vs AC for GS crit 2d{1, 2, {3..6}:4} on 20] on 20] \
+
+
+\ Standard turn: 2x Reckless + GWM \
+output 2d[attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] named "2x Reckless, GWM"
+
+\ GWM BA turn, normal: 2x Reckless + GWM + 1x Straight \
+output 2d[attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] + [attack 1d20 plus 9 vs AC for GS crit GSDICE on 20] named "2x Reckless, GWM + 1x BA Normal"
+
+\ GWM BA turn, risky: 2x Reckless + GWM + 1x GWM \
+output 2d[attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] + [attack 1d20 plus 4 vs AC for GS + 10 crit GSDICE on 20] named "2x Reckless, GWM + 1x BA GWM"
+
+\ Straight Hits: 2x no Reckless, no GWM \
+output 2d[attack 1d20 plus 9 vs AC for GS crit GSDICE on 20] named "2x Normal"
+
+\ Safe GWM: 2x no Reckless, yes GWM \
+output 2d[attack 1d20 plus 4 vs AC for GS + 10 crit GSDICE on 20] named "2x GWM"
+
+\ Nova Reckless Crit %: 6 attacks. \
+output 6d([highest 1 of 2d20] = 20) named "Nova Crit %"
+
+\ Nova. (1 Attack + 1 Extra Attack + 1 Echo Attack) x2 from Action Surge \
+output 6d[attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] named "Nova. 6x Reckless, GWM"
+
+\ Nova + BA. (1 Attack + 1 Extra Attack + 1 Echo Attack) x2 from Action Surge + 1 GWM BA \
+output 6d[attack [highest 1 of 2d20] plus 4 vs AC for GS + 10 crit GSDICE on 20] + [attack 1d20 plus 9 vs AC for GS crit GSDICE on 20] named "Nova. 6x Reckless, GWM + 1x Normal"

@@ -1,0 +1,43 @@
+LEVEL: 43          \ Character Level \
+INT_MALUS: 0       \ 0 for Int 18/220. 1 for 18/210. 2 for 18/200 ... \
+
+FAIL_CHAOS_STRIKE_BASE: -3   \ Chaos Strike: 0% fail at Level 49 \
+FAIL_MANA_STORM_BASE:   14   \ Mana Storm:  14% fail at level 50 \
+
+FAIL_CHAOS_STRIKE: FAIL_CHAOS_STRIKE_BASE + 3 * (50 - LEVEL) + 3 * INT_MALUS
+FAIL_MANA_STORM:   FAIL_MANA_STORM_BASE   + 3 * (50 - LEVEL) + 3 * INT_MALUS
+if FAIL_CHAOS_STRIKE < 0 { FAIL_CHAOS_STRIKE: 0 }
+if FAIL_MANA_STORM   < 0 { FAIL_MANA_STORM:   0 }
+
+METEOR_NUMBER: 4
+if LEVEL < 40 { METEOR_NUMBER: 3 }
+
+MANA_METEOR_SWARM: 14
+MANA_RIFT: 20
+MANA_REND_SOUL: 15
+MANA_CHAOS_STRIKE: 15
+MANA_MANA_STORM: 16
+
+DAM_CHAOS_STRIKE: 13dLEVEL *(100 - FAIL_CHAOS_STRIKE) / 100
+DAM_METEOR_SWARM: (30 + LEVEL / 2) * METEOR_NUMBER
+DAM_RIFT: 40 + LEVELd7
+DAM_MANA_STORM: (300 + 2* LEVEL)
+DAM_REND_SOUL: 11dLEVEL
+
+DAM_CHAOS_STRIKE: DAM_CHAOS_STRIKE * (100 - FAIL_CHAOS_STRIKE) / 100
+DAM_MANA_STORM:   DAM_MANA_STORM   * (100 - FAIL_MANA_STORM)   / 100
+
+output FAIL_CHAOS_STRIKE named "Chaos Strike fail %"
+output FAIL_MANA_STORM   named "Mana Storm fail %"
+
+output DAM_REND_SOUL    named "Rend Soul (non-evil)"
+output DAM_RIFT         named "Rift"
+output DAM_METEOR_SWARM named "Meteor Swarm"
+output DAM_CHAOS_STRIKE named "Chaos Strike"
+output DAM_MANA_STORM   named "Mana Storm"
+
+output DAM_REND_SOUL    / MANA_REND_SOUL    named "Rend Soul / Mana"
+output DAM_RIFT         / MANA_RIFT         named "Rift / Mana"
+output DAM_METEOR_SWARM / MANA_METEOR_SWARM named "Meteor Swarm / Mana"
+output DAM_CHAOS_STRIKE / MANA_CHAOS_STRIKE named "Chaos Strike / Mana"
+output DAM_MANA_STORM   / MANA_MANA_STORM   named "Mana Storm / Mana"

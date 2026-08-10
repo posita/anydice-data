@@ -1,0 +1,30 @@
+EVASION: 8
+ARMOR: 0
+INVISIBLE: 0
+ACCURACY: 0
+
+\ Do not edit below this line \
+function: attack A:n {
+  result: (1d20 + 2 + ((A < 0) * (-A) + (A > 0))@Ad6)*1d{INVISIBLE = 0, 1}
+}
+
+function: armor D:n {
+  DA: D - ARMOR
+  result: DA * (DA >= 0)
+}
+
+function: cyclone R:n times T:n {
+  if (R < EVASION) {
+    if (T) {
+      result: [armor 5]
+    } else {
+      result: [cyclone [attack 1 + ACCURACY] times 1]
+    }
+  } else if (R < 20) {
+    result: [armor 4d6 + 3]
+  } else {
+    result: [armor {1..4}@8d6 + 3]
+  }
+}
+
+output [cyclone [attack 1 + ACCURACY] times 0] named "Damage"

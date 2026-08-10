@@ -1,0 +1,30 @@
+function: maxplode N:n {
+ if N = 10 { result: 10 + [explode d10] }
+ result: N
+}
+
+function: implode N:n
+{
+ if N = 2 {result: -10 + [implode 2d10]}
+ result: N
+}
+
+function: clamp N:n between LOW:n and HIGH:n
+{
+if (N > HIGH) {result: HIGH}
+if (N < LOW) {result: LOW}
+result:N
+}
+
+set "maximum function depth" to 5
+
+A:0
+B:5
+TN:10
+EXT:1
+R:6d10
+\output [clamp (EXT*A + ([maxplode 1@R] + [maxplode 2@R])) - (EXT*B + ([maxplode 1@R] + [maxplode 2@R])) between -1 and 1] named "Skill [A] vs Skill [B]"\
+loop S over {0,2,4,6,8,10,12}
+{
+output [clamp (EXT*S + [implode ([maxplode 1@R] + [maxplode 2@R])]) - (EXT*TN) between -1 and 1] named "Skill [S] vs [TN]"
+}

@@ -1,0 +1,25 @@
+MAXRTG: 2
+MAXDGR: 3
+MAXRSK: 2
+
+function: rating RT:n danger D:n risk RK:n {
+  D: [highest of D-1 and 0]
+  R: (RT + D)d{0,0,0,0,0,1,1,1} + RKd{-1,0,0,0,0,1}
+  result: [ success R - D ]
+}
+
+function: success H:n {
+  if H <= 0 { result: 0 }
+  if H = 1  { result: 1 }
+  if H = 2  { result: 2 }
+  if H > 2  { result: 3 }
+}
+
+loop RTG over {2..MAXRTG} {
+  loop DGR over {1..MAXDGR} {
+    M: [lowest of MAXRSK and MAXRTG]
+    loop RSK over {0..M} {
+      output [rating RTG danger DGR risk RSK] named "[RTG],[DGR],[RSK]" 
+    }
+  }
+}

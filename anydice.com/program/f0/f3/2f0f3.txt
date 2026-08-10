@@ -1,0 +1,198 @@
+\**** Spell Damage calculator ****\
+
+\constants\
+
+YES: 1
+NO: 0
+
+HALF: 1
+NOTHING: 0
+
+TARGET: 1
+CASTER: 0
+
+CRIT: 2
+HIT: 1
+MISS: 0
+
+
+\target sheet\
+
+TARGET_STR_MOD: 0
+TARGET_DEX_MOD: 0
+TARGET_CON_MOD: 0
+TARGET_INT_MOD: 0
+TARGET_WIS_MOD: 0
+TARGET_CHA_MOD: 0
+
+TARGET_STR_SAVE_BONUS: 0
+TARGET_DEX_SAVE_BONUS: 0
+TARGET_CON_SAVE_BONUS: 0
+TARGET_INT_SAVE_BONUS: 0
+TARGET_WIS_SAVE_BONUS: 0
+TARGET_CHA_SAVE_BONUS: 0
+
+AC: 15
+
+DAMAGE_RESISTANCE: NO
+
+TARGET_ADVANTAGE: NO
+TARGET_DISADVANTAGE: NO
+TARGET_ACCURACY: NO
+
+
+
+\caster sheet\
+
+CASTER_SPELL_ATTACK_MOD: 0
+CASTER_SPELL_ATTACK_BONUS: 0
+BONUS_DAMAGE: 0
+
+DC: 15
+
+ELEMENTAL_ADEPT: YES
+
+CASTER_ADVANTAGE: NO
+CASTER_DISADVANTAGE: NO
+CASTER_ACCURACY: NO
+
+
+
+\functions\
+
+function: roll ROLL:s with lower bound LOWER_BOUND:n {
+ RESULT: 0
+ loop P over {1..#ROLL} {
+  if P@ROLL <= LOWER_BOUND-1 { RESULT: RESULT + 2 }
+  if P@ROLL > LOWER_BOUND-1 { RESULT: RESULT + P@ROLL }
+ }
+ result: RESULT
+}
+
+function: adv ADVANTAGE:n disadv DISADVANTAGE:n acc ACCURACY:n {
+ if ADVANTAGE = YES & DISADVANTAGE = YES { result: d20 }
+ if ADVANTAGE = NO & DISADVANTAGE = NO { result: d20 }
+ if ADVANTAGE = YES & ACCURACY = YES { result: 1@3d20 }
+ if ADVANTAGE = YES { result: 1@2d20 }
+ if DISADVANTAGE = YES { result: 2@2d20 }
+ result: 0
+}
+
+function: strsave ROLL:n vs AC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + TARGET_STR_MOD + TARGET_STR_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: dexsave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + TARGET_DEX_MOD + TARGET_DEX_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: consave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + TARGET_CON_MOD + TARGET_CON_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: intsave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + TARGET_INT_MOD + TARGET_INT_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: wissave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + TARGET_WIS_MOD + TARGET_WIS_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: chasave ROLL:n vs DC:n {
+ if ROLL = 20 { result: 1 }
+ if ROLL = 1 { result: 0 }
+ if ROLL + TARGET_CHA_MOD + TARGET_CHA_SAVE_BONUS >= DC { result: 1 }
+ result: 0
+}
+
+function: SAVE:n to take DAMAGE:d or PASS_DAMAGE {
+ AUX: DAMAGE
+ if PASS_DAMAGE = HALF {
+  if ELEMENTAL_ADEPT = YES {
+    AUX: [roll AUX with lower bound 2] + BONUS_DAMAGE
+  }
+  if SAVE { AUX: (AUX + BONUS_DAMAGE)/2 }
+  if DAMAGE_RESISTANCE = YES { AUX: AUX/2 }
+  result: AUX
+ }
+
+ if PASS_DAMAGE = NOTHING { result: (1 - SAVE)*DAMAGE }
+ result:0
+}
+
+function: spellattack ROLL:n vs AC:n {
+ if ROLL = 20 { result: CRIT }
+ if ROLL = 1 { result: 0 }
+ if ROLL + CASTER_SPELL_ATTACK_MOD + CASTER_SPELL_ATTACK_BONUS >= AC { result: 1 }
+ result: 0
+}
+
+function: SPELL_ATTACK:n to deal DAMAGE:d {
+ if SPELL_ATTACK = CRIT {
+  AUX: 2d(DAMAGE)
+  
+  if ELEMENTAL_ADEPT = YES {
+   AUX: [roll AUX with lower bound 2] + BONUS_DAMAGE
+  }
+  
+  if DAMAGE_RESISTANCE = YES { AUX: AUX/2 }
+  
+  result: AUX
+ }
+ 
+ if SPELL_ATTACK = HIT {
+  AUX: DAMAGE
+
+  if ELEMENTAL_ADEPT = YES {
+   AUX: [roll AUX with lower bound 2] + BONUS_DAMAGE
+  }
+  
+  if DAMAGE_RESISTANCE = YES { AUX: AUX/2 }
+  
+  result: AUX
+ }
+ 
+ result:0
+}
+
+
+TARGET_DICE: [adv TARGET_ADVANTAGE disadv TARGET_DISADVANTAGE acc TARGET_ACCURACY]
+
+CASTER_DICE: [adv TARGET_ADVANTAGE disadv TARGET_DISADVANTAGE acc TARGET_ACCURACY]
+
+STR_SAVE: [ strsave TARGET_DICE vs DC ]
+DEX_SAVE: [ dexsave TARGET_DICE vs DC ]
+CON_SAVE: [ consave TARGET_DICE vs DC ]
+INT_SAVE: [ intsave TARGET_DICE vs DC ]
+WIS_SAVE: [ wissave TARGET_DICE vs DC ]
+CHA_SAVE: [ chasave TARGET_DICE vs DC ]
+
+SPELL_ATTACK: [ spellattack CASTER_DICE vs AC ]
+
+
+
+\spells\
+
+FIREBALL: [DEX_SAVE to take 8d6 or HALF]
+
+FIRE_BOLT_ONE: [SPELL_ATTACK to deal 1d10]
+
+\outputs\
+
+output FIRE_BOLT_ONE named "avg lvl 1 fire bolt dmg"
+output FIREBALL named "avg fireball dmg"

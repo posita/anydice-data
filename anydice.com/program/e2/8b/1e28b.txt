@@ -1,0 +1,77 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+
+ADVANTAGE: [highest 1 of 2d20]
+
+DISADVANTAGE: [lowest 1 of 2d20]
+
+AC: 13
+PROF: 2
+STR: 4
+DEX: 4
+HUNTER: 1d6
+
+output
+[attack d20 plus PROF + DEX vs AC for 1d8 + 2d6 + DEX crit 2d8+4d6 on 20] +
+[attack d20 plus PROF + DEX vs AC for 1d8 crit 2d8 on 20]
+named "Swashbuckler"
+
+output 
+[attack d20 plus PROF + STR vs AC for 1d10 + STR crit 2d10 on 20] + [attack d20 plus PROF + STR vs AC for 1d4 + STR crit 2d4 on 20]
+
+named "Lvl 1 - Paladin"
+
+
+output 
+[attack d20 plus PROF + STR vs AC for 1d[gwf d10] + STR + HUNTER crit 2d[gwf d10]+4d8 + HUNTER*2 on 20] + [attack d20 plus PROF + STR vs AC for 1d[gwf d4]+HUNTER crit 2d[gwf d4]+4d8+2*HUNTER on 20]
+
+named "Lvl 3 - Paladin"
+
+
+output 
+[attack ADVANTAGE plus PROF + STR vs AC for 1d[gwf d10] + STR + HUNTER crit 2d[gwf d10]+4d8 + HUNTER*2 on 20] + [attack ADVANTAGE plus PROF + STR vs AC for 1d[gwf d4]+HUNTER crit 2d[gwf d4]+4d8+2*HUNTER on 20]
+
+named "Lvl 3 - Vow - Paladin"
+
+
+output 
+[attack d20 plus PROF + 1 + STR vs AC for 1d[gwf d10] + STR + HUNTER crit 2d[gwf d10]+6d8 + HUNTER*2 on 20] + [attack d20 plus PROF + 1 + STR vs AC for 1d[gwf d10] + STR + HUNTER crit 2d[gwf d10]+4d8 + HUNTER*2 on 20] +[attack d20 plus PROF + 1 + STR vs AC for 1d[gwf d4]+HUNTER crit 2d[gwf d4]+4d8+2*HUNTER on 20]
+
+named "Lvl 5 - Paladin"
+
+
+output 
+[attack ADVANTAGE plus PROF +1+ STR vs AC for 1d[gwf d10] + STR + HUNTER crit 2d[gwf d10]+6d8 + HUNTER*2 on 20] + [attack ADVANTAGE plus PROF + 1 + STR vs AC for 1d[gwf d10] + STR + HUNTER crit 2d[gwf d10]+4d8 + HUNTER*2 on 20] + [attack ADVANTAGE plus PROF + 1 + STR vs AC for 1d[gwf d4]+HUNTER crit 2d[gwf d4]+4d8+2*HUNTER on 20]
+
+named "Lvl 5 - Vow - Paladin"

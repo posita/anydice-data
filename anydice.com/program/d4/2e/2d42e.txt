@@ -1,0 +1,61 @@
+\
+\\ 6 Piece Polyhedral Dice Pool 
+\
+
+
+\ Variables \
+DICE: {6,8,10,10,12}
+REROLL: 0
+
+\ Function for exploding dice rolls \
+function: check NUM:n {
+  TOTAL: 0
+  loop N over {1..(NUM-1)} {
+      TOTAL: TOTAL + (d(N@DICE)>3)
+  }
+  TOTAL: TOTAL + [explode d(NUM@DICE) on NUM]
+  result: TOTAL
+} 
+
+function: explode ROLL:n on EX:n {
+  if ROLL = EX@DICE & EX < #DICE {
+    result: 1 + [explode d((EX+1)@DICE) on EX+1]
+  }
+  result: ROLL > 3
+}
+
+\ Roll all possible checks \
+loop N over {1..#DICE} {
+  output [check N] named "Check [N]"
+}
+
+
+\ Function for rolling dice with rerolls \
+function: check NUM:n reroll RE:n {
+
+  TOTAL: 0
+  loop N over {1..NUM} {
+      TOTAL: TOTAL + ([reroll {1..RE} on d(N@DICE) to d(N@DICE)] > 3)
+  }
+
+  result: TOTAL
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+\ Loops to test a variety of reroll combinations
+loop N over {1..#DICE} {
+  loop M over {0..REROLL}{
+    if M = 0 {
+      output [check N reroll M] named "[N] No Rerolls"
+    }
+    else{
+     output [check N reroll M] named "[N] Reroll [M]s and lower"
+    }
+  }
+}\

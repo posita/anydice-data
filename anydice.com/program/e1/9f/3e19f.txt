@@ -1,0 +1,30 @@
+set "position order" to "lowest first"
+
+function: roll ATT:n {
+ result: [test ATTd6]
+}
+
+function: test ROLL:s {
+ MAX_ROLLED: #ROLL@ROLL
+ MIN_ROLLED: 1@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+
+ SUBSETS: {ROLL=MIN_ROLLED}                     \count the size of the min value rolled\
+ loop M over {1..DIFF}{                         \assemble only the counts of values between min/max of the roll\
+   SUBSETS: {SUBSETS, ROLL=(MIN_ROLLED+M)}
+ }
+
+ TEMP: 1@SUBSETS
+ RES: MIN_ROLLED
+ loop N over {1..DIFF}{                         \find the higher count & its associated face value\
+   if (TEMP <= ((N+1)@SUBSETS)) {
+     RES: MIN_ROLLED + N
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+
+ result: RES
+}
+
+output [roll 15]
+output [test 15d6]

@@ -1,0 +1,139 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+function: abilitymod SCORE:n { result: (SCORE - 10) / 2 }
+function: if X:n reached MINIMUM:n then Y:s else Z:s { if MINIMUM>0 & X >= MINIMUM { result: Y } result: Z }
+function: if X:n reached MINIMUM:n then Y:s { result: [if X reached MINIMUM then Y else 0] }
+function: attack ROLL:n plus ATTACK_BONUS:n vs ACS:s{
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + ATTACK_BONUS >= ACS
+}
+
+USE_MAGIC: 1
+HASTE: 0
+TIER_A: {1..4}
+TIER_B: {5..10}
+TIER_C: {11..16}
+TIER_D: {17..20}
+LOOP_RANGE: {1..11}
+loop ROGUE over [reverse LOOP_RANGE] { 
+
+LEVEL: ROGUE
+PHANTOM: 1  \ For Phantom Rogue sub-class\
+STR: 8  DEX: 17  CON: 14  INT: 12  WIS: 14  CHA: 10   CRIT: {20}
+if ROGUE > 0 {CAN_SNEAK: 1} else {CAN_SNEAK: 0}
+PROF: (LEVEL - 1) / 4 + 2    \range is {2..6}\
+SNEAK_ATTACK_DICE: (ROGUE - 1) / 2 + 1
+SNEAK_DMG: (SNEAK_ATTACK_DICE)d6
+
+HAS_BOOMING_BLADE: 1  \via cantrip from High Elf race\
+BOOMING_BLADE_DICE : HAS_BOOMING_BLADE * ((LEVEL + 1) / 6)
+BOOMING_BLADE_HIT : (BOOMING_BLADE_DICE)d8        \range is {0..3}\
+BOOMING_BLADE_MOVE: HAS_BOOMING_BLADE * (BOOMING_BLADE_HIT + 1d8)  \range is {1..4}\
+
+WAILS_FROM_THE_GRAVE: PHANTOM & [if ROGUE reached 3 then 1]  \ Phantom Rogue feature \
+WAILS_DICE: (SNEAK_ATTACK_DICE + 1)/ 2
+WAILS_DMG_SECONDARY: (WAILS_FROM_THE_GRAVE * WAILS_DICE)d6
+WAILS_DMG_PRIMARY: [if ROGUE reached 17 then WAILS_DMG_SECONDARY] \ Death's Friend, 17th-level Phantom feature \
+WAILS_DMG: WAILS_DMG_PRIMARY + WAILS_DMG_SECONDARY
+
+\ ASI & Feats by level \
+ELVEN_ACCURACY_FEAT_LEVEL: 4  
+ELVEN_ACCURACY: [if ROGUE reached ELVEN_ACCURACY_FEAT_LEVEL then 1]  DEX: DEX + ELVEN_ACCURACY
+RITUAL_CASTER_FEAT_LEVEL: 8 
+if ROGUE >= 10 { DEX: DEX + 2 }
+CROSSBOW_EXPERT_FEAT_LEVEL: 12
+SHARPSHOOTER_FEAT_LEVEL: 16
+if ROGUE >= 19 { DEX: DEX + 2 }
+
+ATTACK_MOD: [abilitymod DEX]
+ACL: 8 + PROF + ATTACK_MOD + 2 \| 8+PROF+ATTACK_MOD  or  12+((LEVEL-1)*(22-12)/20) |\
+AC_DEVIATION: 2
+AC: d{(ACL-AC_DEVIATION)..(ACL+AC_DEVIATION)}
+
+HAS_ADVANTAGE: 1
+ADVANTAGE: [highest 1 of (2 + ELVEN_ACCURACY)d20] 
+DISADVANTAGE: [lowest 1 of 2d20]
+if (HAS_ADVANTAGE > 0) { ATTACK_ROLL: ADVANTAGE } else { ATTACK_ROLL: 1d20 }
+
+\Rapier, primary weapon\
+WPN_ONE_DICE:   1d8  \ damage rolled on successful hit \
+WPN_ONE_MAGIC: USE_MAGIC * [if LEVEL reached 2 then 1] 
+WPN_ONE_ABONUS: ATTACK_MOD + PROF + WPN_ONE_MAGIC
+WPN_ONE_DBONUS: ATTACK_MOD + WPN_ONE_MAGIC
+WPN_ONE_HIT: [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+\Hand Crossbow, secondary weapon\
+WPN_TWO_DICE:   1d6  \ damage rolled on successful hit \
+WPN_TWO_MAGIC: USE_MAGIC * [if LEVEL reached 14 then 1] 
+WPN_TWO_ABONUS: ATTACK_MOD + PROF + WPN_TWO_MAGIC
+WPN_TWO_DBONUS: ATTACK_MOD + WPN_TWO_MAGIC
+if LEVEL >= SHARPSHOOTER_FEAT_LEVEL {
+  WPN_TWO_ABONUS: WPN_TWO_ABONUS - 5
+  WPN_TWO_DBONUS: WPN_TWO_DBONUS + 10
+}
+WPN_TWO_HIT: [attack ATTACK_ROLL plus WPN_TWO_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+PSIBLADE_ATTACK: [attack ATTACK_ROLL plus 0 vs AC]
+
+ATTACK_DAMAGE_DICE: WPN_ONE_DICE + SNEAK_DMG
+ATTACK_BOOMING_DAMAGE_DICE: ATTACK_DAMAGE_DICE + BOOMING_BLADE_HIT
+BONUS_ACTION_DAMAGE_DICE: WPN_TWO_DICE
+REACTION_ATTACK: 1d{5}
+
+function: multiattack N:n times {
+  result: [roll WPN_ONE_HIT to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (ATTACK_BOOMING_DAMAGE_DICE + d0)) + WPN_ONE_DBONUS + WAILS_DMG + BOOMING_BLADE_MOVE 
+    if N >= 2 {
+      loop I over {2..N} {
+        DAMAGE: DAMAGE + WPN_ONE_HIT d (WPN_ONE_DICE + SNEAK_DMG + d0) + WPN_ONE_DBONUS  
+      }
+    }
+    if LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+      DAMAGE: DAMAGE + WPN_TWO_HIT d (WPN_TWO_DICE + d0) + WPN_TWO_DBONUS 
+    }
+    result: DAMAGE
+  } else {
+    if LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+      DAMAGE: DAMAGE + WPN_TWO_HIT d (WPN_TWO_DICE + SNEAK_DMG + d0) + WPN_TWO_DBONUS + WAILS_DMG 
+    }
+    result: DAMAGE
+  }
+  result: 0
+}
+
+ if LEVEL >=17 { TIER: 4 } else {if LEVEL >= 11 {TIER: 3} else {if LEVEL >= 5 {TIER: 2} else {TIER: 1}}}
+
+ if LEVEL >= SHARPSHOOTER_FEAT_LEVEL {
+  output [multiattack (1 + HASTE) times] named "L[LEVEL] T[TIER] Rapier+HandCrossbow SS +[ATTACK_MOD]DEX v AC[ACL]"
+ } else if LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+  output [multiattack (1 + HASTE) times] named "L[LEVEL] T[TIER] Rapier+HandCrossbow +[ATTACK_MOD]DEX v AC[ACL]" 
+ } else if ELVEN_ACCURACY > 0 {
+  output [multiattack (1 + HASTE) times] named "L[LEVEL] T[TIER] Rapier ElvenAcc +[ATTACK_MOD]DEX [PROF]P v AC[ACL]" 
+ } else {
+  output [multiattack (1 + HASTE) times] named "L[LEVEL] T[TIER] Rapier +[ATTACK_MOD]DEX v AC[ACL]" 
+ }
+
+
+ if #LOOP_RANGE <= 2 {
+  output [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC for WPN_ONE_DICE + SNEAK_DMG + BOOMING_BLADE_HIT + WPN_ONE_DBONUS + BOOMING_BLADE_MOVE*2/3 + WAILS_DMG crit WPN_ONE_DICE + SNEAK_DMG + BOOMING_BLADE_HIT on CRIT] named "L[LEVEL] Rapier Sneak[SNEAK_ATTACK_DICE] BB[BOOMING_BLADE_DICE] WftG"
+
+  output [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC for WPN_ONE_DICE + SNEAK_DMG + WPN_ONE_DBONUS + WAILS_DMG crit WPN_ONE_DICE + SNEAK_DMG on CRIT] named "L[LEVEL] Longbow Sneak[SNEAK_ATTACK_DICE]"
+
+ }
+}

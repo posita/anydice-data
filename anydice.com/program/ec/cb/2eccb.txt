@@ -1,0 +1,106 @@
+\ Variables \
+ABILITYMOD: 3
+CRITROLL: 20
+PROFICIENCY: 2
+
+OHL: 1d8 + ABILITYMOD
+THL: 1d10 + ABILITYMOD
+OHW: 1d6 + 1d4 + ABILITYMOD
+
+OHW_BAD: 1d4 + ABILITYMOD
+
+THW: 1d6 + 1d4 + ABILITYMOD
+GREATSWORD: 2d6 + ABILITYMOD
+
+STRENGTH_ROLL: [highest 1 of 1d20] + ABILITYMOD \str\ + PROFICIENCY \prof\
+
+OHL_CRIT: 2d8 + ABILITYMOD
+THL_CRIT: 2d10 + ABILITYMOD
+OHW_CRIT: 2d6 + 2d4 + ABILITYMOD
+THW_CRIT: 2d6 + 2d4 + ABILITYMOD
+GREATSWORD_CRIT: 4d6 + ABILITYMOD
+
+SMALL_DICE: 1d4
+BIG_DICE: 1d6
+
+\looped against enemy AC from 12-16\
+ENEMYAC: d{12..16}
+
+\ Hitting with OHL \ 
+function: ohl STRENGTH_ROLL:n vs ENEMYAC:n {
+ if STRENGTH_ROLL >= CRITROLL { result: OHL_CRIT }
+ if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: OHL }
+ result: 0
+}
+
+\ Hitting with THL \ 
+function: thl STRENGTH_ROLL:n vs ENEMYAC:n {
+ if STRENGTH_ROLL >= CRITROLL { result: THL_CRIT }
+ if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: THL }
+ result: 0
+}
+
+\ Hitting with OHW \ 
+function: ohw STRENGTH_ROLL:n vs ENEMYAC:n using SMALL_DICE:n and BIG_DICE:n {
+ if STRENGTH_ROLL >= CRITROLL { result: OHW_CRIT }
+  if SMALL_DICE <= 3 { 
+   if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { 
+    result: OHW_BAD  
+   } 
+   else {
+    result: 0
+   }
+ }
+ if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: OHW }
+ result: 0
+}
+
+\ Hitting with THW \ 
+function: thw STRENGTH_ROLL:n vs ENEMYAC:n {
+ if STRENGTH_ROLL >= CRITROLL { result: THW_CRIT }
+ if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: THW }
+ result: 0
+}
+
+\ Hitting with GREATSWORD  \ 
+function: great STRENGTH_ROLL:n vs ENEMYAC:n {
+ if STRENGTH_ROLL >= CRITROLL { result: GREATSWORD_CRIT }
+ if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: GREATSWORD }
+ result: 0
+}
+
+OHW_NO_STR: 1d6 + 1d4
+
+\ Hitting with OHW \ 
+function: ohwnew STRENGTH_ROLL:n vs ENEMYAC:n using SMALL_DICE:n {
+ if STRENGTH_ROLL >= CRITROLL { result: OHW_CRIT }
+ if SMALL_DICE <= 1 { 
+  if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: OHW_NO_STR }
+ }
+ result: 0
+}
+
+DIS_STRENGTH_ROLL: [lowest 1 of 2d20]
+
+\ Hitting with OHW \ 
+function: ohwnewdis DIS_STRENGTH_ROLL:n vs ENEMYAC:n {
+ if STRENGTH_ROLL >= CRITROLL { result: OHW_CRIT }
+ if STRENGTH_ROLL + PROFICIENCY + ABILITYMOD >= ENEMYAC { result: OHW }
+ result: 0
+}
+
+
+output 5 * [ohl STRENGTH_ROLL vs ENEMYAC] named "One-handed longsword"
+
+output 5 * [thl STRENGTH_ROLL vs ENEMYAC] named "Two-handed longsword"
+
+output 5 * [ohw STRENGTH_ROLL vs ENEMYAC using SMALL_DICE and BIG_DICE ] named "One-handed warsword"
+
+output 5 * [ohwnew STRENGTH_ROLL vs ENEMYAC using SMALL_DICE] named "One-handed warsword NEW"
+
+output 5 * [thw STRENGTH_ROLL vs ENEMYAC] named "Two-handed warsword"
+
+output 5 * [great STRENGTH_ROLL vs ENEMYAC] named "Greatsword"
+
+
+

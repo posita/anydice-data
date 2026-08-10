@@ -1,0 +1,39 @@
+\ Smallsword comparisons \
+
+function: critmult ATTACK:n bonus BONUS versus AC damage DAMAGE crit CRIT {
+if ATTACK = 1 { result: 0 }
+if ATTACK = 20 { result: CRIT }
+if ATTACK + BONUS < AC { result: 0 }
+result: DAMAGE
+}
+
+function: critmultfact ATTACK:n bonus BONUS versus AC damage DAMAGE crit CRIT {
+if ATTACK = 1 { result: 0 }
+if ATTACK = 20 { result: CRIT + [critmult d20 bonus BONUS versus AC damage DAMAGE crit CRIT] }
+if ATTACK + BONUS < AC { result: 0}
+result: DAMAGE + [critmult d20 bonus BONUS versus AC damage DAMAGE crit CRIT]
+}
+
+function: sneakcheck A:n {
+if A = 0 { result: [critmult d20 bonus DEX + PROF versus TARGET_AC damage d4 + SNEAK crit 2d4 + 2dSNEAK] }
+result: A + [critmult d20 bonus DEX + PROF versus TARGET_AC damage d4 crit 2d4]
+}
+
+SNEAK: 4d6
+EXPERT: d6
+DEX: 5
+INT: 5
+PROF: 3
+TARGET_AC: 20
+
+\SNEAK: 10d6
+EXPERT: d12
+DEX: 5
+INT: 7
+PROF: 6
+TARGET_AC: 20\
+
+output [critmultfact d20 bonus DEX + PROF versus TARGET_AC damage d6 + EXPERT + DEX crit 2d6 + 2dEXPERT + DEX] + [critmult d20 bonus DEX + PROF versus TARGET_AC damage d4 + EXPERT crit 2d4 + 2dEXPERT] named "Duellist - Smallsword and Dagger"
+\output [critmultfact d20 bonus DEX + PROF versus TARGET_AC damage d6 + EXPERT + DEX + INT crit 2d6 + 2dEXPERT + DEX + INT] + [critmult d20 bonus DEX + PROF versus TARGET_AC damage d6 + EXPERT + DEX + INT crit 2d6 + 2dEXPERT + DEX + INT] named "Duellist - Smallsword, WAS + FoS Stances"\
+output [critmult d20 bonus DEX + PROF versus TARGET_AC damage d6 + SNEAK + DEX crit 2d6 + 2dSNEAK + DEX] named "Rogue - Smallsword"
+output [sneakcheck [critmult d20 bonus DEX + PROF versus TARGET_AC damage d6 + SNEAK + DEX crit 2d6 + 2dSNEAK + DEX]] named "Rogue - Smallsword and Dagger"

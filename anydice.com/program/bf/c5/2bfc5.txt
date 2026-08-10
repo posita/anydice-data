@@ -1,0 +1,48 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: DICE:d reroll REROLL:s {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: explode EXPLODE:s on ROLL:n to EXPLOSION:d {
+    if [EXPLODE contains ROLL] {
+        result: ROLL + EXPLOSION
+    }
+    result: ROLL
+}
+
+function: DICE:d explode EXPLODE:s {
+    result: [explode EXPLODE on DICE to DICE]
+}
+
+function: DICE:d critroll ROLL:n on CRITRANGE:s {
+    if [CRITRANGE contains ROLL] {
+        result: DICE + DICE
+    }
+    result: DICE
+}
+
+function: DICE:d crits on CRITRANGE:s {
+    result: [DICE critroll 1d20 on CRITRANGE]
+}
+
+\ output 1d6 named "1d6" \
+
+\ output [1d6 reroll {1,2}] named "1d6 reroll 1s and 2s" \
+
+\ output 2d6 named "2d6" \
+
+\ output 2d[1d6 reroll {1,2}] named "2d6 reroll 1s and 2s" \
+
+\ output [explode {6} on [1d6 reroll {1,2}] to [1d6 reroll {1,2}]] \
+
+output 3d6
+
+output 3d[[1d6 reroll {1,2}] explode {6}] 
+
+output [3d[[1d6 reroll {1,2}] explode {6}] crits on {20}]

@@ -1,0 +1,267 @@
+\ Given a level, return what "tier" it is in the to-hit table. This is an index into the sequence of numbers \
+function: tier level LEVEL:n {
+  if LEVEL < 4 {
+    result: 1
+  }
+  else if LEVEL < 7 {
+    result: 2
+  }
+  else if LEVEL < 10 {
+    result: 3
+  }
+  else if LEVEL < 13 {
+    result: 4
+  }
+  else if LEVEL < 16 {
+    result: 5
+  }
+  result: 6
+}
+
+\ Given a HD value (hit dice) for a monster, return what "tier" it is in the to-hit table. This is an index into the sequence of numbers \
+function: tier hd HD:n plus PLUS:n {
+  if HD < 1 {
+    result: 1
+  }
+  else if HD = 1 {
+    if PLUS > 0 {
+      result: 2
+    }
+    else {
+      result: 1
+    }
+  }
+  else if HD = 2 {
+    result: 3
+  }
+  else if HD = 3 {
+    if PLUS > 0 {
+      result: 4
+    }
+    else {
+      result: 3
+    }
+  }
+  else if HD = 4 {
+    if PLUS > 0 {
+      result: 5
+    }
+    else {
+      result: 4
+    } 
+  }
+  else if HD = 5 {
+    result: 5
+  }
+  else if HD = 6 {
+    if PLUS > 0 {
+      result: 6
+    }
+    else {
+      result: 5
+    }   
+  }
+  else if HD < 9 {
+    result: 6
+  }
+  else if HD < 11 {
+    result: 7
+  }
+  else { 
+    result: 8
+  }
+}
+
+\ shortcut for hd x plus 0 - but this does not work \
+\ function: tier hd HD:n {
+  result: [tier hd HD plus 0]
+}
+\
+
+\ Get the to-hit value for the given level attacker, attacking a defender with the given AC \
+function: tohit for level LEVEL:n attacking ac AC:n {
+  if AC = 2 {
+     result: [tier level LEVEL]@{17, 15, 12, 10, 8, 5}
+  }
+  else if AC = 3 {
+     result: [tier level LEVEL]@{16, 14, 11, 9, 7, 4}
+  }
+  else if AC = 4 {
+     result: [tier level LEVEL]@{15, 13, 10, 8, 6, 3}
+  }
+  else if AC = 5 {
+     result: [tier level LEVEL]@{14, 12, 9, 7, 5, 2}
+  }
+  else if AC = 6 {
+     result: [tier level LEVEL]@{13, 11, 8, 6, 4, 1}
+  }
+  else if AC = 7 {
+     result: [tier level LEVEL]@{12, 10, 7, 5, 3, 1}
+  }
+  else if AC = 8 {
+     result: [tier level LEVEL]@{11, 9, 6, 4, 2, 1}
+  }
+  else if AC = 9 {
+     result: [tier level LEVEL]@{10, 8, 5, 3, 1, 1}
+  }
+  result: -1
+}
+
+\ Get the to-hit value for the given HD monster, attacking a defender with the given AC \
+function: tohit for hd HD:n plus PLUS:n attacking ac AC:n {
+  if AC = 2 {
+     result: [tier hd HD plus PLUS]@{17, 16, 15, 13, 12, 11, 9, 7}
+  }
+  else if AC = 3 {
+     result: [tier hd HD plus PLUS]@{16, 15, 14, 12, 11, 10, 8, 6}
+  }
+  else if AC = 4 {
+     result: [tier hd HD plus PLUS]@{15, 14, 13, 11, 10, 9, 7, 5}
+  }
+  else if AC = 5 {
+     result: [tier hd HD plus PLUS]@{14, 13, 12, 10, 9, 8, 6, 4}
+  }
+  else if AC = 6 {
+     result: [tier hd HD plus PLUS]@{13, 12, 11, 9, 8, 7, 5, 3}
+  }
+  else if AC = 7 {
+     result: [tier hd HD plus PLUS]@{12, 11, 10, 8, 7, 6, 4, 2}
+  }
+  else if AC = 8 {
+     result: [tier hd HD plus PLUS]@{11, 10, 9, 7, 6, 5, 3, 1}
+  }
+  else if AC = 9 {
+     result: [tier hd HD plus PLUS]@{10, 9, 8, 6, 5, 4, 2, 0}
+  }
+  result: -1
+}
+
+\ The result of to-hit roll for an attacker of given level attacking a defender with given AC \
+function: hit for level LEVEL:n attacking ac AC:n {
+  result: d20 >= [tohit for level LEVEL attacking ac AC]
+}
+
+\ The result of to-hit roll for a monster of given HD attacking a defender with given AC \
+function: hit for hd HD:n plus PLUS:n attacking ac AC:n {
+  result: d20 >= [tohit for hd HD plus PLUS attacking ac AC]
+}
+
+function: damage of level LEVEL:n attacking ac AC:n {
+  result: [hit for level LEVEL attacking ac AC] * 1d6
+}
+
+function: test tier level {
+  result: {
+    [tier level 1] = 1,
+    [tier level 2] = 1,
+    [tier level 3] = 1,
+    [tier level 4] = 2,
+    [tier level 5] = 2,
+    [tier level 6] = 2,
+    [tier level 7] = 3,
+    [tier level 8] = 3,
+    [tier level 9] = 3,
+    [tier level 10] = 4,
+    [tier level 11] = 4,
+    [tier level 12] = 4,
+    [tier level 13] = 5,
+    [tier level 14] = 5,
+    [tier level 15] = 5,
+    [tier level 16] = 6
+  }
+}
+
+function: test tier hd {
+  result: {
+    [tier hd 0 plus 1] = 1,
+    [tier hd 1 plus 0] = 1,
+    [tier hd 1 plus 1] = 2,
+    [tier hd 1 plus 2] = 2,
+    [tier hd 2 plus 0] = 3,
+    [tier hd 2 plus 1] = 3,
+    [tier hd 3 plus 0] = 3,
+    [tier hd 3 plus 1] = 4,
+    [tier hd 4 plus 0] = 4,
+    [tier hd 4 plus 1] = 5,
+    [tier hd 5 plus 0] = 5,
+    [tier hd 5 plus 1] = 5,
+    [tier hd 6 plus 0] = 5,
+    [tier hd 6 plus 1] = 6,
+    [tier hd 7 plus 0] = 6,
+    [tier hd 7 plus 1] = 6,
+    [tier hd 8 plus 0] = 6,
+    [tier hd 8 plus 1] = 6,
+    [tier hd 9 plus 0] = 7,
+    [tier hd 9 plus 1] = 7,
+    [tier hd 10 plus 0] = 7,
+    [tier hd 10 plus 1] = 7,
+    [tier hd 11 plus 0] = 8,
+    [tier hd 12 plus 0] = 8
+  }
+}
+
+function: test tohit level {
+  result: {
+    [tohit for level 1 attacking ac 2] = 17,
+    [tohit for level 4 attacking ac 2] = 15,
+    [tohit for level 7 attacking ac 2] = 12,
+    [tohit for level 10 attacking ac 2] = 10,
+    [tohit for level 13 attacking ac 2] = 8,
+    [tohit for level 16 attacking ac 2] = 5,
+    [tohit for level 1 attacking ac 3] = 16,
+    [tohit for level 1 attacking ac 4] = 15,
+    [tohit for level 1 attacking ac 5] = 14,
+    [tohit for level 1 attacking ac 6] = 13,
+    [tohit for level 1 attacking ac 7] = 12,
+    [tohit for level 1 attacking ac 8] = 11,
+    [tohit for level 1 attacking ac 9] = 10,
+    [tohit for level 13 attacking ac 9] = 1,
+    [tohit for level 16 attacking ac 9] = 1,
+    [tohit for level 16 attacking ac 6] = 1
+  }
+}
+
+function: test tohit hd {
+  result: {
+    [tohit for hd 0 plus 1 attacking ac 2] = 17,
+    [tohit for hd 1 plus 1 attacking ac 2] = 16,
+    [tohit for hd 2 plus 0 attacking ac 2] = 15,
+    [tohit for hd 3 plus 0 attacking ac 2] = 15,
+    [tohit for hd 3 plus 1 attacking ac 2] = 13,
+    [tohit for hd 4 plus 0 attacking ac 2] = 13, 
+    [tohit for hd 4 plus 1 attacking ac 2] = 12, 
+    [tohit for hd 6 plus 0 attacking ac 2] = 12,
+    [tohit for hd 6 plus 1 attacking ac 2] = 11,
+    [tohit for hd 8 plus 0 attacking ac 2] = 11,
+    [tohit for hd 8 plus 1 attacking ac 2] = 11,
+    [tohit for hd 9 plus 0 attacking ac 2] = 9,
+    [tohit for hd 10 plus 0 attacking ac 2] = 9,
+    [tohit for hd 11 plus 0 attacking ac 2] = 7,
+    [tohit for hd 12 plus 0 attacking ac 2] = 7,
+    [tohit for hd 0 plus 1 attacking ac 3] = 16,
+    [tohit for hd 0 plus 1 attacking ac 4] = 15,
+    [tohit for hd 0 plus 1 attacking ac 5] = 14,
+    [tohit for hd 0 plus 1 attacking ac 6] = 13,   
+    [tohit for hd 0 plus 1 attacking ac 7] = 12,   
+    [tohit for hd 0 plus 1 attacking ac 8] = 11,   
+    [tohit for hd 0 plus 1 attacking ac 9] = 10,
+    [tohit for hd 11 plus 0 attacking ac 9] = 0
+  }
+}
+
+\ Tests - copy and paste outside of this comment to run
+
+
+\
+
+output [test tier level] named "test tier level"
+output [test tier hd] named "test tier hd"
+output [test tohit level] named "test tohit level"
+output [test tohit hd] named "test tohit hd"
+output [hit for level 4 attacking ac 2] named "hit for level 4 attacking AC 2" 
+output [hit for hd 4 plus 0 attacking ac 2] named "hit for hd 4 attacking AC 2"
+
+output [hit for level 4 attacking ac 2] * 1d6 named "damage of attack"
+output [hit for level 4 attacking ac 2] * 1d6 * 10 named "damage of attack * 10"
+output [hit for level 4 attacking ac 2] * 35 named "damage of average attack * 10"
+output [hit for level 4 attacking ac 2] * 10d6 named "damage of attack * 10d6"

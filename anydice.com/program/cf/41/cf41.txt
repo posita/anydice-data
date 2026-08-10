@@ -1,0 +1,68 @@
+POISON: 0d4
+DEXBONUS: 4
+WEAPONBONUS: 0
+HITBONUS: DEXBONUS + WEAPONBONUS
+DAMAGEBONUS: DEXBONUS+WEAPONBONUS+POISON
+AC: 15
+
+function: proficiency LEVEL {
+result: ((LEVEL-1)/4) + 2
+}
+
+function: hitchelper DICE LEVEL {
+result: ((DICEd20 + HITBONUS + [proficiency LEVEL]) > AC)
+}
+
+function: hitc LEVEL {
+result: ((1d20 + HITBONUS + [proficiency LEVEL]) >= AC)
+}
+
+function: chitc LEVEL {
+result: ((1@2d20 + HITBONUS + [proficiency LEVEL]) >= AC)
+}
+
+function: hit DICE HITS LEVEL {
+result: ([hithelper DICE HITS] + DAMAGEBONUS) *[hitc LEVEL]
+}
+
+function: hithelper DICE HITS {
+result: HITSd(DICE)
+}
+
+function: chit DICE HITS LEVEL {
+result: (3d([hithelper DICE HITS]) + DAMAGEBONUS) * [chitc LEVEL]
+}
+
+function: sneak ATTACKS LEVEL {
+result: 2d6 * [hitchelper ATTACKS LEVEL ]
+}
+
+function: csneak ATTACKS LEVEL {
+result: 4d6 * [hitchelper ATTACKS*2 LEVEL]
+}
+
+function: supd FLEVEL LEVEL{
+result: [supdhelper] * [hitc LEVEL]
+}
+
+function: supdhelper FLEVEL {
+result:(4+((FLEVEL+1)/8))d(8+(FLEVEL/10*2))
+}
+
+function: csupd FLEVEL LEVEL{
+result: 2d([supdhelper FLEVEL]) * [chitc LEVEL]
+}
+
+      \main             asurge          offhand      sneak      mart \
+\output 18d8 + 3d8 + 4d6 + 8d10 + 8d8 + 16d8 + 14d6  named "level 20"
+output 18d8 + 3d8 + 4d6 + 8d10 + 8d8 + 14d6 named "level 17"
+output 18d8 + 3d8 + 4d6 + 8d10 + 4d6 +  8d8 named "level 16"\
+output [chit 1d8 3 14] + [chit 1d8 3 14] + [chit 1d8 1 14] + [csneak 7 14] + [csupd 11 14] named "level 14"
+output [chit 1d8 2 13] + [chit 1d8 2 13] + [chit 1d8 1 13] + [csneak 5 13] + [csupd 10 13] named "level 13"
+output [chit 1d8 2 11] + [chit 1d8 2 11] + [chit 1d6 1 11] + [csneak 5 11] + [csupd 8 11] named "level 11"
+output [chit 1d8 2 8] + [chit 1d8 2 8] + [chit 1d6 1 8] + [csneak 5 8] + [csupd 5 8] named "level 8"
+output [ hit 1d6 2 8] +                [ hit 1d6 1 8] + [ sneak 3 8]              named "level 8-norm"
+output [chit 1d8 1 6] + [chit 1d8 1 6] + [chit 1d6 1 6] + [csneak 3 6] + [csupd 3 6] named "level 6"
+output [chit 1d8 1 5] + [chit 1d8 1 5] + [chit 1d6 1 5] + [csneak 3 5]              named "level 5"
+output [chit 1d8 1 4] +                [chit 1d6 1 4] + [csneak 2 4]              named "level 4"
+output [ hit 1d6 1 4] +                [ hit 1d6 1 4] + [ sneak 2 4]              named "level 4-norm"

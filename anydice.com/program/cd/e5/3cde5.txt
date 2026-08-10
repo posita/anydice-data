@@ -1,0 +1,42 @@
+MC: 60             
+TC: 1             
+ML: 50             
+TL: 0              
+S: 0
+REQSL: 3      
+
+MAX_ROUNDS: 10     
+
+function: castSpell T:n R:n {
+   
+   if T >= REQSL {
+      Y: d100
+      LSL: (ML / 10) - (Y / 10)
+      if Y <= ML {
+         result: 1 
+      } else {
+         result: 0 
+      }
+   }
+   else{ if R < MAX_ROUNDS {
+      X: d100
+      SL: (MC / 10) - (X / 10)
+      if X <= MC {
+         SL: SL + TC     
+      }
+      NT: T + SL
+      if NT < 0 {
+         NT : 0     
+      }
+      NO: [castSpell NT R + 1]
+      if NO = 0 {
+         result: 0 
+      } else {
+         result: NO + 1
+      }
+   }
+ }
+    result: 0
+}
+
+output [castSpell 0 0] named "Total Rounds (0 = failure)"

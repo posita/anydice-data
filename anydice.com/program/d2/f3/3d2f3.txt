@@ -1,0 +1,62 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+MISSDAMAGE:0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: saveordmg ROLL:n vs SPELLCHECKDC:n {
+  if ROLL + SAVEMOD < SPELLCHECKDC {
+    result: HITDAMAGE
+  }
+  result: MISSDAMAGE
+}
+
+
+AC: 17
+SAVEMOD: 7
+
+ATTACK: 8
+HITDAMAGE: d8+3
+CRITICALDAMAGE: 2*d8+3
+output 2d[damage for [attack d20 vs AC]] named "Brick x2"
+
+DC: 18
+HITDAMAGE: 2d12
+output [saveordmg d20 vs DC] named "Toll the dead"
+
+ATTACK: 9
+HITDAMAGE: 1d10 + 5
+CRITICALDAMAGE: 2*d10 + 5
+output 3d[damage for [attack d20 vs AC]] named "MsKillalot x3"
+
+HITDAMAGE: 1d10 + 1d6 + 5
+CRITICALDAMAGE: 2*d10 + 1d6 + 5
+output 3d[damage for [attack d20 vs AC]] named "MsKillalot w. Hex x3"
+
+HITDAMAGE: 1d10 + 1d6 + 5 + 5
+CRITICALDAMAGE: 2*d10 + 1d6 + 5 + 5
+output 3d[damage for [attack d20 vs AC]] named "MsKillalot w. Hex and Maddening x3"
+
+HITDAMAGE: 8d6
+CRITICALDAMAGE: 2*8d6
+output [damage for [attack d20 vs AC]] named "Fireball"

@@ -1,0 +1,38 @@
+\  Target Stats  \
+AC:20
+CS:8
+\ Assassin Stats \
+PROF:6
+DEX:5
+BON:3
+\\
+ATK:DEX+PROF
+DMG:1d6
+MOD:DEX+BON
+SA:10d6
+DC:8+DEX+PROF
+
+function: death strike for ATTACK:n ADV:n SAVE:n {
+  \  Set ADV to: -1 for disadvantage, >= 0 for advantage. \
+if      ADV<0 {
+  if    ATTACK>=AC {
+    if    SAVE>=DC  {result:    2dDMG+MOD }
+    else            {result: 2*(2dDMG+MOD)} }
+  else  {result: 0} }
+else {
+  if    ATTACK>=AC {
+    if    SAVE>=DC  {result:    2d(DMG+SA)+MOD }
+    else            {result: 2*(2d(DMG+SA)+MOD)} }
+  else  {result: 0} }
+}
+
+\ Deal some auto-damage on a miss, and improve damage on the failed saving throw. Legendary resistances will definitely come out against an Assassin, so just make this ability ridiculously strong. \
+function: deathly strike for ATTACK:n SAVE:n {
+  if    ATTACK>=AC {
+    if    SAVE>=DC  {result: 2*(DMG+SA)+MOD}
+    else            {result: 4*(DMG+SA)+MOD} }
+  else  {result: 1*(DMG+MOD+SA)}
+}
+
+output [death strike for   1@2d20+ATK 1 1d20+CS] named "official"
+output [deathly strike for 1@2d20+ATK   1d20+CS] named "revision"

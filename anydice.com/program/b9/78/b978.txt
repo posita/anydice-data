@@ -1,0 +1,36 @@
+PREC_VAAR: 6
+ATK_VAAR: 2
+DMG_VAAR: 1d6+2
+DMG_BON_VAAR: 0
+
+PREC_ERDEN: 1
+ATK_ERDEN: 1
+DMG_ERDEN: 2d6
+DMG_BON_ERDEN: 7
+
+function: attack ROLL:n BONUS:n DMG:d DMG_BON:n{
+  if ROLL = 20 {
+    result: DMG * 150 / 100 + DMG_BON
+  }
+  else {
+    if ROLL + BONUS >= 10 {
+      result: DMG + DMG_BON
+    }
+    else {
+      result: 0
+    }
+  }
+}
+
+TOT_VAAR:0
+TOT_ERDEN:0
+
+loop N over {1..ATK_VAAR}{
+  TOT_VAAR: TOT_VAAR + [attack 1d20 PREC_VAAR DMG_VAAR DMG_BON_VAAR]
+}
+output TOT_VAAR named "Vaar"
+
+loop N over {1..ATK_ERDEN}{
+  TOT_ERDEN: TOT_ERDEN + [attack 1d20 PREC_ERDEN DMG_ERDEN DMG_BON_ERDEN]
+}
+output TOT_ERDEN named "Erden"

@@ -1,0 +1,67 @@
+MISSDAMAGE: 0
+
+\ adjust threat \
+
+THREAT: 20
+
+\ set confirm bonus from Power Critical feat \
+
+CRITICALCONFIRM: 0
+
+\ use transposed graph \
+
+\ leave rest as is \
+MISS: 0
+NORMALHIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: [threat]
+ }
+ if ROLL + ATTACK >= DEFENSE { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat {
+ if ROLL + ATTACK + CRITICALCONFIRM >= DEFENSE {
+  result: CRITICALHIT
+ }
+ result: NORMALHIT
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = NORMALHIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: multiattack NUMATKS:n {
+  TOTAL: 0
+  loop N over {1..NUMATKS} {
+    ATTACK: ATTACK-4
+    DAMAGE: [attack]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+DEFENSE: d{17}
+
+MULTIATTACK: 2
+ATTACK: 12
+HITDAMAGE: 1d6+9
+CRITICALDAMAGE: 2*HITDAMAGE
+output [multiattack MULTIATTACK] named "1d6+9 twice"
+
+MULTIATTACK: 3
+ATTACK: 11
+HITDAMAGE: 1d6+5
+CRITICALDAMAGE: 2*HITDAMAGE
+output [multiattack MULTIATTACK] named "1d6+5 three times"

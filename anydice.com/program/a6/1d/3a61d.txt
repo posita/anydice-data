@@ -1,0 +1,54 @@
+ATTACKER_DICE: 3d6
+ATTACKER_TN: 4
+ATTACKER_R_BONUS: 0
+ATTACKER_DAMAGE: 6
+ATTACKER_AP: 1
+DEFENDER_DICE: 2d6
+DEFENDER_TN: 4
+DEFENDER_R_BONUS: 0
+DEFENDER_ARMOR: 15
+DEFENDER_HULL: 3
+DEFENDER_STRUCTURE: 3
+DEFENDER_AGILE: 0
+\ ^^ 1 = yes, anything else = no ^^ \
+
+
+function: rollresult ROLL:s TN:n {
+ SUCCESSES: ROLL >= TN
+ HIGHESTROLL: 1@ROLL \ COMMENT AnyDice autosorts sequences (dice arrays) from highest to lowest \
+ if SUCCESSES > 1 { result: SUCCESSES -1 + HIGHESTROLL }
+ result: { HIGHESTROLL } 
+}
+
+function: opposedroll ATKRESULT:n DEFRESULT:n {
+ MOS: ( ATKRESULT + ATTACKER_R_BONUS ) - ( DEFRESULT + DEFENDER_R_BONUS )
+ if MOS = 0 { result: [checkagile MOS] } 
+ if MOS >= 0 { result: [calculatedamage MOS] } 
+ result: 0
+}
+
+function: checkagile MOS:n { 
+ if DEFENDER_AGILE = 1 { result:  0 }
+ result: {[calculatedamage MOS] }
+}
+
+function: calculatedamage MOS:n {
+ DMG: MOS + ATTACKER_DAMAGE - DEFENDER_ARMOR
+ if ATTACKER_AP > 0 { result: [checkap MOS DMG]}
+ if DMG > 0 { result: DMG }
+ result: 0
+}
+
+function: checkap MOS:n DMG:n {
+ APDMG: [ lowest of ATTACKER_AP and MOS ]
+ ACTUALDMG: [ highest of DMG and APDMG ]
+ if ACTUALDMG = 0 { result: [marginalhit 1d2] } \ simplifies 4+ on a 1d6 down to a 1d2 \
+ result: ACTUALDMG
+}
+
+function: marginalhit MH:s {
+ if MH > 0 { result: 1 }
+ result: 0
+}
+
+output [opposedroll [rollresult ATTACKER_DICE ATTACKER_TN] [rollresult DEFENDER_DICE DEFENDER_TN]] named "Damage Done" 

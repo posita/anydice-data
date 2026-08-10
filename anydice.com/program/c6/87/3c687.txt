@@ -1,0 +1,248 @@
+\ =============    ATTACK   ============ \
+
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+\ ====================================== \
+
+\ ==============   SAVES   ============= \
+
+function: save ROLL:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    if ROLL >= DC {
+        result: S_DMG
+    }
+    if ROLL < DC {
+        result: F_DMG
+    }
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for half {
+    result: [save ROLL vs DC-MOD for F_DMG damage or F_DMG/2 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for none {
+    result: [save ROLL vs DC-MOD for F_DMG damage or 0 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success with crit fail on CRITS:s for CRIT_DMG:d {
+  if [CRITS contains ROLL] {
+    result: CRIT_DMG
+  } 
+
+  result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+} 
+
+\ ====================================== \
+
+\ ==============   MISC    ============= \
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s then save SAVE:n plus S_MOD:n vs DC:n for F_DMG:n or S_DMG:n on success{
+    
+    if ROLL = 20 | ROLL >= (AC-MOD) {
+        HIT_DMG: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+        RIDER_DMG: [save SAVE vs DC-S_MOD for F_DMG damage or S_DMG on success]
+        result: HIT_DMG + RIDER_DMG
+    }
+    result: 0
+}
+
+function: DMG:n plus EXTRA:d per turn {
+    if DMG = 0 { result: 0 }
+    result: DMG + EXTRA
+}
+
+function: twist DE:n DIE:d {
+  if DE <= 1 {
+    result: 1@{DIE}
+  } 
+  if DE = 2 {
+    result: [lowest of DIE and DIE]
+  }
+  if DE = 3 {
+    result: [highest of DIE and DIE]
+  }
+  if DE >= 4 {
+    result: 1@[reverse {DIE}]
+  }
+}
+
+function: ttf DIE:d {
+  result: (DIE-1)/5+1
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: DICE:d reroll REROLL:s {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+\ ====================================== \
+
+
+SAVE_ROLL: [lowest 1 of d20]
+SAVE_MOD: 6
+AC: 20
+DC: 14
+
+
+
+\ ==============  TORDEK   ============= \
+
+HIT_ROLL: [highest 1 of 2d20]
+HIT_MOD: 5 + 4 + 1
+F_DMG: 5+1+2
+SNEAK: 5d6
+DMG: d6+SNEAK
+output d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] named "Tordek -- Shortbow + BA:Hide"
+
+HIT_MOD: 5 + 4 + 1 - 5
+F_DMG: 5+1+2+10
+output d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] named "Tordek -- Shortbow + BA:Hide + Sharpshooter"
+
+HIT_ROLL: [highest 1 of 3d20]
+output d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] named "Tordek -- Shortbow + BA:Hide + Sharpshooter + Pack Tactics"
+
+
+HIT_ROLL: [highest 1 of d20]
+HIT_MOD: 5 + 4 + 1
+F_DMG: 5+1
+DMG: d6
+DMG_II: d4
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAK per turn
+] named "Tordek -- Psychic Blades (A+BA)"
+
+HIT_ROLL: [highest 1 of 2d20]
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAK per turn
+] named "Tordek -- Psychic Blades (A+BA) + Pack Tactics"
+
+HIT_MOD: 5 + 4 + 1 + d8
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAK per turn
+] named "Tordek -- Psychic Blades (A+BA) + Pack Tactics + Homing Strikes"
+
+DMG: d6 + d8
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAK per turn
+] named "Tordek -- Psychic Blades (A+BA) + Pack Tactics + Homing Strikes + Booming Blade"
+
+DMG: d6 + 3d8
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAK per turn
+] named "Tordek -- Psychic Blades (A+BA) + Pack Tactics + Homing Strikes + Booming Blade (moved)"
+
+
+\ ==============   NIM     ============= \
+
+HIT_ROLL: [highest 1 of d20]
+HIT_MOD: 5 + 4 + 1
+F_DMG: 5
+DMG: d10
+output 2d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] named "Nim -- Agonizing Blast"
+
+
+MM_LVL: 1
+output (3+MM_LVL-1)d(d4+1 +1 +4) named "Nim -- Magic Missile (lvl [MM_LVL]) + Hexblade's Curse"
+output (3+MM_LVL-1)d([d4 reroll {1,2}]+1 +1 +4 +5) named "Nim -- Elemental (fire) Magic Missile (lvl [MM_LVL]) + Hexblade's Curse + Mantle of Flame"
+
+
+\ ==============   CIAN    ============= \
+
+HIT_ROLL: [highest 1 of d20]
+HIT_MOD: 5 + 4 + 3
+F_DMG: 5+3
+DMG: 2d[d6 reroll {1,2}]
+output [
+    2d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}]
+    plus [d6 reroll {1,2}] per turn
+] named "Cian -- 2x Dagny + Giant's Might"
+
+F_DMG: 5+3+2
+output [
+    2d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}]
+    plus [d6 reroll {1,2}] per turn
+] named "Cian -- 2x Dagny + Giant's Might + Rage"
+
+HIT_ROLL: [highest 1 of 2d20]
+output [
+    2d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}]
+    plus [d6 reroll {1,2}] per turn
+] named "Cian -- 2x Dagny + Giant's Might + Rage + Reckless"
+
+
+\ ==============   TWINS   ============= \
+
+HIT_ROLL: [highest 1 of 3d20]
+HIT_MOD: 5 + 4 + 2
+F_DMG: 0
+DMG: 3d6
+IMBUE: 7
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}]
+    plus 7 per turn
+] named "Twins -- Pistol + Imbue (Dest.)"
+
+DMG: 3d6+2d8
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {19,20}]
+    plus 7 per turn
+] named "Twins -- Pistol + Imbue (Dest.) + Concealed Shot"
+
+
+\ ==============   MISC   ============= \
+
+\
+HIT_MOD: 9
+F_DMG: 6
+DMG: 2d12
+DMG_II: 2d8
+DMG_III: 2d8
+SAVE_ROLL: [lowest 1 of d20]
+SAVE_MOD: 5+6
+DC: 15
+
+output (
+    d[roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] + 
+    [
+        2d[roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+        plus [save SAVE_ROLL plus SAVE_MOD vs DC for DMG_III damage or save for none] per turn
+    ]
+) named "Polymorph: Savager" 
+\

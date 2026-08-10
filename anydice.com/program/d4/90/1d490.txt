@@ -1,0 +1,31 @@
+function: max A:n and B:n {
+  if A > B {
+    result: A
+  } else {
+    result: B
+  }
+}
+
+function: compute ATK_BONUS_DIE:n DEF_BONUS_DIE:n ATK_BONUS_MOD:n RESTRIKE:n {
+  AF: 1d12 + ATK_BONUS_DIEd4 + ATK_BONUS_MOD
+  AR: 1d12 + ATK_BONUS_DIEd4 + ATK_BONUS_MOD
+  D: 1d12 + DEF_BONUS_DIEd4
+
+  if RESTRIKE {
+    result: [max AF and AR] > D 
+  } else {
+    result: AF > D
+  }
+}
+
+loop ATKMOD over {0..4} {
+  loop ATKDIE over {0..1}{
+    loop DEFDIE over {0..1}{
+      loop RESTRIKE over {0..1} {
+        output [compute ATKDIE DEFDIE ATKMOD RESTRIKE] named "Attack=1d12+[ATKDIE]d4+[ATKMOD], Defense=1d12+[DEFDIE]d4, Restrike=[RESTRIKE]"
+      }
+    }
+  }
+}
+
+

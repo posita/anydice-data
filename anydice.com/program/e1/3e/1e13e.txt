@@ -1,0 +1,72 @@
+MISS:0
+HIT:1
+CRITICALHIT:2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = {19, 20} {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: CRITICALQUARRY
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: QUARRY
+ }
+ result: 0
+}
+
+DEFENSE: d{15..22}
+
+ATTACK: 13
+HITDAMAGE: d8 + d6 + 11
+CRITICALDAMAGE: 3d8 + 2d6 + 11
+MISSDAMAGE: 0
+QUARRY: 1d6 + 5
+CRITICALQUARRY: 2d6 + 5
+
+output [2 attacks] named "Death Chill"
+
+HITDAMAGE: d8 + 2d6 + 11
+CRITICALDAMAGE: 3d8 + 4d6 + 11
+
+output [2 attacks] named "Glimpse of Death"
+
+HITDAMAGE: d8 + 4d6 + 11
+CRITICALDAMAGE: 3d8 + 8d6 + 11
+
+output [2 attacks] named "Glimpse of Death, Feared"

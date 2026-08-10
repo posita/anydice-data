@@ -1,0 +1,184 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRIT: 20
+
+AC: 20
+
+function: att ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: advantage vs DEFENSE:n {
+ result: [att [highest 1 of 2d20] vs DEFENSE]
+}
+
+function: attack vs DEFENSE:n {
+ result: [att d20 vs DEFENSE]
+}
+
+function: curve ATT:n vs DEFENSE:n {
+ if ATT = MISS {
+   CURVE: 0
+   result: [att d20 vs DEFENSE]
+ }
+ if ATT = HIT { result: HIT }
+ if ATT = CRITICALHIT {result: CRITICALHIT}
+}
+
+function: damage for ATTACK_RESULT:n {
+ if ATTACK_RESULT = CRITICALHIT { result: CRITICAL_DAMAGE + DAMAGE_BONUS }
+ if ATTACK_RESULT = HIT { result: HIT_DAMAGE + DAMAGE_BONUS }
+ if ATTACK_RESULT = MISS { result: MISS_DAMAGE }
+}
+
+function: damage for ATTACK_RESULT:n with EXTRA_DAMAGE_DICE:n extra damage {
+ if ATTACK_RESULT = CRITICALHIT { result: CRITICAL_DAMAGE + 2dEXTRA_DAMAGE_DICE }
+ if ATTACK_RESULT = HIT { result: HIT_DAMAGE + EXTRA_DAMAGE_DICE }
+ if ATTACK_RESULT = MISS { result: MISS_DAMAGE }
+}
+
+function: curving shot turn vs DEFENCE:n {
+ CURVE: 1
+ RESULT: 0
+ RESULT: RESULT + [damage for [curve [att d20 vs AC] vs AC] with 4d8 extra damage]
+ loop _ over {1d3} {
+  RESULT: RESULT + [damage for [curve [att d20 vs AC] vs AC] ]
+ }
+ result: RESULT
+}
+
+function: sup ATTACK:n {
+ if ATTACK = CRITICALHIT {
+  SUP_DIE: SUP_DIE - 1
+  result: CRITICAL_DAMAGE + 2d8
+  }
+ if ATTACK = HIT {
+  SUP_DIE: SUP_DIE - 1
+  result: HIT_DAMAGE + 1d8
+ }
+ if ATTACK = MISS {
+  result: MISS
+ }
+}
+
+function: battle master DEFENSE:n {
+ RESULT: 0
+ loop N over {1d4} {
+  if SUP_DIE > 0 {
+   RESULT: RESULT + [sup [attack vs DEFENSE]]
+  }
+  else {
+   RESULT: RESULT + [damage for [attack DEFENSE]]
+  }
+ }
+ result: RESULT
+}
+
+function: sup f ATTACK:n {
+ if ATTACK = CRITICALHIT {
+  SUP_DIE: SUP_DIE - 2
+  result: CRITICAL_DAMAGE + 2d8
+  }
+ if ATTACK = HIT {
+  SUP_DIE: SUP_DIE - 2
+  result: HIT_DAMAGE + 2d8
+ }
+ if ATTACK = MISS {
+  SUP_DIE: SUP_DIE - 1
+  result: MISS
+ }
+}
+
+function: battle master f DEFENSE:n {
+ RESULT: 0
+ FEINT: 0
+ if SUP_DIE > 1 { FEINT: 1 }
+ loop N over {1d4} {
+  if FEINT = 1 {
+   FEINT: 0
+   RESULT: RESULT + [sup f [advantage vs DEFENSE]]
+  }
+  else { 
+   if SUP_DIE > 0 { RESULT: RESULT + [sup [attack vs DEFENSE]] }
+   else { RESULT: RESULT + [damage for [attack DEFENSE]] }
+  }
+ }
+ result: RESULT
+}
+
+function: stroke of luck DEFENSE:n {
+ RESULT: [attack vs DEFENSE]
+ if STROKE_OF_LUKE = 1 {
+  
+ }
+ result: RESULT
+}
+
+function: swashbuckler ACTION:n BONUS_ACTION:n MASTER_DUELIST_ROLL:n DEFENSE:n {
+ RESULT: 0
+ if MASTER_DUELIST = 1 {
+  if ACTION = MISS {
+   MASTER_DUELIST: 0
+   ACTION: MASTER_DUELIST_ROLL
+  }
+ }
+ if ACTION != MISS {
+  RESULT: RESULT + 5
+  if ACTION = CRITICALHIT { RESULT: RESULT + CRITICAL_DAMAGE + 20d6 }
+  if ACTION = HIT { RESULT: RESULT + HIT_DAMAGE + 10d6 }
+  if BONUS_ACTION = CRITICALHIT { RESULT: RESULT + CRITICAL_DAMAGE }
+  if BONUS_ACTION = HIT { RESULT: RESULT + HIT_DAMAGE }
+ }
+ else {
+  if STROKE_OF_LUCK = 1 {
+   STROKE_OF_LUCK: 0
+   RESULT: RESULT + HIT_DAMAGE + 10d6
+   if BONUS_ACTION = CRITICALHIT { RESULT: RESULT + CRITICAL_DAMAGE }
+   if BONUS_ACTION = HIT { RESULT: RESULT + HIT_DAMAGE }
+  }
+  else {
+   if BONUS_ACTION = CRITICALHIT { RESULT: RESULT + CRITICAL_DAMAGE + 20d6 }
+   if BONUS_ACTION = HIT { RESULT: RESULT + HIT_DAMAGE + 10d6 }
+  }
+ }
+ result: RESULT
+}
+
+\ Fighters: \
+
+CRITICAL_DAMAGE: 4d{3, 4, 5, 6, 1d6, 1d6}+5
+HIT_DAMAGE: 2d{3, 4, 5, 6, 1d6, 1d6}+5
+MISS_DAMAGE: 0
+ATTACK: 11
+output 3d(3d[damage for [advantage vs AC]] + 2d[damage for [attack vs AC]]) named "Samurai"
+
+CRITICAL_DAMAGE: 2d8+5
+HIT_DAMAGE: 1d8+5
+MISS_DAMAGE: 0
+ATTACK: 13
+output 3d[curving shot turn vs AC] named "Arcane Archer"
+
+CRITICAL_DAMAGE: 4d{3, 4, 5, 6, 1d6, 1d6}+5
+HIT_DAMAGE: 2d{3, 4, 5, 6, 1d6, 1d6}+5
+MISS_DAMAGE: 0
+ATTACK: 11
+SUP_DIE: 6
+output 3d[battle master f AC] named "Battle Master" \ Feint and Goading Attack \
+
+
+
+
+\ Rogues: \
+
+CRITICAL_DAMAGE: 2d6
+HIT_DAMAGE: 1d6
+MISS_DAMAGE: 0
+ATTACK: 11
+STROKE_OF_LUCK: 1
+MASTER_DUELIST: 1
+output 3d[swashbuckler [attack vs AC] [attack vs AC] [advantage vs AC] AC] named "Swashbuckler with Rakish Audacity"
+

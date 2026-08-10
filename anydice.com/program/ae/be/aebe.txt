@@ -1,0 +1,19 @@
+function: difficulty X:n myroll POS:s from L:n to R:n hisroll NEG:s {
+ TMP: {}
+ loop I over {L..R} { TMP: {TMP, I@POS} }
+
+ RESULT: 0
+ loop V over {X..6} {
+  RESULT: RESULT + (V = TMP) - (V = NEG)
+  if RESULT < 0 { RESULT: 0 } 
+ }
+ result: RESULT
+}
+function: difficulty X:n sides S:n positive P:n boost B:n drain D:n negative N:n {
+ DIE: d{1:X-1, X..S} \ <-- optimization: rolls below X don't matter \
+ result: [difficulty X myroll (P+B+D)dDIE from D+1 to D+P hisroll NdDIE]
+}
+
+output [difficulty 3 sides 6 positive 3 boost 0 drain 0 negative 3] named "baseline"
+output [difficulty 3 sides 6 positive 3 boost 1 drain 0 negative 3] named "boosted"
+output [difficulty 3 sides 6 positive 3 boost 0 drain 1 negative 3] named "drained"

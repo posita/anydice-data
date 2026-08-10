@@ -1,0 +1,98 @@
+\ Core functions \
+function: tier of ROLL:n {
+  if ROLL <= 11 { result: 1 }
+  if ROLL <= 16 { result: 2 }
+  result: 3
+}
+
+function: pr straight mod M:n {
+  result: [tier of 2d10 + M]
+}
+
+function: uptier of T:n {
+  if T >= 3 { result: 3 }
+  result: T + 1
+}
+
+function: downtier of T:n {
+  if T <= 1 { result: 1 }
+  result: T - 1
+}
+
+function: pr double bane mod M:n {
+  result: [ downtier of [pr straight mod M] ]
+}
+
+function: pr bane mod M:n {
+  result: [pr straight mod M - 2]
+}
+
+function: pr edge mod M:n {
+  result: [pr straight mod M + 2]
+}
+
+function: pr double edge mod M:n {
+  result: [uptier of [pr straight mod M]]
+}
+
+\ Spectacle points \
+
+function: windsp T:n {
+  if T = 1 { result: 1 }
+  if T = 2 { result: 1 }
+  result: 5
+}
+
+function: basksp T:n {
+  if T = 1 { result: 1 }
+  if T = 2 { result: 2 }
+  result: 3
+}
+
+\ Attacks \
+ATTACKMOD: 2
+ATTACK_DBANE: [pr double bane mod ATTACKMOD]
+ATTACK_BANE: [pr bane mod ATTACKMOD]
+ATTACK_STRAIGHT: [pr straight mod ATTACKMOD]
+ATTACK_EDGE: [pr edge mod ATTACKMOD]
+ATTACK_DEDGE: [pr double edge mod ATTACKMOD]
+
+\ weighted mix: 5% DBANE, 20% BANE, 50% STRAIGHT, 20% EDGE, 5% DBLEDGE \
+ATTACK_TIER: d{
+  ATTACK_DBANE,
+  ATTACK_BANE, ATTACK_BANE, ATTACK_BANE, ATTACK_BANE,
+  ATTACK_STRAIGHT, ATTACK_STRAIGHT, ATTACK_STRAIGHT, ATTACK_STRAIGHT, ATTACK_STRAIGHT,
+  ATTACK_STRAIGHT, ATTACK_STRAIGHT, ATTACK_STRAIGHT, ATTACK_STRAIGHT, ATTACK_STRAIGHT,
+  ATTACK_EDGE, ATTACK_EDGE, ATTACK_EDGE, ATTACK_EDGE,
+  ATTACK_DEDGE
+}
+
+
+\ Bask Tests \
+BASKTEST_MOD: 4 \ 2 attr + 2 skill \
+SP_BASK_DBANE: [basksp [pr double bane mod BASKTEST_MOD]]
+SP_BASK_BANE: [basksp [pr bane mod BASKTEST_MOD]]
+SP_BASK_STRAIGHT: [basksp [pr straight mod BASKTEST_MOD]]
+SP_BASK_EDGE: [basksp [pr edge mod BASKTEST_MOD]]
+SP_BASK_DEDGE: [basksp [pr double edge mod BASKTEST_MOD]]
+
+\ Bask for an attack \
+function: bask after attack A:n {
+  if A = 1 { result: SP_BASK_BANE }
+  if A = 2 { result: SP_BASK_STRAIGHT }
+  result: SP_BASK_DEDGE
+}
+
+
+NUM_MANEUVERS: 15 \ 5 heroes * 3 rounds \
+
+\ output NUM_MANEUVERSdSP_BASK_BANE named "Floor of battle" \
+\ output NUM_MANEUVERSd[windsp ATTACK_DEDGE] named "Ceiling of battle" \
+
+\ output ATTACK_TIER \
+output NUM_MANEUVERSd[bask after attack ATTACK_TIER] named "Maneuvers only"
+output NUM_MANEUVERSd[windsp ATTACK_TIER] named "Wind ups only"
+
+
+
+

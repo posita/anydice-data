@@ -1,0 +1,58 @@
+\ Attack Sequence \
+
+\ Hit Values \
+A: 8 	\ # Attacks \
+H: 3 	\ Hit Roll Target \
+HR: 0   \ Hit Re-Roll \
+W: 3 	\ Wound Roll Target \
+WR: 0   \ Wound Re-Roll \
+R: -2 	\ Rend (Negative Number) \
+D: 2 	\ Damage \
+F: 7	\ Feel No Pain Roll Target \
+
+AT: 3 	\ # Attacks \
+HT: 3 	\ Hit Roll Target \
+HRT: 0   \ Hit Re-Roll \
+WT: 3 	\ Wound Roll Target \
+WRT: 0   \ Wound Re-Roll \
+RT: -3 	\ Rend (Negative Number) \
+DT: 4	\ Damage \
+FT: 7	\ Feel No Pain Roll Target \
+
+\ Die Values \
+HD: 1d6 \ Hit Die \
+HRD: 1d6\ Hit RR Die\
+WD: 1d6 \ Wound Die \
+WRD: 1d6\ Wound RR Die \
+SD: 1d6 \ Save Die\
+FD: 1d6 \ Feel No Pain Die \
+
+
+function: hit HIT:n TO_HIT:s {
+        result: TO_HIT >= HIT
+}
+
+function: wound WOUND:n TO_WOUND:s {
+        result: TO_WOUND >= WOUND
+}
+
+function: save SAVE:n REND:n TO_SAVE:s {
+	if TO_SAVE = 1 {result: 1}
+        result: TO_SAVE < SAVE-REND
+}
+
+function: gate HR:s WR:s SR:s D:n {
+	result: HR * WR * SR * D
+}
+
+function: fnp FNP:n DICE:s{
+	if DICE < FNP {result: 1}
+	result: 0
+}
+
+
+loop S over {-1..7}{
+
+output Ad([gate [hit H 1d6] [wound W 1d6] [save S R 1d6] D]d[fnp  F FD]) + ATd([gate [hit HT 1d6] [wound WT 1d6] [save S RT 1d6] DT]d[fnp FT FD]) named "[S]+ Save"
+
+}

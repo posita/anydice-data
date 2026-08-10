@@ -1,0 +1,37 @@
+function: dagger ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: DAGGERCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAGGER }
+ result: 0
+}
+
+function: daggertwf ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: DAGGERCRIT - ATTACKMOD } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAGGER - ATTACKMOD }
+ result: 0
+}
+
+function: shortbow ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: SHORTBOWCRIT } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: SHORTBOW }
+ result: 0
+}
+
+ENEMYAC: d{10..15}
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+
+DAGGER: 1d4 + ATTACKMOD + DMGBONUS
+DAGGERCRIT: 2d4 + ATTACKMOD + DMGBONUS
+
+SHORTBOW: 1d6 + ATTACKMOD + DMGBONUS
+SHORTBOWCRIT: 2d6 + ATTACKMOD + DMGBONUS
+
+output d[dagger d20 vs ENEMYAC] named "dagger"
+output d[shortbow d20 vs ENEMYAC] named "shortbow"
+output d[dagger d20 vs ENEMYAC] + d[daggertwf d20 vs ENEMYAC] named "dagger + daggertwf"

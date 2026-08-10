@@ -1,0 +1,41 @@
+
+\-- Elemental Burst Damage based on Target Dex Save --\
+
+MONK_LEVEL: 6
+WISDOM: 14
+DC_BONUS: 0
+SAVE_FOR_HALF: 1
+TARGET_HAS_EVASION: 0
+
+
+function: martial arts die{
+  if MONK_LEVEL <= 4 {result: d6}
+  if MONK_LEVEL <= 10 {result: d8}
+  if MONK_LEVEL <= 16 {result: d10}
+  result: d12
+}
+
+PROF_BONUS: (MONK_LEVEL - 1)/4 + 2
+WIS_MOD: WISDOM/2 - 5
+SAVE_DC: 8 + WIS_MOD + PROF_BONUS + DC_BONUS
+
+
+function: saving throw ROLL:n {
+  FULL_DMG: 3d[martial arts die] * (MONK_LEVEL >= 6)
+  HALF_DMG: FULL_DMG/2
+
+  HAS_MADE_SAVE: (ROLL >= SAVE_DC)
+
+  if !HAS_MADE_SAVE & !(TARGET_HAS_EVASION & SAVE_FOR_HALF ) {result: FULL_DMG}
+  if SAVE_FOR_HALF  & !(TARGET_HAS_EVASION & HAS_MADE_SAVE ) {result: HALF_DMG}
+
+  result: 0
+}
+
+if MONK_LEVEL >= 6{
+  loop MOD over {(SAVE_DC - 21)..(SAVE_DC - 1)}{
+    ROLL:(d20 + MOD)
+    if MOD < 0 {output [saving throw (ROLL)] named  "[MOD] DEX Save"}
+    else       {output [saving throw (ROLL)] named "+[MOD] DEX Save"}
+  }
+}

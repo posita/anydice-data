@@ -1,0 +1,43 @@
+set "maximum function depth" to 10
+NO: 0
+YES: 1
+
+HITS: 0
+ROLL: 0
+
+function: roll N:n{
+ROLL:N 
+if N = {8,9}{result:[roll d12]}
+  result:N
+}
+function: check R:s {
+ C: 0
+ M: 0
+ loop N over R {
+  if N = M {
+   C: C + 1
+   if C = 3 { result:1 }
+  }
+  else {
+   C: 1
+   M: N
+  }
+ }
+ result:0
+}
+function: hit E:n{
+ 
+  if E = {10,11}{result:1} else
+   if E = 12 {result: 2 + [hit [roll d12]]}
+
+}
+function: ini INPUT:n{
+ VAL:[roll INPUT]
+ CRIT:[check INPUT]
+ S:[hit VAL]
+
+  if CRIT=1{result:3*S}result:S
+}
+
+output [ini 1d12] named "Roll"
+

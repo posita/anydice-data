@@ -1,0 +1,72 @@
+
+
+function: ROLL:s ones give minus PEN:n {
+ BADONES: ROLL = 1
+ GOODONES: ROLL = 12
+ result: ({1}@ROLL-PEN*BADONES+PEN*GOODONES)
+}
+
+function: ROLL:s keep highest plus lowest {
+ BADONES: ROLL = 1
+ TOTAL: #ROLL
+ result: ({1}@ROLL+{TOTAL}@ROLL)
+}
+
+function: ROLL:s keep highest minus lowest {
+ BADONES: ROLL = 1
+ TOTAL: #ROLL
+ result: ({1}@ROLL-{TOTAL}@ROLL)
+}
+
+function: ROLL:s ones remove highest die {
+ BADONES: (ROLL = 1)
+ \if BADONES = #ROLL {result:1}\
+ result: {BADONES+1}@ROLL
+}
+
+function: ROLL:s ones remove highest die ace {
+ BADONES: (ROLL = 1)
+ if BADONES = #ROLL {result:1}
+ result: {BADONES+1}@ROLL
+}
+
+function: ROLL:s successes vs DC:n {
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ result: SUCCESSES
+}
+
+function: ROLL:s successes vs DC:n aces {
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ result: SUCCESSES-BADONES
+}
+
+function: ROLL:s successes vs DC:n ATTR:n{
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ if (SUCCESSES-BADONES>ATTR) {result: ATTR}
+ if (SUCCESSES-BADONES<-1) {result: -1}
+ result: SUCCESSES-BADONES
+}
+
+function: ROLL:s successes vs DC:n ATTR:n crits{
+ BADONES: (ROLL = 1)
+ CRITS: (ROLL = 12)
+ SUCCESSES: (ROLL >= DC)
+ if (SUCCESSES-BADONES+CRITS>ATTR) {result: ATTR}
+ if (SUCCESSES-BADONES+CRITS<-1) {result: -1}
+ result: SUCCESSES-BADONES+CRITS
+}
+
+DICE:5
+DC:9
+ATTR:3
+
+loop DICE over {1..7}{
+loop RISK over {0}{
+output [(DICE+RISK)d12 successes vs (DC+RISK) ATTR] named "([DICE]+[RISK])d12 successes vs [[DC]+[RISK]] [ATTR]" 
+\output [(DICE+RISK)d12 successes vs (DC+RISK) ATTR crits] named "([DICE]+[RISK])d12 successes vs [[DC]+[RISK]] [ATTR] crits"\
+}
+}
+

@@ -1,0 +1,21 @@
+CRIT: 18
+ABILITYMOD: 8
+PROF: 6
+ATTACK: ABILITYMOD + PROF
+DAMAGEDICE: 4d6
+CRITDICE: 4d6
+NUMATTACKS: 4
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT { result: DAMAGEDICE + CRITDICE + ABILITYMOD }
+ if ROLL + ATTACK >= DEFENSE { result: DAMAGEDICE + ABILITYMOD }
+ result: 0
+}
+loop AC over {5..30}{
+    TOTAL: 0
+    loop N over {1..NUMATTACKS}{
+       TOTAL: TOTAL + [attack d20 vs AC]
+    }
+    output TOTAL named "AC: [AC]"
+}

@@ -1,0 +1,57 @@
+
+Q: d{0..3}
+
+function: reroll N:n and less as ROLL:n {
+ if ROLL <= N { result: dQ }
+ result: ROLL
+}
+function: reroll N:n and more as ROLL:n {
+ if ROLL >= N { result: dQ }
+ result: ROLL
+}
+function: reroll TARGETS:s from ROLL:n {
+    if [TARGETS contains ROLL] { result: dQ}
+    result: ROLL
+}
+
+\x+/y+ : Roll on target X+, keep successes & reroll failures on Y+\
+function: roll ROLL:s on X:n reroll failures on Y:n {
+ ROLL_UN: ROLL >= X                     \count Successes of 1st Roll on X+\
+ result: ROLL_UN + ((#ROLL-ROLL_UN)d(dQ>=Y))
+}
+
+\x+/y- : Roll on target X+, reroll all successes on Y+\
+function: roll ROLL:s on X:n reroll successes on Y:n {
+ ROLL_UN: ROLL >= X                     \count Successes of 1st Roll on X+\
+ result: ROLL_UNd(dQ>=Y)
+}
+
+\ Pool of Dices rolled \
+POOL: 16
+
+output 0 named "Roll [POOL] dices :"
+\ Target for Successes \
+
+
+output [roll POOLdQ on 1 reroll failures on 1] named "1+/1+"
+output [roll POOLdQ on 2 reroll failures on 1] named "2+/1+ (same as 1+/2+)"
+output [roll POOLdQ on 3 reroll failures on 1] named "3+/1+ (same as 1+/3+)"
+
+output POOLd(dQ>=1) named "Roll [POOL]d4, Successes on 1+ (same as 2+/2+)"
+
+output [roll POOLdQ on 3 reroll failures on 2] named "3+/2+ (same as 2+/3+)"
+output [roll POOLdQ on 1 reroll successes on 1] named "1+/1-"
+
+output POOLd(dQ>=2) named "Roll [POOL]d4, Successes on 2+"
+
+output [roll POOLdQ on 3 reroll failures on 3] named "3+/3+"
+output [roll POOLdQ on 2 reroll successes on 1] named "2+/1- (same as 1+/2-)"
+
+output POOLd(dQ>=3) named "Roll [POOL]d4, Successes on 3+ (same as 2+/2-)"
+
+output [roll POOLdQ on 3 reroll successes on 1] named "3+/1- (same as 1+/3-)"
+output [roll POOLdQ on 3 reroll successes on 2] named "3+/2- (same as 2+/3-)"
+output [roll POOLdQ on 3 reroll successes on 3] named "3+/3-"
+
+
+

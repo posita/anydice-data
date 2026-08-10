@@ -1,0 +1,43 @@
+RANGE: 30
+
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+DIE: d20
+DIEMAX: [maximum of DIE]
+DIEMID: DIEMAX / 2
+
+\
+  There are simpler ways to define this but I want to validate
+  the procedure: 
+    1) Roll first die, if min or max value roll again. On
+       subsequent rolls only roll again on max value.
+    2) Total all dice and subtract total number of dice rolled.
+    3) If *first* roll was a one, treat value as negative.
+  Examples:
+    Roll(s)  Total  #Dice  Result
+     3          3      1       2
+     6,1        7      2       5
+     6,6,2     14      3      11
+     1,4        5      2      -3
+     1,6,5     12      3      -9
+\
+function: roll {
+  result: [roll DIE]
+}
+function: roll R:n {
+  if R = 1 { result: -(R - 1 + [roll add DIE]) }
+  if R = DIEMAX { result: R - 1 + [roll add DIE] }
+  result: R - 1
+}
+function: roll add R:n {
+  if R = DIEMAX { result: R - 1 + [roll add DIE] }
+  result: R - 1
+}
+
+output [clamp [roll]-[roll] between -RANGE and RANGE] named "chain [DIE] vs"
+output [clamp [roll]-DIEMID between -RANGE and RANGE] named "chain [DIE]-[DIEMID]"

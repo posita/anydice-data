@@ -1,0 +1,28 @@
+function: reroll X:n below Y:n as Z:d {
+  if X < Y { result: Z }
+  result: X
+}
+
+function: reroll X:d below Y:n {
+  result: [reroll X below Y as X]
+}
+
+function: health with HITDIE:d at level LEVEL:n with CON:n con {
+  result: (LEVEL-1)d(HITDIE) + [maximum of HITDIE] + (CON * LEVEL)
+}
+
+function: health with HITDIE:d at level LEVEL:n with CON:n con rerolling ones {
+  result: (LEVEL-1)d[reroll HITDIE below 2] + [maximum of HITDIE] + (CON * LEVEL)
+}
+
+function: average health with HITDIE:d at level LEVEL:n with CON:n con {
+  result: ((LEVEL-1) * (([maximum of HITDIE] / 2) + 1)) + [maximum of HITDIE] + (CON * LEVEL)
+}
+
+HITDIE: d10 \class hit die\
+CON: 0 \doesn't matter for delta\
+loop LEVEL over {5,10,15,20} {
+  AVG: [average health with HITDIE at level LEVEL with CON con ]
+  output [health with HITDIE at level LEVEL with CON con ] - AVG named "Health delta at level [LEVEL]"
+  \output [health with HITDIE at level LEVEL with CON con rerolling ones] - AVG named "Health delta at level [LEVEL] rerolling 1s"\
+}

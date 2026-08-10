@@ -1,0 +1,90 @@
+function: hits ROLL:n plus BONUS:n vs AC:n {
+  if ROLL >= 20 {
+    result: 2
+  }
+  if ROLL <= 1 {
+    result: 0
+  }
+  if ROLL + BONUS >= AC {
+    result: 1
+  }
+  result: 0
+}
+
+function: damage HITS:n DICE:d plus EXTRADICE:d plus BONUS:n {
+  if HITS > 0 {
+    result: (HITS d (DICE + EXTRADICE)) + BONUS
+  }
+  result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DICE:d plus EXTRADICE:d plus DMGBONUS:n {
+  result: [damage [hits ROLL plus BONUS vs AC] DICE plus EXTRADICE plus DMGBONUS]
+}
+
+function: attack twice FIRST:n SECOND:n plus BONUS:n vs AC:n for DICEFIRST:d DICESECOND:d plus EXTRADICE:d plus DMGBONUSFIRST:n DMGBONUSSECOND:n {
+  HITSFIRST: [hits FIRST plus BONUS vs AC]
+  HITSSECOND: [hits SECOND plus BONUS vs AC]
+  if HITSFIRST > 0 {
+    result: [damage HITSFIRST DICEFIRST plus EXTRADICE plus DMGBONUSFIRST] + [damage HITSSECOND DICESECOND plus 0 plus DMGBONUSSECOND]
+  }
+  result: [damage HITSSECOND DICESECOND plus EXTRADICE plus DMGBONUSSECOND]
+}
+
+function: attack thrice FIRST:n SECOND:n THIRD:n plus BONUS:n vs AC:n for DICEFIRST:d DICESECOND:d DICETHIRD:d plus EXTRADICE:d plus DMGBONUSFIRST:n DMGBONUSSECOND:n DMGBONUSTHIRD:n {
+  HITSFIRST: [hits FIRST plus BONUS vs AC]
+  HITSSECOND: [hits SECOND plus BONUS vs AC]
+  HITSTHIRD: [hits THIRD plus BONUS vs AC]
+  if HITSFIRST > 0 {
+    result: [damage HITSFIRST DICEFIRST plus EXTRADICE plus DMGBONUSFIRST] + [damage HITSSECOND DICESECOND plus 0 plus DMGBONUSSECOND] + [damage HITSTHIRD DICETHIRD plus 0 plus DMGBONUSTHIRD]
+  }
+  if HITSSECOND > 0 {
+    result: [damage HITSSECOND DICESECOND plus EXTRADICE plus DMGBONUSSECOND] + [damage HITSTHIRD DICETHIRD plus 0 plus DMGBONUSTHIRD]
+  }
+  result: [damage HITSTHIRD DICETHIRD plus EXTRADICE plus DMGBONUSTHIRD]
+}
+
+function: attack twice if necessary FIRST:n SECOND:n plus BONUS:n vs AC:n for DICEFIRST:d DICESECOND:d plus EXTRADICE:d plus DMGBONUSFIRST:n DMGBONUSSECOND:n {
+  HITSFIRST: [hits FIRST plus BONUS vs AC]
+  HITSSECOND: [hits SECOND plus BONUS vs AC]
+  if HITSFIRST > 0 {
+    result: [damage HITSFIRST DICEFIRST plus EXTRADICE plus DMGBONUSFIRST]
+  }
+  result: [damage HITSSECOND DICESECOND plus EXTRADICE plus DMGBONUSSECOND]
+}
+
+function: attack thrice if necessary FIRST:n SECOND:n THIRD:n plus BONUS:n vs AC:n for DICEFIRST:d DICESECOND:d DICETHIRD:d plus EXTRADICE:d plus DMGBONUSFIRST:n DMGBONUSSECOND:n DMGBONUSTHIRD:n {
+  HITSFIRST: [hits FIRST plus BONUS vs AC]
+  HITSSECOND: [hits SECOND plus BONUS vs AC]
+  HITSTHIRD: [hits THIRD plus BONUS vs AC]
+  if HITSFIRST > 0 {
+    result: [damage HITSFIRST DICEFIRST plus EXTRADICE plus DMGBONUSFIRST] + [damage HITSSECOND DICESECOND plus 0 plus DMGBONUSSECOND]
+  }
+  if HITSSECOND > 0 {
+    result: [damage HITSSECOND DICESECOND plus EXTRADICE plus DMGBONUSSECOND]
+  }
+  result: [damage HITSTHIRD DICETHIRD plus EXTRADICE plus DMGBONUSTHIRD]
+}
+
+AC: 14
+HIT: [highest 1 of 1d20]
+
+
+output [attack HIT plus 2+4 vs AC for 1d8 plus 2d6 plus 4] named "rog4 rapier+bb"
+output [attack twice if necessary HIT HIT plus 2+4 vs AC for 1d6 1d6 plus 2d6 plus 4 0] named "rog4 sw/sw"
+
+output [attack HIT plus 3+4 vs AC for 1d8+1d8 plus 3d6 plus 4] named "rog5 rapier+bb"
+output [attack twice if necessary HIT HIT plus 3+4 vs AC for 1d6 1d6 plus 3d6 plus 4 0] named "rog5 sw/sw"
+
+output [attack HIT plus 3+4 vs AC for 1d8+1d8 plus 3d6 plus 4] named "rog6 rapier+bb"
+output [attack twice if necessary HIT HIT plus 3+4 vs AC for 1d6 1d6 plus 3d6 plus 4 0] named "rog6 sw/sw"
+
+output [attack HIT plus 3+4 vs AC for 1d8+1d8 plus 4d6 plus 4] named "rog7 rapier+bb"
+output [attack twice if necessary HIT HIT plus 3+4 vs AC for 1d6 1d6 plus 4d6 plus 4 0] named "rog7 sw/sw"
+output [attack HIT plus 3+4 vs AC for 2d8+1d8 plus 4d6 plus 4] named "rog7 sb+bb"
+output [attack twice if necessary HIT HIT plus 3+4 vs AC for 2d8 1d6 plus 4d6 plus 4 0] named "rog7 sb/sw"
+
+output [attack HIT plus 3+5 vs AC for 1d8+1d8 plus 4d6 plus 5] named "rog8 rapier+bb"
+output [attack twice if necessary HIT HIT plus 3+5 vs AC for 1d6 1d6 plus 4d6 plus 5 0] named "rog8 sw/sw"
+output [attack HIT plus 3+5 vs AC for 2d8+1d8 plus 4d6 plus 5] named "rog8 sb+bb"
+output [attack twice if necessary HIT HIT plus 3+5 vs AC for 2d8 1d6 plus 4d6 plus 5 0] named "rog8 sb/sw"

@@ -1,0 +1,93 @@
+YES: 1
+NO: 0
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: attack ATTACK:n hit HIT:n by MODELS:n {
+    if REROLL_HITS = YES {
+        result: [count {HIT..6} in (ATTACK * MODELS)d[reroll {1..HIT-1} on d6]]
+    }
+    result: [count {HIT..6} in (ATTACK * MODELS)d6]
+}
+
+function: hits HITS:n wound WOUND:n {
+    if REROLL_WOUNDS = YES {
+        result: [count {WOUND..6} in HITSd[reroll {1..WOUND-1} on d6]]
+    }
+    result: [count {WOUND..6} in HITSd6]
+}
+
+function: wounds WOUNDS:n vs SAVE:n rend REND:n {
+    if REROLL_SAVES = YES {
+        if SAVE = 6 {
+            result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd[reroll {1..SAVE-1} on d6]])
+        }
+        result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd[reroll {1..SAVE-1} on d6]])
+    }
+    if SAVE = 6 {
+        result: (WOUNDS -[count 6+[absolute REND] in WOUNDSd6])
+    }
+    result: (WOUNDS - [count {SAVE+[absolute REND]..6+[absolute REND]} in WOUNDSd6])
+}
+
+function: success SUCCESS:n for DAMAGE:n {
+    result: SUCCESS * DAMAGE
+}
+
+function: attack ATTACK:n hit HIT:n wound WOUND:n vs SAVE:n rend REND:n for DAMAGE:n by MODELS:n {
+    result: [success [wounds [hits [attack ATTACK hit HIT by MODELS] wound WOUND] vs SAVE rend REND] for DAMAGE]
+}
+
+function: damage {
+    result: [attack ATTACK hit HIT wound WOUND vs SAVE rend REND for DAMAGE by MODELS]
+}
+
+function: hit {
+    result: [wounds [hits [attack ATTACK hit HIT by MODELS] wound WOUND] vs SAVE rend REND]
+}
+
+
+
+
+REROLL_SAVES: NO
+REROLL_HITS: NO
+REROLL_WOUNDS: NO
+
+SAVE: 3
+ATTACK: 1
+HIT: 4
+WOUND: 4
+REND: 0
+DAMAGE: 1
+MODELS: 10
+output [hit] named "3 hits"
+output [damage] named "3 damage"
+
+SAVE: 4
+ATTACK: 1
+HIT: 4
+WOUND: 4
+REND: 0
+DAMAGE: 1
+MODELS: 10
+output [hit] named "4 hits"
+output [damage] named "4 damage"
+
+SAVE: 5
+ATTACK: 1
+HIT: 4
+WOUND: 4
+REND: 0
+DAMAGE: 1
+MODELS: 10
+output [hit] named "5 hits"
+output [damage] named "5 damage"

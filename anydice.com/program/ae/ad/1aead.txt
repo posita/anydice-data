@@ -1,0 +1,39 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+if ROLL >= CRITROLL { result: CRITDAMAGE }
+if ROLL = 1 { result: MISSDAMAGE }
+if ROLL + PROFICIENCY + ATTACKMOD >= AC { result: DAMAGE }
+result: MISSDAMAGE
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 4
+PROFICIENCY: 3
+CRITROLL: 20
+
+ATTACKTIMES: 3
+DAMAGE: 2d6
+CRITDAMAGE: 4d6
+MISSDAMAGE: 0
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Scorching Ray"
+output [attackroll [highest 1 of 2d20] vs ENEMYAC] + (ATTACKTIMES - 1)d[attackroll 1d20 vs ENEMYAC] named "Scorching Ray w/ Single Advantage"
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Scorching Ray w/ All Advantage"
+
+ATTACKTIMES: 1
+DAMAGE: 4d4 + 2d4
+CRITDAMAGE: 8d4 + 2d4
+MISSDAMAGE: 4d4 / 2
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Acid Arrow"
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Acid Arrow w/ Advantage"
+
+
+\Add your Attack Mod to the damage roll for Alchemical Savant\
+ATTACKTIMES: 1
+DAMAGE: 4d4 + 2d4 + ATTACKMOD
+CRITDAMAGE: 8d4 + 2d4 + ATTACKMOD
+MISSDAMAGE: (4d4 + ATTACKMOD) / 2
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Acid Arrow w/ Alchemical Savant" 
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Acid Arrow w/ Advantage + Alchemical Savant" 

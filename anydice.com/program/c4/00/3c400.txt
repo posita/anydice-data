@@ -1,0 +1,44 @@
+
+SPELL_LEVEL:1
+
+DC: 10
+INT_MOD: 4
+PROFICIENCY: 3
+
+CRITFAIL: 1
+STARRY_FORM: 0
+GUIDANCE: 0
+RECOVER: 0
+
+
+EXPERTISE: PROFICIENCY*2
+ARCANA_MOD: EXPERTISE+INT_MOD
+
+function: overflow A:n over B:n{
+if A > B { result: B }
+if B < 0 { result: 0 }
+result: A}
+
+function: cast A:n with B:n{
+if A = -1 {result: B} 
+if A <= B { result: 1}
+result: 0}
+
+function: guide A:n B:n{
+if B >= 1 { result: A + Bd4 }
+result: A}
+
+function: recover A:n B:n {
+if B >= 1 { result: A + INT_MOD }
+result: A}
+
+function: history A:n B:n {
+if B >= 1 { result: INT_MOD}
+result: A}
+
+function: miz A:n B:n C:n D:n{
+if A = 1 & C = 1 { result: -1 }
+if A < 10 & D = 1 { result: [cast SPELL_LEVEL with [overflow (([guide 10 GUIDANCE] + B)/2) over 9]] }
+result: [cast SPELL_LEVEL with [overflow (([guide A GUIDANCE] + B)/2) over 9]]}
+
+output [miz 1d20 ([history ARCANA_MOD RECOVER]-[recover DC RECOVER]) CRITFAIL STARRY_FORM] named "Standard"

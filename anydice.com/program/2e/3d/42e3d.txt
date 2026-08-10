@@ -1,0 +1,33 @@
+WILD:3
+\ OpenD6 Wild Die (general pool size)
+\ Botch = Wild=1 → remove highest non-Wild die
+
+function: opend6 POOL:s WILD:n {
+  result [
+    if WILD = 6 then
+      \ Wild exploded
+      6 + [sum POOL] + [explode d6]
+    else
+      [
+        if WILD = 1 then
+          \ Botch: remove highest non-Wild die
+          [sum [drop highest of POOL]]
+        else
+          \ Normal roll
+          [sum POOL] + WILD
+      ]
+  ]
+}
+
+\ Set your total dice pool size (e.g., 4 for 4D)
+TOTAL_DICE: 3
+
+\ Build pool and wild die from TOTAL_DICE
+function: opend6 roll:n {
+  POOL: (roll - 1)d6
+  WILD: 1d6
+  result [opend6 POOL WILD]
+}
+
+\ Output full distribution
+output [opend6 roll TOTAL_DICE] named "OpenD6 Roll Result"

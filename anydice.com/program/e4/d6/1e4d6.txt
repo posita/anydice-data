@@ -1,0 +1,35 @@
+function: check STAT and ASPECTS autohit {
+   if STAT+ASPECTS >= TIER {
+      if TIER-2 < 1 { TH: 1 } else { TH: TIER-2 }
+      if ASPECTS >= TH { result: 1 }
+   }
+   result: 0
+}
+
+function: check POOL autofail {
+   if POOL <= 0 { result: 1 }
+   result: 0
+}
+
+function: STAT and ASPECTS against tier TIER hit at HIT {
+   if [check STAT and ASPECTS autohit] = 1 { result: 1 }
+   if [check STAT+ASPECTS autofail] = 1 { result: -1 }
+
+   X: (STAT+ASPECTS)d6
+   R: [count {HIT..6} in X]
+   
+   result: [check R against TIER]
+}
+
+function: check R:s against T:n {
+   if R >= T { result: 10 }
+   if R = 0 { result: -10 }
+   result: R
+}
+
+HIT: 4
+
+loop N over {1..5}{
+   TIER: N
+   output [4 and 2 against tier TIER hit at HIT] named "Probs for [HIT]-6, tier [TIER]"
+}

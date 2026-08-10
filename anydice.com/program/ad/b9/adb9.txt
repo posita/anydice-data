@@ -1,0 +1,97 @@
+\ -------      Heroquest Probablity Calculator      ------- \ 
+\ -------                 By Scott A                --------\ 
+
+\ Target numbers, from 0-20 \
+\ Number of masteries, 0 or higher \
+PC_TARGET_NUMBER: 11
+PC_MASTERIES: 1
+
+OPPOSED_TARGET_NUMBER: 14
+OPPOSED_MASTERIES: 2
+
+
+\ ----------------------------------------------------------\ 
+
+
+
+
+
+
+function: roll X:n vs TN:n {
+    if X = 20 {
+        \ Fumble \ 
+        result: 0
+    }
+    if X > TN {
+        \ Fail \ 
+        result: 1
+    }
+    if X <= TN & X != 1 {
+        \ Success \ 
+        result: 2
+    }
+    if X = 1 {
+        \ Crit \ 
+        result: 3
+    }
+}
+
+function: outcome PC_OUTCOME:n PC_ROLL:n vs GM_OUTCOME:n GM_ROLL:n{
+    OUTCOME: PC_OUTCOME - GM_OUTCOME
+    if OUTCOME = 0 {
+        \ Check for ties \ 
+        if PC_ROLL = GM_ROLL {
+            result: 0
+        }
+        if PC_OUTCOME = 0 & GM_OUTCOME = 0 {
+            \ Fumbles for everyone \ 
+            result: 0
+        }
+        \ Marginal outcomes, assuming high roll wins \ 
+        if PC_ROLL > GM_ROLL {
+            result: 1
+        }
+        if PC_ROLL < GM_ROLL {
+            result: -1
+        }
+    }
+    \ Shift values to accomidate marginal outcomes \ 
+    if OUTCOME > 0 {
+        result: OUTCOME + 1
+    }
+    result: OUTCOME - 1
+}
+
+function: contest PC_TN:n PC_W:n vs GM_TN:n GM_W:n{
+    PC_ROLL: d20
+    GM_ROLL: d20
+    PC_OUTCOME: [roll PC_ROLL vs PC_TN] + PC_W
+    GM_OUTCOME: [roll GM_ROLL vs GM_TN] + GM_W
+    OUTCOME: [outcome PC_OUTCOME PC_ROLL vs GM_OUTCOME GM_ROLL]
+    result: OUTCOME
+}
+
+
+\ Short variable names due to a bug in string interpolation \
+PCW: PC_MASTERIES
+PCN: PC_TARGET_NUMBER
+
+GMW: OPPOSED_MASTERIES
+GMN: OPPOSED_TARGET_NUMBER
+
+if PCW = 0 {
+    if GMW = 0 {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN] vs GM [GMN]"
+    }
+    else {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN] vs GM [GMN]W[GMW]"
+    }
+}
+else {
+    if GMW = 0 {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN]W[PCW] vs GM [GMN]"
+    }
+    else {
+        output [contest PCN PCW vs GMN GMW] named "PC [PCN]W[PCW] vs GM [GMN]W[GMW]"
+    }
+}

@@ -1,0 +1,92 @@
+function: BASE_DAMAGE:d plus BONUS_DAMAGE:d damage with ATTACK:n attack against AC:n ac {
+ if ATTACK = 20 {
+  result: 2d(BASE_DAMAGE) + BONUS_DAMAGE
+ } else if ATTACK >= AC {
+  if ATTACK > 1 {
+   result: BASE_DAMAGE + BONUS_DAMAGE
+  }
+ }
+ result: 0
+}
+
+function: DIE:d greater than THRESHOLD:n {
+ result: [DIE DIE greater than helper THRESHOLD]
+}
+
+function: ROLL:n DIE:d greater than helper THRESHOLD:n {
+ if ROLL > THRESHOLD {
+  result: ROLL
+ }
+ else {
+  result: DIE
+ }
+}
+
+AC: 18 + 3d{-3..3}
+CHARISMA_MODIFIER: 3
+
+function: total wb WEAPON_BASE:d pb PROFICIENCY_BONUS:n am ABILITY_MODIFIER:n na NUMBER_OF_ATTACKS:n uamd USE_AM_IN_DAMAGE:n iaa IS_ATTACK_ADVANTAGE:n igwm IS_GWM:n ib IS_BLESSED:n isw IS_SACRED_WEAPON:n {
+ ATTACK: PROFICIENCY_BONUS + ABILITY_MODIFIER
+ BONUS_DAMAGE: 0
+ if IS_ATTACK_ADVANTAGE = 1 {
+  ATTACK: ATTACK + (1@(2d20))
+ } else {
+  ATTACK: ATTACK + d20
+ }
+ if USE_AM_IN_DAMAGE = 1 {
+  BONUS_DAMAGE: BONUS_DAMAGE + ABILITY_MODIFIER
+ }
+ if IS_GWM = 1 {
+  ATTACK: ATTACK - 5
+  BONUS_DAMAGE: BONUS_DAMAGE + 10
+ }
+ if IS_BLESSED = 1 {
+  ATTACK: ATTACK + 1d4
+ }
+ if IS_SACRED_WEAPON {
+  ATTACK: ATTACK + CHARISMA_MODIFIER
+ }
+ \result: ATTACK\
+ \result: [WEAPON_BASE plus BONUS_DAMAGE damage with ATTACK attack against AC ac]\
+ result: (NUMBER_OF_ATTACKS)d([WEAPON_BASE plus BONUS_DAMAGE damage with ATTACK attack against AC ac])
+}
+
+output [total wb 1d10 pb 4 am 4 na 2 uamd 1 iaa 1 igwm 1 ib 1 isw 1] + [total wb 1d4 pb 4 am 4 na 1 uamd 1 iaa 1 igwm 1 ib 1 isw 1] named "GWM Halberd damage"
+
+PROFICIENCY_BONUS: 4
+ABILITY_MODIFIER: 4
+GWM_PENALTY: 5
+BLESS_BOOST: 1d4
+
+
+
+GREATSWORD_DAMAGE: 2d([d6 greater than 2])
+HALBERD_DAMAGE: [d10 greater than 2]
+HALBERD_END_DAMAGE: [d4 greater than 2]
+
+GWM_BOOST: 10
+DAMAGE_BONUS: ABILITY_MODIFIER
+GWM_DAMAGE_BONUS: DAMAGE_BONUS + GWM_BOOST
+CHARISMA_BOOST: 3
+ATTACK: (1@(2d20)) + PROFICIENCY_BONUS + ABILITY_MODIFIER + CHARISMA_BOOST + BLESS_BOOST
+GWM_ATTACK: ATTACK - GWM_PENALTY
+
+\output GWM_ATTACK\
+output 2d([1d10 plus GWM_DAMAGE_BONUS damage with GWM_ATTACK attack against AC ac]) + [1d4 plus GWM_DAMAGE_BONUS damage with GWM_ATTACK attack against AC ac] named "GWM Halberd damage"
+\output 2d([1d8 plus (DAMAGE_BONUS + 1) damage with (ATTACK + 1) attack against AC ac]) + 2d([1d8 plus (DAMAGE_BONUS + 1) damage with (ATTACK + 1) attack against AC ac]) named "Monk damage"\
+
+
+
+
+
+
+
+
+
+
+
+\output 2d([GREATSWORD_DAMAGE plus DAMAGE_BONUS damage with ATTACK attack against AC ac]) named "Greatsword damage"\
+\output 2d([HALBERD_DAMAGE plus DAMAGE_BONUS damage with ATTACK attack against AC ac]) + [HALBERD_END_DAMAGE plus DAMAGE_BONUS damage with ATTACK attack against AC ac] named "GWM GWF Halberd damage"\
+\output 2d([GREATSWORD_DAMAGE plus ABILITY_MODIFIER damage with (ATTACK + GWM_PENALTY) attack against AC ac]) named "Greatsword damage"\
+\output 2d([HALBERD_DAMAGE plus ABILITY_MODIFIER damage with (ATTACK + GWM_PENALTY) attack against AC ac]) + [HALBERD_END_DAMAGE plus ABILITY_MODIFIER damage with (ATTACK + GWM_PENALTY) attack against AC ac] named "GWF Halberd damage"
+output 2d([1d10 plus ABILITY_MODIFIER damage with (ATTACK + GWM_PENALTY) attack against AC ac]) + [1d4 plus ABILITY_MODIFIER damage with (ATTACK + GWM_PENALTY) attack against AC ac] named "Halberd damage"\

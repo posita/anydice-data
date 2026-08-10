@@ -1,0 +1,41 @@
+function: roll A:n B:n D:n E:n G:n H:n{
+ C: 0
+ F: 0
+ ABY: 0
+ ABC: 0
+ DEY: 0
+ DEC: 0
+ FINAL: 2
+ if A = 10 { \tens die comes up 00\
+  C: B \just what the units die says\
+  if B = 10 {C: 100} \00 and 0 is 100\
+ }
+ if A!= 10 & B = 10 { \when you roll 10,20,30,etc\
+  C: A*10
+ }
+ if A!=10 & B!=10 {C: A*10+B \X1-X9 for X:1-9\
+ }
+ if A = B {ABC: 1}
+ if C < G+1 {ABY: 1}
+ \now for the second d100 roll\
+ if D = 10 {
+  F: E
+  if E = 10 {F: 100}
+ }
+ if D!= 10 & E = 10 {F: D*10}
+ if D!=10 & E!=10 {F: D*10+E}
+ if D = E {DEC: 1}
+ if F < H+1 {DEY: 1}
+ \comparison code goes below here\
+ if ABY = 1 & DEY = 0 {result: 0} \AB succeeds, DE fails, AB wins\
+ if ABY = 0 & DEY = 1 {result: 1} \AB fails, DE succeeds, DE wins\
+ if ABY = 1 & DEY = 1 { \both succeed, now look at crits or who rolled better\
+  if ABC = 1 & DEC = 0 {result: 0}
+  if ABC = 0 & DEC = 1 {result: 1}
+  if C > F {result: 0} \if both critted or not, highest roll still wins\
+  if C < F {result: 1}
+ }
+ result: FINAL
+}
+
+output [roll 1d10 1d10 1d10 1d10 80 10]

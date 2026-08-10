@@ -1,0 +1,85 @@
+\Heroes - simplified\
+
+CHART:  {3, 5, 6, 9}           \Standard Bell based on : 9d6 on 4+\
+
+\**********************************************************************************************\
+
+function: roll ATT:n DEF:n ATT_TAR:n DEF_TAR:n{
+ result: [hit pass ATTd6 DEFd6 ATT_TAR DEF_TAR]
+}
+
+function: hit pass ATT_ROLL:s DEF_ROLL:s ATT_TAR:n DEF_TAR:n{
+ ATT_SUCCESSES: ATT_ROLL>=ATT_TAR
+ DEF_SUCCESSES: DEF_ROLL>=DEF_TAR
+ RES: ATT_SUCCESSES - DEF_SUCCESSES
+ if (RES>0){result: [find best sets ATT_ROLL DEF_ROLL]}
+ result: 0
+}
+
+\********Final Functions to compare Sets of Dices (Optimized at max) **********\
+
+function: find best sets ATT:s DEF:s {
+ ATT_SET: [best subset ATT]
+ DEF_SET: [best subset DEF]
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+function: best subset ROLL:s {
+ SIXES:  ROLL=6                      \test the value on each element of the Sequence parameter : optimized\
+ FIVES:  ROLL=5
+ FOURS:  ROLL=4
+ THREES: ROLL=3
+ TWOS:   ROLL=2
+ ONES:   ROLL=1
+ SUBSETS: {SIXES, FIVES, FOURS, THREES, TWOS, ONES}
+ VALUES: {6,5,4,3,2,1}
+
+ TEMP: 1@SUBSETS
+ RES: 1@VALUES
+ loop N over {1..5}{                 \compare the sets to find the more numerous one, choosing the higher if equal\
+   if (TEMP < ((N+1)@SUBSETS)) {
+     RES: (N+1)@VALUES
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES
+}
+
+function: compare sets ATT_SET:n DEF_SET:n {
+ if (ATT_SET<=3) {result: 1}
+ if (ATT_SET<=5) {
+  if (DEF_SET<=3) {result: 3}
+  if (ATT_SET<=5) {result: 2}
+  if (ATT_SET=6) {result: 1}
+ }
+ if (ATT_SET=6) {
+  if (DEF_SET<=3) {result: 4}
+  if (ATT_SET<=5) {result: 3}
+  if (ATT_SET=6) {result: 2}
+ }
+ result: 0
+}
+\output [find best sets A_R D_R] named "bonus damage from : freeze =+ : main choice"\
+
+\**********************************************************************************************\
+
+Q: {0,0,0,0,1,1}
+
+\output 6d(d6>=5) - 3d(d6>=5)
+output 6dQ - 3dQ
+output [use chart 6dQ CHART]-[use chart 3dQ CHART] named "test 3 : Charts then Diff"
+output [use chart 6dQ-3dQ CHART] named "test 4 : Diff then Chart"\
+
+\output 2d(d6>=6) named "if gap too big, need a double 6 to succeed (1 Damage passed or hits fail)"\
+
+loop ATT over {5..5}{
+loop DEF over {3..3}{
+ loop M over {6..6}{
+  loop N over {6..6}{
+   \output [crop [use chart ATTd(d6>=M) CHART]-[use chart DEFd(d6>=N) CHART]] named "ATT: [ATT]d, DEF: [DEF]d, AT: [M], DT: [N]"\
+   \output [roll ATT DEF M N] named "ATT: [ATT]d, DEF: [DEF]d, AT: [M], DT: [N]"\
+}}}}
+
+output [best subset 6d6]
+
+output 6d(d6=6)

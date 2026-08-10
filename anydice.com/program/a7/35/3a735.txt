@@ -1,0 +1,61 @@
+HAZARD: 1
+SPIN: 2
+SLIDE: 3
+SHIFT: 4
+HAZARDS: 1
+GEAR: 2
+TRIVIAL: 1
+HAZARDOUS: -1
+STANDARD: 0
+
+SKID_DIE: 1d{HAZARD,SPIN,SLIDE,SHIFT:3}
+
+function: evaluate VALUE:n on SKIDS:s IS_TRIVIAL:n{
+ SHIFTS: [count SHIFT in SKIDS] + (IS_TRIVIAL = 1)
+ STUNTS: [count {HAZARD,SPIN,SLIDE} in SKIDS] + (IS_TRIVIAL = -1)
+ EXCESS_SHIFTS: [highest of SHIFTS - STUNTS and 0] 
+ \Prioritise cancelling/removing hazards from Hazard, Spin and Slide results.\
+ HAZARDS: [highest of STUNTS - SHIFTS and 0] + (EXCESS_SHIFTS + 1)/2 - EXCESS_SHIFTS/2
+ GEAR: (EXCESS_SHIFTS + 1)/2
+ \For every 2 excess Shift results, use the first one to shift up/down and the second to cancel the shift of the first.\
+ result: VALUE@{HAZARDS,GEAR}
+}
+
+function: push it with SKIDS:s towards TARGETS:s VALUE:n IS_TRIVIAL:n {
+ RESULTS_TO_RESOLVE: {}
+ NUM_TO_REROLL: 0
+ loop SKID over SKIDS {
+  if [count SKID in RESULTS_TO_RESOLVE] >= SKID@TARGETS {
+   NUM_TO_REROLL: NUM_TO_REROLL + 1
+  } else {
+   RESULTS_TO_RESOLVE: {RESULTS_TO_RESOLVE, SKID}
+  }
+ }
+ REROLLED_RESULTS: [evaluate VALUE on RESULTS_TO_RESOLVE IS_TRIVIAL] + [evaluate VALUE on NUM_TO_REROLL 0] + 1
+ result: REROLLED_RESULTS
+}
+
+VALUE: HAZARD
+IS_TRIVIAL: TRIVIAL
+
+loop HANDLING over {1..6} {
+ output [evaluate VALUE on HANDLINGdSKID_DIE IS_TRIVIAL] named "[HANDLING] Skid Dice. [IS_TRIVIAL]"
+}
+
+loop HANDLING over {0..5} {
+ ONE_MORE_DIE: HANDLING+1
+ output [evaluate VALUE on ONE_MORE_DIEdSKID_DIE IS_TRIVIAL] - [evaluate VALUE on HANDLINGdSKID_DIE IS_TRIVIAL] named "[ONE_MORE_DIE] Skid Dice vs [HANDLING] Skid Dice. [IS_TRIVIAL]"
+}
+
+loop HANDLING over {0..4} {
+ TWO_MORE_DICE: HANDLING+2
+ output [evaluate VALUE on TWO_MORE_DICEdSKID_DIE IS_TRIVIAL] - [evaluate VALUE on HANDLINGdSKID_DIE IS_TRIVIAL] named "[TWO_MORE_DICE] Skid Dice vs [HANDLING] Skid Dice. [IS_TRIVIAL]"
+}
+
+loop HANDLING over {1..6} {
+ output [push it with HANDLINGdSKID_DIE towards {0,0,0,HANDLING} VALUE IS_TRIVIAL] named "Pushing it with [HANDLING] Skid Dice towards all Shifts. [IS_TRIVIAL]"
+}
+
+loop HANDLING over {1..6} {
+ output [push it with HANDLINGdSKID_DIE towards {0,0,0,HANDLING} VALUE IS_TRIVIAL] - [evaluate VALUE on HANDLINGdSKID_DIE IS_TRIVIAL] named "[HANDLING] Skid Dice, pushing it vs straight roll. [IS_TRIVIAL]"
+}

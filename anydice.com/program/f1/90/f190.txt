@@ -1,0 +1,50 @@
+\DICE:1
+DIE:3
+OK: 1
+output [count {1..OK} in DICEdDIE] named "A[DICE]|H[OK]"
+
+loop HAB over {1..20} {
+  LEVEL: HAB-1
+  output [count {1..HAB} in d(HAB+1)] named "+[LEVEL] ([HAB]/1)"
+}
+
+
+
+
+function: risk R:n die of N:n {
+ if [count {1..HAB} in d(HAB+1)]
+}
+
+
+function: nwod R:n again N:n {
+ if N >= R { result: 1 + [nwod R again d10] }
+ result: N >= 8
+}
+
+NWOD: [nwod 10 again d10]
+\
+
+
+function: R:n red vs B:n risk RISK:n{
+  DIE: d(B+R)
+  if (R = 0) {result: d6=1}
+
+  PROB: [count {1..R} in B]
+  if (PROB = 1) {
+    if(RISK >0 ) {
+      RISK: RISK-1
+      result: 0 + [R-1 red vs d(R) risk RISK]
+    } else {
+      result: 1
+    }
+  }
+  result: 0
+}
+REDS: 2
+BLACKS: 1
+RISK: 2
+TOT: REDS+BLACKS
+output [REDS red vs d(TOT) risk RISK] named "[REDS]/[BLACKS]"
+
+
+output [count {1..4} in d5] & [count {1..3} in d4] & [count {1..2} in d3] & [count {1} in d2]

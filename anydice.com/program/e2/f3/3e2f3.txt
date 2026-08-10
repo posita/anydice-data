@@ -1,0 +1,28 @@
+function: cut R:n at T:n {
+  if R <= T { result: R }
+  result: 0
+}
+
+function: success R:n at T:n {
+  if R <= T { result: 1 }
+  result: 0
+}
+
+function: decide R:s {
+  if 1@R = 0 { result: 0 }
+  result: 1@R + (R > 0) - 1
+}
+
+D: [ cut 1d10 at 5 ]
+E: [ success 1d10 at 5 ]
+P: [ cut 1d6 at 3 ]
+Q: [ success 1d6 at 3 ]
+X: [ cut 1d10 at 3 ]
+
+loop M over { 0..10 } {
+\   output [ decide (2+M)dD ] - 1 named "[M]d10" \
+\  output [ decide (3+M)dX ] named "3 + [M]d10 ref" \
+   output 1dD + MdE named "D + [M]d10 new"
+   output 1dP + MdQ named "D + [M]d6 new"
+\   output [ decide (2+M)dP ] named "2 + [M]d6 ref" \
+}

@@ -1,0 +1,85 @@
+\**** Two Weapon Fighting modifiable Calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+function: secondtwfattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: TWFCRITDAMAGE} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: TWFDAMAGE}
+ result: 0
+}
+
+function: secondtwfattackrollsneak ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: TWFCRITDAMAGE + SNEAKATTACK + SNEAKATTACK} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: TWFDAMAGE + SNEAKATTACK}
+ result: 0
+}
+
+function: twfattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE + SNEAKATTACK + SNEAKATTACK + [secondtwfattackroll 1d20 vs ENEMYAC]} 
+ if ROLL = 1 { result: 0 + [secondtwfattackrollsneak 1d20 vs ENEMYAC]}
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE + SNEAKATTACK +
+ [secondtwfattackroll 1d20 vs ENEMYAC]}
+ result: 0 + [secondtwfattackrollsneak 1d20 vs ENEMYAC]
+}
+
+function: sixgwfight ROLLX:n {
+ if ROLLX <= 2 { result:d6 }
+ result: ROLLX
+}
+
+function: twelvegwfight ROLLX:n {
+ if ROLLX <= 2 { result:d12 }
+ result: ROLLX
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 5
+DMGBONUS: 4
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 19
+DAMAGE: [twelvegwfight d12] + ATTACKMOD + DMGBONUS
+CRITDAMAGE: [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + ATTACKMOD + DMGBONUS
+output [attackroll [highest 1 of 2d20] vs ENEMYAC] named "Barb17 Fgtr3 GWF Greataxe Max Crit H-Orc"
+
+ATTACKMOD: 3
+DMGBONUS: 2
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+DAMAGE: [twelvegwfight d12] + ATTACKMOD + DMGBONUS
+CRITDAMAGE: [twelvegwfight d12] + [twelvegwfight d12] + [twelvegwfight d12] + ATTACKMOD + DMGBONUS
+output [attackroll [highest 1 of 2d20] vs ENEMYAC] named "Barb2 GWF Greataxe H-Orc"
+
+ATTACKMOD: 5
+DMGBONUS: 0
+PROFICIENCY: 6
+ACCBONUS: 0
+CRITROLL: 20
+SNEAKATTACK: 10d6
+DAMAGE: 1d8 +  ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+TWFDAMAGE: 1d8 + ATTACKMOD + DMGBONUS
+TWFCRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS
+output [twfattackroll 1d20 vs ENEMYAC] named "Roge20 TWF DW Rapier Human"
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+SNEAKATTACK: 1d6
+DAMAGE: 1d6 +  ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+TWFDAMAGE: 1d6 + DMGBONUS
+TWFCRITDAMAGE: 2d6 + DMGBONUS
+output [twfattackroll 1d20 vs ENEMYAC] named "Roge2 shortswords Human"

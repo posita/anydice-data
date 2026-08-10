@@ -1,0 +1,32 @@
+function: count_matches NUM:n SIDES:n TARGET:n {
+  result: dNUM <= TARGET
+}
+
+function: count_target_matches ROLL:s TARGETS:s {
+  MATCHES: 0
+  loop T over TARGETS {
+    if T >= 1 & T <= d6 {
+      MATCHES: MATCHES + count_matches d4, 6, T
+    }
+  }
+  result: MATCHES
+}
+
+function: check_roll ROLL:s {
+  T1: count_target_matches ROLL, "2"
+  T2: count_target_matches ROLL, "3"
+  T3: count_target_matches ROLL, "5"
+  if T1 = 0 & T2 = 0 & T3 = 0 {
+    result: 1  # Failure
+  } else if T1 + T2 + T3 = 1 {
+    result: 2  # Partial Success
+  } else if T1 + T2 + T3 >= 2 {
+    if (T1 >= 2 | T2 >= 2 | T3 >= 2) & (T1 + T2 + T3 >= 3) {
+      result: 4  # Critical
+    } else {
+      result: 3  # Success
+    }
+  }
+}
+
+output [check_roll "4d6"] named "Probabilities for 4d6 with targets 2, 3, and 5"

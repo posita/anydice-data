@@ -1,0 +1,29 @@
+function: confirm crit VAL:n MAX:n DIE:n {
+  IS_CRIT: (VAL/MAX)              \ 0 if val < max, 1 if equal to max \
+  CONFIRMED: (1dDIE/DIE)          \ 0 if confirmation roll isn't crit, 1 if is crit \
+  CRIT_BONUS: IS_CRIT * CONFIRMED \ (+|-)1 if confirmed crit, 0 if not crit and confirmed\
+  result: VAL + CRIT_BONUS
+}
+function: fate as fours { result: [confirm crit (1d4 - 1d4) 3 4] }
+
+function: fate with twenty curve a D:n {
+  if D<3  { result: -4 } if D<5  { result: -3 } if D<7  { result: -2 } if D<9  { result: -1 }
+  if D>18 { result: +4 } if D>16 { result: +3 } if D>14 { result: +2 } if D>12 { result: +1 }
+  result: 0
+}
+function: fate with twenty curve b D:n {
+  if D<2  { result: -4 } if D<5  { result: -3 } if D<7  { result: -2 } if D<10 { result: -1 }
+  if D>19 { result: +4 } if D>16 { result: +3 } if D>14 { result: +2 } if D>11 { result: +1 }
+  result: 0
+}
+function: twenty curve MF MT MW MO PF PT PW PO D:n {
+  if D<MF{result:-4}if D<MT{result:-3}if D<MW{result:-2}if D<MO{result:-1}
+  if D>PF{result:+4}if D>PT{result:+3}if D>PW{result:+2}if D>PO{result:+1}
+  result: 0
+}
+output 4d{-1..1} named "4dF"
+output [fate as fours] named "1d4-1d4 w/crits"
+output 3d6/2 -5 named "3d6 w/math"
+output 2d{0,1} + 2d{-1,0} + 2d{-1,1} named "6cF"
+output [twenty curve 2 5 7 9 19 16 14 12 2@3d20] named "3d20 big0"
+output [twenty curve 3 5 7 10 18 16 14 11 2@3d20] named "3d20 small0 swingy"

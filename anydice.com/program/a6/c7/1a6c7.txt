@@ -1,0 +1,58 @@
+function: raise X:n on N:n {
+ if X < N {
+  R: -1
+ } else {
+  R: 1 + [raise (X-4) on N]
+ }
+ result: R
+}
+
+function: raise after explode D:d on N:n {
+ X: [explode D]
+ R: [raise X on N]
+ result: R
+}
+
+function: nouveau dmg N:n de D:d {
+ result: NdD
+}
+
+function: ancien dmg N:n de D:d {
+ result: Nd[explode D]
+}
+
+function: ancien dmg D:d raise R:n {
+ if R = -1 {
+  X: 0
+ } else if R = 0 {
+  X: [ancien dmg 1 de D]
+ } else {
+  X: [ancien dmg 2 de D]
+ }
+ result: X
+}
+
+function: nouveau dmg D:d raise R:n {
+ if R = -1 {
+  X: 0
+ } else {
+  X: [nouveau dmg (R+1) de D]
+ }
+ result: X
+}
+
+function: atk A:d on N:n dmg D:d nouveau V:n{
+ R: [raise after explode A on N]
+ if V {
+  result: [nouveau dmg D raise R]
+ } else {
+  result: [ancien dmg D raise R]
+ }
+}
+
+output [raise after explode 1d4 on 4]
+output [ancien dmg 1d4 raise -1]
+output [ancien dmg 1d4 raise 0]
+output [ancien dmg 1d4 raise 1]
+output [ancien dmg 1d4 raise 2]
+output [atk d4 on 4 dmg d4 nouveau 0]

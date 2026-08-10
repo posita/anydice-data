@@ -1,0 +1,40 @@
+CRIT: 20
+STR: 5
+RGE: 2
+
+function: attack NUMBER:n RAGE:d {
+ VALUE: 1@NUMBERd20
+ result: [check VALUE RAGE]
+}
+
+function: check NUMBER:n RAGE:d {
+ if NUMBER >= CRIT {
+  result: [damage 3 RAGE]
+ } else {
+  result: [damage 1 RAGE]
+ }
+}
+
+function: damage NUMBER:n RAGE:d {
+ ROLL: 0
+  
+ loop N over {1..NUMBER} {
+  ROLL: ROLL + [reroll 1d12]
+ }
+ 
+ result: ROLL + STR + RAGE
+}
+
+function: reroll ROLL:n {
+ if ROLL < 3 {
+  result: 1d12
+ } else {
+  result: ROLL
+ }
+}
+
+output [attack 1 0] named "regular"
+output [attack 2 0] named "advantage"
+
+output [attack 1 RGE] named "regular rage"
+output [attack 2 RGE]  named "rage w/advantage"

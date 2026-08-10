@@ -1,0 +1,38 @@
+SUCCESSES: {4,5,6}
+REROLLS: {2,3}
+FAILURES: {1}
+
+function: push second SEQ:s with F:n {
+ if F > 0 {
+  result: 0
+ }
+ else {
+  RF: [count FAILURES in SEQ] + F
+  result: [count SUCCESSES in SEQ] - (RF * 100)
+ }
+}
+
+function: push first SEQ:s {
+ S: [count SUCCESSES in SEQ]
+ R: [count REROLLS in SEQ]
+ F: [count FAILURES in SEQ]
+ result: S + [push second Rd6 with F]
+}
+
+function: push NUM:n {
+ result: [push first Nd6]
+}
+
+function: roll NUM:n {
+ result: [count SUCCESSES in NUMd6]
+}
+
+loop N over {1..6} {
+ output [push N] named "Push [N]"
+}
+
+loop ATK over {1..6} {
+ loop DEF over {1..6} {
+  output [roll ATK] - [roll DEF] named "[ATK] vs [DEF]"
+ }
+}

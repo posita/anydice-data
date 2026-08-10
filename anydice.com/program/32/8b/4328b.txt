@@ -1,0 +1,154 @@
+\ =========================================================
+  MAJOR BATTLE DICE SYSTEM
+  Change only the four variables below.
+========================================================= \
+
+TIER: 3
+BONUS: 4
+LEVEL: 0
+DICE_COUNT: 2
+
+
+\ ---------------------------------------------------------
+  Tier mapping
+  Tier 1 = d4
+  Tier 2 = d6
+  Tier 3 = d8
+  Tier 4 = d10
+  Tier 5 = d12
+  Tier 6 = d20
+--------------------------------------------------------- \
+
+function: sides for tier T:n {
+ if T = 1 { result: 4 }
+ if T = 2 { result: 6 }
+ if T = 3 { result: 8 }
+ if T = 4 { result: 10 }
+ if T = 5 { result: 12 }
+ if T = 6 { result: 20 }
+
+ result: 0
+}
+
+
+\ ---------------------------------------------------------
+  One-die roll
+
+  There is only a front die.
+  A roll of 1 fails.
+  On a critical success, the front die becomes S.
+  There is no Success+ because there is no back die.
+--------------------------------------------------------- \
+function: resolve one ROLL:n {
+ if ROLL = 1 {
+  result: 0
+ }
+
+ result: ROLL
+}
+
+\ ---------------------------------------------------------
+  Two-dice roll
+
+  FRONT = front die
+  LAST  = the only back die
+
+  Normal success: S = LAST
+  Critical:       S = FRONT + LAST
+  Success+:       FRONT = LAST, add BONUS
+--------------------------------------------------------- \
+
+function: resolve two FRONT:n last LAST:n sides N:n bonus B:n level L:n {
+ if FRONT = 1 {
+  result: 0
+ }
+
+ S: LAST
+
+ if FRONT >= N - L {
+  S: S + FRONT
+ }
+
+ if FRONT = LAST {
+  S: S + B
+ }
+
+ result: S
+}
+
+
+\ ---------------------------------------------------------
+  Three or more dice
+
+  FRONT  = front die
+  MIDDLE = sum of all back dice except the last
+  LAST   = last back die, used for Success+
+
+  Normal success: S = sum of all back dice
+  Critical:       add FRONT
+  Success+:       if FRONT = LAST, add BONUS
+--------------------------------------------------------- \
+
+function: resolve many FRONT:n middle MIDDLE:n last LAST:n
+ sides N:n bonus B:n level L:n {
+
+ if FRONT = 1 {
+  result: 0
+ }
+
+ S: MIDDLE + LAST
+
+ if FRONT >= N - L {
+  S: S + FRONT
+ }
+
+ if FRONT = LAST {
+  S: S + B
+ }
+
+ result: S
+}
+
+
+\ ---------------------------------------------------------
+  Build and output the selected roll
+--------------------------------------------------------- \
+
+SIDES: [sides for tier TIER]
+
+if SIDES = 0 {
+ output 0 named "ERROR: TIER must be between 1 and 6"
+}
+else {
+ if DICE_COUNT < 1 {
+  output 0 named "ERROR: DICE_COUNT must be at least 1"
+ }
+ else {
+if DICE_COUNT = 1 {
+ output
+  [resolve one d(SIDES)]
+  named "Tier [TIER], d[SIDES], Lv [LEVEL], B [BONUS], [DICE_COUNT] die"
+}
+  else {
+   if DICE_COUNT = 2 {
+    output
+     [resolve two d(SIDES)
+      last d(SIDES)
+      sides SIDES
+      bonus BONUS
+      level LEVEL]
+     named "Tier [TIER], d[SIDES], Lv [LEVEL], B [BONUS], [DICE_COUNT] dice"
+   }
+   else {
+    output
+     [resolve many d(SIDES)
+      middle (DICE_COUNT - 2)d(SIDES)
+      last d(SIDES)
+      sides SIDES
+      bonus BONUS
+      level LEVEL]
+     named "Tier [TIER], d[SIDES], Lv [LEVEL], B [BONUS], [DICE_COUNT] dice"
+   }
+  }
+ }
+}

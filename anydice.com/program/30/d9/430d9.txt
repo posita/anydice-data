@@ -1,0 +1,86 @@
+\ --- TEMEL DEĞERLER --- \
+ATTACK: 5 + 3
+HITDAMAGE: 4d8 + 5
+CRITICALDAMAGE: 8d8 + 5
+MISSDAMAGE: 5
+DEFENSE: 25
+SMITE: 4d10
+CSMITE: 8d10
+ADVANTAGE: 3
+\ 0: Normal, 1: Full Avantaj, 2: Vex (İlk Zar Normal), 3: Vex (İlk saldırı Avantajlı) \
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT { D: D + CRITICALDAMAGE }
+  else if A = HIT { D: D + HITDAMAGE }
+  else { D: D + MISSDAMAGE }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] { result: CSMITE }
+ if [ATTACKRESULTS contains HIT] { result: SMITE }
+ result: 0
+}
+
+\ --- YENİ EKLENEN ÇÖZÜM: LİSTE OLUŞTURUCULAR --- \
+\ AnyDice zarları toplamadan güvenle liste (sequence) yapmamızı sağlar \
+function: calc one A:n { result: [damage for {A}] }
+function: calc two A:n B:n { result: [damage for {A, B}] }
+function: calc three A:n B:n C:n { result: [damage for {A, B, C}] }
+
+\ --- VEX ZİNCİRLEME --- \
+function: vex two FIRST:n {
+ if FIRST > 0 { result: [calc two FIRST [attack d20 vs DEFENSE]] }
+ else { result: [calc two FIRST [attack d20 vs DEFENSE]] }
+}
+
+function: vex three step two FIRST:n SECOND:n {
+ if SECOND > 0 { result: [calc three FIRST SECOND [attack [highest 1 of 2d20] vs DEFENSE]] }
+ else { result: [calc three FIRST SECOND [attack d20 vs DEFENSE]] }
+}
+
+function: vex three FIRST:n {
+ if FIRST > 0 { result: [vex three step two FIRST [attack [highest 1 of 2d20] vs DEFENSE]] }
+ else { result: [vex three step two FIRST [attack d20 vs DEFENSE]] }
+}
+
+\ --- ANA SALDIRI YÖNETİCİSİ --- \
+function: N:n attacks {
+ if ADVANTAGE = 0 {
+  if N = 1 { result: [calc one [attack d20 vs DEFENSE]] }
+  if N = 2 { result: [calc two [attack d20 vs DEFENSE] [attack d20 vs DEFENSE]] }
+  if N = 3 { result: [calc three [attack d20 vs DEFENSE] [attack d20 vs DEFENSE] [attack d20 vs DEFENSE]] }
+ }
+ if ADVANTAGE = 1 {
+  if N = 1 { result: [calc one [attack [highest 1 of 2d20] vs DEFENSE]] }
+  if N = 2 { result: [calc two [attack [highest 1 of 2d20] vs DEFENSE] [attack [highest 1 of 2d20] vs DEFENSE]] }
+  if N = 3 { result: [calc three [attack [highest 1 of 2d20] vs DEFENSE] [attack [highest 1 of 2d20] vs DEFENSE] [attack [highest 1 of 2d20] vs DEFENSE]] }
+ }
+ if ADVANTAGE = 2 {
+  if N = 1 { result: [calc one [attack d20 vs DEFENSE]] }
+  if N = 2 { result: [vex two [attack d20 vs DEFENSE]] }
+  if N = 3 { result: [vex three [attack d20 vs DEFENSE]] }
+ }
+ if ADVANTAGE = 3 {
+  if N = 1 { result: [calc one [attack [highest 1 of 2d20] vs DEFENSE]] }
+  if N = 2 { result: [vex two [attack [highest 1 of 2d20] vs DEFENSE]] }
+  if N = 3 { result: [vex three [attack [highest 1 of 2d20] vs DEFENSE]] }
+ }
+}
+
+output [2 attacks] named "EXTRA ATTACK WITH SMITE"

@@ -1,0 +1,61 @@
+\blocklist datatype specs: first bit is N (number of blocks), next N bits are L1-LN, the block lengths, and then the rest is data
+encoding the cartesian product of (1,2) and (3,4) would give you N=4, L1=LN=2, and the overall sequence is
+{4,2,2,2,2,1,3,1,4,2,3,2,4)
+\
+
+\print x: loop T over (1..#x} {output T@x}\
+
+function: get entry I:n of block J:n of B:s {
+ N:1@B
+ if J>N | I>(J+1)@B {result: 0} else {
+  START:N+2+{2..J}@B
+  INDEX:START+I-1
+  result: INDEX@B
+ }
+}
+
+function: cartesian product of A:s and B:s {
+ F:{#A*#B, 2:(#A*#B)}
+ loop U over A {loop V over B {F:{F, U, V}}}
+ result: F
+}
+
+function: S:s sumequals N:n {result: (S+0)=N}
+
+function: get block J:n of B:s {
+ N:1@B
+ if J>N {result: {}} else {
+  F:{}
+  START:N+2+{2..J}@B
+  loop I over {1..(J+1)@B} {F:{F, [get entry I of block J of B]}}
+  result: F
+ }
+}
+
+function: second higher in BLOCK:s {result: 2@B > 1@B}
+
+function: prob of second die higher by value for X:d and Y:d {
+ HEADER:{[maximum of X]+[maximum of Y]-1}
+ BLOCKS:{}
+ PAIRS:[cartesian product of {X} and {Y}]
+ N:1@PAIRS
+ loop V over {2..[maximum of X]+[maximum of Y]} {
+  BLOCK:{}
+  loop J over {1..N} {
+   B:[get block J of PAIRS]
+   if [B sumequals V] {
+    if [second higher in B] {BLOCK: {BLOCK,1}} else {BLOCK: {BLOCK,0}}
+   }
+  }
+  HEADER: {HEADER, #BLOCK}
+  BLOCKS: {BLOCKS, BLOCK}
+ }
+ result: {HEADER, BLOCKS}
+}
+
+output d6+d8
+G:[prob of second die higher by value for d6 and d8]
+loop J over {1..1@G} {
+ V:J+1
+ output [get block J of G] named "[V]"
+}

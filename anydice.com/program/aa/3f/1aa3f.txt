@@ -1,0 +1,73 @@
+\**** Damage calculator ****\
+\** ATTACKMOD is STAT bonus **\
+\** ACCBONUS is any accuracy bonus or penalty, such as GWM feat or weapon bonus **\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 10-20\
+ENEMYAC: d{10..20} 
+\*ENEMYAC: 16 *\
+PROFICIENCY: 6
+ATTACKMOD: 4
+SS: 0
+ATTACKTIMES: 2
+CRITROLL: 20
+
+\** +2 frostbrand shortsword; addl 1d6 cold **\
+DMGBONUS: 2 
+ACCBONUS: 2
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS + 1d6 + 1d6 \* will need to average sneak attack for higher levels *\
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS + 2d6 + 2d6
+output ATTACKTIMESd[attackroll [highest 1 of 1d20] vs ENEMYAC] named "Frostbrand No Adv"
+
+
+\** +2 frostbrand shortsword; addl 1d6 cold **\
+DMGBONUS: 2 
+ACCBONUS: 2 
+DAMAGE: 1d6 + ATTACKMOD + DMGBONUS + 1d6 + 1d6 + 1d6\* will need to average sneak attack for higher levels *\
+CRITDAMAGE: 2d6 + ATTACKMOD + DMGBONUS + 2d6 + 2d6 + 2d6
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Frostbrand Adv"
+
+\** lt xbow ss **\
+ACCBONUS: -4 
+DMGBONUS: 11
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS + 1d6\* will need to average sneak attack for higher levels *\
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS + 2d6
+output ATTACKTIMESd[attackroll [highest 1 of 1d20] vs ENEMYAC] named "Lt Xbow No Adv"
+
+\** lt xbow ss **\
+ACCBONUS: -4
+DMGBONUS: 11
+DAMAGE: 1d8 + ATTACKMOD + DMGBONUS + 1d6 + 1d6\* will need to average sneak attack for higher levels *\
+CRITDAMAGE: 2d8 + ATTACKMOD + DMGBONUS + 2d6 + 2d6
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "Lt Xbow Adv"
+
+
+\** eb **\
+ACCBONUS: 1
+DMGBONUS: 1
+ATTACKTIMES: 3
+DAMAGE: 1d10 + ATTACKMOD + DMGBONUS + 1d6 \* will need to average sneak attack for higher levels *\
+CRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS +2d6
+output ATTACKTIMESd[attackroll [highest 1 of 1d20] vs ENEMYAC] named "EB No Adv"
+
+\** eb **\
+ACCBONUS: 1
+DMGBONUS: 1
+ATTACKTIMES: 4
+DAMAGE: 1d10 + ATTACKMOD + DMGBONUS + 1d6\* will need to average sneak attack for higher levels *\
+CRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS + 2d6
+output ATTACKTIMESd[attackroll [highest 1 of 2d20] vs ENEMYAC] named "EB Adv"
+
+\** shadow blade offhand bonus **\
+DMGBONUS: 0 
+ACCBONUS: 0
+DAMAGE: 4d8 + 1d6 \* hex *\
+CRITDAMAGE: 8d8 + 2d6 \* hex *\
+OFFHAND: 1d[attackroll [highest 1 of 1d20] vs ENEMYAC]
+output OFFHAND named "Shadowblade Offhand Bonus"

@@ -1,0 +1,39 @@
+AC: d{12..20} 
+ATK: 3
+PROF: 2
+
+function: reroll DIE:d if LIMIT:n {
+ result: [reroll DIE as DIE if LIMIT]
+}
+
+
+function: reroll ROLL:n as DIE:d if LIMIT:n {
+ A:ROLL
+ if ROLL <= LIMIT { A:DIE }
+ result: A
+}
+
+function: damage NUMBER:n of DIE:d if LIMIT:n {
+ X:0
+ loop N over {1..NUMBER} {
+ X: X + [reroll DIE if LIMIT] 
+ }
+ if NUMBER > 0 {H:1}
+ else {H:0}
+ result: X + H*ATK
+}
+
+function: crit CHECK:n ac AC:n crit CRIT:n {
+  if CHECK >= CRIT { result: 2 }
+  else {if CHECK = 1 {result: 0}
+        else {if CHECK + PROF + ATK < AC {result: 0}
+              else {result: 1}
+        }
+  }
+}
+
+CRIT: [crit d20 ac AC crit 19]
+
+output [damage CRIT*2 of d6 if 2] named "Maul"
+
+output [damage CRIT*1 of d12 if 2] named "Great Axe"

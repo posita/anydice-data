@@ -1,0 +1,60 @@
+function: attack ROLL:n vs AC:n {
+  if ROLL=20 & LVL>14 { result: HITDIE + HITDIE + TODMG + LVL }
+  else if ROLL=20 { result: HITDIE + HITDIE + TODMG }
+  else if ROLL+TOHIT >= AC { result: HITDIE + TODMG }
+  else { result: 0 }
+}
+loop WEAPON over {0, 1} { \Crossbow, Longbow\
+  loop LVL over {3, 4, 5, 6, 8, 10, 11, 15, 16, 20 } {
+    loop AC over { 10, 15, 20 } {
+      if LVL = 20 {BRUTE: 1d10}
+      else if LVL >= 16 {BRUTE: 1d8}
+      else if LVL >= 10 {BRUTE: 1d6}
+      else {BRUTE: 1d4} \ LVL >= 3 \
+      if WEAPON = 0 \Crossbow\ {
+        HITDIE: 1d6+BRUTE
+        if LVL >= 12 {
+          DEX: 5
+          TOHIT: DEX+2
+        } else if LVL >=10 {
+          DEX: 4
+          TOHIT: DEX+2
+        } else if LVL >=8 {
+          DEX: 4
+          TOHIT: DEX
+        } else { \LVL >= 3\
+          DEX: 3
+          TOHIT: DEX
+        }
+      } else { \Longbow\
+        HITDIE: 1d8+BRUTE
+        TOHIT: DEX+1
+        if LVL >= 8 {
+          DEX: 5
+        } else if LVL >=6 {
+          DEX: 4
+        } else { \LVL >=3\
+          DEX: 3
+        }
+      }
+      TODMG: DEX
+      if LVL = 20 & WEAPON = 0 {
+        output [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      } else if LVL = 20 { \WEAPON =1\
+        output [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      } else if LVL >= 11 & WEAPON = 0 {
+        output [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      } else if LVL >= 11 { \WEAPON =1\
+        output [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      } else if LVL >= 5 & WEAPON = 0 {
+        output [attack d20 vs AC] + [attack d20 vs AC] + [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      } else if LVL >= 5 { \WEAPON =1\
+        output [attack d20 vs AC] + [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      } else if WEAPON = 0 \LVL <5\ {
+        output [attack d20 vs AC] + [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      } else { \LVL <5 & WEAPON =1\
+        output [attack d20 vs AC] named "[WEAPON] Weapon vs [AC] AC at Lvl [LVL]"
+      }
+    }
+  }
+}

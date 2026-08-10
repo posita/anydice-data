@@ -1,0 +1,52 @@
+function: tohit ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL = 20 {
+  if ROLL + ATTACK > DEFENSE { result: 2 }
+  result: 1
+ }
+ if ROLL + ATTACK > DEFENSE { result: 1 }
+ result: 0
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = 2 {
+  result: CRITICALDAMAGE - PROTECTION
+ }
+ if ATTACKRESULT = 1 {
+  result: HITDAMAGE - PROTECTION
+ }
+ result: MISSDAMAGE - PROTECTION
+}
+
+function: attack {
+ result: [damage for [tohit d20 vs DEFENSE]]
+}
+
+DEFENSE: 10
+PROTECTION: 0
+
+ATTACK: 2
+HITDAMAGE: 1d6
+CRITICALDAMAGE: 6 + [explode 1d6]
+MISSDAMAGE: 0
+
+CLAWS: 2d[attack]
+
+ATTACK: 3
+HITDAMAGE: 1d6
+CRITICALDAMAGE: 6 + [explode 1d6]
+MISSDAMAGE: 0
+
+BEAK: 1d[attack]
+
+ATTACK: 5
+HITDAMAGE: 1d4
+CRITICALDAMAGE: 4 + [explode 1d4]
+MISSDAMAGE: 0
+
+WINGS: 2d[attack]
+
+output CLAWS named "Claws"
+output BEAK named "Beak"
+output WINGS named "Wings"
+output CLAWS+BEAK+WINGS named "total"

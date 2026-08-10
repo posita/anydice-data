@@ -1,0 +1,37 @@
+ATKMOD: 5
+PROF: 5
+WPNBONUS: 0
+WPNDMG: d10
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRITRANGE: 20
+
+function: attack ROLL:n vs DEFENSE:n {
+if ROLL = 1 { result: MISS }
+if ROLL >= CRITRANGE { result: CRITICALHIT }
+if ROLL + ATKMOD + PROF + WPNBONUS >= DEFENSE { result: HIT }
+result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+if ATTACKRESULT = CRITICALHIT {
+result: 2d{WPNDMG} + ATKMOD + WPNBONUS
+}
+if ATTACKRESULT = HIT {
+result: 1d{WPNDMG} + ATKMOD + WPNBONUS
+}
+result: 0
+}
+
+function: basic attack vs AC:n {
+result: [damage for [attack d20 vs AC]]
+}
+
+function: full attack vs AC:n {
+result: [basic attack vs AC] + [basic attack vs AC] + [basic attack vs AC] + [basic attack vs AC]
+}
+
+loop ARMORCLASS over {10..24} {
+ output [full attack vs ARMORCLASS] named "[ARMORCLASS]"
+}

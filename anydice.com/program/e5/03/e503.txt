@@ -1,0 +1,33 @@
+function: reroll R:n under N:n {
+   if R < N { result: 1d6 } else {result: R}
+}
+
+function: attack D:n vs AC:n for DMG:n {
+   if D = 20 {result: 2*DMG} 
+   else if (D + MOD) >= AC { result: DMG }
+   else { result: 0 }
+}
+
+GWM_DMG: 2d[reroll d6 under 3]
+NORM_DMG: 2d6
+MOD: 7
+
+output GWM_DMG + [attack d20 vs 16 for GWM_DMG] named "Great Weapon Master vs CR 5-7 (AC 16)"
+output NORM_DMG + [attack d20 vs 16 for NORM_DMG] named "Normal vs CR 5-7 (AC 17)"
+
+output GWM_DMG + [attack d20 vs 17 for GWM_DMG] named "Great Weapon Master vs CR 7-9 (AC 17)"
+output NORM_DMG + [attack d20 vs 17 for NORM_DMG] named "Normal vs CR 7-9 (AC 17)"
+output GWM_DMG + [attack d20 vs 17 for GWM_DMG] - (NORM_DMG + [attack d20 vs 17 for NORM_DMG]) named "Difference"
+
+
+MON_PROF: {5,5,6,7,9,9,9,10,11}
+
+PLAYER_AC: 16
+loop CR over {1..9} {
+  DMG_LOW: 6*CR + 3
+  DMG_HIGH:6*CR + 8
+  MON_DMG:{DMG_LOW..DMG_HIGH}
+  output [attack d20 vs PLAYER_AC for MON_DMG] named "CR {CR} vs AC {AC}"
+  DEFENSE_AC: PLAYER_AC + 1
+  output [attack d20 vs DEFENSE_AC for MON_DMG] named "CR {CR} vs AC {AC} (Defensive style)"
+}

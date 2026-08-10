@@ -1,0 +1,256 @@
+function: test ROLL:n vs AC:n {
+ if ROLL = 1 { result: 0 }
+ else {
+  result: 1
+ }
+}
+
+function: roll B:n A:n{
+ result: BdA
+}
+
+function: gwf B:n A:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA A]
+ }
+ result: X
+}
+
+function: reroll A:n B:n{ 
+ if A <= 2 { 
+  A: 1dB 
+ }  
+ result: A 
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRITMISS: -1
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL = 1 { result: CRITMISS }
+ if ROLL >= CRITON {
+  result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKROLLRESULT:s {
+ D: 0
+ loop A over ATTACKROLLRESULT {
+  if A = CRITICALHIT {
+   D: D + CRITDMG
+  }
+  else if A = HIT {
+   D: D + HITDMG
+  }
+  else {
+   D: D + 0
+  }
+ }
+ result: D + [oncextradmg for ATTACKROLLRESULT]
+}
+
+function: bonusdmg for ATTACKROLLRESULT:s {
+ D: 0
+ loop A over ATTACKROLLRESULT {
+  if A = CRITICALHIT {
+   D: D + BONUSCRITDMG
+  }
+  else if A = HIT {
+   D: D + BONUSHITDMG
+  }
+  else {
+   D: D + 0
+  }
+ }
+ result: D + [oncextradmg for ATTACKROLLRESULT]
+}
+
+function: oncextradmg for ATTACKROLLRESULT:s {
+ if [ATTACKROLLRESULT contains CRITICALHIT] {
+   result: [roll (2*ONCEXTRADMGNUM) ONCEXTRADMGDICE]
+ }
+ if [ATTACKROLLRESULT contains HIT] {
+   result: [roll ONCEXTRADMGNUM ONCEXTRADMGDICE]
+ }
+ result: 0
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attackroll [highest 1 of ATKDICENUMd20] vs AC]]
+}
+
+function: N:n bonusattacks {
+ result: [bonusdmg for Nd[attackroll [highest 1 of ATKDICENUMd20] vs AC]]
+}
+
+\----------------AC attacking against-----------------------\
+     AC: d{16..21}
+
+\********************************************************************************\
+\-.................................RyokuMav_20.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2
+     ATKMOD:        7 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   4
+     NUMATKS:       2
+     NUMBONUSATKS:  1
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          10
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     4
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:       4      \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "RyokuMav_20"
+
+\********************************************************************************\
+
+\********************************************************************************\
+\-.................................RyokuMav_20_Shield.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2
+     ATKMOD:        7 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   4
+     NUMATKS:       2
+     NUMBONUSATKS:  1
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          6
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     4
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:       4      \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "RyokuMav_20_Shield"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................ZEDD_20.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2
+     ATKMOD:        7 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   4
+     NUMATKS:       2
+     NUMBONUSATKS:  1
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          12
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     12
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:       4      \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "ZEDD_20"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................Molikroth_17_EB+Hurl.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2        \assuming something giving advantage\
+     ATKMOD:        5 + 1
+     PROF:          6
+     CRITON:        20
+     CRITDICEMUL:   1
+     NUMATKS:       4
+     NUMBONUSATKS:  0
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          10
+     BONUSDMGDICENUM:  0
+     BONUSDMGDICE:     0
+     ONCEXTRADMGNUM:   10      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  10      
+     MISCDMGMOD:       1d6    \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [roll      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [roll BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [roll (      DMGDICENUM * CRITDICEMUL )      DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [roll ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "Molikroth_17_EB+Hurl"
+
+\********************************************************************************\
+
+
+\********************************************************************************\
+\-.................................Orc_Champion_20_ActionSurge.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2        \assuming knocked prone 1st attack\
+     ATKMOD:        5 + 1
+     PROF:          6
+     CRITON:        18
+     CRITDICEMUL:   1
+     NUMATKS:       7
+     NUMBONUSATKS:  2
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          10
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     4
+     ONCEXTRADMGNUM:   0      \Sneak, Colossus Slayer, ect...\
+     ONCEXTRADMGDICE:  0      
+     MISCDMGMOD:       0      \Rage, Improved Divine Smite, Hex, ect...\
+
+\____Calculated Variables____\
+     ATTACK:         ATKMOD + PROF
+     HITDMG:         [gwf      DMGDICENUM      DMGDICE] + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [gwf BONUSDMGDICENUM BONUSDMGDICE] + ATKMOD + MISCDMGMOD
+     CRITDMG:        HITDMG      + [gwf (      DMGDICENUM * CRITDICEMUL )      DMGDICE] + [gwf 1 DMGDICE]
+     BONUSCRITDMG:   BONUSHITDMG + [gwf ( BONUSDMGDICENUM * CRITDICEMUL ) BONUSDMGDICE] + [gwf 1 DMGDICE]
+
+\____Roll Attacks and Name____\
+output [NUMATKS attacks] + [NUMBONUSATKS bonusattacks] named "Orc_Champion_20_ActionSurge"
+
+\********************************************************************************\
+
+

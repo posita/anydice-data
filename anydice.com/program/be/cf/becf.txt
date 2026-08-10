@@ -1,0 +1,63 @@
+\------------------------ [HELPERS] ------------------------\
+function: minimum of DIE:d
+{
+  result: 1@{DIE}
+}
+
+
+\------------------ [GREAT WEAPON FIGHTING] ------------------\
+function: great weapon fighting DIE:d
+{
+  NUM_DICE: [minimum of DIE]
+  DIE_TYPE: [maximum of DIE] / NUM_DICE
+  FINAL_VALUE: 0
+  loop N over {1..NUM_DICE}
+  {
+    FINAL_VALUE: FINAL_VALUE + [get roll 1dDIE_TYPE]
+  }
+
+  result: FINAL_VALUE
+}
+function: get roll ROLL:n
+{
+  if ROLL > 2
+  {
+    result: ROLL
+  }
+  result: 1dDIE_TYPE
+}
+
+
+\---------- [GREAT WEAPON FIGHTING + EXPLODING CRIT] ----------\
+function: great weapon fighting exploding crit DIE:d
+{
+  NUM_DICE: [minimum of DIE]
+  DIE_TYPE: [maximum of DIE] / NUM_DICE
+  NUM_DICE: NUM_DICE * 2
+  FINAL_VALUE: 0
+  loop N over {1..NUM_DICE}
+  {
+    FINAL_VALUE: FINAL_VALUE + [get exploding roll 1d[explode 1dDIE_TYPE]]
+  }
+
+  result: FINAL_VALUE
+}
+function: get exploding roll ROLL:n
+{
+  if ROLL > 2
+  {
+    result: ROLL
+  }
+  result: 1d[explode 1dDIE_TYPE]
+}
+
+
+
+\--------------------- [CALCULATIONS] ---------------------\
+\-- Level 7 Oath Breaker w/ Great Sword: CR calculations --\
+output [great weapon fighting 2d6] + 6 named "Single attack damage"
+output [great weapon fighting exploding crit 2d6] + 6 named "Crit damage"
+output [great weapon fighting 4d6] + 12 named "Average round damage"
+output [great weapon fighting 4d6] + 12 + 6d8 named "Maximum round damage (+ Divine Smite lvl 2 x 2)"
+
+

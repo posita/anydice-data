@@ -1,0 +1,35 @@
+function: attack at HIT:n plus MOD:n against ac AC:n for DAM:n or crit CDAM:n on CRIT:s plus DMOD:n {
+  if [CRIT contains HIT] { result:CDAM+DMOD }
+  if HIT+MOD >= AC { result:DAM+DMOD }
+  result:0
+}
+
+function: N:n attacks at plus MOD:n against ac AC:n for DAM:d or crit CDAM:d on CRIT:s plus DMOD:d {
+  SUM:0
+  loop A over {1..N} {
+    SUM:SUM+[attack at d20 plus MOD against ac AC for DAM or crit CDAM on CRIT plus DMOD]
+  }
+  result:SUM
+}
+
+function: N:n attacks with advantage at plus MOD:n against ac AC:n for DAM:d or crit CDAM:d on CRIT:s plus DMOD:d {
+  SUM:0
+  loop A over {1..N} {
+    HIT:[highest of d20 and d20]
+    SUM:SUM+[attack at HIT plus MOD against ac AC for DAM or crit CDAM on CRIT plus DMOD]
+  }
+  result:SUM
+}
+
+function: N:n attacks with disadvantage at plus MOD:n against ac AC:n for DAM:d or crit CDAM:d on CRIT:s plus DMOD:d {
+  SUM:0
+  loop A over {1..N} {
+    HIT:[lowest of d20 and d20]
+    SUM:SUM+[attack at HIT plus MOD against ac AC for DAM or crit CDAM on CRIT plus DMOD]
+  }
+  result:SUM
+}
+
+function: N:n attacks with ADV:n advantage at plus MOD:n against ac AC:n for DAM:d or crit CDAM:d on CRIT:s plus DMOD:d { SUM:0 loop A over {1..N} { if (ADV=1) { HIT:[highest of d20 and d20] } if (ADV=0) { HIT:d20 } if (ADV=-1) { HIT:[lowest of d20 and d20] } SUM:SUM+[attack with ADV advantage at HIT plus MOD against ac AC for DAM or crit CDAM on CRIT plus DMOD] } result:SUM }
+
+output [8 attacks with advantage at plus 5 against ac 18 for d6 or crit 2d6 on {20} plus 2d6+10+4+1]

@@ -1,0 +1,174 @@
+\ =============    ATTACK   ============ \
+
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+\ ====================================== \
+
+\ ==============   SAVES   ============= \
+
+function: save ROLL:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    if ROLL >= DC {
+        result: S_DMG
+    }
+    if ROLL < DC {
+        result: F_DMG
+    }
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for half {
+    result: [save ROLL vs DC-MOD for F_DMG damage or F_DMG/2 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for none {
+    result: [save ROLL vs DC-MOD for F_DMG damage or 0 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success with crit fail on CRITS:s for CRIT_DMG:d {
+  if [CRITS contains ROLL] {
+    result: CRIT_DMG
+  } 
+
+  result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+} 
+
+\ ====================================== \
+
+\ ==============   MISC    ============= \
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s then save SAVE:n plus S_MOD:n vs DC:n for F_DMG:n or S_DMG:n on success{
+    
+    if ROLL = 20 | ROLL >= (AC-MOD) {
+        HIT_DMG: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+        RIDER_DMG: [save SAVE vs DC-S_MOD for F_DMG damage or S_DMG on success]
+        result: HIT_DMG + RIDER_DMG
+    }
+    result: 0
+}
+
+function: DMG:n plus EXTRA:d per turn {
+    if DMG = 0 { result: 0 }
+    result: DMG + EXTRA
+}
+
+function: twist DE:n DIE:d {
+  if DE <= 1 {
+    result: 1@{DIE}
+  } 
+  if DE = 2 {
+    result: [lowest of DIE and DIE]
+  }
+  if DE = 3 {
+    result: [highest of DIE and DIE]
+  }
+  if DE >= 4 {
+    result: 1@[reverse {DIE}]
+  }
+}
+
+function: ttf DIE:d {
+  result: (DIE-1)/5+1
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: DICE:d reroll REROLL:s {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+\ ====================================== \
+
+LEVEL: 3
+PB: 2 + (LEVEL - 1)/4
+EXDIE: d(LEVEL@{0,4,6,6,8,8,8,8,8,8,10,10,10,10,10,10,12,12,12,12})
+SNEAK: 1 + (LEVEL-1)/2
+
+
+SAVE_ROLL: [lowest 1 of d20]
+SAVE_MOD: 2
+AC: 16
+DC: 8 + PB + 5
+
+
+HIT_ROLL: [highest 1 of 2d20]
+HIT_MOD: 3 + PB
+F_DMG: 3
+DMG: d4
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}]
+    plus SNEAKd6 per turn
+] named "Dagger + BA:Hide"
+
+HIT_ROLL: [highest 1 of d20]
+DMG: d4
+DMG_II: d4
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAKd6 per turn
+] named "Dagger (A+BA)"
+
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus (SNEAK-1)d6 per turn
+] named "Dagger (A+BA) + CS: Precision Strike"
+
+BOOM: ((LEVEL + 1)/6)d8
+BOOM_MOV: BOOM + d8
+DMG: d4 + BOOM
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAKd6 per turn
+] named "Dagger (A+BA) + Booming Blade"
+
+DMG: d4 + BOOM_MOV
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAKd6 per turn
+] named "Dagger (A+BA) + Booming Blade (moved)"
+
+
+\ =================== DARKSTALKER =================== \
+
+HIT_ROLL: [highest 1 of 2d20]
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus SNEAKd6 per turn
+] named "Dagger (A+BA) + Darkstalker"
+
+HIT_MOD: 3 + PB + EXDIE
+output [
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG+F_DMG crit 2d(DMG)+F_DMG on {20}] +
+    [roll HIT_ROLL plus HIT_MOD against AC damage DMG_II+F_DMG crit 2d(DMG_II)+F_DMG on {20}]
+    plus (SNEAK-1)d6 per turn
+] named "Dagger (A+BA) + Darkstalker + CS: Precision Strike"

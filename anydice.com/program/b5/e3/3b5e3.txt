@@ -1,0 +1,30 @@
+set "explode depth" to 10
+
+RANGE: 40
+DLUCK: d{0..5}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+\ Opposed roll \
+output [clamp [explode DLUCK]+d6-[explode DLUCK]-d6-d{0..1} between -RANGE and RANGE] named "d6+z5! vs"
+
+\ Dynamic action \
+output [clamp [explode DLUCK]+d6-[explode DLUCK]-4 between -RANGE and RANGE] named "d6+z5! vs 4+z5!"
+
+\ Static action \
+output [clamp [explode DLUCK]+d6-6 between -RANGE and RANGE] named "d6+z5! vs 6"
+
+function: test X:n and A:n and B:n {
+  R: X + A + B
+  if A = B {
+    if A > 4 { result: R + [explode DLUCK] }
+    result: R - [explode DLUCK]
+  }
+  result: R
+}
+
+output [clamp [test d8 and d8 and d8]-14 between -RANGE and RANGE] named "3d8L"

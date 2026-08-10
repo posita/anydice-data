@@ -1,0 +1,92 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attacka ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + FIRSTATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + FIRSTATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + FIRSTATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackb ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + SECONDATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + SECONDATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + SECONDATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackc ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + THIRDATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + THIRDATTACK - 10 >= DEFENSE { result: CRITICALHIT }
+ if ROLL + THIRDATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKARESULT:n {
+ if ATTACKARESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKARESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+ 
+
+function: attacka {
+ result: [damage for [attacka d20 vs DEFENSE]]
+}
+function: attackb {
+ result: [damage for [attackb d20 vs DEFENSE]]
+}
+function: attackc {
+ result: [damage for [attackc d20 vs DEFENSE]]
+}
+
+DEFENSE: d{15..25}
+
+FIRSTATTACK: 10
+SECONDATTACK: 5
+THIRDATTACK: 0
+
+output [attacka d20 vs DEFENSE] named "First Attack"
+output [attackb d20 vs DEFENSE] named "Second Attack"
+output [attackc d20 vs DEFENSE] named "Third Attack"
+
+HITDAMAGE: 1d8
+CRITICALDAMAGE: (1d8*2)
+MISSDAMAGE: 0
+output [attacka] named "Crossbow1"
+output [attackb] named "Crossbow2"
+
+HITDAMAGE: 1d6+1
+CRITICALDAMAGE: (1d6+1)*2+1d10
+MISSDAMAGE: 0
+output [attacka] named "Shortbow1"
+output [attackb] named "Shortbow2"
+
+HITDAMAGE: 1d8+1
+CRITICALDAMAGE: (1d8+1)*2+1d10
+MISSDAMAGE: 0
+output [attacka] named "Longbow1"
+output [attackb] named "Longbow2"
+
+HITDAMAGE: 1d10+2
+CRITICALDAMAGE: (1d10+2)*2
+MISSDAMAGE: 0
+output [attacka] named "Crossbowa1"
+output [attackb] named "Crossbowa2"
+

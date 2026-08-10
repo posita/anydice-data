@@ -1,0 +1,61 @@
+\ 
+ bucket: helper function for degrees of success. does not apply natural 1 and natural 20 rule.
+\
+function: bucket X:n for dc Y:n {
+ if X >= Y {
+  if X >= Y + 10 {
+   result: 4
+  } else {
+   result: 3
+  }
+ } else {
+  if X <= Y - 10 {
+   result: 1
+  } else {
+   result: 2
+  }
+ }
+}
+
+\
+ success: degree of success for X [flat die] against Y [flat dc] 
+ results:
+  1: critical failure
+  2: failure
+  3: success
+  4: critical success
+\
+function: success X:n for dc Y:n {
+ TMP: [bucket X for dc Y]
+ if X = 1 & TMP > 1 {
+  result: TMP - 1
+ } else {
+  if X = 20 & TMP < 4 {
+   result: TMP + 1
+  } else {
+   result: TMP
+  }
+ }
+}
+
+\ attack: maps d20 rolls to attack damage output, against a flat DC \
+function: attack X:n against Y:n {
+ result: [success X for dc Y]@{0, 0, 1, 2}
+}
+
+\ basic: maps d20 rolls to damage output, for basic saving throws against a flat DC \
+function: basic X:n save on Y:n {
+ result: [success X for dc Y]@{4, 2, 1, 0}
+}
+
+\ uncomment just one of these loops to display one set of data \
+
+\
+loop N over {1..20} {
+ output [attack d20 against N] named "[N]"
+}
+\
+
+loop N over {1..20} {
+ output [basic d20 save on N] named "[N]"
+}

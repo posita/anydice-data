@@ -1,0 +1,147 @@
+\ SWADE - Savage Worlds Adventure Edition. Dette skriptet kan bl.a. mÃ¥le hvor mange wounds et gitt angrep \ 
+\ eller gitte multi-angrep gir. Man kan kalle forenklede funksjoner utfra parametrene nedenfor (anbefales), \ 
+\ eller oppgi alle parametre til de underliggende funksjonene. \
+\ -1 er ingen skade, 0 er shaken, 1 er ett wound, 2 er to wounds, osv. \
+
+set "explode depth" to 2     \ maks eksplosjener pÃ¥ rad, default 2 \
+MAXWOUNDS: 4                 \ maks wounds pr angrep; 4 dreper Wild Cards. 1 er interessant for extras. \
+
+
+EDS: [explode d6]            \ eksplodert d6, for enkelhets skyld \
+WD: EDS                      \ Wild Die, normalt d6 \
+RAISE: EDS               \ ekstra skade nÃ¥r man fÃ¥r raise pÃ¥ angrepet, normalt d6 \
+
+TN: 7
+TOUGHNESS: TN
+RANGED_DEFENSE: 4
+PARRY: 7
+DEFENSE: PARRY
+
+
+\ Latskap: vil skrive [e d6] i stedet for [explode d6] \
+function: e DIE:d { result: [explode DIE] }
+
+\ TOHIT: bom 0, treff 1, og raise 2 \
+function: tohit DEFENSE with DIE:n {
+  if DIE >= DEFENSE+4 { result: 2 } 
+  if DIE >= DEFENSE { result: 1 }
+  result: 0
+}
+
+\ Enkel funksjon som gir antall WOUNDS for DMG vs TN. -1 bom, 0 shaken, 1 ett wound, osv. \
+function: wound TN with DMG:n {
+  if DMG - TN < 0 { result: -1 }
+  if ((DMG - TN) / 4) >= MAXWOUNDS { result: MAXWOUNDS }
+  result: (DMG-TN)/4
+}
+
+\ Wound-funksjon som forholder seg til raise pÃ¥ angrepet \
+function: wound TN with DMG:d and hits ATK:n  {
+  if ATK = 0 { result: -1 }
+  if ATK = 1 { result: [wound TN with DMG] }
+  if ATK = 2 { result: [wound TN with DMG+RAISE] }
+  result: -9 \ dette skal aldri skje \
+}
+
+\ wound-funksjon, tar inn RAISE-die \
+function: wound TN with DMG:d and hits ATK:n raise R:d { 
+  if ATK = 0 { result: -1 }
+  if ATK = 1 { result: [wound TN with DMG] }
+  if ATK = 2 { result: [wound TN with DMG+R] }
+  result: -9      \ dette skal aldri skje \
+}
+
+\ Enkel angrepsfunksjon. Trenger at global DEFENSE, TOUGHNESS og RAISE er definert \
+function: attack with SKILL:n and damage DMG:d {
+  HITS: [tohit DEFENSE with SKILL] 
+  result: [wound TOUGHNESS with DMG and hits HITS]
+}
+
+
+\ Angrepsfunksjon som ikke trenger DEFENSE, TOUGHNESS og RAISE globalt definert \
+function: attack DEF with DIE:n raise R:d and damage TN with DMG:d {
+  HITS: [tohit DEF with DIE] 
+  result: [wound TN with DMG and hits HITS raise R]
+}
+
+\ lag et korrekt sammensatt resultat av flere piler/skudd/angrep \
+\ vi har -1 ingen effekt, 0 shaken, og positive tall som antall wounds \
+\ sett MAXWOUNDS:4 for Wild Cards, og :1 for basic extras \
+function: addwounds DA:n and DB:n {
+  if DB < 0 { result: DA }
+  if DA < 0 { result: DB }
+  \ DA og DB er begge nÃ¥ 0 eller positiv \
+  \ nÃ¥ vet vi at vi har treff pÃ¥ begge. Komplikado: 2x shaken = 1 wound \
+  if DB = 0 {
+    if DA = 0 { result: 1 }
+    result: DA
+  }
+  result: DA + DB
+}
+
+\ PARAMETRE, for Ã¥ kunne gjÃ¸re enkle angrep. Kan settes underveis for flere forskjellige angrep. \
+
+\ Disse kan du resette underveis for Ã¥ vise flere angrep. \ 
+\ ANGRIPEREN \
+FIGHTING: [e d10]
+SHOOTING: [e d8]
+THROWING: [e d4]
+
+\ SKADEN angriperen gjÃ¸r \
+DMG_ARROW: [explode 2d6]
+DMG_GUN: [explode 2d6]+1
+STRENGTH: [e d6]
+DMG_THROW: [e d6]+STRENGTH
+DMG_MELEE: [e d6]+STRENGTH
+
+\ LEGG INN EGNE OUTPUTS HER. \
+SKILL: [highest of SHOOTING and WD]
+DMG: DMG_ARROW
+DEF: DEFENSE
+
+\ output [tohit DEF with SKILL] named "Treffresultat. 0=miss 1=hit 2=raise" \
+\ dette er sÃ¥ elegant at det nesten er trist at vi kan fÃ¥ raise pÃ¥ angrepet: \
+\ RAISE: For skaden skal vi legge til en d6 nÃ¥r vi har med inn en raise \
+\ I praksis mÃ¥ vi fjerne det som er raises fra hits, og rulle skaden for raises \
+\ separat, og sÃ¥ adde dette sammen igjen \
+function: addraise RAISEDMG:n to DMG:n {
+  if RAISEDMG*DMG { result: RAISEDMG } 
+  result: DMG
+}
+
+function: add RAISEDMG:n to DMG:n {
+  if RAISEDMG*DMG { result: RAISEDMG } 
+  result: DMG
+}
+
+TREFF: SKILL >= DEFENSE
+RAISETREFF: SKILL >= DEFENSE+4
+output TREFF named "treff mot defense [DEFENSE]"
+output RAISETREFF named "hvorav raisetreff mot defense [DEFENSE]"
+output [addraise RAISETREFF to TREFF] named "raistreff&normaltreff mot defense [DEFENSE]"
+
+ALLESKADE: DMG * TREFF
+RAISESKADE: (DMG+[explode d6]) * RAISETREFF
+SKADE: [addraise RAISESKADE to ALLESKADE]
+output ALLESKADE named "skadrull unntatt raise mot defense [DEFENSE]"
+output SKADE named "skaderullet mot defense [DEFENSE]"
+output [wound TOUGHNESS with SKADE] named "wounds against toughness [TOUGHNESS]" 
+
+SINGLEATK: [attack with SKILL and damage DMG]
+output SINGLEATK named "Single ATK. -1 bom, 0 shaken; positive tall er antall wounds"
+
+MULTITWO: [attack with SKILL-2 and damage DMG]
+output [addwounds MULTITWO and MULTITWO] named "Multiattack (2)"
+output [addwounds SINGLEATK and MULTITWO] named "Two-Gun Kid: MultiAttack (2)"
+DOUBLESHOTA: [attack with [highest of SHOOTING and SHOOTING] and damage DMG_ARROW]
+DOUBLESHOTB: [attack with [highest of [lowest of SHOOTING and SHOOTING] and WD] and damage DMG_ARROW]
+DOUBLESHOT: [addwounds DOUBLESHOTA and DOUBLESHOTB]
+output DOUBLESHOT named "Double Shot: 2 Arrows in one Limited Action"
+
+MULTITHREE: [attack with SKILL -4 and damage DMG]
+output [addwounds[addwounds MULTITWO and MULTITHREE] and MULTITWO] named "Two-Gun Kid: MultiAttack (3)"
+\ output [addwounds[addwounds MULTITHREE and MULTITHREE] and MULTITHREE] named "Multiattack: Three shots" \
+output [addwounds SINGLEATK and SINGLEATK] named "Two-Gun Kid: MultiAttack (2) with ambidex"
+output [addwounds DOUBLESHOT and DOUBLESHOT] named "Double Shot: 4 arrows in two Limited Actions (heroic)"
+output [addwounds[addwounds MULTITWO and MULTITWO] and MULTITWO] named "Two-Gun Kid: MultiAttack (3) with ambidex"
+

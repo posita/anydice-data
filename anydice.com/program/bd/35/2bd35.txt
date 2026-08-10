@@ -1,0 +1,44 @@
+function: odd X:n {
+  result: (X / 2 * 2) != X
+}
+
+function: even X:n {
+  result: [odd X] = 0
+}
+
+function: negifodd X:n {
+  result: 1 - 2 * [odd X]
+}
+
+function: genesix IDX:s and O:s in X:s and Y:s and Z:s {
+  I: 1@IDX
+  A: I@[sort {X, Y, Z}]
+  J: 2@IDX
+  B: J@[sort {X, Y, Z}]
+  if (O > 0) {
+    C: O@[sort {X, Y, Z}]
+  } else {
+    C: 0
+  }
+  if (A = 1) & (B = 1) {
+    result: -100
+  }
+  if (A = 6) & (B = 6) {
+    result: 100
+  }
+  \ Ignore special results for advantage/disadvantage unless there's a matching dropped die (odd/even) \
+  if ((O = 3) * [odd A] * [odd B] * [even C]) | ((O = 1) * [even A] * [even B] * [odd C]) {
+    result: 0
+  }
+  if (A = B) {
+    result: 10 * [negifodd A]
+  }
+  if ([odd A] = [odd B]) {
+    result: 1 * [negifodd A] 
+  }
+  result: 0
+}
+
+output [genesix {2, 3} and 1 in d6 and d6 and d6] named "disadvantage"
+output [genesix {1, 2} and 0 in d6 and d6 and {}] named "normal"
+output [genesix {1, 2} and 3 in d6 and d6 and d6] named "advantage"

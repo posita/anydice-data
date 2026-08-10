@@ -1,0 +1,38 @@
+function: attk ROLL:n ROLLTWO:n vs ac AC:n with tohit BAB:n str STR:n dmg DMG:n {
+  if (ROLL = 20) {
+    if (ROLLTWO + BAB + STR > AC) {
+      result: DMG * 2
+    }
+  }
+
+  if (ROLL + BAB + STR > AC) {
+    result: DMG
+  }
+  result: 0
+}
+
+CHARGEFLAG:       0
+RAGEFLAG:         0
+ESSENTIAINVESTED: 1
+
+RAGESTR: 2 * RAGEFLAG
+
+BAB: 3
+STR: 4 + RAGESTR
+AC: 18
+
+CHARGEBONUS: 2 * CHARGEFLAG
+ESSBONUS: 1 * ESSENTIAINVESTED
+
+BABCLAW: BAB+ESSBONUS+CHARGEBONUS
+
+DMGPNSHSTANCE: 1d6
+DMGPRIM: 1d4+STR+ESSBONUS+DMGPNSHSTANCE
+DMGCLAW: 1d4+STR/2+ESSBONUS+DMGPNSHSTANCE
+
+output (
+  [attk 1d20 1d20 vs ac AC with tohit BABCLAW str STR dmg DMGPRIM]
+  + [attk 1d20 1d20 vs ac AC with tohit BABCLAW str STR dmg DMGCLAW]
+  + [attk 1d20 1d20 vs ac AC with tohit BABCLAW str STR dmg DMGCLAW]
+  + [attk 1d20 1d20 vs ac AC with tohit BABCLAW str STR dmg DMGCLAW]
+)

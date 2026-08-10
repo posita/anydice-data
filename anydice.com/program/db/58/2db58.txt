@@ -1,0 +1,38 @@
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+
+function: spell attack SAVE:n vs SAVE_DC hit HIT:d miss MISS:d {
+    if SAVE < SAVE_DC { result: HIT }
+    result: MISS
+}
+
+ENEMY_AC: 13
+SPELL_DC: 13
+ATK_BONUS: 5
+
+function: longsword attack { 
+    result: [attack d20 plus ATK_BONUS vs ENEMY_AC hit d12 miss 0 crit 2d12 on 20]
+}
+
+function: unarmed strike {
+    result: [attack d20 plus ATK_BONUS vs ENEMY_AC hit d4 miss 0 crit 2d4 on 20]
+}
+
+function: draconic smite {
+    result: d6 + 4d[spell attack d20+3 vs SPELL_DC hit d4 miss 0]
+}
+
+function: burning hands on ENEMY_COUNT save dc SAVE_DC {
+  result: ENEMY_COUNTd[spell attack d20+3 vs SAVE_DC hit 3d6 miss 3d6 / 2]
+}
+
+
+output 2d[unarmed strike] named "Ð¨ÐºÐ²Ð°Ð» ÑƒÐ´Ð°Ñ€Ð¾Ð² ÑƒÑ€Ð¾Ð½ d4"
+output [draconic smite] named "Ð”Ñ€Ð°ÐºÐ¾Ð½Ð¸Ð¹ ÑƒÐ´Ð°Ñ€ HB"
+output [burning hands on 1 save dc 13] named "ÐžÐ³Ð½ÐµÐ½Ð½Ñ‹Ðµ Ð»Ð°Ð´Ð¾Ð½Ð¸ Ð¿Ð¾ 1 Ñ†ÐµÐ»Ð¸"
+output [burning hands on 3 save dc 13] named "ÐžÐ³Ð½ÐµÐ½Ð½Ñ‹Ðµ Ð»Ð°Ð´Ð¾Ð½Ð¸ Ð¿Ð¾ 3 Ñ†ÐµÐ»ÑÐ¼"
+output [burning hands on 3 save dc 0] named "ÐžÐ³Ð½ÐµÐ½Ð½Ñ‹Ðµ Ð»Ð°Ð´Ð¾Ð½Ð¸ Ð¿Ð¾ 3 Ñ†ÐµÐ»ÑÐ¼ ÑÐ¾ ÑÐ¿Ð°ÑÐ¾Ð¼ ÑÐ»Ð¾Ð¶Ð½Ð¾ÑÑ‚ÑŒÑŽ 0"

@@ -1,0 +1,30 @@
+function: roll TOHIT:n plus MOD:n for DAM:d against AC:n {
+if TOHIT = 20 {result:DAM+DAM}
+else if TOHIT+MOD >= AC {result:DAM}
+else {result:0}
+}
+
+function: rollbs TOHIT:d plus MOD:n for DAM:d against AC:n {
+result: [rollbshelper TOHIT TOHIT plus MOD for DAM against AC]
+}
+
+function: rollbshelper TOHITD:d TOHITN:n plus MOD:n for DAM:d against AC:n {
+if TOHITN = 20 {result:2d6+2d4+2d8+DAM+DAM+[rollbshit TOHITD TOHITD plus MOD for DAM against AC]}
+else if TOHITN+MOD >= AC {result:d6+d4+d8+DAM+[rollbshit TOHITD TOHITD plus MOD for DAM against AC]}
+else {result:[rollbsmiss TOHITD TOHITD plus MOD for DAM against AC]}
+}
+
+function: rollbshit TOHITD:d TOHITN:n plus MOD:n for DAM:d against AC:n {
+if TOHITN = 20 {result:DAM+DAM+[roll TOHITD plus MOD for DAM against AC]}
+else if TOHITN+MOD >= AC {result:DAM+[roll TOHITD plus MOD for DAM against AC]}
+else {result:[roll TOHIT plus MOD for DAM against AC]}
+}
+
+function: rollbsmiss TOHITD:d TOHITN:n plus MOD:n for DAM:d against AC:n {
+if TOHITN = 20 {result:2d6+2d4+2d8+DAM+DAM+[roll TOHITD plus MOD for DAM+d8 against AC]}
+else if TOHITN+MOD >= AC {result:d6+d4+d8+DAM+[roll TOHITD plus MOD for DAM+d8 against AC]}
+else {result:[roll TOHIT plus MOD for DAM+d8 against AC]}
+}
+
+
+output [rollbs [highest 1 of 3d20] plus 3 for d6+d8+14 against 15] named "longbow+HM+FF+CS+EA+SS+SA+FS"

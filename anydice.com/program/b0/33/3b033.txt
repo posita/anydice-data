@@ -1,0 +1,53 @@
+A:6 \highest die number Targeting\
+B:6 \highest die number Evasion\
+C:2 \number of Targeting Dice\
+D:1 \number of Evasion Dice\
+E:(A*C)-D \maximum number of dice rolled\
+F:6 \Maximum value on damage dice\
+G:E*F \Maximum Possible Damage\
+
+TME:(CdA - DdB)  \target minus evasion\
+output TME named "targeting-evasion, ie probability of rolling x dice"
+J:0
+loop N over {1..G} \repeat for every possible damage value, ending at G damage\
+{ 
+    H:0
+    loop O over {1..E} \sum odds for nth damage value in every additional dice roll until the oth\
+    { 
+        if N < O  
+        {
+        }
+        else 
+        {
+            if N > O*F  
+            {
+            }
+            else 
+            {
+             \output [count {N} in [count {O} in TME]*OdF] named "probability of rolling a [N] with [O] die"\
+             I:[count {2} in [count {1} in TME]*1dF]
+             H:H+1@I
+            }
+        }
+    }
+    K:[count {1} in H]
+    output K named "probability of rolling a [N]"
+    J:{J,1@K}
+    output J named "J #[N]"
+}
+
+output J
+\
+
+output[count {2} in [count {1} in TME]*1dF] named "probability of rolling a [2] with [1] die"
+output[count {2} in [count {2} in TME]*2dF] named "probability of rolling a [2] with [2] die"
+
+H:0
+I:[count {2} in [count {1} in TME]*1dF]
+H:H+1@I
+H:[count {2} in [count {2} in TME]*2dF] 
+H:H+1@I
+ 
+K:[count {1} in H]
+output K named "probability of rolling a [2]"
+\

@@ -1,0 +1,26 @@
+NUMBEROFDICE: 19
+SUCCESSTHRESHOLD: 5
+
+function: roll RAWROLL:n with s T:n explode to REPLACEMENT:d {
+  ROLL: 0
+  if RAWROLL >= T {
+    ROLL: 1
+  }
+  if RAWROLL = 6 {
+    ROLL: ROLL + [roll REPLACEMENT with s T explode to REPLACEMENT]
+  }
+  result: ROLL 
+}
+function: roll DICE:d with s T:n {
+  result: [roll DICE with s T explode to DICE]
+}
+
+HITS: 0
+loop N over {1..NUMBEROFDICE} {
+  HITS: HITS + [roll 1d6 with s SUCCESSTHRESHOLD]
+}
+output [highest of -1 and HITS]
+
+
+
+

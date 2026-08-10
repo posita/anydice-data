@@ -1,0 +1,26 @@
+MIN_STAT: 3
+MAX_STAT: 3
+MIN_SKILL: 0
+MAX_SKILL: 2
+
+MIN_DIFF: 2
+MAX_DIFF: 2
+MIN_COMPLEX: 0
+MAX_COMPLEX: 2
+
+loop STAT over {MIN_STAT..MAX_STAT} {
+  loop SKILL over {MIN_SKILL..MAX_SKILL} {
+    SYN: [lowest of STAT and SKILL]      \ Skill Synergy \
+    W: {SYN,0,0,1,1,2}                   \ Normal Die Roll \
+    DIFF_DIE: {0,0,1,1,2,[lowest of 0 and SKILL]}  \ Difficulty \
+    CX_DIE: {0,1,2,3,4,5}                \ Difficult/Complex Die Roll \
+
+    loop DIFF over {MIN_DIFF..MAX_DIFF} {
+      loop COMPLEX over {MIN_COMPLEX..MAX_COMPLEX} {
+        CXDICE: [highest of 0 and COMPLEX-SKILL]    \ # Complexity Dice. Skill is essential. \
+        
+        output {STAT+SKILL}dW - {DIFF}dDIFF_DIE - {CXDICE}dCX_DIE named "Stat: [STAT], Skill: [SKILL], DIFF: [DIFF], CX: [COMPLEX], SYN: [SYN]"        
+      }
+    }
+  }
+}

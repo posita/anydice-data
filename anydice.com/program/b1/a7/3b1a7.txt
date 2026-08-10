@@ -1,0 +1,45 @@
+SIZE: 10
+TALENT: 0
+XP: 2
+TRAINING: 5
+
+LUCK: {1..SIZE}
+
+PROF: (TRAINING+1)*2
+
+if TALENT > 0
+{
+ LUCK: {{1..TALENT}:TALENT, {TALENT+1..SIZE}:(SIZE^2-TALENT^2)/(SIZE-[absolute TALENT])}
+}
+else if TALENT < 0
+{
+  LUCK: {{1..SIZE+TALENT}:(SIZE^2-TALENT^2)/(SIZE-[absolute TALENT]), {SIZE+TALENT+1..SIZE}:[absolute TALENT]}
+}
+
+function: reroll ROLL:n below NUMBER:n
+{
+ if ROLL <= NUMBER
+ {
+  result: [highest of ROLL and 1dSIZE]
+ }
+ result: ROLL
+}
+
+function: reroll ROLL:n above NUMBER:n
+{
+ if ROLL > SIZE + NUMBER
+ {
+  result: [lowest of ROLL and 1dSIZE]
+ }
+ result: ROLL
+}
+
+loop TALENT over {-9..0}
+{
+ output [reroll 1dSIZE above TALENT] + [reroll 1dSIZE above TALENT] named "2d[SIZE], Talent: [TALENT]"
+}
+
+loop TALENT over {1..9}
+{
+ output [reroll 1dSIZE below TALENT] + [reroll 1dSIZE below TALENT] named "2d[SIZE], Talent: [TALENT]"
+}

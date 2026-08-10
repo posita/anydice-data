@@ -1,0 +1,31 @@
+FAIL: 0
+SUCC: 1
+
+function: luckcheck ROLL:n vs LUCK:n {
+ if ROLL > LUCK { result: FAIL }
+ result: SUCC
+}
+
+FAILLUCK: 2d10+10
+SUCCLUCK: 1d10+5
+LUCKY_TALENT: 0
+
+function: luckresult for RESULT:n and LUCK:n {
+ if RESULT = FAIL { result: FAILLUCK + LUCK + LUCKY_TALENT}
+ result: SUCCLUCK + LUCK + LUCKY_TALENT
+}
+
+LUCK_CAP: 99
+
+function: luckcap of LUCK_CAP:n on N:n {
+ if N > LUCK_CAP { result: 99 }
+ result: N
+}
+
+function: nextsession for OLDLUCK:n {
+ result: [luckcap of LUCK_CAP on [luckresult for [luckcheck d100 vs OLDLUCK] and OLDLUCK]]
+}
+
+loop LUCK over {0..50} {
+ output [nextsession for [nextsession for LUCK]] named "[LUCK]"
+}

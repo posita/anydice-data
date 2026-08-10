@@ -1,0 +1,68 @@
+\ Action Point Nova Round Against Equal-Level Enemies					\
+\ Actions:										\
+\	Minor - summon silt elemental 							\
+\	Move - order silt elemental to move; deal 5 damage, slow target 		\
+\	Standard - charge								\
+\	Action Point- charge 								\	
+\	No Action - shadow sever							\
+\---------------------------------------------------------------------------------------\
+\ FUNCTIONS										\
+\---------------------------------------------------------------------------------------\
+
+\ a function for the first attack's damage calculation \
+	function: X:n firstattack {
+		if X - MOD = 1 {  \natural 1\
+			MISS:1
+			result: 0
+		}
+		if X - MOD = 20 {result: 50+1d8} \critical hit\
+		if X >= AC {result: 5d8+10}	 \hit\
+		else { 
+			\Anya missed the attack, so SA can apply to the second one\
+			MISS:1
+			result:0
+		} 
+	}
+
+\ a function for the second attack's damage calculation \
+\ includes the +5 damage from Shadow Sever if at least one attack hit \
+	function: X:n secondattack {
+		if MISS = 0 { \Anya didn't miss the first attack\
+			if X - MOD = 1 { result: 0}  \natural 1\
+			if X - MOD = 20 {result: 34+1d8+5} \critical hit\
+			if X >= AC {result: 3d8+10+5} \hit\
+			else {result: 0}
+		} else { \we missed the first attack, so SA can apply here\
+			if X - MOD = 1 { result: 0}  \natural 1\
+			if X - MOD = 20 {result: 50+1d8+5} \critical hit\
+			if X >= AC {result: 5d8+10+5} \hit\
+			else {result: 0}
+		}
+	}
+
+\---------------------------------------------------------------------------------------\
+\ CALCULATIONS										\
+\---------------------------------------------------------------------------------------\
+
+\ variable declarations \
+	MISS: 0	\ we have not missed our first attack \
+	MOD: 16	\ attack bonus is +16 \
+	AC: 20 \ first target AC is 20 \
+
+\ Case: attacking level 5 controller, lurker, or skirmisher (AC = 19) \
+	MISS: 0	\ we have not missed our first attack \
+	AC: 19	\ target AC is 19 \
+	output [d20 + MOD firstattack] + [d20 + MOD secondattack] + 5
+ 		named "Anya nova round (controller, lurker, skirmisher)"
+
+\ Case: attacking level 5 soldier (AC = 21) \
+	MISS: 0	\ we have not missed our first attack \
+	AC: 21	\ target AC is 21 \
+	output [d20 + MOD firstattack] + [d20 + MOD secondattack] + 5
+ 		named "Anya nova round (soldier)"
+
+\ Case: attacking level 5 brute or artillery (AC = 17) \
+	MISS: 0	\ we have not missed our first attack \
+	AC: 17	\ target AC is 17 \
+	output [d20 + MOD firstattack] + [d20 + MOD secondattack] + 5
+ 		named "Anya nova round (brute, artillery)"

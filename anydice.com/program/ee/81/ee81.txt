@@ -1,0 +1,70 @@
+function: attack ROLL:n bonus ATTACK:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: hamdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: HAMCRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HAMDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: hambdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: HAMBCRIT
+ }
+ if ATTACKRESULT = HIT {
+  result: HAMBDAM
+ }
+ result: MISSDAMAGE
+}
+
+function: ebdamage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: EBCRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: EBDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll D:d under N:n{
+   result: [rerollcore D die D under N]
+}
+
+function: rerollcore R:n die D:d under N:n{
+   if R < N { result: D } else {result: R}
+}
+
+\output [reroll d12 under 3]\
+
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+DAMMOD: 3
+
+EBDAMAGE: d10+4
+EBCRITDAMAGE: 2d10+4
+HAMDAMAGE: [reroll d10 under 3]+DAMMOD
+HAMBDAM: [reroll d5 under 3]+[reroll d5 under 3]+DAMMOD
+HAMBCRIT: [reroll d5 under 3]+[reroll d5 under 3]+[reroll d5 under 3]+[reroll d5 under 3]+DAMMOD
+HAMCRITDAMAGE: [reroll d10 under 3]+[reroll d10 under 3]+DAMMOD
+MISSDAMAGE: 0
+
+
+output [hamdamage for [attack d20 bonus 6 vs 13]] + [hamdamage for [attack d20 bonus 6 vs 13]] named "hammer"
+
+output [hambdamage for [attack d20 bonus 6 vs 13]] + [hambdamage for [attack d20 bonus 6 vs 13]] named "hammer b"
+
+output [ebdamage for [attack d20 bonus 7 vs 13]] + [ebdamage for [attack d20 bonus 7 vs 13]] named "EB"

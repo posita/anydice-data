@@ -1,0 +1,32 @@
+function: collapse ROLL:n {
+  if (ROLL <= -6) { result: -4 }
+  if (ROLL <= -2) { result: -3 }
+  if (ROLL <= 2) { result: -2 }
+  if (ROLL < 8) { result: -1 }
+  if (ROLL < 12) { result: 0 }
+  if (ROLL < 16) { result: 1 }
+  if (ROLL < 20) { result: 2 }
+  if (ROLL < 24) { result: 3 }
+  if (ROLL < 28) { result: 4 }
+}
+
+loop B over {-8..8} {
+  AB: [absolute B]
+  loop S over {0..AB} {
+    ABS: AB-S
+    if (AB = 0) {
+      ROLL: (2d6)
+      output [collapse ROLL] named "2d6"
+    } else {
+      if ((B < 0) & (ABS > 0)) {
+        ROLL: (2d6-S)-[highest 1 of ABSd6]
+        output [collapse ROLL] named "2d6-[S]-[ABS]B"
+      } else {
+        if ((B > 0) & (ABS > 0)) {
+          ROLL: (2d6+S)+[highest 1 of ABSd6]
+          output [collapse ROLL] named "2d6+[S]+[ABS]B"
+        }
+      }
+    }
+  }
+}

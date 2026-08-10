@@ -1,0 +1,27 @@
+function: attack ROLL:n with ACC:n{
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL + GRIT + ACC >= 20 { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + GRIT + ACC >= AC
+}
+
+function: skirmish with DMG plus BONUS at ACC:n{
+  result: [roll [attack 1d20 with ACC] to attack with DMG plus BONUS at ACC]
+}
+
+function: roll ATTACK:n to attack with DMG plus BONUS at ACC:n{
+  if ATTACK = 2 {
+    result: [highest of (DMG + BONUS) and (DMG + BONUS)]
+  } else if ATTACK = 1 {
+    result: (DMG + BONUS)
+  } else {
+    result: 0
+  }
+}
+
+GRIT:    +1  \ bonus to attack roll \
+AC:      8  \ target AC: attack hits if ATK + GRIT >= AC \
+
+output [skirmish with 1d6 + 1 plus 0 at -1d6] + [skirmish with 1d6 + 1 plus 0 at -1d6] named "Mortar x2"
+output ([skirmish with 2d6 plus 0 at -1d6] + [skirmish with 1d6 + 1 plus 0 at -1d6]) / 2 named "Howitizer + Mortar (every other turn)"
+output [skirmish with 2d6 plus 0 at -1d6] named "Howitizer + Autoloader"
+output ([skirmish with 3d6 plus 0 at 0] + [skirmish with 1d6 + 1 plus 0 at -1d6]) * 2/3 named "Siege Cannon + Mortar (two of three turns)"

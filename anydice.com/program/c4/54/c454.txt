@@ -1,0 +1,133 @@
+function: blades A:n {
+  if A >= 6 {result: 1}
+  else if A >= 4 {result: 0}
+  else {result: -1}
+}
+function: shards A:n {
+  if A >= 10 {result: 1}
+  else if A >= 8 {result: 0}
+  else {result: -1}
+}
+
+\output [lowest 1 of 2d6] named "1BELL Limited Effect 2d6k1L"\
+\output 1d6 named "1BELL Standard Effect 1d6"\
+\output [highest 1 of 2d6] named "1BELL Great Effect 2d6k1H"\
+\output [lowest 2 of 3d6]+2 named "2BELL Limited Effect 3d6k2L"\
+\output 2d6+2 named "2BELL Standard Effect 2d6"\
+\output [highest 2 of 3d6]+2 named "2BELL Great Effect 3d6k2H"\
+\output 1d6 named "ONE Limited Effect 1d6"\
+\output [highest 1 of 2d6] named "ONE Standard Effect 2d6k1"\
+\output [highest 1 of 3d6] named "ONE Great Effect 3d6k1"\
+
+
+
+function: fringe A:n {
+  if A >= 2 {result: 2}
+  else if A >= 1 {result: 1}
+  else {result: 0}
+}
+
+function: dominant S:n D:n C:n {
+ SDB: S >= D
+ SCB: S >= C
+ SCOMB: SDB & SCB
+ CDB: C >= D
+ if (SCOMB) {result: 1}
+ else if (CDB) {result: -1}
+ else {result: 0}
+}
+
+function: high NUMBER:n of DICE:s {
+ result: {1..NUMBER}@DICE
+}
+
+function: crisis skill S:s diss D:s diff C:s {
+ SO: [count {1} in S]
+ DO: [count {1} in D]
+ CO: [count {1} in C]
+ SUCCESS: SO + DO - CO
+ HARMONY: [high 1 of S]
+ DISSONANCE: [high 1 of D]
+ CRISIS: [high 1 of C]
+ DOMINANT: [dominant HARMONY DISSONANCE CRISIS]
+ if (SUCCESS >= 2) {
+  if (DOMINANT > 0) {result: 202}
+  else if (DOMINANT < 0) {result: 201}
+  else {result: 200}
+ }
+ else if (SUCCESS = 1) {
+  if (DOMINANT > 0) {result: 12}
+  else if (DOMINANT < 0) {result: 11}
+  else {result: 10}
+ }
+ else {
+  if (DOMINANT > 0) {result: 2}
+  else if (DOMINANT < 0) {result: 1}
+  else {result: 0}
+ }
+}
+
+function: opposed skill S:s crisis C:s {
+ SO: [count {6} in S]
+ CO: [count {6} in C]
+ SUCCESS: SO - CO
+ if SUCCESS >= 2 {result: 2}
+ else if SUCCESS = 1 {result: 1}
+ else {result: 0}
+}
+
+SKILL: 6
+CRISIS: 3
+
+\loop CDICE over {0, CRISIS} {\
+\ output [opposed skill (SKILL)d6 crisis CDICEd6] named "S:[SKILL] C:[CDICE]"\
+\}\
+
+
+\output 1d20 named "1 20"\
+\output 1d12 + 1d10 named "10 and 12"\
+
+
+\output [blades [lowest 1 of 2d6]] named "Blades unskilled"\
+
+\loop DICE over {1..6} {\
+\  output [blades [highest 1 of DICEd6]] named "Blades [DICE]d6"\
+\}\
+
+\loop DICE over {1..10} {\
+  \output [shards [highest 1 of DICEd10]] named "Shards [DICE]d10"\
+  \output [count {10} in DICEd10 ] named "Shards Critical [DICE]d10"\
+  \output [fringe [count {9,10} in DICEd10]] named "NineTenHit [DICE]d10"\
+\}\
+
+
+function: posten TN:n R:s {
+ COUNT: 0
+ if R >= 10 {result: 2}
+ else if R >= TN {result: 1}
+}
+function: ct VALUES:s in SEQUENCE:s max M:n{
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ COUNT: COUNT + [count {M} in SEQUENCE]
+ result: COUNT
+}
+
+loop N over {3..7}  {
+  \output [fringe [count {6} in Nd6]] named "Fringe [N]d6"\
+  SK: N - 3
+  TN: 5
+  output [count {TN..8} in Nd8] named "SK:[SK], U:0, D:0 | [N]d8"
+
+  L: N-1
+  output [count {TN..8} in Ld8] + [count {TN..6} in 1d6] named "SK:[SK], U:0, D:1 | [L]d8+1d6"
+  output [count {TN..8} in Ld8] + [ct {TN..10} in 1d10 max 10] named "SK:[SK], U:1, D:0 | [L]d8+1d10 |2@10"
+\  output [count {TN..6} in Ld6] + [ct {TN..8} in 1d8 max 8] named "SK:[SK] | [L]d6+1d8 |2@8"\
+
+  L: N-2
+  output [count {TN..8} in Ld8] + [count {TN..6} in 2d6] named "SK:[SK], U:0, D:2 | [L]d8+2d6"
+  output [count {TN..8} in Ld8] + [ct {TN..10} in 2d10 max 10] named "SK:[SK], U:2, D:0 | [L]d8+2d10 |2@10"
+\  output [count {TN..6} in Ld6] + [ct {TN..8} in 2d8 max 8] named "SK:[SK] | [L]d6+2d8 |2@8"\
+}

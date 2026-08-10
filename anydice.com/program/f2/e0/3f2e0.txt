@@ -1,0 +1,67 @@
+\-- Death Saves --\
+
+
+SAVE_DC: 10
+BONUS: +0
+
+CONSCIOUS: 2
+SUCCEEDED: 1
+FAILED: -1
+FAILED_TWICE: -2
+
+IS_CONSCIOUS: 1
+IS_STABLE: 1
+IS_DEAD: 0
+
+function: save N:n {
+  if N  = 20      {result: CONSCIOUS} 
+  if N  = 1       {result: FAILED_TWICE}
+  if N + BONUS >= SAVE_DC {result: SUCCEEDED} 
+  result: FAILED
+}
+
+
+function: count successes in S:s {result: [count SUCCEEDED in S]}
+
+
+function: count failures in S:s {result: [count FAILED in S] + 2 * [count FAILED_TWICE in S]}
+
+
+function: roll saves A:s B:s C:s D:s E:s{
+  if [A contains CONSCIOUS]{result: 1}
+  SUCCESSES: [count successes in A]
+  FAILURES:  [count failures in A ]
+
+  if [B contains CONSCIOUS] {result: 2}
+  SUCCESSES: SUCCESSES + [count successes in B]
+  FAILURES:  FAILURES  + [count failures in B] 
+  if FAILURES >= 3 {result: 2}
+
+  if [C contains CONSCIOUS] {result: 3}
+  SUCCESSES: SUCCESSES + [count successes in C]
+  FAILURES:  FAILURES  + [count failures in C] 
+  if SUCCESSES >= 3 {result: 3}
+  if FAILURES  >= 3 {result: 3}
+
+  if [D contains CONSCIOUS] {result: 4}
+  SUCCESSES: SUCCESSES + [count successes in D]
+  FAILURES:  FAILURES  + [count failures in D]
+  if SUCCESSES >= 3 {result: 4}
+  if FAILURES  >= 3 {result: 4}
+
+  if [E contains CONSCIOUS] {result: 5}
+  SUCCESSES: SUCCESSES + [count successes in E]
+  FAILURES:  FAILURES  + [count failures in E]
+  if SUCCESSES >= 3 {result: 5}
+  if FAILURES  >= 3 {result: 5}
+
+  result: -1 \ Should be unreachable\
+}
+
+
+
+function: death save {result: [roll saves [save d20] [save d20] [save d20] [save d20] [save d20]]}
+
+
+output [death save] named "Death Save Count Probabilities"
+

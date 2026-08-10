@@ -1,0 +1,52 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: minroll REROLL:s on ROLL:n to REPLACEMENT:n {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: original great weapon fighter ROLL:n x DIESIZE:d {
+    OUTPUT: 0
+    loop N over {1..ROLL} {
+        OUTPUT: OUTPUT + [reroll {1,2} on DIESIZE to DIESIZE]
+    }
+    result: OUTPUT
+}
+
+function: new great weapon fighter ROLL:n x DIESIZE:d {
+    OUTPUT: 0
+    loop N over {1..ROLL} {
+        OUTPUT: OUTPUT + [minroll {1,2} on DIESIZE to 3]
+    }
+    result: OUTPUT
+}
+
+function: sw great weapon fighter ROLL:n x DIESIZE:d {
+    OUTPUT: 0
+    MINIMUM: 0
+    DIEMAX: [maximum of DIESIZE]
+    if DIEMAX = 4 { MINIMUM: 2}
+    else if DIEMAX = 6 { MINIMUM: 2 }
+    else if DIEMAX = 8 { MINIMUM: 3 }
+    else if DIEMAX = 10 { MINIMUM: 4 }
+    else if DIEMAX = 12 { MINIMUM: 5 }
+    else if DIEMAX = 20 { MINIMUM: 8 }
+    loop N over {1..ROLL} {
+        OUTPUT: OUTPUT + [minroll {1..MINIMUM} on DIESIZE to MINIMUM]
+    }
+    result: OUTPUT
+}
+
+NUM: 2
+DIE: d4
+output NUMdDIE named "[NUM][DIE] Unmodified"
+output [original great weapon fighter NUM x DIE] named "[NUM][DIE] Original DnD GWF"
+output [new great weapon fighter NUM x DIE] named "[NUM][DIE] New DnD GWF"
+output [sw great weapon fighter NUM x DIE] named "[NUM][DIE] SW5E DnD GWF"

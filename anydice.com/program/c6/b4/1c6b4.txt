@@ -1,0 +1,28 @@
+function: harder D:n mod M:n roll R:s {
+if (D + 1)@R = 0 { result: 0 }
+MAX: [highest of (R = SIZE) - D and 0]
+REM: MAX + D + 1
+result: MAX * SIZE +
+REM@R + (REM + 1)@R + M
+}
+
+function: easier E:n mod M:n roll R:s {
+ if 1@R = 0 { result: 0 } \ fumble \
+ REROLLS: [lowest of R = 0 and E]
+ result: [merged with REROLLSdRD]
+}
+
+function: merged with E:s {
+ S: [sort {R, E}]
+ MAX: S = SIZE
+ REM: MAX + 1
+ result: MAX * SIZE +
+ REM@S + (REM + 1)@S + M
+}
+
+SIZE: 5
+D: d{0..SIZE}
+RD: d{1..SIZE} \ guarantees 1+ \
+loop P over {2} {
+ output [easier 0 mod 2 roll PdD] named "[P]d"
+}

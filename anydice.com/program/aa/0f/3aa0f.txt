@@ -1,0 +1,50 @@
+\ Structure damage and overheating use identical checks, so this code will work for both. \
+\ This took a fuckload of work - I learned a fair bit about AnyDice making this work.     \
+\ Initially tried plagiarising the Blades in the Dark example, but that didn't pan out.   \
+\ Eventually cracked it by editing code taken directly from AnyDice documentation.        \
+
+MINOR: 25    \ Lowest value = 5 or 6 \
+MAJOR: 50    \ Lowest value = 2 to 4 \
+CRITICAL: 75 \ Lowest value = 1      \
+FATAL: 100   \ Multiple 1's rolled   \
+
+\ Original code by Jasper Flick: https://anydice.com/docs/function-library/lowest-of/ \
+function: testlowest DICE:s {
+ NUMBER: 1
+ if {(#DICE - NUMBER + 1)..#DICE}@DICE = 1 { result: CRITICAL }
+ else if {(#DICE - NUMBER + 1)..#DICE}@DICE >= 5 { result: MINOR }
+ else {result: MAJOR }
+
+}
+
+\ Original code by Jasper Flick: https://anydice.com/docs/function-library/count-in/ \
+function: testcount SEQUENCE:s
+{
+ VALUES: 1
+ COUNT: 0
+ loop P over {1..#VALUES} { COUNT: COUNT + (P@VALUES = SEQUENCE) }
+ if COUNT >= 2 { result: FATAL }
+ else { result: MINOR }
+}
+
+\ Final code produced by BlueMonday1984, heavily based on code by Jasper Flick. \
+function: stresstest DICE:s
+{
+ VALUES: 1
+ COUNT: 0
+ loop P over {1..#VALUES}
+ {
+  COUNT: COUNT + (P@VALUES = DICE)
+ }
+ if COUNT >= 2 { result: FATAL }
+ else
+ {
+  if {(#DICE - VALUES + 1)..#DICE}@DICE = 1 { result: CRITICAL }
+  else if {(#DICE - VALUES + 1)..#DICE}@DICE >= 5 { result: MINOR }
+  else {result: MAJOR }
+ }
+}
+
+loop DAMAGE over {1..6} { \ Players won't roll more than 3d under most circumstances, so going to 6d was purely for kicks \
+ output [stresstest DAMAGEd6] named "[DAMAGE] stress/structure damage"
+}

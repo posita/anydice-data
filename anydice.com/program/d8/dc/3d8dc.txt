@@ -1,0 +1,36 @@
+function:  NORMAL:n and CORRUPCAO:n to count consequencia {
+  SUCESSO_NORMAL: [count {6..10} in NORMAL d{1:5,6..10}]
+  SUCESSO_CORRUPCAO: [count {8..10} in CORRUPCAO d{1:7,8..10}]*2 
+  result: SUCESSO_CORRUPCAO
+}
+
+function: roll NORMAL:n bigger than CORRUPCAO:n{
+  SUCESSO_NORMAL: [count {6..10} in NORMAL d{1:5,6..10}]
+  SUCESSO_CORRUPCAO: [count {8..10} in CORRUPCAO d{1:7,8..10}]*2 
+  result: SUCESSO_NORMAL + SUCESSO_CORRUPCAO
+}
+
+function: roll NORMAL:n smaller than CORRUPCAO:n with DIFERENCA{
+  DIFERENCA: CORRUPCAO-NORMAL
+  SUCESSO_NORMAL: [count {6+DIFERENCA..10+DIFERENCA} in NORMAL d{1:5,6..10}]
+  SUCESSO_CORRUPCAO: [count {8+DIFERENCA..10+DIFERENCA} in CORRUPCAO d{1:7,8..10}]*2 
+  result: SUCESSO_NORMAL + SUCESSO_CORRUPCAO
+}
+
+loop N over {2..10}{
+loop C over {0..7}{
+
+  if N>C {
+  output [roll N bigger than C] named "[N]d NORMAL e [C]d CORRUPÃ‡ÃƒO"
+  output ([roll N bigger than C]<=[N and C to count consequencia]/2) named "[N]d NORMAL e [C]d CORRUPÃ‡ÃƒO, 0 = sem consequÃªncia e 1 = com consequÃªncia"
+ }
+
+loop D over {[absolute C-N]}{
+
+  if N<=C {
+  output [roll N smaller than C with D] named "[N]d NORMAL e [C]d CORRUPÃ‡ÃƒO"
+  output ([roll N smaller than C with D]<=[N and C to count consequencia]/2) named "[N]d NORMAL e [C]d CORRUPÃ‡ÃƒO, 0 = sem consequÃªncia e 1 = com consequÃªncia"
+ }
+}
+}
+}

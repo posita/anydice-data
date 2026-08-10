@@ -1,0 +1,42 @@
+\ variables to edit \
+CD: 12 \ Target's Combat Defense \
+AR: 6  \ Target's Armor Rating \
+
+F: 4   \ Attacker's Fighting rank \
+S: 2   \ Attacker's Specialty rank \
+A: 4   \ Attacker's Damage Attribute (e.g. Athletics) \
+I: 0   \ Attacker's Injuries and Fatigue \
+W: 0   \ Attacker's Wounds \
+
+T: 0   \ Weapon's Training Penalty \
+D: 0   \ Weapon's Damage Modifier \
+P: 1   \ Weapon's piercing rank \
+
+\ derived values \
+if S>=T {
+ROLLED: ((F+S)-T)
+KEPT: F-W
+}
+else {
+ROLLED: F+S
+KEPT: ((F-W)-T)
+}
+ATTACK: [highest KEPT of ROLLEDd6]-I
+DDOS: A+D
+RAR: AR-P
+
+\ program code \
+loop N over {1@{ATTACK}..[maximum of ATTACK]}
+{
+\ calculate DoS \
+if N < CD {DOS: 0}
+else if N >= CD & N < CD+5 {DOS: 1}
+else if N >= CD+5 & N < CD+10 {DOS: 2}
+else if N >= CD+10 & N < CD+15 {DOS: 3}
+else if N >= CD+15 {DOS: 4}
+
+\ calculate damage \
+DAM: [highest of 0 and ((DDOS*DOS) - RAR)]
+PROB: (ATTACK = N)
+output DAM*PROB named "[DAM]"
+}

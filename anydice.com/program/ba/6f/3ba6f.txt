@@ -1,0 +1,35 @@
+\  Generic damage calculator (d6)  \
+
+DIE: d6               \ Die type \
+
+\  These donâ€™t change  \
+MISS: 0		       \ Value of missed result\
+C_HIT : [maximum of DIE] \ Crit threshold (d6, 6)\
+
+\ Parameters \
+N: 3			 \ Number of dice \
+DMG: 2	            \ Value of hit damage\ 
+CRT_DMG: 3	   	\ Value of crit damage\
+HIT : 4		 	\ Hit threshold (d6, 4+)\ 
+
+function: attack ROLL:n vs HIT :n {
+ if ROLL >= HIT {
+ if ROLL = C_HIT {result: CRT_DMG}
+  result: DMG
+ }
+ result: MISS
+}
+
+\  Reroll misses( requires generic damage calculator) \
+function: attackrerollmisses ROLL:n vs HIT :n {
+ if ROLL >= HIT {
+ if ROLL = C_HIT {result: CRT_DMG}
+  result: DMG
+ }
+ REROLL: [attack DIE vs HIT]
+ result: MISS + REROLL
+}
+
+
+output Nd[attack DIE vs HIT] named "[N][DIE]_[DMG]_[CRT_DMG]"
+output Nd[attackrerollmisses DIE vs HIT] named "reroll misses"

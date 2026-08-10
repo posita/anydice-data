@@ -1,0 +1,29 @@
+MAJOR: 3
+MODERATE: 2
+MINOR: 1
+FAIL: 0
+
+function: clash RES:n {
+ if RES > 5 { result: MAJOR }
+ if RES > 2 { result: MODERATE }
+ if RES > 0 { result: MINOR }
+ result: FAIL
+}
+
+function: clashroll ROLL:d MODA:n MODB:n {
+ result: (ROLL + MODA)-(ROLL + MODB)
+}
+
+function: multiclash DICE:n CLASH:n {
+ TOTAL: 0
+ loop N over {1..DICE} {
+  DAMAGE: [clash [clashroll d8 0 0]]
+  TOTAL: TOTAL + DAMAGE
+ }
+ result: TOTAL
+}
+
+output [multiclash 3 [clash [clashroll d8 0 0]]] named "3 dice clash at +0"
+output [multiclash 3 [clash [clashroll d8 2 0]]] named "3 dice clash at +2"
+output [multiclash 3 [clash [clashroll d8 4 0]]] named "3 dice clash at +4"
+output [multiclash 3 [clash [clashroll d8 0 2]]] named "3 dice clash at -2"

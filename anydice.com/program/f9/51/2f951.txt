@@ -1,0 +1,43 @@
+function: interpret ROLL:s {
+  TRIUMPHS: 0  
+  DTRIUMPHS: 0 
+  CHANCES: 0 
+  RUINS: 0 
+  DRUINS: 0 
+
+  OUTCOME: 0   \ Variable to store the total number of hits \
+  RROLL: [sort ROLL]  \ Sort the input sequence of dice rolls in ascending order \
+  loop I over {1 .. #RROLL} {
+    if I@RROLL = 1 {RUINS: RUINS + 1}
+    if I@RROLL = 2 {RUINS: DRUINS + 1}
+    if I@RROLL = 3 {CHANCES: CHANCES + 500} 
+    if I@RROLL = 4 {CHANCES: DTRIUMPHS + 1}
+    if I@RROLL = 5 {CHANCES: DTRIUMPHS + 1}    
+    if I@RROLL = 6 {TRIUMPHS: TRIUMPHS + 100}  
+  }
+  OUTCOME: [highest of (DTRIUMPHS - DRUINS) and 0] + [highest of (TRIUMPHS - RUINS) and 0] + CHANCES
+
+   if OUTCOME < 0 {OUTCOME: -2}
+   if OUTCOME = 3 {OUTCOME: 2}
+   if OUTCOME = 99 {OUTCOME: 0}
+   if OUTCOME = 100 {OUTCOME: 2}
+   if OUTCOME = 101 {OUTCOME: 2}
+   if OUTCOME = 200 {OUTCOME: 4}
+   if OUTCOME = 500 {OUTCOME: 1}
+   if OUTCOME = 501 {OUTCOME: 2}
+   if OUTCOME = 600 {OUTCOME: 4}
+   if OUTCOME = 1000 {OUTCOME: 0}
+
+  result: OUTCOME  
+}
+loop I over {1 .. 2} {
+  output [interpret Id6] named "[I] dice"  
+}
+
+\
+0: FALHA
+1: PARCIAL
+2: SUCC
+4: CRIT
+
+\

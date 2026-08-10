@@ -1,0 +1,75 @@
+function: successes in ROLL:s vs TN:n {
+  result: [count {TN..6} in ROLL]
+}
+function: duds in ROLL:s vs TN:n {
+  result: [count {1..TN-1} in ROLL]
+}
+
+function: successes in ROLL:s vs TN:n with P:n points {
+  SUCC: 0
+  REM: P
+  loop X over {1..(#ROLL)}{
+    N: X@ROLL
+    if N >= TN {
+      SUCC: SUCC + 1
+    }
+    else {
+      REQ: TN - N
+      if REQ <= REM {
+        REM: REM - REQ
+        SUCC: SUCC + 1
+      }
+    }
+  }
+  result: SUCC
+}
+function: stress from ROLL:s vs TN:n {
+  STRESS: 0
+  LOWEST: 6
+  loop X over {1..(#ROLL)}{
+    N: X@ROLL
+    if N < LOWEST {
+      LOWEST: N
+    }
+  }
+  if LOWEST > STRESS & LOWEST < TN {
+    STRESS: LOWEST
+  }
+  result: STRESS
+}
+function: successes in ROLL:s vs TN:n with L:n leverage {
+  SUCC: [successes in ROLL vs TN] + [successes in Ld6 vs TN]
+  result: [lowest of SUCC and 6]
+}
+function: new successes in ROLL:s {
+  SUCC: 0
+  loop X over {1..3}{
+    N: X@ROLL
+    if N = 5 {
+      SUCC: SUCC + 1
+    }
+    if N = 6 {
+      SUCC: SUCC + 2
+    }
+  }
+  result: SUCC
+}
+
+TN: 5
+SKILL: 4
+LEVERAGE: 0
+N: SKILL + LEVERAGE
+PUSH: {1d6:(TN-1), {TN..6}}
+
+output [new successes in Nd6]
+
+output [successes in SKILLd6 vs TN] named "[SKILL]d6 vs [TN]"
+output [successes in SKILLdPUSH vs TN] named "[SKILL]d6 vs [TN] (Pushed)"
+
+loop P over {1..3}{
+  output [successes in SKILLd6 vs TN with P points] named "[SKILL]d6 vs [TN] ([P] Stamina)"
+  output [successes in SKILLdPUSH vs TN with P points] named "[SKILL]d6 vs [TN] ([P] Stamina, Pushed)"
+}
+
+output [lowest 1 of SKILLdPUSH] named "Success = 6 Stress"
+output [stress from SKILLdPUSH vs TN] named "Success = 0 Stress"

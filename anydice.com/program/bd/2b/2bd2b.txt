@@ -1,0 +1,72 @@
+\ Functions \
+function: calculate modifier STAT {
+    if STAT >= 10 {
+        result: (STAT - 10) / 2
+    }
+    result: (STAT - 11) / 2
+}
+
+function: cantrip damage modifier CLERIC_LVL WISDOM_MODIFIER {
+    if CLERIC_LVL >= 8 {
+        result: WISDOM_MODIFIER
+    }
+    result: 0
+}
+
+function: cantrip damage LVL DAMAGE_DICE {
+    if (LVL < 5) {
+        result: 1dDAMAGE_DICE
+    }
+    if (LVL < 11) {
+        result: 2dDAMAGE_DICE
+    }
+    if (LVL < 17) {
+        result: 3dDAMAGE_DICE
+    }
+    result: 4dDAMAGE_DICE
+}
+
+function: barbarian attack with WEAPON:n on ARMOR_CLASS with ATTACK_MODIFIER {
+    result: (1d20 + ATTACK_MODIFIER >= ARMOR_CLASS) * (WEAPON + 2)
+}
+
+function: cleric attack with CANTRIP:n on MODIFIER with SAVE_DIFFICULT {
+    result: (1d20 + MODIFIER < SAVE_DIFFICULT) * CANTRIP
+}
+
+
+\ Character stats \
+LVL: 10
+STR_MOD: [calculate modifier 16]
+CON_MOD: [calculate modifier 14]
+WIS_MOD: [calculate modifier 18]
+
+CLERIC_LVL: LVL
+CLERIC_PRO: (CLERIC_LVL - 1) / 4 + 2
+SPELL_DC: 8 + CLERIC_PRO + WIS_MOD
+CANTRIP: [cantrip damage CLERIC_LVL 1d8] + [cantrip damage modifier CLERIC_LVL WIS_MOD]
+
+BARBARIAN_LVL: LVL - 4
+BARBARIAN_PRO: (BARBARIAN_LVL - 1) / 4 + 2
+WEAPON_MOD: STR_MOD + BARBARIAN_PRO
+WEAPON: 1d8 + STR_MOD
+
+
+\ Enemy stats \
+AC: 13
+E_WIS_MOD: [calculate modifier 10]
+
+
+\ Outputs \
+if BARBARIAN_LVL > 0 {
+    if BARBARIAN_LVL >= 5 {
+        output [barbarian attack with WEAPON on AC with WEAPON_MOD] + 
+               [barbarian attack with WEAPON on AC with WEAPON_MOD] named "Barbarian multiattack"
+    }
+    else {
+        output [barbarian attack with WEAPON on AC with WEAPON_MOD] named "Barbarian attack"
+    }
+}
+if (CLERIC_LVL > 0) {
+    output [cleric attack with CANTRIP on E_WIS_MOD with SPELL_DC] named "Cleric cantrip"
+}

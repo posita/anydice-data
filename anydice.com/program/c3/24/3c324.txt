@@ -1,0 +1,43 @@
+function: roll DIE:n {result: DIE}
+function: DIE:n drop LOW {
+  if DIE <= LOW {result: [[maximum of DIE] drop LOW]}
+  result: DIE
+}
+PCSTAT: [highest 3 of 4d[d6 drop 1]]
+function: mod for STAT:n {
+  if STAT >= 10 {result: (STAT-10)/2}
+  if STAT <  10 {result: (STAT-11)/2}
+}
+function: ac with ARM:n weight WT:n str STR:n dex DEX:n add ADD:n with weapon WPN:n prof PROF:n {
+  AC: 5+ARM+WT+STR+PROF+ADD
+  DIF: STR-WT
+  if STR-WT < -1 {result: AC-(STR-WT)}
+  if STR-WT < 0 {result: AC+DEX/2}
+  if STR-WT = 0 {result: AC+DEX}
+  if STR-WT > 0 {result: AC+DEX+[lowest of DEX and (STR-WT)]}
+}
+
+/output [ac with 8 weight 3 str 4 dex 2 add 0 with weapon 1d10 prof 1d4]/
+
+function: grapple check ATK:n with mod ATKMOD:n and prof ATKPROF:n against DEF:n with mod DEFMOD and prof DEFPROF:n {
+  if ATK=20 & DEF=1 {result: 3}
+  if ATK+ATKMOD+ATKPROF > DEF+DEFMOD+DEFPROF {result: 2}
+  if ATK=1 & DEF=20 {result: 0}
+  result: 1
+}
+\output [grapple check 1d20 with mod 3 and prof 1d4 against 1d20 with mod 3 and prof 1d4]\
+
+\output [grapple check 1d20 with mod 3 and prof 1d4 against 1d20 with mod 1 and prof 0]\
+
+function: shortrest song DIE:n plus BONUS:n vs DC:n {
+  if DIE = 20 {result: 1+[shortrest song 1d20 plus BONUS vs DC]}
+  if DIE =  1 {result: -1+[shortrest song 1d20 plus BONUS vs DC]}
+  else if DIE + BONUS >= DC {result: 1}
+  else {result: 0}
+}
+function: extremes POSNEG:n DEGREE:n {
+  if POSNEG > 1 {result: 10+DEGREE}
+  if POSNEG = 1 {result: 11-DEGREE}
+}
+\output [extremes 1d2 [highest 1 of 3d10]]\
+\output [middle 1 of 3d20]\

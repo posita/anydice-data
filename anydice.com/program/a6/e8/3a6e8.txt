@@ -1,0 +1,51 @@
+HAZARD: 1
+SPIN: 2
+SLIDE: 3
+SHIFT: 4
+
+SKID_DIE: 1d{HAZARD,SPIN,SLIDE,SHIFT:3}
+
+function: evaluate skids SKIDS:s IS_TRIVIAL:n{
+ SHIFTS: [count SHIFT in SKIDS] + (IS_TRIVIAL = 1)
+ STUNTS: [count {HAZARD,SPIN,SLIDE} in SKIDS] + (IS_TRIVIAL = -1)
+ EXCESS_SHIFTS: [highest of SHIFTS - STUNTS and 0] 
+ \Prioritise cancelling/removing hazards from Hazard, Spin and Slide results.\
+ HAZARDS: [highest of STUNTS - SHIFTS and 0] + (EXCESS_SHIFTS + 1)/2 - EXCESS_SHIFTS/2 
+ \For every 2 excess Shift results, use the first one to shift up/down and the second to cancel the shift of the first.\
+ result: HAZARDS
+}
+
+function: push it with SKIDS:s towards TARGETS:s IS_TRIVIAL:n {
+ RESULTS_TO_RESOLVE: {}
+ NUM_TO_REROLL: 0
+ loop SKID over SKIDS {
+  if [count SKID in RESULTS_TO_RESOLVE] >= SKID@TARGETS {
+   NUM_TO_REROLL: NUM_TO_REROLL + 1
+  } else {
+   RESULTS_TO_RESOLVE: {RESULTS_TO_RESOLVE, SKID}
+  }
+ }
+ HAZARDS: [evaluate skids RESULTS_TO_RESOLVE IS_TRIVIAL] + [evaluate skids NUM_TO_REROLL 0] + 1
+ result: HAZARDS
+}
+
+loop IS_TRIVIAL over {0,1,-1} {
+
+loop HANDLING over {1..6} {
+ output [evaluate skids HANDLINGdSKID_DIE IS_TRIVIAL] named "[HANDLING] Skid Dice. [IS_TRIVIAL]"
+}
+
+loop HANDLING over {0..5} {
+ ONE_MORE_DIE: HANDLING+1
+ output [evaluate skids ONE_MORE_DIEdSKID_DIE IS_TRIVIAL] - [evaluate skids HANDLINGdSKID_DIE IS_TRIVIAL] named "[ONE_MORE_DIE] Skid Dice vs [HANDLING] Skid Dice. [IS_TRIVIAL]"
+}
+
+loop HANDLING over {1..6} {
+ output [push it with HANDLINGdSKID_DIE towards {0,0,0,5} IS_TRIVIAL] named "Pushing it with [HANDLING] Skid Dice towards all Shifts. [IS_TRIVIAL]"
+}
+
+loop HANDLING over {1..6} {
+ output [push it with HANDLINGdSKID_DIE towards {0,0,0,5} IS_TRIVIAL] - [evaluate skids HANDLINGdSKID_DIE IS_TRIVIAL] named "[HANDLING] Skid Dice, pushing it vs straight roll. [IS_TRIVIAL]"
+}
+
+}

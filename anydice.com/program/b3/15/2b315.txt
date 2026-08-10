@@ -1,0 +1,38 @@
+function: damage A:d if B:n above C:n blocking E:n {
+ if B = 20 {result: [highest of [maximum of A] + A - E and 1]} 
+ if B > C { result: [highest of A - E and 1]}
+ result: 0
+}
+function: damage A:d if B:n above C:n blocking E:n with D:n advantage {
+ if B = 20 | D = 20 {result: [highest of [maximum of A] + A - E and 1]} 
+ if B > C | D > C { result: [highest of A - E and 1]}
+ result: 0
+}
+function: damage A:d if B:n above C:n blocking E:n with D:n disadvantage {
+ if B = 20 & D = 20 {result: [highest of [maximum of A] + A - E and 1]}
+ if B > C & D > C { result: [highest of A - E and 1]}
+ result: 0
+}
+function: damage A:d if B:n above C:n blocking E:n boosted F:n {
+ if B = 20 {result: [highest of [maximum of A] + A - E and 1]} 
+ if B+F > C { result: [highest of A - E and 1]}
+ result: 0
+}
+function: damage A:d if B:n above C:n blocking E:n penalized F:n {
+ if B = 20 {result: [highest of [maximum of A] + A - E and 1]} 
+ if B-F > C { result: [highest of A - E and 1]}
+ result: 0
+}
+
+D: d6 \ the damage die to be rolled on hit and maxed on crit \
+C: 9 \ the difficulty of hitting the enemy, ties fail \ 
+A: 2 \ armor reduction, currently min 1 \
+P: 4 \ Penalty for penalized attacks \
+B: 2 \ Boost for boosted attacks \
+N: d20 \the die being rolled in all of these. modifying will screw up crits \
+
+output [damage D if N above C blocking A]+[damage D if N above C blocking A] named "2 Normal Attacks"
+output [damage D if N above C blocking A with N advantage]+[damage D if N above C blocking A with N disadvantage] named "1 Disadvantage Attack and 1 Advantage Attack"
+output [damage D if N above C blocking A with N disadvantage]+[damage D if N above C blocking A with N disadvantage]+[damage D if N above C blocking A with N disadvantage] named "3 Disadvantage Attacks"
+output [damage D if N above C blocking A boosted B]+[damage D if N above C blocking A penalized P] named "1 Boosted Attack and 1 Penalized Attack"
+output [damage D if N above C blocking A penalized P]+[damage D if N above C blocking A penalized P]+[damage D if N above C blocking A penalized P] named "3 Penalized Attack"

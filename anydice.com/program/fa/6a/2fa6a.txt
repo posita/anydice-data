@@ -1,0 +1,29 @@
+REROLLS: 1
+
+AC: 22
+IN_RECURSION: 0
+
+function: damage A:s plus B:s if above {
+   if A = 20 { result: 4d6 + 4d8 }
+   else if (A + B) >= AC { result: 2d6 + 2d8 }
+   else if REROLLS > 0 & IN_RECURSION = 0 {
+     IN_RECURSION: 1
+     REROLLS: REROLLS - 1
+     Y: {1}@1d19 + 1
+     Z: 10 + 1d4
+     result: [damage Y plus Z if above]
+   } else {
+     result: 0
+   }
+   IN_RECURSION: 0
+}
+
+
+DAMAGE: 0
+X: {1}@1d19 + 1
+R: 10 + 1d4
+loop N over {1..6}{
+  DAMAGE: DAMAGE + [damage X plus R if above]
+}
+output DAMAGE
+

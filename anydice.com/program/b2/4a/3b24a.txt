@@ -1,0 +1,65 @@
+function: successes in ROLL:s vs TN:n {
+  result: [count {TN..6} in ROLL]
+}
+function: duds in ROLL:s vs TN:n {
+  result: [count {1..TN-1} in ROLL]
+}
+
+function: successes in ROLL:s vs TN:n with P:n points {
+  SUCC: 0
+  REM: P
+  loop X over {1..(#ROLL)}{
+    N: X@ROLL
+    if N >= TN {
+      SUCC: SUCC + 1
+    }
+    else {
+      REQ: TN - N
+      if REQ <= REM {
+        REM: REM - REQ
+        SUCC: SUCC + 1
+      }
+    }
+  }
+  result: SUCC
+}
+function: stress from ROLL:s vs TN:n {
+  STRESS: 0
+  LOWEST: 6
+  loop X over {1..(#ROLL)}{
+    N: X@ROLL
+    if N < LOWEST {
+      LOWEST: N
+    }
+  }
+  if LOWEST > STRESS & LOWEST < TN {
+    STRESS: LOWEST
+  }
+  result: STRESS
+}
+function: successes in ROLL:s vs TN:n with L:n leverage {
+  SUCC: [successes in ROLL vs TN] + [successes in Ld6 vs TN]
+  result: [lowest of SUCC and 6]
+}
+function: new successes in ROLL:s {
+  SUCC: 0
+  loop X over {1..3}{
+    N: X@ROLL
+    if N = 5 {
+      SUCC: SUCC + 1
+    }
+    if N = 6 {
+      SUCC: SUCC + 2
+    }
+  }
+  result: SUCC
+}
+
+SKILL: 4
+LEVERAGE: 0
+N: SKILL + LEVERAGE
+NORM: {0:4, 1, 2}
+PUSH: {1dNORM:4, 1, 2}
+
+output [highest 3 of NdNORM] named "[N]d6 5=1;6=2"
+output [highest 3 of NdPUSH] named "[N]d6 5=1;6=2, Pushed"

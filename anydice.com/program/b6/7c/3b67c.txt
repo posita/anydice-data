@@ -1,0 +1,95 @@
+function: attack damage ROLL:n TO_HIT:n DMG_DICE:d DMG_MOD:n CRIT_BONUS:d AC:n {
+if (ROLL + TO_HIT >= AC + 10 & ROLL != 1) | (ROLL = 20 & ROLL + TO_HIT >= AC) {result: 2*(DMG_DICE + DMG_MOD) + CRIT_BONUS}
+if (ROLL + TO_HIT >= AC & ROLL != 1) | (ROLL = 20 & ROLL + TO_HIT > AC - 10) {result: DMG_DICE + DMG_MOD}
+result: 0}
+
+function: hit with INDEX:n at LEVEL:n against AC:n {
+  if INDEX = 1 { \ shortsword \
+    result: [attack damage d20 [to hit martial LEVEL] [striking LEVEL]d6 [precise strike LEVEL] + [strength LEVEL] 0 AC]
+  }
+  if INDEX = 2 { \ aldori dueling sword without feats \
+    result: [attack damage d20 [to hit advanced without feat LEVEL] [striking LEVEL]d8 [precise strike LEVEL] + [strength LEVEL] 0 AC]
+  }
+  if INDEX = 3 { \ aldori dueling sword with weapon proficiency \
+    result: [attack damage d20 [to hit advanced with prof feat LEVEL] [striking LEVEL]d8 [precise strike LEVEL] + [strength LEVEL] 0 AC]
+  }
+  if INDEX = 4 { \ rapier \
+    result: [attack damage d20 [to hit martial LEVEL] [striking LEVEL]d6 [precise strike LEVEL] + [strength LEVEL] [deadly striking LEVEL]d8 AC]
+  }
+}
+
+function: to hit martial LVL:n {
+  if LVL >= 13 {result: 6 + LVL + [dex LVL]}
+  if LVL >= 5 {result: 4 + LVL + [dex LVL]}
+  result: 2 + LVL + [dex LVL]
+}
+
+function: to hit advanced without feat LVL:n {
+  result: [dex LVL]
+}
+
+function: to hit advanced with prof feat LVL:n {
+  if LVL >= 11 {result: 4 + LVL + [dex LVL]}
+  if LVL >= 3 {result: 2 + LVL + [dex LVL]}
+  result: [dex LVL]
+}
+
+function: precise strike LVL:n {
+  if LVL >= 17 {result: 6}
+  if LVL >= 13 {result: 5}
+  if LVL >= 9 {result: 4}
+  if LVL >= 5 {result: 3}
+  result: 2
+}
+
+function: strength LVL:n {
+  if LVL >= 20 {result: 5}
+  if LVL >= 10 {result: 4}
+  if LVL >= 5 {result: 3}
+  result: 2
+}
+
+function: dex LVL:n {
+  if LVL >= 10 {result: 5}
+  result: 4
+}
+
+function: striking LVL:n {
+  if LVL >= 19 {result: 4}
+  if LVL >= 12 {result: 3}
+  if LVL >= 4 {result: 2}
+  result: 1
+}
+
+function: deadly striking LVL:n {
+  if LVL >= 19 {result: 3}
+  if LVL >= 12 {result: 2}
+  if LVL >= 4 {result: 1}
+  result: 1
+}
+
+function: low ac LVL:n {
+  result: 12 + LVL + LVL/2
+}
+
+function: moderate ac LVL:n {
+  result: [low ac LVL] + 2
+}
+
+function: high ac LVL:n {
+  result: [low ac LVL] + 3
+}
+
+function: extreme ac LVL:n {
+  result: [low ac LVL] + 6
+}
+
+MAX_LEVEL: 8
+
+loop LEVEL over {1..MAX_LEVEL}{
+  output [hit with 3 at LEVEL against [moderate ac LEVEL]] named "Aldori dueling sword at level [LEVEL] with feat once possible"
+}
+
+loop LEVEL over {1..MAX_LEVEL}{
+  output [hit with 4 at LEVEL against [moderate ac LEVEL]] named "rapier at level [LEVEL]"
+}

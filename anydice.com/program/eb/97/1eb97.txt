@@ -1,0 +1,70 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+
+TARGET: 17
+
+
+output [attack [highest 1 of 3d20] plus 7 vs TARGET for 1d8 + 4 + 3d6 crit 1d8 + 3d6 on 20] named "lvl 5 Rogue: Longbow with Elven Accuracy" 
+
+output [attack [highest 1 of 3d20] plus 7 vs TARGET for 2d8 + 4 + 3d6 crit 2d8 + 3d6 on 20] named "lvl 5 Rogue: Booming Blade with Elven Accuracy"
+
+output [attack d20 plus 6 vs TARGET for [reroll 1 on d10 to d10] + 3 crit [reroll 1 on d10 to d10] on 20] + [attack d20 plus 6 vs TARGET for [reroll 1 on d10 to d10] + 3 crit [reroll 1 on d10 to d10] on 20] + [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 crit [reroll 1 on d4 to d4] on 20] named "lvl 5 Paladin: PAM GWF normal attacks"
+
+output
+[multiattack d20 plus 6 vs TARGET
+    hit  [reroll 1 on d10 to d10] + 3 + 3d8 + [multiattack d20 plus 6 vs TARGET 
+        hit [reroll 1 on d10 to d10] + 3 + 3d8 + [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 + 2d8 crit [reroll 1 on d4 to d4] + 2d8 on 20] 
+        miss [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 + 3d8 crit [reroll 1 on d4 to d4] + 3d8 on 20]
+        crit [reroll 1 on d10 to d10] + [reroll 1 on d10 to d10] + 3 + 6d8 + [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 + 2d8 crit [reroll 1 on d4 to d4] + 2d8 on 20] on 20]
+
+    miss   [attack d20 plus 6 vs TARGET for [reroll 1 on d10 to d10] + 3d8 + 3 crit [reroll 1 on d10 to d10] + 3d8 on 20] + [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 + 3d8 crit [reroll 1 on d4 to d4] + 3d8 on 20]
+
+
+    crit [reroll 1 on d10 to d10] + [reroll 1 on d10 to d10] + 3 + 6d8 + [multiattack d20 plus 6 vs TARGET 
+        hit [reroll 1 on d10 to d10] + 3 + 3d8 + [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 + 2d8 crit [reroll 1 on d4 to d4] + 2d8 on 20] 
+        miss [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 + 3d8 crit [reroll 1 on d4 to d4] + 3d8 on 20]
+        crit [reroll 1 on d10 to d10] + [reroll 1 on d10 to d10] + 3 + 6d8 + [attack d20 plus 6 vs TARGET for [reroll 1 on d4 to d4] + 3 + 2d8 crit [reroll 1 on d4 to d4] + 2d8 on 20]on 20] on 20
+] named "lvl 5 Paladin: PAM GWF and max smites"
+

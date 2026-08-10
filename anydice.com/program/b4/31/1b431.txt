@@ -1,0 +1,104 @@
+set "explode depth" to 10
+output 1d [explode d4] named "1d total Explosion"
+
+set "explode depth" to 2
+output 2d [explode d4] named "2d 2x Explosion"
+
+function: maximize with pair R:s {
+ H: 1@R
+ L: 3@R
+ 
+ if H = L & H <= 2 {
+  \ triple, reroll pair \
+  result: 2d4 + L
+ }
+ 
+ if 2@R = L {
+  \ low pair \
+  if L <= 2 {
+   \ reroll pair \
+   result: H + 2d4
+  }
+  if H <= 2 {
+   \ reroll single \
+   result: 1d4 + L + L
+  }
+ }
+ 
+ if H = 2@R {
+  \ high pair \
+  if L <= 2 {
+   \ reroll single \
+   result: H + H + 1d4
+  }
+  if H <= 2 {
+   \ reroll pair \
+   result: 2d4 + L
+  }
+ }
+ 
+ \ no pair or no reroll \
+ result: R
+}
+
+function: minimize with pair R:s {
+ H: 1@R
+ L: 3@R
+ 
+ if H = L & H > 2 {
+  \ triple, reroll pair \
+  result: 2d4 + L
+ }
+ 
+ if H = 2@R {
+  \ high pair \
+  if H > 2 {
+   \ reroll pair \
+   result: 2d4 + L
+  }
+  if L > 2 {
+   \ reroll single \
+   result: H + H + 1d4
+  }
+ }
+ 
+ if 2@R = L {
+  \ low pair \
+  if H > 2 {
+   \ reroll single \
+   result: 1d4 + L + L
+  }
+  if L > 2 {
+   \ reroll pair \
+   result: H + 2d4
+  }
+ }
+ 
+ \ no pair or no reroll \
+ result: R
+}
+
+output [minimize with pair 3d4] named "minimize"
+output [maximize with pair 3d4] named "maximize"
+
+
+function: add A to B to C to D to E {result: A + B + C + D + E}
+A: d{-1, 2, 3, 4}
+B: d{-1, 2, 3, 4}
+C: d{-1, 2, 3, 4}
+D: d{1, 2, 3, 4}
+E: d{1, 2, 3, 4}
+output A + B + C + D + E
+
+function: add A to B to C to D to E to F {result: A + B + C + D + E + F}
+A: d{-1, 2, 3, 4}
+B: d{-1, 2, 3, 4}
+C: d{-1, 2, 3, 4}
+D: d{-1, 2, 3, 4}
+E: d{-1, 2, 3, 4}
+F: d{-1, 2, 3, 4}
+output A + B + C + D + E + F
+
+
+
+

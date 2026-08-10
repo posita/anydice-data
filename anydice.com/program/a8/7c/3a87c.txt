@@ -1,0 +1,22 @@
+function: attackdam ATT_DIE:n ADDITIONAL_ATT_DIE:n TO_HIT_BASE:n DAMAGE_DIE:n BASE_DAM:n TARGET_AC:n {
+  if ATT_DIE = 20 {result: DAMAGE_DIE + DAMAGE_DIE + BASE_DAM}
+  if ATT_DIE = 1 {result: 0}
+  if ATT_DIE + TO_HIT_BASE + ADDITIONAL_ATT_DIE > TARGET_AC {result: DAMAGE_DIE + BASE_DAM}
+  result: 0
+}
+
+function: gethigh A:n B:n {
+  if A > B {result: A}
+  result: B
+}
+
+TARGET_AC: 18
+TO_HIT_BASE: 11
+BASE_DAM: 8
+DAMAGE_DIE: 1d8
+ATT_DIE: 1d20
+
+output [attackdam ATT_DIE 0 (TO_HIT_BASE - 5) DAMAGE_DIE (BASE_DAM + 10) TARGET_AC] named "-5+10"
+output [attackdam ATT_DIE 1d4 (TO_HIT_BASE - 5) DAMAGE_DIE (BASE_DAM + 10) TARGET_AC] named "blessed -5+10"
+output [attackdam [gethigh ATT_DIE ATT_DIE] 0 (TO_HIT_BASE - 5) DAMAGE_DIE (BASE_DAM + 10) TARGET_AC] named "adv -5+10"
+output [attackdam [gethigh ATT_DIE ATT_DIE] 1d4 (TO_HIT_BASE - 5) DAMAGE_DIE (BASE_DAM + 10) TARGET_AC] named "adv blessed -5+10"

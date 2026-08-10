@@ -1,0 +1,45 @@
+\ Compare Improved Critical v Weapon Specialization \
+
+
+\ function to determine if an attack hits, misses or crits \
+function: damage DMG from ATTACKMOD with CRITRANGE and CONFIRMMOD against AC {
+
+\ STRANGE DICE TO USE LATER \
+\ Build a miss die (d20 with all 0s) \
+MISSDIE: {0dDMG:20}
+
+\ Build a hit die (d20 with all 1s) \
+HITDIE: {1dDMG:20}
+
+\ The number needed to roll to hit \
+TARGET: AC - ATTACKMOD  
+
+\ how many numbers on the d20 will be a miss \
+MISS: [lowest of 19 and [highest of 0 and TARGET-1]] 
+
+\ not counting a natural 20, and ignoring criticals, how many numbers on the d20 will be a hit \
+HIT: 20-MISS
+
+\ Build the critical confirmation dice (d20 with 1s for a normal hit and 2s for a critical) \
+CONFIRMDIE: {1:[highest of 0 and MISS - CONFIRMMOD]dDMG, 2:[lowest of 20 and HIT + CONFIRMMOD]dDMG}
+
+\ Build the threat range, how many ways can you generate a critical threat that are not a natural 20 \
+THREATRANGE: [lowest of CRITRANGE and HIT]
+
+\ Remove threatrange from hit chances \
+HIT: [highest of 0 and HIT - THREATRANGE]
+
+\ Create the result die - a 400 sided die (d20 x d20) with 0s for a miss, 1s for a normal hit and 2s for a confirmed critical \
+result: {MISSDIE:MISS, HITDIE:HIT, CONFIRMDIE:THREATRANGE}
+}
+
+\ INPUTS \
+ATTACKMOD: +10
+CRITRANGE: 3
+CONFIRMMOD: 2
+DMG: 1d6+2
+NONCRITDMG: 3d6
+DAMAGEMOD: +2
+AC: 20
+
+output [damage DMG from ATTACKMOD with CRITRANGE and CONFIRMMOD against AC] named "Improved Critical"

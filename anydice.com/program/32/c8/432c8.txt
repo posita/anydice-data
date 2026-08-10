@@ -1,0 +1,28 @@
+R: d{0,0,1}
+
+function: gate FIRST:n plus REST:n {
+  if FIRST = 0 { result: 0 }
+  result: FIRST + REST d R
+}
+
+function: resolve N:n dis D:n {
+  result: [gate ((N - D) d R) plus D]
+}
+
+\ 0 fail, 1 partial, 2 full, 3+ crit \
+function: tier T:n {
+  if T >= 3 { result: 3 }
+  result: T
+}
+
+function: tiered N:n dis D:n {
+  result: [tier [resolve N dis D]]
+}
+
+output [tiered 2 dis 0] named "2 +0 -0"
+output [tiered 3 dis 0] named "2 +1 -0"
+output [tiered 4 dis 0] named "2 +2 -0"
+output [tiered 3 dis 1] named "2 +1 -1"
+output [tiered 4 dis 1] named "2 +2 -1"
+output [tiered 4 dis 2] named "2 +2 -2"
+output [tiered 6 dis 2] named "2 +4 -2"

@@ -1,0 +1,48 @@
+MISS:0
+HIT:1
+CRITICALHIT:2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = {19, 20} {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: advattack {
+ result: [damage for [attack [highest 2 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{28}
+
+ATTACK: 7
+HITDAMAGE: 1d10 + 4
+CRITICALDAMAGE: 2d10 + 4
+MISSDAMAGE: 0
+output 2d[attack] named "Eldritch Blast"
+
+ATTACK: 7
+HITDAMAGE: 2d8+4
+CRITICALDAMAGE: 4d8+4
+output [attack] named "Green Flame Shillelagh"
+
+ATTACK: 7
+HITDAMAGE: 3d8+8
+CRITICALDAMAGE: 5d8+8
+output [attack] named "Green Flame Shillelagh + second target"

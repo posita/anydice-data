@@ -1,0 +1,32 @@
+
+\-- Deflect Attacks: Reflect Attack --\
+
+MONK_LEVEL: 3
+DEXTERITY: 16
+WISDOM: 16
+
+
+PROF_BONUS: (MONK_LEVEL - 1)/4  + 2
+WIS_MOD: (WISDOM/2 - 5)
+DEX_MOD: (DEXTERITY/2 - 5)
+SAVE_DC: 8 + WIS_MOD + PROF_BONUS
+
+function: martial arts die LEVEL:n{
+  if LEVEL <= 4 {result: d6}
+  if LEVEL <= 10 {result: d8}
+  if LEVEL <= 16 {result: d10}
+  result: d12
+}
+
+DMG_DICE: (2d[martial arts die MONK_LEVEL] + DEX_MOD) * (MONK_LEVEL >= 3)
+
+function: saving throw ROLL:n{
+  if ROLL < SAVE_DC {result: DMG_DICE}
+  result: 0
+}
+
+loop MOD over {SAVE_DC-21..SAVE_DC-1}{
+  ROLL: d20 + MOD
+  if MOD < 0 {output [saving throw ROLL] named  "[MOD] DEX Save"}
+  else       {output [saving throw ROLL] named "+[MOD] DEX Save"}
+}

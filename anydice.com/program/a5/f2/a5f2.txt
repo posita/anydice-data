@@ -1,0 +1,43 @@
+function: attack ROLL:n DEX:n PROF BONUS DAM_DIE MIN_CRIT AC:n {
+ if ROLL=1 {result:0}
+ if ROLL>=MIN_CRIT {result:DAM_DIE+DAM_DIE+DEX+BONUS}
+ if ROLL+DEX+PROF>=AC {result:DAM_DIE+DEX+BONUS}
+ result:0
+}
+
+function: gfb ROLL:n DEX:n PROF BONUS DAM_DIE MIN_CRIT INT:n LEVEL AC:n {
+ if ROLL=1 {result:0}
+ if ROLL>=MIN_CRIT {result:DAM_DIE+DAM_DIE+DEX+BONUS+LEVELd8+LEVELd8+INT}
+ if ROLL+DEX+PROF>=AC {result:DAM_DIE+DEX+BONUS+LEVELd8+LEVELd8+INT}
+ result:0
+}
+
+function: tc ROLL:n INT:n PROF TARGETS:n LEVEL SAVE:n {
+ SUM:0
+ loop N over {1..TARGETS}{
+  if ROLL+SAVE<8+INT+PROF {SUM:SUM+(1+LEVEL)d6}
+ }
+ result:SUM
+}
+
+AC_RANGE: 1d5+11    \ MONSTER AC 12 to 16 \
+SAVE_RANGE: 1d5-2   \ MONSTER CON SAVE -1 to +3 \
+D:1d3+2             \ PLAYER DEX +3 to +5 \
+I:1d3+2             \ PLAYER INT +3 to +5 \
+T:3                 \ TC TARGETS \
+B:0                 \ BONUS DAMAGE ON ATTACKS (DUELING FIGHTING STYLE) \
+
+output [gfb 1d20 D 2 B 1d8 20 I 0 AC_RANGE] named "lv3 GFB"
+output [tc 1d20 I 2 T 0 SAVE_RANGE] named "lv3 TC"
+
+output [gfb 1d20 D 3 B 1d8 20 I 1 AC_RANGE] named "lv5 GFB"
+output [tc 1d20 I 3 T 1 SAVE_RANGE] named "lv5 TC"
+
+output [gfb 1d20 D 3 B 1d8 20 I 1 AC_RANGE]+[attack 1d20 D 3 B 1d8 20 AC_RANGE] named "lv7 GFB"
+output [tc 1d20 I 3 T 1 SAVE_RANGE]+[attack 1d20 D 3 B 1d8 20 AC_RANGE] named "lv7 TC"
+
+output [gfb 1d20 D 4 B 1d8 20 I 2 AC_RANGE]+[attack 1d20 D 4 B 1d8 20 AC_RANGE] named "lv11 GFB"
+output [tc 1d20 I 4 T 2 SAVE_RANGE]+[attack 1d20 D 4 B 1d8 20 AC_RANGE] named "lv11 TC"
+
+output [gfb 1d20 D 6 B 1d8 20 I 3 AC_RANGE]+[attack 1d20 D 6 B 1d8 20 AC_RANGE] named "lv17 GFB"
+output [tc 1d20 I 6 T 3 SAVE_RANGE]+[attack 1d20 D 6 B 1d8 20 AC_RANGE] named "lv17 TC"

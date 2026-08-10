@@ -1,0 +1,51 @@
+\ Attack Sequence \
+
+\ Hit Values \
+A: 1 	\ # Attacks \
+H: 2 	\ Hit Roll Target \
+HR: 0   \ Hit Re-Roll \
+W: 2 	\ Wound Roll Target \
+WR: 0   \ Wound Re-Roll \
+S: 6 	\ Save Roll Target \
+D: 1 	\ Damage \
+DS: 2   \ Damage if Wound Roll is Six \
+F: 7	\ Feel No Pain Roll Target \
+
+
+function: hit TO_HIT:s HREROLL:s {
+	if TO_HIT <= HR {result: HREROLL >= H} 
+        result: TO_HIT >= H
+}
+
+function: wound TO_WOUND:s WREROLL:s {
+	if TO_WOUND <= WR {result: WREROLL >= W} 
+        result: TO_WOUND >= W
+}
+
+\ Replaces fixed damage with wound roll result that will still be 0 if the gatekeeper fails. \
+function: woundsix TO_WOUND:s WREROLL:s {
+	if TO_WOUND <= WR {
+		if WREROLL = 6 {result: DS}
+		if WREROLL >= W {result: D}
+		result: 0} 
+        if TO_WOUND = 6 {result: DS}
+	if TO_WOUND >= W {result: D}
+        result: 0
+}
+
+function: save TO_SAVE:s {
+	result: TO_SAVE < S
+}
+
+function: gate HR:s WR:s SR:s D:s {
+	result: HR * WR * SR * D
+}
+
+function: fnp DICE:s{
+	if DICE < F {result: 1}
+	result: 0
+}
+
+output Ad[gate [hit 1d6 1d6] [wound 1d6 1d6] [save 1d6] D]d[fnp  1d6] named "[A] Attacks, [H]+ To Hit w/ Re-Roll at <=[HR], [W]+ To Wound w/ Re-Roll at <=[WR], [S]+ Save, [D] Damage, [F]+ FNP"
+
+output Ad[gate [hit 1d6 1d6] [woundsix 1d6 1d6] [save 1d6] 1]d[fnp  1d6] named "[A] Attacks, [H]+ To Hit w/ Re-Roll at <=[HR], [W]+ To Wound w/ Re-Roll at <=[WR], [S]+ Save, [D] Damage, [DS] Damage on Wound Roll of Six, [F]+ FNP"

@@ -1,0 +1,239 @@
+\START PARAMETERS\
+
+MOD: 4 \Relevant Ability Score Modifier\
+AC: 16 \Target's AC\
+TMOD: 1 \Target's Saving Throw Modifier\
+SSL: 5 \Spell Slot Level\
+
+BBLVL: 0 \Barbarian Level\
+BDLVL: 0 \Bard Level\
+CLLVL: 0 \Cleric Level\
+DRLVL: 0 \Druid Level\
+FILVL: 5 \Fighter Level\
+MOLVL: 0 \Monk Level\
+PALVL: 0 \Paladin Level\
+RALVL: 0 \Ranger Level\
+ROLVL: 0 \Rogue Level\
+SOLVL: 0 \Sorcerer Level\
+WALVL: 0 \Warlock level\
+WILVL: 0 \Wizard level\
+
+\Enter 1 for true, 0 for false\
+CHAMP: 0 \Champion\
+COV: 0 \College of Valor\
+ADV: 0 \Advantage on attacks, disadvantage to target saves\
+RAGE: 0 \Rage active\
+BATT: 0 \Bonus Attack\
+SA: 0 \Sneak Attack active\
+BLESS: 0 \Bless active\
+
+\END OF PARAMETERS\
+
+LVL: BBLVL + BDLVL + CLLVL + DRLVL + FILVL + MOLVL + PALVL + RALVL + ROLVL + SOLVL + WALVL + WILVL
+
+function: prof A{
+if A<5 {result: 2}
+if A<9 {result: 3}
+if A<13 {result: 4}
+if A<17 {result: 5}
+result: 6
+}
+
+SATT: BBLVL>=5 | (BDLVL>=6 & COV) | FILVL>=5 | MOLVL>=5 | PALVL>=5 | RALVL>=5
+TATT: FILVL>=11
+FATT: FILVL=20
+
+\Spell Save DC\
+DC: 8 + [prof LVL] + MOD
+function: bc A {
+if LVL<9 {result: 0}
+if LVL<13 {result: 1}
+if LVL<17 {result: 2}
+result: 3
+}
+if ADV = 1{
+ \Normal Hit Rate\
+ HIT: (d20 + MOD + [prof LVL] + (1d4)*BLESS >= AC) | (d20 + MOD + [prof LVL] + (1d4)*BLESS >= AC)
+ \Barbarian Capstone Hit Rate\
+ BHIT: d20 + MOD + [prof LVL] + 2*(BBLVL = 20) + (1d4)*BLESS >= AC | d20 + MOD + [prof LVL] + 2*(BBLVL = 20) + (1d4)*BLESS >= AC
+ \Archery FS Hit Rate\
+ ARC: d20 + MOD + [prof LVL] + 2 + (1d4)*BLESS >= AC | d20 + MOD + [prof LVL] + 2 + (1d4)*BLESS >= AC
+ \Power Attack Hit Rate\
+ PHIT: d20 + MOD + [prof LVL] - 5 + (1d4)*BLESS >= AC | d20 + MOD + [prof LVL] - 5 + (1d4)*BLESS >= AC
+ \Barbarian Power Attack Hit Rate\
+ BPHIT: d20 + MOD + [prof LVL] - 5 + 2*(BBLVL = 20) + (1d4*BLESS) >= AC | d20 + MOD + [prof LVL] - 5 + 2*(BBLVL = 20) + (1d4*BLESS) >= AC
+ \Power Attack Archery Hit Rate\
+ PARC: d20 + MOD + [prof LVL] - 3 + (1d4)*BLESS >= AC | d20 + MOD + [prof LVL] - 3 + (1d4)*BLESS >= AC
+ \Spell Save Hit Rate\
+ MHIT: d20 + TMOD < DC & d20 + TMOD < DC
+ \Normal Crits\
+ X: (d20 = 20 | d20 = 20)*(SA + 1) + 1
+ XGS: (d20 = 20 | d20 = 20)*(SA + 1) + 2
+ \Barbarian Crits\
+ BX: (d20 = 20 | d20 = 20)*(SA + [bc LVL] + 1) + 1
+ \Barbarian Great Sword Crits\
+ BXGS: (d20 = 20 | d20 = 20)*(SA + [bc LVL] + 1) + 2
+ if LVL < 3 {
+  \Champion Crits\
+  CX: (d20 >= 20 | d20 >= 20)*(SA + 1) + 1
+  \Champion Great Sword Crits\
+  CXGS: (d20 >= 20 | d20 >= 20)*(SA + 1) + 2
+ }
+ else {
+  if LVL < 15 {
+  \Champion Crits\
+   CX: (d20 >= 19 | d20 >= 19)*(SA + 1) + 1
+  \Champion Great Sword Crits\
+   CXGS: (d20 >= 19 | d20 >= 19)*(SA + 1) + 2
+  }
+  else {
+  \Champion Crits\
+   CX: (d20 >= 18 | d20 >= 18)*(SA + 1) + 1
+  \Champion Great Sword Crits\
+   CXGS: (d20 >= 18 | d20 >= 18)*(SA + 1) + 2
+  }
+ }
+}
+else if ADV = 0{
+ HIT: d20 + MOD + [prof LVL] + (1d4)*BLESS >= AC
+ BHIT: d20 + MOD + [prof LVL] + 2*(BBLVL = 20) + (1d4)*BLESS >= AC
+ ARC: d20 + MOD + [prof LVL] + 2 + (1d4)*BLESS >= AC
+ PHIT: d20 + MOD + [prof LVL] - 5 + (1d4)*BLESS >= AC
+ BPHIT: d20 + MOD + [prof LVL] - 5 + 2*(BBLVL = 20) + (1d4)*BLESS >= AC
+ PARC: d20 + MOD + [prof LVL] - 3 + (1d4)*BLESS >= AC
+ X: (d20 = 20)*(SA + 1) + 1
+ XGS: (d20 = 20)*(SA + 1) + 2
+ BX: (d20 = 20)*(SA + [bc LVL] + 1) + 1
+ BXGS: (d20 = 20)*(SA + [bc LVL] + 1) + 2
+ MHIT: d20 + TMOD < DC
+ if LVL < 3 {
+  CX: (d20 >= 20)*(SA + 1) + 1
+  CXGS: (d20 >= 20)*(SA + 1) + 2
+ }
+ else {
+  if LVL < 15 {
+   CX: (d20 >= 19)*(SA + 1) + 1
+   CXGS: (d20 >= 19)*(SA + 1) + 2
+  }
+  else {
+   CX: (d20 >= 18)*(SA + 1) + 1
+   CXGS: (d20 >= 18)*(SA + 1) + 2
+  }
+ }
+}
+else if ADV = -1{
+ HIT: (d20 + MOD + [prof LVL] + (1d4)*BLESS >= AC) & (d20 + MOD + [prof LVL] + (1d4)*BLESS >= AC)
+ BHIT: d20 + MOD + [prof LVL] + 2*(BBLVL = 20) + (1d4)*BLESS >= AC & d20 + MOD + [prof LVL] + 2*(BBLVL = 20) + (1d4)*BLESS >= AC
+ ARC: d20 + MOD + [prof LVL] + 2 + (1d4)*BLESS >= AC & d20 + MOD + [prof LVL] + 2 + (1d4)*BLESS >= AC
+ PHIT: d20 + MOD + [prof LVL] - 5 + (1d4)*BLESS >= AC & d20 + MOD + [prof LVL] - 5 + (1d4)*BLESS >= AC
+ BPHIT: d20 + MOD + [prof LVL] - 5 + 2*(BBLVL = 20) + (1d4)*BLESS >= AC & d20 + MOD + [prof LVL] - 5 + 2*(BBLVL = 20) + (1d4)*BLESS >= AC
+ PARC: d20 + MOD + [prof LVL] - 3 + (1d4)*BLESS >= AC & d20 + MOD + [prof LVL] - 3 + (1d4)*BLESS >= AC
+ X: (d20 = 20 & d20 = 20)*(SA + 1) + 1
+ XGS: (d20 = 20 & d20 = 20)*(SA + 1) + 2
+ BX: (d20 = 20 & d20 = 20)*(SA + [bc LVL] + 1) + 1
+ BXGS: (d20 = 20 & d20 = 20)*(SA + [bc LVL] + 1) + 2
+ MHIT: d20 + TMOD < DC | d20 + TMOD < DC
+ if LVL < 3 {
+  CX: (d20 >= 20 & d20 >= 20)*(SA + 1) + 1
+  CXGS: (d20 >= 20 & d20 >= 20)*(SA + 1) + 2
+ }
+ else {
+  if LVL < 15 {
+   CX: (d20 >= 19 & d20 >= 19)*(SA + 1) + 1
+   CXGS: (d20 >= 19 & d20 >= 19)*(SA + 1) + 2
+  }
+  else {
+   CX: (d20 >= 18 & d20 >= 18)*(SA + 1) + 1
+   CXGS: (d20 >= 18 & d20 >= 18)*(SA + 1) + 2
+  }
+ }
+}
+\Sneak Attack Dice\
+SX: (LVL+1)/2
+GWFA: {1..12,3..12}
+GWFP: {1..10,3..10}
+GWFS: {1..6,3..6}
+GWFB: {1..4,3,4}
+function: rage A{
+if RAGE=0 {result: 0}
+if A<9 {result: 2}
+if A<16 {result: 3}
+result: 4
+}
+function: monk A{
+if A<5 {result: 4}
+if A<11 {result: 6}
+if A<17 {result: 8}
+result: 10
+}
+HLS: 0
+\STANDARD ATTACKS\
+
+\Dueling\
+output (Xd8 + MOD + 2)*HIT + (Xd8 + MOD + 2)*HIT*(SATT) + (Xd8 + MOD + 2)*HIT*(TATT) + (Xd8 + MOD + 2)*HIT*(FATT) named "Dueling"
+
+\Great Weapon Fighting (d12)\
+output (XdGWFA + MOD)*HIT + (XdGWFA + MOD)*HIT*(SATT) + (XdGWFA + MOD)*HIT*(TATT) + (XdGWFA + MOD)*HIT*(FATT) named "Great Weapon Fighting (d12)"
+
+\Great Weapon Fighting (2d6)\
+output (XGSdGWFS + MOD)*HIT + (XGSdGWFS + MOD)*HIT*(SATT) + (XGSdGWFS + MOD)*HIT*(TATT) + (XGSdGWFS + MOD)*HIT*(FATT) named "Great Weapon Fighting (2d6)"
+
+\Archery (Longbow)\
+output (Xd8 + MOD)*ARC + (Xd8 + MOD)*ARC*(SATT) + (Xd8 + MOD)*ARC*(TATT) + (Xd8 + MOD)*ARC*(FATT) named "longbow"
+
+\BARBARIAN\
+
+\Barbarian, Two Weapon Fighting\
+output (BXd6 + MOD + [rage LVL])*HIT + (BXd6 + MOD*BATT + [rage LVL])*HIT + (BXd6 + MOD + [rage LVL])*HIT*(SATT) named "barb TWF STR"
+
+\Barbarian, Sword'n'Board\
+output (BXd8 + MOD + [rage LVL])*HIT + (BXd6 + MOD + [rage LVL])*HIT*BATT + (BXd8 + MOD + [rage LVL])*HIT*(SATT) named "barb sword'n'board"
+
+\Barbarian, Greataxe\
+output (BXd12 + MOD + 2*(LVL >= 20) + [rage LVL])*BHIT + (BXd12 + MOD + 2*(LVL >= 20) + [rage LVL])*BHIT*BATT + (BXd12 + MOD + 2*(LVL >= 20) + [rage LVL])*BHIT*(SATT) named "barb greataxe"
+
+\Barbarian, Greatsword\
+output (BXGSd6 + MOD + 2*(LVL = 20) + [rage LVL])*BHIT + (BXGSd6 + MOD + 2*(LVL = 20) + [rage LVL])*BHIT*BATT + (BXGSd6 + MOD + 2*(LVL = 20) + [rage LVL])*BHIT*(SATT) named "barb greatsword"
+
+\FIGHTER - CHAMPION\
+
+\Champion, Two Weapon Fighting\
+output (CXd6 + MOD)*HIT + (CXd6 + MOD)*HIT + (CXd6 + MOD)*HIT*(SATT) + (CXd6 + MOD)*HIT*(TATT) + (CXd6 + MOD)*HIT*(FATT) named "champ TWF"
+
+\Champion, Sword'n'Board\
+output (CXd8 + MOD + 2)*HIT + (CXd8 + MOD + 2)*HIT*(SATT) + (CXd6 + MOD + 2)*HIT*(TATT) + (CXd6 + MOD + 2)*HIT*(FATT) named "champ sword'n'board"
+
+\Champion, Great Weapon Fighting, Greataxe\
+output (CXdGWFA + MOD)*HIT + (CXdGWFA + MOD)*HIT*(SATT) + (CXdGWFA + MOD)*HIT*(TATT) + (CXdGWFA + MOD)*HIT*(FATT) named "champ greataxe"
+
+\Champion, Great Weapon Fighting, Greatsword\
+output (CXGSdGWFS + MOD)*HIT + (CXGSdGWFS + MOD)*HIT*(SATT) + (CXGSdGWFS + MOD)*HIT*(TATT) + (CXGSdGWFS + MOD)*HIT*(FATT) named "champ greatsword"
+
+\Champion, Longbow\
+output (CXd8 + MOD)*ARC + (CXd8 + MOD)*ARC*(SATT) + (CXd8 + MOD)*ARC*(TATT) + (CXd8 + MOD)*ARC*(FATT) named "champ longbow"
+
+\MONK\
+
+\Monk, Barehanded\
+output (Xd[monk LVL] + MOD)*HIT + (Xd[monk LVL] + MOD)*HIT + (Xd[monk LVL] + MOD)*HIT*(SATT) named "nekkid monk"
+
+\Monk, Quarterstaff\
+output (Xd10 + MOD)*HIT + (Xd[monk LVL] + MOD)*HIT + (Xd10 + MOD)*HIT*(SATT) named "qtrstaff monk"
+
+\ROGUE\
+
+\Sneak Attack, Two Weapon Fighting\
+output (Xd6 + MOD)*HIT + (Xd6)*HIT + (SX*X)d6*(HIT|HIT) named "sneak attack TWF"
+
+\Sneak Attack, Sword'n'Board\
+output (Xd8 + MOD + (SX*X)d6 + 2)*HIT named "sneak crossbow"
+
+\WARLOCK\
+
+\Agonizing Blast\
+output (Xd10 + MOD)*HIT + (Xd10 + MOD)*HIT*(SATT) + (Xd10 + MOD)*HIT*(TATT) + (Xd10 + MOD)*HIT*(LVL>=17) named "eldritch blast"
+
+\WIZARD - EVOCATION\
+
+\Firebolt\
+output (Xd10 + (SATT)*Xd10 + (TATT)*Xd10 + (LVL>=17)*Xd10 + (LVL>=10)*MOD)*HIT named "Firebolt"

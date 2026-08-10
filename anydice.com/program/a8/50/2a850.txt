@@ -1,0 +1,39 @@
+\ This works because anydice has sequences in descending order: if the previous  \
+\ die is the same as this one, there's a dupe \
+function: dupes in DICE:s {
+  D: 0
+  loop X over {2..#DICE} {
+    if ((X-1)@DICE = X@DICE) { 
+      if (X@DICE > 6){
+        D: D + 1}
+      }
+  }
+  result: D
+}
+
+function: rollc ROLL:s  {
+ result: (ROLL > 6) + ((ROLL = 10)/2)*2
+}
+function: roll ROLL:s  {
+ result: (ROLL > 6) 
+}
+
+function: POOL:s pool {
+  D: 0
+  loop X over {2..#POOL } {
+    if ((X-1)@POOL = X@POOL ) { 
+      if (X@POOL > 6){
+        D: D + 1}
+      }
+  }
+
+  S: (POOL> 6) 
+  result:S+D
+
+}
+
+loop X over {2..6} {
+  \output [roll Xd10] named "[X] Success"\
+  \output [dupes in Xd10] named "[X] Crit"\
+  output [Xd10 pool] named "[X] Pool"
+}

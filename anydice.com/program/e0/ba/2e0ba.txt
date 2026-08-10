@@ -1,0 +1,63 @@
+\
+    This is my 2d6-2dn system
+
+    as the name suggests you roll 2d6 and subtract 2dn (from 4 to 12, the less the better)
+    result 0 or more is success
+    each even number after 0 is better than previous, less worse
+    when dn = dn it's good, you just use your 2d6s without subtractions
+    when d6 = d6 it depends
+    on 6s it's a critical success
+    on 1s it's a critical failure
+    everything else is a critical neutral (random event)
+    
+    I think that for crit successes 4 exploding d6s are interesting (4..!4d6) 
+    (cause having more than expected is pleasing)
+    crit failures can use d20-d20-2dn+mod, 
+    if positive is 20 it's a great success,
+    if negative one hits 20 it's a real catastrophe
+    (cause expecting unexpected is hilarious)
+
+    bell curves here actually look decent
+    just if d6 = d6 is counted, anydice lacks displaying that you still have a result 
+    but if you interested
+    for 2d6 it is 2.78% chance to have 2 equal results
+    so chance of unexpected behaviour for each roll is about 27.8%
+    2.78*(12-2) as we don't need those 2 for 1 1s and 6 6s
+
+    (Burn after reading)
+\
+
+
+function: base SA:n and SB:n plus MOD:n minus NA:n and NB:n {
+ if SA+SB=12 {result: 12}    \crit roll\
+ if SA+SB=2 {result: -20}    \crit failure\
+ \if SA=SB {result: 14}\      \random event\
+
+ if NA=NB {result: SA+SB}
+ if SA+SB-(NA+NB)+MOD < -19 {result: -19}
+ result: SA+SB-(NA+NB)+MOD
+}
+
+function: roll TIER:n mod MOD:n {
+TIER: (TIER + 4)*2
+
+TBL: {12:3,10:4,8:4,6:4,4:3}
+
+result: [base d6 and d6 plus MOD minus d((TIER+1)@TBL) and d((TIER+2)@TBL)]
+}
+
+
+output [roll -4 mod -4] named "less than worst"
+output [roll -4 mod 0]
+output [roll -3 mod 0]
+output [roll -2 mod 0]
+output [roll -1 mod 0]
+output [roll 0 mod -1] named "a lil less than average"
+output [roll 0 mod 0] named "zero mod"
+output [roll 0 mod +2] named "mod +2"
+output [roll +1 mod 0]
+output [roll +2 mod 0]
+output [roll +3 mod 0]
+output [roll +4 mod 0]
+output [roll +4 mod +1] named "more than best"
+

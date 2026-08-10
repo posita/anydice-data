@@ -1,0 +1,50 @@
+function: remove N:n from SEQUENCE:s {
+  RESULT:{}
+  REMOVED: 0
+  loop C over SEQUENCE {
+    if (REMOVED = 0) & (C=N) { REMOVED: 1 } else { RESULT: {RESULT,C} }
+  }
+  result: RESULT
+}
+
+function: add N:n to SEQUENCE:s {
+  RESULT:{SEQUENCE, N}
+  result: RESULT
+}
+
+function: contains N:n in SEQUENCE:s {
+  RESULT: 0
+  loop I over SEQUENCE {
+    if I = N {
+      RESULT: 1
+    }
+  }
+  result: RESULT
+}
+
+function: count pairs ROLL:s{
+  KEYS:{}
+  VALUES:{}
+  loop I over {1..#ROLL} {
+    if [contains I@ROLL in KEYS] = 0 {
+      KEYS: [add I@ROLL to KEYS]
+      COUNT: 1
+      loop J over {I+1..#ROLL} {
+        if I@ROLL = J@ROLL {
+          COUNT: COUNT+1
+        }
+      }
+      VALUES: [add COUNT to VALUES]
+    }
+  }
+  
+  NPAIRS: 0
+  loop K over VALUES {
+    if K > 0 {
+      NPAIRS: NPAIRS + (K-1)
+    }
+  }
+  
+  result: NPAIRS
+}
+output [count pairs 6d6]

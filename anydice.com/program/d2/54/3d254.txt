@@ -1,0 +1,54 @@
+\EDIT DICES HERE\
+ATK: 1d10
+DEF: 1d6+2
+ATKNCF: 2
+DEFNCF: 0
+\End of editable variables\
+\CFN meaning:
+0 - modify 1 as fumble, max as crit
+1 - modify 1 and max as crit
+2 - modify 1 and max as fumble
+end\
+
+\ not actually infinite, but close enough! \
+INFINITY: 99
+
+\ replaces the lowest value of DIE with -INFINITY and the highest value with +INFINITY \
+function: modify DIE:d ncf NCF:n{
+  MAX: 1@[sort {DIE}]
+  MIN: 1@[reverse [sort {DIE}]]
+  result: [modify DIE min MIN max MAX ncf NCF]
+}
+
+\ helper function for [modify DIE] \
+function: modify ROLL:n min MIN:n max MAX:n ncf NCF:n {
+  if ROLL = MIN {if (NCF=1){result: +INFINITY} else {result: -INFINITY} }
+  if ROLL = MAX {if (NCF=2){result: -INFINITY} else {result: +INFINITY} }
+  result: ROLL
+}
+
+function: roll ATTACKER:n and DEFENDER:n{
+ if (ATTACKER > DEFENDER) {
+  if (ATTACKER=99) & (DEFENDER<99) {result:2}
+  else {result: 1}
+  }
+ else {result: 0}
+}
+function: rerollatk ATTACKER:n and DEFENDER:n{
+ if (ATTACKER <= DEFENDER){TEMP: [modify ATK ncf ATKNCF]}
+  else {TEMP: ATTACKER}
+ result: [roll TEMP and DEFENDER]
+}
+function: rerolldef ATTACKER:n and DEFENDER:n{
+ if (ATTACKER > DEFENDER){TEMP: [modify DEF ncf DEFNCF]}
+  else {TEMP: DEFENDER}
+ result: [roll ATTACKER and TEMP]
+}
+
+ATTACKER: [modify ATK ncf ATKNCF]
+DEFENDER: [modify DEF ncf DEFNCF]
+
+
+output [roll ATTACKER and DEFENDER] named "Crit_Aware: 2 = crit, 1 = hit, 0 = miss"
+output [rerollatk ATTACKER and DEFENDER] named "Crit_Aware: 2 = crit, 1 = hit, 0 = miss (with attacker reroll)"
+output [rerolldef ATTACKER and DEFENDER] named "Crit_Aware: 2 = crit, 1 = hit, 0 = miss (with defender reroll)"

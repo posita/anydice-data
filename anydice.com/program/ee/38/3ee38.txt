@@ -1,0 +1,33 @@
+\ BROKER/STREETWISE+STAT \
+SKILL_MOD: 2
+
+\ SUM OF ALL MODIFIERS on pg 240 for source & destination worlds \
+\ Don't include major/minor or skill check\
+WORLD_MODS: 4
+
+\Cap the graph at a value bigger than the ship to simplify \
+GRAPH_CAP: 75
+
+\ Calculate skill check result \
+SKILL_EFFECT : 2d6+SKILL_MOD-8
+
+function: lotbuilder WORLD_MOD SKILL_EFFECT WEIGHT_MOD{
+  \ Calculate the weight of lots for a given category \
+  TRAFFIC_VALUE: 2d6+ (SKILL_EFFECT+WORLD_MOD)
+  LOTS: [lowest of [highest of (TRAFFIC_VALUE/2)d6 and 0] and 10]
+
+  result:(LOTSd6)* WEIGHT_MOD
+}
+
+
+MAJOR_TONS: [lotbuilder WORLD_MODS SKILL_EFFECT 10]
+MINOR_TONS: [lotbuilder WORLD_MODS SKILL_EFFECT 5]
+INCIDENT_TONS: [lotbuilder WORLD_MODS+2 SKILL_EFFECT 1]
+output [lowest of MAJOR_TONS + MINOR_TONS + INCIDENT_TONS and GRAPH_CAP] named "Total Tons"
+
+
+\ Per category breakdowns if interested \
+output [lowest of MAJOR_TONS and GRAPH_CAP] named "Major Tonnage"
+output [lowest of MINOR_TONS and GRAPH_CAP] named "Minor Tonnage"
+output [lowest of INCIDENT_TONS and GRAPH_CAP] named "Incidental Tonnage" 
+

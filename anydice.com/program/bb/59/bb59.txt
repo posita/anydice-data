@@ -1,0 +1,177 @@
+
+
+function: woundstarget STRENGTH:n vs TOUGHNESS:n {
+  if STRENGTH < TOUGHNESS {
+     if 2*STRENGTH <= TOUGHNESS {result: 6}
+     result: 5}  
+  if STRENGTH > TOUGHNESS {
+     if STRENGTH >= 2*TOUGHNESS {result: 2}
+     result: 3}
+  result: 4
+}
+
+
+function: hitroll {
+  result: d6 >= BS
+}
+
+function: woundroll {
+  result: d6 >= WOUNDTARGET
+}
+
+function: saveroll  {
+  if INV < SAVE{result: d6 >= INV}
+  result: d6 >= SAVE
+}
+
+function: damage {
+  result: D
+}
+
+\loop ATTEMPTS over {1..20} {
+output ATTEMPTSd(Ad(([hitroll] * [woundroll] * ![saveroll])*D)) named "No. Attacks [ATTEMPTS]"
+}\
+
+function: limit A:n to B:n{
+ if A > B {result: B}
+ result: A
+}
+\-------------------------------------------------------------------------\
+\Input attackers BS+                                                      \
+\Input defenders, Toughness, Wounds, Armour Save, invulnerable save, cover\
+\Wep stats are further down                                               \
+\-------------------------------------------------------------------------\
+\attacker\
+BS: 3
+\defender\
+T: 4
+W: 1
+SV: 3
+INV: 0
+CV: 0
+\-----system calc----\
+if SV = 0 {SV: 7}
+if INV = 0 {INV: 7}
+\--------------------\
+
+\-----------Weapons start from here--------------------------------\
+
+\TLHB--------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:6
+S: 5
+AP: -1
+D: 1
+FLAMER: 0
+MELTA: 0
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T] 
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "TLHB"
+
+\FLAME------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:d6
+S: 4
+AP: 0
+D: 1
+FLAMER: 1
+MELTA: 0
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T] 
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "Flamer"
+
+\MELTA------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\A:1
+S: 8
+AP: -4
+D: d6
+FLAMER: 0
+MELTA: 1
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T] 
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "Melta"
+
+\LasCan------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A: 1
+S: 9
+AP: -3
+D: d6
+FLAMER: 0
+MELTA: 0
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T]
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "LasCan"
+
+\TL LasCan------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A: 2
+S: 9
+AP: -3
+D: d6
+FLAMER: 0
+MELTA: 0
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T]
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "TL LasCan"
+
+\RF BoltG------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:2
+S: 4
+AP: 0
+D: 1
+FLAMER: 0
+MELTA: 0
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T]
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "RF BoltG"
+
+\RF BoltG------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:2
+S: 4
+AP: -1
+D: 1
+FLAMER: 0
+MELTA: 0
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T]
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "RF BoltR"
+
+\Battle C------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:d6
+BS: 3
+S: 8
+AP: -2
+D: d3
+FLAMER: 0
+MELTA: 0
+\System constants\
+SAVE: SV-AP-CV 
+if MELTA > 0 {D: [highest 1 of 2d6]}
+if FLAMER > 0 {BS: 1}
+WOUNDTARGET: [woundstarget S vs T]
+output [limit (Ad(([hitroll] * [woundroll] * ![saveroll])*D)) to A*W] named "Battle C"

@@ -1,0 +1,103 @@
+DMG_MOD: +0
+SHACKLED_BISECTORS_RAMP: 1
+BUTCHERS_HUNGER_ATTACK_BONUS: 5
+BUTCHERS_HUNGER_VS_AC: 10
+BUTCHERS_HUNGER_WAS_THROWN: 1 \ 1 = thrown, 0 = struck \
+SLOBBERING_MAW_CON_SAVE_BONUS: 4
+ENGULFING_SOLDER_STACKS: 0
+LEVIATHANS_BANE_HIT_DICE: d6
+
+function: adv {
+    result: [highest 1 of 2d20]
+}
+
+function: hit R:n S:n F:n M:n {
+    if (R <= 1 + F) {
+        result: 0
+    } else if (R >= 20 - S) {
+        result: M
+    } else {
+        result: 1
+    }
+}
+
+\ apply bonus iff roll was a hit \
+function: bonus R:n B:n {
+    if (R > 0) {
+        result: R + B
+    }
+    result: R
+}
+
+function: modulo N:n M:n {
+    if N < M {
+        result: N
+    }
+    result: [modulo N-M M]
+}
+
+function: bisector N:n {
+    M: [modulo N 5]
+    R: (N / 5)d12
+    if M = 0 {
+        result: R + d0
+    } else if M = 1 {
+        result: R + d4
+    } else if M = 2 {
+        result: R + d6
+    } else if M = 3 {
+        result: R + d8
+    } else {
+        result: R + d10
+    }
+}
+
+function: shackled bisectors ramped up to N:n {
+    A: [hit d20 4 0 2]*[bisector N]
+    B: [hit d20 4 0 2]*[bisector N+1]
+    result: [bonus A DMG_MOD+3] + [bonus B 3]
+}
+
+function: butchers hit R:n A:n D:n {
+    if R >= 20-4 {
+        result: 2
+    } else if R+A-D >= 10 {
+        result: 2
+    } else if R = 1 {
+        result: 0
+    } else {
+        result: 1
+    }
+}
+
+function: butchers crit H:n {
+    if H = 2 {
+        result: 20
+    }
+    result: 0
+}
+
+function: butchers hunger A:n D:n T:n {
+    H: [butchers hit d20 A D]
+    B: [butchers crit H]
+    result: [bonus H*(1+T)d6 DMG_MOD+3+B]
+}
+
+function: maw bonus S:n {
+    D: 2d10
+    if S >= 17 {
+        result: D / 2
+    }
+    result: D
+}
+
+output [bonus [hit [adv] 4 0 2]d10 DMG_MOD+3] named "Viewing Scythe"
+output [bonus [hit d20 4 4 4]*2d6 DMG_MOD] named "Pulsating Blade"
+output [shackled bisectors ramped up to SHACKLED_BISECTORS_RAMP] named "Shackled Bisectors"
+output [bonus [hit d20 4 0 2]*2*(d6+d8) 3] named "Salamandus Bolter"
+output [butchers hunger BUTCHERS_HUNGER_ATTACK_BONUS BUTCHERS_HUNGER_VS_AC BUTCHERS_HUNGER_WAS_THROWN]
+output [bonus [hit d20 4 0 2]d4 DMG_MOD+3] named "Piercing Thorn"
+output [bonus [hit d20 4 0 2]d10 DMG_MOD+3+[maw bonus d20+SLOBBERING_MAW_CON_SAVE_BONUS]] named "Slobbering Maw"
+output [bonus [hit d20 4 0 2]*(2+ENGULFING_SOLDER_STACKS)d8 3] named "Engulfing Solder"
+output [bonus [hit d20 4 0 2]*(d8 + 3*LEVIATHANS_BANE_HIT_DICE) DMG_MOD+3] named "Leviathan's Bane"
+output [bonus [hit d20 4 0 2]*(d8 + 3d12) DMG_MOD+3] named "Festering Tip"

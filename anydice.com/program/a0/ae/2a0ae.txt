@@ -1,0 +1,39 @@
+\ Fire Giant \
+DMG_D: 6d6
+DMG_F: 7
+ATK: 11
+HITS: 2
+
+\ Tarrasque \
+\
+DMG_D: 4d12
+DMG_F: 10
+ATK: 19
+HITS: 4
+\
+
+AC: 19
+PROF: 3
+
+function: swing ROLL:n {
+  if ROLL = 20 {
+    result: 2dDMG_D + DMG_F
+  } else if ROLL + ATK >= AC {
+    result: DMG_D + DMG_F
+  } else {
+    result: 0
+  }
+}
+
+function: protecc DMG:n RED:n {
+  REDUCED: DMG - RED - PROF
+  if REDUCED > 0 {
+    result: REDUCED
+  } else {
+    result: 0
+  }
+}
+
+output HITSd[swing d20] named "Nothing"
+output [swing 2@2d20] + (HITS-1)d[swing d20] named "Protection"
+output [protecc (HITS)d[swing d20] 11/2] named "Interception"

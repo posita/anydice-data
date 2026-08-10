@@ -1,0 +1,63 @@
+DC: 24
+function: attack TH:n B DAM CDAM MDAM {
+ R: 0
+ if TH + B >= DC + 10 {
+  R: 4
+ }
+ if TH + B  >= DC {
+  R: 3
+ }
+ if TH + B  < DC {
+  R: 2
+ }
+ if TH + B  < DC - 10  {
+  R: 1
+ }
+ if TH = 20 {
+  R: R + 1
+ }
+ if TH = 1{
+  R: R - 1
+ }
+ if R = 4 {
+  result: CDAM
+ } else {
+  if R = 3 {
+   result: DAM
+  } else {
+   result: MDAM
+  }
+ }
+}
+
+function: jezibel MAP {
+ result: [attack 1d20 MAP 2d8+3+1 (2*(2d12+3+1) + 1d12) 0]
+}
+
+function: pers DAM L {
+ if L = 3 {
+  result: 0
+ } else {
+  result: DAM + (1d4 != 4)*[pers DAM L+1]
+ }
+}
+
+function: alchjezibel MAP WEAK {
+ result: [attack 1d20 MAP 2d8+3+1+WEAK+[pers 1d6+WEAK 0] (2*(2d12+3+1+WEAK+[pers 1d6+WEAK 0]) + 1d12) (-1d6)]
+}
+
+
+function: vitaljezibel MAP {
+ result: [attack 1d20 MAP 3d8+3+1+[pers 2d6 0] (2*(3d12+3+1+[pers 2d6 0]) + 1d12) 0]
+}
+
+DC: 29
+
+CONCEAL: (1d20 >= 1 )
+
+output [alchjezibel 20 0] * CONCEAL
+output [alchjezibel 20 5] * CONCEAL
+output [alchjezibel 20 10] * CONCEAL
+output [vitaljezibel 20] * CONCEAL
+output [jezibel 22]
+output [jezibel 20] * CONCEAL

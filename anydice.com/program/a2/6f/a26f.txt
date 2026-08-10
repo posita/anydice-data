@@ -1,0 +1,50 @@
+ATT: 3
+PROF: 2
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITTHREAT {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+
+DEFENSE: d{10..20}
+CRITTHREAT: 20
+
+ATTACK: ATT + PROF
+HITDAMAGE: 2d6 + ATT 
+CRITICALDAMAGE: 4d6 + ATT
+MISSDAMAGE: 0
+ output [attack] named "[Two-handed]"
+
+ATTACK: ATT + PROF + 2
+HITDAMAGE: 1d10 + ATT 
+CRITICALDAMAGE: 2d10 + ATT 
+ output [attack] named "[Ranged]"
+
+ATTACK: ATT + PROF
+HITDAMAGE: 1d6 + ATT -3/2 
+CRITICALDAMAGE: 2d6 + ATT 
+ output [attack]+[attack] named "[Two weapon Fighting]"
+

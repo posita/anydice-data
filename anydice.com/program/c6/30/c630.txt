@@ -1,0 +1,27 @@
+function: max A:n B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: replicate A:n B:d {
+ if A > 0 { result: B + [replicate (A-1) B] }
+}
+
+function: ar COUNT:n ATTACKVAL:d DMGVAL:d {
+  HITS: [replicate COUNT (ATTACKVAL >= 0)]
+  DMG: [highest of DMGVAL and 0]
+  DMGADJ: (DMG > 0) * (-1d3) + DMG
+  result: HITS * DMGADJ
+}
+
+function: a COUNT:n ATTACKVAL:d DMGVAL:d {
+  result: [replicate COUNT (ATTACKVAL >= 0)] * [highest of DMGVAL and 0]
+}
+
+
+set "maximum function depth" to 20
+TYPHONDEF: 15
+TYPHONARM: 17
+
+output  [lowest of 32 and [highest of 0 and ([ar 10 (3d6+6+2-TYPHONDEF)(2d6+10-TYPHONARM)] + [ar 2 (3d6+7+2-TYPHONDEF) 3] + [ar  8 (3d6+5+2-TYPHONDEF) (3d6+12-TYPHONARM)] + (2d6+20-TYPHONARM-1d3) + [ar 4 (3d6+5+2-TYPHONDEF) (2d6+12-TYPHONARM)] + [ar 2 (3d6+5+2-TYPHONDEF) (3d6+12-TYPHONARM)] 
++ [ar 2 (4d6+5+2-TYPHONDEF) (3d6+14-TYPHONARM)] )]] named "Typhoon"

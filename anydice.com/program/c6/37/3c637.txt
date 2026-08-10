@@ -1,0 +1,25 @@
+function: reroll {
+    result: [rerollhelper 0]
+}
+
+\ Helper function processes individual NUMBERS (not dice) \
+function: rerollhelper REROLLS:n {
+    ROLL: d6
+    \ Pass the numeric result of ROLL to next layer \
+    result: [rerollhelperinner REROLLS ROLL]
+}
+
+\ Core logic with number parameters \
+function: rerollhelperinner REROLLS:n ROLL:n {
+    if ROLL = 1 {
+        \ Recurse with new reroll count \
+        result: [rerollhelper REROLLS + 1]
+    } else {
+        \ Final result \
+        result: ROLL + REROLLS
+    }
+}
+
+output 4d[reroll] named "overkill"
+output 5d[reroll] named "overpower overkill"
+output 5d6 named "Overpower"

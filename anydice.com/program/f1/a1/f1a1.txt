@@ -1,0 +1,59 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs AC:n {
+    if (ROLL = 1) {
+        result: MISS
+    }
+    else if (ROLL = 20) {
+        result: CRIT
+    }
+    else if (ROLL >= AC) {
+        result: HIT
+    }
+    else {
+        result: MISS
+    }
+}
+function: attackvsada ROLL:n vs AC:n {
+    if (ROLL = 1) {
+        result: MISS
+    }
+    else if (ROLL = 20) {
+        result: HIT
+    }
+    else if (ROLL >= AC) {
+        result: HIT
+    }
+    else {
+        result: MISS
+    }
+}
+
+function: damage for result HITROLL:n crit CRITDAMAGE:n hit HITDAMAGE:n miss MISSDAMAGE:n {
+    if HITROLL = CRIT {
+        result: CRITDAMAGE
+    }
+    else if HITROLL = HIT {
+        result: HITDAMAGE
+    }
+    else {
+        result: MISSDAMAGE
+    }
+}
+
+CURRHIT: [attack 1d20 + 6 vs 18]
+GREATDMG: [damage for result CURRHIT crit 4d12 + 4 hit 2d12 + 4 miss 0]
+GOREDMG: [damage for result CURRHIT crit 4d8 + 4 hit 2d8 + 4 miss 0]
+
+CURR_OUT:0
+GREAT_LOOP_CAP: 4
+GORE_LOOP_CAP: 3
+loop N over {1..GREAT_LOOP_CAP} {
+    CURR_OUT: CURR_OUT + GREATDMG
+}
+loop N over {1..GORE_LOOP_CAP} {
+    CURR_OUT: CURR_OUT + GOREDMG
+}
+output CURR_OUT named "Expected damage taken last session"

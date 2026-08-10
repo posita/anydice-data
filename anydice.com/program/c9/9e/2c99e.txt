@@ -1,0 +1,59 @@
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: lucky D:d {
+  MAX: [maximum of D]
+  result: [lucky D on MAX using D] 
+}
+function: lucky N:n on MAX:n using D:d {
+  if N = MAX { result: N - 1 + [lucky D on MAX using D] }
+  result: N
+}
+
+function: extend D:d {
+  MAX: [maximum of D]
+  result: [extend D on MAX using D]
+}
+function: extend N:n on MAX:n using D:d {
+  if N = MAX { result: N + [extend D on MAX using D helper] }
+  result: N
+}
+function: extend N:n on MAX:n using D:d helper {
+  if N = MAX { result: 1 + [extend D on MAX using D helper] }
+  result: 0
+}
+
+
+\
+ZNINE: {0..9}
+output 2d6 - dZNINE
+\
+function: poisson N:n {
+  if N = 8 { result: 2 + [poisson d8] }
+  if N = 7 { result: 2 }
+  if N > 3 { result: 1 }
+  result: 0
+}
+
+\
+loop N over {1..5} {
+  output [lowest of 14 and Nd[poisson d8]] named "[N]dP"
+}
+\
+\
+A: 5
+B: 1
+output [clamp Ad[poisson d8]-Bd[poisson d8] between -10 and 10] named "[A] vs [B]"
+output [clamp Ad[poisson d8]-Ad[poisson d8] between -10 and 10] named "[A] vs [A]"
+output [clamp Bd[poisson d8]-Ad[poisson d8] between -10 and 10] named "[B] vs [A]"
+\
+
+DP: {0,1,2,2,3,4}
+
+output 2d6-2d6 named "2d6-2d6"
+output [clamp 2d[extend d6]-2d[extend d6] between -12 and 12] named "2d6x-2d6x"
+output [clamp [highest 1 of 2d[extend d10]]-[highest 1 of 2d[extend d10]] between -12 and 12] named "[2d10]-[2d10]"
+output [clamp [explode dDP]+d6-[explode dDP]-d6 between -15 and 15] named "a-b"

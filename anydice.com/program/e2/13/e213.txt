@@ -1,0 +1,50 @@
+output 3d6 named "3 dice"
+output [highest 3 of 4d6] named "3 dice of 4"
+function: reroll X:n {
+ if ( X < 3 ) {
+  result: 1d6
+ } else {
+  result: X
+ }
+}
+A: 1d6
+B: 1d6
+C: 1d6
+output [reroll A] + [reroll B] + [reroll C] named "3 dice, reroll 1-2"
+function: rerollone X:n {
+ if ( X < 2 ) {
+  result: 1d6
+ } else {
+  result: X
+ }
+}
+function: highestthree A:n B:n C:n D:n {
+ LOWEST: A
+ if ( A > B ) {
+  LOWEST: B
+  if ( B > C ) {
+   LOWEST: C
+  } else if ( B > D ) {
+   LOWEST: D
+  }
+ } else if ( A > C ) {
+  LOWEST: C
+  if ( C > D ) {
+   LOWEST: D
+  }
+ } else if ( A > D ) {
+  LOWEST: D
+ }
+ result: A+B+C+D-LOWEST
+}
+J: [rerollone 1d6]
+K: [rerollone 1d6]
+L: [rerollone 1d6]
+M: [rerollone 1d6]
+output [highestthree J K L M] named "best 3 of 4, reroll 1"
+
+D: d{2..6}
+E: d{2..6}
+F: d{2..6}
+G: d{2..6}
+output [highestthree D E F G] named "best 3 of 4, replace 1"

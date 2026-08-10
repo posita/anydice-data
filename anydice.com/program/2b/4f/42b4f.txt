@@ -1,0 +1,220 @@
+\ -------------------------------------------------------------- \
+\ two digit values for all stats \
+function: mix base {
+ MAX: 99
+ result: (MAX*2)+1
+}
+function: parse VALUE:n x BASE:n {
+ if VALUE < 0 {
+  result: -(-VALUE+(BASE/2))/BASE
+ }
+ result: (VALUE+(BASE/2))/BASE
+}
+\ -------------------------------------------------------------- \
+\ ------------------- Structure Defines ------------------------ \
+\ -------------------------------------------------------------- \
+\ ATTACKER = {ABILITY_MOD, ADVANTAGE, DISADVANTAGE} ... no negative values \
+function: attacker {
+ result: [mix base]^3
+}
+function: ability mod {
+ result: [mix base]^2
+}
+function: advantage {
+ result: [mix base]^1
+}
+function: disadvantage {
+ result: [mix base]^0
+}
+function: ability mod ABILITY_MOD:n {
+ result: ABILITY_MOD*[ability mod]
+}
+function: advantage ADVANTAGE:n {
+ result: ADVANTAGE*[advantage]
+}
+function: disadvantage DISADVANTAGE:n {
+ result: DISADVANTAGE*[disadvantage]
+}
+function: get ability mod of ATTACKER:n {
+ MOD: ATTACKER-[attacker]
+ result: [parse MOD x [ability mod]]
+}
+function: get advantage of ATTACKER:n {
+ MOD: [get ability mod of ATTACKER]
+ ADV: ATTACKER-[attacker]-MOD*[ability mod]
+ result: [parse ADV x [advantage]]
+}
+function: get disadvantage of ATTACKER:n {
+ MOD: [get ability mod of ATTACKER]
+ ADV: [get advantage of ATTACKER]
+ DIS: ATTACKER-[attacker]-MOD*[ability mod]-ADV*[advantage]
+ result: [parse DIS x [disadvantage]]
+}
+ATTACKER_TEST: [attacker]+[ability mod -49]+[advantage -58]+[disadvantage -99]
+MOD_TEST: [get ability mod of ATTACKER_TEST]
+ADV_TEST: [get advantage of ATTACKER_TEST]
+DIS_TEST: [get disadvantage of ATTACKER_TEST]
+output 0 named "ATTACKER_TEST [ATTACKER_TEST]=>[MOD_TEST],[ADV_TEST],[DIS_TEST]"
+\ -------------------------------------------------------------- \
+\ DEFENDER = {EVASION, ABSORPTION} ... no negative values \
+function: defender {
+ result: [mix base]^2
+}
+function: absorption {
+ result: [mix base]^1
+}
+function: evasion {
+ result: [mix base]^0
+}
+function: absorption ABSORPTION:n {
+ result: ABSORPTION*[absorption]
+}
+function: evasion EVASION:n {
+ result: EVASION*[evasion]
+}
+function: get absorption of DEFENDER:n {
+ ABS: DEFENDER-[defender]
+ result: [parse ABS x [absorption]]
+}
+function: get evasion of DEFENDER:n {
+ ABS: [get absorption of DEFENDER]
+ EVS: DEFENDER-[defender]-ABS*[absorption]
+ result: [parse EVS x [evasion]]
+}
+DEFENDER_TEST: [defender]+[absorption 3]+[disadvantage 1]
+ABS_TEST: [get absorption of DEFENDER_TEST]
+EVS_TEST: [get evasion of DEFENDER_TEST]
+output 0 named "DEFENDER_TEST [DEFENDER_TEST]=>[ABS_TEST],[EVS_TEST]"
+\ -------------------------------------------------------------- \
+\ WEAPON = {SIZE, BRUTAL, PRECISE, VERSATILE, CONTROLLED, GRAZE, DUAL_WIELD} \
+function: weapon {
+ result: [mix base]^7
+}
+function: size {
+ result: [mix base]^6
+}
+function: brutal {
+ result: [mix base]^5
+}
+function: precise {
+ result: [mix base]^4
+}
+function: versatile {
+ result: [mix base]^3
+}
+function: controlled {
+ result: [mix base]^2
+}
+function: graze {
+ result: [mix base]^1
+}
+function: dual wield{
+ result: [mix base]^0
+}
+function: weapon size SIZE:n {
+ result: [weapon] + SIZE*[size]
+}
+function: brutal BRUTAL:n {
+ result: BRUTAL*[brutal]
+}
+function: precise PRECISE:n {
+ result: PRECISE*[precise]
+}
+function: versatile VERSATILE:n {
+ result: VERSATILE*[versatile]
+}
+function: controlled CONTROLLED:n {
+ result: CONTROLLED*[controlled]
+}
+function: graze GRAZE:n {
+ result: GRAZE*[graze]
+}
+function: dual wield DUAL_WIELD:n {
+ result: DUAL_WIELD*[dual wield]
+}
+function: get size of WEAPON:n {
+ SIZE: WEAPON-[weapon]
+ result: [parse SIZE x [size]]
+}
+function: get brutal of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ BRUTAL: WEAPON-[weapon]-SIZE*[size]
+ result: [parse BRUTAL x [brutal]]
+}
+function: get precise of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: WEAPON-[weapon]-SIZE*[size]-BRUTAL*[brutal]
+ result: [parse PRECISE x [precise]]
+}
+function: get versatile of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE : WEAPON-[weapon]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]
+ result: [parse VERSATILE x [versatile]]
+}
+function: get controlled of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE: [get versatile of WEAPON]
+ CONTROLLED: WEAPON-[weapon]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]-VERSATILE*[versatile]
+ result: [parse CONTROLLED x [controlled]]
+}
+function: get graze of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE: [get versatile of WEAPON]
+ CONTROLLED: [get controlled of WEAPON]
+ GRAZE: WEAPON-[weapon]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]-VERSATILE*[versatile]-CONTROLLED*[controlled]
+ result: [parse GRAZE x [graze]]
+}
+function: get dual wield of WEAPON:n {
+ SIZE: [get size of WEAPON]
+ BRUTAL: [get brutal of WEAPON]
+ PRECISE: [get precise of WEAPON]
+ VERSATILE: [get versatile of WEAPON]
+ CONTROLLED: [get controlled of WEAPON]
+ GRAZE : [get graze of WEAPON]
+ DUAL_WIELD: WEAPON-[weapon]-SIZE*[size]-BRUTAL*[brutal]-PRECISE*[precise]-VERSATILE*[versatile]-CONTROLLED*[controlled]-GRAZE*[graze]
+ result: [parse DUAL_WIELD x [dual wield]]
+}
+WEAPON_TEST: [weapon size 8]+[brutal 3]+[precise 2]+[dual wield]
+SIZE: [get size of WEAPON_TEST]
+BRUTAL: [get brutal of WEAPON_TEST]
+PRECISE: [get precise of WEAPON_TEST]
+VERSATILE: [get versatile of WEAPON_TEST]
+CONTROLLED: [get controlled of WEAPON_TEST]
+GRAZE: [get graze of WEAPON_TEST]
+DUAL_WIELD: [get dual wield of WEAPON_TEST]
+output 0 named "WEAPON_TEST [WEAPON_TEST]=>[SIZE],[BRUTAL],[PRECISE],[VERSATILE],[CONTROLLED],[GRAZE],[DUAL_WIELD]"
+\ -------------------------------------------------------------- \
+\ ------------------- Functionality Start ---------------------- \
+\ -------------------------------------------------------------- \
+function: get ability size of ATTACKER:n {
+ DISADVANTAGE: [get disadvantage of ATTACKER]
+ if DISADVANTAGE < 1 {
+  result: 12
+ }
+ if DISADVANTAGE = 1 {
+  result: 8
+ }
+ if DISADVANTAGE > 1 {
+  result: 6
+ }
+}
+function: get ability roll for ATTACKER:n {
+ DICE: [get advantage of ATTACKER]+1
+ SIZE: [get ability size of ATTACKER]
+ MOD: [get ability mod of ATTACKER]
+
+ result: [highest 1 of (DICE d SIZE)]+MOD
+}
+ROLL_TEST: [attacker]+[ability mod -1]+[advantage 1]+[disadvantage 1]
+MOD_TEST: [get ability mod of ROLL_TEST]
+ADV_TEST: [get advantage of ROLL_TEST]
+DIS_TEST: [get disadvantage of ROLL_TEST]
+output [get ability roll for ROLL_TEST] named "ROLL_TEST [ROLL_TEST]=>[MOD_TEST],[ADV_TEST],[DIS_TEST]"
+\ -------------------------------------------------------------- \

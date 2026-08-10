@@ -1,0 +1,202 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+function: advdiff ROLLONE:n and ROLLTWO:n vs DEFENSE:n {
+ A: [attack ROLLONE vs DEFENSE]
+ B: [attack ROLLTWO vs DEFENSE]
+ if A = CRITICALHIT {
+   result: MISS
+ }
+ if B= CRITICALHIT {
+   result: CRITICALHIT
+ }
+ if A= MISS {
+   result:B
+ }
+ else {
+ result: MISS
+ }
+}
+function: disadvdiff ROLLONE:n and ROLLTWO:n vs DEFENSE:n {
+ A: [attack ROLLONE vs DEFENSE]
+ B: [attack ROLLTWO vs DEFENSE]
+ if A = MISS {
+   result: MISS
+ }
+ if B= MISS {
+   result:A
+ }
+ if A= CRITICALHIT {
+   if B=HIT {
+     result: HIT
+   }
+ }
+ else {
+ result: MISS
+ }
+}
+function: gwf R:n {
+   if R < 3 { result: d12 } else {result: R}
+}
+
+function: save ROLL:n against DC:n or DMG:n{
+    if ROLL+BONUS <= DC {
+       result: 0
+    }
+    else {
+       result: DMG
+    }
+}
+
+function: extra ROLLONE:n and ROLLTWO:n vs DEFENSE:n {
+ A: [attack ROLLONE vs DEFENSE]
+ B: [attack ROLLTWO vs DEFENSE]
+ if A = CRITICALHIT {
+   result: MISS
+ }
+
+ if A= MISS {
+   result:B
+ }
+ else {
+ result: MISS
+ }
+}
+
+function: ranger first attack ROLL:n {
+ ATTACK: 9
+ HITDAMAGE: d8+4 +d6 +d6
+ CRITICALDAMAGE: 2d8 +4 +2d6  +2d6
+ A: [attack ROLL vs DEFENSE]
+ if A = MISS {
+   result: [rangersecmiss]
+ } else {
+    result: [damage for A] + [rangersechit]
+ }
+}
+function: rangersecmiss {
+ ATTACK: 9
+ HITDAMAGE: d8+4 +d6 +d6
+ CRITICALDAMAGE: 2d8 +4 +2d6 +2d6 
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: rangersechit {
+ ATTACK: 9
+ HITDAMAGE: d8+4 
+ CRITICALDAMAGE: 2d8 +4
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: ranger hm first attack ROLL:n {
+ ATTACK: 9
+ HITDAMAGE: d8+4 +d6 +d6
+ CRITICALDAMAGE: 2d8 +4 +2d6  +2d6
+ A: [attack ROLL vs DEFENSE]
+ if A = MISS {
+   result: [rangersecmiss]
+ } else {
+    result: [damage for A] + [ranger hm sechit]
+ }
+}
+function: ranger hm sechit {
+ ATTACK: 9
+ HITDAMAGE: d8+4 +d6
+ CRITICALDAMAGE: 2d8 +4 +2d6
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: champattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL = 19 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+function: champion {
+ ATTACK: 8
+ HITDAMAGE: [gwf d12] +5
+ CRITICALDAMAGE: 2d[gwf d12] +5 
+ result: [damage for [champattack d20 vs DEFENSE]]
+}
+function: championtwf {
+ ATTACK: 8
+ HITDAMAGE: d6 +5
+ CRITICALDAMAGE: 2d6 +5 
+ result: [damage for [champattack d20 vs DEFENSE]]
+}
+function: championarch {
+ ATTACK: 10
+ HITDAMAGE: d8 +5
+ CRITICALDAMAGE: 2d8 +5 
+ result: [damage for [champattack d20 vs DEFENSE]]
+}
+function: rouge {
+ ATTACK: 7
+ HITDAMAGE: d8 +4 +3d6
+ CRITICALDAMAGE: 2d8 +4 +6d6 
+ result: [damage for [attack 1@2d20 vs DEFENSE]]
+}
+
+
+function: warlock {
+ ATTACK: 7
+ HITDAMAGE: d10 +4 +d6
+ CRITICALDAMAGE: 2d10 +4 +2d6 
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: hexblade {
+ ATTACK: 7
+ HITDAMAGE: d10 +4 +d6 +3
+ CRITICALDAMAGE: 2d10 +4 +2d6 +3
+ result: [damage for [champattack d20 vs DEFENSE]]
+}
+function: ranger no hm first attack FIRSTROLL:n and SECROLL:n {
+ ATTACK: 9
+ HITDAMAGE: d8+4 +d6
+ CRITICALDAMAGE: 2d8 +4 +2d6
+ A: [attack FIRSTROLL vs DEFENSE]
+ if A = MISS {
+   result: [damage for [attack SECROLL vs DEFENSE]]
+ } else {
+    HITDAMAGE: d8+4
+    CRITICALDAMAGE: 2d8 +4
+    result: [damage for A] + [damage for [attack SECROLL vs DEFENSE]]
+ }
+}
+DEFENSE: 17
+BONUS:1
+DC:13
+output [ranger first attack 1@2d20] named "ranger with hide and new HM"
+output [ranger first attack 1d20] named "ranger with new HM"
+output [ranger hm first attack d20] named "ranger with original HM"
+output [ranger hm first attack 1@2d20] named "ranger with hide and original HM"
+output [ranger no hm first attack d20 and d20] named "ranger no HM"
+output [ranger no hm first attack 1@2d20 and d20] named "ranger with hide no HM "
+output 2d[champion] named "fighter champion GWF"
+output 3d[championtwf] named "fighter champion TWF"
+output 2d[championarch] named "fighter champion Archery"
+output [rouge] named "rougue"
+output 2d[warlock] named "warlock with hex"
+output 2d[hexblade] named "hexblade warlock with hex"

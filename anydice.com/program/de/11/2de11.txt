@@ -1,0 +1,54 @@
+H:4
+F:7
+T:7
+AP:-4
+S: 6
+AS: 5
+FNP:5
+D: d6
+A: 8
+RH :1
+RW :1
+
+function: bool  A:n and B:n {
+ if A <= B {result  : 1}
+ result: 0
+}
+
+function: wound  A:n and B:n {
+ if A*2 <= B {result  : 6}
+ if A < B {result  : 5}
+ if A = B {result  : 4}
+ if A >= 2*B {result  : 2}
+ if A > B {result  : 3}
+ result: 0
+
+}
+
+
+function: sequence A and H and F and T and S and AP and AS and FNP and D {
+COUNT:0
+loop N over {1..A}{
+if RH = 1 & RW = 1{
+  COUNT: COUNT + [bool H and [highest 1 of 2d6]]*[bool [wound F and T] and [highest 1 of 2d6]]*[bool d6 and [highest of S+AP and AS]-1]*[bool d6 and FNP-1]  * D
+}
+if RH = 1 & RW = 0{
+  COUNT: COUNT + [bool H and [highest 1 of 2d6]]*[bool [wound F and T] and d6]*[bool d6 and [highest of S+AP and AS]-1]*[bool d6 and FNP-1]  * D
+}
+if RH = 0 & RW = 1{
+  COUNT: COUNT + [bool H and d6]*[bool [wound F and T] and [highest 1 of 2d6]]*[bool d6 and [highest of S+AP and AS]-1]*[bool d6 and FNP-1]  * D
+}
+if RH = 0 & RW = 0{
+  COUNT: COUNT + [bool H and d6]*[bool [wound F and T] and d6]*[bool d6 and [highest of S+AP and AS]-1]*[bool d6 and FNP-1]  * D
+}
+}
+ result: COUNT
+}
+
+
+
+
+output [sequence A and H and F and T and S and AP and AS and FNP and D ]
+
+
+

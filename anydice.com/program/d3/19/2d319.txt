@@ -1,0 +1,30 @@
+\ Torchdice 2e Probability Calculator\
+\ This program circumvents the usual way AnyDice handles dice.                                                   \
+\ Instead, each die is a function.                                                                               \
+\ Usage:                                                                                                         \
+\ [be X threshold 6 explode 12] will roll X dice at t 6 and e 12.                                                \
+\ Set maximum function depth value to 10 for e 12, 7 for e 10, 5 for e 8 and e 6                                 \
+\ The dice can be added together, e.g. [be 10 threshold 6 explode 12] + [be 5 threshold 6 explode 12]            \
+
+function: roll ROLL:n threshold T {
+  if ROLL >=T {result: 1}
+  result: 0
+}
+
+function: rollexploding ROLL:n threshold T explode E{
+  if ROLL >= E {result: 1+[rollexploding 1d12 threshold T explode E]}
+  result: [roll ROLL threshold T]
+}
+
+function: be DICE:n threshold T explode E{
+  RES:0
+  loop N over {1..DICE} {
+    RES:RES+[rollexploding 1d12 threshold T explode E]
+  }
+  result:RES
+}
+
+set "maximum function depth" to 10
+\ Set maximum function depth value to 10 for e 12, 7 for e 10, 5 for e 8 and e 6                                 \
+
+output [be 50 threshold 6 explode 12]

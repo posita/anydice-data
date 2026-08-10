@@ -1,0 +1,24 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: 2 } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + 8 >= AC { result: 1 }
+ result: 0
+}
+
+function: totaldpr FROLL:n SROLL:n TROLL:n vs AC:n {
+if FROLL>=CRITROLL | SROLL>=CRITROLL{
+ result: ([attackroll FROLL vs AC]*2)d6 + ([attackroll SROLL vs AC]*2)d6 + ([attackroll TROLL vs AC]*2)d6 + 6d8 + ([attackroll TROLL vs AC]>0)*8 + ([attackroll TROLL vs AC]>0)*8 + ([attackroll TROLL vs AC]>0)*8
+}
+result: ([attackroll FROLL vs AC]*2)d6 + ([attackroll SROLL vs AC]*2)d6 + ([attackroll FROLL vs AC]>0)*8 + ([attackroll SROLL vs AC]>0)*8 + ([attackroll FROLL vs AC]*2)d6 + ([attackroll SROLL vs AC]*2)d6 + ([attackroll TROLL vs AC]*2)d6 + 6d8 + ([attackroll TROLL vs AC]>0)*8 + (([attackroll TROLL vs AC]>0)*8 + ([attackroll FROLL vs AC]+[attackroll SROLL vs AC]>0)*6)d8
+}
+
+
+
+
+CRITROLL: 19
+
+loop ENEMYAC over {15..25}{
+output [totaldpr 1@3d20 1@3d20 1@3d20 vs ENEMYAC]+[attackroll d20 vs ENEMYAC] named "Greatsword vs [ENEMYAC] AC"
+}

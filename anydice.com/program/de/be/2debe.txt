@@ -1,0 +1,82 @@
+H:4
+S:10
+T:9
+HP:30
+AP:-4
+AS: 2
+IS: 7
+FNP:7
+D: d3
+A: 30
+RH :0
+RW :0
+CURRENT:HP
+
+function: bool  A:n and B:n {
+ if A <= B {result  : 1}
+ result: 0
+}
+
+function: wound  A:n and B:n {
+ if A*2 <= B {result  : 6}
+ if A < B {result  : 5}
+ if A = B {result  : 4}
+ if A >= 2*B {result  : 2}
+ if A > B {result  : 3}
+ result: 0
+
+}
+
+function: feel NB:n{
+SUM:0
+loop M over {1..NB}{
+SUM:SUM+[bool d6 and (FNP-1)]
+}
+TAKE:[lowest of SUM and CURRENT]
+CURRENT : [compare CURRENT and TAKE]
+
+
+result:TAKE
+}
+
+
+function: compare I:n and J:n{
+if I <= J{
+result:HP
+}
+result:I-J
+
+
+}
+
+
+function: sequence {
+COUNT:0
+loop N over {1..A}{
+DAMAGE:0
+if RH = 1 & RW = 1{
+  DAMAGE:  [bool H and [highest 1 of 2d6]]*[bool [wound S and T] and [highest 1 of 2d6]]*[bool d6 and [highest of AS+AP and IS]-1] * D
+}
+if RH = 1 & RW = 0{
+  DAMAGE:  [bool H and [highest 1 of 2d6]]*[bool [wound S and T] and d6]*[bool d6 and [highest of AS+AP and IS]-1] * D
+}
+if RH = 0 & RW = 1{
+  DAMAGE: [bool H and d6]*[bool [wound S and T] and [highest 1 of 2d6]]*[bool d6 and [highest of AS+AP and IS]-1]  * D
+}
+if RH = 0 & RW = 0{
+  DAMAGE : [bool H and d6]*[bool [wound S and T] and d6]*[bool d6 and [highest of AS+AP and IS]-1]  * D
+}
+
+COUNT:COUNT+[feel DAMAGE]
+
+}
+ result: COUNT
+}
+
+
+
+
+output [sequence]
+
+
+

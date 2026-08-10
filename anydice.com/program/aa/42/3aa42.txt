@@ -1,0 +1,63 @@
+GLOBALMOD: 2
+SMITE: 2d8
+TGTAC: 16
+CRITMIN: 19
+
+function: make attack against AC:n with ROLL:n plus MOD:n for DAMAGE:d helper {
+  if ROLL >= CRITMIN {
+    result: DAMAGE + DAMAGE + SMITE + SMITE + MOD + GLOBALMOD
+  } else if ROLL + MOD >= AC {
+    result: DAMAGE + MOD + GLOBALMOD
+  } else {
+    result: 0
+  }
+}
+
+function: make attack against AC:n with MOD:n for DAMAGE:d {
+  result: [make attack against AC with 1d20 plus MOD for DAMAGE helper]
+}
+
+function: make attack against AC:n with MOD:n for DAMAGE:d with advantage {
+  result: [make attack against AC with [highest 1 of 2d20] plus MOD for DAMAGE helper]
+}
+
+function: make attack against AC:n with ROLL:n plus MOD:n for DAMAGE:d advantage gwm helper {
+  FIRST: [make attack against AC with ROLL plus MOD for DAMAGE helper]
+  if ROLL >= CRITMIN {
+    result: FIRST + [make attack against AC with MOD for DAMAGE with advantage]
+  } else {
+    result: FIRST
+  }
+}
+
+function: make attack against AC:n with MOD:n for DAMAGE:d with advantage and gwm {
+  result: [make attack against AC with [highest 1 of 2d20] plus MOD for DAMAGE advantage gwm helper]
+}
+
+function: make extra attack against AC:n with MOD:n for DAMAGE:d with advantage {
+  result: [make attack against AC with [highest 1 of 2d20] plus MOD for DAMAGE helper] + [make attack against AC with [highest 1 of 2d20] plus MOD for DAMAGE helper]
+}
+
+function: make extra attack against AC:n with FIRST:n and SECOND:n plus MOD:n for DAMAGE:d with advantage and gwm helper {
+  ATTACKS: [make attack against AC with FIRST plus MOD for DAMAGE helper] + [make attack against AC with SECOND plus MOD for DAMAGE helper]
+  if (FIRST >= CRITMIN) | (SECOND >= CRITMIN) {
+    result: ATTACKS + [make attack against AC with MOD for DAMAGE with advantage]
+  } else {
+    result: ATTACKS
+  }
+}
+
+function: make extra attack against AC:n with MOD:n for DAMAGE:d with advantage and gwm {
+  FIRST: [highest 1 of 2d20]
+  SECOND: [highest 1 of 2d20]
+  result: [make extra attack against AC with FIRST and SECOND plus MOD for DAMAGE with advantage and gwm helper]
+}
+
+output [make attack against TGTAC with 3 for 1d8] named "1hit +3"
+output [make attack against TGTAC with 3 for 1d8 with advantage] named "1hit +3 advantage"
+output [make attack against TGTAC with 4 for 1d8 with advantage] named "1hit +4 advantage"
+output [make attack against TGTAC with 3 for 1d8 with advantage and gwm] named "1hit +3 advantage GWM"
+output [make extra attack against TGTAC with 3 for 1d8 with advantage] named "2hits +3 advantage"
+output [make extra attack against TGTAC with 4 for 1d8 with advantage] named "2hits +4 advantage"
+output [make extra attack against TGTAC with 3 for 1d8 with advantage and gwm] named "2hits +3 advantage GWM"
+output [make extra attack against TGTAC with 4 for 1d8 with advantage and gwm] named "2hits +4 advantage GWM"

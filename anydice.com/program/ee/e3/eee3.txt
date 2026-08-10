@@ -1,0 +1,39 @@
+function: reroll DIE:d under LIMIT:n {
+  result: [reroll DIE as DIE if under LIMIT]
+}
+
+function: reroll ROLL:n as DIE:d if under LIMIT:n {
+  if ROLL < LIMIT { result: DIE }
+  else { result: ROLL }
+}
+
+function: crit D:d on N:n{
+result: [critcheck d20 D as D on N]
+}
+
+function: critcheck D:n N:n as M:n on C:n{
+ if D<C{result: N} 
+ result: N+M+[reroll d6 under 3]\this reroll is for half orcs savage attack, adjust manually to fit weapon or other races\
+}
+
+function: hit N:n against M:n crit on X:n{
+ result: [hitcheck N against M with d20 crit on X]
+}
+
+function: hitcheck N:n against M:n with D:n crit on X:n{
+ if D<M{result: 0} else { result: [critcheck D N as N on X]}
+ result: N
+}
+
+
+
+X: 3d[reroll d6 under 3] \Base damage for greatsword plus hunters mark, includes great weapon fighting\
+Y: 2d[reroll d6 under 3]+2d[reroll d8 under 3]\base damage for greatsword plus holy weapon, includes great weapon fighting\
+
+loop N over {9..25}{
+ output 1d[hit X against N-8 crit on 19] named "Great Sword with Hunters Mark against AC [N]" \4 attacks cause haste and extra attack, crit on 19 cause improved critical\
+}
+
+
+
+

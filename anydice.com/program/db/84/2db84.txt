@@ -1,0 +1,34 @@
+RED: {0,1,1,1,1,2}
+GREEN: {0,0,0,1,2,3}
+BLUE: {0,1,1,10,10,10}
+
+function: ROLL:n reroll BAD:s as REROLL:d {
+  if ROLL = BAD { result: REROLL }
+  result: ROLL
+}
+function: reroll lowest of ROLL:s as REROLL:d if less than MIN:n {
+  LOWEST: (#ROLL)@ROLL       \ the lowest die is sorted last \
+  if LOWEST >= MIN {
+    result: ROLL + 0
+  } else {
+    REST: {1..#ROLL-1}@ROLL  \ all but the lowest die \
+    result: REST + REROLL
+  }
+}
+function: reroll lowest N:n of ROLL:s as REROLL:d if less than MIN:n {
+  REROLLS: 0
+  loop LOWEST over {(#ROLL - N + 1)..#ROLL} {
+    if LOWEST < MIN {
+      REROLLS: REROLLS + REROLL
+    }
+  }
+  REST: {1..#ROLL-N}@ROLL  \ all but the lowest dice \
+  result: REST + REROLL
+}
+
+loop N over {3..5}{
+  output [reroll lowest 2 of NdGREEN as dGREEN if less than 1] named "[N] GREEN"
+}
+loop N over {3..5}{
+  output NdRED named "[N] RED"
+}

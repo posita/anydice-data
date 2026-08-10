@@ -1,0 +1,27 @@
+set "maximum function depth" to 5
+
+function: combat ENDURANCE:n with SEEKERS:n and DARK:n{
+ WEAKNESS: SEEKERSd6
+ RUIN: 0
+ DAMAGE: DARKd6
+ loop P over {1..#DAMAGE} {
+  loop Q over {1..#WEAKNESS} {
+   RUIN: RUIN + (P@DAMAGE = Q@WEAKNESS)
+  }
+ }
+ result: RUIN + [combat [highest 2 of DAMAGE] helper]
+}
+
+function: combat N:n helper {
+  if N >= ENDURANCE {
+  result: 0
+ }
+ else {
+  result: [combat ENDURANCE with SEEKERS and DARK+1]
+ }
+}
+
+output [combat 12 with 1 and 1]
+output [combat 12 with 2 and 2]
+output [combat 12 with 3 and 3]
+output [combat 12 with 4 and 4]

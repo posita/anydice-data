@@ -1,0 +1,85 @@
+DICE: 1d20
+
+function: check X:n vs Y:n debuff Z:n {
+  if X >= Y { result: 0 }
+  result: Z
+}
+
+LUCY_WILL: DICE + 6
+ULRN_WILL: DICE + 3
+SEPH_WILL: DICE + 3
+KARL_WILL: DICE + 11
+AMAL_WILL: DICE + 9
+ISAC_WILL: DICE + 11
+JORY_WILL: DICE + 2
+LUCY_CON: DICE + 5
+ULRN_CON: DICE + 10
+SEPH_CON: DICE + 4
+KARL_CON: DICE + -2
+AMAL_CON: DICE + 5
+ISAC_CON: DICE + 3
+JORY_CON: DICE + 0
+
+LUCY_MELEE:  DICE + 4 + [check LUCY_WILL vs 12 debuff -2]
+LUCY_DEFEND: DICE + 6 + [check LUCY_WILL vs 12 debuff -2]
+
+function: ulrenextra X:n {
+  if X >= 13 { result: 1d7 }
+  result: 0
+}
+ULRN_MELEE:  DICE + 15 + [check ULRN_WILL vs 12 debuff -2] + [check ULRN_CON vs 9 debuff -2]
+ULRN_EXTRA:  [ulrenextra ULRN_MELEE]
+ULRN_DEFEND: DICE + 17 + [check ULRN_WILL vs 12 debuff -2] + [check ULRN_CON vs 9 debuff -2]
+
+SEPH_MELEE:  DICE + 10 + [check SEPH_WILL vs 12 debuff -2] + [check SEPH_CON vs 9 debuff -2]
+SEPH_DEFEND: DICE + 8  + [check SEPH_WILL vs 12 debuff -2] + [check SEPH_CON vs 9 debuff -2]
+
+KARL_ARCANE: DICE + 14 + [check KARL_WILL vs 12 debuff -2] + [check KARL_CON vs 9 debuff -2]
+KARL_DEFEND: DICE + 1  + [check KARL_WILL vs 12 debuff -2] + [check KARL_CON vs 9 debuff -2]
+
+
+OFFENSE: LUCY_MELEE + ULRN_MELEE + ULRN_EXTRA + SEPH_MELEE + KARL_ARCANE / 2
+DEFENSE: LUCY_DEFEND+ ULRN_DEFEND + SEPH_DEFEND + KARL_ARCANE
+
+output OFFENSE>= 50 named "Offense"
+output DEFENSE>= 60 named "Defense"
+output OFFENSE>= 50 & DEFENSE >=60 named "Both"
+
+function: horse X:n and Y:n {
+  if X >= 15 { result: 3 }
+  if X >= 11 { result: 2 }
+  if X < 11 & Y >= 11 {
+    result: 1
+  }
+  result: 0
+}
+ISACSTR: DICE + 1 + [check ISAC_WILL vs 12 debuff -2]
+ISACCON: DICE + 3 +[check ISAC_WILL vs 12 debuff -2]
+output [horse ISACSTR and ISACCON] named "Issac Horse Success"
+
+AMAL: DICE + 17 + [check AMAL_WILL vs 12 debuff -2]
+JORY: DICE + 9  + [check JORY_WILL vs 12 debuff -2]
+
+output AMAL + JORY named "Packing"
+
+OFFENSENL: ULRN_MELEE + ULRN_EXTRA + SEPH_MELEE + KARL_ARCANE / 2
+DEFENSENL: ULRN_DEFEND + SEPH_DEFEND + KARL_ARCANE
+output OFFENSENL>= 50 & DEFENSENL>=60 named "Fight w/o Lucy"
+
+output AMAL + JORY + DICE + 7 + [check LUCY_WILL vs 12 debuff -2] >= 50 named "Pack with Lucy"
+
+function: horsecha X:n and Y:n {
+  if X >= 20 { result: 3 }
+  if X >= 14 { result: 2 }
+  if X < 14 & Y >= 11 {
+    result: 1
+  }
+  result: 0
+}
+
+LSTR: DICE - 1  + [check LUCY_WILL vs 12 debuff -2]
+LCON: DICE + 5  + [check LUCY_WILL vs 12 debuff -2]
+LCHA: DICE + 10 + [check LUCY_WILL vs 12 debuff -2]
+output [horse LSTR and LCON] named "Lucy STR Horse"
+output [horsecha LCHA and LCON] named "Lucy CHA Horse"
+

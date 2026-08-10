@@ -1,0 +1,20 @@
+function: attack A:n TO_HIT:n STR:n TOUGH:n AP:n SV:n FNP:n D:n W:n MODELS:n{
+if 2*STR<=TOUGH {TO_WOUND:6}
+if (2*STR>TOUGH)&(STR<TOUGH) {TO_WOUND:5}
+if STR=TOUGH {TO_WOUND:4}
+if (STR<2*TOUGH)&(STR>TOUGH) {TO_WOUND:3}
+if STR>=2*TOUGH {TO_WOUND:2}
+T : 0
+WR: W
+loop N over {1..A}{
+if MODELS {
+WR: WR - (d6>=TO_HIT)*(d6>=TO_WOUND)*(d6<(SV+AP))*(d6<FNP)*D
+T: T + (WR<=0)
+if #{WR}@[sort {WR}]<=0 {WR: W}
+}
+else {T: T+(d6>=TO_HIT)*(d6>=1)*(d6<(SV+AP))*(d6<FNP)*D}
+}
+result:T
+}
+
+output [attack 3 2 8 4 2 3 7 3 2 1]+[attack 3*4 2 4 4 0 3 7 1 2 1]

@@ -1,0 +1,42 @@
+\Attack Roll Variables (Change these to suit!)\
+
+ATTBONUS: 14   \Attacker's To-hit bonus\
+ATTDAMAGE: (3d8+8) + 3d8   \Total damage dice from a non-critical hit\
+CRITDAMAGE: (9d8+8) + 9d8   \Total damage dice from a critical hit\
+SORCAC: 18   \The AC of your Sorcerer\
+CONSVBONUS: 10   \The total bonus to your concentration save, including proficiency\
+
+\Attack Save Variables (Change these to suit!)\
+
+ATTSVDC: 20   \The save DC from the attack\
+ATTSVDMG: 20d6   \The full damage from the attack\
+SAVEBONUS: 2   \The bonus to the relevant Ability used for the saving throw\
+
+\Functions computing concentration check DCs\
+
+   \If the DC is lower than 10, override to 10\
+function: Z:n dcfloor {
+  if Z/2 < 10 { result: 10 }
+  result: Z/2
+}
+
+   \Set the DC for an attack involving an attack roll\
+function: X:n setdcar {
+  if X + ATTBONUS < SORCAC {result: 0}
+  if X + ATTBONUS >= SORCAC & X < 20 { result: [ATTDAMAGE dcfloor]}
+  if X = 20 { result: [CRITDAMAGE dcfloor] }
+}
+
+
+   \Set the DC for an attack that relies on a save\
+function: Z:n setdcsv {
+  if ATTSVDC > Z+SAVEBONUS { result: [ATTSVDMG dcfloor] }
+  if ATTSVDC <= Z+SAVEBONUS { result: [ATTSVDMG / 2 dcfloor] }
+}
+
+
+\Output formulae\
+
+output [1d20 setdcar] < 1d20+CONSVBONUS named "Probability of Success on Concentration Save from an Attack Roll (0 = Failure, 1 = Success)"
+
+output [1d20 setdcsv] < 1d20+CONSVBONUS named "Probability of Success on Concentration Save from an Attack Requiring a Save (0 = Failure, 1 = Success)"

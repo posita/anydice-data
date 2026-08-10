@@ -1,0 +1,58 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n blessed BLESS:n baned BANED:n {
+ if ROLL = 1 { result: MISS }
+ MOD: ATTACK + BLESS - BANED
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: save ROLL:n vs DEFENSE:n blessed BLESS:n baned BANED:n {
+ if ROLL = 1 { result: HIT }
+ MOD: ATTACK + BLESS - BANED
+ if ROLL = 20 {
+  result: MISS
+ }
+ if ROLL + MOD >= DEFENSE { result: MISS }
+ result: HIT
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: spelldamage for ATTACKRESULT:n {
+ if ATTACKRESULT = HIT {
+  result: SPELLDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ABILITYBONUS: 3
+PROF: 2
+ATTACK: ABILITYBONUS + PROF
+BASEDAMAGE: 1d8
+HITDAMAGE: BASEDAMAGE + ABILITYBONUS
+CRITICALDAMAGE: HITDAMAGE + BASEDAMAGE
+SPELLDAMAGE: 1d8
+MISSDAMAGE: 0
+DC: 8 + ABILITYBONUS + PROF
+
+
+ROLL: [highest 1 of 1d20]
+output [damage for [attack ROLL vs 15 blessed 0 baned 0]] named "Straight AC 15"
+output [damage for [attack ROLL vs 15 blessed 1d4 baned 0]] named "Blessed AC 15"
+output [damage for [attack ROLL vs 15 blessed 0 baned 1d4]] named "Baned AC 15"
+output [damage for [save ROLL vs DC blessed 0 baned 0]] named "Straight DC [DC]"
+output [damage for [save ROLL vs DC blessed 1d4 baned 0]] named "Blessed DC [DC]"
+output [damage for [save ROLL vs DC blessed 0 baned 1d4]] named "Baned DC [DC]"

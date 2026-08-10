@@ -1,0 +1,71 @@
+\Atyla-Ouroboros\
+Q: {0..3}
+
+function: crop SEQUENCE:n MIN:n MAX:n {                  \ limit the display range between [min;max] \
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: halve SEQUENCE:n {                  \ divide per 2, rounded up \
+ DIV: SEQUENCE/2
+ TEMP: DIV*2
+ if (DIV=TEMP){result: DIV}
+ result: (SEQUENCE+1)/2
+}
+
+\************************************************************************\
+
+function: phaseone ATT:s DEF:s {
+  ATT_ROLL: 1@ATT dQ                       \freeze the hits-dices sequence\
+  DEF_ROLL: 3@DEF dQ
+  result: [phasetwo ATT_ROLL DEF_ROLL ATT DEF]
+}
+
+function: phasetwo ATT_ROLL:n DEF_ROLL:n  ATT:s DEF:s {
+  DAMAGES: ATT_ROLL - DEF_ROLL
+  ZEROS:  [count 0 in ATT_ROLL]
+  ONES:   [count 1 in ATT_ROLL]
+  TWOS:   [count 2 in ATT_ROLL]
+  THREES: [count 3 in ATT_ROLL]
+  SETS: {ZEROS,ONES,TWOS,THREES}
+  result: DAMAGES
+}
+
+\************************************************************************\
+function: hit ATTACKS:n {
+  DICE: ATTACKS dQ                       \freeze the hits-dices sequence\
+  result: [hit roll DICE]
+}
+
+function: hit roll DICES:s {
+  HITS: [count {WS..3} in DICES]
+  ZEROS:  [count 0 in DICES]
+  ONES:   [count 1 in DICES]
+  TWOS:   [count 2 in DICES]
+  THREES: [count 3 in DICES]
+  SETS: {ZEROS,ONES,TWOS,THREES}
+  result: [save DICES with SETS]
+}
+
+function: save HITS:n with SETS:s {
+  DICES: RD dQ                              \freeze the saves-dices sequence\
+  result: [damages DICES with SETS]
+}
+
+function: compare VEL_ATT:n with VEL_DEF:n {
+  if(VEL_ATT > VEL_DEF) { result: 4}
+  if(VEL_ATT = VEL_DEF) { result: 4}
+  if(VEL_ATT < VEL_DEF) { result: 4}
+  result: 0
+}
+
+
+\************************************************************************\
+\PD, PD_MODS, RD, RD_MODS, RANGE_VELOCITY, MELEE_VELOCITY\
+A: {10, 0, 5, 0, 15, 5}      \Mono, Light Armor, Sniper, Knife\
+B: {10, 0, 5, 0, 15, 5}      \Multi, Heavy Armor, Shotgun, HandPunch\
+\************************************************************************\
+
+
+\output [] named "test"\
+

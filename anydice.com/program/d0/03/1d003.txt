@@ -1,0 +1,23 @@
+set "maximum function depth" to 5
+function: explode N:n {
+  if (N=1 | N=6) { result: N + [explode d6] }
+  result: N
+}
+
+function: explode P:n minus N:n with mod M:n {
+  if ((P=1 | P=6) & (N=1 | N=6)) {result: P - N + M}
+  else { result: [explode P] - [explode N] + M}
+}
+
+function: grade N:n {
+  if         N >= 12  { result:  3 }
+  if (0 < N & N < 12) { result:  2 }
+  if      N = 0       { result:  1 }
+  if      N = -1      { result: -1 }
+  if -6 < N & N < -3  { result: -2 }
+  if -6 >= N          { result: -3 }
+}
+
+loop MOD over {-1..10} {
+  output [grade [explode d6 minus d6 with mod MOD]] named "mod [MOD]"
+}

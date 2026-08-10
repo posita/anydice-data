@@ -1,0 +1,156 @@
+DEFENSE: 20
+LEVEL: 15
+
+WEAPON_DICE_TA: 1d8
+WEAPON_DICE_TB: 1d6
+WEAPON_NUMBER_TA: 1
+WEAPON_NUMBER_TB: 1
+
+WEAPON_DICE_B: 1d6
+WEAPON_NUMBER_B: 3
+
+OTHER_DAMAGE_MOD: 2+2
+OTHER_DAMAGE_DICE: 0
+CRIT_RANGE: 20
+GWF: 0
+NORMAL_HIT: d20
+HIT_ADV: [highest 1 of 2d20]
+SAVAGE: 0
+
+MOD: 9
+MAGIC: 3
+MAGIC_B: 0
+PROF: (LEVEL+7)/4
+GWMATTACK: -5
+GWMDAMAGE: 10
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackadv ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: gwmattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: gwmattackadv ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_RANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: reroll R:n under N:n {
+   if R <= N {result: WEAPON_DICE_TA} else {result: R}
+}
+
+function: reroll R:n under N:n {
+   if R <= N {result: WEAPON_DICE_TB} else {result: R}
+}
+
+function: reroll R:n under N:n {
+   if R <= N {result: WEAPON_DICE_B} else {result: R}
+}
+
+function: attack {
+ result: [damage for [attack NORMAL_HIT vs DEFENSE]]
+}
+
+function: attackadv {
+ result: [damage for [attackadv HIT_ADV vs DEFENSE]]
+}
+
+function: gwmattack {
+ result: [damage for [gwmattack NORMAL_HIT vs DEFENSE]]
+}
+
+function: gwmattackadv {
+ result: [damage for [gwmattackadv HIT_ADV vs DEFENSE]]
+}
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF] + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF]) + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE
+MISSDAMAGE: 0
+output [attack] named "Thrower"
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF] + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF]) + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE
+MISSDAMAGE: 0
+output [attackadv] named "Adv Thrower"
+
+ATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF] + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF]) + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE  + GWMDAMAGE
+MISSDAMAGE: 0
+output [gwmattack] named "GWM Thrower"
+
+ATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF] + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_TAd[reroll WEAPON_DICE_TA under GWF] + WEAPON_NUMBER_TBd[reroll WEAPON_DICE_TB under GWF]) + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE + GWMDAMAGE
+MISSDAMAGE: 0
+output [gwmattackadv] named "Adv GWM Thrower"
+
+
+ATTACK: MOD + MAGIC_B + PROF
+HITDAMAGE: WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF] + MOD + MAGIC_B + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF]) + MOD + MAGIC_B + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE + SAVAGEd[reroll WEAPON_DICE_B under GWF]
+MISSDAMAGE: 0
+output [attack] named "Maul"
+
+ATTACK: MOD + MAGIC_B + PROF
+HITDAMAGE: WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF] + MOD + MAGIC_B + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF]) + MOD + MAGIC_B + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE + SAVAGEd[reroll WEAPON_DICE_B under GWF]
+MISSDAMAGE: 0
+output [attackadv] named "Adv Maul"
+
+ATTACK: MOD + MAGIC_B + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF] + MOD + MAGIC_B + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF]) + MOD + MAGIC_B + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE  + GWMDAMAGE + SAVAGEd[reroll WEAPON_DICE_B under GWF]
+MISSDAMAGE: 0
+output [gwmattack] named "GWM Maul"
+
+ATTACK: MOD + MAGIC_B + PROF + GWMATTACK
+HITDAMAGE: WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF] + MOD + MAGIC_B + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2d(WEAPON_NUMBER_Bd[reroll WEAPON_DICE_B under GWF]) + MOD + MAGIC_B + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE + GWMDAMAGE + SAVAGEd[reroll WEAPON_DICE_B under GWF]
+MISSDAMAGE: 0
+output [gwmattackadv] named "Adv GWM Maul"

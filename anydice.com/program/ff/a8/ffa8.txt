@@ -1,0 +1,46 @@
+function: crit D:n FACES:n {
+if D = FACES-1 { result: D + [crit 1dFACES] }
+result: D
+}
+
+function: crit T:n {
+ result: [crit 1dT-1 T]
+}
+
+function: roll P:n N:n T:n{
+ if P = N { result: 0 }
+ R: 0
+ S: 1
+ if P < N { R:P }
+ if P > N { R:N S:-1 }
+ if R = T-1 { R: R + [crit T] }
+ result: R*S
+}
+
+function: roll D {
+ result: [roll 1dD 1dD D]
+}
+
+function: rollb P:n N:n T:n{
+ if P = N { result: 0 }
+ R: 0
+ S: 1
+ L: 0
+ if P < N { R:P L:N }
+ if P > N { R:N S:-1 L:P }
+ if L = T { R: R + [crit T] }
+ result: R*S
+}
+
+function: rollb D {
+ result: [rollb 1dD 1dD D]
+}
+
+
+T:6
+
+set "maximum function depth" to 6
+output [roll T] named "exploding on [T]-1"
+
+set "maximum function depth" to 6
+output [rollb T] named "exploding when other is [T]"

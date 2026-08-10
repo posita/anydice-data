@@ -1,0 +1,86 @@
+function: suc A:n {
+ if A >= 24 {
+  result: 6
+ }
+ if A >= 20 {
+  result: 5
+ }
+ if A >= 17 {
+  result: 4
+ }
+ if A >= 14 {
+  result: 3
+ }
+ if A >= 11 {
+  result: 2
+ }
+ if A >= 9 {
+  result: 1
+ }
+ result: 0
+}
+
+function: highest N:n of A:s B:s C:s {
+    result: {1..N}@[sort {A, B, C}]
+}
+function: highest N:n of A:s B:s {
+    result: {1..N}@[sort {A, B}]
+}
+
+function: crit{
+ D:3d6
+ result: [crithelp 1@D 2@D 3@D]
+}
+function: critadv{
+ D:4d6
+ result: [crithelp 1@D 2@D 3@D]
+}
+function: critdis{
+ D:4d6
+ result: [crithelp 2@D 3@D 4@D]
+}
+function: critdeter{
+ D:3d6
+ result: [crithelp [rerollsix 1@D under 4] [rerollsix 2@D under 4] [rerollsix 3@D under 4]]
+}
+
+function: crithelp X:n Y:n Z:n{
+ if X >= 6 & Y >= 6 & Z >= 6{
+  result: 3d6} 
+ if X >= 6 & Y >= 6{
+  result: 2d6}
+ result: d0
+}
+function: rerollsix D:n under X:n{
+   if D < X { result: 1d6 } else {result: D}
+}
+function: rerollten D:n under X:n{
+   if D < X { result: 1d10 } else {result: D}
+}
+function: pasion {
+ result: [pasionhelper 1d6] + [pasionhelper 1d6] + [pasionhelper 1d6] - 3d6
+}
+function: pasionhelper D:n{
+  if D >= 6 {
+   result: 6 + [pasionhelper 1d6]}
+  result: D
+}
+
+output [suc 3d6+[crit]] named "Normal"
+
+output [suc [highest 3 of 3d6 1d8] + [crit]] named "Proef"
+output [suc [highest 3 of 3d6 1d10] + [crit]] named "Experto"
+output [suc [highest 3 of 3d6 1d12]+[crit]] named "Maestro"
+output [suc [highest 3 of 3d6 2d8]+[crit]] named "2xProef"
+output [suc [highest 3 of 3d6 2d10]+[crit]] named "2xExperto"
+output [suc [highest 3 of 3d6 2d12]+[crit]] named "2xMaestro"
+
+output [suc [highest 3 of 4d6]+[critadv]] named "Ventaja"
+output [suc [highest 3 of 4d6]+[critdis]] named "Desventaja"
+
+output [suc 3d[rerollsix 1d6 under 4]+[critdeter]] named "Determinacion"
+output [suc[highest 3 of 3d[rerollsix 1d6 under 4] 1d[rerollten 1d10 under 6]]+[critdeter]] named "Determinacion + Experto"
+
+output [suc 3d6 + [pasion] + [crit]] named "Pasion"
+output [suc [highest 3 of 3d6 1d8] + [pasion] + [crit]] named "Pasion + Experto"
+

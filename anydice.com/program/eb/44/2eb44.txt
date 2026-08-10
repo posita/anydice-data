@@ -1,0 +1,39 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRIT_ON: 20
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRIT_ON { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack DICE:d{
+ result: AMOUNT_ATTACKSd[damage for [attack DICE vs DEFENSE]]
+}
+
+loop DEFENSE over {10, 18, 20} {
+
+HITDAMAGE: d6 + 15
+CRITICALDAMAGE: 2d6 + 15
+MISSDAMAGE: 0
+
+ATTACK: 5
+AMOUNT_ATTACKS: 4
+output [attack d20] named "[AMOUNT_ATTACKS] attacks vs [DEFENSE]"
+output [attack 1@2d20] named "[AMOUNT_ATTACKS] attacks w/ ADV vs [DEFENSE]"
+output [attack 1@3d20] named "[AMOUNT_ATTACKS] attacks w/ 3xADV vs [DEFENSE]"
+
+}

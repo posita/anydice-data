@@ -1,0 +1,78 @@
+BONUS: 0
+TWOS: 2
+ONES: 2
+
+function: advroll {
+result: [highest 1 of 2d20]
+}
+function: high crit {
+result: 6d6+6d8+14
+}
+function: low crit {
+result: 6d6+4d8+14
+}
+function: crit {
+result: 6d6+14
+}
+function: low base {
+result: 3d6+2d8+14
+}
+function: high base {
+result: 3d6+3d8+14
+}
+function: base {
+result: 3d6+14
+}
+function: V:n equals U:n {
+result: (V = U)
+}
+function: attack with TOHIT:n {
+DAMAGE: 0
+if TOHIT = 20 {
+BONUS:1
+if TWOS > 0 {
+DAMAGE: DAMAGE+[high crit]
+TWOS: TWOS-1
+}
+else {
+if ONES > 0 {
+DAMAGE: DAMAGE+[low crit]
+ONES: ONES-1
+}
+else {
+DAMAGE: DAMAGE+[crit]
+}
+}
+}
+else {
+if TOHIT > 9 {
+if ONES > 0 {
+DAMAGE: DAMAGE+[low base]
+ONES: ONES-1
+}
+else {
+if TWOS > 0 {
+DAMAGE: DAMAGE+[high base]
+TWOS: TWOS-1
+}
+else {
+DAMAGE: DAMAGE+[base]
+}
+}
+}
+}
+result:DAMAGE
+}
+function: make attacks {
+D: 0
+loop N over {1..4}{
+D: D+[attack with [advroll]]
+}
+if BONUS = 1 {
+D: D+[attack with [advroll]]
+}
+result: D
+}
+output [make attacks]
+
+

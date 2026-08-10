@@ -1,0 +1,142 @@
+MISSRESULT: 0
+HITRESULT: 1
+
+function: marks for DICERESULTS:s range RANGE:n {
+  MARKS: 0
+
+  loop P over {1..10} {
+    NUM: [count P in DICERESULTS]
+    if NUM >= 2 {
+      MARKS: MARKS + NUM
+    }
+
+    if P >= RANGE {
+      MARKS: MARKS + NUM
+    }
+  }
+
+  result: MARKS
+}
+
+
+function: strikehit for DICERESULTS:s  {
+  if 1@DICERESULTS + TOHIT >= TARGET {
+    result: 1
+  } else {
+    result: 0
+  }
+}
+
+
+function: strikedamage for DICERESULTS:s {
+  MARKS: [marks for DICERESULTS range CRITRANGE]
+  DIDHIT: [strikehit for DICERESULTS]
+
+  CRITDAMAGE: 0
+  INDEX: 1
+  loop A over CRITDAMAGES {
+    if MARKS = INDEX {
+      CRITDAMAGE: A
+    }
+    INDEX: INDEX + 1
+  }
+ 
+  if DIDHIT = 1 {
+    result: MARKS + BASEDAMAGE + CRITDAMAGE - DAMAGERESISTANCE
+  } else {
+    result: 0
+  }
+}
+
+function: N:n dicestrike hit HIT:n damage DAMAGE:n range RANGE:n crits CRITS:s vs GUARD:n armor ARMOR:n {
+  TOHIT: HIT
+  BASEDAMAGE: DAMAGE
+  CRITRANGE: RANGE
+  CRITDAMAGES: CRITS
+  TARGET: GUARD
+  DAMAGERESISTANCE: ARMOR
+
+  result: [strikedamage for Nd10]
+}
+
+function: blastdamage for DICERESULTS:s {
+  SUM: 1@DICERESULTS
+
+  if HARDSTRINGS + 1 < DAMAGERESISTANCE {
+    result: 0
+  }
+
+  if SUM + TOHIT >= TARGET {
+    \ assume each wide string gives an additional target \
+    result: (HARDSTRINGS + 1 - DAMAGERESISTANCE) * (WIDESTRINGS + 1)
+  } else {
+    result: 0
+  }
+}
+
+function: N:n diceblast hit HIT:n hard HARD:n soft SOFT:n wide WIDE:n long LONG:n armor ARMOR:n {
+  TOHIT: HIT
+  TARGET: 5 + HARD + SOFT + WIDE + WIDE + LONG
+  HARDSTRINGS: HARD
+  SOFTSTRINGS: SOFT
+  WIDESTRINGS: WIDE
+  LONGSTRINGS: LONG
+  DAMAGERESISTANCE:ARMOR
+
+  result: [blastdamage for Nd10]
+}
+
+function: invokedamage for DICERESULTS:s {
+  DAMAGE: 0
+  loop VALUE over DICERESULTS {
+    if VALUE + TOHIT >= TARGET {
+      DAMAGE: DAMAGE + 3
+    } else {
+      DAMAGE: DAMAGE + MISSDMG
+    }
+  }
+
+  result: DAMAGE
+}
+
+function: N:n diceinvoke hit HIT:n missdamage MISSDAMAGE:n vs GUARD:n {
+  TOHIT: HIT
+  TARGET: GUARD
+  MISSDMG: MISSDAMAGE
+  
+  result: [invokedamage for Nd10]
+}
+
+NOCRITS: {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+DAGGERCRITS: {0, 0, 2, 2, 2, 2, 2, 2, 2, 2}
+HIDDENDAGGERCRITS: {0, 0, 6, 6, 6, 6, 6, 6, 6, 6}
+TESTPRIMARYSTAT: 2
+TESTMIGHT: 2
+TESTGUARD: 9
+TESTDICE: 3
+TESTARMOR: 0
+
+\ Strike Tests \
+\output [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 4+TESTMIGHT range 10 crits NOCRITS vs TESTGUARD armor TESTARMOR] named "Sword"
+output [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 3+TESTMIGHT range 10 crits DAGGERCRITS vs TESTGUARD armor TESTARMOR] named "Dagger"
+output [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 3+TESTMIGHT range 10 crits HIDDENDAGGERCRITS vs TESTGUARD armor TESTARMOR] named "Hidden Dagger"\
+output [TESTDICE dicestrike hit TESTPRIMARYSTAT damage 5+TESTMIGHT range 10 crits NOCRITS vs TESTGUARD armor TESTARMOR] named "Large Axe"
+
+
+\ Blast Tests \
+\output [TESTDICE diceblast hit TESTPRIMARYSTAT hard 2 soft 0 wide 0 long 0 armor TESTARMOR] named "Blast [Hard 2]"
+output [TESTDICE diceblast hit TESTPRIMARYSTAT hard 3 soft 0 wide 0 long 0 armor TESTARMOR] named "Blast [Hard 3]"\
+output [TESTDICE diceblast hit TESTPRIMARYSTAT hard 4 soft 0 wide 0 long 0 armor TESTARMOR] named "Blast [Hard 4]"
+\output [TESTDICE diceblast hit TESTPRIMARYSTAT hard 5 soft 0 wide 0 long 0 armor TESTARMOR] named "Blast [Hard 5]"
+output [TESTDICE diceblast hit TESTPRIMARYSTAT hard 6 soft 0 wide 0 long 0 armor TESTARMOR] named "Blast [Hard 6]"\
+
+
+\ Invoke Tests \
+output [TESTDICE diceinvoke hit TESTPRIMARYSTAT missdamage 0 vs TESTGUARD] named "Invoke"
+output [TESTDICE diceinvoke hit TESTPRIMARYSTAT missdamage 1 vs TESTGUARD] named "Invoke [Ire/Tranq]"
+output [TESTDICE diceinvoke hit TESTPRIMARYSTAT+1 missdamage 0 vs TESTGUARD] named "Invoke [Hope/Despair] - Marred"
+output [TESTDICE diceinvoke hit TESTPRIMARYSTAT+1 missdamage 0 vs TESTGUARD] named "Invoke [Hope/Despair] - Desperate"
+output [TESTDICE diceinvoke hit TESTPRIMARYSTAT+TESTDICE missdamage 0 vs TESTGUARD] named "Invoke [Misery/Elation] - All Spread"
+output [TESTDICE diceinvoke hit TESTPRIMARYSTAT+TESTDICE missdamage 0 vs TESTGUARD] named "Invoke [Misery/Elation] - All Spread"
+output [TESTDICE diceinvoke hit TESTPRIMARYSTAT+TESTDICE missdamage 1 vs TESTGUARD] named "Invoke [Misery/Elation] + [Ire/Tranq] - All Spread"
+

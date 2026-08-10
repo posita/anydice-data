@@ -1,0 +1,67 @@
+AC: 1
+AB: 4
+
+BLESS: 1d4
+
+EB: 1d8+14
+SG: 1d10+2d6+14
+
+ATT: 1d20+AB>=AC
+ADV: [highest 1 of 2d20]+AB+BLESS>=AC
+DIS: [lowest 1 of 1d20]+AB>=AC
+
+function: sum N:n times D:d {
+ if N > 1 {result: D + [sum N-1 times D]}
+ result: D
+}
+
+ABR: 9
+EBR: 1d8+4
+SGR: 1d10+2d6+4
+
+ATTR: 1d20+ABR>=AC
+ADVR: [highest 1 of 2d20]+ABR+BLESS>=AC
+DISR: [lowest 1 of 1d20]+ABR>=AC
+
+
+output ADVnamed "1a) 1 Sneak XBow Attack + SS, hit chance"
+output [sum 4 times DIS] named "1b) 4 Fighter XBow Attacks + SS, chance to hit N times"
+output [sum 4 times DIS]>=1 named "1c) 4 Fighter XBow Attacks + SS, chance to hit at least once"
+
+output ADV*SG named "4a) 1 Sneak XBow Attack + SS + Adv + Bless, damage"
+output [sum 4 times DIS*EB] named "4b) 4 Fighter XBow Attacks + SS, damage"
+
+output ADVR named "1a) 1 Sneak XBow Attack, hit chance"
+output [sum 4 times DISR] named "1b) 4 Fighter XBow Attacks, chance to hit N times"
+output [sum 4 times DISR]>=1 named "1c) 4 Fighter XBow Attacks, chance to hit at least once"
+
+output ADVR*SGR named "4a) 1 Sneak XBow Attack + Adv + Bless, damage"
+output [sum 4 times DISR*EBR] named "4b) 4 Fighter XBow Attacks, damage"
+
+
+output ATT*SG named "2a) 1 Sneak XBow Attack + SS, damage"
+output [sum 4 times DIS*EB] named "2b) 4 Fighter XBow Attacks + SS, damage"
+
+output ADV named "3a) 1 Sneak XBow Attack + SS + Adv + Bless"
+output [sum 4 times DIS]>=1 named "3b) 4 Fighter XBow Attacks + SS, hit at least once"
+
+
+
+function: hit with D:n on N:n {
+ if N = 4 { result: D }
+ if D = 0 { result: [hit with DIS on N+1] }
+
+ result: 1 + [sum 4-N times ATT]
+}
+
+output [hit with DIS on 1] named "5a) 4 Fighter XBow Attacks + SS until first hit, chance to hit"
+
+function: dmg with D:n on N:n {
+ if N = 4 { result: D }
+ if D = 0 { result: [dmg with DIS*EB on N+1] }
+
+ result: EB + [sum 4-N times ATT*EB]
+}
+
+output [dmg with DIS*EB on 1] named "5b) 4 Fighter XBow Attacks + SS until first hit, damage"
+

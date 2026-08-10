@@ -1,0 +1,35 @@
+HAZ_II : (1d10/3) != 0 \ hazard level 2 \
+HAZ_III : (1d10/4) != 0 \ hazard level 3 \
+
+
+\
+TEST : (((1d8+2)/3) != 0)  engineer + extended shift, dc of 3, not continious\
+
+function: HAZ:n and Y:n hazstart {
+FIN: 0
+if Y = 0 { result : FIN}  \ Fixed Treshold. once the input variable reaches this the function ends\
+FIN:FIN+1*HAZ             \ The output variable rises by one \
+result : [HAZ and Y-1 hazard]     \ run this again with Input variable -1 \
+}
+
+function:HAZ and X:n hazard {    \ This functions adds 1 to the FIN variable corrosponding to the amount the input variable is over the fixed treshold\
+if X = 0 { result : FIN}     \ Fixed Treshold. once the input variable reaches this the function ends\
+FIN:FIN+1*HAZ                \ The output variable rises by one \
+result : [HAZ and X-1 hazard]        \ run this again with Input variable -1 \
+}
+
+\output [HAZ_II and TEST hazstart]*4 named "ResultGG"\
+
+\ Now to do Pile A\
+
+PILEA : 2
+
+output PILEA named "Pile Base"
+
+output HAZ_II named "Hazard"
+
+output [HAZ_II and PILEA hazstart] named "Pile End"
+
+
+
+

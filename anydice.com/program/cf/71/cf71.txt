@@ -1,0 +1,57 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+A:0
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL > 19 {result: CRITICALHIT 
+}
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{8..25}
+ATTACK: 14
+HITDAMAGE: 1d8+10
+CRITICALDAMAGE: 2d8+10
+MISSDAMAGE: 0
+A: [attack]
+
+ATTACK: 14
+HITDAMAGE: 1d8+10+4d6
+CRITICALDAMAGE: 2d8+10+8d6
+MISSDAMAGE:0
+B: [attack]
+
+ATTACK: 14
+HITDAMAGE: 1d8+10+1d10
+CRITICALDAMAGE: 2d8+10+2d10
+MISSDAMAGE: 0
+C: [attack]
+
+ATTACK: 14
+HITDAMAGE: 1d8+10+1d10+4d6
+CRITICALDAMAGE: 2d8+10+2d10+8d6
+MISSDAMAGE: 0
+D:[attack]
+output A+A+A named "3*attack"
+output A+A+B named "2*attack+sneak"
+
+output A+B+C named "attack +Sneak+maneuver "
+output A+A+D named "2*attack + Sneak-maneuver"
+output C+C+D named "2*maneuver +Sneak-maneuver"

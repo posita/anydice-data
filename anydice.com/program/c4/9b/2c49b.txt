@@ -1,0 +1,31 @@
+\ Savage Worlds semi-infinite recursion. \
+
+DICE: {4, 6, 8, 10, 12} \ The dice to roll in the loop. \
+RECURSE: 100 \ The number of recursions per execution. \
+
+set "maximum function depth" to RECURSE
+
+\
+  D: The current roll.
+  SIDES: The number of sides on the dice.
+  ACC: The current sum of the previous rolls.
+  COUNT: The number of recurses remaining.
+\
+function: explodesw D:n SIDES:n ACC:n COUNT:n {
+  if COUNT = 1 {
+    result: D + ACC
+  }
+  if D = SIDES {
+    COUNT: COUNT - 1
+    result: [explodesw 1dSIDES SIDES D+ACC COUNT]
+  }
+  result: D + ACC
+}
+
+\ Find the value for any group of dice. \
+loop DIE over DICE {
+  output [explodesw 1dDIE DIE 0 RECURSE] named "1d[DIE]"
+}
+
+\ Compare two dice sizes. \
+output [explodesw 1d4 4 0 RECURSE] > [explodesw 1d6 6 0 RECURSE]

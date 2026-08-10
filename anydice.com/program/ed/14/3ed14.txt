@@ -1,0 +1,22 @@
+
+output [lowest of 1d20 and [lowest 1 of 2d12]] named "advantage"
+output [lowest of 1d20 and 1d12] named "normal"
+\output [lowest of [lowest 1 of 1d20] and [highest 1 of 2d12]] named "disadvantage"\
+
+\The problem with the above is that we can't determine multiple successes by getting the lowest of 2 pools. It works for normal and advantage because you only need one success, but if you need multiple success then it groups sets inconsistently. 
+e.g.:
+If you have the sequence 1,11,12 then the above function would result 1 even though it represents a failure.
+If you have the sequence 1,1,2 then the above function would result 1 even though it represents a success.
+
+Thankfully we can represent success or failure with a single value, but in this case we need the 2nd lowest in a set of 3. I couldn't figure out any way to do that with the built in functions, so I made one based on the documentation.
+\
+
+function: secondlowest of A:n and B:n and C:n {
+ if A < B & A < C { result: [lowest of B and C]}
+ if B < C {result: [lowest of A and C]}
+ result: [lowest of A and B]
+}
+
+output [secondlowest of 1d20 and 1d12 and 1d12] named "disadvantage"
+
+

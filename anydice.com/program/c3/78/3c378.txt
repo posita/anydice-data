@@ -1,0 +1,124 @@
+\Variables\
+OPAM:7 OSAM:7 OPDM:7 OSDM:7 OSPM:7 OACM:7 OEVM:7
+EPAM:7 ESAM:7 EPDM:7 ESDM:7 ESPM:7 EACM:7 EEVM:7
+\Our Stats\
+\HP\
+ OHP:110 \HP\ *2+141 
+\P.Atk\ 
+OPA:55 \P.Atk\ *2+36 *OPAM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\S.Atk\ 
+OSA:135 \S.Atk\ *2+36 * OSAM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\P.Def\ 
+OPD:88 \P.Def\ *2+36 *OPDM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\S.Def\ 
+OSD:108 \S.Def\ *2+36 *OSDM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\Speed\ 
+OSP:150 \Speed\ *2+36 *OSPM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+
+\Enemy Stats\
+EHP:126 \HP\ *2+141
+EPA:131 \p.atk\ *2+36
+ESA:131 \s.atk\ *2+36
+EPD:95 \p.def\ *2+36
+ESD:98 \s.def\ *2+36
+ESP:99 \Speed\ *2+36
+
+\Moves\
+OMA:{
+\Priority\0,
+\Category\2, \status=0, physical=1, special=2, Psyshock/Psystrike=3\
+\Power\95,
+\ACCURACY\100,
+\TYPE\16*2
+}
+OMB:OMA 
+OMC:OMA 
+OMD:OMA 
+OME:OMA 
+OMF:OMA 
+OMG:OMA 
+OMH:OMA
+
+\Enemy moves\
+EMA:{
+\Priority\1,
+\Category\1, \status=0, physical=1, special=2, Psyshock/Psystrike=3\
+\Power\70*4/3,
+\ACCURACY\100,
+\TYPE\16*3/2
+}
+EMB:EMA 
+EMC:EMA 
+EMD:EMA 
+EME:EMA 
+EMF:EMA 
+EMG:EMA 
+EMH:EMA
+
+\Math\
+function: our M:s attack{
+ ATTACK_STAT: (2@M)@{OPA,OSA,OSA}
+ DEFENSE_STAT: (2@M)@{EPD,ESD,EPD}
+ ACCURACY: 4@M*(OACM-EEVM+14)@{280:7,315,360,420,504,630,840,1120,1400,1680,1960,2240,2520:7}/840
+ if 2@M > 0 {
+  result:(3@M\Power\ *ATTACK_STAT *42 /(DEFENSE_STAT *50)+2) *\RNG\1d{85..100}/100 *5@M\TYPE\/16 *1d{1:ACCURACY,0:100-ACCURACY}
+ }
+}
+function: enemy M:s attack{
+ ATTACK_STAT: (2@M)@{EPA,ESA,ESA}
+ DEFENSE_STAT: (2@M)@{OPD,OSD,OPD}
+ ACCURACY: 4@M*(EACM-OEVM+14)@{280:7,315,360,420,504,630,840,1120,1400,1680,1960,2240,2520:7}/840
+ if 2@M > 0 {
+  result:(3@M\Power\ *ATTACK_STAT *42 /(DEFENSE_STAT *50)+2) *\RNG\1d{85..100}/100 *5@M\TYPE\/16 *1d{1:ACCURACY,0:100-ACCURACY}
+ }
+}
+
+function: round N move{
+ if N = 1 {result:OMA}
+ if N = 2 {result:OMB}
+ if N = 3 {result:OMC}
+ if N = 4 {result:OMD}
+ if N = 5 {result:OME}
+ if N = 6 {result:OMF}
+ if N = 7 {result:OMG}
+ if N = 8 {result:OMH}
+}
+function: round N counter{
+ if N = 1 {result:EMA}
+ if N = 2 {result:EMB}
+ if N = 3 {result:EMC}
+ if N = 4 {result:EMD}
+ if N = 5 {result:EME}
+ if N = 6 {result:EMF}
+ if N = 7 {result:EMG}
+ if N = 8 {result:EMH}
+}
+ EDAMAGE: {}
+ ODAMAGE: {}
+ STACK: {}
+loop N over {1..10}{
+ OUR_MOVE: [round N move]
+ ENEMY_MOVE: [round N counter]
+ CHECK:(EDAMAGE < EHP)*(ODAMAGE < OHP)
+ if (1@{OUR_MOVE} > 1@{ENEMY_MOVE}) | (OSP >= ESP & 1@{OUR_MOVE} = 1@{ENEMY_MOVE}){
+  ODAMAGE: ODAMAGE + [enemy ENEMY_MOVE attack]
+  EDAMAGE: EDAMAGE + [our OUR_MOVE attack]
+  TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ }
+ if (1@{ENEMY_MOVE} > 1@{OUR_MOVE}) | (ESP > OSP & 1@{ENEMY_MOVE} = 1@{OUR_MOVE}) {
+  EDAMAGE: EDAMAGE + [our OUR_MOVE attack]
+  TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+  ODAMAGE: ODAMAGE + [enemy ENEMY_MOVE attack]
+ }
+ STACK: STACK + TURN*CHECK
+ if 0<[maximum of TURN]{output 0 < STACK named "Winrate on Turn [N]"}
+ \if {output 0 < STACK named "Win Rate on Final Turn [N]"}\
+\Diagnostic outputs\\
+ output OHP named "Our HP"
+ output EHP named "Enemy HP"
+ output TURN named "turn [N]"
+ output CHECK named "check [N]"
+ output STACK named "stack [N]"
+ output EDAMAGE named "damage to enemy"
+ output ODAMAGE named "damage to us"\
+}

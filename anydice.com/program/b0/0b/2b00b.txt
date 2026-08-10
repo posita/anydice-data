@@ -1,0 +1,73 @@
+\Average Damage Calculator\
+\The average damage various attacks perform per turn, considering AC, resistances, and vulnerabilities\
+
+\Defenses\
+AC: 13
+RESIST: 1 \"1" if no resistance, "2" if resistance\
+VULN: 1 \"1" if no vulnerabilities, "2" if vulnerable\
+
+\Basic Modifiers\
+PROF: 2
+STR: 2
+DEX: 2
+
+\Attack Properties\
+BLESS: 0d4
+INSP: 0d6
+BASIC: 1d20 + BLESS
+ADV: [highest 1 of 2d20] + BLESS
+DIS: [lowest 1 of 2d20] + BLESS
+
+TOHIT_MELEE: PROF + STR
+TOHIT_RNGD: PROF + DEX
+
+
+\Miscellaneous Properties\
+RAGE: 0
+BRUTAL: 1 \No brutal critical die = "1", 1 brutal critical die = "2", 2 brutal critical dice = "3", etc.\
+SNK: 0d6
+
+\Weapon Damage\
+DMG: 1d8
+RANGED_DMG: 1d6
+
+\Critical Hit Properties\
+CRIT_DMG: 2 * (BRUTAL * DMG)
+CRIT_RNGD_DMG: 2 * (BRUTAL * RANGED_DMG)
+CRIT_RANGE: 20
+IMPCRIT: 19
+
+\Damage Calculator\
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+\Damage Calculations\
+MELEE_ATK: [attack BASIC + INSP plus TOHIT_MELEE vs AC for ((DMG + STR + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + STR + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE]
+MELEE_ATK_IMPCRIT: [attack BASIC + INSP plus TOHIT_MELEE vs AC for ((DMG + STR + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + STR + RAGE + SNK) * VULN)/RESIST on IMPCRIT]
+MELEE_ADV: [attack ADV + INSP plus TOHIT_MELEE vs AC for ((DMG + STR + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + STR + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE]
+MULTIATK:  [attack BASIC plus TOHIT_MELEE vs AC for ((DMG + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE]
+EXTRA_ATK: [attack BASIC plus TOHIT_MELEE vs AC for ((DMG + STR + RAGE + SNK) * VULN)/RESIST crit ((CRIT_DMG + STR + RAGE + SNK) * VULN)/RESIST on CRIT_RANGE]
+RNGD_ATK: [attack BASIC + INSP plus TOHIT_RNGD vs AC for ((RANGED_DMG + DEX + SNK) * VULN)/RESIST crit ((CRIT_RNGD_DMG + DEX + SNK) * VULN)/RESIST on CRIT_RANGE]  
+RNGD_ADV: [attack ADV + INSP plus TOHIT_RNGD vs AC for ((RANGED_DMG + DEX + SNK) * VULN)/RESIST crit ((CRIT_RNGD_DMG + DEX + SNK) * VULN)/RESIST on CRIT_RANGE] 
+
+\Damage Outputs\
+output MELEE_ATK named "Basic Melee"
+output MELEE_ATK_IMPCRIT named "Basic Melee with Improved Critical"
+output MELEE_ADV named "Advantage Melee"
+output MELEE_ATK + EXTRA_ATK named "Basic Melee Attack Extra(1)"
+output MELEE_ADV + EXTRA_ATK named "Basic Melee Attack Extra(1) with Advantage"
+output MELEE_ATK + MULTIATK named "Two Weapon Fighting"
+output MELEE_ADV + MULTIATK named "Two Weapon Fighting with Advantage"
+output (MELEE_ATK + MULTIATK) + (EXTRA_ATK + MULTIATK) named "Two Weapon Fighting Extra(1)"
+output RNGD_ATK named "Basic Ranged" 
+output RNGD_ADV named "Advantage Ranged"

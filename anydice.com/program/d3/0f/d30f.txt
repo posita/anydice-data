@@ -1,0 +1,62 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: disadvantage{
+ result: [damage for [attack [lowest 1 of 2d20] vs DEFENSE]]
+}
+
+ARMOR: d{0..8}
+DEX: 2
+DEFENSE: 10+ARMOR+DEX
+
+ATTACK: 2 + 2
+HITDAMAGE: d8 + 2
+CRITICALDAMAGE: 2*(d8+2)
+MISSDAMAGE: 0
+output 2d[attack] named "bow"
+
+ATTACK: 2 + 2
+HITDAMAGE: 2d6 + 2
+CRITICALDAMAGE: 2*(2d6+2)
+MISSDAMAGE: 0
+output 2d[attack] named "maul"
+
+set "explode depth" to 20
+DEFENSE: 10+DEX
+
+ATTACK: 2 + 2
+HITDAMAGE: 2d[explode d6] + 2
+CRITICALDAMAGE: 2*(2d[explode d6] + 2)
+MISSDAMAGE: 0
+output 1d[attack] named "musket"
+
+ATTACK: 2 + 2
+HITDAMAGE: 2d[explode d6] + 2
+CRITICALDAMAGE: 2*(2d[explode d6] + 2)
+MISSDAMAGE: 0
+output 2d[attack] named "pistols"

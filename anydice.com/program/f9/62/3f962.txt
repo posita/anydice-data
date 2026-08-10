@@ -1,0 +1,89 @@
+\ Which one is best: Two-Gun Kid or Double Shot ? \ 
+\ Double Shot is a limited action, so I will be comparing it to multi-action with two and three actions with a gun \
+set "explode depth" to 3
+
+\ Parametre vi setter. Defense er enten parry eller 4+Cover \
+DEFENSE: 4
+TOUGHNESS: 4
+ATTACK_SKILL: [explode d8]
+
+MAXWOUNDS: 4
+WILD_DIE: [explode d6]
+
+\ NO TOUCHING BELOW \
+EDS: [explode d6]
+
+\ Double Attack Dice \
+\ Angrep 1: Den hÃ¸yeste av pilterning-rullene \
+\ Angrep 2: Hvis d6-rullet er hÃ¸yere enn det laveste pilterning-rullet, d6, ellers pilterning-rullet \
+DS_ARROW_ONE: [highest of ATTACK_SKILL and ATTACK_SKILL]
+DS_ARROW_TWO: [highest of [lowest of ATTACK_SKILL and ATTACK_SKILL] and WILD_DIE]
+
+\ Two-Gun Kid dice \
+\ Angrep 1: skudd-terning + wild die \
+\ Angrep 2: som angrep 1, men -2 \
+TGK_SHOT_ONE: [highest of ATTACK_SKILL and WILD_DIE]
+TGK_SHOT_TWO: ([highest of ATTACK_SKILL and WILD_DIE]) -2
+
+\ Vanlig multi-attack: To angrep gir -2 pÃ¥ begge, tre gir -4 pÃ¥ alle tre \
+TWO_MULTI_ATTACKS: ([highest of ATTACK_SKILL and WILD_DIE]) -2
+THREE_MULTI_ATTACKS: ([highest of ATTACK_SKILL and WILD_DIE]) -3
+
+\ Angrepsfunksjonen \
+\ 1 er treff, 2 er raise, 0 er bom, -1 er critfail \
+function: tohit DEFENSE with DIE:n {
+  if DIE = 1 { result: -1 }
+  if DIE >= DEFENSE+4 { result: 2 } 
+  if DIE >= DEFENSE { result: 1 }
+  result: 0
+}
+
+\ WOUNDS-funksjonen \
+\ returnerer antall wounds+1, sÃ¥ 1 er shaken, 2 er 1 wound \
+\ input er tohit-sjansen, skaden, fiendens toughness, og skaderaise-die fra angrep \
+function: wounds with atk result ATK_RES:n and dmg DMG:n vs toughness TN possible raise PR:n {
+  if ATK_RES <= 0 { result: ATK_RES }
+  if ATK_RES = 1 { DMG: DMG+PR }
+  if (DMG-TN)/4 > MAXWOUNDS { result: MAXWOUNDS }
+  \ divisjon runder ned til heltall \
+  result: (DMG-TN)/4+1
+}
+
+\ setter opp skuddene mot den defense vi har satt. Defense er parry eller 4+cover \
+TOHIT_DS_ONE: [tohit DEFENSE with DS_ARROW_ONE]
+TOHIT_DS_TWO: [tohit DEFENSE with DS_ARROW_TWO]
+TOHIT_TGK_ONE: [tohit DEFENSE with TGK_SHOT_ONE]
+TOHIT_TGK_TWO: [tohit DEFENSE with TGK_SHOT_TWO]
+
+\ Her kommer antall wounds. 0 er vanlig treff => shaken \
+output [wounds with atk result TOHIT_DS_ONE and dmg DMG_ARROW vs toughness TOUGHNESS possible raise EDS] 
+    named "Wounds med Double Shot fÃ¸rste pil"
+
+output TOHIT_DS_ONE named "DS arrow 1: Tohit chances"
+output DS_ARROW_ONE named "Double Shot pil 1, eller Frenzy angrep 1"
+
+\ Elegant mÃ¥te Ã¥ mÃ¥le treff, men som ikke tar med raises \
+
+TOHIT_DS_A: [highest of ATTACK_SKILL and ATTACK_SKILL] >= DEFENSE
+TOHIT_DS_B: [highest of [lowest of ATTACK_SKILL and ATTACK_SKILL] and WILD_DIE] >= DEFENSE
+TOHIT_TGK_A: [highest of ATTACK_SKILL and WILD_DIE] >= DEFENSE
+TOHIT_TGK_B: ([highest of ATTACK_SKILL and WILD_DIE]) -2 >= DEFENSE
+
+DMG_ARROW: [explode 2d6] >= TOUGHNESS
+DMG_GUN: [explode 2d6]+1 >= TOUGHNESS
+
+\
+output TOHIT_DS_A*DMG_ARROW named "Double Shot Arrow A damage"
+output TOHIT_TGK_A*DMG_GUN named "Two-Gun Kid 2 attacks Shot A damage"
+\
+
+output DS_ARROW_TWO named "Double Shot pil 2, eller Frenzy angrep 2"
+
+
+\ HERETTER KOMMER UTTAK \
+
+\
+output TGK_SHOT_ONE named "Two-Gun Kid shot 1, eller Two-Fisted angrep 1"
+output TGK_SHOT_TWO named "Two-Gun Kid shot 2, eller Two-Fisted angrep 2"
+\
+

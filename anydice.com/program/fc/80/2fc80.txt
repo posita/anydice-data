@@ -1,0 +1,58 @@
+ARMORMULT: 1
+ARMOR: 0
+EVASION: 9
+PROF: 1
+ACC: 0
+DIFF: 0
+ADV: 0
+CRITTHRES: 20
+HITDAM: 1d6
+MISSDAM: 0
+CRITDAM: [highest 1 of 2d6]
+
+TOTALACC: ACC - DIFF
+if TOTALACC > 0 {
+ACCMOD: {1}@(TOTALACC)d6
+}
+
+if TOTALACC < 0 {
+ACCMOD: (-1) * {1}@([absolute TOTALACC])d6
+}
+
+if TOTALACC = 0 {
+ACCMOD: 0
+}
+
+if ADV = 1 {
+ATTDIE: {1}@2d20
+}
+
+if ADV = -1 {
+ATTDIE: {2}@2d20
+}
+
+if ADV = 0 {
+ATTDIE: 1d20
+}
+
+ATTROLL: ATTDIE + ACCMOD + PROF
+
+function: damout A:n vs B:n at threshold C with M on miss H on hit T on crit {
+if A < B {
+result: M
+}
+
+if A >= B {
+if A < C {
+result: H
+}
+
+else {
+result: T
+}
+}
+}
+
+FINALDAM: [highest of ([damout ATTROLL vs EVASION at threshold CRITTHRES with MISSDAM on miss HITDAM on hit CRITDAM on crit] - (ARMORMULT * ARMOR)) and 0]
+
+output FINALDAM

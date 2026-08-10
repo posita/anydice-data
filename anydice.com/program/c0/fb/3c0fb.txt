@@ -1,0 +1,37 @@
+function: pool P:s B:n {
+  I: 1+B
+  loop D over {1..#P}{
+    if D@P=20 {result: 20}
+    if D@P=1 {I: I+1}
+  }
+  if I>#P {result: 0}
+  result: I@P
+}
+
+function: damage P:n E:n over T:n {
+  C: P=20
+  if P+E>=T { result: 1+(P+E-T)/5+C*2 }
+  else { result: 0 }
+}
+
+function: edges TW:n TE:n EI:n SI:n FO:n {
+  result: [highest of 1@TWd12 and 
+    [highest of 1@TEd10 and 
+    [highest of 1@EId8 and 
+    [highest of 1@SId6 and 1@FOd4]
+  ]]]
+}
+
+output [damage [pool 4d20 0] [edges 0 0 1 0 0] over 15]
+
+function: path R:n M:n L:n D:n T:n {
+  if R+M+L>=T {
+    S: dD+M
+    if R=20 | R+M+L>=T+10 {S: S*2}
+    result: S
+  }
+  else { result: 0 }
+}
+
+output (d12+3)/2
+output ((d12+3)*2)/5

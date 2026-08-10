@@ -1,0 +1,70 @@
+set "maximum function depth" to 4
+
+function: roll DICE:d against dr DIFFICULTY:n {
+  result: [count {DIFFICULTY..10} in DICE]
+}
+
+function: roll DICE:d against dr DIFFICULTY:n with disadvantage of DIS:n {
+  result: [roll DICE against dr DIFFICULTY with disadvantage of DIS]
+}
+
+function: get successes for ROLLEDVALUE:n DIE:n against dr DIFFICULTY:n {
+  if ROLLEDVALUE = DIE { result: 1 + [get successes for dDIE DIE against dr DIFFICULTY] }
+  if ROLLEDVALUE >= DIFFICULTY { result: 1 }
+  result: 0
+}
+
+function: get successes for ROLLEDVALUE:n DIE:n against dr DIFFICULTY:n with disadvantage of DISADVANTAGE:n {
+  if ROLLEDVALUE = DIE { result: 1 + [get successes for dDIE DIE against dr DIFFICULTY] }
+  if ROLLEDVALUE >= DIFFICULTY { result: 1 }
+  if ROLLEDVALUE <= DISADVANTAGE { result: -1 }
+  result: 0
+}
+
+
+function: get failures only for ROLLEDVALUE:n DIE:n with disadvantage of DISADVANTAGE:n {
+  if ROLLEDVALUE = DIE { result: 1 + [get successes for dDIE DIE against dr DIFFICULTY] }
+  if ROLLEDVALUE <= DISADVANTAGE { result: -1 }
+  result: 0
+}
+
+function: roll exploded COUNT:n de DIE:n against dr DIFFICULTY:n {
+  RES: 0
+  loop N over {1..COUNT} {
+    RES: RES + [get successes for dDIE DIE against dr DIFFICULTY]
+  }
+  result: RES
+}
+
+function: roll exploded COUNT:n de DIE:n against dr DIFFICULTY:n with disadvantage of DIS:n {
+  RES: 0
+  loop N over {1..COUNT} {
+    RES: RES + [get successes for dDIE DIE against dr DIFFICULTY with disadvantage of DIS]
+  }
+  if DIS > COUNT {
+    DIFFERENCE: DIS - COUNT
+    loop N over {1..DIFFERENCE} {
+      RES: RES + [get failures only for dDIE DIE with disadvantage of DIS]
+    }
+  }
+  result: RES
+}
+
+\ output [roll 7d10 against dr 7 with disadvantage of 2] \
+
+\ output [roll exploded 6 de 10 against dr 6] named "exploding 6d10 vs DR 6" \
+\ output [roll 6d10 against dr 6] named "non-exploding 6d10 vs DR 6" \
+output [roll exploded 4 de 20 against dr 10] named "exploding 4d20 vs DR 10"
+output [roll exploded 4 de 20 against dr 10 with disadvantage of 1] named "exploding 4d20-1 vs DR 10"
+output [roll exploded 4 de 20 against dr 10 with disadvantage of 2] named "exploding 4d20-2 vs DR 10"
+output [roll exploded 4 de 20 against dr 10 with disadvantage of 3] named "exploding 4d20-3 vs DR 10"
+output [roll exploded 4 de 20 against dr 10 with disadvantage of 4] named "exploding 4d20-4 vs DR 10"
+output [roll exploded 4 de 20 against dr 10 with disadvantage of 5] named "exploding 4d20-5 vs DR 10"
+output [roll exploded 1 de 20 against dr 10] named "exploding 1d20 vs DR 10"
+output [roll exploded 1 de 20 against dr 10 with disadvantage of 1] named "exploding 1d20-1 vs DR 10"
+output [roll exploded 1 de 20 against dr 10 with disadvantage of 2] named "exploding 1d20-2 vs DR 10"
+output [roll exploded 1 de 20 against dr 10 with disadvantage of 3] named "exploding 1d20-3 vs DR 10"
+output [roll exploded 1 de 20 against dr 10 with disadvantage of 4] named "exploding 1d20-4 vs DR 10"
+output [roll exploded 1 de 20 against dr 10 with disadvantage of 5] named "exploding 1d20-5 vs DR 10"
+
+

@@ -1,0 +1,106 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [offhand damage for ATTACKRESULTS]
+}
+
+function: offhand damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + OFFHANDCRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + OFFHANDHITDAMAGE
+  }
+  else {
+   D: D + OFFHANDMISSDAMAGE
+  }
+ }
+ result: D
+}
+
+function: extra damage for ATTACKRESULTS:s {
+ result: 0
+}
+
+function: extra damage for ATTACKRESULTS:s {
+ result: [offhand damage for ATTACKRESULTS]
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+\ battle axe \
+ATTACK: 5 + 2
+HITDAMAGE: d10 + 5 + 2
+CRITICALDAMAGE: 17
+MISSDAMAGE: 0
+\ hand axe \
+OFFHANDHITDAMAGE: d6 + 5 + 2
+OFFHANDCRITICALDAMAGE: 13
+OFFHANDMISSDAMAGE: 0
+output [attack] named "Battleaxe + Hand Axe + Spinning Axe"
+
+\ battle axe \
+ATTACK: 5 + 2 + 1
+HITDAMAGE: d10 + 5
+CRITICALDAMAGE: 15
+MISSDAMAGE: 0
+\ short sword \
+OFFHANDHITDAMAGE: d6 + 5
+OFFHANDCRITICALDAMAGE: 11
+OFFHANDMISSDAMAGE: 0
+output [attack] named "Battleaxe + Short Sword + Flashing Blade"
+
+\ longsword \
+ATTACK: 5 + 3
+HITDAMAGE: d8 + 5 + 2
+CRITICALDAMAGE: 15
+\ hand axe \
+OFFHANDHITDAMAGE: d6 + 5 + 2
+OFFHANDCRITICALDAMAGE: 13
+OFFHANDMISSDAMAGE: 0
+output [attack] named "Longsword + Hand Axe + Spinning Axe"
+
+
+\ longsword \
+ATTACK: 5 + 3 + 1
+HITDAMAGE: d8 + 5
+CRITICALDAMAGE: 13
+\ short sword \
+OFFHANDHITDAMAGE: d6 + 5
+OFFHANDCRITICALDAMAGE: 11
+OFFHANDMISSDAMAGE: 0
+output [attack] named "Longsword + Short Sword + Flashing Blade"

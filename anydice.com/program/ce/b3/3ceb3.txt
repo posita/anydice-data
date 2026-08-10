@@ -1,0 +1,50 @@
+
+
+MONK_LEVEL: 6
+CONSTITUTION: 14
+TOUGH: 0 
+DWARVEN_TOUGHNESS: 0
+HP_MOD: (CONSTITUTION/2 - 5) + (TOUGH*2)+ DWARVEN_TOUGHNESS
+STARTING_HP: [highest of (8 + HP_MOD) and 1]
+
+HP: STARTING_HP + ((MONK_LEVEL - 1)* [highest of (5 + HP_MOD) and 1])
+
+
+
+function: fall damage from H:n {
+  REDUCTION: 0
+  if MONK_LEVEL >= 4 {
+    REDUCTION: 5 * MONK_LEVEL
+  }
+  DAMAGE: [highest of 0 and (([lowest of H and 200]/10)d6 - REDUCTION)]
+  result: DAMAGE
+}
+
+
+function: no damage from H:n {
+  REDUCTION: 0
+  if MONK_LEVEL >= 4 {
+    REDUCTION: 5 * MONK_LEVEL
+  }
+  DAMAGE: [highest of 0 and (([lowest of H and 200]/10)d6 - REDUCTION)]
+  result: DAMAGE = 0
+}
+
+
+
+function: survived fall from H:n {
+  REDUCTION: 0
+  if MONK_LEVEL >= 4 {
+    REDUCTION: 5 * MONK_LEVEL
+  }
+  DAMAGE: [highest of 0 and (([lowest of H and 200]/10)d6 - REDUCTION)]
+  result: DAMAGE < HP
+}
+
+
+
+loop HEIGHT over {(1d21 - 1) * 10} {
+  \output [fall damage from HEIGHT] named "[HEIGHT] feet"\
+  \output [survived fall from HEIGHT] named "[HEIGHT] feet"\
+  output [no damage from HEIGHT] named "[HEIGHT] feet"
+}

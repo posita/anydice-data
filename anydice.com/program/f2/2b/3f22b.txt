@@ -1,0 +1,34 @@
+function: attack R:s catapult C:n {
+ \ Leadership reroll. LTH is known from calling context. \
+ result: (R >= LTH) + [lowest of R = 1 and C]
+}
+
+function: attack R:s catapult C:n leadership L:n combattohit CTH:n leadershiptohit LTH:n {
+ \ Catapult hits. \
+ CPHITS: [lowest of R = 1 and C]
+ \ Total hits. \
+ HITS: (R >= CTH) + CPHITS
+ \ Misses caught by leadership. \
+ LS: [lowest of #R - HITS and L]
+ if LS {
+  \ Boost hits with leadership and remaining catapults. \
+  HITS: HITS + [attack LSd6 catapult C - CPHITS]
+ }
+ result: HITS
+}
+
+\output [attack 5d6 catapult 0 leadership 1 combattohit 3 leadershiptohit 3]  named "HD"\
+
+
+function: moves M:n another way C:n {
+  result: [Md{0,0,1,1,1,2} another way]
+}
+
+function: R:s another way {
+  if C {
+    result: (R = 1) + [lowest of (R = 2) and 1]
+  }
+  result: R = 1
+}
+
+output [moves 9 another way 1]

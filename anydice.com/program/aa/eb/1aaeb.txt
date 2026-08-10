@@ -1,0 +1,131 @@
+\ Blast Sorc-Lock \
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+BIGATTACK: 3 + 3 + 1
+SMALLATTACK: 3 + 3 + 1
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 3
+SMALLHITDAMAGE: 1d10 + 3
+SMALLCRITICALDAMAGE: 2d10 + 3
+MISSDAMAGE: 0
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+\ Level 5 \
+
+output [bigmultiattackdoubleadvantage 1] + [bigmultiattack 3] named "level 5 sorc-lock w/hex vs AC[AC]"
+
+AC:15
+output [bigmultiattackdoubleadvantage 1] + [bigmultiattack 3] named "level 5 sorc-lock w/hex vs AC[AC]"
+
+AC:20
+output [bigmultiattackdoubleadvantage 1] + [bigmultiattack 3] named "level 5 sorc-lock w/hex vs AC[AC]"
+
+AC:25
+output [bigmultiattackdoubleadvantage 1] + [bigmultiattack 3] named "level 5 sorc-lock w/hex vs AC[AC]"
+
+AC:10
+output [smallmultiattackadvantage 4] named "level 5 sorc-lock w/darkness vs AC[AC]"
+
+AC:15
+output [smallmultiattackadvantage 4] named "level 5 sorc-lock w/darkness vs AC[AC]"
+
+AC:20
+output [smallmultiattackadvantage 4] named "level 5 sorc-lock w/darkness vs AC[AC]"
+
+AC:25
+output [smallmultiattackadvantage 4] named "level 5 sorc-lock w/darkness vs AC[AC]"
+
+AC:10
+output [smallmultiattackdoubleadvantage 4] named "level 5 sorc-lock w/darkness w/EA vs AC[AC]"
+
+AC:15
+output [smallmultiattackdoubleadvantage 4] named "level 5 sorc-lock w/darkness w/EA vs AC[AC]"
+
+AC:20
+output [smallmultiattackdoubleadvantage 4] named "level 5 sorc-lock w/darkness w/EA vs AC[AC]"
+
+AC:25
+output [smallmultiattackdoubleadvantage 4] named "level 5 sorc-lock w/darkness w/EA vs AC[AC]"
+
+

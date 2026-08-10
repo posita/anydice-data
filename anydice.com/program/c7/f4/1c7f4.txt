@@ -1,0 +1,32 @@
+function: reroll DIE:n with NEW:n {
+ ROLL: 0
+   if DIE = 6 { ROLL: DIE } else { ROLL: NEW }
+   if ROLL = 6 { result: 1 } else { result: 0 }
+}
+
+function: take DIE:n {
+ ROLL: DIE
+   if ROLL = 6 { result: 1 } else { result: 0 }
+}
+
+function: fell N:n in DICE:s {
+
+ A: 1@DICE
+ B: 2@DICE
+ C: 3@DICE
+ D: 4@DICE
+ E: 5@DICE
+
+  if N >= 1 { E: [reroll E with 1d6] } else { E: [take E] }
+  if N >= 2 { D: [reroll D with 1d6] } else { D: [take D] }
+  if N >= 3 { C: [reroll C with 1d6] } else { C: [take C] }
+  if N >= 4 { B: [reroll B with 1d6] } else { B: [take B] }
+  if N >= 5 { A: [reroll A with 1d6] } else { A: [take A] }
+
+result: E+D+C+B+A
+  
+}
+
+loop N over {0..5}{
+output [fell N in 5d6] named "[N]"
+}

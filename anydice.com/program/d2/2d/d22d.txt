@@ -1,0 +1,74 @@
+
+function: ROLL:s hits vs DC:n ATTR:n{
+ if (ROLL = 0){result: ([1d12 hits vs (DC+1) ATTR])}
+ ACES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ if (SUCCESSES-ACES>ATTR) {result: ATTR}
+ if (SUCCESSES-ACES<-1) {
+     if (SUCCESSES-ACES<-ATTR) { result: -ATTR}
+     result: SUCCESSES-ACES
+ }result: SUCCESSES-ACES
+}
+
+BOTCH:-1
+MISS:0
+HIT:1
+CRIT:2
+
+function: attack ATTACK:n vs defense DEFENSE:n {
+ if ATTACK < 0 { result: BOTCH}
+
+  if ATTACK  > (DEFENSE) { 
+  if ATTACK > (DEFENSE+1){
+\result: (ATTACK-(DEFENSE+1))\
+result: (ATTACK-DEFENSE)
+}
+  result: HIT}
+ result: MISS
+}
+
+
+
+function: ROLL:s hits vs DC:n{
+ BADONES: (ROLL = 1)
+ SUCCESSES: (ROLL >= DC)
+ CRITICAL: (ROLL=12)
+ MODS: SUCCESSES-BADONES+CRITICAL
+ if (MODS>6) {result: 6}
+ if (MODS<-6) {result: -6}
+ result: MODS
+}
+
+function: HITS:s damage with THREAT:n ARMOR:n{
+if (HITS <= 0) {result: 0}
+if (HITS < THREAT + ARMOR) {result: 1}
+if (HITS < 2*THREAT + ARMOR) {result: 2}
+if (HITS < 3*THREAT + ARMOR) {result: 3}
+if (HITS < 4*THREAT + ARMOR) {result: 4}
+if (HITS < 5*THREAT + ARMOR) {result: 5}
+if (HITS < 6*THREAT + ARMOR) {result: 6}
+if (HITS < 7*THREAT + ARMOR) {result: 7}
+}
+
+DICE:3
+DC:9
+ATTRA:0
+ATTRD:0
+ATT: 0
+DEF: 0
+ADV: 0
+THREAT: 2
+ARMOR: 0
+
+loop DEF over {-3,0,3}{
+
+ATTACKDICE: DICE+ATT
+DEFENDERDICE : DICE+DEF
+output [attack [(DICE+ATT)d12 hits vs (DC+ADV)]+ATTRA vs defense [(DICE+DEF)d12 hits vs (DC)] + ATTRD] named "[ATTACKDICE]d12+[ATTRA]  vs  [DEFENDERDICE]d12+[ATTRD]"
+
+loop THREAT over {2,3}{
+
+output [[attack [(DICE+ATT)d12 hits vs (DC+ADV)]+ATTRA vs defense [(DICE+DEF)d12 hits vs (DC)] + ATTRD] damage with THREAT ARMOR]d10 named "D4 THREAT [THREAT] Armor [ARMOR] DEF +[DEF]"
+
+output [[attack [(DICE+ATT)d12 hits vs (DC+ADV)]+ATTRA vs defense [(DICE+DEF)d12 hits vs (DC)] + ATTRD] damage with THREAT ARMOR]d12 named "D6 THREAT [THREAT] Armor [ARMOR] DEF +[DEF]"
+}}

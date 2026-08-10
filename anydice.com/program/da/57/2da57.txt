@@ -1,0 +1,48 @@
+ROLL: 3d6
+SKILL: 15
+output SKILL named "Skill"
+MARGIN: SKILL - ROLL
+POSMARGIN: [highest of 0 and MARGIN+1]
+NEGMARGIN: [lowest of 0 and MARGIN]
+output MARGIN named "MoS"
+
+SHOTS: 8
+RCL: 1
+
+output MARGIN >= 0 named "Chance of 0m Airburst"
+CLOSE: [count {1, 2, 3} in -NEGMARGIN]
+output CLOSE named "Chance of miss @ 1m Airburst"
+MED: [count {4,5,6,7,8} in -NEGMARGIN]
+output MED named "Chance of miss @ 2m Airburst"
+
+HITS: [lowest of SHOTS and (POSMARGIN) / RCL]
+output HITS named "Number of Hits"
+
+MISSED: SHOTS - HITS
+output MISSED named "Number of missed RoF shots"
+
+DAMAGE: 2d6
+REGULARD: DAMAGE * HITS
+output REGULARD named "0m Airbust E(Damage)"
+CLOSED: CLOSE * (DAMAGE / 3)
+output CLOSED named "1m Airburst E(Damage)"
+MEDD: MED * (DAMAGE / 6)
+output MEDD named "2m Airburst E(Damage)"
+
+TOTAL: REGULARD + CLOSED + MEDD
+output TOTAL named "Total Damage"
+
+HP: 16
+HPN: [count {0..(HP-1)} in TOTAL]
+HPO: [count {HP..(HP*2-1)} in TOTAL]
+HPTW: [count {HP*2..(HP*3-1)} in TOTAL]
+HPTH: [count {HP*3..(HP*4-1)} in TOTAL]
+HPFO: [count {HP*4..(HP*5-1)} in TOTAL]
+HPFI: [count {HP*5..(HP*6-1)} in TOTAL]
+HPS: TOTAL >= HP*6
+output HPO named "HP 0"
+output HPTW named "-1xHP"
+output HPTH named "-2xHP"
+output HPFO named "-3xHP"
+output HPFI named "-4xHP"
+output HPS named "-5xHP"

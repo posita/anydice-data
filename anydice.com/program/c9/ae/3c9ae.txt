@@ -1,0 +1,48 @@
+
+LOOPS: 1
+DICE: 0
+
+function: levelup A:n to B:n { \standard level up function\
+ NEWHP: [newhp A and Bd8]
+ result: NEWHP
+}
+
+function: dwarflevelup A:n to B:n { \dwarf level up function\
+ DHP: [dwarfloop B]
+ NEWHP: [newhp A and DHP]
+ result: NEWHP
+}
+
+function: dwarfloop A:n { \rolls dice with advantage to determine new dwarf hp\
+ DICE: DICE + [highest 1 of 2d8]
+ LOOPS: LOOPS + 1
+ if LOOPS > A {result: DICE}
+ result: [dwarfloop A]
+}
+
+function: newhp A:n and B:n { \determines new hp\
+ if B > A {result: B}
+ result: A+1
+}
+
+ONE: 1d8
+TWO: [levelup ONE to 2]
+THREE: [levelup TWO to 3]
+FOUR: [levelup THREE to 4]
+FIVE: [levelup FOUR to 5]
+
+DONE: 1d8
+DTWO: [dwarflevelup DONE to 2]
+DTHREE: [dwarflevelup DTWO to 3]
+DFOUR: [dwarflevelup DTHREE to 4]
+DFIVE: [dwarflevelup DFOUR to 5]
+
+output FIVE named "adjusted hp"
+
+output 5d8 named "default hp"
+
+output DFIVE named "dwarf adjusted hp"
+
+output [dwarfloop 5] named "dwarf default hp"
+
+output [highest of 1d8 and 4] + [highest of 1d8 and 4] + [highest of 1d8 and 4] + [highest of 1d8 and 4] + [highest of 1d8 and 4] named "half lowest hp"

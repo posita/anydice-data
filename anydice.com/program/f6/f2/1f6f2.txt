@@ -1,0 +1,45 @@
+BAB: 3
+DEX: 4
+BLESS: 1
+RAPID_SHOT: -2
+WEAPON_FOCUS: 1
+WEAPON_TRAINING: 1
+ENHANCEMENT: 1
+POINT_BLANK: 1
+SACRED_DAMAGE: d4
+DIVINE_FAVOR: 2
+AC: 16
+
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ TODO: confirm crits \
+function: attack roll ROLL:n plus BONUS:n for DAMAGE:d and EXTRA_DAMAGE:d {
+  TOTAL: ROLL + BONUS
+
+  if (ROLL = 1 | TOTAL < AC) {
+    result: 0
+  } else if (ROLL >= 19) {
+    result: DAMAGE + DAMAGE + EXTRA_DAMAGE
+  } else {
+    result: DAMAGE + EXTRA_DAMAGE
+  }
+}
+
+output
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + BLESS + RAPID_SHOT
+    for d6 + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK
+    and SACRED_DAMAGE
+  ] +
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + BLESS + RAPID_SHOT
+    for d6 + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK
+    and SACRED_DAMAGE
+  ]
+  named "Lawgiver"

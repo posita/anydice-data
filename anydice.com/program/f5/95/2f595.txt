@@ -1,0 +1,27 @@
+ABILITY: 4
+
+function: relabel SIDE:n {
+  if SIDE <= ABILITY { result: 1 }  \ success \
+  else if SIDE < 6   { result: 0 }  \ normal failure \
+  else { result: -1 }  \ critical failure \
+}
+DIE: [relabel d6]
+
+DICE: 3dDIE
+
+function: roll ROLL:s until X:n successes or Y:n failures or Z:n crit fails {
+  S: ROLL = 1   \ count successes in roll \
+  F: ROLL <= 0  \ count failures (including crits) in roll \
+  C: ROLL = -1  \ count critical failures in roll \
+  ENCODED: 100 * S + 10 * F + C
+  if S >= X | F >= Y | C >= Z {
+    result: ENCODED
+  } else {
+    result: ENCODED + [roll DICE until X-S successes or Y-F failures or Z-C crit fails]
+  }
+}
+
+set "maximum function depth" to 99
+
+output [roll DICE until 30 successes or 3 failures or 2 crit fails]
+  named "100 * successes + 10 * failures + crit fails"

@@ -1,0 +1,51 @@
+function: stunt FIRST: n SECOND:n THIRD:n {
+  DICE: {FIRST, SECOND, THIRD}
+
+  if [count 1 in DICE] > 1{
+      result: 3@DICE
+  }
+  if [count 2 in DICE] > 1{
+      result: 3@DICE
+  }
+  if [count 3 in DICE] > 1{
+      result: 3@DICE
+  }
+  if [count 4 in DICE] > 1{
+      result: 3@DICE
+  }
+  if [count 5 in DICE] > 1{
+      result: 3@DICE
+  }
+  if [count 6 in DICE] > 1{
+      result: 3@DICE
+  }
+  result: 0
+}
+
+function: stuntandsucceed BONUS:n TARGET:n FIRST:n SECOND:n THIRD:n {
+   RESULT: FIRST+SECOND+THIRD+BONUS
+   if RESULT >= TARGET {
+      result: [stunt FIRST SECOND THIRD] 
+   }
+   result: -1
+}
+
+function: attack ATTACKBONUS:n DAMAGEBONUS:n AC:n TOHIT:n DAMAGE:n {
+  SWING: TOHIT + ATTACKBONUS
+  if SWING >= AC {
+    result: DAMAGE + DAMAGEBONUS
+  } else {
+    result: 0
+  }
+}
+
+function: swordhit ATTACKBONUS:n DAMAGEBONUS:n AC:n {
+ result: [attack ATTACKBONUS DAMAGEBONUS AC 1d20 1d8]
+}
+
+function: monkhit ATTACKBONUS:n DAMAGEBONUS:n AC:n {
+ result: ([attack ATTACKBONUS DAMAGEBONUS AC 1d20 1d4] + [attack ATTACKBONUS DAMAGEBONUS AC 1d20 1d4])
+}
+
+output [stunt 1d6 1d6 1d6] named "Stunts"
+output [stuntandsucceed 0 10 1d6 1d6 1d6] named "Succeed With A Stunt"

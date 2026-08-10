@@ -1,0 +1,76 @@
+\---- How to use ----\
+\Adjust the variables below (MOD, DIE, NUMDIE, MIN, CRIT) to change calculation & click "Calculate" below the textbox\
+\--------------------------------------------------------------------------------------------------------------------\
+\EXAMPLE, DO NOT EDIT:                                                                                               \
+\For Great Weapon Fighter with a Halberd you would use the following:                                             \
+\MOD: [Strength modifier]                                                                                            \
+\DIE: 10      (Halberd damage: 1d[10])                                                                              \
+\NUMDIE: 1   (Halberd damage: [1]d10)                                                                              \
+\MIN: 2      (Default for GWF is reroll 1s and 2s)                                                               \
+\CRIT: 20    (Default crit value of fighter)                                                                   \
+\--------------------------------------------------------------------------------------------------------------------\
+
+\VARIABLES - Edit these to change output!                           \
+\-------------------------------------------------------------------\
+MOD:3     \This is the damage modifier. I.E. Strength modifier, etc.\
+DIE:6     \Die size. I.E. DIE:10 for d10                              \
+NUMDIE:2  \Number of damage dice. I.E. NUMDIE:1 for Halberd/Maul \
+MIN:2     \Lower limit for Great Weapon Fighter. Default of 2       \
+CRIT: 20  \Minimum roll for a crit. Default 20                      \                                
+\-------------------------------------------------------------------\
+
+\Don't touch the code below, this is where the magic happens!\
+\It's been documented for others to understand functionality \
+\------------------------------------------------------------\
+
+\Description -----------------------------------------------------------------------------------\
+\This function returns the re-rolled value of the die if it is lower or equal to the lower limit\
+\Variables -------------------------------------------------------------------------------------\
+\A = Initial input value. I.E. 1 to 10 for d10                                                    \
+\B = Lower reroll limit. I.E. 2 for Great Weapon Fighter                                        \
+\C = Dice value. I.E. 10 for d10                                                                  \
+\-----------------------------------------------------------------------------------------------\
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+\Description ---------------------------------------------\
+\This function simulates the Great Weapon Master feat     \
+\Variables -----------------------------------------------\
+\A = Dice value I.E. A=10 for 1d10                          \
+\B = Number of damage dice I.E. B = 1 for Halberd (1d10)\
+\C = Lower limit for reroll. Default 2                    \
+\---------------------------------------------------------\
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+\Description ---------------------------------------------\
+\This function returns 2 if the user crits                \
+\Variables -----------------------------------------------\
+\A = Dice roll. Default 1 to 20 (1d20)                    \
+\B = Minimum critical roll. Default 20                    \
+\---------------------------------------------------------\
+
+function: getcrit A:n B:n { 
+ if A >= 20 { 
+  result:2 
+ }
+ else { 
+  result:1 
+ } 
+}
+
+MUL:[getcrit 1d20 CRIT]
+
+output (MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD named "Great Weapon Fighter Attack without Savage Attacker"
+output [highest of ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD) and ((MUL * [greatweaponmaster DIE NUMDIE MIN]) + MOD)] named "Great Weapon Fighter using Savage Attacker on both rolls"

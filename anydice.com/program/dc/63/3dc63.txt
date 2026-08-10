@@ -1,0 +1,93 @@
+function: results ROLL:n {
+    if ROLL <= 9 {result: 1}
+    if ROLL >= 9 & ROLL <= 13 {result: 2}
+    if ROLL >= 14 & ROLL <= 22 {result: 4}
+    if ROLL >= 23 & ROLL <= 26 {result: 3}
+    result: 5
+}
+
+function: interpret ROLL:s {
+\
+ if [count {1..5} in ROLL] { result: 1 } 
+ if [count {6..20} in ROLL] { result: 2 }
+ if [count {21..35} in ROLL] { result: 3 } 
+ if [count {36..95} in ROLL] { result: 4 }
+ if [count {96..100} in ROLL] { result: 5 }
+\
+\
+ if [count {4..7} in ROLL] { result: 1 } 
+ if [count {8..10} in ROLL] { result: 2 }
+ if [count {11..17} in ROLL] { result: 4 } 
+ if [count {18..20} in ROLL] { result: 3 }
+ if [count {21..24} in ROLL] { result: 5 } 
+\
+\
+ if [count {1} in ROLL] { result: 1 } 
+ if [count {2} in ROLL] { result: 2 }
+ if [count {3} in ROLL] { result: 3 } 
+ if [count {4} in ROLL] { result: 4 }
+ if [count {5} in ROLL] { result: 5 }
+\
+
+ if [count {1} in ROLL] { result: 1 } 
+ if [count {2..4} in ROLL] { result: 2 }
+ if [count {5..7} in ROLL] { result: 3 } 
+ if [count {8..19} in ROLL] { result: 4 }
+ if [count {20} in ROLL] { result: 5 }
+
+}
+
+
+\
+output [interpret [highest 1 of 1d20]]
+output [highest 4 of 5d6]
+\
+
+
+\
+output [results 4d8]
+output [results [highest 4 of 5d8]]
+output [results [highest 4 of 4d5]]
+output 4d8
+\
+
+\
+function: range on DIE:n between LOW:n and HIGH:n {
+  if DIE >= LOW & DIE <= HIGH { result: 1 }
+  result: 0
+}
+output [range on [highest 4 of 8d6] between 4 and 7]
+output [range on 4d6 between 4 and 7]
+output [range on 4d6 between 8 and 10]
+output [range on 4d6 between 11 and 17]
+output [range on 4d6 between 18 and 20]
+output [range on 4d6 between 21 and 24]
+\
+
+\
+output 4@5d20
+output 4d6
+output 5d{0, 1,10,100, 1000}
+\
+
+\
+loop N over {1..4}{
+ output 1@Nd{1, 2,2,2, 3,3,3,3,3,3,3,3,3,3,3,3, 4,4,4, 5} named "[N]d"
+}
+\
+
+\output 1@Nd{-1, 0,0,0, 1,1,1, 2,2,2,2,2,2,2,2,2,2,2,2, 3} named "[N]d"\
+\output d{-1, 0,0,0, 1,1,1, 2,2,2,2,2,2,2,2,2,2,2,2, 3}\
+
+\
+loop N over {1..4}{
+ loop M over {1..4}{
+ output M@Nd{-1, 0,0,0, 1,1,1, 2,2,2,2,2,2,2,2,2,2,2,2, 3} named "[M]@[N]d"
+}
+}
+\
+
+
+loop N over {1..6}{
+output [interpret 1@Nd20]
+}

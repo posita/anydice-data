@@ -1,0 +1,117 @@
+\Daggerheart vs D&D 5e Dice System Comparison\
+
+\=== BASIC DICE ROLLS ===\
+\Daggerheart: 2d12 but matching dice = Critical, not the total\
+function: daggerheart actual roll with HOPE:n and FEAR:n {
+  if HOPE = FEAR { result: 0 } \Critical Success, not a number\
+  result: HOPE + FEAR
+}
+
+DHOPE: 1d12
+DFEAR: 1d12
+DH_ACTUAL_ROLL: [daggerheart actual roll with DHOPE and DFEAR]
+output DH_ACTUAL_ROLL named "Daggerheart Non-Critical Rolls (3-23)"
+
+\D&D 5e: 1d20\
+DND_ROLL: 1d20
+output DND_ROLL named "D&D 5e 1d20"
+
+\=== CRITICAL SUCCESS RATES ===\
+\Daggerheart: Critical when both dice match (1,1 2,2 3,3 etc.)\
+function: daggerheart critical with HOPE:n and FEAR:n {
+  if HOPE = FEAR { result: 1 }
+  result: 0
+}
+
+\D&D 5e: Critical on natural 20\
+function: dnd critical with ROLL:n {
+  if ROLL = 20 { result: 1 }
+  result: 0
+}
+
+DHOPE: 1d12
+DFEAR: 1d12
+DH_CRIT: [daggerheart critical with DHOPE and DFEAR]
+output DH_CRIT named "Daggerheart Critical Success (8.33%)"
+
+DND_CRIT: [dnd critical with DND_ROLL]
+output DND_CRIT named "D&D 5e Critical Hit (5%)"
+
+\=== SUCCESS RATES AT DIFFERENT DIFFICULTIES ===\
+\Daggerheart Difficulty 12 (common) - excludes criticals\
+DH_SUCCESS_EASY: DH_ACTUAL_ROLL >= 12
+output DH_SUCCESS_EASY named "Daggerheart Non-Crit Success vs Difficulty 12"
+
+\D&D 5e DC 12 (common)\
+DND_SUCCESS_EASY: DND_ROLL >= 12
+output DND_SUCCESS_EASY named "D&D 5e Success vs DC 12"
+
+\Daggerheart Difficulty 15 (moderate) - excludes criticals\
+DH_SUCCESS_MODERATE: DH_ACTUAL_ROLL >= 15
+output DH_SUCCESS_MODERATE named "Daggerheart Non-Crit Success vs Difficulty 15"
+
+\D&D 5e DC 15 (moderate)\
+DND_SUCCESS_MODERATE: DND_ROLL >= 15
+output DND_SUCCESS_MODERATE named "D&D 5e Success vs DC 15"
+
+\Daggerheart Difficulty 18 (hard) - excludes criticals\
+DH_SUCCESS_HARD: DH_ACTUAL_ROLL >= 18
+output DH_SUCCESS_HARD named "Daggerheart Non-Crit Success vs Difficulty 18"
+
+\D&D 5e DC 18 (hard)\
+DND_SUCCESS_HARD: DND_ROLL >= 18
+output DND_SUCCESS_HARD named "D&D 5e Success vs DC 18"
+
+\Daggerheart Difficulty 20 (very hard) - excludes criticals\
+DH_SUCCESS_VHARD: DH_ACTUAL_ROLL >= 20
+output DH_SUCCESS_VHARD named "Daggerheart Non-Crit Success vs Difficulty 20"
+
+\D&D 5e DC 20 (very hard)\
+DND_SUCCESS_VHARD: DND_ROLL >= 20
+output DND_SUCCESS_VHARD named "D&D 5e Success vs DC 20"
+
+\=== COMBINED CRITICAL OR SUCCESS ===\
+\Daggerheart: Either succeed normally OR get critical\
+function: dh total success at DIFFICULTY:n with HOPE:n and FEAR:n {
+  if HOPE = FEAR { result: 1 } \Critical always succeeds\
+  if HOPE + FEAR >= DIFFICULTY { result: 1 } \Regular success\
+  result: 0
+}
+
+DH_TOTAL_SUCCESS_EASY: [dh total success at 12 with DHOPE and DFEAR]
+output DH_TOTAL_SUCCESS_EASY named "Daggerheart Total Success vs Diff 12"
+
+DH_TOTAL_SUCCESS_MODERATE: [dh total success at 15 with DHOPE and DFEAR]
+output DH_TOTAL_SUCCESS_MODERATE named "Daggerheart Total Success vs Diff 15"
+
+DH_TOTAL_SUCCESS_HARD: [dh total success at 18 with DHOPE and DFEAR]
+output DH_TOTAL_SUCCESS_HARD named "Daggerheart Total Success vs Diff 18"
+
+DH_TOTAL_SUCCESS_VHARD: [dh total success at 20 with DHOPE and DFEAR]
+output DH_TOTAL_SUCCESS_VHARD named "Daggerheart Total Success vs Diff 20"
+
+\D&D 5e: Either succeed normally OR get critical (auto-hit)\
+function: dnd success or crit at DC:n with ROLL:n {
+  if ROLL = 20 { result: 1 }
+  if ROLL >= DC { result: 1 }
+  result: 0
+}
+
+DND_SUCCESS_OR_CRIT_EASY: [dnd success or crit at 12 with DND_ROLL]
+output DND_SUCCESS_OR_CRIT_EASY named "D&D 5e Success OR Crit vs DC 12"
+
+DND_SUCCESS_OR_CRIT_MODERATE: [dnd success or crit at 15 with DND_ROLL]
+output DND_SUCCESS_OR_CRIT_MODERATE named "D&D 5e Success OR Crit vs DC 15"
+
+DND_SUCCESS_OR_CRIT_HARD: [dnd success or crit at 18 with DND_ROLL]
+output DND_SUCCESS_OR_CRIT_HARD named "D&D 5e Success OR Crit vs DC 18"
+
+DND_SUCCESS_OR_CRIT_VHARD: [dnd success or crit at 20 with DND_ROLL]
+output DND_SUCCESS_OR_CRIT_VHARD named "D&D 5e Success OR Crit vs DC 20"
+
+\=== KEY DIFFERENCES ===\
+\Daggerheart Non-Critical Range: 3-23 (no 2,4,6,8,10,12,14,16,18,20,22,24)\
+\D&D 5e Range: 1-20\
+\Daggerheart Critical Rate: 8.33% (12/144 combinations)\
+\D&D 5e Critical Rate: 5% (1/20)\
+\Higher DCs show where D&D 5e criticals become more important!\

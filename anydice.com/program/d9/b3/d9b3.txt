@@ -1,0 +1,109 @@
+D : d{0,0,1}
+EXPLODED : d{0,0,0,0,1,2}
+DOUBLED : d{0,0,2}
+
+function : limitbreak NUMDICE 
+{
+result: NUMDICEd[myexplode EXPLODED]
+}
+
+function: myexplode N:n 
+{
+ if N > 1 { result: 1 + [myexplode EXPLODED] }
+ if N = 1 { result: 1}
+ result: 0
+}
+set "maximum function depth" to 5
+
+function: tryagainhelper N:n {
+ if N < 1 { result: D }
+ if N = 1 { result: 1}
+ result: 0
+}
+
+function : tryagain NUMDICE 
+{
+result: NUMDICEd[tryagainhelper D]
+}
+
+function: summon GEIST RESIST FLAT
+{
+result: [highest of[highest of GEISTdDOUBLED and 2] - (RESISTdD +FLAT) and 0]
+}
+
+function: summontryagain GEIST RESIST FLAT
+{
+result: [highest of[highest of GEISTdDOUBLED and 2] - (RESISTd[tryagain 1] +FLAT) and 0]
+}
+
+function: summonlimitbreak GEIST RESIST FLAT
+{
+result: [highest of[highest of GEISTdDOUBLED and 2] - (RESISTd[limitbreak 1] +FLAT) and 0]
+}
+
+function: bind GEIST RESIST FLAT
+{
+GEIST_BIND : 2 * GEIST
+result: [highest of[highest of GEIST_BINDdDOUBLED and 2] - (RESISTdD +FLAT) and 0]
+}
+
+function: bindtryagain GEIST RESIST FLAT
+{
+GEIST_BIND : 2 * GEIST
+result: [highest of[highest of GEIST_BINDdDOUBLED and 2] - (RESISTd[tryagain 1] +FLAT) and 0]
+}
+
+function: bindlimitbreak GEIST RESIST FLAT
+{
+GEIST_BIND : 2 * GEIST
+result: [highest of[highest of GEIST_BINDdDOUBLED and 2] - (RESISTd[limitbreak 1] +FLAT) and 0]
+}
+
+function: compare M:n N:n 
+{
+result: M - N
+}
+
+
+function: cmpsucc M:n N:n 
+{
+if M > N {result: 1}
+if M < N {result: -1}
+result: 0
+}
+
+\
+Dice:
+D or XdD - X number of dices; standard success roll
+EXPLODED or XdEXPLODED - X number of dices; success roll + exploding sixes
+DOUBLED or XdDOUBLED - X number of dices; success roll + double counting
+Functions:
+[limitbreak X] - X number of dices (add edge to dices manually!); limit break edge roll
+[tryagain X] - X number of dices; second chance edge roll
+[summon X Y Z] - X spirit power, Y resistance dices, Z flat resistence; damage on summonning
+[summonlimitbreak X Y Z] - summonning with limit broken resistance roll (add edge to dices manually!)
+[summontryagain X Y Z] - summonning with "second chanced" resistance roll
+[bind X Y Z] - - X spirit power, Y resistance dices, Z flat resistence; damage on binding
+[bindlimitbreak X Y Z] - binding with limit broken resistance roll (add edge to dices manually!)
+[bindtryagain X Y Z] - binding with "second chanced" resistance roll
+[compare X Y] - X dice or dices of "attacker" (1), Y dice or dices of "defender" (-1); 
+		X/Y can be [limitbreak X/Y] or [tryagain X/Y]; standard compared roll
+[cmpsucc X Y] - (X->1 ; Y -> -1); compared roll only displaying success/failure/draw
+output X - X number, dice or dices, mathematical operation (+-/*^)
+output X named "Y" - output table for X named Y
+\
+
+output [summon 2 13 1] named "Kraftstufe 2"
+output [summon 3 13 1] named "Kraftstufe 3"
+output [summon 4 13 1] named "Kraftstufe 4"
+output [summon 5 13 1] named "Kraftstufe 5"
+output [summon 6 13 1] named "Kraftstufe 6"
+output [summon 7 13 1] named "Kraftstufe 7"
+output [summon 8 13 1] named "Kraftstufe 8"
+output [summontryagain 2 13 1] named "Kraftstufe 2 edge"
+output [summontryagain 3 13 1] named "Kraftstufe 3 edge"
+output [summontryagain 4 13 1] named "Kraftstufe 4 edge"
+output [summontryagain 5 13 1] named "Kraftstufe 5 edge"
+output [summontryagain 6 13 1] named "Kraftstufe 6 edge"
+output [summontryagain 7 13 1] named "Kraftstufe 7 edge"
+output [summontryagain 8 13 1] named "Kraftstufe 8 edge"

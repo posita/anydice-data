@@ -1,0 +1,45 @@
+DIETYPE: d6
+MINDICE: 2
+MAXDICE: 10
+
+function: success DICE:s {
+  MAJORSUCCESS: [success and failure DICE 6]
+  MINORSUCCESS: [minor success DICE]
+  result: MINORSUCCESS + MAJORSUCCESS
+}
+
+function: success and failure DICE:s TARGET:s {
+  MAJORSUCCESS: [count TARGET in DICE]
+  FAILURE: [count 1 in DICE]
+
+  result: MAJORSUCCESS - FAILURE
+}
+
+function: minor success DICE:n {
+  MINORSUCCESS: 0
+
+  if DICE > 13 {
+    MINORSUCCESS: 1
+  }
+
+  if DICE > 17 {
+    MINORSUCCESS: 2
+  }
+
+  if DICE > 22 {
+    MINORSUCCESS: 3
+  }
+
+  if DICE > 29 {
+    MINORSUCCESS: 4
+  }
+
+  result: MAJORSUCCESS + MINORSUCCESS
+}
+
+loop AMOUNT over {MINDICE..MAXDICE} {
+  output AMOUNTd(DIETYPE>5)                         named "[AMOUNT][DIETYPE], counting major (6) success"
+  output [success AMOUNTdDIETYPE]                   named "[AMOUNT][DIETYPE], sum of failure (1), minor (>14) and major (6) success"
+  output [success and failure AMOUNTdDIETYPE {5,6}] named "[AMOUNT][DIETYPE], sum of failure (1), minor (5) and major (6) success"
+  output 0 named "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+}

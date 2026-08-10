@@ -1,0 +1,69 @@
+A: 5
+WS: 6
+S: 5
+
+LP_PER_WOUND: 1
+S_MODIFIER: 0
+WS_MODIFIER: 0
+HAS_DEATH_BLOW: 0
+
+WS_FOE: 7
+T_FOE: 5
+LP_FOE: 4
+ARMOR_SAVE_FOE: 2
+WARD_SAVE_FOE: 4
+
+function: hit ATTACKS:n {
+  DICE: ATTACKS d6
+  result: [hit roll DICE]
+}
+
+function: hit roll DICE:s {
+  if(WS_FOE > WS * 2) { HITS: [count {5-WS_MODIFIER..6} in DICE] }
+  if(WS_FOE >= WS & WS_FOE <= WS * 2) { HITS: [count {4-WS_MODIFIER..6} in DICE]}
+  if(WS_FOE < WS) { HITS: [count {3-WS_MODIFIER..6} in DICE]}
+  DEATH_BLOWS: 0
+  if(HAS_DEATH_BLOW) { 
+    DEATH_BLOWS: [count 6 in DICE] 
+  }
+  result: [wound HITS with DEATH_BLOWS]
+}
+
+function: wound HITS:n with DEATH_BLOWS:n {
+  DICE: (HITS - DEATH_BLOWS)d6
+  DIFF: T_FOE - S - S_MODIFIER
+  if(DIFF > 3) { WOUNDS: 0 }
+  if(DIFF = 3 | DIFF = 2) { WOUNDS: [count {6} in DICE]}
+  if(DIFF = 1) { WOUNDS: [count {5..6} in DICE]}
+  if(DIFF = 0) { WOUNDS: [count {4..6} in DICE]}
+  if(DIFF = -1) { WOUNDS: [count {3..6} in DICE]}
+  if(DIFF <= -2) { WOUNDS: [count {2..6} in DICE]}
+  result: [armor save WOUNDS with DEATH_BLOWS]
+}
+
+function: armor save WOUNDS:n with DEATH_BLOWS:n {
+  ARMOR_SAVE_DICE: (WOUNDS - DEATH_BLOWS) d6
+  SAVED_ARMOR: [count {ARMOR_SAVE_FOE + S - 3..6} in ARMOR_SAVE_DICE]
+  result: [ward save (WOUNDS - SAVED_ARMOR) with DEATH_BLOWS]
+}
+
+function: ward save WOUNDS:n with DEATH_BLOWS:n {
+  UNSAVED_WOUNDS: [count {1..WARD_SAVE_FOE} in (WOUNDS - DEATH_BLOWS) d6]
+  UNSAVED_DEATH_BLOWS: [count {1..WARD_SAVE_FOE} in DEATH_BLOWS d6]
+  result: [remaining live of foe with UNSAVED_WOUNDS and UNSAVED_DEATH_BLOWS]
+}
+
+function: normal kills with UNSAVED_WOUNDS:n and UNSAVED_DEATH_BLOWS:n {
+  result: UNSAVED_WOUNDS + UNSAVED_DEATH_BLOWS
+}
+
+function: remaining live of foe with UNSAVED_WOUNDS:n and UNSAVED_DEATH_BLOWS:n {
+  if(UNSAVED_DEATH_BLOWS > 0) {
+    result: 0
+  } else {
+    result: [highest of 0 and LP_FOE - UNSAVED_WOUNDS*LP_PER_WOUND]
+  }
+}
+
+
+output [hit A]

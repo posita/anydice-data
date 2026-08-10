@@ -1,0 +1,46 @@
+AC: 12
+HP: 118
+
+VHIT: 7
+IHIT: 9
+RHIT: 8
+
+VDMGDICEA: 1d6 + 4d6
+VDMGDICEB: 1d6
+IDMGDICE: 1d8
+RDMGDICE: 1d8
+
+VDMGMODA: 4
+VDMGMODB: 0
+IDMGMOD: 4
+RDMGMOD: 5
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+VATKA: [attack 1d20 plus VHIT vs AC for (VDMGDICEA + VDMGMODA) crit VDMGDICEA on 20]
+VATKB: [attack 1d20 plus VHIT vs AC for (VDMGDICEB + VDMGMODB) crit VDMGDICEB on 20]
+IATK: [attack 1d20 plus IHIT vs AC for (IDMGDICE + IDMGMOD) crit IDMGDICE on 20]
+RATK: [attack 1d20 plus RHIT vs AC for (RDMGDICE + RDMGMOD) crit RDMGDICE on 19]
+
+\ adding twice allows independent results, unlike doubling \
+TOTALDPR: VATKA + VATKB + IATK + IATK + RATK + RATK
+
+\ output TOTALDPR named "Total DPR" \
+
+TOTALDMG: 0
+loop ROUNDS over {1..4}
+{
+ TOTALDMG: TOTALDMG + TOTALDPR
+ output TOTALDMG named "Total damage dealt to AC [AC] after [ROUNDS] round/s of attacks"
+}

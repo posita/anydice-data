@@ -1,0 +1,23 @@
+SETBACK: 1
+NETWORKING: {2..3}
+OPPORTUNITY: {9..12}
+ASSET: {1..3}
+JOB: {4..6}
+
+function: last SEQUENCE:s {
+   POSITION: #(SEQUENCE)
+   result: POSITION@(SEQUENCE)
+   }
+function: probabilities TBLMOTIVATION:n TBLENCOUNTER:n TBLOPPORTUNITY:n {
+   if TBLMOTIVATION!=1 {
+      if TBLENCOUNTER >= 1@(OPPORTUNITY) & TBLENCOUNTER <= [last OPPORTUNITY] {
+         if TBLOPPORTUNITY >= 1@(ASSET) & TBLOPPORTUNITY <= [last ASSET] {result: 1}
+         if TBLOPPORTUNITY >= 1@(JOB) & TBLOPPORTUNITY <= [last JOB] {result: 2}
+         result: 0}
+      \value if an opportunity is not rolled\
+      result: 0}
+   \value if a setback is rolled\
+   result: -1
+}
+
+output [probabilities 1d6 2d6 1d6] named "2 is Jobs, 1 is Assets, 0 is All Other"

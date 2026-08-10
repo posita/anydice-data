@@ -1,0 +1,65 @@
+EV: 8
+
+H: 1d20 > EV
+A: 1d20 + 1d6 > EV
+AA: 1d20 + [highest 1 of 2d6] > EV
+
+function: overkill DIE:d {
+ result: [overkill DIE helper]
+}
+
+function: overkill N:n helper {
+ if N = 1 { result: N + [overkill DIE] }
+ result: N
+}
+
+function: rifle H {
+ result: [highest of 1d6 * H and 2]
+}
+
+function: supercyclone H {
+ result: [highest of (3d6+3) * H and 5]
+}
+
+function: pistol H {
+ result: [highest of 1d3 * H and 1]
+}
+
+KNIFE: 1d3 + 1
+SHOT: 1d6
+HMELEE: 2d6 + 1
+HCHARG: 1d6 + 3
+SEGKNIF: [overkill 1d3]
+ANTIMAT: 2d6
+
+output 2d6
+output [highest 2 of 4d6]
+
+
+\
+output HMELEE * H named "heavy melee"
+output HCHARG * H named "heavy charged"
+
+output [rifle H] named "rifle"
+output SHOT * A named "shot"
+\
+
+\
+output SEGKNIF * H + SEGKNIF * H + HMELEE * H
+output KNIFE * H + KNIFE * H + HMELEE * H
+output SHOT * H + HMELEE * H
+output 2 * H + 2 * H + HMELEE * H
+output [pistol H] + [pistol H] + HMELEE * H
+\
+
+\ knock back and prone, then move and melee \
+\output HMELEE * A\
+\ knock them back and prone, then shoot for +2 Acc \
+\output SHOT * AA\
+
+\ sniper barrages. Assuming use of crack-shot \
+\
+output [supercyclone AA] named "super cyclone"
+output ANTIMAT * AA + [rifle A] named "anti-material + rifle"
+output ANTIMAT * AA + (1d3+2) * A named "anti-material + thermal rifle"
+\

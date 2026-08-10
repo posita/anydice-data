@@ -1,0 +1,30 @@
+\ Cyberpunk RED Crit Success/Fail \
+function: cyberexplode N:s {
+if N = 10 { result: 10 + 1d10 }
+if N = 1 { result: 1 - 1d10 }
+result: N }
+
+\ Attack Roll \
+function: attackroll base BASE:n mod MOD:n {result: [cyberexplode 1d10] + BASE + MOD}
+
+\ Autofire Multiplier \
+function: multauto AUTOFIRE:n DMG_ROLL:s ATTACK_ROLL:s TGT:n {
+MARGIN: ATTACK_ROLL - TGT
+if AUTOFIRE = 4 {if MARGIN >= 4 {result: DMG_ROLL * 4}}
+if AUTOFIRE >= 3 {if MARGIN >= 3 {result: DMG_ROLL * 3}}
+if AUTOFIRE >= 2 {if MARGIN >= 2 {result: DMG_ROLL * 2}}     \ In case of homebrew \
+if MARGIN >= 1 {result: DMG_ROLL}
+result: 0}
+
+output [multauto 3 2d6 [attackroll base 14 mod 0] 17] named "2d6 Autofire 3 Multiplied"
+
+\ Autofire Adder \
+function: addauto AUTOFIRE:n DMG_ROLL:s ATTACK_ROLL:s TGT:n {
+MARGIN: ATTACK_ROLL - TGT
+if AUTOFIRE = 4 {if MARGIN >= 4 {result: DMG_ROLL + 4d6}}
+if AUTOFIRE >= 3 {if MARGIN >= 3 {result: DMG_ROLL + 3d6}}
+if AUTOFIRE >= 2 {if MARGIN >= 2 {result: DMG_ROLL + 2d6}}     \ In case of homebrew \
+if MARGIN >= 1 {result: DMG_ROLL + 1d6}
+result: 0}
+
+output [addauto 3 5d6 [attackroll base 14 mod 0] 17] named "5d6 Autofire 3 Additive"

@@ -1,0 +1,33 @@
+NUMBER_ATTACKS: 2
+
+DAMAGE_ROLL: 1d6+5+5
+CRIT_ROLL: 1d6
+CRIT_RANGE: 20
+TO_HIT: 5+5
+
+TARGET_AC: 20
+
+function: hitit RLL:n {
+    TOTAL: 0
+    if RLL + TO_HIT > TARGET_AC {
+        TOTAL: TOTAL + DAMAGE_ROLL
+        if RLL >= CRIT_RANGE {
+            TOTAL: TOTAL + CRIT_ROLL
+        }
+    }
+    result: TOTAL
+}
+
+TOTAL_NORMAL: 0
+TOTAL_ADV: 0
+TOTAL_DISV: 0
+
+loop N over {1..NUMBER_ATTACKS} {
+    TOTAL_NORMAL: TOTAL_NORMAL + [hitit d20]
+    TOTAL_ADV: TOTAL_ADV + [hitit [highest 1 of 2d20]]
+    TOTAL_DISV: TOTAL_DISV + [hitit [lowest 1 of 2d20]]
+}
+
+output TOTAL_NORMAL named "Normal"
+output TOTAL_ADV named "Advantage"
+output TOTAL_DISV named "Disadvantage"

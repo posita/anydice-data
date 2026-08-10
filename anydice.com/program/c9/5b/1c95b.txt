@@ -1,0 +1,38 @@
+RANGEA:12
+RANGEB:12
+BASIC:5
+EXTRA:4
+BASICVAL:1
+EXTRAVAL:1
+EXPLO:10
+DIE:1d6
+
+function: evaluate n ROLL:s {
+HIT:  ROLL >= BASIC
+if HIT  {result:BASICVAL}
+result:0
+}
+function: evaluate a ROLL:s {
+HIT:  ROLL >= BASIC
+HITT: ROLL >= EXTRA
+HITE: ROLL >= EXPLO
+E:0
+if HITE {E:[evaluate a DIE]}
+if HITT {result:E+EXTRAVAL}
+if HIT  {result:E+BASICVAL}
+result:0
+}
+
+function: test D:n for a{
+SUM:0
+loop N over {1..D} { SUM:SUM+[evaluate a DIE] }
+result:SUM
+}
+function: test D:n for n{
+SUM:0
+loop N over {1..D} { SUM:SUM+[evaluate n DIE] }
+result:SUM
+}
+
+loop DICE over {RANGEA..RANGEB} { output [test DICE for n] named "[DICE]d"  }
+loop DICE over {RANGEA..RANGEB} { output [test DICE for a] named "[DICE]dA" }

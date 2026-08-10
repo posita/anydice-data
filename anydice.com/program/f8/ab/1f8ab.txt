@@ -1,0 +1,95 @@
+BAB: 3
+DEX: 4
+WIS: 2
+STR: 2
+
+\ Standard action buffs \
+CATS_GRACE: 4 \ +4 to-hit \
+WAR_BLESSING: 1 \ +1 to-hit \
+BLESS: 1 \ +1 to-hit \
+DIVINE_FAVOR: 2 \ +2 to-hit, +2 dmg \
+
+\ Permanent buffs \
+WEAPON_FOCUS: 1
+WEAPON_TRAINING: 1
+ENHANCEMENT: 1
+POINT_BLANK: 1
+STUDIED_TARGET: 1
+SACRED_DAMAGE: d6
+
+\ At-will effects \
+RAPID_SHOT: -2
+DEADLY_AIM: 2
+
+\ Other \
+JUDGMENT: 2
+
+AC: 16
+
+\ TODO: confirm crits \
+function: attack roll ROLL:n plus BONUS:n for DAMAGE:d and EXTRA_DAMAGE:d {
+  TOTAL: ROLL + BONUS
+
+  if (ROLL = 1 | TOTAL < AC) {
+    result: 0
+  } else if (ROLL >= 19) {
+    result: DAMAGE + DAMAGE + EXTRA_DAMAGE
+  } else {
+    result: DAMAGE + EXTRA_DAMAGE
+  }
+}
+
+output
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + BLESS + WAR_BLESSING + CATS_GRACE + RAPID_SHOT - 1
+    for d6 + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + POINT_BLANK + DEADLY_AIM
+    and 0
+  ] +
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + BLESS + WAR_BLESSING + CATS_GRACE + RAPID_SHOT -1
+    for d6 + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + POINT_BLANK + DEADLY_AIM
+    and 0
+  ]
+  named "Lawgiver (Standard Execution)"
+
+output
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + BLESS + ENHANCEMENT + WAR_BLESSING + CATS_GRACE + RAPID_SHOT - 1
+    for d6 + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK + DEADLY_AIM
+    and SACRED_DAMAGE
+  ] +
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + BLESS + ENHANCEMENT + WAR_BLESSING + CATS_GRACE + RAPID_SHOT - 1
+    for d6 + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK + DEADLY_AIM
+    and SACRED_DAMAGE
+  ]
+  named "Lawgiver (Incendiary)"
+
+output
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + BLESS + WAR_BLESSING - 1
+    for d8 + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + DEADLY_AIM
+    and SACRED_DAMAGE
+  ]
+  named "Lawrod Crossbow"
+
+output
+  [attack
+    roll d20 plus BAB + STR + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + BLESS + WAR_BLESSING
+    for d8 + (STR/2) + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR
+    and 0
+  ]
+  named "Gavel (Off-hand)"
+
+output
+  [attack
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + ENHANCEMENT + DIVINE_FAVOR + BLESS + STUDIED_TARGET - 2 + 2
+    for d8 + DEX + ENHANCEMENT + STUDIED_TARGET + JUDGMENT
+    and d6
+  ] +
+  [attack
+    roll d20 plus BAB + DEX + ENHANCEMENT + DIVINE_FAVOR + BLESS + STUDIED_TARGET - 2 + 2
+    for d8 + ENHANCEMENT + POINT_BLANK + STUDIED_TARGET + JUDGMENT
+    and d6 + d6
+  ]
+  named "Sword-Whip + Hand Crossbow"

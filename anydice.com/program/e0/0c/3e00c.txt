@@ -1,0 +1,106 @@
+J : 1@2d20>18
+N : 0
+D : #J
+function: k DIE:s {
+
+    REROLL : 1d6
+    loop L over DIE{
+
+}
+    if DIE <= 2 {
+      result : REROLL
+    }
+    else {
+    result: DIE
+    }
+}
+
+function: test OP:s {
+result: OP
+}
+\output [k 1d6]+[k 1d6]
+output 2d[k 1d6]
+output 2d[test 3d8]
+output 6d8\
+
+
+
+
+\output [k 1d6]\
+\output 1@3d20>17\
+
+\output (([k 1d6]+[k 1d6]+20+[k 1d8]+[k 1d8]+1d8)*61/100)+([k 1d6]+[k 1d6]+[k 1d6]+[k 1d6]+[k 1d8]+[k 1d8]+[k 1d8]+[k 1d8]+20+2d8)*39/100
+
+output (([k 1d6]+[k 1d6]+20+[k 1d8]+[k 1d8]+1d8)*73/100)+([k 1d6]+[k 1d6]+[k 1d6]+[k 1d6]+[k 1d8]+[k 1d8]+[k 1d8]+[k 1d8]+20+2d8)*27/100\ \^^ this is with holy weapon\
+
+\output (([k 1d6]+[k 1d6]+10+1d8)*73/100)+([k 1d6]+[k 1d6]+[k 1d6]+[k 1d6]+10+2d8)*27/100\
+L : (([k 1d6]+[k 1d6]+10+1d8)*73/100)+([k 1d6]+[k 1d6]+[k 1d6]+[k 1d6]+10+2d8)*27/100
+\average to hit\
+\output 1@3d20+10\
+\so with GWM we have a 78 percent chance of hitting a AC 18 creature\
+\without GWM we have a 96 percent chance of hitting a AC 18 creature\
+\so with GWM we have a 61 percent chance of hitting a AC 20 creature\
+\without GWM we have a 91 percent chance of hitting a AC 20 creature\
+\so the expected damage is mutiplied by 96/100\
+\suppose we are going full gas with 5d8 of smite rn\
+\ below is the difference GWM makes with the extra attack on crit alone\
+\output ((([k 1d6]+[k 1d6]+10+1d8)*73/100)+([k 1d6]+[k 1d6]+[k 1d6]+[k 1d6]+10+2d8)*27/100)*91/100
+output ((([k 1d6]+[k 1d6]+10+1d8)*73/100)+([k 1d6]+[k 1d6]+[k 1d6]+[k 1d6]+10+2d8+L*91/100)*27/100)*91/100\
+
+
+function: sa ROLL:s {
+  \ROLL : {ROLL}\
+  \result: ROLL ROLL\
+  result: 1@[sort ROLL]
+}
+\output [sa 2d[k 1d6]]
+output [sa 2d6]\
+
+\below is the difference savage attacker makes alone with GWM extra attack\
+output (2d2)d{1,2,3,4}
+output 4d{1,2,3,4}
+output ((([sa 2d[k 1d6]]+10+1d8)*73/100)+([sa 4d[k 1d6]]+10+2d8+L*91/100)*27/100)*91/100
+output (((2d[k 1d6]+10+1d8)*73/100)+(4d[k 1d6]+10+2d8+L*91/100)*27/100)*91/100
+\woah a difference of 6 damage at the 20 ac mark\
+function: hit ROLL:s SWORD DMGMOD AC:n SMITE IMPROVEDSMITE ATTACKMOD:n {
+CRIT:1@ROLL > 18
+HIT: 1@ROLL+ATTACKMOD>AC
+CRITA:1@ROLL > 18
+HITA: 1@ROLL+ATTACKMOD>AC
+
+COUNT: 0
+if CRIT =1{
+ if CRITA =1{
+ SEC:2d(SWORD)+DMGMOD+2d(IMPROVEDSMITE)
+ }else{
+  if HITA =1{
+  SEC:SWORD+DMGMOD+IMPROVEDSMITE
+  }
+  else{
+  SEC: 0
+  }
+ }
+
+result: 2d(SWORD)+DMGMOD+SEC+2d(IMPROVEDSMITE)
+}
+else {
+if HIT =1{
+result: SWORD+DMGMOD+IMPROVEDSMITE
+}
+else{
+result: 0
+}
+}
+
+NUM: [count 0 in 1@3d20+ATTACKMOD>AC]
+result:COUNT
+}
+output [hit 3d20 2d6 5 18 0d8 1d8 10]
+output 2d6
+
+
+
+\for others\
+\output 1@2d20+10\
+
+\chance to hit for me is 96 and others it is 88\

@@ -1,0 +1,93 @@
+LOWESTHIT: 30
+\the lowest roll that hit\
+HIGHESTMISS: 0
+\the highest roll that missed\
+\set these to the same value to set the AC\
+
+WEAPONSKILL: 3
+\Str or Dex mod\
+
+WEAPONDIE: 6
+WEAPONDIECOUNT: 1
+\ex: a greatsword is 2d6 so you put 6 for WEAPONDIE and 2 in WEAPONDIECOUNT\
+
+HASPROFICENCY: 1
+HASADVANTAGE: 0
+\1 is yes 0 is no\
+SHOWALLACSINRANGE: 0 \this is mostly for debuging\ 
+
+LEVEL: 1
+\proficency bonus will be calculated from this\
+ROGUELEVEL: 0
+\how many levels of rogue to calculate sneak attack\
+
+MISCATTACKBONUS: 0
+MISCDAMAGEBONUS: 0
+\add something here if there is some other reason you have a bonus to damage or hit (like a +1 sword)\
+
+
+
+
+\dont worry about anything below this its the code basically\
+
+PROFICENCY: LEVEL/4+2
+ATTACKMOD: WEAPONSKILL + PROFICENCY*HASPROFICENCY + MISCATTACKBONUS
+DICEDAMAGE: WEAPONDIECOUNTdWEAPONDIE
+SNEAKATTACKDICE: (ROGUELEVEL+1)/2
+CRITICALDAMAGE: (2*WEAPONDIECOUNT)dWEAPONDIE + WEAPONSKILL + MISCDAMAGEBONUS
+DAMAGE: WEAPONDIECOUNTdWEAPONDIE + WEAPONSKILL + MISCDAMAGEBONUS
+ADVANTAGEDAMAGE: DAMAGE + SNEAKATTACKDICEd6
+ADVANTAGECRITICALDAMAGE: CRITICALDAMAGE + (2*SNEAKATTACKDICE)d6
+HIGHESTMISS: HIGHESTMISS+1
+
+function: attack ROLL:n vs DEFENSE:n{
+ if ROLL = 1 { result: 0 }
+ if ROLL = 20 {result: 2}
+ if ROLL + ATTACKMOD >= DEFENSE { result: 1 }
+ result: 0
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = 2 {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = 1 {
+  result: DAMAGE
+ }
+ result: 0
+}
+function: advantagedamage for ATTACKRESULT:n {
+ if ATTACKRESULT = 2 {
+  result: ADVANTAGECRITICALDAMAGE
+ }
+ if ATTACKRESULT = 1 {
+  result: ADVANTAGEDAMAGE
+ }
+ result: 0
+}
+
+if HIGHESTMISS >= LOWESTHIT {
+  AC: (LOWESTHIT+HIGHESTMISS)/2
+  if HASADVANTAGE {
+    output [advantagedamage for [attack [highest 1 of 2d20] vs AC]] named "AC [AC] with advantage"
+  } else {
+    output [damage for [attack d20 vs AC]] named "AC [AC]"
+  }
+} else {
+  AC: 1d{HIGHESTMISS..LOWESTHIT}
+  if HASADVANTAGE {
+    output [advantagedamage for [attack [highest 1 of 2d20] vs AC]] named "Averaged AC with advantage ([HIGHESTMISS] - [LOWESTHIT])"
+  } else {
+    output [damage for [attack d20 vs AC]] named "Averaged AC ([HIGHESTMISS] - [LOWESTHIT])"
+  }
+  if SHOWALLACSINRANGE {
+    loop AC over {HIGHESTMISS..LOWESTHIT} {
+      if HASADVANTAGE {
+        output [advantagedamage for [attack [highest 1 of 2d20] vs AC]] named "AC [AC] with advantage"
+      } else {
+        output [damage for [attack d20 vs AC]] named "AC [AC]"
+      }
+    }
+  }
+}
+

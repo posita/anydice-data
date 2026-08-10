@@ -1,0 +1,116 @@
+\---- How to use ----\
+\Adjust the variables below (STRMOD, DMGMOD, etc) to change calculation & click "Calculate" below the textbox\
+\--------------------------------------------------------------------------------------------------------------------\
+\EXAMPLE, DO NOT EDIT:                                                                                               \
+\For Great Weapon Fighter with a Greatsword you would use the following:                                             \
+\STRMOD: 3 [Strength modifier]                                                                              \              
+\DMGMOD: 2 [Other damage modifiers]                                                                         \
+\PROF: 2 [Proficiency Bonus to attack]                                                                      \
+\DIE: 6      (Greatsword damage: 2d[6])                                                                     \         
+\NUMDIE: 2   (Greatsword damage: [2]d6)                                                                     \         
+\MIN: 2      (Default for GWF is reroll 1s and 2s)                                                          \     
+\CRIT: 20    (Default crit value)                                                                           \
+\AC: 13      (AC value of enemy target)                                                                     \
+\ATKROLL: 1d20 (Typical attack roll)                                                                        \      
+\--------------------------------------------------------------------------------------------------------------------\
+
+\VARIABLES - Edit these to change output!                           \
+\-------------------------------------------------------------------\
+STRMOD: 3     \Strength modifier                                    \
+DMGMOD: 12    \Misc Damage modifier (Rage, Great Weapon Master, etc)\
+PROF: 3       \Proficiency Bonus to Attack                          \
+DIE:6         \Die size. I.E. DIE:6 for d6                          \
+NUMDIE:2   \Number of damage dice. I.E. NUMDIE:2 for Greatsword/Maul\
+MIN:2         \Lower limit for Great Weapon Fighter. Default of 2   \
+CRIT: 19      \Minimum roll for a crit. Default 20                  \
+AC: 17        \Enemy Target's AC                                    \
+ATKROLL: [highest 1 of 2d20] \highest or lowest for adv/dis, or 1d20\                               
+\-------------------------------------------------------------------\
+
+\Don't touch the code below, this is where the magic happens!\
+\It's been documented for others to understand functionality \
+\------------------------------------------------------------\
+
+\Description -----------------------------------------------------------------------------------\
+\This function returns the re-rolled value of the die if it is lower or equal to the lower limit\
+\Variables -------------------------------------------------------------------------------------\
+\A = Initial input value. I.E. 1 to 6 for d6                                                    \
+\B = Lower reroll limit. I.E. 2 for Great Weapon Fighter                                        \
+\C = Dice value. I.E. 6 for d6                                                                  \
+\-----------------------------------------------------------------------------------------------\
+
+function: reroll A:n B:n C:n{ 
+ if A <= B { 
+  A: 1dC 
+ }  
+ result: A 
+}
+
+\Description ---------------------------------------------\
+\This function simulates the Great Weapon fighting style  \
+\Variables -----------------------------------------------\
+\A = Dice value I.E. A=6 for 1d6                          \
+\B = Number of damage dice I.E. B = 2 for Greatsword (2d6)\
+\C = Lower limit for reroll. Default 2                    \
+\---------------------------------------------------------\
+
+function: greatweaponmaster A:n B:n C:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA C A]
+ }
+ result: X
+}
+
+\Description ---------------------------------------------\
+\This function simulates great sword damage rolls         \
+\Variables -----------------------------------------------\
+\A = Attack Roll to determine critical hits               \
+\---------------------------------------------------------\
+
+function: gsdmg A:n {
+ if A >= CRIT {
+  result: 2d[greatweaponmaster DIE NUMDIE MIN] + 1d6 \savage attacker racial trait\ + STRMOD + DMGMOD
+ }
+ else {
+  result: [greatweaponmaster DIE NUMDIE MIN] + STRMOD + DMGMOD
+ }
+}
+
+\Description ---------------------------------------------\
+\This function simulates an attack with GWM Feat -5/+10   \
+\Variables -----------------------------------------------\
+\A = AC of target                                         \
+\B = Attack Roll                                          \
+\---------------------------------------------------------\
+
+function: gwmatk A:n B:n {
+ if (B + PROF + STRMOD - 5) >= A {
+  result: [gsdmg B] \if hit, result is great sword damage utilizing the attack roll to calculate any crits\
+ }
+ else {
+  result: 0 \if miss, result is 0 damage\
+ }
+}
+
+\Description ---------------------------------------------\
+\This function simulates an attack with a great sword     \
+\Variables -----------------------------------------------\
+\A = AC of target                                         \
+\B = Attack Roll                                          \
+\---------------------------------------------------------\
+
+function: gsatk A:n B:n {
+ if (B+PROF+STRMOD) >= A {
+  result: [gsdmg B]
+ }
+ else {
+  result: 0
+ }
+}
+
+output [gwmatk AC ATKROLL]
+
+DMGMOD: 2  \Sets DMGMOD to remove the +10 from GWM Feat and just utilize rage bonus\
+
+output [gsatk AC ATKROLL]

@@ -1,0 +1,43 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if (ROLL = 20){ result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA } 
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (ROLL + ATTACK >= AC)) { result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon" \
+
+AC: 30
+output [{23,18,13} vs AC crit 15 2 dmg 1d6+10 12] named "Lewis:FullAttack"
+output [{20,15} vs AC crit 15 2 dmg 1d6+10 6d6] named "Yawkins:SneakAttack"
+output [{11,11,11} vs AC-10 crit 20 2 dmg 6d6] named "Edwin:EScorching"
+output [17 vs AC crit 20 2 dmg 6d6+24] named "Stein:P"
+output [17 vs AC-10 crit 20 2 dmg 6d6+13] named "Stein:E"
+output [17 vs AC crit 20 2 dmg 9d6+36] named "Stein:EP"
+output [17 vs AC crit 20 2 dmg 18d6+45] named "Stein:ECP"
+output [17 vs AC-10 crit 20 2 dmg 18d6+19] named "Stein:ECE"
+

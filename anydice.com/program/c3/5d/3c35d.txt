@@ -1,0 +1,147 @@
+\Variables\
+OPAM:7 OSAM:7 OPDM:7 OSDM:7 OSPM:7 OACM:7 OEVM:7
+EPAM:7 ESAM:7 EPDM:7 ESDM:7 ESPM:7 EACM:7 EEVM:7
+\Our Stats\
+\HP\ OHP:110 \HP\ *2+141 
+\P.Atk\ OPA:55 \P.Atk\ *2+36 *OPAM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\S.Atk\ OSA:135 \S.Atk\ *2+36 * OSAM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\P.Def\ OPD:88 \P.Def\ *2+36 *OPDM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\S.Def\ OSD:108 \S.Def\ *2+36 *OSDM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+\Speed\ OSP:150 \Speed\ *2+36 *OSPM@{105,120,140,168,210,280,420,630,840,1050,1260,1470,1680}/420
+ OAC:100 *(OACM-EEVM)@{280:7,315,360,420,504,630,840,1120,1400,1680,1960,2240,2520:7}/840
+
+\Enemy Stats\
+EHP:126 \HP\ *2+141
+EPA:131 \p.atk\ *2+36
+ESA:131 \s.atk\ *2+36
+EPD:95 \p.def\ *2+36
+ESD:98 \s.def\ *2+36
+ESP:99 \Speed\ *2+36
+
+\Moves\
+OMA:{OSA,ESD,
+\Power\200,
+\ACCURACY\100,
+\TYPE\16*2
+}
+OMB:OMA 
+OMC:OMA 
+OMD:OMA 
+OME:OMA 
+OMF:OMA 
+OMG:OMA 
+OMH:OMA
+
+\Enemy moves\
+EMA:{EPA,OPD,
+\Power\70*4/3,
+\ACCURACY\100,
+\TYPE\16*3/2
+}
+EMB:EMA 
+EMC:EMA 
+EMD:EMA 
+EME:EMA 
+EMF:EMA 
+EMG:EMA 
+EMH:EMA
+
+\Math\
+function:attack M:s {
+ result:(\Power\3@M *\A\1@M *42 /(\D\2@M *50)+2) *\RNG\1d{85..100}/100 *\TYPE\5@M/16 *\acc\1d{1:4@M,0:100-4@M}
+}
+function:minimum M:s{
+ result:(\Power\3@M *\Atk\1@M *42 /(\Def\2@M *50)+2) *\RNG\85/100 *\TYPE\5@M/16
+}
+function:maximum M:s{
+ result:(\Power\3@M *\Atk\1@M *42 /(\Def\2@M *50)+2) *\RNG\100/100 *\TYPE\5@M/16
+}
+
+function: battle{
+ EDAMAGE: {}
+ ODAMAGE: {}
+ STACK: {}
+ CHECK: {}
+ result: [turnone OMA EMA]
+}
+function: turnone NAMEM NAMEC{
+ if OSP < ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ if OSP >= ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ STACK: STACK + CHECK*TURN
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ result: [turntwo OMA EMA]
+}
+function: turntwo NAMEM NAMEC{
+ if OSP < ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ if OSP >= ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ STACK: STACK + CHECK*TURN
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ result: [turnthree OMA EMA]
+}
+function: turnthree NAMEM NAMEC{
+ if OSP < ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ if OSP >= ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ STACK: STACK + CHECK*TURN
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ result: [turnfour OMA EMA]
+}
+function: turnfour NAMEM NAMEC{
+ if OSP < ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ if OSP >= ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ STACK: STACK + CHECK*TURN
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ result: [turnfive OMA EMA]
+}
+function: turnfive NAMEM NAMEC{
+ if OSP < ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ if OSP >= ESP {ODAMAGE: ODAMAGE + [attack NAMEC]}
+ STACK: STACK + CHECK*TURN
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ result: STACK
+}
+function: round N move{
+ if N = 1 {result:OMA}
+ if N = 2 {result:OMB}
+ if N = 3 {result:OMC}
+ if N = 4 {result:OMD}
+ if N = 5 {result:OME}
+ if N = 6 {result:OMF}
+ if N = 7 {result:OMG}
+ if N = 8 {result:OMH}
+}
+function: round N counter{
+ if N = 1 {result:EMA}
+ if N = 2 {result:EMB}
+ if N = 3 {result:EMC}
+ if N = 4 {result:EMD}
+ if N = 5 {result:EME}
+ if N = 6 {result:EMF}
+ if N = 7 {result:EMG}
+ if N = 8 {result:EMH}
+}
+ EDAMAGE: {}
+ ODAMAGE: {}
+ STACK: {}
+ CHECK: {}
+loop N over {1..[lowest of (EHP/[minimum OMA]+1) and (OHP/[minimum EMA]+1)]}{
+ OUR_MOVE: [round N move]
+ ENEMY_MOVE: [round N counter]
+ if OSP < ESP {ODAMAGE: ODAMAGE + [attack ENEMY_MOVE]}
+ EDAMAGE: EDAMAGE + [attack OUR_MOVE]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ if OSP >= ESP {ODAMAGE: ODAMAGE + [attack ENEMY_MOVE]}
+ STACK: STACK + (CHECK*TURN)
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ output 0 < STACK named "Turn [N]"
+}
+output 0 < [battle] named "win rate"

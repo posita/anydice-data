@@ -1,0 +1,45 @@
+
+function: exploded DIE:d {
+ MAX: [maximum of DIE]
+ result: [exploded DIE helper]
+}
+
+function: exploded N:n helper {
+ if N = MAX { result: N + [exploded DIE helper] - 1 }
+ result: N
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+DEFENSE: d20+2
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+ATTACK: 5 + 2
+HITDAMAGE: 2d[exploded d8]+5
+CRITICALDAMAGE: 4d[exploded d8]+5
+MISSDAMAGE: [exploded d8]
+output [attack] named "Battleaxe"
+output 2d[exploded d8]+5 - 3d[exploded d4]

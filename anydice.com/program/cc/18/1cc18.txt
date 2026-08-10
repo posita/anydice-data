@@ -1,0 +1,63 @@
+\ adjust threat \
+
+THREAT: 17
+THREATTWO: 10
+
+\ set confirm bonus from Power Critical feat \
+
+CRITICALCONFIRM: 6
+
+\ use transposed graph \
+
+\ leave rest as is \
+MISS: 0
+NORMALHIT: 1
+CRITICALHITTWO: 2
+CRITICALHIT: 3
+
+ATTACK: 0
+
+function: ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= THREAT & ROLL + ATTACK >= AC {
+  result: [threat d20]
+ }
+ if ROLL >= THREATTWO & ROLL + ATTACK >= AC {
+  result: [threattwo d20]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: ROLL:n vstwo AC:n {
+ if ROLL = 1 { result: MISS }
+ ROLL: ROLL-2
+ if ROLL >= 19 & ROLL + ATTACK >= AC {
+  result: [threattwo d20]
+ }
+ if ROLL + ATTACK >= AC | ROLL = 20 { result: NORMALHIT }
+ result: MISS
+}
+
+function: threat ROLL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK + CRITICALCONFIRM >= AC | ROLL = 20 {
+  result: CRITICALHIT
+ }
+ result: NORMALHIT
+}
+
+function: threattwo ROLL:n {
+ if ROLL = 1 { result: NORMALHIT }
+ if ROLL + ATTACK + CRITICALCONFIRM >= AC | ROLL = 20 {
+  result: CRITICALHITTWO
+ }
+ result: NORMALHIT
+}
+
+DAMAGE: 2d6+7
+
+output [d20 vs 6] d DAMAGE named "Death Strike vs AC 6"
+output ([d20 vstwo 6] d DAMAGE)+([d20 vstwo 6] d DAMAGE) named "Barrage vs AC 6"
+output [d20 vs 16] d DAMAGE named "Death Strike vs AC 16"
+output ([d20 vstwo 16] d DAMAGE)+([d20 vstwo 16] d DAMAGE) named "Barrage vs AC 16"

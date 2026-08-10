@@ -1,0 +1,55 @@
+set "maximum function depth" to 7 
+\do not set this below 4, as wrapper function count against the limit\
+
+\ Main Variables \
+TARGET: 5
+BASEDICE: 2
+
+function: roll ROLL:n {
+  if ROLL >=TARGET {result: 1}
+  result: 0
+}
+
+function: rollfailure ROLL:n {
+  if ROLL < TARGET {result: [roll 1d6]}
+  result: [roll ROLL]
+}
+
+function: rollexploding ROLL:n {
+  if ROLL =6 {result: 1+[rollexploding 1d6]}
+  result: [roll ROLL]
+}
+
+function: isfail ROLL:n {
+  if ROLL < TARGET {result: 1}
+result: 0
+}
+
+\ TODO: fix needed only handles a reroll once per die rather than rerolling the same die \
+
+function: rolldice DICE:n edges EDGES:n {
+  RES: 0
+  loop N over {1..DICE} {
+    if DICE > 2 {
+      DIE: [rollexploding 1d6]
+      RES: RES+DIE
+    } else {
+      DIE: [roll 1d6]
+      if EDGES > 0{
+        DIE: [rollfailure 1d6]
+        EDGES: EDGES - 1
+      }
+      RES: RES+DIE
+    }
+  }
+  result:RES
+}
+
+output [rolldice 2 edges 0] named "2d6"
+output [rolldice 2 edges 1] named "2d6 with 1 edge"
+output [rolldice 2 edges 2] named "2d6 with 2 edges"
+output [rolldice 2 edges 3] named "2d6 with 3 edges"
+
+loop H over {3..7} {
+output [rolldice H edges 0] named "[H]d6 exploding"
+}

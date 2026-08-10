@@ -1,0 +1,43 @@
+\W40K\
+
+A: 8
+WS: 5
+WS_MODIFIER: 0
+S: 5
+T_FOE: 4
+AP: 0
+ARMOR_SAVE_FOE: 2
+D: 1
+
+function: hit ATTACKS:n {
+  DICE: ATTACKS d6                                     \freeze the hits-dices sequence\
+  result: [hit roll DICE]
+}
+
+function: hit roll DICES:s {
+  HITS: [count {WS+WS_MODIFIER..6} in DICES]
+  SIXES: [count 6 in DICES]
+  result: [wound HITS with SIXES]
+}
+
+function: wound HITS:n with SIXES:n {
+  DICE: (HITS - SIXES)d6                               \freeze the wounds-dices sequence\
+  if(S < T_FOE ) { WOUNDS: [count {5..6} in DICE]}
+  if(S <= T_FOE/2) { WOUNDS: [count {6} in DICE]}
+  if(S = T_FOE) { WOUNDS: [count {4..6} in DICE]}
+  if(S > T_FOE) { WOUNDS: [count {3..6} in DICE]}
+  if(S >= 2*T_FOE) { WOUNDS: [count {2..6} in DICE]}
+  result: [armor save WOUNDS + SIXES]
+}
+
+function: armor save WOUNDS:n {
+  DICE: WOUNDS d6
+  ARMOR_SAVE: ARMOR_SAVE_FOE-AP
+  result: WOUNDS - [count {ARMOR_SAVE..6} in DICE]
+}
+
+output [hit A] named "direct calculation with [A] attacks (slow)"
+output [hit 1] named "one attack (fast)"
+output A d [hit 1] named "[A] independent attacks (fast)"
+
+

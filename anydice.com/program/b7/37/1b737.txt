@@ -1,0 +1,104 @@
+function: better of A:n and B:n against E:n{
+ if(A>=E){
+  result:A
+ }
+ result:B
+}
+function: better of A:n and B:n{
+ if(A>=B){
+  result:A
+ }
+ result:B
+}
+function: R:n{
+ result:R
+}
+function: death head of A against E:n{
+ B:A
+ result: [better of B and A]
+}
+function: deal A:n reliable R:n with critbonus D:n rolling B:n against C:n{
+ if B > C {
+  if B > 20 {
+   result: [highest 1 of 2d(A + D)]
+  }
+  result: A }
+ result: R
+}
+function: deal A:n with critbonus D:n rolling B:n against C:n{
+ result: [deal A reliable 0 with critbonus D rolling B against C]
+}
+function: deal A:n rolling B:n against C:n{
+ result: [deal A reliable 0 with critbonus 0 rolling B against C]
+}
+function: deal A:n reliable R:n rolling B:n against C:n{
+ result: [deal A reliable R rolling B against C]
+}
+function: attack with accuracy N:n against E:n{
+ result: [death head of (1d20+[highest 1 of Nd6]+4) against E]
+}
+
+\
+Build:
+ Licences:
+   Death's Head 3 (Tracking Bug, Core Siphon (+1 accuracy), Kinetic Compensator (on miss, +1 accuracy))
+   Napoleon 2 (Paracausal ammunition) 
+  and one of 
+   (Problem: how do we handle heat? stabilize is still better than loading, but if we could do better somehow, it'd spike our dpr...
+    Ideally, we'd reset down to 5, for that sweet sweet +1d6 nuclear cavalier damage)
+   Barbarossa 3 (Siege stabilizers, Cannon)
+   Sherman 3 (ASURA nhp, Lance)
+     Maybe tack on Ghengis 2 for autocooler?
+  plus maybe
+    Pegasus 1 (Hunter Lock (+3 damage vs one target))
+ Talents:
+  Nuclear Cavalier 2? (how do I get into the danger zone safely?)
+  Tactician 2
+
+Licence path: Death Head 1
+          2-> DH2
+          3-> DH2, Barb1
+          4-> DH2, Nap2
+          5-> DH2, Nap2, Pegasus1
+          6-> DH2,Nap2,Pega1,Sher1
+          7-> Dh2,Nap2,Sher3        --Fully functional
+          8-> Dh2,Nap2,Sher3, Pega1
+          9-> Dh2,Nap2,Sher3, Ghen2 -- Doneish
+         10-> Dh2,Nap2,Sher3, Ghen2, Pega1
+
+Weapons:
+Cyclone Rifle: 3d6+3 | Accurate, Loading, Reliable 5
+Siege Cannon: 3d6 | Arcing, ordinance, loading, heat 4, burst 2
+                  | OR heat 2, knockback 2
+Tachyon Lance: 2d6+8burn | ordinance, heat 4
+
+Acc Sources:
+Global: Core Siphon
+Conditional: Lock on, Tactician, compensator
+
+Rifle: +Talent, +Accurate -weakpoint
+\
+
+BASEACC:1
+RIFLEACC: BASEACC + 1 + 1 - 1
+CANNONACC: BASEACC
+LANCEACC: BASEACC
+
+       \Base Damage\  \Core Bonus\ \Pegasus\
+RIFLE:  3d6 + 3      + 1d6        + 3
+CANNON: 3d6          + 1d6  
+LANCE:  2d6 + 8      + 1d6        
+
+RIFLECRIT: 1d6
+
+EVASION:12
+
+\output [attack with accuracy 0 against 99]
+output [better of 1d20 and 1d20 against 0]
+output [better of 1d20 and 1d20 against 12]
+output [better of 1d20 and 1d20]
+\
+output 1d{0,1}* 
+       [deal RIFLE reliable 5 with critbonus RIFLECRIT rolling [attack with accuracy RIFLEACC against EVASION] against EVASION] named "Rifle vs evasion [EVASION]"
+output [deal LANCE rolling [attack with accuracy LANCEACC against EVASION] against EVASION] named "Lance vs evasion [EVASION]"
+output [deal CANNON rolling [attack with accuracy CANNONACC against EVASION] against EVASION] named "Cannon vs evasion [EVASION]"

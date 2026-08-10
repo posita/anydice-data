@@ -1,0 +1,96 @@
+set "maximum function depth" to 5
+
+XPD: d{-1, 0, 1, 2, 3, 4}
+XMD: d{1, 0, -1, -2, -3, -4}
+
+function: explode N:n {
+ if N >= 3 { result: N + [explode XPD] }
+ if N <= -3 { result: N + [explode XMD] }
+ result: N
+}
+
+output [explode XPD] + [explode XMD] named "Funky Explosion"
+
+
+
+PD: d{1,2,3,4,5,6}
+ND: d{1,2,3,4,5,6}
+
+ZD: d{0, 1,2,3,4,5}
+
+
+SD: d{-1,1}
+
+
+DBLANK: d{-2, -1, 0,1,2,3}
+
+
+function: roll P:n and N:n {
+  if P = N {
+    result: 0
+  }
+  else if P < N {
+    result: P
+  }
+  else {
+    result: -N
+  }
+}
+
+
+function: test A:n B:n C:n D:n  X:n Y:n {
+
+  S: {A, B, C, D}
+  T: [sort S]
+  
+  U: 3@T
+  V: 4@T
+
+  if X = 1 {
+    U: -U
+  }
+
+  if X = Y & X = 1 {
+    V: -V
+  }
+  else if X = 2 {
+    if Y > 1 {
+      V: -V
+    }
+  }
+
+    result: U + V
+}
+
+function: experience A:n B:n C:n D:n {
+  N: 0
+
+  if A = 6 { N: N +1 }
+  if B = 6 { N: N +1 }
+  if C = 6 { N: N +1 }
+  if D = 6 { N: N +1 }
+
+  result: N
+}
+
+DFUDGE: d{-1, 0, 1}
+
+function: crits A:n B:n C:n D:n {
+    if (A = 6 & B = 6 & C < 6 & D < 6) {result: 10}
+    else if (C = 6 & D = 6 & A < 6 & B < 6) {result: -10}
+    else {result: A + B - C - D}
+}
+
+output ZD + ZD - ZD - ZD named "2d - 2d"
+output [crits 1d6 1d6 1d6 1d6] named "2d - 2d with crits"
+
+output [experience 1d6 1d6 1d6 1d6] named "Number of 6:s (exp)"
+
+output 3d6 - 10 named "3d - 10"
+
+output 1d6 - 1d6 named "1d -1d"
+
+output DFUDGE + DFUDGE + DFUDGE + DFUDGE + DFUDGE named "5dFudge"
+
+
+output [test ZD ZD ZD ZD 1d2 1d3]

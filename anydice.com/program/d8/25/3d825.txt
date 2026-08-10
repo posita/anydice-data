@@ -1,0 +1,180 @@
+\Atyla-Ouroboros-D6-Armies\
+
+function: crop SEQUENCE:n MIN:n MAX:n {                  \ limit the display range between [min;max] \
+ if (SEQUENCE < MIN){result: MIN}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+function: crop SEQUENCE:n {                  \ limit the display range between [min;max] \
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+function: halve SEQUENCE:n {                  \ divide per 2, rounded up \
+ DIV: SEQUENCE/2
+ TEMP: DIV*2
+ if (DIV=TEMP){result: DIV}
+ result: (SEQUENCE+1)/2
+}
+
+\************************** Generic Fixed Chart ****************************\
+\can use a Chart with a different Curve\
+
+\choose values of thresholds (based on 8d6(on4+), 4 Life pts\
+CHART_GENERIC:  {1, 2, 3, 4}           \Ramp Up\
+CHART_GENERIC:  {5, 6, 7, 8}           \Ramp Down\
+CHART_GENERIC:  {4, 5, 5, 5}           \Inverse Bell\
+CHART_GENERIC:  {3, 5, 6, 8}           \Standard Bell\
+
+function: use chart ROLL:n CHART:s{
+\ if (ROLL >= 7@CHART){result: 7}
+ if (ROLL >= 6@CHART){result: 6}
+ if (ROLL >= 5@CHART){result: 5}\
+ if (ROLL >= 4@CHART){result: 4}
+ if (ROLL >= 3@CHART){result: 3}
+ if (ROLL >= 2@CHART){result: 2}
+ if (ROLL >= 1@CHART){result: 1}
+ if (ROLL < 1@CHART){result: 0}
+ result: 0
+}
+
+\************************************************************************\
+
+function: phaseone ATT:s DEF:s {                \Find the environment modifiers\
+  SIZE_MODS: [compare bodies 11@ATT with 11@DEF]           \compare the nbr of bodies\
+  VELOCITY_MODS: [compare 10@DEF with 9@ATT]           \compare the velocity for the dodge capacity\
+
+  BASE_DICES: [compare potentials 1@ATT 5@DEF]
+  ATT_BASE_DICES: 1@BASE_DICES                         \base number of hit-dices\
+  ATT_MODS_DICES: ATT_BASE_DICES+SIZE_MODS              \final number of added hit-dices\
+
+  DEF_BASE_DICES: 2@BASE_DICES                         \base number of save-dices\
+  DEF_MODS_DICES: DEF_BASE_DICES+VELOCITY_MODS          \final number of added save-dices\
+
+  \freeze the hits roll sequences\
+  result: [phasetwo ATT_MODS_DICESd(d6>=2@ATT) DEF_MODS_DICESd(d6>=6@DEF) ATT DEF]
+}
+
+function: phasetwo ATT_ROLL:n DEF_ROLL:n ATT:s DEF:s {       \Analysis of the Hit roll\
+  ATT_ROLLED: ATT_ROLL-4@ATT                              \apply value modifiers on hit roll\
+  DEF_ROLLED: DEF_ROLL-8@DEF                              \apply value modifiers on save roll\
+  
+  ATT_RES: [use chart ATT_ROLLED CHART_GENERIC]
+  DEF_RES: [use chart DEF_ROLLED CHART_GENERIC]
+  RES: [crop ATT_RES-DEF_RES]                                       \TEST 1\
+  
+  \RES: [use chart ATT_ROLLED-DEF_ROLLED CHART_GENERIC]\              \TEST 2\
+
+  result: RES
+}
+
+\test 1 : Chart then Difference\
+\test 2 : Difference then Chart\
+
+
+\************************************************************************\
+
+\Distribute the dices adaptation between Attack Roll & Save Roll\
+function: compare potentials ATT_VAL:n DEF_VAL:n {
+ BASE_DICES: 9
+ MAX_DICES: 15
+ MIN_DICES: 3
+
+ VAL: ATT_VAL-DEF_VAL                \VAL = difference between Att Potential & Def Potential\
+ ATT_BONUS: 0
+ DEF_BONUS: 0
+ if (VAL>=13) { result: {16, 0} }       \if Att is too high, then there is no Def\
+ if (VAL<=-13) { result: {0, 16} }      \if Def is too high, then there is no Att\
+
+ if (VAL>=0 & VAL<13) {
+  if VAL>6 {
+    ATT_BONUS: 15
+    DEF_BONUS: -VAL+6
+  }else {
+    ATT_BONUS: VAL
+  }
+ }
+ if (VAL<0 & VAL>-13) {
+  if VAL<-6 {
+    ATT_BONUS: VAL+6
+    DEF_BONUS: 15
+  }else {
+    DEF_BONUS: -VAL
+  }
+ }
+
+ ATT_DICES: BASE_DICES + ATT_BONUS
+ DEF_DICES: BASE_DICES + DEF_BONUS
+ result: {ATT_DICES, DEF_DICES}
+}
+
+function: compare bodies ATT_B:n with DEF_B:n {
+  if(ATT_B > DEF_B) { result: ATT_B-DEF_B}
+  result: 0
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  result: -1       \VAL_X < VAL_Y\
+}
+
+
+\************************************************************************\
+\ATT_POT, ATT_DICES_MODS, ATT_MODS, DEF_POT, DEF_DICES_MODS, DEF_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {2, 0, 0,   2, 0, 0,   150, 9, 1}      \Mono, Light Armor, Sniper, Knife\
+B: {2, 0, 0,   2, 0, 0,   30, 9, 1}      \Mono, VeryLight Armor, Double Swords\
+C: {2, 0, 0,   2, 0, 0,   80, 4, 2}      \Multi, Heavy Armor, Shotgun, HandPunch\
+D: {2, 0, 0,   2, 0, 0,   90, 5, 4}      \Multi, Middle Armor, Fusils, Bayonet\
+E: {2, 0, 0,   2, 0, 0,   80, 9, 1}      \Mono, Light Armor, Wooden Bow, Sword\
+F: {3, 0, 0,   2, 0, 0,   50, 3, 1}      \Mono, Tank, Flamer Sponsons, TankFront\
+G: {3, 0, 0,   2, 0, 0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+H: {3, 0, 0,   2, 0, 0,   200, 3, 1}      \Mono, Drone, Heavy Laser Canon, DroneFront\
+
+GL: {3, 0, 0,   0, 0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GM: {3, 0, 5,   0, 5,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+GA: {3, 0, 5,   0, 5,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+\************************************************************************\
+
+\output [phaseone A B] named "lone Sniper VS lone Sword Master"
+output [phaseone A G] named "lone Sniper VS Tank"
+output [phaseone E A] named "lone Archer VS lone Sniper"
+output [phaseone H G] named "Laser Canon VS Tank"
+output [phaseone A D] named "lone Sniper VS fusils Squad"
+output [phaseone D A] named "fusils Squad VS lone Sniper"
+
+output [phaseone G G] named "Tanks no Limits/Modifiers"
+output [phaseone GL G] named "Tanks test: Att Limits"
+output [phaseone G GL] named "Tanks test: Def Limits"
+output [phaseone GM G] named "Tanks test: Att Modifier"
+output [phaseone G GM] named "Tanks test: Def Modifier"
+output [phaseone GA G] named "Tanks test: Att Lim & Mods"
+output [phaseone G GA] named "Tanks test: Def Lim & Mods"
+\
+
+\************************************************************************\
+\ATT_POT, ATT_TARGET, ATT_DICES_MODS, ATT_MODS, DEF_POT, DEF_TARGET, DEF_DICES_MODS, DEF_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {3,4,0,0,  3,4,0,0,   5, 5, 1}      \Mono, No Armor, Nurgling, Grind Teeth\
+B: {20,4,0,0,  6,4,0,0,   30, 9, 1}       \Mono, Light Armor, Sniper, Knife\
+C: {20,4,0,0,  6,4,0,0,   80, 4, 4}     \Multi, Light Armor, Swords Squad, Swords\
+D: {24,4,0,0,  14,4,0,0,   90, 5, 4}     \Multi, Heavy Armor, Shotguns, HandPunchs\
+E: {31,4,0,0,  30,4,0,0,   80, 9, 1}      \Mono, Tank, Cannon, TankFront\
+F: {110,4,0,0,  100,4,0,0,   50, 3, 1}      \Mono, Titan, DoomLaser, EarthBreaker\
+\************************************************************************\
+
+output [phaseone A A] named "lone Nurgling VS lone Nurgling"
+output [phaseone A B] named "lone Nurgling VS lone Sniper"
+output [phaseone A C] named "lone Nurgling VS Swords Squad"
+output [phaseone A D] named "lone Nurgling VS Heavy Squad"
+output [phaseone A E] named "lone Nurgling VS Tank"
+output [phaseone A F] named "lone Nurgling VS Titan"
+
+output [phaseone F F] named "Titan VS Titan"
+output [phaseone F E] named "Titan VS Tank"
+output [phaseone F D] named "Titan VS Heavy Squad"
+output [phaseone F C] named "Titan VS Swords Squad"
+output [phaseone F B] named "Titan VS lone Sniper"
+output [phaseone F A] named "Titan VS lone Nurgling"
+
+
+

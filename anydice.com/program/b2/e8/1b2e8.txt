@@ -1,0 +1,71 @@
+F:{1,0,0,0,0,0}
+A:{1,1,0,0,0,0}
+B:{1,1,1,0,0,0}
+C:{1,1,1,1,0,0}
+D:{1,1,1,1,1,0}
+
+S:{2,2,0,0,0,0}
+N:{2,1,0,0,0,0}
+A:{2,1,1,0,0,0}
+E:{2,1,1,1,0,0}
+M:{2,1,1,1,1,0}
+
+\
+loop I over {0..4}{
+    output 4dM+IdS
+}
+\
+
+
+\
+loop I over {1..10}{ output IdM }
+\
+\
+output [count 6 in 3d6] named "N3"
+output [count {5..6} in 3d6] named "A3"
+output [count {5..6} in 4d6] named "A4"
+output [count {5..6} in 5d6] named "A5"
+output [count {4..6} in 5d6] named "E5"
+output [count {4..6} in 6d6] named "E6"
+output [count {4..6} in 7d6] named "E7"
+output [count {3..6} in 7d6] named "M7"
+output [count {3..6} in 8d6] named "M8"
+output [count {3..6} in 9d6] named "M9"
+\
+
+
+
+function: success ROLL:s {
+ SIX: [count 6 in ROLL]
+
+ if SIX = 1 {
+   if [count 5 in ROLL] { result: 5 }
+   if [count 4 in ROLL] { result: 4 }
+   if [count 3 in ROLL] { result: 3 }
+   if [count 2 in ROLL] { result: 2 }
+   if [count 1 in ROLL] { result: 1 }
+ }
+ if SIX > 1
+ {
+   result: 5+SIX-1
+ } 
+ result: 0
+}
+\
+loop DICE over {1..12} {
+ output [success DICE d6] named "[DICE]d"
+}
+\
+
+function: fumble ROLL:s {
+ if [count 6 in ROLL] { result: 1 } \ success \
+ if [count 1 in ROLL] { result: -1 } \ failure \
+ if [count 2 in ROLL] { result: -2 } \ failure \
+ if [count 3 in ROLL] { result: -3 } \ failure \
+ if [count 4 in ROLL] { result: -4 } \ failure \
+ if [count 5 in ROLL] { result: -5 } \ failure \
+}
+
+loop DICE over {1..12} {
+ output [fumble DICE d6] named "[DICE]d"
+}

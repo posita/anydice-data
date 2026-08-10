@@ -1,0 +1,47 @@
+function: treat OLD:n as NEW:n with DIE:n {
+ if DIE = OLD { result: NEW }
+ result: DIE
+}
+
+function: tamper OLD:n when SWITCH:n not between LOW:n and HIGH:n with DIE:n from MIN:n to MAX:n {
+ if DIE = OLD
+ {
+  if SWITCH < LOW { result: [treat OLD as MIN with DIE] }
+  if SWITCH > HIGH { result: [treat OLD as MAX with DIE] }
+  result: [tamper OLD when SWITCH not between LOW and HIGH with DIE from MIN to MAX]
+ }
+ result: DIE
+}
+
+function: round DICE:n divided by DIV:n away from MID:n {
+ if DICE <= MID { result: DICE / DIV }
+ result: (DICE + 1) / DIV
+}
+
+function: interpolate on S:n {
+ if S > 0 { result: 1d16+2 }
+ result: 3d6
+}
+
+\output 3d[treat 7 as 1 with 1d7]                                           named "Tatterdemalionâ€™s Gongfarmers (3d7, 7=1)"
+\
+output 3d6                                                                 named "3d6 (As Crom intended!)"
+
+output 3d[tamper 7 when 1d5 not between 3 and 3 with 1d7 from 1 to 6]      named "Tatterdemalionâ€™s Tampering (Random)"
+
+output 3d[tamper 8 when 1d6 not between 1 and 1 with [tamper 7 when 1d6 not between 6 and 6 with 1d8 from 1 to 6] from 1 to 6]      named "tamper 7->1 / 8->6 max when d6 not 6/1"
+
+output [interpolate on d2-1]                                               named "interpolate 3d6 and flat"
+
+output 1d16 + 2                                                            named "1d16+2 (Mad O'Murrish)"
+
+\output [round 6d6 divided by 2 away from 20]                               named "6d6/2 (Average Joe)"
+\
+\output [highest of 3 and [lowest of 18 and 2d10]]                          named "2d10 (Standard Mods)"
+\
+\output 3d[treat 7 as 6 with 1d7]                                           named "Tatterdemalionâ€™s Heros (3d7, 7=6)"
+\
+\output [highest 3 of 4d6]                                                  named "4d6 (Power Characters)"
+\
+\output [highest 3 of 4d[treat 7 as 6 with 1d7]]                            named "4d7 (Supers: Sezrekan Method)"
+\

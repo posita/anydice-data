@@ -1,0 +1,74 @@
+A: d6
+B: 1d5+1
+C: 1d{2,2,3,4,5,6}
+
+function: check X:n
+ {
+ if X=1
+  {
+  result: B
+  }
+ else
+  {
+  result: X
+  }
+ }
+
+function: checkz X:n
+ {
+ if X=1
+  {
+  result: C
+  }
+ else
+  {
+  result: X
+  }
+ }
+
+function: ray FIR:n SEC:n THI:n FOU:n 
+ {
+ if (FIR <= SEC) & (FIR <= THI) & (FIR <= FOU)
+  {
+  result: [check SEC] + [check THI] + [check FOU]
+  } 
+ else if (SEC <= FIR) & (SEC <= THI) & (SEC <= FOU)
+  {
+  result: [check FIR] + [check THI] + [check FOU]
+  }
+ else if (THI <= FIR) & (THI <= SEC) & (THI <= FOU)
+  {
+  result: [check FIR] + [check SEC] + [check FOU]
+  }
+ else if (FOU <= FIR) & (FOU <= SEC) & (FOU <= THI)
+  {
+  result: [check FIR] + [check SEC] + [check THI]
+  }
+ }
+
+function: rayz FIR:n SEC:n THI:n FOU:n 
+ {
+ if (FIR <= SEC) & (FIR <= THI) & (FIR <= FOU)
+  {
+  result: [checkz SEC] + [checkz THI] + [checkz FOU]
+  } 
+ else if (SEC <= FIR) & (SEC <= THI) & (SEC <= FOU)
+  {
+  result: [checkz FIR] + [checkz THI] + [checkz FOU]
+  }
+ else if (THI <= FIR) & (THI <= SEC) & (THI <= FOU)
+  {
+  result: [checkz FIR] + [checkz SEC] + [checkz FOU]
+  }
+ else if (FOU <= FIR) & (FOU <= SEC) & (FOU <= THI)
+  {
+  result: [checkz FIR] + [checkz SEC] + [checkz THI]
+  }
+ }
+
+output 3d6 named "3d6"
+output {1,2,3}@4d6 named "4d6, drop lowest."
+output {1,2,3}@4dC named "4d6, count 1 as 2, drop lowest."
+output [rayz A A A A] named "4d6, drop lowest, count 1 as 2"
+output [ray A A A A] named "4d6, drop lowest, re-roll ones."
+output {1,2,3}@4dB named "4d6, re-roll ones, drop lowest."

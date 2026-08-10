@@ -1,0 +1,73 @@
+\==========DICE POOL SETTINGS==========\
+\How many sides you want your dice to have, min: 1, max: infinite\
+DICE_NUMBER_SIDES: 10
+
+\Will create dice success probabilities from 1d[DICE_NUMBER_SIDES] to [POOL_SIZE]d[DICE_NUMBER_SIDES], min: 1, max: infinite\
+POOL_SIZE: 2
+
+\==========Options==========\
+\number of dice that must beat the threshold, min: 1, max: infinite\
+NUM_SUCCESSES: 1
+
+\Set to 0 to disable, min:0 max: infinite\
+FAIL_ON_OR_BELOW_ALWAYS: 1 
+
+\0 for off, non-zero number for on\
+EXPLODING: 0
+
+\==========Helpers==========\
+
+\==========Explode Helpers==========\
+
+THRESHOLD: 0 \Predefine for exploding functions\
+
+function: explode DIE:d 
+{
+   MAX: [maximum of DIE]
+   result: [explode DIE helper]
+}
+
+function: explode N:n helper 
+{
+   if N = MAX 
+   {
+      result: DIE >= THRESHOLD | [explode DIE helper]
+   }
+   result: DIE >= THRESHOLD
+}
+
+
+\==========Main==========\
+
+loop NUM_DICE over {1..POOL_SIZE}
+{
+   loop THRESHOLD over {1..DICE_NUMBER_SIDES}
+   {
+      OUT: d{0:DICE_NUMBER_SIDES}
+      if THRESHOLD > FAIL_ON_OR_BELOW_ALWAYS & NUM_DICE >= NUM_SUCCESSES
+      {
+         if EXPLODING != 0
+         {
+            RESULT: [explode 1dDICE_NUMBER_SIDES]
+         }
+         else
+         {
+            RESULT: 1dDICE_NUMBER_SIDES >= THRESHOLD
+         }
+         
+         OUT: RESULT
+         loop K over {2..NUM_DICE}
+         {
+            if K <= NUM_SUCCESSES
+            {
+               OUT: OUT & RESULT
+            }
+            else
+            {
+               OUT: OUT | RESULT
+            }
+         }
+      }
+      output OUT named "Odds [NUM_SUCCESSES] of [NUM_DICE]d[DICE_NUMBER_SIDES] >= [THRESHOLD]"
+   }
+}

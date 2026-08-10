@@ -1,0 +1,24 @@
+\ Smallsword comparisons \
+
+function: critmult ATTACK:n bonus BONUS versus AC damage DAMAGE crit CRIT {
+if ATTACK = 1 { result: 0 }
+if ATTACK = 20 { result: CRIT }
+if ATTACK + BONUS < AC { result: 0 }
+result: DAMAGE
+}
+
+function: critmultfact ATTACK:n bonus BONUS versus AC damage DAMAGE crit CRIT {
+if ATTACK = 1 { result: 0 }
+if ATTACK = 20 { result: CRIT + [critmult d20 bonus BONUS versus AC damage DAMAGE crit CRIT] }
+if ATTACK + BONUS < AC { result: 0}
+result: DAMAGE + [critmult d20 bonus BONUS versus AC damage DAMAGE crit CRIT]
+}
+
+EXPERT: d6
+DEX: 3
+INT: 5
+PROF: 3
+TARGET_AC: 18
+
+output [critmultfact d20 bonus 2 + DEX + PROF versus TARGET_AC damage d6 + EXPERT + DEX + 2 crit 2d6 + 2dEXPERT + DEX + 2] + [critmult d20 bonus DEX + PROF versus TARGET_AC damage d4 + EXPERT crit 2d4 + 2dEXPERT] named "Duellist - Smallsword +2 and Dagger"
+output [critmultfact d20 bonus 2 + DEX + PROF versus TARGET_AC damage d6 + EXPERT + DEX + 2 crit 2d6 + 2dEXPERT + DEX + 2] + 2d4 named "Duellist - Smallsword +2 and VM"

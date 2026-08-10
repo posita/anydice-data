@@ -1,0 +1,50 @@
+function: parse A:n {
+ if A >= 19 { result: 10 }
+ if A >= 16 { result: 10 }
+ if A >= 11 { result: 7 }
+ if A >= 2 { result: 0 }
+ if A = 1 { result: 0 }
+}
+
+function: apoc A:n {
+ if A >= 12 { result: 10 }
+ if A >= 10 { result: 10 }
+ if A >= 7 { result: 7 }
+ if A >= 3 { result: 0 }
+ if A = 2 { result: 0 }
+}
+
+function: uno A:n check B:n {
+  if A = 6 | B >= 5 { result: [uno 1d6 check 1d6] }
+  if B = 4 { result: A+15 }
+  if B = 3 { result: A+10 }
+  if B = 2 { result: A+5 }
+  result: A
+}
+
+function: trio A:n check B:n {
+  if B = 6 {B: 4}
+  if A = 6 & B = 5 { result: [uno 1d6 check 1d6] }
+  if A = 6 { result: [uno 1d6 check B] }
+  if B = 4 { result: A+15 }
+  if B = 3 { result: A+10 }
+  if B = 2 { result: A+5 }
+  result: A
+}
+
+function: duo A:n B:n {
+  if A = 6 & B >= 5 { result: 14 }
+  if A = 5 & B >= 5 { result: 13 }
+  if A > 4 { result: [duo 1d6 1d6] }
+  if B >= 5 { result: A }
+  if B >= 3 { result: A+4 }
+  result: A+8
+}
+
+set "maximum function depth" to 3
+output [uno 1d6 check 1d6] named "d20 modeled on 2d6"
+output [uno [highest 1 of 2d6] check 1d6] named "d20 modeled on highest of 2 roll"
+output [trio 1d6 check 1d6] named "d20 modeled on highest of 2 check"
+output 1d20 named "d20"
+output [duo 1d6 1d6] named "d14 modeled on 2d6"
+output 1d14 named "d14"

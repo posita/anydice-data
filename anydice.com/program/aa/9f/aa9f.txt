@@ -1,0 +1,30 @@
+\this calculates damage for weapons of electrocution\
+\leave YOUR_TARGETS_ARMOR_CLASS and YOUR_TARGETS_ELEM_RESIST blank for general stats\
+
+YOUR_WEAPONS_BASE_ATTACK: 0
+YOUR_WEAPONS_ENCHANTMENT: 0
+YOUR_TARGETS_ARMOR_CLASS: 0
+YOUR_TARGETS_ELEM_RESIST: 0
+
+\fill in the above then hit output\
+
+function: clamp A:n to zero {
+	if A < 0 {result: 0}
+	else {result: A}
+	}
+
+function: will it proc A:n {
+	if A = 3 {result: 1}
+	else {result: 0}
+	}
+
+function: resistor A:n {
+	if A = 1 {result: 0}
+	else {result: 7 + 1d13}
+	}
+
+WDAM: YOUR_WEAPONS_BASE_ATTACK + ((1d(YOUR_WEAPONS_ENCHANTMENT + 1)) - 1)
+TDAM: WDAM - 1dYOUR_TARGETS_ARMOR_CLASS
+EDAM: [clamp TDAM to zero] + ([will it proc 1d3] * [resistor YOUR_TARGETS_ELEM_RESIST])
+
+output EDAM

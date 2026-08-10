@@ -1,0 +1,26 @@
+function : interpret ROLL:s NEGATEROLL:s {
+    DICEGOOD : {}
+    ROLLRESULT : 0
+    loop I over {1 .. #ROLL} {
+        loop J over {1 .. #NEGATEROLL} {
+            if I@ROLL = J@NEGATEROLL { DICEGOOD : {DICEGOOD, 0}}
+        }
+        if #DICEGOOD < I {DICEGOOD : {DICEGOOD, 1}}
+    }
+    loop K over {1 .. #ROLL} {if K@DICEGOOD {ROLLRESULT : ROLLRESULT + K@ROLL}}
+    result : ROLLRESULT
+} 
+
+PLAYERABASEDICE : 2d6
+
+PLAYERBBASEDICE : 2d6
+
+loop I over {0 .. 3} {
+    PLAYERANEGATEDICE : Id6
+    loop J over {0 .. 3} {
+        PLAYERBNEGATEDICE : Jd6
+        output [interpret PLAYERABASEDICE PLAYERBNEGATEDICE] - [interpret PLAYERBBASEDICE PLAYERANEGATEDICE] named "[PLAYERABASEDICE] + [PLAYERANEGATEDICE] vs [PLAYERBBASEDICE] + [PLAYERBNEGATEDICE]"
+    }
+}
+
+output [interpret 2d6 1d6]

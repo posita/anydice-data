@@ -1,0 +1,79 @@
+\ <==================================================> \
+\ |           CONFIGURAÃ‡ÃƒO DA ROLAGEM               |  \
+\ <==================================================> \
+\ | Altere apenas as variÃ¡veis abaixo:              |  \
+\ | - DADOS_NORMAIS: dados normais lanÃ§ados         |  \
+\ | - DADOS_CORROMPIDOS: dados corrompidos lanÃ§ados |  \
+\ | - CONTAR_TODOS:                                 |  \
+\ |     "1" â†’ testa todas as combinaÃ§Ãµes          |  \
+\ |     "0"  â†’ testa apenas a combinaÃ§Ã£o exata     |  \
+\ <==================================================> \
+
+DADOS_NORMAIS: 6
+DADOS_CORROMPIDOS: 5
+
+CONTAR_TODOS: 0
+
+\ <==================================================> \
+\ |   ABAIXO ESTÃ O CÃ“DIGO QUE REALIZA A ROLAGEM    |  \
+\ |   (nÃ£o altere se sÃ³ quiser usar a rolagem)      |  \
+\ |   Pressione "Calculate" apÃ³s configurar acima   |  \
+\ <==================================================> \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function: CORRUPCAO:n to count consequence {
+  SUCESSO_CORRUPCAO: [count {8..10} in CORRUPCAO d{1:7,8..10}]*2
+  result: SUCESSO_CORRUPCAO*2
+}
+
+function: roll NORMAL:n and CORRUPCAO:n smaller {
+  SUCESSO_NORMAL: [count {6..10} in NORMAL d{1:5,6..10}]
+  SUCESSO_CORRUPCAO: [count {8..10} in CORRUPCAO d{1:7,8..10}]*2
+  result: SUCESSO_NORMAL + SUCESSO_CORRUPCAO
+}
+
+if CONTAR_TODOS = 1 {
+  loop N over {1..DADOS_NORMAIS} {
+    loop C over {0..DADOS_CORROMPIDOS} {
+
+        ROLL_RESULT: [roll N and C smaller]
+        CONSEQUENCE: [C to count consequence]
+
+        output ROLL_RESULT named "[N]d NORMAL e [C]d CORRUPÃ‡ÃƒO"
+        output (ROLL_RESULT > CONSEQUENCE) named "[N]d NORMAL e [C]d CORRUPÃ‡ÃƒO tem consequÃªncias? ------------ 0 = Sim | 1 = NÃ£o"
+
+    }
+  }
+} else {
+
+    ROLL_RESULT: [roll DADOS_NORMAIS and DADOS_CORROMPIDOS smaller]
+    CONSEQUENCE: [DADOS_CORROMPIDOS to count consequence]
+
+    output ROLL_RESULT named "[DADOS_NORMAIS]d NORMAL e [DADOS_CORROMPIDOS]d CORRUPÃ‡ÃƒO"
+    output (ROLL_RESULT > CONSEQUENCE) named "A rolagem tem consequÃªncias? ------------ 0 = Sim | 1 = NÃ£o"
+
+}

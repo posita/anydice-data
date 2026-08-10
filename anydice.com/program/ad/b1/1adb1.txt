@@ -1,0 +1,43 @@
+\ The Dark and the Peculiar \
+\ Anydice Code \
+
+function: darkroll ROLL:s die DIE:n pecs PEC:n target count TARGET:n {
+  \ pass me a sequence (of dice), which will then run me for all possible results of that pool \
+  \ ROLL:s a sequence of results from a pool of dDIE \
+  \ DIE:n the number of faces on the dice in the pool \
+  \ PEC:n the number of pecs applied to the roll \
+  \ TARGET:n the count required for a hit \
+  \ returns 0 on a miss, 1 on a hit with pec(s), 2 on a hit without pecs \
+
+  BEST_COUNT: 0
+  BEST_COUNT_WITH_PEC: 0
+  OUTCOME: -1
+
+  loop PICK over {1..PEC} { \ for each possible pick with a pec \
+    \ count the result of the pick \
+    COUNT: [count PICK in ROLL]
+    BEST_COUNT_WITH_PEC: [highest of COUNT and BEST_COUNT_WITH_PEC]
+  }
+  loop PICK over {PEC+1..DIE} { \ for each possible pick without a pec \
+    \ count the result of the pick \
+    COUNT: [count PICK in ROLL]
+    BEST_COUNT: [highest of COUNT and BEST_COUNT]
+  }
+
+  if BEST_COUNT >= TARGET {
+    OUTCOME: 2
+  } else {
+    if BEST_COUNT_WITH_PEC >= TARGET {
+      OUTCOME: 1
+    } else {
+      OUTCOME: 0
+    }
+  }
+
+  result: OUTCOME
+}
+
+D: 6
+loop P over {1..9} {
+  output [darkroll PdD die D pecs 4 target count 2] named "[P]d[D]"
+}

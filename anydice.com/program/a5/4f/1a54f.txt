@@ -1,0 +1,31 @@
+\**** Damage calculator ****\
+
+function: attk ROLL:n vs AC:n wmod WEAPON_MOD:n add prof ADD_PROF:n  {
+ ADD_PROF: [highest of 0 and [lowest of 1 and ADD_PROF]]  \* add prof is either zero or one *\
+ if ROLL >= 20 { result: WEAPON_DAMAGE + WEAPON_DAMAGE + WEAPON_MOD + (ABILITY_MODIFIER * ADD_PROF) + OTHER_BUFF_DAMAGE }
+ if ROLL = 1 { result: 0 }
+ if ROLL + WEAPON_MOD + ABILITY_MODIFIER + (PROFICIENCY_BONUS * ADD_PROF) + OTHER_BUFF_HIT >= AC { result: WEAPON_DAMAGE + WEAPON_MOD + (ABILITY_MODIFIER * ADD_PROF) + OTHER_BUFF_DAMAGE }
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+PROFICIENCY_BONUS: 3
+ABILITY_MODIFIER: 4
+WEAPON_MOD: 1
+OTHER_BUFF_HIT: 0
+OTHER_BUFF_DAMAGE: 0
+WEAPON_DAMAGE: 1d8
+
+output d[attk d20 vs d{15..20} wmod 1 add prof 1] named "+1 Rapier +7 1d8+4"
+
+WEAPON_DAMAGE: 1d6
+
+output d[attk d20 vs d{15..20} wmod 1 add prof 1] + d[attk d20 vs d{15..20} wmod 1 add prof 0] named "Two +1 shortswords"
+
+WEAPON_DAMAGE: 1d4
+
+output d[attk d20 vs d{15..20} wmod 1 add prof 1] + d[attk d20 vs d{15..20} wmod 1 add prof 0] named "Two +1 daggers"
+
+

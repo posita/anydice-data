@@ -1,0 +1,60 @@
+STRONG_HIT_MATCH: 3
+STRONG_HIT: 2
+WEAK_HIT: 1
+MISS: 0
+MISS_MATCH: -1
+
+function: check A:n and B:n against C:n {
+  if (C > 10) {
+    C: 10
+  }
+  if (C > A & C > B) {
+    if (A = B) {
+      result: STRONG_HIT_MATCH
+    } else {
+      result: STRONG_HIT
+    }
+  } else if (C > A & C <= B) {
+    result: WEAK_HIT
+  } else if (C > B & C <= A) {
+    result: WEAK_HIT
+  } else {
+    if (A = B) {
+      result: MISS_MATCH
+    } else {
+      result: MISS
+    }
+  }
+}
+
+CHAL_ONE: d10
+CHAL_TWO: d10
+ACTION: d6
+STAT: 2
+ADDS: 1
+
+
+output [check CHAL_ONE and CHAL_TWO against ACTION + 3] named "Edge"
+output [check CHAL_ONE and CHAL_TWO against ACTION + 1] named "Heart"
+output [check CHAL_ONE and CHAL_TWO against ACTION + 2 + 1] named "Iron"
+output [check CHAL_ONE and CHAL_TWO against ACTION + 1] named "Shadow"
+output [check CHAL_ONE and CHAL_TWO against ACTION + 2 + 2] named "Wits"
+
+function: ironsworn actionstat:n modifier:n {
+  ACTION: d6 + actionstat + modifier
+  CHALLENGE: 2d10
+  MATCH: CHALLENGE[1] = CHALLENGE[2]
+  STRONG: (ACTION > CHALLENGE[1]) and (ACTION > CHALLENGE[2])
+  WEAK: (ACTION > CHALLENGE[1]) or (ACTION > CHALLENGE[2])
+  
+  if STRONG and MATCH { result: 4 }  \ Strong Hit with a Match
+  else if STRONG { result: 3 }       \ Strong Hit
+  else if WEAK and MATCH { result: 2.5 }  \ Weak Hit with a Match
+  else if WEAK { result: 2 }         \ Weak Hit
+  else if MATCH { result: 1.5 }      \ Miss with a Match
+  else { result: 1 }                 \ Miss
+  
+  result
+}
+
+output [ironsworn roll 3 2] named "Ironsworn Roll (Stat 3, Modifier 2)"

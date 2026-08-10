@@ -1,0 +1,95 @@
+function: hack DICE:s has SEQ:s {
+  loop N over SEQ{
+    if (N = SEQ) > (N = DICE) { result: 0 }
+  }
+  result: 1
+}
+
+function: hack DICE:d has run of NUMBER:n {
+ NUM: NUMBER - 1
+ RES: 0
+ loop N over {1..(6-NUM)} {
+  SEQ: {N..(N + NUM)}
+  RES: RES | [hack DICE has SEQ]
+ }
+ result: RES
+}
+
+function: sneak DICE VALS NUMBER {
+X: [count 1@VALS in DICE] < NUMBER
+loop N over {2..#(VALS)} {
+  X: X & [count N@VALS in DICE] < NUMBER
+}
+result: X
+}
+
+function: force DICE MIN MAX {
+  result: DICE <= MAX & DICE >= MIN 
+}
+
+function: force DICE MIN {
+ result: DICE >= MIN
+}
+
+function: hack DICE {
+
+}
+
+\ Guard Dogs \
+\output [sneak 4d6 1 2] named "Sneak (4d6): Pair of 1 fails"\
+\output [sneak 8d6 1 2] named "Rushed Sneak (8d6): Pair of 1 fails"\
+\output [force 4d6 10 20] named "Subdue (4d6): Must total between 10 and 20"\
+\output [force 3d6 10 20] named "Rushed Subdue (3d6): Must total between 10 and 20"\
+
+\ Motion Sensors \
+\output [sneak 5d6 {1,2} 2] named "Sneak (5d6): Pairs of 1 or 2 fail"\
+\output [sneak 5d6 {1,2,3,4} 2] named "Rushed Sneak (5d6): Pairs of 1, 2, 3, or 4 fail"\
+\output [hack 6d6 has {5,6}] | [hack 6d6 has {4,5}] named "Hack (6d6): Need a 4 & 5 or 5 & 6"\
+\output [hack 8d6 has {4,5,6}] named "Rushed Hack (8d6): Need a 4,5, & 6"\
+
+\ Cameras \
+\output [sneak 8d6 {1..3} 3] named "Sneak (8d6): Three 1s, 2s, or 3s fail"\
+\output [sneak 8d6 {1..6} 3] named "Rushed Sneak (8d6): Any three of a kind fail"\
+\output [hack 9d6 has {3,4}] named "Hack (9d6): Need a 3 and 4"\
+\output [hack 6d6 has {3,4}] named "Rushed Hack (6d6): Need a 3 and 4"\
+
+\Locked Door\
+\output [hack 5d6 has run of 3] named "Hack (5d6): Need any run of 3"\
+\output [hack 8d6 has run of 5] named "Rushed Hack (8d6): Need any run of 5"\
+\output [force 3d6 11] named "Force (3d6): Need a score of 11 or more"\
+\output [force 4d6 16] named "Rushed Force (4d6): Need a score of 16 or more"\
+
+\Crack Safe\
+\HACKONE: [hack 10d6 has {1..6}] \\ 10d6 need a run 1 to 6 \
+\HACKTWO: [hack 12d6 has {1..6}] \\ 12d6 need a run 1 to 6 \
+\RUSHEDHACKONE: [hack 8d6 has {1..6}] \\8d6 need a run 1 to 6 \
+\RUSHEDHACKTWO: [hack 10d6 has {1..6}] \\10d6 need a run 1 to 6 \
+\FORCEONE: [force 6d6 24] \
+\FORCETWO: [force 6d6 22]\
+\RUSHEDFORCEONE: [force 10d6 42]\
+\RUSHEDFORCETWO: [force 10d6 39]\
+\output FORCEONE | FORCETWO\
+
+\Laser Sensors\
+\output [sneak 8d6 {2,4,6} 3] named "Sneak (8d6): Any 3 of the same even numbers fail"\
+\output [sneak 8d6 {1..6} 3] named "Rushed Sneak (8d6): Any 3 numbers fail"\
+\output [hack 6d6 has {5,6}] | [hack 6d6 has {1,2}] named "Hack (6d6): Need a 1-2 or 5-6"\
+\output [hack 6d6 has {3,4,5}] | [hack 6d6 has {2,3,4}] named "Rushed Hack (6d6): Need a 2-3-4 or 3-4-5"\
+
+\Guards\
+\output [sneak 5d6 {5,6} 2] named "Sneak (5d6): Fail on any pair of 5s or 6s"\
+\output [sneak 5d6 {3,4,5,6} 2] named "Rushed Sneak (5d6): Fail on any pair of 3-4-5-6"\
+\output [force 5d6 12 19] named "Force (5d6): Score between 12 & 19 inclusively"\
+\output [force 6d6 15 20] named "Rushed Force (6d6): Score between 15 & 20 inclusively"\
+
+\Automatic Gate\
+\output [sneak 5d6 {4,5,6} 2] named "Sneak (5d6): Fail on any pair of 4-5-6"\
+\output [sneak 5d6 {2, 3,4,5,6} 2] named "Rushed Sneak (5d6): Fail on any pair of 2-3-4-5-6"\
+\output [force 5d6 18] named "Force (5d6): Score more than 17"\
+\output [force 6d6 23] named "Rushed Force (6d6): Score more than 22"\
+
+\Biometric Reader\
+output [hack 8d6 has run of 4] named "Hack (8d6): Need any run of 4"
+output [hack 12d6 has run of 6] named "Rushed Hack (12d6): Need any run of 6"
+output [force 3d6 10] named "Force (3d6): Need a score of 11 or more"
+output [force 4d6 15] named "Rushed Force (4d6): Need a score of 16 or more"

@@ -1,0 +1,69 @@
+set "explode depth" to 2  \ set to 1 if server times out \
+MAXWOUNDS: 5              \ Cutoff for wounds. 4 is dead for wild cards. 1 or 2 is dead for most others \
+
+\ ENEMY FEATURES \
+DEFENSE: 5       \ Use Parry for melee, and 4 + Cover for ranged \
+TOUGHNESS: 9
+
+\ YOUR NORMAL FEATURES \
+ATTACK_SKILL: [explode d8]   \ Fighting, Shooting or Throwing \
+DAMAGE: [explode d6] + [explode d6]
+
+\ THINGS YOU WANT TO COMPARE \
+ATTACK_OPTION_ONE: +2
+DAMAGE_OPTION_ONE: 0
+ATTACK_OPTION_TWO: 0
+DAMAGE_OPTION_TWO: [explode d6]
+
+\ GENERAL OPTIONS. Default is almost always good here. \
+HERO: [explode d6]   \ some crazy edges let you get higher hero dice I think \
+
+\ DO NOT EDIT BELOW THIS LINE \
+ATK: [highest of ATTACK_SKILL and HERO]
+DMG: DAMAGE
+ATK_ONE: ATTACK_OPTION_ONE       \ we must keep this flat+ apart to keep critfail alive \
+ATK_TWO: ATTACK_OPTION_TWO       \ we must keep this flat+ apart to keep critfail alive \
+DMG_ONE: DMG + DAMAGE_OPTION_ONE \ no critfail here, so alltogether is good \
+DMG_TWO: DMG + DAMAGE_OPTION_TWO \ no critfail here, so alltogether is good \
+
+\ DAMAGE FUNCTION \
+\ RESULTS are: -1 for no damage, 0 for shaken, and 1,2,3,etc for number of WOUNDS \ 
+function: roll DMG:n damage vs toughness TOUGH:n {
+  if DMG < TOUGH { result: -1 }
+  if (DMG-TOUGH)/4 > MAXWOUNDS { result: MAXWOUNDS }
+  result: (DMG-TOUGH)/4
+}
+
+\ RESULTS are: -2 for critfail, -1 for miss, 0 for hit, and 1 for raise(s) \
+\ NO LONGER IN USE \
+\ function: roll ATK:n attack vs defense DEF:n {
+  if ATK = 1 { result: -2 }
+  if ATK < DEF { result: -1 }
+  if ATK - DEF >= 4 { result: 1 }
+  result: 0
+} \
+
+\ ATTACK FUNCTION \
+\ RESULTS are: -2 for critfail, -1 for miss, 0 for hit, and 1 for raise(s) \
+function: roll ATK:n plus ATKP attack vs defense DEF:n {
+  if ATK = 1 { result: -2 }
+  if ATK + ATKP < DEF { result: -1 }
+  if ATK + ATKP - DEF >= 4 { result: 1 }
+  result: 0
+}
+
+\ ATTACK AND WOUND FUNCTION \
+function: ATK:n plus ATKP:n attack with DMG:n damage vs defense DEF:n and toughness TOUGH:n {
+  ATKRESULT: [roll ATK plus ATKP attack vs defense DEF]
+  if ATKRESULT = -2 { result: -2 }              \ CRITFAIL \
+  if ATKRESULT = -1 { result: -1 }              \ NORMAL MISS, no DMG \
+  if ATKRESULT >=1 { DMG: DMG + [explode d6] }  \ RAISE, so +1d6 damage \
+
+  result: [roll DMG damage vs toughness TOUGH] \ Roll damage \
+}
+
+output [ATK plus 0 attack with DMG damage vs defense DEFENSE and toughness TOUGHNESS] named "d8 | d6 attack with 2d6 dmg, vs defense [DEFENSE], and toughness [TOUGHNESS]. CRITFAIL -2. NO DMG -1. SHAKEN 0. POSITIVE: Number of WOUNDS"
+
+output [ATK plus ATK_ONE attack with DMG_ONE damage vs defense DEFENSE and toughness TOUGHNESS] named "d8 | d6 +2 attack with 2d6 dmg, vs defense [DEFENSE], and toughness [TOUGHNESS]. CRITFAIL -2. NO DMG -1. SHAKEN 0. POSITIVE: Number of WOUNDS"
+
+output [ATK plus ATK_TWO attack with DMG_TWO damage vs defense DEFENSE and toughness TOUGHNESS] named "d8 | d6 attack with 2d6+d6 dmg, vs defense [DEFENSE], and toughness [TOUGHNESS]. CRITFAIL -2. NO DMG -1. SHAKEN 0. POSITIVE: Number of WOUNDS"

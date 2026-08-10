@@ -1,0 +1,59 @@
+function: limit A:s to B:n above {
+  OUT: {}
+  loop IDX over {1..(#A)} {
+    RAW: IDX@A
+    OUT: {OUT, [lowest of RAW and B]}
+  }
+  result: OUT
+}
+function: limit A:s to B:n below {
+  OUT: {}
+  loop IDX over {1..(#A)} {
+    RAW: IDX@A
+    OUT: {OUT, [highest of RAW and B]}
+  }
+  result: OUT
+}
+function: cull A:s above B:n {
+  OUT: {}
+  loop IDX over {1..(#A)} {
+    RAW: IDX@A
+    if RAW <= B {
+      OUT: {OUT, RAW}
+    } 
+  }
+  result: OUT
+}
+function: cull A:s below B:n {
+  OUT: {}
+  loop IDX over {1..(#A)} {
+    RAW: IDX@A
+    if RAW >= B {
+      OUT: {OUT, RAW}
+    } 
+  }
+  result: OUT
+}
+
+\
+FORMULA_RATING:6
+BASE_DICE: 14
+FOCUS_RATING: 0
+LIMIT_BOOST: 0
+
+loop FOCUS_RATING over {0..5}{
+loop LIMIT_BOOST over {1,5}{
+  ART_HITS: [count {1,2} in (BASE_DICE+FOCUS_RATING)d6]
+  ART_HITS: [limit ART_HITS to (FORMULA_RATING+LIMIT_BOOST) above]
+  OPP_HITS: [count {1,2} in (FORMULA_RATING+3)d6]
+  NET_HITS: ART_HITS-OPP_HITS
+  output [cull NET_HITS below FOCUS_RATING+1] named "net hits vs formula R[FORMULA_RATING] using focus R[FOCUS_RATING], limit boost by [LIMIT_BOOST]"
+}}
+\
+
+DRAIN: 6
+DRAIN_DICE: 12+6
+DRAIN_RESIST_HITS: [count {1,2} in (DRAIN_DICE)d6]
+loop DRAIN over {2..9} {
+output [limit (DRAIN-DRAIN_RESIST_HITS) to 0 below] named "drain [DRAIN]"
+}

@@ -1,0 +1,176 @@
+function: A:n prog B:n{
+if A <= B{ result: B }
+else{ result: A }
+}
+
+function: noright A:d{
+MAX: [maximum of A]
+result: [noright A helper]
+}
+
+function: noright N:n helper{
+if N = MAX {result: N+2d10}
+else {result: N}
+}
+
+function: accurate N:n D:d{
+if N >= 4 {result: D+2d10}
+else if N < 4 & N >= 2 {result: D+1d10}
+else {result: D}
+}
+
+function: charlie accurate N:n{
+if N >=6 {result: 6}
+else if N >= 2 & N < 6 {result: 2+[charlie accurate N-2]}
+else {result: 0}
+}
+
+function: maser D:d{
+MAX: [maximum of D]
+result: [maser helper D]
+}
+
+function: maser helper N:n {
+ if N = MAX | N = MAX-1 { result: N + [maser helper D] }
+ result: N
+}
+
+function: nocompact D:d{
+MAX: [maximum of D]
+C: 1d2
+CMAX: [maximum of C]
+result: [nocompact helper D C]
+}
+
+function: nocompact helper A:n B:n{
+if A = MAX & B = CMAX {result: A + [nocompact helper D C]}
+else {result: A}
+}
+
+function: falling D:n{
+if D<= 6 {result: 1d5}
+else if D > 6 & D <= 15 {result: 1d10}
+else if D > 15 & D <= 30 {result: 1d10+2}
+else if D > 30 & D <= 50 {result: 1d10+4}
+else if D > 50 & D <= 100 {result: 1d10+6}
+else if D > 100 & D <= 200 {result: 2d10+2} \the book includes 100 in this range, I'm assuming it's a mistake\ 
+else if D > 200 & D < 16000 {result: 2d10+5} \the book has a dead zone of 201-299. I'm assuming whoever wrote that was retarded\
+else {result: 2d10+8}
+}
+
+set "maximum function depth" to 3
+\constants\
+STR: 3
+DEGREE: 4
+ATP: 6
+FALLDISTANCE: 50
+
+
+\------------------\
+\------MELEE-------\
+\------------------\
+\For all rolls, it is assumed that the eva has 30 STR, and one degree of success. These rolls also do not take into account enemy armor or toughness. 
+Righteous is considered confirmed in all cases\
+
+\General Weapons\
+\output ([explode d10]+STR)/2 named "Unarmed Strike/shield"
+output [highest 1 of 2d[[explode d5] prog 3]]+4+STR named "Prog Knife"
+output [highest 1 of 2d[[explode d10] prog 3]]+3+STR named "Prog axe/spear"
+output [highest 1 of 2d[[explode d5] prog 3]]+3+STR named "Prog tonfa"
+output [explode d10]+2+STR named "Pneumatic Flail"
+output [explode d10]+4+STR named "Pneumatic Hammer"
+output [explode d5]+4+STR named "Pneumatic Tonfa"
+output [highest 1 of 2d[[explode d5] prog 3]]+5+STR named "Prog Knife SHV"
+output [highest 1 of 2d[[explode d5] prog 3]]+1+STR named "Core Knife"
+output 2d[explode d10]+STR named "Great Sword"
+output [explode d10]+3+STR named "Heavy Spear"
+output 2d[explode d10]+1+STR named "Smash Hawk"
+output [highest 1 of 2d[[explode d5] prog 3]]+6+STR named "Prog Dagger"
+output [noright [highest 1 of 2d[d10 prog 5]]]+6+STR named "Magarok E(xterminate)"
+output [noright d10]+3+STR named "Mjolnir"
+output [explode d10]+14+STR named "False Lance"\
+
+
+\Particle, The extra 1d5 is not implemented here as this is for raw damage before reductions\
+\output [explode d10]+3+STR named "Tesla Hammer/Particle Spear/Positron Edge"
+output [explode d10]+2+STR named "Particle Sword"
+output [explode d5]+3+STR named "Shock tonfa"
+output [explode d10]+1+STR named "Positron Wire"
+output [explode d10]+5+STR named "Inazuma Naginata"
+output 2d[explode d10]+3+STR named "Oni Kanabo"\
+
+\Chain Weapons\
+\output [highest 2 of 3d[explode d10]]+2 named "Chain Axe/Glaive/Blade"
+output [highest 2 of 3d[explode d10]]+1 named "Chain Sword"
+output [highest 2 of 3d[explode d5]]+5 named "Chain Tonfa"
+output [highest 3 of 4d[explode d10]]+3 named "Dual Saw"\
+
+\Hyper prog\
+\output [highest 1 of 2d[[explode d5] prog 3]]+4+(STR/2)+DEGREE named "Prog Knife II"
+output [highest 1 of 2d[[explode d10] prog 5]]+3+(STR/2)+DEGREE named "Sonic Glaive"
+output [highest 3 of 4d[[explode d10] prog 5]]+2+(STR/2)+DEGREE named "Thunder Spear"
+output [noright [highest 1 of 2d[d10 prog 5]]]+6+(STR/2)+DEGREE named "XLS-Visen"
+output [highest 1 of 2d[[explode d10] prog 5]]+3+(STR/2)+DEGREE named "Counter Sword"\
+
+
+\------------------\
+\------RANGED------\
+\------------------\
+
+\Ballistic\
+\output [explode d10]+3 named "M-VII Handgun/M-XIX Handgun"
+output [explode d10]+2 named "Pallet Shotgun/Pallet Rifle/Gatling Gun/Pallet Carbine"
+output [accurate DEGREE [explode d10]]+3 named "DMMR Sniper Rifle"
+output [explode d10]+3+[charlie accurate DEGREE] named "DMMR Sniper Rifle charlie"
+output 2d[explode d10]+5 named "Gyrojet Launcher"
+output [accurate DEGREE 2d[explode d10]]+6 named "Linear Rail Accelerator Cannon"
+output 2d[explode d10]+6+[charlie accurate DEGREE] named "LRAC Charlie"
+output [explode d10]+4 named "KEG46R Hand Cannon" 
+output [accurate DEGREE [explode d10]]+4 named "MM-114 Rail Crossbow"
+output [explode d10]+4+[charlie accurate DEGREE] named "Crossbow Charlie"
+output 3d[explode d10]+2 named "Anti-Eva Bazooka"\
+
+\Maser\
+\output [maser d10]+1 named "MAS pistol/HELIOS Spark Carbine/HELIOS Fusion Pistol"
+output [maser d10]+2 named "MAS Rifle/HELIOS Beam Splitter"
+output [accurate DEGREE [maser d10]]+1 named "MAS Long Rifle"
+output [maser d10]+1+[charlie accurate DEGREE] named "Charlie Long Rifle"
+output 2d[maser d10]+6 named "Tactical Maser Annihilator"
+output [accurate DEGREE 2d[maser d10]]+3 named "Siege Master 'SELENE'"
+output 2d[maser d10]+3+[charlie accurate DEGREE] named "Charlie 'SELENE'"\
+
+\Antimater High Explosive\
+\output [highest 1 of 2d[explode d10]]+5 named "H.E. Mass Driver/A.A.D. Shot Cannon/A.W. Masterna Autocannon"
+output [highest 2 of 3d[explode d10]]+5 named "P.D.W. Rotary Launcher"
+output [accurate DEGREE [highest 2 of 3d[explode d10]]]+5 named "H.E. Recoilless Rifle"
+output [highest 2 of 3d[explode d10]]+5+[charlie accurate DEGREE] named "Charlie recoilless"
+output [highest 3 of 4d[explode d10]]+5 named "RPN2M Launcher"\
+
+\Positron\
+\output 2d[explode d10] named "Proto-20 Positron Rifle/Type-21c Positron Gun/Type-22xr Positron Repeater"
+output [accurate DEGREE 3d[explode d10]] named "Type-20x Positron Rifle"
+output 3d[explode d10]+[charlie accurate DEGREE] named "Charlie Positron Rifle"
+output [accurate DEGREE 3d[explode d10]]+4 named "Plugged Positron Rifle"
+output 3d[explode d10]+[charlie accurate DEGREE]+4 named "Charlie Plugged Rifle"
+output [accurate DEGREE 6d[explode d10]] named "Type-GUNGNIR 460mm Positron Cannon"
+output 6d[explode d10]+[charlie accurate DEGREE] named "Charlie Positron Cannon"
+output [accurate DEGREE 6d[explode d10]]+20 named "GUNGNIR"
+output 6d[explode d10]+[charlie accurate DEGREE]+20 named "Charlie GUNGNIR"
+output 3d[nocompact d5] named "Type 23-C Positron Handgun"\
+
+\------------------\
+\----AT POWERS-----\
+\------------------\
+
+\output [explode d10]+4+(ATP-6) named "Focal Thrust"
+output 2d[explode d10] named "Repulsion"\ \they also take falling damage, but that is a separate instance\ \
+output [explode d10]+5+(ATP-5) named "Slashing Distortion"
+output 3d[explode d10]+1+((ATP-2)/2) named "Solenoid Bomb"\
+
+
+\------------------\
+\-------MISC-------\
+\------------------\
+
+output [falling FALLDISTANCE] named "Falling Damage"
+output 2d10 named "Incendiary"

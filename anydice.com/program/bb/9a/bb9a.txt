@@ -1,0 +1,156 @@
+
+
+function: woundstarget STRENGTH:n vs TOUGHNESS:n {
+  if STRENGTH < TOUGHNESS {
+     if 2*STRENGTH <= TOUGHNESS {result: 6}
+     result: 5}  
+  if STRENGTH > TOUGHNESS {
+     if STRENGTH >= 2*TOUGHNESS {result: 2}
+     result: 3}
+  result: 4
+}
+
+
+function: hitroll {
+  if FLAMER > 0 {BS: 1}
+  result: d6 >= BS
+}
+
+function: woundroll {
+  result: d6 >= [woundstarget S vs T]
+}
+
+function: saveroll  {
+  SAVE: SV-AP-CV 
+  if INV < SAVE{result: d6 >= INV}
+  result: d6 >= SAVE
+}
+
+function: damage {
+  if MELTA > 0 {D: [highest 1 of 2d6]}
+  result: D
+}
+
+\loop ATTEMPTS over {1..20} {
+output ATTEMPTSd(Ad(([hitroll] * [woundroll] * ![saveroll])*D)) named "No. Attacks [ATTEMPTS]"
+}\
+
+function: limit A:n to B:n{
+ if A > B {result: B}
+ result: A
+}
+
+
+\-------------------------------------------------------------------------\
+\Input attackers BS+                                                      \
+\Input defenders, Toughness, Wounds, Armour Save, invulnerable save, cover\
+\Wep stats are further down                                               \
+\-------------------------------------------------------------------------\
+\attacker\
+BS: 3
+\defender\
+T: 4
+W: 1
+SV: 3
+INV: 0
+CV: 0
+\-----system calc----\
+if SV = 0 {SV: 7}
+if INV = 0 {INV: 7}
+\--------------------\
+
+\-----------Weapons start from here--------------------------------\
+
+
+\PSword------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A: 1
+S: 4
+AP: -3
+D: 1
+FLAMER: 0
+MELTA: 0
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage])) named "PSword"
+
+\KPMaul------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:1
+S: 6
+AP: -1
+D: 1
+FLAMER: 0
+MELTA: 0
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage]))  named "PMaul"
+
+\Paxe------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:1
+S: 5
+AP: -2
+D: 1
+FLAMER: 0
+MELTA: 0
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage]))  named "Paxe"
+
+\Csword----------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:2
+S: 4
+AP: 0
+D: 1
+FLAMER: 0
+MELTA: 0
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage]))  named "CSword"
+
+
+\FSword------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A: 1
+S: 4
+AP: -3
+D: d3
+FLAMER: 0
+MELTA: 0
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage]))  named "FSword"
+
+\FMaul------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:1
+S: 6
+AP: -1
+D: d3
+FLAMER: 0
+MELTA: 0
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage]))  named "FMaul"
+
+\Paxe------------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:1
+S: 5
+AP: -2
+D: d3
+FLAMER: 0
+MELTA: 0
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage]))  named "Faxe"
+
+\REaper----------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:2
+S: 4
+AP: 0
+D: 6
+FLAMER: 0
+MELTA: 0
+output (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage])) named "Reaper"
+
+\PFist---------------------------------------------------------\
+\wep Stats, Attacks [1..n,dx], Strength, AP mod, Damage, Types-----\
+A:2
+S: 8
+AP: -3
+D: d3
+FLAMER: 0
+MELTA: 0
+BS:4
+output  (Ad(([hitroll] * [woundroll] * ![saveroll])*[damage]))named "PFist"
+BS:3

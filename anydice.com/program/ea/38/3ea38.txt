@@ -1,0 +1,45 @@
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A } else { result: B }
+}
+
+function: damage K:n BONUS ARMOR{
+ATTACK: K+BONUS
+result: [if ATTACK >=ARMOR then ATTACK-ARMOR else 0]
+
+}
+
+function: maybecrit K:d{
+COUNT: [count 6 in K]
+FOO: [if COUNT >1 then K+5 else K]
+result: FOO
+}
+function: attack K:n D:n DAMAGE_ROLL:d BONUS ARMOR{
+  TOTAL: K - D
+if TOTAL < 0{
+result: 0
+}
+else{
+result: [damage [maybecrit DAMAGE_ROLL] BONUS ARMOR]
+
+}
+}
+function: diceexplosion ROLL:n DICE:n BONUS:n{
+if ROLL=1{
+NEW_ROLL: BONUS-DICE
+result: [if NEW_ROLL>0 then NEW_ROLL else 0]
+}
+else if ROLL=10{
+NEW_ROLL: 10+BONUS+DICE
+result: [if NEW_ROLL>0 then NEW_ROLL else 0]
+}
+else{
+NEW_ROLL: BONUS+ROLL
+result: [if NEW_ROLL>0 then NEW_ROLL else 0]
+}
+}
+function: doroll DICE:n BONUS:n{
+result: [diceexplosion 1d{1..DICE} 1d{1..DICE} BONUS]
+}
+
+
+output [attack [doroll 10 12] [doroll 10 18] 8d6 4 18]

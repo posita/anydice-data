@@ -1,0 +1,87 @@
+
+function: gwf A:n B:n{
+ X:0
+ loop N over {1..B} {
+  X: X + [reroll 1dA A]
+ }
+ result: X
+}
+
+function: reroll A:n B:n{ 
+ if A <= 2 { 
+  A: 1dB 
+ }  
+ result: A 
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITON {
+  result: CRITICALHIT }
+ if ROLL + ATTACK >= AC { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKROLLRESULT:n {
+ if ATTACKROLLRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKROLLRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+function: bonusdmg for ATTACKROLLRESULT:n {
+ if ATTACKROLLRESULT = CRITICALHIT {
+  result: BONUSCRITDMG
+ }
+ if ATTACKROLLRESULT = HIT {
+  result: BONUSHITDMG
+ }
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attackroll [highest 1 of ATKDICENUMd20] vs AC]]
+}
+
+function: bonusattack {
+ result: [bonusdmg for [attackroll [highest 1 of ATKDICENUMd20] vs AC]]
+}
+
+\---AC attacking against---\
+AC:      d{0}
+PROF:    6
+
+\********************************************************************************\
+\-.................................RyokuMav_Halb.................................-\
+\____Attack Variables____\
+     ATKDICENUM:    2
+     ATKMOD:        5 + 1
+     MISCDMGMOD:    4
+     CRITON:        20
+     CRITDICENUM:   1
+
+\____Damage Variables____\
+     DMGDICENUM:       1
+     DMGDICE:          10
+     BONUSDMGDICENUM:  1
+     BONUSDMGDICE:     4
+
+\____Calculated Variables____\
+     ATTACK:   ATKMOD + PROF
+     HITDAMAGE:      [gwf DMGDICE DMGDICENUM]           + ATKMOD + MISCDMGMOD
+     BONUSHITDMG:    [gwf BONUSDMGDICE BONUSDMGDICENUM] + ATKMOD + MISCDMGMOD
+     CRITICALDAMAGE: HITDAMAGE   + [gwf DMGDICE ( DMGDICENUM * CRITDICENUM )]
+     BONUSCRITDMG:   BONUSHITDMG + [gwf BONUSDMGDICE ( BONUSDMGDICENUM * CRITDICENUM )]
+
+\____Roll Attacks and Name____\
+output 2d[attack] + 1d[bonusattack]named "RyokuMav_Halb18_R2"
+
+\********************************************************************************\
+

@@ -1,0 +1,47 @@
+\ V3.2 - Final Version \
+
+function: eval ROLL {
+ 
+ \ Cleaning inputs \
+ ROLL:	 {ROLL}		\ Turn the dice into a sequence to allow later manipulation	\
+ DCS:	 {1@ROLL, DCS}	\ Adds the minimum possible roll to capture the full scope	\
+ POINTS: {0, POINTS}	\ Adds a score of 0 for the above added DC			\
+ 
+ WEIGHTS: {}		\ To be populated with points in quantities equal to their weights	\
+ TOTAL_WEIGHT: 0	\ \
+ 
+ loop N over [reverse {1..#DCS}] {
+  THIS_WEIGHT: (N@DCS <= ROLL)- TOTAL_WEIGHT
+  WEIGHTS: {N@POINTS:THIS_WEIGHT, WEIGHTS}
+  TOTAL_WEIGHT: TOTAL_WEIGHT + THIS_WEIGHT
+ }
+  
+ result: WEIGHTS
+}
+
+
+\\\ #==========#==========#==========#==========#==========# \\\
+
+
+\ Premade dice for readability & convenience \
+EA_ADV:	[highest 1 of 3d20]	\ Elven Accuracy Advantage	\
+ADV:	[highest 1 of 2d20]	\ Advantage			\
+DIS:	[lowest 1 of 2d20]	\ Disadvantage			\
+
+\ The DCs and points alloted for each. If their lengths are unequal, throws an error \
+DCS:	{10, 20, 30, 40,  50}
+POINTS:	{20, 30, 50, 100, 150}
+
+\ Space for variables used in your roll \
+WIS:	0
+INT:	5
+PROF:	3
+
+
+\ Space for placing your rolls to evaluate \
+\ output [eval <dice roll>] named "<name>" \
+
+output [eval	ADV + WIS + PROF   + 1		+ ADV + INT + 1		] named "Enhance Ability + Survival"
+output [eval	d20 + WIS + PROF*2 + 1		+ ADV + INT + 1		] named "Enhance Ability + Navigation"
+output [eval	ADV + WIS + PROF   + 1 + d4 	+ d20 + INT + 1 + d4	] named "Guidance + Survival"
+output [eval	d20 + WIS + PROF*2 + 1 + d4	+ d20 + INT + 1 + d4	] named "Guidance + Navigation"

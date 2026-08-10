@@ -1,0 +1,45 @@
+TRUE: 1
+FALSE: 0
+PRIMARY: TRUE
+SECONDARY: FALSE
+MISS: 0
+HIT: 1
+CRIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n with BONUS:n {
+ if ATTACKRESULT = CRIT {
+  if BONUS = TRUE {
+   result: SECONDARY_CRIT_DAMAGE
+  }
+  result: PRIMARY_CRIT_DAMAGE + ABILITY
+ }
+ if ATTACKRESULT = HIT {
+  if BONUS = TRUE {
+   result: SECONDARY_DAMAGE
+  }
+  result: PRIMARY_DAMAGE + ABILITY
+ }
+ result: MISS_DAMAGE
+}
+
+STR: 0
+DEX: 2
+PROF: 2
+ATTACK: DEX + PROF
+ABILITY: DEX
+DAGGER: 1d4
+HEX: 1d6
+MISS_DAMAGE: 0
+PRIMARY_DAMAGE: DAGGER + HEX
+PRIMARY_CRIT_DAMAGE: 2dPRIMARY_DAMAGE
+SECONDARY_DAMAGE: DAGGER + HEX
+SECONDARY_CRIT_DAMAGE: 2dSECONDARY_DAMAGE
+loop AC over {(2 + ATTACK)..20}{
+ output [damage for [attack d20 vs AC] with PRIMARY] + [damage for [attack d20 vs AC] with SECONDARY] named "AC [AC]"
+}

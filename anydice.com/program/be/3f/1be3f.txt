@@ -1,0 +1,130 @@
+CRITICALFAIL: -1
+FAIL: 0
+SUCCESS: 1
+CRITICALSUCCESS: 2
+
+MISS: FAIL
+HIT: SUCCESS
+CRITICALHIT: CRITICALSUCCESS
+
+function: check ROLL:n vs DC:n {
+ TOTAL_ROLL: ROLL + CHECK_MOD
+ \ PF2E success requires check to beat DC \
+ if TOTAL_ROLL >= DC {
+
+   \ PF2E crit success requires check to beat DC + 10 \
+   if TOTAL_ROLL >= DC + 10 {
+     \ Nat 1 reduces crit to success \
+     if ROLL = 1 { result: SUCCESS }
+     \ Nat 20 increases crit, but nothing better than a crit \
+     result: CRITICALSUCCESS
+   }
+
+   \ Nat 1 reduces success to fail \
+   if ROLL = 1 { result: FAIL }
+
+   \ Nat 20 increases success to crit \
+   if ROLL = 20 { result: CRITICALSUCCESS }
+
+   \ a standard success \
+   result: SUCCESS
+ } else {
+
+   \ PF2E crit fail requires check to be 10 lower than DC \
+   if TOTAL_ROLL <= DC - 10 {
+     \ Nat 20 increases crit fail to fail \
+     if ROLL = 20 { result: FAIL }
+     \ Nat 1 reduces crit fail, but nothing worse than crit fail \
+     result: CRITICALFAIL
+   }
+
+   \ Nat 1 reduces fail to crit fail \
+   if ROLL = 1 { result: CRITICALFAIL }
+
+   \ Nat 20 increases fail to success \
+   if ROLL = 20 { result: SUCCESS }
+
+   \ a standard fail \
+   result: FAIL
+ }
+}
+
+function: attack ROLL:n vs DEFENSE:n {
+ TOTAL_ATK: ROLL + ATTACK_MOD
+ \ PF2E success requires attack to beat AC \
+ if TOTAL_ATK >= DEFENSE {
+
+   \ PF2E crit success requires attack to beat AC + 10 \
+   if TOTAL_ATK >= DEFENSE + 10 {
+     \ Nat 1 reduces success \
+     if ROLL = 1 { result: HIT }
+     \ Nat 20 increases success, but nothing better than a crit \
+     result: CRITICALHIT
+   }
+
+   \ Nat 1 reduces success \
+   if ROLL = 1 { result: MISS }
+
+   \ Nat 20 increases success \
+   if ROLL = 20 { result: CRITICALHIT }
+
+   \ a standard hit \
+   result: HIT
+ }
+ \ Nat 1 reduces success, but critical failures dont mean anything for attacks \
+ \ Nat 20 increases success, so counts as a hit \
+ if ROLL = 20 { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: adjusted damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: ADJUSTEDCRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: adjusted attack {
+ result: [adjusted damage for [attack d20 vs DEFENSE]]
+}
+
+function: attacks N:n {
+  TOTAL: 0
+  loop I over {1..N} {
+    TOTAL: TOTAL + [damage for [attack (d20+MAP) vs DEFENSE]]
+  }
+  result: TOTAL
+}
+
+MISSDAMAGE: 0
+
+ATTACK_MOD: 14
+HITDAMAGE: 2d6 + 3
+CRITDAMAGE: 12 + 3 + 1d8
+DEFENSE: 21
+MAP: -3
+output [attack] named "Yoletchka using Rapier against Zyk"
+output [attacks 2] named "Yoletchka using Rapier against Zyk twice"
+
+DEFENSE: 19
+output [attack] named "Yoletchka using Rapier against Woochi"
+
+DEFENSE: 16
+output [attack] named "Yoletchka using Rapier against Rigmar"

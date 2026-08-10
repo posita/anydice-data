@@ -1,0 +1,48 @@
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+\FIEND: 1 if target is fiend or undead, 0 if neither \
+FIEND: 1
+IMPSMITE: 1
+SMITESLOT: 0
+if SMITESLOT = 0 {
+SMITEDICE: IMPSMITE
+}
+else {
+SMITEDICE: IMPSMITE + SMITESLOT + FIEND + 1
+}
+FIREDICE: 8
+\ FIREDMG: 1 means normal damage, 2 means target resists, 0 means target is immune \
+FIREDMG: 1
+STRDMG: 8
+AURADMG: 5
+WPNDMG: 3
+GWMDMG: 10
+GWFSIX: [reroll {1,2} on d6 to d6]
+GWFEIGHT: [reroll {1,2} on d8 to d8]
+GWFTEN: [reroll {1,2} on d10 to d10]
+GWFDOZEN: [reroll {1,2} on d12 to d12]
+SMITEGWF: SMITEDICE d GWFEIGHT
+FIREGWF: FIREDICE d GWFEIGHT
+FIRETOTAL: FIREGWF / FIREDMG
+AVENGER: FIEND*2 d GWFTEN
+
+if FIEND = 0 {
+output 2 d GWFSIX + SMITEGWF + FIRETOTAL + GWMDMG + STRDMG + WPNDMG + AURADMG + AVENGER named "GWM+GWF"
+}
+else {
+output 2 d GWFSIX + SMITEGWF + FIRETOTAL + GWMDMG + STRDMG + WPNDMG + AURADMG + AVENGER named "GWM+GWF v fiend/undead"
+}
+
+output 2d6+12d8+2d10+26 named "GWM vs fiends, smite level 1, no GWF"
+output 2d6+11d8+26 named "GWM, smite level 1, no GWF"
+
+output 2d12 named "2d12"
+output 1d12+2d6 named "1d12+2d6"
+output 2 d GWFDOZEN named "2d12 GWF"
+output GWFDOZEN + 2 d GWFSIX named "1d12+2d6 GWF"

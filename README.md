@@ -42,7 +42,6 @@ git clone --depth 1 https://github.com/posita/anydice-data.git
 | [`pack-programs-db.sh`](pack-programs-db.sh)         | Re-compresses `.db` → `.db.gz` with rsyncable gzip (for updating the committed shards and sidecar after a fresh pack). |
 | [`anydice-programs.py`](anydice-programs.py)         | CLI: fetch, annotate, verify, etc. Inflates and verifies `.db.gz`  automatically on first use.                         |
 | [`harvest-program-txt.py`](harvest-program-txt.py)   | Extracts program from AnyDice source HTML into the sharded `.txt` tree.                                                |
-| [`MISSING.md`](MISSING.md)                           | IDs that couldn't be re-harvested due to server-side glitches during the 2026-05-17 crawl.                             |
 
 ## Using the corpus
 
@@ -95,7 +94,7 @@ The helper inflates and verifies `.db.gz` to `.db` automatically on first invoca
 
 Programs were retrieved from `anydice.com/program/<id>` for hex IDs starting at `1` and walking forward.
 The crawl tarball (`anydice.com-<TIMESTAMP>.tar.gz`) is committed alongside the extracted `.txt` files so anyone can verify the extraction independently.
-The highest retrieved program ID was [`4327d`](https://raw.githubusercontent.com/posita/anydice-data/refs/heads/main/anydice.com/program/32/7d/4327d.txt).
+Currently, the highest retrieved program ID is [`43379`](https://raw.githubusercontent.com/posita/anydice-data/refs/heads/main/anydice.com/program/32/7d/43379.txt) from 2026-08-10.
 
 The `.txt` files were extracted from the crawled HTML via [`harvest-program-txt.py`](harvest-program-txt.py).
 Extracted programs with `\r` line endings were normalized to `\n` via `git add --renormalize` per the project's `.gitattributes` (`text eol=lf`), since AnyDice's parser is whitespace-insensitive but Git's diff tools work better with consistent line endings.

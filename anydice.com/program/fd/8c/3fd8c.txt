@@ -1,0 +1,64 @@
+function: giant spatula PLUS:n ROLL:s {
+ BENEFIT: (ROLL = 1) * 5 + (ROLL = 2) * 3 + (ROLL = 3) * 1
+ if PLUS {
+  if (ROLL = 6 | ROLL = 5 | ROLL = 4) {
+   COST: 0
+  }
+  else {
+   if ROLL = 3 {
+    COST: 1
+   }
+   else {
+    if ROLL = 2 {
+     COST: 3
+    }
+    else {
+     COST: 5
+    }
+   }
+  }
+ }
+ else {
+  if ROLL = 3 | ROLL = 4 {
+   COST: 4
+  }
+  else {
+   if ROLL = 2 | ROLL = 5 {
+    COST: 5
+   }
+   else {
+    COST: 6
+   }
+  }
+ }
+ if BENEFIT > COST {
+  result: BENEFIT - COST
+ }
+ else {
+  result: 0
+ }
+}
+output [giant spatula 1 2d6] named "giant spatula"
+
+function: doppeltwice PLUS:n ROLL:s {
+ if PLUS {
+  MAX: 5
+ }
+ else {
+  MAX: 3
+ }
+ USES: 2
+ BENEFIT: 0
+ loop K_REV over {1..MAX}{
+  K: MAX + 1 - K_REV
+  KS: ROLL = K
+  K_USES: [lowest of USES and KS]
+  BENEFIT: BENEFIT + K_USES * K
+  USES: USES - K_USES
+  if USES = 0 {
+   result: BENEFIT
+  }
+ }
+ result: BENEFIT
+}
+output [doppeltwice 1 2d6] named "doppeltwice"

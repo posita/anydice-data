@@ -1,0 +1,22 @@
+function: attack ROLL:n bonus BONUS:n ac AC:n padice PADICE:d {
+  if ROLL = 1 { result: 0 }
+  if ROLL >= 18 { result: 2d10 + 26 + 2d4 + 2*PADICE }
+  if ROLL + BONUS >= AC { result: 1d10 + 26 + 1d4 + PADICE }
+  result: 0
+}
+
+function: full attack ac AC:n pa PA:n {
+  BONUS: 14 - (PA * 2)
+  PADICE: PA d4
+  ADV: [highest 1 of 2d20]
+  result: [attack ADV bonus BONUS ac AC padice PADICE] + [attack ADV bonus BONUS ac AC padice PADICE]
+}
+
+loop AC over {14..25} {
+  output [full attack ac AC pa 0] named "AC [AC], PA 0 (+14)"
+  output [full attack ac AC pa 1] named "AC [AC], PA 1 (+12, +1d4)"
+  output [full attack ac AC pa 2] named "AC [AC], PA 2 (+10, +2d4)"
+  output [full attack ac AC pa 3] named "AC [AC], PA 3 (+8, +3d4)"
+  output [full attack ac AC pa 4] named "AC [AC], PA 4 (+6, +4d4)"
+  output [full attack ac AC pa 5] named "AC [AC], PA 5 (+4, +5d4)"
+}

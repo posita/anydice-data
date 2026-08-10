@@ -1,0 +1,69 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: extraattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: extraattack {
+ result: [damage for [extraattack d20 vs DEFENSE]]
+}
+
+function: vexattack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+DEFENSE: d{12..22}
+
+ATTACK: 5
+HITDAMAGE: d4 + 3
+CRITICALDAMAGE: 2d4 + 3
+MISSDAMAGE: 0
+output [attack] named "Club"
+
+ATTACK: 5
+HITDAMAGE: d4 + 3
+CRITICALDAMAGE: 2d4 + 3
+MISSDAMAGE: 0
+output [attack]+[extraattack] named "Dagger"
+
+ATTACK: 5
+HITDAMAGE: d8 + 3
+CRITICALDAMAGE: 2d8 + 3
+MISSDAMAGE: 0
+output [attack] named "Greatclub"
+
+ATTACK: 5
+HITDAMAGE: d6 + 3
+CRITICALDAMAGE: 2d6 + 3
+MISSDAMAGE: 0
+output [vexattack] named "Handaxe"
+
+
+
+

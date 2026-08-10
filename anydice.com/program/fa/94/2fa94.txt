@@ -1,0 +1,280 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attackpf ROLL:n plus TOHIT:n vs ac AC:n for DAMAGE:d map MAP:n{
+if ROLL = 20 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC+10 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC {result: DAMAGE}
+if (TOHIT + ROLL - 5*MAP) < AC {result: 0}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n crit CRIT:n fail FAIL:n success SUCCESS:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: SUCCESS}
+if ROLL = 1 {result: CRIT}
+if ROLL + FLOAT < DC-10 {result: CRIT}
+if ROLL + FLOAT < DC {result: FAIL}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n for DAMAGE:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: DAMAGE/2}
+if ROLL = 1 {result: DAMAGE*2}
+if ROLL + FLOAT < DC-10 {result: DAMAGE*2}
+if ROLL + FLOAT < DC {result: DAMAGE}
+}
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] named "Magic Stone 1"
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3] named "Magic Stone 2 (Archery)"
+output [attack 1d20 plus 3 vs ac 10 for 2d6 plus 3] named "Magic Stone 3 (Archery, Swamkeeper)"
+output [attack 1d20 plus 2-5 vs ac 10 for 2d6 plus 13] named "Magic Stone 4 (Archery, Swamkeeper, Sharpshooter)"
+output [attack 1d20 plus 2-5 vs ac 10
+    hit 1d6+1d6+13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13] 
+    miss [attack 1d20 plus 2-5 vs ac 10 for 1d6+1d6 plus 13] 
+    crit 4d6+13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13] 
+    crange 20] named "Magic Stone 5 (Archery, Swamkeeper, Sharpshooter)"
+output [attack 1d20 plus 2-5 vs ac 10
+    hit 1d6+1d6+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] 
+    miss [attack 1d20 plus 2-5 vs ac 10 for 1d6+1d6 plus 14] 
+    crit 4d6+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] 
+    crange 20] named "Magic Stone 8 (Archery, Swamkeeper, Sharpshooter)"
+output [attack 1d20 plus 2-5 vs ac 10
+    hit 1d6+1d8+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] 
+    miss [attack 1d20 plus 2-5 vs ac 10 for 1d6+1d8 plus 14] 
+    crit 2d6+2d8+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] 
+    crange 20] named "Magic Stone 11 (Archery, Swamkeeper, Sharpshooter)"
+output [attack 1d20 plus 3-5 vs ac 10
+    hit 1d6+1d8+15 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] 
+    miss [attack 1d20 plus 3-5 vs ac 10 for 1d6+1d8 plus 15] 
+    crit 2d6+2d8+14 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] 
+    crange 20] named "Magic Stone 12 (Archery, Swamkeeper, Sharpshooter)"
+output [attack 1d20 plus 3-5 vs ac 10
+    hit 1d6+1d8+20 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] 
+    miss [attack 1d20 plus 3-5 vs ac 10 for 1d6+1d8 plus 20] 
+    crit 2d6+2d8+20 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] 
+    crange 20] named "Magic Stone 20 (Archery, Swamkeeper, Sharpshooter)"
+
+
+output [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 1 vs ac 10 for 1d6 plus 3] named "HaXbow 1 (CBX)"
+output [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3] + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3] named "HaXbow 2 (CBX, Archery)"
+output [attack 1d20 plus 3 vs ac 10 
+    hit 2d6+3 + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3]
+    miss [attack 1d20 plus 3 vs ac 10 for 2d6 plus 3]
+    crit 4d6+3 + [attack 1d20 plus 3 vs ac 10 for 1d6 plus 3]
+    crange 20] named "HaXbow 3 (CBX, Archery, Swarmkeeper)"
+
+output [attack 1d20 plus 2-5 vs ac 10 
+    hit 2d6+13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13]
+    miss [attack 1d20 plus 2-5 vs ac 10 for 2d6 plus 13]
+    crit 4d6+13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13]
+    crange 20] named "HaXbow 4 (CBX, Archery, Swarmkeeper, Sharpshooter)"
+
+output [attack 1d20 plus 2-5 vs ac 10 
+    hit 2d6+13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13] + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13]
+    miss [attack 1d20 plus 2-5 vs ac 10
+        hit 2d6 + 13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13]
+        miss [attack 1d20 plus 2-5 vs ac 10 for 2d6 plus 13]
+        crit 4d6 + 13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13]
+        crange 20]
+    crit 4d6+13 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13] + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 13]
+    crange 20] named "HaXbow 5 (CBX, Archery, Swarmkeeper, Sharpshooter)"
+
+output [attack 1d20 plus 2-5 vs ac 10 
+    hit 2d6+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+    miss [attack 1d20 plus 2-5 vs ac 10
+        hit 2d6 + 14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+        miss [attack 1d20 plus 2-5 vs ac 10 for 2d6 plus 14]
+        crit 4d6 + 14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+        crange 20]
+    crit 4d6+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+    crange 20] named "HaXbow 8 (CBX, Archery, Swarmkeeper, Sharpshooter)"
+
+output [attack 1d20 plus 2-5 vs ac 10 
+    hit 1d6+1d8+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+    miss [attack 1d20 plus 2-5 vs ac 10
+        hit 1d6+1d8 + 14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+        miss [attack 1d20 plus 2-5 vs ac 10 for 1d6+1d8 plus 14]
+        crit 2d6+2d8 + 14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+        crange 20]
+    crit 2d6+2d8+14 + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14] + [attack 1d20 plus 2-5 vs ac 10 for 1d6 plus 14]
+    crange 20] named "HaXbow 11 (CBX, Archery, Swarmkeeper, Sharpshooter)"
+
+output [attack 1d20 plus 3-5 vs ac 10 
+    hit 1d6+1d8+15 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+    miss [attack 1d20 plus 3-5 vs ac 10
+        hit 1d6+1d8 + 15 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+        miss [attack 1d20 plus 3-5 vs ac 10 for 1d6+1d8 plus 15]
+        crit 2d6+2d8 + 15 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+        crange 20]
+    crit 2d6+2d8+15 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+    crange 20] named "HaXbow 12 (CBX, Archery, Swarmkeeper, Sharpshooter)"
+
+output [attack 1d20 plus 3-5 vs ac 10 
+    hit 1d6+1d8+20 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+    miss [attack 1d20 plus 3-5 vs ac 10
+        hit 1d6+1d8 + 20 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+        miss [attack 1d20 plus 3-5 vs ac 10 for 1d6+1d8 plus 20]
+        crit 2d6+2d8 + 20 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+        crange 20]
+    crit 2d6+2d8+20 + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15] + [attack 1d20 plus 3-5 vs ac 10 for 1d6 plus 15]
+    crange 20] named "HaXbow 20 (CBX, Archery, Swarmkeeper, Sharpshooter)"
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3] named "Magic Stone 1 (ADV)"
+output [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 3] named "Magic Stone 2 (Archery ADV)"
+output [attack [highest 1 of 2d20] plus 3 vs ac 10 for 2d6 plus 3] named "Magic Stone 3 (Archery, Swamkeeper ADV)"
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 2d6 plus 13] named "Magic Stone 4 (Archery, Swamkeeper, Sharpshooter ADV)"
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10
+    hit 1d6+1d6+13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13] 
+    miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6+1d6 plus 13] 
+    crit 4d6+13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13] 
+    crange 20] named "Magic Stone 5 (Archery, Swamkeeper, Sharpshooter ADV)"
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10
+    hit 1d6+1d6+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] 
+    miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6+1d6 plus 14] 
+    crit 4d6+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] 
+    crange 20] named "Magic Stone 8 (Archery, Swamkeeper, Sharpshooter ADV)"
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10
+    hit 1d6+1d8+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] 
+    miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6+1d8 plus 14] 
+    crit 2d6+2d8+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] 
+    crange 20] named "Magic Stone 11 (Archery, Swamkeeper, Sharpshooter ADV)"
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d6+1d8+15 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] 
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6+1d8 plus 15] 
+    crit 2d6+2d8+14 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] 
+    crange 20] named "Magic Stone 12 (Archery, Swamkeeper, Sharpshooter ADV)"
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+    hit 1d6+1d8+20 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] 
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6+1d8 plus 20] 
+    crit 2d6+2d8+20 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] 
+    crange 20] named "Magic Stone 20 (Archery, Swamkeeper, Sharpshooter ADV)"
+
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3] + [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 3] named "HaXbow 1 (CBX ADV)"
+output [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 3] + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 3] named "HaXbow 2 (CBX, Archery ADV)"
+output [attack [highest 1 of 2d20] plus 3 vs ac 10 
+    hit 2d6+3 + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 3]
+    miss [attack [highest 1 of 2d20] plus 3 vs ac 10 for 2d6 plus 3]
+    crit 4d6+3 + [attack [highest 1 of 2d20] plus 3 vs ac 10 for 1d6 plus 3]
+    crange 20] named "HaXbow 3 (CBX, Archery, Swarmkeeper ADV)"
+
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10 
+    hit 2d6+13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13]
+    miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 2d6 plus 13]
+    crit 4d6+13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13]
+    crange 20] named "HaXbow 4 (CBX, Archery, Swarmkeeper, Sharpshooter ADV)"
+
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10 
+    hit 2d6+13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13] + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13]
+    miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10
+        hit 2d6 + 13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13]
+        miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 2d6 plus 13]
+        crit 4d6 + 13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13]
+        crange 20]
+    crit 4d6+13 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13] + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 13]
+    crange 20] named "HaXbow 5 (CBX, Archery, Swarmkeeper, Sharpshooter ADV)"
+
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10 
+    hit 2d6+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+    miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10
+        hit 2d6 + 14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+        miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 2d6 plus 14]
+        crit 4d6 + 14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+        crange 20]
+    crit 4d6+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+    crange 20] named "HaXbow 8 (CBX, Archery, Swarmkeeper, Sharpshooter ADV)"
+
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10 
+    hit 1d6+1d8+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+    miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10
+        hit 1d6+1d8 + 14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+        miss [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6+1d8 plus 14]
+        crit 2d6+2d8 + 14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+        crange 20]
+    crit 2d6+2d8+14 + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14] + [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 14]
+    crange 20] named "HaXbow 11 (CBX, Archery, Swarmkeeper, Sharpshooter ADV)"
+
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10 
+    hit 1d6+1d8+15 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d6+1d8 + 15 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+        miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6+1d8 plus 15]
+        crit 2d6+2d8 + 15 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+        crange 20]
+    crit 2d6+2d8+15 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+    crange 20] named "HaXbow 12 (CBX, Archery, Swarmkeeper, Sharpshooter ADV)"
+
+output [attack [highest 1 of 2d20] plus 3-5 vs ac 10 
+    hit 1d6+1d8+20 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+    miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10
+        hit 1d6+1d8 + 20 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+        miss [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6+1d8 plus 20]
+        crit 2d6+2d8 + 20 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+        crange 20]
+    crit 2d6+2d8+20 + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15] + [attack [highest 1 of 2d20] plus 3-5 vs ac 10 for 1d6 plus 15]
+    crange 20] named "HaXbow 20 (CBX, Archery, Swarmkeeper, Sharpshooter ADV)"
+
+output [attack [highest 1 of 2d20] plus 2-5 vs ac 10 for 1d6 plus 15]
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] +  [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5] +  [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d6 plus 5]
+
+output [attack [highest 1 of 2d20] plus 1 vs ac 10 for 1d8 plus 4] + [attack [highest 1 of 2d20] plus -3 vs ac 10 for 1d4 plus 3] + [attack [highest 1 of 2d20] plus -3 vs ac 10 for 1d4 plus 3] + [attack [highest 1 of 2d20] plus -3 vs ac 10 for 1d4 plus 3]
+
+output [attack 1d20 plus 1 vs ac 10 for 1d8 plus 4] + [attack 1d20 plus -3 vs ac 10 for 1d4 plus 3] + [attack 1d20 plus -3 vs ac 10 for 1d4 plus 3] + [attack 1d20 plus -3 vs ac 10 for 1d4 plus 3]

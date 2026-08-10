@@ -1,0 +1,50 @@
+function: roll X:n vs TN:n {
+    if X = 20 {
+        \ Fumble \ 
+        result: 0
+    }
+    if X > TN {
+        \ Fail \ 
+        result: 1
+    }
+    if X <= TN & X != 1 {
+        \ Success \ 
+        result: 2
+    }
+    if X = 1 {
+        \ Crit \ 
+        result: 3
+    }
+}
+
+function: contest PCTN:n PCW vs GMTN:n GMW:n{
+    PCROLL: [roll d20 vs PCTN] + PCW
+    GMROLL: [roll d20 vs GMTN] + GMW
+    OUTCOME: PCROLL - GMROLL
+    result: OUTCOME
+}
+
+loop PC over {13}  {
+    loop GM over {8, 14, 21, 34, 54}{
+        PCW: PC/20
+        PCN: PC - PCW * 20
+        GMW: GM/20
+        GMN: GM - GMW * 20
+        if PCW = 0 {
+            if GMW = 0 {
+                output [contest PCN PCW vs GMN GMW] named "PC [PCN] vs GM [GMN]"
+            }
+            else {
+                output [contest PCN PCW vs GMN GMW] named "PC [PCN] vs GM [GMN]W[GMW]"
+            }
+        }
+        else {
+            if GMW = 0 {
+                output [contest PCN PCW vs GMN GMW] named "PC [PCN]W[PCW] vs GM [GMN]"
+            }
+            else {
+                output [contest PCN PCW vs GMN GMW] named "PC [PCN]W[PCW] vs GM [GMN]W[GMW]"
+            }
+        }
+    }
+}

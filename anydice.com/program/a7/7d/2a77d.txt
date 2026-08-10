@@ -1,0 +1,138 @@
+\damage attribute bonus [-4,-3,-2,-1,0,+1,+2,+3,+4+5]\
+\weapon bonus [+1,+2,+3]\
+\proficiency bonus [+2,+3,+4,+5]\
+SH: 10  \sharpshooter +10\
+HWM: 10 \heavy weapon master +10\
+D: 2    \dueling(onehanded melee) +2\
+BA: 2   \bracers of archery(bow) +2\
+REROLL: 2 \fighter two handed reroll on damage\
+CRITON: 20 \default crit value\
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\attack rols start\
+function: advantage A:n plus B:n{
+ if  A > B{
+  result: A
+ }
+ else {
+  result: B
+ }
+}
+
+function: disadvantage A:n plus B:n{
+ if  A > B{
+  result: B
+ }
+ else {
+  result: A
+ }
+}
+
+function: halfling A:n roll {
+ if A = 1 {
+  result: d20
+ }
+ result: A
+}
+
+function: attack ROLL:n modifier MOD vs DEFENSE:n crit on CRITON{
+ if ROLL = 1 { result: MISS }
+ if ROLL >=CRITON {
+  if ROLL + MOD >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\attack rolls end\
+
+\damage rolls start\
+
+function: damage DMG:n plus DMOD {
+ result: DMG + DMOD
+}
+
+function: dmg DMG:n dice DICE:n reroll REROLL  {
+ if DMG <= REROLL {
+  result: dDICE
+ }
+ result: DMG
+}
+
+function: dmg DICE multiple N reroll REROLL {
+DMG:0
+loop I over {1..N}{
+ DMG: DMG + [dmg dDICE dice DICE reroll REROLL]
+}
+result: DMG
+}
+\damage rolls end\
+
+\full attack action start\
+function: attack HITDAMAGE:n CRITICALDAMAGE:n for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+function: spell HITDAMAGE:n save SAVINGTHROW:n challenge ABILITY:n{
+ if SAVINGTHROW >= ABILITY {
+  result: HITDAMAGE/2
+ }
+ result: HITDAMAGE
+}
+
+function: two ATK {
+ result: ATK + ATK
+}
+
+function: three ATK {
+ result: ATK + ATK + ATK
+}
+
+function: attack DMG:n plus DMOD atk roll ATTACK:n plus MOD:n crit on CRITON crit dmg CRITDMG{
+ result:[attack [damage DMG plus DMOD] [damage DMG*CRITICALHIT plus CRITDMG+DMOD] for 
+        [attack ATTACK modifier MOD vs AC crit on CRITON ]]
+}
+
+function: attack DMG:n plus DMOD atk roll ATTACK:n plus MOD:n crit on CRITON {
+ result:[attack [damage DMG plus DMOD] [damage DMG*CRITICALHIT plus DMOD] for 
+        [attack ATTACK modifier MOD vs AC crit on CRITON ]]
+}
+
+function: attack DMG:n plus DMOD atk roll ATTACK:n plus MOD:n {
+ result:[attack [damage DMG plus DMOD] [damage DMG*CRITICALHIT plus DMOD] for 
+        [attack ATTACK modifier MOD vs AC crit on CRITON ]]
+}
+
+\full attack action end\
+
+AC: 18 \armor class\
+PB: 3  \5th level\
+BR: 2  \barbarian rage lvl1:2 lvl9:3\
+
+output [attack d8+3d6 plus 3 atk roll [advantage d20 plus d20] plus 3+3] named "rogue advantage sneak attack 3d6 vs AC [AC]"
+
+output [attack d8+3d6 plus 3 atk roll d20 plus 3+3] named "rogue plain sneak attack 3d6 vs AC [AC]"
+
+output [attack 2d8 plus 5 atk roll d20 plus 5+3+1 crit on 19] named "warlock green flamed"
+
+output [attack 2d8 plus 5 atk roll d20 plus 5+3+1 crit on 19 crit dmg 4d8*2] named "warlock green flamed smight on crit"
+
+output [attack 2d8+4d8 plus 5 atk roll d20 plus 5+3+1 crit on 19] named "warlock green flamed smight 6d8"
+
+output [two [attack d12 plus 4 + BR atk roll [advantage d20 plus d20] plus 4+PB]] named "Barbarian two reckless d12 attack vs AC [AC]"
+
+output [two [attack d12 plus 4 + BR atk roll d20 plus 4+PB]] named "Barbarian two d12 attack vs AC [AC]"
+
+output [attack d8+d6 plus 4 atk roll d20 plus 4+PB] named "ranger d8 attack with hunter mark"
+
+output [spell 8d6 save d20+5 challenge 16] named "fireball damage challenge 16 with no evasion"

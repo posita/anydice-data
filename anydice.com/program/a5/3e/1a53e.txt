@@ -1,0 +1,69 @@
+MODIFIER: 5
+MISS: 0
+HIT: 1
+CRIT: 2
+GBHITDMG: 4d6
+GBHITCRIT: 8d6
+ARCHERHITDMG: 1d8+MODIFIER
+ARCHERHITCRIT: 2d8+MODIFIER
+
+
+function: attack ROLL:n vs AC:n with MOD:n {
+	if ROLL = 1 {
+		result: MISS
+	}
+	
+	if ROLL >= 20 {
+		result: CRIT
+	}
+	
+	if ROLL+MOD >= AC {
+		result: HIT
+	}
+	
+	result: MISS
+}
+
+function: guiding bolt damage for TOHIT:n{
+	if TOHIT = CRIT{
+		result: GBHITCRIT
+	}
+	
+	if TOHIT = HIT{
+		result: GBHITDMG
+	}
+	
+	result: 0
+}
+
+function: archer damage for TOHIT:n{
+	if TOHIT = CRIT{
+		result: ARCHERHITCRIT
+	}
+	
+	if TOHIT = HIT{
+		result: ARCHERHITDMG
+	}
+	
+	result: 0
+}
+
+function: calculate archer attack with GBATTACK:n{
+	if GBATTACK > HIT {
+		result: [attack 1@2d20 vs MONSTERAC with MODIFIER]
+	}else{
+		result: [attack d20 vs MONSTERAC with MODIFIER]
+	}	
+}
+
+loop MONSTERAC over {12..14}{
+	GBHIT: [attack d20 vs MONSTERAC with MODIFIER]
+	GBDMG: [guiding bolt damage for GBHIT]	
+	ARCHERHIT: [calculate archer attack with GBHIT]
+	ARCHERDMG: [archer damage for ARCHERHIT]
+	TOTALDMG: GBDMG + ARCHERDMG
+
+	output GBDMG named "Guiding bolt damage for monster with [MONSTERAC]AC"
+	output ARCHERDMG named "Archer damage for monster with [MONSTERAC]AC"	
+	output TOTALDMG named "Total round damage for monster with [MONSTERAC]AC" 
+}

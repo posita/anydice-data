@@ -1,0 +1,27 @@
+\ Empowered Spell+Elemental Adept+Draconic Sorcerer Calculator \
+
+NUM_DICE: 10
+DIE_MAX: 6
+DIE_SIZE: {2,2,3..DIE_MAX}  
+CHA_MOD: 8
+
+
+DAMAGE: NUM_DICEdDIE_SIZE
+TOTAL_DAMAGE: 0
+
+function: reroll R:n {
+  if R > DIE_MAX/2 { result: R }
+  result: 1dDIE_SIZE
+}
+
+loop X over {1..NUM_DICE} {
+  if X <= NUM_DICE - CHA_MOD {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + X @ DAMAGE
+  }
+  else {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + [reroll X @ DAMAGE]
+  }
+}
+
+output DAMAGE+CHA_MOD named "Normal Damage"
+output TOTAL_DAMAGE+CHA_MOD named "Empowered Spell"

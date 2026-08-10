@@ -1,0 +1,39 @@
+\ --- Attack resolution constants --- \
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+\ --- Function: determine result of an attack roll --- \
+function: attack roll ROLL:n vs defense DEFENSE:n with bonus BONUS:n {
+  if ROLL = 1 { result: MISS }
+  if ROLL = 20 { result: CRITICALHIT }
+  if ROLL + BONUS >= DEFENSE { result: HIT }
+  result: MISS
+}
+
+\ --- Function: map result to damage (attack-specific) --- \
+function: damage for RESULT:n with hit HITDMG:s and crit CRITDMG:s {
+  if RESULT = CRITICALHIT { result: CRITDMG }
+  if RESULT = HIT { result: HITDMG }
+  result: 0
+}
+
+\ --- Function: perform one attack with its own stats --- \
+function: one attack vs defense DEFENSE:n with bonus BONUS:n hit HITDMG:s crit CRITDMG:s {
+  R: [attack roll d20 vs defense DEFENSE with bonus BONUS]
+  result: [damage for R with hit HITDMG and crit CRITDMG]
+}
+
+\ --- Function: sum multiple different attacks --- \
+function: attacks vs defense DEFENSE:n {
+  TOTAL: 0
+  
+  TOTAL: TOTAL + [one attack vs defense DEFENSE with bonus 8 hit (1d6+5) crit (2d6+5)]
+  TOTAL: TOTAL + [one attack vs defense DEFENSE with bonus 8 hit (1d6+0) crit (2d6+0)]
+
+  result: TOTAL
+}
+
+\ --- Output vs AC 15 --- \
+output [attacks vs defense 15] named "Total damage vs AC 15"
+

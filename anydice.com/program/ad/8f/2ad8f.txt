@@ -1,0 +1,110 @@
+\
+-- IPS-N STÃ–RTEBEKER @ LL3 --
+[ LICENSES ]
+  IPS-N RALEIGH 3
+[ CORE BONUSES ]
+  AUTO-STABILIZING HARDPOINTS
+[ TALENTS ]
+  COMBINED ARMS 3, GUNSLINGER 3
+[ STATS ]
+  HULL:2 AGI:2 SYS:0 ENGI:1
+  STRUCTURE:4 HP:16 ARMOR:1
+  STRESS:4 HEATCAP:6 REPAIR:6
+  TECH ATK:0 LIMITED:+0
+  SPD:5 EVA:11 EDEF:7 SENSE:8 SAVE:12
+[ WEAPONS ]
+  Flex Mount: Hand Cannon / Hand Cannon
+  Flex Mount: Hand Cannon / Hand Cannon
+  Heavy Mount: Kinetic Hammer (UNCLE-Class Comp/Con)
+[ SYSTEMS ]
+  â€œRolandâ€ Chamber, Personalizations
+\
+
+EVASION: 8
+ARMOR: 0
+INVISIBLE: 0
+
+\ Do not edit below this line \
+function: attack A:n {
+  result: (1d20 + 2 + ((A < 0) * (-A) + (A > 0))@Ad6)*1d{INVISIBLE = 0, 1}
+}
+
+function: mod N:n by D:n {
+  result: N - D * (N / D)
+}
+
+function: handcannon A:n with DH:n dice K:n {
+  D: DH / 2
+  H: DH - D * 2
+  result: D * 2 + [handdam [attack A] with H dice K]
+}
+
+function: handdam R:n with H:n dice K:n {
+  if (R < EVASION) {
+    result: [highest of 1 - ARMOR and 0] * 2 + H
+  } else if (R < 20) {
+    result: [highest of Kd6 - ARMOR and 0] * 2 + 1
+  } else {
+    result: [highest of {1..K}@(2*K)d6 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: kinhammerlast A:n with DH:n {
+  D: DH / 2
+  H: DH - D * 2
+  result: 2 * D + [kindamlast [attack (A + H)]]
+}
+
+function: kindamlast R:n {
+  if (R < EVASION) {
+    result: [highest of 4 - ARMOR and 0] * 2
+  } else if (R < 20) {
+    result: [highest of 2d6 + 2 - ARMOR and 0] * 2
+  } else {
+    result: [highest of {1,2}@4d6 + 2 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: kinhammerfirst R:n {
+  if (R < EVASION) {
+    result: [highest of 4 - ARMOR and 0] * 2
+  } else if (R < 20) {
+    result: [highest of 2d6 + 2 - ARMOR and 0] * 2
+  } else {
+    result: [highest of {1,2}@4d6 + 2 - ARMOR and 0] * 2 + 1
+  }
+}
+
+function: handlast DC:n {
+  D: DC / 2
+  C: DC - D * 2
+  if C {
+    HCF: [handcannon 2 with 0   dice 2]
+    HCS: [handcannon 0 with HCF dice 1]
+    result: 2 * D + 2 * (HCS / 2)
+  } else {
+    result: 2 * D + 1
+  }
+}
+
+HCA: [handcannon 1 with 0   dice 2]
+HCB: [handcannon 0 with HCA dice 1]
+HCC: [handcannon 0 with HCB dice 1]
+HCD: [handcannon 0 with HCC dice 1]
+DAMF: [kinhammerlast (-1) with HCD] / 2
+
+NCZ: [kinhammerfirst [attack 1]]
+DCZ: [handlast NCZ]
+
+DCT: [kinhammerlast 1 with HCB]
+
+output DCZ / 2 named "Damage (0 loaded beforehand)"
+output 2 + [mod DCZ by 2] * 2 named "Loaded afterwards (0 loaded beforehand)"
+
+output DCT / 2 named "Damage (2 loaded beforehand)"
+output [mod DCT by 2] * 2 named "Loaded afterwards (2 loaded beforehand)"
+
+output DAMF named "Damage (4 loaded beforehand)"
+output 0 named "Loaded afterwards (4 loaded beforehand)"
+
+output HCD / 2 named "Damage (4 loaded beforehand, no UNCLE)"

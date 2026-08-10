@@ -1,0 +1,62 @@
+\define dice for side A and B, 0 for normal d100, positive and negative values are the number of bonus or punish dice respectively, up to 2(3 for bonus dice)\
+SELECTA:2
+SELECTB:0
+\define guaranteed successes or losses for side A and B, 1 per each 3 bonus or punish dice\
+GUARANTEEA:0
+GUARANTEEB:0
+\define the skill levels\
+SKA:90
+SKB:90
+\function block begins\
+function:select die from VARIABLE{
+if VARIABLE=0{
+result:d100
+}
+if VARIABLE=1{
+result:[lowest 1 of 2d100]
+}
+if VARIABLE=2{
+result:[lowest 1 of 3d100]
+}
+if VARIABLE=3{
+result:[lowest 1 of 4d100]
+}
+if VARIABLE=-1{
+result:[highest 1 of 2d100]
+}
+if VARIABLE=-2{
+result:[highest 1 of 3d100]
+}
+}
+function: rolla DIE:n against SKILL{
+if DIE=100 {
+ result:-4
+ }
+if DIE>=96{
+ result:0
+ }
+if DIE>SKILL {
+ result:0
+ }
+if DIE=1 {
+ result:4
+ }
+if DIE<=SKILL/5 {
+ result:3
+ } 
+if DIE<=SKILL/2 {
+ result:2
+ } 
+if DIE<=SKILL {
+ result:1
+ }
+}
+\function block ends, calculation block begins\
+DIEA:[select die from SELECTA]
+DIEB:[select die from SELECTB]
+SUCCA: [rolla DIEA against SKA]
+SUCCB: [rolla DIEB against SKB] 
+DIFF:SUCCA-SUCCB+GUARANTEEA-GUARANTEEB
+\calculation block ends\
+output DIFF named "Chance to win opposed skill check. Positive values side A win, negative side B"
+output SUCCA

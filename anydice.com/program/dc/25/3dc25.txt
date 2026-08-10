@@ -1,0 +1,66 @@
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+\FIEND: 1 if target is fiend or undead, 0 if neither \
+FIEND: 1
+IMPSMITE: 1
+SMITESLOT: 0
+if SMITESLOT = 0 {
+SMITEDICE: IMPSMITE
+}
+if SMITESLOT = {1..4} {
+SMITEDICE: IMPSMITE + SMITESLOT + FIEND + 1
+}
+if SMITESLOT = {5..9} {
+SMITEDICE: IMPSMITE + 4 + FIEND + 1
+}
+
+FIREDICE: 8
+\ FIREDMG: 1 means normal damage, 2 means target resists, 0 means target is immune \
+FIREDMG: 1
+
+STRDMG: 8
+AURADMG: 4
+WPNDMG: 3
+GWMDMG: 10
+RAGE: 0
+
+GWFSIX: [reroll {1,2} on d6 to d6]
+GWFEIGHT: [reroll {1,2} on d8 to d8]
+GWFTEN: [reroll {1,2} on d10 to d10]
+GWFDOZEN: [reroll {1,2} on d12 to d12]
+SWORDGWF: 2 d GWFSIX
+SMITEGWF: SMITEDICE d GWFEIGHT
+FIREGWF: FIREDICE d GWFEIGHT
+FIRETOTAL: FIREGWF / FIREDMG
+
+if FIEND = 0 {
+AVENGER: 0 d GWFTEN
+}
+else {
+AVENGER: 2 d GWFTEN
+}
+
+TOTALSIX: #(SWORDGWF)
+TOTALEIGHT: #(SMITEGWF)+#(FIREGWF)
+
+if FIEND = 0 {
+TOTALTEN: 0
+}
+else {
+TOTALTEN: #(AVENGER)
+}
+
+if FIEND = 0 {
+output SWORDGWF + SMITEGWF + FIRETOTAL + GWMDMG + STRDMG + WPNDMG + AURADMG + AVENGER + RAGE named "GWM+GWF, [TOTALSIX]d6, [TOTALEIGHT]d8, [TOTALTEN]d10"
+}
+else {
+output SWORDGWF + SMITEGWF + FIRETOTAL + GWMDMG + STRDMG + WPNDMG + AURADMG + AVENGER + RAGE named "GWM+GWF v fiend/undead, [TOTALSIX]d6, [TOTALEIGHT]d8, [TOTALTEN]d10"
+}
+
+output SMITEGWF

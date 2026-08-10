@@ -1,0 +1,56 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n blessed BLESS:n baned BANED:n {
+ if ROLL = 1 { result: MISS }
+ MOD: ATTACK + BLESS - BANED + TARGETBONUS
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ MOD: ATTACK + BLESS - BANED - TARGETBONUS
+ if ROLL + MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: save ROLL:n vs DEFENSE:n blessed BLESS:n baned BANED:n {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 {
+  result: MISS
+ }
+ MOD: ATTACK + BLESS - BANED + TARGETBONUS
+ if ROLL + MOD >= DEFENSE { result: MISS }
+ result: HIT
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: spelldamage for ATTACKRESULT:n {
+ if ATTACKRESULT = HIT {
+  result: SPELLDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+ABILITYBONUS: 3
+PROF: 4
+ATTACK: ABILITYBONUS + PROF
+BASEDAMAGE: 1d8
+HITDAMAGE: BASEDAMAGE + ABILITYBONUS
+CRITICALDAMAGE: HITDAMAGE + BASEDAMAGE
+SPELLDAMAGE: 1d10 + ABILITYBONUS
+MISSDAMAGE: 0
+TARGETBONUS: 0
+DC: 8 + ABILITYBONUS + PROF
+AC: 18
+
+ROLL: [highest 1 of 1d20]
+output [damage for [attack [highest 1 of 2d20 + 1d4 - 1] vs AC blessed 0 baned 0]] + [damage for [attack [highest 1 of 2d20 + 1d4 - 1] vs AC blessed 0 baned 0]] + [damage for [attack ROLL vs AC blessed 0 baned 0]] named "Straight AC [AC]"
+\output [spelldamage for [attack ROLL vs AC blessed 0 baned 0]] + [spelldamage for [attack ROLL vs AC blessed 0 baned 0]] + [spelldamage for [attack ROLL vs AC blessed 0 baned 0]] named "EB + EI vs AC [AC]" \

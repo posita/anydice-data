@@ -1,0 +1,44 @@
+\**** Damage calculator ****\
+
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+ result: 0
+}
+function: ATKS:n multiattack vs AC:n {
+DMG: 0
+loop N over {1..ATKS}{
+ DMG: DMG + [attackroll ATTACKROLL vs AC]
+}
+result: DMG
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{10..20}
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 1
+CRITROLL: 20
+WEAPONDICE: 1d10
+DAMAGE: WEAPONDICE 
+\ATTACKMOD + DMGBONUS\
+CRITDAMAGE: WEAPONDICE + WEAPONDICE 
+\ATTACKMOD + DMGBONUS\
+ATTACKROLL: 1d20
+output [2 multiattack vs ENEMYAC] named "Eldritch Blast"
+
+ATTACKMOD: 4
+DMGBONUS: 0
+PROFICIENCY: 3
+ACCBONUS: 2
+CRITROLL: 20
+WEAPONDICE: 2d6
+DAMAGE: WEAPONDICE 
+\+ ATTACKMOD + DMGBONUS\
+CRITDAMAGE: WEAPONDICE + WEAPONDICE 
+\+ ATTACKMOD + DMGBONUS\
+ATTACKROLL: 1d20
+output [3 multiattack vs ENEMYAC] named "Scorching Ray"

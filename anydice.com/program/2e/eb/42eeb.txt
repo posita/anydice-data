@@ -1,0 +1,71 @@
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+ATTACK: 5 + 3
+HITDAMAGE: 4d8 + 5
+CRITICALDAMAGE: 8d8 + 5
+MISSDAMAGE: 5
+DEFENSE: 17
+QUARRY: 4d10
+CQUARRY: 8d10
+
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for ATTACKRESULTS:s {
+ D: 0
+ loop A over ATTACKRESULTS {
+  if A = CRITICALHIT {
+   D: D + CRITICALDAMAGE
+  }
+  else if A = HIT {
+   D: D + HITDAMAGE
+  }
+  else {
+   D: D + MISSDAMAGE
+  }
+ }
+ result: D + [bonus damage for ATTACKRESULTS]
+}
+
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: N:n attacks {
+ result: [damage for Nd[attack d20 vs DEFENSE]]
+}
+
+
+
+function: bonus damage for ATTACKRESULTS:s {
+ if [ATTACKRESULTS contains CRITICALHIT] {
+  result: CQUARRY 
+ }
+ if [ATTACKRESULTS contains HIT] {
+  result: QUARRY
+ }
+ result: 0
+}
+
+output [2 attacks] named "Twin Strike, with Quarry"
+

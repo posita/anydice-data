@@ -1,0 +1,39 @@
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: explode N:n {
+if N = 6 {result: N + [explode d6] - 1}
+result: N
+}
+
+function: morale A:n {
+if A > 0 {result: 10 + DRN + A - (DRN + 10)}
+}
+
+DRN: 2d[explode d6]
+function: attack ATK vs DEF {
+result: DRN + ATK - (DRN + DEF)
+}
+
+function: ran A:n below B:n C:n {
+if A > B & A < C {result: A}
+}
+
+function: depth { result: 1 + [depth] }
+output [depth] named "custom maximum function depth"
+
+set "maximum function depth" to 15
+output [depth] named "custom maximum function depth"
+
+loop N over {0..5}{
+output Nd([reroll {1,2,3,4,5} on d6 to d6] > 5) + (5-N)d(d6 > 5) named "5d6 6+ with [N] reroll"
+output Nd([reroll {1,2,3,4} on d6 to d6] > 4) + (5-N)d(d6 > 4) named "5d6 5+ with [N] reroll"
+}
+
+loop N over {1..5}{
+output Nd(d6 > 5) named "[N]d6 > 5"
+}

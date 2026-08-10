@@ -1,0 +1,59 @@
+function: sum N:n times D:d {
+ if N > 1 {result: D + [sum N-1 times D]}
+ result: D
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+   result: CRITICALHIT 
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+\------------------------KEY VARIABLES------------------\
+
+DEFENSE: d{10..19}
+
+MAIN_STAT: 4
+PROF: 3
+GWM: 10
+
+
+
+\------------------------OUTPUTS-------------------------\
+
+ATTACK: MAIN_STAT + PROF
+HITDAMAGE: 2d10 
+CRITDAMAGE: 4d10 
+output [attack] named "Firebolt"
+
+HITDAMAGE: 1d10
+CRITDAMAGE: 2d10 
+output [sum 2 times [attack]] named "Eldritch Blast"
+
+
+ATTACK: MAIN_STAT + PROF - 5
+HITDAMAGE: 1d6 + GWM 
+CRITDAMAGE: 2d6 + GWM
+output [sum 3 times [attack]] named "Crossbow X3"
+
+

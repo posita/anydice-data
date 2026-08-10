@@ -1,0 +1,70 @@
+
+
+MISS: 0
+HIT: 1
+CRITICAL_HIT: 2
+
+function: attack ROLL:n ATTACK vs AC:n 
+{
+    if ROLL = 1 
+    { 
+       if ROLL + ATTACK >= AC + 10 { result: HIT }
+       result: MISS 
+    }
+    if ROLL = 20 
+    {
+       if ROLL + ATTACK < AC { result: HIT }
+       result: CRITICAL_HIT
+    }
+    if ROLL + ATTACK >= AC
+    { 
+       result: HIT 
+    }
+    result: MISS
+}
+
+function: damage DMG:s for RESULT:n
+{
+    result: [damage DMG deadly 0 for RESULT]
+}
+
+function: damage DMG:s deadly CRIT_EXTRA:d for RESULT:n
+{
+    if RESULT = MISS { result: 0 }
+    if RESULT = HIT { result: DMG }
+    if RESULT = CRITICAL_HIT { result: DMG*2 + CRIT_EXTRA }
+}
+
+function: damage DMG:s fatal CRIT_EXTRA:d for RESULT:n
+{
+    if RESULT = MISS { result: 0 }
+    if RESULT = HIT { result: DMG }
+    if RESULT = CRITICAL_HIT { result: (#DMGdCRIT_EXTRA)*2 + CRIT_EXTRA }
+}
+
+function: size of X:d { result: [maximum of X] / #(X) }
+
+AC: 44
+ATTACK: 35
+output [attack d20 ATTACK vs AC] named "Hit chance"
+
+DMG: 2d10+14
+output [damage DMG for [attack d20 ATTACK vs AC]] + [damage DMG for [attack d20 ATTACK-5 vs AC]] named "Two Strikes - Barbarian"
+
+DMG: 2d6+3
+HUNTERS_EDGE_F: 2d8
+HUNTERS_EDGE_S: 0
+
+output [damage DMG+HUNTERS_EDGE_F deadly d10 for [attack d20 ATTACK vs AC]] + [damage DMG+HUNTERS_EDGE_S deadly d10 for [attack d20 ATTACK-5 vs AC]] named "Two Strikes - Ranger"
+output [damage DMG+HUNTERS_EDGE_F+2 deadly d10 for [attack d20 ATTACK vs AC]] + [damage DMG+HUNTERS_EDGE_S+2 deadly d10 for [attack d20 ATTACK-5 vs AC]] named "Two Strikes - Ranger - Stance"
+output [damage DMG+HUNTERS_EDGE_F deadly d10 for [attack d20 ATTACK+2 vs AC]] + [damage DMG+HUNTERS_EDGE_S deadly d10 for [attack d20 ATTACK-5 vs AC]] named "Two Strikes - Ranger (HA)"
+output [damage DMG+HUNTERS_EDGE_F+4 deadly d10 for [attack d20 ATTACK vs AC]] + [damage DMG+HUNTERS_EDGE_S+2 deadly d10 for [attack d20 ATTACK-5 vs AC]] named "Two Strikes - Ranger - Gravity weapon, Stance"
+output [damage DMG+HUNTERS_EDGE_F+2 deadly d10 for [attack d20 ATTACK+2 vs AC]] + [damage DMG+HUNTERS_EDGE_S+2 deadly d10 for [attack d20 ATTACK-5 vs AC]] named "Two Strikes - Ranger (HA) - Stance"
+output [damage DMG+HUNTERS_EDGE_F+4 deadly d10 for [attack d20 ATTACK+2 vs AC]] + [damage DMG+HUNTERS_EDGE_S+2 deadly d10 for [attack d20 ATTACK-5 vs AC]] named "Two Strikes - Ranger (HA) - Gravity weapon, Stance"
+
+\output [damage DMG for [attack d20 ATTACK vs AC]] named "Strike"\
+\output [damage DMG for [attack d20 ATTACK vs AC-2]] + [damage DMG for [attack d20 ATTACK-5 vs AC-2]] named "Two Strikes Off-guard"\
+\output [damage DMG for [attack d20 ATTACK+1 vs AC-2]] + [damage DMG for [attack d20 ATTACK-5+1 vs AC-2]] named "Two Strikes Off-guard Bless"\
+\output [damage VC_DMG for [attack d20 ATTACK vs AC]] named "Vicious Swing"\
+
+

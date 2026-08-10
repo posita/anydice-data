@@ -1,0 +1,30 @@
+\ Create a die that contains only what matters.
+  Rolling two 1s on 2d4 is encoded as 0.
+  Rolling one or two 4s is encoded as 1 and 2.
+  All other rolls are eliminated, as they don't affect the outcome.
+  That guarantees that there are at most eight consecutive rolls.
+\
+function: encode ROLL:s {
+ if 1@ROLL = 1 { result: 0 }
+ if ROLL = 4 { result: ROLL = 4 }
+}
+D: [encode 2d4]
+
+\ Count how many 4s are rolled before rolling double 1s.
+  If at least eight 4s are rolled, double 1s was not rolled.
+  Nine 4s are possible, by rolling double 4s when the total was seven.
+\
+function: roll N:n with F:n fours {
+ if N = 0 {
+  result: F
+ }
+ FN: F + N
+ if FN >= 8 {
+  result: FN
+ }
+ result: [roll D with FN fours]
+}
+FOURS: [roll D with 0 fours]
+output FOURS named "fours rolled"
+
+output FOURS < 8 named "double 1s with at most seven 4s"

@@ -1,0 +1,117 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d reroll REROLL:d on REROLL_RANGE:n miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    if ROLL <= REROLL_RANGE {
+        result: REROLL
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d reroll REROLL:d on REROLL_RANGE:n miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    if ROLL <= REROLL_RANGE {
+        result: REROLL
+    }
+    result: MISS
+}
+
+function: reroll REROLL:s on DICE:d {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: gwf DICE:d {
+    result: [reroll {1,2} on DICE]
+}
+\
+output
+[attack d20 plus 4 + 5 vs 16
+    hit  1d8 + 7 + [attack d20 plus 4 + 5 vs 16 for 1d8 + 7    crit 2d8 + 7 on 20]
+    miss           [attack d20 plus 4 + 5 vs 16 for 1d8 + 7    crit 2d8 + 7 on 20]
+    crit 2d8 + 7 + [attack d20 plus 4 + 5 vs 16 for 1d8 + 7    crit 2d8 + 7 on 20] on 20
+] named "[6] Psi-Warrior Fighter [3] Battle Smith Artificer, Int 18, No Adv"
+
+output
+[attack 2d20 plus 4 + 5 vs 16
+    hit  1d8 + 7 + [attack 2d20 plus 4 + 5 vs 16 for 1d8 + 7    crit 2d8 + 7 on 20]
+    miss           [attack 2d20 plus 4 + 5 vs 16 for 1d8 + 7    crit 2d8 + 7 on 20]
+    crit 2d8 + 7 + [attack 2d20 plus 4 + 5 vs 16 for 1d8 + 7    crit 2d8 + 7 on 20] on 20
+] named "[6] Psi-Warrior Fighter [3] Battle Smith Artificer, Int 18, Adv"
+
+output
+[attack d20 plus 4 + 5 vs 16
+    hit  1d6 + 5 + 5d6  + [attack d20 plus 4 + 5 vs 16 for 1d6       crit 1d6       on 20]
+    miss                  [attack d20 plus 4 + 5 vs 16 for 1d6 + 5d6 crit 1d6 + 5d6 on 20]
+    crit 2d6 + 5 + 10d6 + [attack d20 plus 4 + 5 vs 16 for 1d6       crit 1d6       on 20] on 20
+] named "[9] Two-weapon rogue, Adv"
+\
+output
+[attack d20 plus 2 + 3 vs 15
+    hit    2d6 + 3 
+    reroll           [attack d20 plus 2 + 3 vs 15 for 2d6 + 3    crit 4d6 + 3 on 19] on 2
+    miss   0
+    crit   4d6 + 3                                                                   on 19
+] named "[3] GS GWF Champion"
+
+output
+[attack d20 plus 4 + 3 vs 15
+    hit    2d6 + 4 + [attack d20 plus 4 + 3 vs 15 for 2d6 + 4    crit 4d6 + 4 on 19]
+    reroll           [attack d20 plus 4 + 3 vs 15 for 2d6 + 4    crit 4d6 + 4 on 19] on 2
+    miss             [attack d20 plus 4 + 3 vs 15 for 2d6 + 4    crit 4d6 + 4 on 19]
+    crit   4d6 + 4 + [attack d20 plus 4 + 3 vs 15 for 2d6 + 4    crit 4d6 + 4 on 19] on 19
+] named "[5] GS GWF Champion"
+
+output
+[attack d20 plus 5 + 4 vs 16
+    hit    2d6 + 5 + [attack d20 plus 5 + 4 vs 16 for 2d6 + 5    crit 4d6 + 5 on 19]
+    reroll \ SA \    [attack d20 plus 5 + 4 vs 16 \ Savage Attacker \
+                             hit    2d6 + 5 + [attack d20 plus 5 + 4 vs 16    crit 4d6 + 5 on 19]
+                             reroll \ GWF \   [attack d20 plus 5 + 4 vs 16    crit 4d6 + 5 on 19]
+                             miss   0
+
+for 2d6 + 5    crit 4d6 + 5 on 19]
+                                                                 crit 4d6 + 5 on 19] on 2
+    miss             [attack d20 plus 5 + 4 vs 15 for 2d6 + 5    crit 4d6 + 5 on 19]
+    crit   4d6 + 5 + [attack d20 plus 5 + 4 vs 15 for 2d6 + 5    crit 4d6 + 5 on 19] on 19
+] named "[9] GS GWF SA Champion"

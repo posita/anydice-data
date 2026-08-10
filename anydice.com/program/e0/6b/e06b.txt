@@ -1,0 +1,68 @@
+BONUSA: 2
+BONUSB: 10
+BONUSC: 18
+
+DCX: 15
+DCY: 25
+DCZ: 35
+
+function: check A:n against B {
+  result: A >= B
+}
+
+function: prop method b success with bonus BONUS against dc DC {
+  R_I: d20 \ 1st roll \
+  M_R_I: d20 \ master counter roll \
+  SUCCESS: [prop method b success for roll R_I with bonus BONUS and dc DC and counter roll M_R_I]
+  result: SUCCESS
+}
+
+function: prop method b success for roll R:n with bonus BONUS and dc DC and counter roll MR:n {
+  DC_TIER: 1 + (DC/20)
+  ATTACK_BASE: BONUS + R
+  ATTACK: ATTACK_BASE
+  ATTACK_BASE_TIER: 1 + (ATTACK_BASE/20)
+  COUNTER: MR
+  if R = 1 {
+    loop M over {2..ATTACK_BASE_TIER} {
+      COUNTER: COUNTER + 1@Md20
+    }
+  }
+  else {
+    if R = 20 {
+      loop N over {2..DC_TIER} {
+        ATTACK: ATTACK + 1@Nd20
+      }
+    }
+  }
+  result: [prop method b check for roll R with bonus BONUS and attack ATTACK and dc DC and counter COUNTER]
+}
+
+function: prop method b check for roll R:n with bonus BONUS and attack ATK:n and dc DC and counter CNTR:n {
+  if R = 1 & CNTR >= BONUS + R {
+    result: 0
+  }
+  else {
+    result: ATK >= DC
+  }
+}
+
+PF_A_X: [prop method b success with bonus BONUSA against dc DCX]
+PF_A_Y: [prop method b success with bonus BONUSA against dc DCY]
+PF_A_Z: [prop method b success with bonus BONUSA against dc DCZ]
+PF_B_X: [prop method b success with bonus BONUSB against dc DCX]
+PF_B_Y: [prop method b success with bonus BONUSB against dc DCY]
+PF_B_Z: [prop method b success with bonus BONUSB against dc DCZ]
+PF_C_X: [prop method b success with bonus BONUSC against dc DCX]
+PF_C_Y: [prop method b success with bonus BONUSC against dc DCY]
+PF_C_Z: [prop method b success with bonus BONUSC against dc DCZ]
+
+output PF_A_X named "Prop. method b with bonus [BONUSA] against DC [DCX]"
+output PF_B_X named "Prop. method b with bonus [BONUSB] against DC [DCX]"
+output PF_C_X named "Prop. method b with bonus [BONUSC] against DC [DCX]"
+output PF_A_Y named "Prop. method b with bonus [BONUSA] against DC [DCY]"
+output PF_B_Y named "Prop. method b with bonus [BONUSB] against DC [DCY]"
+output PF_C_Y named "Prop. method b with bonus [BONUSC] against DC [DCY]"
+output PF_A_Z named "Prop. method b with bonus [BONUSA] against DC [DCZ]"
+output PF_B_Z named "Prop. method b with bonus [BONUSB] against DC [DCZ]"
+output PF_C_Z named "Prop. method b with bonus [BONUSC] against DC [DCZ]"

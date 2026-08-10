@@ -1,0 +1,39 @@
+
+function: explode DIE:d
+{ 
+MAX: [maximum of DIE] 
+result: [explode DIE helper]
+}
+function: explode N:n helper
+{
+if N = MAX { result: N-1 + [explode DIE helper] } 
+result: N
+}
+set "maximum function depth" to 5
+
+function: hitpercent DIFF:n
+{
+PERC: 2d[explode d6] - 2d[explode d6] + DIFF
+result: [hitpercent DIFF helper]
+}
+
+function: hitpercent N:n helper
+{
+if DIFF > 0 {result:1}
+else {result:0}
+}
+
+
+HUMANATT: 12
+HUMANDEF: 13
+GIANTATT: 12
+GIANTDEF: 13
+HUMANSTRENGTH: 18
+HUMANPROT: 16
+GIANTSTRENGTH: 25
+GIANTPROT: 18
+
+
+output [highest of ([hitpercent (HUMANATT-GIANTDEF)] + [hitpercent (HUMANATT-GIANTDEF+1)] + [hitpercent (HUMANATT-GIANTDEF+2)]) * (HUMANSTRENGTH + 2d[explode d6] - GIANTPROT - 2d[explode d6]) and 0]
+
+output [highest of ([hitpercent (GIANTATT-HUMANDEF)] * (GIANTSTRENGTH + 2d[explode d6] - HUMANPROT - 2d[explode d6]) and 0]

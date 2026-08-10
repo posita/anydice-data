@@ -1,0 +1,59 @@
+\ converts number of successes "SUC" and number of advantages "ADV" into an integer \
+function: scav SUC ADV {
+ result: (2^SUC)*(3^ADV)
+}
+
+\ example d8 with 1 blank side, 2 success sides, 1 double success side, 2 advantage sides, 1 double advantage side, and one success and advantage side \
+GEN: d{[scav 0 0], [scav 1 0], [scav 1 0], [scav 2 0], [scav 0 1], [scav 0 1], [scav 0 2], [scav 1 1]}
+
+\ how many times does DIVISOR go into DIVIDEND (up to CAP times)? \
+function: factor DIVIDEND:n DIVISOR CAP {
+ loop N over {1..CAP}{
+  if DIVIDEND != (DIVISOR^N)*(DIVIDEND/(DIVISOR^N)) {
+   result: N-1
+  }
+ }
+ result: N
+}
+
+\ how many groups of successes "SUC" and advantages "ADV" show in DIVIDEND (up to CAP times)? \
+function: vacs DIVIDEND SUC ADV CAP {
+ DIVISOR: [scav SUC ADV]
+ result: [factor DIVIDEND DIVISOR CAP]
+}
+
+\ how many successes (up to C) with A advantages for die "D"? \
+function: cowntup D:n A C {
+ SUCCESSES: 0
+ ADVANTAGE: 0
+ loop N over {1..C}{
+  if D = (2^N)*(D/(2^N)) {
+   SUCCESSES: SUCCESSES + 1
+  }
+  if D = (3^N)*(D/(3^N)) {
+   ADVANTAGE: ADVANTAGE + 1
+  }
+ }
+ result: SUCCESSES * (ADVANTAGE = A)
+}
+
+output [vacs GEN 0 1 9] named "1d advantage"
+output [cowntup GEN 0 9] named "success when 1d advantage = 0"
+output [cowntup GEN 1 9] named "success when 1d advantage = 1"
+output [cowntup GEN 2 9] named "success when 1d advantage = 2"
+
+output [vacs GEN*GEN 0 1 9] named "2d advantage"
+output [cowntup GEN*GEN 0 9] named "success when 2d advantage = 0"
+output [cowntup GEN*GEN 1 9] named "success when 2d advantage = 1"
+output [cowntup GEN*GEN 2 9] named "success when 2d advantage = 2"
+output [cowntup GEN*GEN 3 9] named "success when 2d advantage = 3"
+output [cowntup GEN*GEN 4 9] named "success when 2d advantage = 4"
+
+output [vacs GEN*GEN*GEN 0 1 9] named "3d advantage"
+output [cowntup GEN*GEN*GEN 0 9] named "success when 3d advantage = 0"
+output [cowntup GEN*GEN*GEN 1 9] named "success when 3d advantage = 1"
+output [cowntup GEN*GEN*GEN 2 9] named "success when 3d advantage = 2"
+output [cowntup GEN*GEN*GEN 3 9] named "success when 3d advantage = 3"
+output [cowntup GEN*GEN*GEN 4 9] named "success when 3d advantage = 4"
+output [cowntup GEN*GEN*GEN 5 9] named "success when 3d advantage = 5"
+output [cowntup GEN*GEN*GEN 6 9] named "success when 3d advantage = 6"

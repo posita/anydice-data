@@ -1,0 +1,30 @@
+function: reroll N:n dice showing REROLLED_VALUES:s in S:s {
+ TOTAL: S
+ loop D over REROLLED_VALUES{
+  NUM: [lowest of N and [count D in S]] \Number of dice being rerolled at this step\
+  TOTAL: TOTAL - (D * NUM) + NUMd6 \Subtract the values of the dice being rerolled, then roll NUM d6s and add them to the total\
+  N: N - NUM
+ }
+ result: TOTAL
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 1
+
+function: check ROLL:n vs DIFFICULTY:n {
+ if ROLL = 3 { result: MISS }
+ if ROLL = 18 {
+  if ROLL + SKILL >= DIFFICULTY { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + SKILL >= DIFFICULTY { result: HIT }
+ result: MISS
+}
+
+loop S over {9..12}{
+ SKILL: S
+ loop DC over {6,10,14,18,22} {
+  output [check [reroll 0 dice showing {1} in 3d6] vs DC] named "+[SKILL] DC [DC]"
+ }
+}

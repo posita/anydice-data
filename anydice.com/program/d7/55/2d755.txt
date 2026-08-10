@@ -1,0 +1,42 @@
+function: damage D:d raise R:n bonus B:d {
+  if R = 1 {
+    result: [ explode D ] + [ explode B ]
+  }
+  result: [ explode D ]
+}
+
+function: task S:n wild W:n bonus H:n damage D:d raise bonus B:d {
+ R: [ highest of S and W ]
+ if R + H >= SUCCESS + RAISE {
+  result:  [ damage D raise 1 bonus B]
+ }
+ else { 
+  if R + H >= SUCCESS {
+   result:  [ damage D raise 0 bonus B]
+  }
+  else { 
+   if R = 1 {
+     result: -1
+   } else {
+    result: 0
+   }
+  }
+ }
+}
+
+SUCCESS: 4
+RAISE: 4
+CRITFAIL: 0
+TOUGHNESS: 6
+
+A: [ task [ explode d6 ] wild [ explode d6 ] bonus +2 damage 2d6 raise bonus d6 ]
+
+output (A>CRITFAIL) named "Not a crit fail"
+output (A>=TOUGHNESS & A<TOUGHNESS+RAISE ) named "Hit"
+output (A>=TOUGHNESS+RAISE) named "first shot kill"
+
+B: [ task [ explode d6 ] wild [ explode d6 ] bonus +0 damage 2d6 raise bonus d6 ]
+
+output (B>CRITFAIL) named "Not a crit fail"
+output (B>=TOUGHNESS & B<TOUGHNESS+RAISE ) named "Hit and wounds"
+output (B>=TOUGHNESS+RAISE) named "second shot kills"

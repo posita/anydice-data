@@ -1,0 +1,54 @@
+function: ROLL:n reroll at most MAX_FAIL:n count N:n {
+  if (ROLL <= MAX_FAIL) & N { result: [d6 reroll at most MAX_FAIL count N-1] } else { result: ROLL }
+}
+
+function: determine roll target ATK:n vs DEF:n {
+  if ATK = DEF { result: 4 }
+  if ATK >= 2*DEF { result: 2 }
+  if ATK > DEF { result: 3 }
+  if 2*ATK <= DEF { result: 6 }
+  if ATK < DEF { result: 5 }
+}
+
+function: check ROLL:n reroll mode REROLL_MODE:n mod MODIFIER:n against target TARGET:n {
+  
+  \0 no reroll, 1 reroll ones, 2 reroll failed\
+
+  if REROLL_MODE = 0 { result: ROLL+MODIFIER >= TARGET }
+  if REROLL_MODE = 1 { result: [ROLL reroll at most 1 count 1]+MODIFIER >= TARGET }
+  if REROLL_MODE = 2 { result: [ROLL reroll at most TARGET-1 count 1]+MODIFIER >= TARGET }
+}
+
+function: make ATTACKS:n attacks with skill ATTACK_SKILL:n weapon WEAPON_PROFILE:s target TARGET_PROFILE:s rerolls REROLL_FLAGS:s modifiers MODIFIERS:s {
+
+  STRENGTH: 1@WEAPON_PROFILE
+  PENETRATION: 2@WEAPON_PROFILE
+  DAMAGE: 3@WEAPON_PROFILE
+
+  TOUGHNESS: 1@TARGET_PROFILE
+  WOUNDS: 2@TARGET_PROFILE
+  SAVE: 3@TARGET_PROFILE
+
+  HIT_REROLL_MODE: 1@REROLL_FLAGS
+  WOUND_REROLL_MODE: 2@REROLL_FLAGS
+  SAVE_REROLL_MODE: 3@REROLL_FLAGS
+
+  HIT_MODIFIER: 1@MODIFIERS
+  WOUND_MODIFIER: 2@MODIFIERS
+  SAVE_MODIFIER: PENETRATION+3@MODIFIERS
+
+  HIT_DIE: [check d6 reroll mode HIT_REROLL_MODE mod HIT_MODIFIER against target ATTACK_SKILL]
+  WOUND_DIE: [check d6 reroll mode WOUND_REROLL_MODE mod WOUND_MODIFIER against target [determine roll target STRENGTH vs TOUGHNESS]]
+  SAVE_DIE: [check d6 reroll mode SAVE_REROLL_MODE mod SAVE_MODIFIER against target SAVE]
+  
+  UNSAVED_WOUND_DIE: HIT_DIE & WOUND_DIE & !SAVE_DIE
+
+  result: ATTACKS d UNSAVED_WOUND_DIE
+}
+
+BOLTER: {4,0,1}
+MEQ: {4,1,3}
+
+output [make 40 attacks with skill 3 weapon {4,0,1} target {4,1,3} rerolls {0,0,0} modifiers {0,0,0}] named "10 stormbolters vs T4"
+output [make 40 attacks with skill 3 weapon {4,0,1} target {4,1,3} rerolls {1,1,0} modifiers {0,0,0}] named "10 stormbolters vs T4, capt, lieut"
+output [make 40 attacks with skill 3 weapon {4,0,1} target {4,1,3} rerolls {2,1,0} modifiers {0,0,0}] named "10 stormbolters vs T4, cm, lieut"

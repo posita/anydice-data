@@ -1,0 +1,56 @@
+\ MAVERICK \
+
+SETBACK: 0
+GRAZE: 1
+HIT: 2
+STUNT: 3
+
+function: attack ROLL:n vs TN:n {
+
+ if ROLL >= 17 { result: STUNT }
+
+ if ROLL + ATTACK <= TN - 5 { result: SETBACK }
+ if ROLL + ATTACK >= TN + 5 { result: STUNT }
+ if ROLL + ATTACK >= TN { result: HIT }
+ else { result: GRAZE }
+
+}
+
+function: damage for RESULT:n {
+
+ if RESULT = STUNT { result: STUNTDAMAGE }
+ if RESULT = HIT { result: HITDAMAGE }
+ else { result: GRAZEDAMAGE }
+
+}
+
+function: fullattack {
+ result: [damage for [attack 3d6 vs EVD]]
+}
+
+EVD: d{10..14}
+
+ATTACK: 2
+
+BLOOD: 1
+RHYTHM: 2
+DEPTH: 0
+HEART: 0
+
+ATT: RHYTHM
+STRIKE: 2d3 + ATT
+
+GRAZEDAMAGE: STRIKE
+HITDAMAGE: GRAZEDAMAGE + 1d6
+STUNTDAMAGE: HITDAMAGE
+output [fullattack] named "Double Serpent Fang"
+
+GRAZEDAMAGE: 1d3
+HITDAMAGE: GRAZEDAMAGE + 1d3 + 2
+STUNTDAMAGE: HITDAMAGE + 4
+output [fullattack] named "Thousand Cuts"
+
+GRAZEDAMAGE: STRIKE + 4
+HITDAMAGE: GRAZEDAMAGE + 3d6
+STUNTDAMAGE: HITDAMAGE + 4
+output [fullattack] named "Kickdriver Stake"

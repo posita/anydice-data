@@ -1,0 +1,41 @@
+set "explode depth" to 3 \adv explode will explode once more than this limit\
+
+function: advexplode A:n B:n{  \Use the form [advexplode [highest/lowest X of (dice)] (die total e.g. 1d4 = 4)]\
+  TOTAL: A
+  if A = B {TOTAL: B+[explode 1dB]}
+  result: TOTAL
+}
+
+function: limit A:n from B:n to C:n{
+  if A > C {result:C}
+  if A < B {result:B}
+  result: A
+}
+
+function: mindamage A:n{
+  if A > 3 {result:A}
+  if A < 1 {result:0}
+  result: 3
+}
+
+
+LOWERBOUND: 0
+UPPERBOUND: 30
+LOWGUARD: 14
+HIGHGUARD: 14
+
+function: pd A:n B:n{
+  if A > 9 {result: A+B}
+  result: A
+}
+
+output [limit [mindamage [explode 1d20]+2d[explode 1d6]-LOWGUARD] from LOWERBOUND to UPPERBOUND] named "Normal attack"
+output [limit [mindamage [explode 1d20]+[advexplode [highest 2 of 3d6] 6]-LOWGUARD]+[mindamage [explode 1d20]+[advexplode [highest 2 of 3d6] 6]-LOWGUARD] from LOWERBOUND to UPPERBOUND] named "Two Reckless Attacks, Adv 1"
+output [limit [mindamage [explode 1d20]+[advexplode [lowest 2 of 3d6] 6]-LOWGUARD]+[mindamage [explode 1d20]+[advexplode [lowest 2 of 3d6] 6]-LOWGUARD] from LOWERBOUND to UPPERBOUND] named "Two MAS Attacks, DA 1"
+output [limit [mindamage [explode 1d20]+[advexplode [lowest 2 of 6d6] 6]-LOWGUARD]+[mindamage [explode 1d20]+[advexplode [lowest 2 of 6d6] 6]-LOWGUARD]+[mindamage [explode 1d20]+[advexplode [lowest 2 of 6d6] 6]-LOWGUARD] from LOWERBOUND to UPPERBOUND] named "Three MAS Attacks, DA 4"
+
+loop N over {1..5}{output LOWERBOUND named ""}
+
+output [limit [mindamage [explode 1d20]+[advexplode [highest 2 of 3d6] 6]-LOWGUARD] from LOWERBOUND to UPPERBOUND] named "Single Reckless Attack, Adv 1"
+output [limit [mindamage [explode 1d20]+[advexplode [lowest 2 of 3d6] 6]-LOWGUARD] from LOWERBOUND to UPPERBOUND] named "Single MAS Attack, DA 1"
+output [limit [mindamage [explode 1d20]+[advexplode [lowest 2 of 6d6] 6]-LOWGUARD] from LOWERBOUND to UPPERBOUND] named "Single MAS Attack, DA 4"

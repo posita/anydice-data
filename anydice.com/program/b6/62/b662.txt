@@ -1,0 +1,38 @@
+function: pbta D:n {
+if D < 7 {result: 0}
+if D > 9 {result: 2}
+result: 1
+}
+
+function: reroll A:n plus B:n over T:n depth D:n {
+  if (A <= T & B <= T) | (D = 0) { result: A+B }
+  if A < B & B > T { result: [reroll A plus 1d6 over T depth D-1] }
+  if B < A & A > T { result: [reroll 1d6 plus B over T depth D-1] }
+  result: [reroll A plus 1d6 over T depth D-1]
+}
+
+function: reroll A:n plus B:n under T:n depth D:n {
+  if (A > T & B > T) | (D = 0) { result: A+B }
+  if A > B & B <= T { result: [reroll A plus 1d6 under T depth D-1] }
+  if B > A & A <= T { result: [reroll 1d6 plus B under T depth D-1] }
+  result: [reroll A plus 1d6 under T depth D-1]
+}
+output [pbta 2d6-3] named "-3"
+output [pbta {3,4}@4d6] named "disadvantage x2"
+output [pbta [reroll 1d6 plus 1d6 over 3 depth 2]] named "reroll >3 x2"
+output [pbta 2d6-2] named "-2"
+output [pbta {2,3}@3d6] named "disadvantage"
+output [pbta [reroll 1d6 plus 1d6 over 3 depth 1]] named "reroll >3"
+output [pbta 2d6-1] named "-1"
+output [pbta 2d6] named "0"
+output [pbta 1d6+1d8] named "1d8"
+output [pbta 2d6+1] named "+1"
+output [pbta [reroll 1d6 plus 1d6 under 3 depth 1]] named "reroll <4"
+output [pbta {1,2}@3d6] named "advantage"
+output [pbta 2d6+2] named "+2"
+output [pbta 2d8] named "2d8"
+output [pbta [reroll 1d6 plus 1d6 under 3 depth 2]] named "reroll <4 x2"
+output [pbta {1,2}@4d6] named "advantage x2"
+output [pbta 2d6+3] named "+3"
+output [pbta 2d10] named "2d10"
+output -1 named "100"

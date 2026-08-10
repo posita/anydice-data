@@ -1,0 +1,30 @@
+AC: d{10..20}
+ARCHERY_STYLE: 2
+NORMAL: d20
+ADVANTAGE: 1@2d20
+ELVEN_ACCURACY: 1@3d20
+
+function: attack DMG:d crit CRIT_DMG:d penalty PENALTY:n rider RIDER:n dex DEX:n roll ROLL:n against AC:n{
+    PROFICIENCY: ((LEVEL-1)/4) + 2    
+    MODIFIER: (DEX-10)/2
+    DMG_WITH_BONUS: DMG + MODIFIER + RIDER
+	
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL = 20 {
+        result: DMG_WITH_BONUS + CRIT_DMG
+    }
+    if ROLL + MODIFIER + PROFICIENCY - PENALTY + ARCHERY_STYLE  >= AC {
+        result: DMG_WITH_BONUS
+    }
+    result: 0
+}
+
+function: sharpshooter sniper DEX:n dex roll ROLL:n against AC:n {
+    result: [attack 2d10 crit 2d10 penalty 5 rider 10 dex DEX roll ROLL against AC]
+}
+
+LEVEL: 5
+output 2d[sharpshooter sniper 17 dex roll ADVANTAGE against AC] named "Level [LEVEL] Sharpshooter Sniper w/ Advantage"
+output 4d[sharpshooter sniper 17 dex roll ADVANTAGE against AC] named "Level [LEVEL] Sharpshooter Sniper w/ Advantage & Action Surge"

@@ -1,0 +1,37 @@
+ADV: [highest 1 of 2d20]
+DIS: [lowest  1 of 2d20]
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1           { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+
+function: spell attack SAVE:n vs SAVE_DC:n hit HIT:d miss MISS:d {
+    if SAVE < SAVE_DC { result: HIT }
+    result: MISS
+}
+
+ATK_BONUS: 5
+SPELL_DC: 13
+ENEMY_AC: 13
+
+function: longsword strike {
+    result: [attack d20 plus ATK_BONUS vs ENEMY_AC hit d12 + 3 miss 0 crit 2d12 + 3 on 20]
+}
+
+function: unarmed strike {
+    result: [attack d20 plus ATK_BONUS vs ENEMY_AC hit d4 + 3 miss 0 crit 2d4 + 3 on 20]
+}
+
+function: draconic smite {
+    result: d6 + 3d[spell attack d20 + 3 vs SPELL_DC hit d6 miss 0]
+}
+
+function: burning hands ENEMY_COUNT save dc SAVE_DC {
+    result: ENEMY_COUNTd[spell attack d20 + 3 vs SAVE_DC hit 3d6 miss 3d6 / 2]
+}
+
+output 2d[unarmed strike] named "Flurry of blows"
+output [draconic smite] named "Draconic smite"

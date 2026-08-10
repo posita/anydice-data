@@ -1,0 +1,52 @@
+\------------------  Seja bem-vindo ao programa de cÃ¡lculo de dano de ataque para o D&D quinta ediÃ§Ã£o. -------------------- \
+\                                                                                                                           \
+\---------------------------------------------------------------------------------------------------------------------------\
+\    VariÃ¡veis, ajuste estas para mudar o resultado.                                                                        \
+\---------------------------------------------------------------------------------------------------------------------------\
+CRITRANGE: 20                     \ Insira aqui o limiar inferior do alcance crÃ­tico do personagem. Isto Ã© 20 para a maior parte dos personagens. \
+ATTACK: 5                         \ Aqui Ã© o modificador de ataque do personagem. \
+CRITDMG: 2d8 + 3                  \ Este Ã© o dano causado pelo personagem em um crÃ­tico. \
+HITDMG: 1d8 + 3                   \ Este Ã© o dano causado pelo personagem em caso de um acerto comum. \
+MISSDMG: 0                        \ Este Ã© o dano causado pelo personagem em um erro. \
+ACRANGE: {10..16}                 \ Insira aqui contra quais CAs vocÃª quer testar o dano do personagem. Altere somente os nÃºmeros. \
+ELVENACCURACY: 1                   \ Coloque Sim (1) ou NÃ£o (0) se seu personagem tem o Feat "Elven Accuracy" (Xanathar's, p. 74). \
+\---------------------------------------------------------------------------------------------------------------------------\
+
+\ NÃ£o toque o cÃ³digo abaixo! Ã‰ onde as funÃ§Ãµes sÃ£o feitas. \
+
+
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+if ROLL = 1 {result: MISS}
+if ROLL = {CRITRANGE..20} {result: CRIT}
+if ROLL + ATTACK >= DEFENSE {result: HIT}
+else {result: MISS}
+}
+
+function: damage for ATTACKRESULT:n {
+if ATTACKRESULT = CRIT {result: CRITDMG}
+if ATTACKRESULT = HIT {result: HITDMG}
+result: MISSDMG
+}
+
+loop AC over ACRANGE {
+output [damage for [attack 1d20 vs AC]] named "[AC]"
+}
+
+if ELVENACCURACY = 0 {
+loop AC over ACRANGE {
+output [damage for [attack 1@2d20 vs AC]] named "CA:[AC]/Vantagem"
+}
+} else {
+loop AC over ACRANGE {
+output [damage for [attack 1@3d20 vs AC]] named "CA:[AC]/Vantagem"
+}
+}
+
+loop AC over ACRANGE {
+output [damage for [attack 2@2d20 vs AC]] named "CA:[AC]/Desvantagem"
+}
+

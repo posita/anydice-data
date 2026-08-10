@@ -1,0 +1,108 @@
+function: compare ATT:s and DEF:s {
+
+  ATT: [sort ATT]
+  DEF: [sort DEF]
+
+\ LÃ¤nge beider Arrays angleichen: mit 1er aufstocken \
+
+if #ATT = #DEF {} else {
+  if #ATT > #DEF {
+    DEF: {DEF, 1:(#ATT-#DEF)}
+  }
+  if #ATT < #DEF {
+    ATT: {ATT, 1:(#DEF-#ATT)}
+  }
+}
+
+\ Loop over length of Arrays: Werte paarweise vergleichen \
+
+  RESULT: 0
+
+loop N over {1..#ATT} {
+  if N@ATT < N@DEF {result: RESULT}
+  if N@ATT > N@DEF {RESULT: RESULT + 1}
+}
+
+result: RESULT
+}
+
+\ 1 vs X \
+
+function: A:n vs D:n {
+  ATT: {A}
+  DEF: {D}
+  result: [compare ATT and DEF]
+}
+function: A:n vs D:n E:n {
+  ATT: {A}
+  DEF: {D,E}
+  result: [compare ATT and DEF]
+}
+function: A:n vs D:n E:n F:n {
+  ATT: {A}
+  DEF: {D,E,F}
+  result: [compare ATT and DEF]
+}
+
+\ 2 vs X \
+
+function: A:n B:n vs D:n {
+  ATT: {A,B}
+  DEF: {D}
+  result: [compare ATT and DEF]
+}
+function: A:n B:n vs D:n E:n {
+  ATT: {A,B}
+  DEF: {D,E}
+  result: [compare ATT and DEF]
+}
+function: A:n B:n vs D:n E:n F:n {
+  ATT: {A,B}
+  DEF: {D,E,F}
+  result: [compare ATT and DEF]
+}
+
+\ 3 vs X \
+
+function: A:n B:n C:n vs D:n {
+  ATT: {A,B,C}
+  DEF: {D}
+  result: [compare ATT and DEF]
+}
+
+function: A:n B:n C:n vs D:n E:n {
+  ATT: {A,B,C}
+  DEF: {D,E}
+  result: [compare ATT and DEF]
+}
+
+function: A:n B:n C:n vs D:n E:n F:n {
+  ATT: {A,B,C}
+  DEF: {D,E,F}
+  result: [compare ATT and DEF]
+}
+
+set "maximum function depth" to 100000
+
+A: 10
+B: 6
+C: 4
+
+D: 6
+E: 8
+F: 10
+
+output [1dA vs 1dD] named "[A]-[D]"
+
+output [1dA 1dC vs 1dD] named "[A]+[C]-[D]"
+
+output [1dA 1dB 1dC vs 1dD] named "[A]+[B]+[C]-W[D]"
+
+
+\
+output [1dA 1dC 1dC vs 1dD] named "[A]+[C]+[C]-W[D]"
+
+output [1dA vs 1dD] named "W[A] vs W[D]"
+output [1dA 1dB vs 1dD] named "W[A],W[B]-W[D]"
+output 0< [1dA 1d6 vs 1dD] named "W[A],W6-W[D]"
+\

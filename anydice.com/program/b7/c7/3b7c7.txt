@@ -1,0 +1,64 @@
+COST: 1500
+PAYOFF: {50, 100, 250, 1000, 1400, 1600, 1800, 2200}
+MAX_FAILURES: 2
+
+OPPORTUNITY_COST: 10000
+VALUE: {3000, 3000, 4000, 4000, 5000, 6000, 7000, 8000}
+
+SUCCESS_PERCENT: 50
+SUCCESS: d100 <= SUCCESS_PERCENT
+
+MAX_SUCCESSES: #PAYOFF - 1
+
+
+function: lookup SEQ:s at INDEX:n {
+    result: INDEX@SEQ
+}
+
+function: branch INDEX:n to ONE:d or ZERO:d {
+    if INDEX=0 {
+        result: ZERO
+    }
+    result: ONE
+}
+
+function: incr SUCCESSES:n until MAX_SUCCESSES:n {
+    if (SUCCESSES < MAX_SUCCESSES) {
+        result: SUCCESSES + 1
+    }
+    result: SUCCESSES
+}
+
+
+function: binomial P:d until MAX_SUCCESSES:n or MAX_FAILURES:n {
+    FEWER_FAILS_REMAINING: d{0}
+    loop FAILS_RAMINING over {0 .. MAX_FAILURES} {
+        FEWER_SUCCESSES_REMAINING: d{0}
+        loop SUCCESSES_REMAINING over {0 .. MAX_SUCCESSES} {
+            FEWER_SUCCESSES_REMAINING: [branch P to [incr FEWER_SUCCESSES_REMAINING until MAX_SUCCESSES] or FEWER_FAILS_REMAINING]
+        }
+        FEWER_FAILS_REMAINING: FEWER_SUCCESSES_REMAINING
+    }
+    result: FEWER_FAILS_REMAINING
+}
+
+function: netopportunity SUCCESSES:n {
+    INDEX: SUCCESSES+1
+    result: ((INDEX@PAYOFF-COST)*OPPORTUNITY_COST)/COST
+}
+
+function: netvalue SUCCESSES:n {
+    INDEX: SUCCESSES+1
+    result: INDEX@VALUE + [netopportunity SUCCESSES]
+}
+
+
+SUCCESSES: [binomial SUCCESS until MAX_SUCCESSES or MAX_FAILURES]
+PAYOFFS: [lookup PAYOFF at (SUCCESSES+1)]
+
+output SUCCESSES named "Successes"
+output PAYOFFS named "Payoff"
+output (PAYOFFS-COST) named "Net"
+output [netopportunity SUCCESSES] named "Net Opportunity"
+output [lookup VALUE at (SUCCESSES+1)] named "Value"
+output [netvalue SUCCESSES] named "Net Value"

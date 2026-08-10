@@ -1,0 +1,121 @@
+\ Pathfinder 2nd edition Weapon Damage Calculator
+created by /u/jtblin 2019 \
+
+function: ATTACKS:s vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n WEAK:n FORTUNE:n {
+  SUM: {0}
+  N: 0
+  F: 0
+  T: 0
+  FE: 0
+  LAST: 0
+  loop ATTACK over ATTACKS {
+    S: 0
+    N: N + 1
+    if LAST = 0 { LAST: ATTACK }
+    else if ATTACK < LAST { 
+      LAST: ATTACK
+      FE: FAILURE_EFFECT
+    }
+    if (N = 2) { 
+      F: FORCEFUL 
+      T: TWIN
+    } else if (N > 2) { 
+      F: 2*FORCEFUL 
+      T: TWIN
+    }
+if FORTUNE != 0 { SUM: SUM + [[highest of d20 and d20] plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK]} 
+   else { SUM: SUM + [1d20 plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK] }
+  }
+  result: SUM
+}
+
+function: ROLL:n plus ATTACK:n vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n WEAK:n {
+  if (ROLL + ATTACK >= (AC+10)) { 
+     result: [crit DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK]
+  }
+  if (ROLL + ATTACK >= AC) {
+    if (ROLL = 20){ 
+      result: [crit DAMAGE FORCEFUL TWIN DEADLY FATAL WEAK]
+    }
+    result: DAMAGE+FORCEFUL+TWIN+WEAK
+  }
+  if (ROLL = 20){ result: DAMAGE+FORCEFUL+TWIN+WEAK }
+  result: FAILURE_EFFECT
+}
+
+function: crit DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n WEAK:n {
+  if FATAL != 0 { result: 2*(FATAL+FORCEFUL+TWIN)+DEADLY+WEAK }
+  result: 2*(DAMAGE+FORCEFUL+TWIN)+DEADLY+WEAK
+}
+
+output [{23} vs 29 with 0 for 2d8+5+4d12 0 0 1d10 0 0 0] named "Fighter Wizard Eldritch Archer 10, Shocking Grasp"
+output [{23} vs 29 with 0 for 2d8+5+5d6+4 0 0 1d10 0 0 0] named "Fighter Wizard Eldritch Archer 10, Gouging Claw"
+output [{23} vs 29 with 0 for 2d8+5+5d12+4 0 0 1d10 0 0 0] named "Fighter Psychic Eldritch Archer 10, Amped Produce Flame"
+output [{23} vs 29 with 0 for 2d8+5+9d8+2 0 0 1d10 0 0 0] named "Fighter Psychic Eldritch Archer 10, Amped Imaginary Weapon"
+
+output [{21} vs 27 with 0 for 2d6+4+4d12+4d6 0 0 1d10 0 0 0] named "Rogue Eldritch Archer 10, Shocking Grasp"
+output [{21} vs 27 with 0 for 2d6+4+6d4+4d6 0 0 1d10 0 0 0] named "Rogue Eldritch Archer 10, Gouging Claw"
+
+output [{16} vs 27 with 0 for 5d6+4+2d6 0 0 0 0 0 0] named "Eldritch Trickster 10, Magical Trickster, Gouging Claw, Sneak Attack"
+output [{21,16,11} vs 27 with 0 for 2d8+6+2d6 2 0 0 0 0 0] named "Eldritch Trickster 10, Strikes, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d4+4+2d6 0 0 0 0 0 0] named "Eldritch Trickster 10, Spellstrike, Produce Flame, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d4+4+2d6 0 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Produce Flame, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d6+4+2d6 0 0 0 0 0 0] named "Eldritch Trickster 10, Spellstrike, Gouging Claw, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d6+4+2d6 0 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Gouging Claw, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d12+4+2d6 0 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Amped Produce Flame, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+9d8+4+2d6 0 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Amped Imaginary Weapon, Sneak Attack"
+output [{23} vs 27 with 0 for 2d8+6+4d12+3+2d6+1d4+2 0 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Shocking Grasp, Dangerous Sorcery, Heroism, Sneak Attack"
+output [{23} vs 27 with 0 for 2d8+6+4d12+3+2d6+1d4+2+1d8 0 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Shocking Grasp, Dangerous Sorcery, Heroism, Sneak Attack, Conducting Rune"
+
+
+output [{14,10,6} vs 19 with 0 for 2d4+4+2d6 0 0 0 0 0 0] named "Rogue Thief 5, Sneak Attack"
+output [{21,17,13} vs 27 with 0 for 2d4+7+4d6+1d6+1d8+2 0 0 0 0 0 0] named "Rogue Thief 10, Sneak Attack, Precise Debilitations, Shock, Conducting"
+output [{21} vs 27 with 0 for 2d4+9+5d12+5+4d6+1d6+1d8+2 0 0 0 0 0 1] named "Rogue Thief 10, True Strike, Spellstrike, Amped Produce Flame, Sneak Attack, Precise Debilitations, Enlarged, Elemental Assault"
+
+output [{21} vs 29 with 0 for 2d8+6+2d12 0 0 0 0 0 0] named "Magus 10, Spellstrike, Staff's Shocking Grasp"
+output [{21} vs 29 with 0 for 2d8+6+5d6+4 0 0 0 0 0 0] named "Magus 10, Spellstrike, Gouging Claw"
+output [{21} vs 29 with 0 for 2d8+6+5d6+4 0 0 0 0 0 1] named "Magus 10, True Strike, Spellstrike, Gouging Claw"
+
+output [{21} vs 29 with 0 for 2d8+8+5d6+4 0 0 1d6 0 0 1] named "Magus 10, True Strike, Spellstrike, Gouging Claw, Enlarged, Twisted Tree"
+output [{21} vs 29 with 0 for 2d8+8+9d6+4 0 0 1d6 0 0 1] named "Magus 10, True Strike, Spellstrike, Amped Telekinetic Projectile, Enlarged, Twisted Tree"
+output [{21} vs 29 with 0 for 2d8+8+5d10+4 0 0 1d6 0 0 1] named "Magus 10, True Strike, Spellstrike, Amped Ray of Frost, Enlarged, Twisted Tree"
+output [{21} vs 29 with 0 for 2d8+8+9d8+4 0 0 1d6 0 0 1] named "Magus 10, True Strike, Spellstrike, Amped Imaginary Weapon, Enlarged, Twisted Tree"
+output [{21} vs 29 with 0 for 2d8+8+6d12 0 0 1d6 0 0 1] named "Magus 10, True Strike, Spellstrike, Shocking Grasp, Enlarged, Twisted Tree"
+
+output [{14,10,6} vs 19 with 0 for 2d4+7+1d4+2 0 0 0 0 0 0] named "Magus 5, Sneak Attack, Resonant, Laughing Shadow"
+output [{21,17,13} vs 27 with 0 for 2d4+12+1d6+1d8+2 0 0 0 0 0 0] named "Magus 10, Sneak Attack, Conducting, Laughing Shadow"
+output [{21,17,13} vs 27 with 0 for 2d4+12+2d6+1d8+2 0 0 0 0 0 0] named "Magus 10, Sneak Attack, Bane, Conducting, Laughing Shadow"
+output [{21} vs 27 with 0 for 2d4+12+1d6+1d8+2+5d6+4 0 0 0 0 0 0] named "Magus 10, Spellstrike, Gouging Claw, Sneak Attack, Conducting, Laughing Shadow"
+output [{21} vs 27 with 0 for 2d4+12+2d6+1d8+2+5d6+4 0 0 0 0 0 0] named "Magus 10, Spellstrike, Gouging Claw, Sneak Attack, Bane, Conducting, Laughing Shadow"
+output [{21} vs 27 with 0 for 2d4+12+1d6+1d6+1d8+2+6d12 0 0 0 0 1 0] named "Magus 10, True Strike, Spellstrike, Shocking Grasp, Sneak Attack, Conducting, Laughing Shadow"
+output [{21} vs 27 with 0 for 2d4+12+3d6+1d8+2+6d12 0 0 0 0 1 0] named "Magus 10, True Strike, Spellstrike, Shocking Grasp, Sneak Attack, Conducting, Bane, Elemental Assault, Laughing Shadow"
+
+output [{20,15,10} vs 29 with 0 for 2d8+17 0 0 0 0 0 0] named "Thaumaturge 10"
+output [{20,15} vs 29 with 7 for 2d8+17 0 0 0 0 0 0] named "Thaumaturge 10, Twin Weakness"
+output [{22,17} vs 29 with 0 for 2d8+17 0 0 0 0 0 0] named "Thaumaturge 10, Intensify Vulnerability"
+output [{22} vs 29 with 7 for 2d8+17 0 0 0 0 0 0] named "Thaumaturge 10, Intensify Vulnerability, Twin Weakness"
+output [{20,15,10} vs 29 with 0 for 2d8+20 0 0 0 0 0 0] named "Thaumaturge 10, Mortal Weakness 10"
+output [{22,17} vs 29 with 0 for 2d8+20 0 0 0 0 0 0] named "Thaumaturge 10, Intensify Vulnerability, Mortal Weakness 10"
+output [{20} vs 29 with 0 for 2d8+13 0 0 0 0 0 0]+[{14,9} vs 29 with 11 for 2d8+15 0 0 0 0 0 0] named "Thaumaturge 10, Jezail, Bombs"
+
+output [{21,16} vs 27 with 0 for 2d8+17 0 0 0 0 0 0] named "Thaumaturge 10, Marshal Inspiring Aura, Mirror Implement"
+output [{21,16} vs 27 with 0 for 2d8+20 0 0 0 0 0  0] named "Thaumaturge 10, Marshal Inspiring Aura, Mirror Implement, Mortal Weakness 10"
+
+output [{21} vs 29 with 11 for 2d8+19 0 0 0 0 0 0]+[{16} vs 29 with 0 for 2d8+13 0 0 0 0 0 0] named "Thaumaturge 10, Bomb, Dragon Pistol, Marshal Aura, Regalia, Personal Antithesis"
+output [{21} vs 29 with 14 for 2d8+22 0 0 0 0 0 0]+[{16} vs 29 with 0 for 2d8+16 0 0 0 0 0 0] named "Thaumaturge 10, Bomb, Dragon Pistol, Marshal Aura, Regalia, Mortal Weakness 10"
+
+output [{21,16,11} vs 29 with 11 for 2d8+12 0 0 0 0 7 0] named "Thaumaturge 10, Bombs, Marshal Aura, Regalia, Personal Antithesis"
+output [{21,16,11} vs 29 with 14 for 2d8+12 0 0 0 0 10 0] named "Thaumaturge 10, Bombs, Marshal Aura, Regalia, Mortal Weakness 10"
+
+output [{21,16,11} vs 29 with 0 for 2d8+12 0 0 1d12 2d12+12 7 0] named "Thaumaturge 10, Falcata, Inspire Courage, Regalia, Personal Antithesis"
+output [{21,16,11} vs 29 with 0 for 2d8+12 0 0 1d8 0 7 0] named "Thaumaturge 10, Rokha Sword, Inspire Courage, Regalia, Personal Antithesis"
+
+output [{21} vs 29 with 7 for 2d8+12 0 0 1d12 2d12+12 14 0]+[{11} vs 29 with 0 for 2d8+12 0 0 1d12 2d12+12 7 0] named "Thaumaturge 10, Falcata, Inspire Courage, Regalia, Personal Antithesis, Twin Weakness"
+
+output [{21} vs 29 with 0 for 2d8+12 0 0 1d12 2d12+12 7 1]+[{16} vs 29 with 0 for 2d8+12 0 0 1d12 2d12+12 7 0] named "Thaumaturge 10, Falcata, Inspire Courage, Regalia, Personal Antithesis, Fortune"
+output [{21} vs 29 with 0 for 2d8+12 0 0 1d12 2d12+12 10 1]+[{16} vs 29 with 0 for 2d8+12 0 0 1d12 2d12+12 10 0] named "Thaumaturge 10, Falcata, Inspire Courage, Regalia, Mortal Weakness 10, Fortune"
+
+output [{21,16,11} vs 29 with 0 for 2d10+14 0 0 0 0 7 0] named "Thaumaturge 10, Animal Instinct, Wolf, Inspire Courage, Regalia, Personal Antithesis"
+output [{21,16,11} vs 29 with 0 for 2d10+14 0 0 0 0 10 0] named "Thaumaturge 10, Animal Instinct, Wolf, Inspire Courage, Regalia, Weakness 10"
+
+output [{21} vs 29 with 0 for 2d12+6+5d8 0 0 0 0 0 1] named "Warpriest 10, Channel Smite, Enlarged, True Strike"

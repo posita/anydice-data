@@ -1,0 +1,86 @@
+\ variables \
+ATTACKS: 1
+
+CRIT: 20
+HIT: 15
+PROF: 3
+HITBONUS: 0
+
+STR: 5
+DMGBONUS: 0
+RAGEBONUS: 2
+
+
+
+\ rolls the correct number of d20s \
+function: attack NUMBER:n RAGE:d {
+ VALUE: 1@NUMBERd20
+ result: [check VALUE RAGE]
+}
+
+
+
+\ checks to see if the attack is a crit \
+function: check NUMBER:n RAGE:d {
+ if NUMBER >= CRIT {
+  result: [damage 3 RAGE]
+ } else if NUMBER + STR + HITBONUS + PROF >= HIT {
+  result: [damage 1 RAGE]
+ } else {
+  result: 0
+ }
+}
+
+
+
+\ calculates damage for each damage die \
+function: damage NUMBER:n RAGE:d {
+ ROLL: 0
+  
+ loop N over {1..NUMBER} {
+  ROLL: ROLL + [reroll 1d12]
+ }
+ 
+ result: ROLL + STR + DMGBONUS + RAGE
+}
+
+
+
+\ rerolls a damage die once if it is a 1 or a 2 \
+function: reroll ROLL:n {
+ if ROLL < 3 {
+  result: 1d12
+ } else {
+  result: ROLL
+ }
+}
+
+
+
+\ generate attacks \
+REGULAR: 0
+loop N over {1..ATTACKS} {
+  REGULAR: REGULAR + [attack 1 0]
+}
+
+REGADVANTAGE: 0
+loop N over {1..ATTACKS} {
+  REGADVANTAGE: REGADVANTAGE + [attack 2 0]
+}
+
+RAGEATTACK: 0
+loop N over {1..ATTACKS} {
+ RAGEATTACK: RAGEATTACK + [attack 2 RAGEBONUS]
+}
+
+
+
+\ program outputs \
+output REGULAR named "regular"
+output REGADVANTAGE named "advantage"
+
+output REGULAR + REGULAR named "action surge"
+output REGADVANTAGE + REGADVANTAGE named "action surge w/advantage"
+
+output RAGEATTACK + [attack 2 RAGEBONUS] named "frenzy"
+output RAGEATTACK + RAGEATTACK + [attack 2 RAGEBONUS] named "frenzied action surge"

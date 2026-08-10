@@ -1,0 +1,89 @@
+function: gwf N:n {
+ if N < 3 { result: dDMGDICE }
+ result: N
+}
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITON {
+  result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: 0
+}
+
+function: bonusdmg for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BONUSCRITDMG
+ }
+ if ATTACKRESULT = HIT {
+  result: BONUSHITDMG
+ }
+ result: 0
+}
+
+function: attack {
+ result: [damage for [attack [highest 1 of NUMDICEd20] vs DEFENSE]]
+}
+
+function: bonusattack {
+ result: [bonusdmg for [attack [highest 1 of NUMDICEd20] vs DEFENSE]]
+}
+
+DEFENSE: d{15,18,21}
+
+NUMDICE:      2
+DMGDICE:      10
+BONUSDMGDICE: 4
+ATKMOD:       4 + 1
+PROF:         4
+RAGE:         3
+
+
+CRITON:   20
+ATTACK:   ATKMOD + PROF
+HITDAMAGE:      dDMGDICE      + ATKMOD + RAGE
+BONUSHITDMG:    dBONUSDMGDICE + ATKMOD + RAGE
+CRITICALDAMAGE: HITDAMAGE     + 2dDMGDICE
+BONUSCRITDMG:   BONUSHITDMG   + 2dBONUSDMGDICE
+output 2d[attack] + 1d[bonusattack]named "MageSlayer_9"
+
+
+CRITON:   20
+ATTACK:   ATKMOD + PROF
+HITDAMAGE:      [gwf dDMGDICE]      + ATKMOD + RAGE
+BONUSHITDMG:    [gwf dBONUSDMGDICE] + ATKMOD + RAGE 
+CRITICALDAMAGE: HITDAMAGE           + [gwf dDMGDICE]
+BONUSCRITDMG:   BONUSHITDMG         + [gwf dBONUSDMGDICE]
+output 2d[attack] + 1d[bonusattack]named "MageSlayer_gwf_8_1"
+
+
+CRITON:   20
+ATTACK:   ATKMOD + PROF - 5
+HITDAMAGE:      dDMGDICE      + ATKMOD + RAGE + 10
+BONUSHITDMG:    dBONUSDMGDICE + ATKMOD + RAGE + 10
+CRITICALDAMAGE: HITDAMAGE     + 2dDMGDICE
+BONUSCRITDMG:   BONUSHITDMG   + 2dBONUSDMGDICE
+output 2d[attack] + 1d[bonusattack]named "GWMaster_9"
+
+
+CRITON:   20
+ATTACK:   ATKMOD + PROF - 5
+HITDAMAGE:      [gwf dDMGDICE]      + ATKMOD + RAGE + 10
+BONUSHITDMG:    [gwf dBONUSDMGDICE] + ATKMOD + RAGE + 10
+CRITICALDAMAGE: HITDAMAGE           + [gwf dDMGDICE]
+BONUSCRITDMG:   BONUSHITDMG         + [gwf dBONUSDMGDICE]
+output 2d[attack] + 1d[bonusattack]named "GWMaster_gwf_8_1"

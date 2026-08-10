@@ -1,0 +1,32 @@
+set "explode depth" to 1
+
+function: roll S over T {
+ result: [count {(T+1)..12} in Sd[explode d6]]
+}
+function: roll S:n vs {
+ R: 0
+ loop N over {1..S} { R: R + [rollvshelper 1d[explode d6]] }
+ result: R
+}
+function: rollvshelper X:n {
+ if X > 3 {
+  if X > 9 { result: 2 }
+  else     { result: 1 } 
+ } else    { result: 0 }
+}
+
+function: roll S vs T {
+ result: [roll S vs] - [roll T over 3]
+}
+function: limit NUMBER:n{
+ if NUMBER < 0 { result: 0 }
+ result: NUMBER
+}
+
+\loop T over {3..8} {
+ loop S over {T} {
+  output [limit [roll S vs T]] - [roll S over T] named "[S]vs[T] - [S]ov[T]"
+ }
+}\
+\output [limit [roll 3 vs 6]] - [roll 3 over 6] named "[3]vs[6]"\
+output [roll 3 vs 6]

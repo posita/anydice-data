@@ -1,0 +1,25 @@
+function: trim ROLL:n MOD{
+ if ROLL+MOD > 6 {result: 6}
+ if ROLL+MOD < 1 {result: 1}
+ result: ROLL+MOD
+}
+
+function: reroll DICE target TARGET:n{
+ if DICE < TARGET {result: TRUE}
+ result: FALSE
+}
+
+function: roll POS:n mod MOD:n {
+ D: POS@3d6
+ result: [trim D MOD]
+}
+
+function: roll POS:n mod MOD:n target TARGET:n{
+ D: POS@3d6
+ if [reroll D target TARGET]{ D: 1d6 }
+ result: [trim D MOD]
+}
+
+loop N over {1,2,3}{
+ output [roll N mod 0 target 4] named "[N]@3d6"
+}

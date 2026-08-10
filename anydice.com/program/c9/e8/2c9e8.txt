@@ -1,0 +1,79 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 \
+
+\ output [ATTACKS vs AC dmg DAMAGE precision PRECISION crit CONFIRM threat THREATRANGE mult MULT extra CRITEXTRA] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREATRANGE is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+PRECISION is precision damage (e.g. 1d6 for a sneak attack) otherwise leave blank \
+
+
+\ Overloads \
+\   no optional \
+function: ATTACKS vs AC dmg DAMAGE {
+  result: [ATTACKS vs AC dmg DAMAGE precision 0 crit 20 x 2 confirm 0 extra 0]
+}
+
+\   only precision \
+function: ATTACKS vs AC dmg DAMAGE precision PRECISION {
+  result: [ATTACKS vs AC dmg DAMAGE precision PRECISION crit 20 x 2 confirm 0 extra 0]
+}
+
+\   only crit \
+function: ATTACKS vs AC dmg DAMAGE crit THREATRANGE x MULT {
+  result: [ATTACKS vs AC dmg DAMAGE precision 0 crit THREATRANGE x MULT confirm 0 extra 0]
+}
+
+\   crit + confirm \
+function: ATTACKS vs AC dmg DAMAGE crit THREATRANGE x MULT confirm CONFIRM {
+  result: [ATTACKS vs AC dmg DAMAGE precision 0 crit THREATRANGE x MULT confirm CONFIRM extra 0]
+}
+
+\   crit + extra \
+function: ATTACKS vs AC dmg DAMAGE crit THREATRANGE x MULT {
+  result: [ATTACKS vs AC dmg DAMAGE precision 0 crit THREATRANGE x MULT confirm 0 extra 0]
+}
+
+
+\ Simulation \
+function: ATTACKS:s vs AC:n dmg DAMAGE:d precision PRECISION:d crit THREATRANGE:s x MULT:n confirm CONFIRM:d extra CRITEXTRA:d {
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK vs AC dmg DAMAGE precision PRECISION crit THREATRANGE x MULT confirm CONFIRM extra CRITEXTRA]
+  }
+  result: SUM
+}
+
+function: ROLL plus ATTACK vs AC dmg DAMAGE precision PRECISION crit THREATRANGE x MULT confirm CONFIRM extra CRITEXTRA {
+  [ROLL plus ATTACK vs AC dmg DAMAGE precision PRECISION crit THREATRANGE x MULT confirm CONFIRM extra CRITEXTRA critcalc 0]
+}
+
+function: ROLL:n plus ATTACK:n vs AC:n dmg DAMAGE:d precision PRECISION:d crit THREATRANGE:s x MULT:n confirm CONFIRM:d extra CRITEXTRA:d critcalc CRITCALC:n {
+  if (ROLL = 20){
+    CRITDMG: 0
+    if (CRITCALC = 0) {
+      CRITDMG: [1d20 plus ATTACK+CONFIRM vs AC dmg MULTd(DAMAGE)+CRITEXTRA precision 0 crit 0 x 0 confirm 0 extra 0 critcalc 1]
+    }
+    result: CRITDMG + DAMAGE + PRECISION
+  }
+  if (ROLL = 1) { result: 0 }
+  if (ROLL + ATTACK >= AC) {
+    CRITDMG: 0
+    if ((CRITCALC = 0) * (THREATRANGE = ROLL) > 0) {
+      CRITDMG: [1d20 plus ATTACK+CONFIRM vs AC dmg MULTd(DAMAGE)+CRITEXTRA precision 0 crit 0 x 0 confirm 0 extra 0 critcalc 1]
+    }
+    result: CRITDMG + DAMAGE + PRECISION
+  }
+  result: 0
+}
+
+function: LEFT:n gt RIGHT:n {result: LEFT>RIGHT}
+
+loop AC over {12..28} {
+output [{16,16,11,11,6} vs AC dmg 6d6+10] named "vs AC [AC]"
+}
+

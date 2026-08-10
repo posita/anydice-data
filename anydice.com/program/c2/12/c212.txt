@@ -1,0 +1,42 @@
+SHOTS:3
+TOHIT:3
+TOWOUND:4
+SAVE:3
+set "maximum function depth" to SHOTS+4
+function: X:n save{
+
+if X > SAVE {result: 0}
+else { result: 1}
+}
+
+
+function: X:n wound{
+
+if X < TOWOUND {result: 0}
+else { result: [d6 save]}
+}
+
+
+function: X:n hit{
+
+if X < TOHIT {result: 0}
+else { result: [d6 wound]}
+}
+
+
+
+function: shoooot X:n times{
+result: [d6 hit] * X
+}
+function: shooot X:n times{
+Z:0
+loop N over {1..X}
+{Z:{Z+[d6 hit]}}
+result:Z
+}
+function: shoot X:n times{
+if X>0
+{result: [d6 hit] + [shoot X-1 times]}
+else {result:0}
+}
+output [shoot SHOTS times]

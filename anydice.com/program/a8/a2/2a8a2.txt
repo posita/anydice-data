@@ -1,0 +1,68 @@
+function: normie ROLL:n vs AV:n{
+ if ROLL = 20 {result: CRIT}
+ if ROLL = 1 {result: MISS}
+ if ROLL + ATTACK >= AC {result: HIT}
+ result:MISS
+}
+function: power ROLL:n vs AC:n{
+ if ROLL = 20 {result:PBC}
+ if ROLL = 1 {result:MISS}
+ if ROLL+ATTACK-2*N  >= AC {result: PA}
+ result:MISS
+}
+
+function: attack ROLL:n and R:n and RR:n vs AC:n {
+ if ATTACK >= AC {
+  if ROLL = 20 {result: BC}
+  if ROLL+ATTACK >=20 {result:CRIT}
+   result: HIT}
+ if ROLL = 20 {result: BC}
+ if ROLL = 1 {
+  if RR < R {
+   if RR+ATTACK >=AC {result:HIT}
+   result: MISS}
+  if RR >= R {
+   if R+ATTACK >=AC {result:HIT}
+   result: MISS}
+  result:MISS }
+ if ROLL + ATTACK >= AC {result: HIT}
+ if ROLL + ATTACK < AC {
+   if RR < R {
+   if RR+ATTACK >=AC {result:HIT}
+   result: MISS}
+  if RR >= R {
+   if R+ATTACK>=AC {result:HIT}
+   result: MISS}
+  result:MISS }
+}
+
+function: damage for ATTACKRESULT:n{
+ if ATTACKRESULT = MISS {result:0} 
+ if ATTACKRESULT = HIT {result: DMG}
+ if ATTACKRESULT = CRIT{ result: CDMG}
+ if ATTACKRESULT = BC {result: BCDMG}
+ if ATTACKRESULT = PA{ result: PADMG}
+ if ATTACKRESULT = PBC {result: PBCDMG}
+}
+
+P:3
+MOD:5
+ATTACK:P+MOD
+AC:8+P+MOD
+MISS:0
+HIT:1
+CRIT:2
+BC:3
+PA:4
+PBC:5
+DMG: 1d10+MOD
+CDMG:2d10+MOD
+BCDMG: 1d10+15
+PADMG:2d10+MOD 
+PBC: 25+2d10
+L:2
+N:1
+M:L-N
+output Ld[damage for [attack d20 and d20 and d20 vs AC]]
+output Ld[damage for [normie d20 vs AC]]
+output Md[damage for [power d20 vs AC]]

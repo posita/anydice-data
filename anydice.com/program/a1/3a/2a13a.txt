@@ -1,0 +1,37 @@
+set "position order" to "lowest first"
+function: find next N:n in SEQ:s starting at POS:n {
+   loop P over {POS .. #(SEQ)} {
+
+    if (P@SEQ) = N{
+      result: P
+    }
+    else if (P@SEQ) > N {
+      result: -1
+    }
+  }
+  result: -1
+}
+
+function: ROLL:s contains set SET:s {
+  \The basic idea here is to sort both and scan through linearly. If the value in the roll is less than the current value in set, advance it.\
+  \If it's exactly equal, eat it and move to the next value in the set. If it's greater, we don't have a match for the current set value, so fail immediately.\
+  \If we reach the end of the set to match, we return true.\
+  \I don't think anydice has while loops, so we're going to use a helper function.\
+  VALUES: [sort ROLL]
+  TO_FIND: [sort SET]
+  VAL_POSITION: 1
+  loop S over TO_FIND {
+    P_POS: VAL_POSITION
+    VAL_POSITION: [find next S in VALUES starting at VAL_POSITION] + 1 \We increment here to 'consume' the value\
+    if VAL_POSITION < 1 {
+      result:0
+    }
+  }
+  result:1
+}
+
+loop X over {2,4,6}{
+ output [3d6 contains set {X,X}] named "Boons"
+}
+
+output [3d6 contains set {2,4,6}] named "Evens Triumph"

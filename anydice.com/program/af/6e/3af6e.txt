@@ -1,0 +1,110 @@
+\\\*** Base Damage Calc Info ***\\\
+ENEMY_AC: 22
+BLADE_WARD: 1
+CON_SAVE: 8
+
+
+\\\*** Attack A ***\\\
+DICE_A: 4d6
+FLAT_A: 8
+
+\\\*** Spell A ***\\\
+FAIL_SAVE_A: 6d6
+SUCC_SAVE_A: 0
+SPELL_DC: 21
+SAVE_A: CON_SAVE
+
+
+\\\*** Attack B ***\\\
+DICE_B: 2d8
+FLAT_B: 8
+
+\\\*** Attack C ***\\\
+DICE_C: 2d6
+FIRE_C: 6d6
+FLAT_C: 8
+
+\\\*** Attack D ***\\\
+DICE_D: 3d10
+FLAT_D: 8
+
+\\\*** General Info ***\\\
+CRIT_RANGE: 20
+NORMAL_HIT: d20
+
+
+\\\*** Functions ***\\\
+function: attack ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL >= CRIT_RANGE { result: CRITICALDAMAGE }
+ if ROLL + ATTACK >= ENEMY_AC { result: HITDAMAGE }
+ result: 0
+}
+
+
+function: bite ROLL:n vs ENEMY_AC:n {
+ if ROLL = 1 { result: 0 }
+ if ROLL + ATTACK >= ENEMY_AC { result: [spell NORMAL_HIT vs SPELL_DC]}
+ result: 0
+}
+
+function: spell ROLL:n vs SPELL_DC:n {
+ if ROLL + SAVE_A >= SPELL_DC{ result: SUCC_SAVE_A}
+ if ROLL + SAVE_A < SPELL_DC{ result: FAIL_SAVE_A}
+}
+
+ATTACK: 14
+
+if BLADE_WARD = 1 {
+ HITDAMAGE: DICE_A+FLAT_A
+ CRITICALDAMAGE: 2dDICE_A+FLAT_A
+ output [attack NORMAL_HIT vs ENEMY_AC]/2 named "BITE"
+ 
+ SAVE: SAVE_A
+ SUCC_SAVE: SUCC_SAVE_A
+ FAIL_SAVE: FAIL_SAVE_A
+ output [bite NORMAL_HIT vs ENEMY_AC] named "BITE POISON"
+
+ HITDAMAGE: DICE_B+FLAT_B
+ CRITICALDAMAGE: 2dDICE_B+FLAT_B
+ output [attack NORMAL_HIT vs ENEMY_AC]/2 named "CLAW"
+
+ HITDAMAGE: DICE_C+FLAT_C
+ CRITICALDAMAGE: 2dDICE_C+FLAT_C
+ output [attack NORMAL_HIT vs ENEMY_AC]/2 named "MACE"
+
+ HITDAMAGE: FIRE_C
+ CRITICALDAMAGE: 2dFIRE_C
+ output [attack NORMAL_HIT vs ENEMY_AC] named "MACE FIRE"
+
+ HITDAMAGE: DICE_D+FLAT_D
+ CRITICALDAMAGE: 2dDICE_D+FLAT_D
+ output [attack NORMAL_HIT vs ENEMY_AC]/2 named "TAIL"
+}
+else {
+ HITDAMAGE: DICE_A+FLAT_A
+ CRITICALDAMAGE: 2dDICE_A+FLAT_A
+ output [attack NORMAL_HIT vs ENEMY_AC] named "BITE"
+ 
+ SAVE: SAVE_A
+ SUCC_SAVE: SUCC_SAVE_A
+ FAIL_SAVE: FAIL_SAVE_A
+ output [bite NORMAL_HIT vs ENEMY_AC] named "BITE POISON"
+
+ HITDAMAGE: DICE_B+FLAT_B
+ CRITICALDAMAGE: 2dDICE_B+FLAT_B
+ output [attack NORMAL_HIT vs ENEMY_AC] named "CLAW"
+
+ HITDAMAGE: DICE_C+FLAT_C
+ CRITICALDAMAGE: 2dDICE_C+FLAT_C
+ output [attack NORMAL_HIT vs ENEMY_AC] named "MACE"
+
+ HITDAMAGE: FIRE_C
+ CRITICALDAMAGE: 2dFIRE_C
+ output [attack NORMAL_HIT vs ENEMY_AC] named "MACE FIRE"
+
+ HITDAMAGE: DICE_D+FLAT_D
+ CRITICALDAMAGE: 2dDICE_D+FLAT_D
+ output [attack NORMAL_HIT vs ENEMY_AC] named "TAIL"
+}
+

@@ -1,0 +1,58 @@
+function: stat score N:n to points {
+R: 0
+if N>2 {R: R + 1}
+if N>4 {R: R + 1}
+if N>6 {R: R + 1}
+if N>7 {R: R + 1}
+if N>8 {R: R + 1}
+if N>9 {R: R + 1}
+if N>10 {R: R + 1}
+if N>11 {R: R + 1}
+if N>12 {R: R + 1}
+if N>13 {R: R + 2}
+if N>14 {R: R + 2}
+if N>15 {R: R + 3}
+if N>16 {R: R + 3}
+if N>17 {R: R + 3}
+if N>18 {R: R + 4}
+if N>19 {R: R + 4}
+result: R
+}
+
+function: roll result{
+result: [highest 1 of 1d6]+2d6
+}
+
+function: if X:n equals N:n reroll{
+R: X
+if X = N {R: 1d12}
+result: R
+}
+
+function: if X:n equals H:n{
+if X = H {result: 1}
+result: 0
+}
+
+function: roll damage{
+H:[if d12 equals 1 reroll]
+D: [if d12 equals 1 reroll]
+result: H + D
+}
+
+function: crit on H:n{
+D: [roll damage]
+T: 17
+if H = 20{
+D: 2 * D
+T: [if d12 equals 1 reroll] + T}
+result: D + T
+}
+
+X: {}
+loop N over {1 .. 6}{
+X: X + [stat score [highest of [highest of [roll result] and [roll result]] and [highest of [roll result] and [roll result]]] to points]
+}
+output (4 * [crit on d20]) named "Strike of Perfect Clarity"
+output 2d8
+output 2* d8

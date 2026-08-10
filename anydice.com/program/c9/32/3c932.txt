@@ -1,0 +1,72 @@
+Q: {0..3}
+\0s can be modified (even as a Critic Failure)\
+\dice value can't be modified > 3\
+
+function: set element I:n in SEQ:s to N:n {         \change 1 element in a sequence\
+  NEW: {}
+  loop J over {1 .. #SEQ} {
+    if I = J { NEW: {NEW, N} }
+    else { NEW: {NEW, J@SEQ} }
+  }
+  result: NEW
+}
+
+function: modify all dices ROLL:s MODS:n {     \apply Value-Modifier of +1 or -1 on all Dices\
+ THREES: ROLL=3
+ TWOS:   ROLL=2
+ ONES:   ROLL=1
+ ZEROS:  ROLL=0
+ if(MODS = 1){
+   THREES: THREES+TWOS
+   TWOS: ONES
+   ONES: ZEROS
+   ZEROS: 0}
+ if(MODS = -1){
+   ZEROS: ZEROS+ONES
+   ONES: TWOS
+   TWOS: THREES
+   THREES: 0}
+ result: {THREES,TWOS,ONES,ZEROS}
+}
+
+\modify lowest dices with up to +y(distributed as whichever) or
+ modify highest dices with down to -y(distributed as whichever).
+ Careful!!! the resulting sequence isn't sorted\
+function: modify some dices ROLL:s MODS:n {
+ NEW: {}
+ REST: MODS
+if(MODS>=0){                       \for positive modifiers, on modifiable sequence\
+ loop N over {1 .. #ROLL} {
+   IDX: #ROLL-N+1                                 \from lowest to highest\
+   if (IDX@ROLL<3) & (REST>0){                    \actual value is modifiable & modifiers can still be used\
+     NEXTREST: REST-3 + IDX@ROLL                  \find the next rest of modifiers\
+     NEW: {NEW, IDX@ROLL + REST - NEXTREST}       \put the modified value in the sequence\
+     REST: NEXTREST
+   }else { NEW: {NEW, N@ROLL} }
+ }
+}
+if(MODS<0){                       \for negative modifiers, on modifiable sequence\
+ loop IDX over {1 .. #ROLL} {                     \from highest to lowest\
+   if (IDX@ROLL<3) & (REST<0){                    \actual value is modifiable & modifiers can still be used\
+     NEXTREST: REST + IDX@ROLL                    \find the next rest of modifiers\
+     NEW: {NEW, IDX@ROLL + REST - NEXTREST}       \put the modified value in the sequence\
+     REST: NEXTREST
+   }else { NEW: {NEW, N@ROLL} }
+ }
+}
+ result: NEW
+}
+
+
+function: set positive VAL:n {         \set negative value to 0\
+ if VAL<0 {VAL: 0}
+ result: VAL
+}
+
+
+
+A: {3,3,2,2,0}
+B: {0,2,3,2,1}
+output A=3 named ""
+output B=3 named ""
+

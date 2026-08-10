@@ -1,0 +1,136 @@
+MISS: 0
+HIT: 1
+MAGICMISS: 2
+
+SMALLHIT: 3
+REGHIT: 4
+BIGHIT: 5
+VBIGHIT: 6
+
+DFOUR: 0
+DSIX: 0
+DEIGHT: 0
+DTEN: 0
+DTWELVE: 0
+
+function: check wound ROLL:n{
+ if ROLL > 1 {result: 1}
+ result: 0
+}
+
+function: damage for DIE:n rolling ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL + ATTACK >= DEFENSE { 
+  if DIE > 1{result: 1}
+  result: 0
+ }
+ result: 0
+}
+
+function: check die step DIE:n for HITSIZE:n{
+ if HITSIZE = SMALLHIT{
+  TEMP: DIE-2
+  if TEMP < 3 {TEMP: 3}
+  result: TEMP
+ }
+ if HITSIZE = BIGHIT{
+  if DIE = 12{
+   result: 20
+  }
+  result: DIE+2
+ }
+ result: DIE
+}
+
+function: attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+ }
+ result: RESULT
+}
+
+function: multiattack against DIE:n with NUM:n attacks doing NUMWOUNDS:n DAMAGE:n with CHANCE:n to hit against AC:n{
+ RESULT: 0
+
+ loop N over{1..NUM}{
+  RESULT: RESULT + [attack against DIE doing NUMWOUNDS DAMAGE rolling 1d20 plus CHANCE to hit against AC]
+ }
+ result: RESULT
+}
+
+function: magic attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+  else{
+   RESULT: RESULT + [check wound [lowest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+ }
+ result: RESULT
+}
+
+function: favorable magic attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound [highest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+  else{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+ }
+ result: RESULT
+}
+
+function: explosive attack against DIE:n doing NUMWOUNDS:n DAMAGE:n rolling ROLL:n plus CHANCE:n to hit against AC:n{
+ RESULT: 0
+ HITRESULT: 0
+ if ROLL + CHANCE > AC { HITRESULT: HIT}
+ else{HITRESULT: MAGICMISS}
+ loop N over {1..NUMWOUNDS}{
+  if HITRESULT = HIT{
+   RESULT: RESULT + [check wound 1d[check die step DIE for DAMAGE]]
+  }
+  else{
+   RESULT: RESULT + [check wound [lowest 1 of 2d[check die step DIE for DAMAGE]]]
+  }
+  DIE: DIE + 2
+  if DIE > 12 {DIE: 12}
+ }
+ result: RESULT
+}
+
+output [magic attack against 4 doing 1 REGHIT rolling 1d20 plus 3 to hit against 15] named "Magic Test"
+output [multiattack against 4 with 1 attacks doing 1 REGHIT with 3 to hit against 15] named "Weapon Benchmark"
+
+output [magic attack against 4 doing 5 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "5th slot normal"
+output [favorable magic attack against 4 doing 4 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "5th slot Empowered"
+
+output [explosive attack against 4 doing 5 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "Explosive test"
+
+output [magic attack against 4 doing 5 SMALLHIT rolling 1d20 plus 3 to hit against 15] named "5th slot normal"
+
+\output [multiattack against 4 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d4 doing 2sW"
+output [multiattack against 6 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d6 doing 2sW"
+output [multiattack against 8 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d8 doing 2sW"
+output [multiattack against 10 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d10 doing 2sW"
+output [multiattack against 12 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d12 doing 2sW"
+
+output [multiattack against 4 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attacks against 1d4 doing 1W"
+output [multiattack against 6 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d6 doing 1W"
+output [multiattack against 8 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d8 doing 1W"
+output [multiattack against 10 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d10 doing 1W"
+output [multiattack against 12 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d12 doing 1W"\

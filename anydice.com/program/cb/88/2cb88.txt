@@ -1,0 +1,40 @@
+PROF : 3
+MOD : 4
+AC: 15
+MAGIC: 0
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+
+function: first attack ROLL:n and second attack SROLL:n plus first BONUS:n and second SBONUS:n vs AC:n for first DMG:d crit CRIT_DMG:d and second SDMG:d crit SCRIT_DMG:d on CRIT_RANGE:n and SNEAK:d {
+    if ROLL = 1 {
+        result: [attack SROLL plus SBONUS vs AC for SDMG+SNEAK crit SCRIT_DMG+SNEAK on CRIT_RANGE]
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG + 2dSNEAK + [attack SROLL plus SBONUS vs AC for SDMG crit SCRIT_DMG on CRIT_RANGE]
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG+SNEAK + [attack SROLL plus SBONUS vs AC for SDMG crit SCRIT_DMG on CRIT_RANGE]
+    }
+    result: [attack SROLL plus SBONUS vs AC for SDMG crit SCRIT_DMG on CRIT_RANGE]
+}  
+
+X : [first attack [highest 1 of 2d20] and second attack 1d20 plus first MOD+PROF+MAGIC and second MOD+PROF+MAGIC vs AC for first 1d6+MOD+MAGIC crit 1d6 and second 1d6+MAGIC crit 1d6 on 20 and 3d6]
+
+Y : [first attack [highest 1 of 2d20] and second attack 1 plus first MOD+PROF+MAGIC and second MOD+PROF+MAGIC vs AC for first 1d8+MOD+MAGIC crit 1d8 and second 0 crit 0 on 20 and 3d6]
+
+Z: [first attack [highest 1 of 2d20] and second attack 1d20 plus first MOD+MAGIC and second MOD+MAGIC+PROF vs AC for first 1d6+MOD+MAGIC+2*PROF crit 1d6 and second 1d6+MAGIC crit 1d6 on 20 and 3d6]
+output X named "5th level rogue with 2 shortswords using steady aim"
+output Y named "5th level rogue with longbow using steady aim"
+output Z named "5th level rogue with 2 shortswords using steady aim and power attack on first strike"

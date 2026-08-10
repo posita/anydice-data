@@ -1,0 +1,40 @@
+SIZE: 6
+WEAK: 1
+STRONG: 2
+LOW: 6
+HIGH: 6
+
+function: fringe A:n {
+  if A >= STRONG {result: 10}
+  else if A >= WEAK {result: 5}
+  else {result: 0}
+}
+
+function: apoc A:n {
+  if A >= 10 {result: 10}
+  else if A >= 7 {result: 5}
+  else {result: 0}
+}
+
+function: blades A:n {
+  if A >= 6 {result: 10}
+  else if A >= 4 {result: 5}
+  else {result: 0}
+}
+
+loop MOD over {-2..3} {
+  output [apoc (2d6 + MOD)] named "Apoc 2d6 + [MOD]"
+}
+
+loop DICE over {0..4} {
+  if (DICE <= 0) {
+    output [blades [lowest 1 of 2d6]] named "Blades [DICE]d6" 
+  }
+  else {
+    output [blades [highest 1 of DICEd6]] named "Blades [DICE]d6"
+  }
+}
+
+loop DICE over {1..10} {
+  output [fringe [count {LOW..HIGH} in DICEdSIZE]] named "Fringe [DICE]d[SIZE]"
+}

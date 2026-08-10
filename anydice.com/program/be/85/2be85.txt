@@ -1,0 +1,38 @@
+function: X:n is odd {
+  result: ((X / 2 * 2) != X)
+}
+function: negifodd X:n {
+  result: 1 - 2 * [X is odd]
+}
+function: wrap X:n in BOUNDS:s {
+  BOUNDS: [sort BOUNDS]
+  if X < 2@BOUNDS {
+    result: 2@BOUNDS
+  }
+  if X > 1@BOUNDS {
+    result: 1@BOUNDS
+  }
+  result: X
+}
+
+function: genesix BOUNDS:s in X:s and Y:s {
+  A: [wrap 1@[sort {X, Y}] in BOUNDS]
+  B: [wrap 2@[sort {X, Y}] in BOUNDS]
+  if (A = 1) & (B = 1) {
+    result: -100
+  }
+  if (A = 6) & (B = 6) {
+    result: 100
+  }
+  if A = B {
+    result: 10 * [negifodd A]
+  }
+  if [A is odd] = [B is odd] {
+    result: 1 * [negifodd A]
+  }
+  result: 0
+}
+
+output [genesix {1, 5} in d6 and d6] named "disadvantage"
+output [genesix {1, 6} in d6 and d6] named "normal"
+output [genesix {2, 6} in d6 and d6] named "advantage"

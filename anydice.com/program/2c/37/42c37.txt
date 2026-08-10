@@ -1,0 +1,170 @@
+\ (F = ROLL) counts how many dice show face F \
+
+function: one pair ROLL:s {
+  MAXSAME: 0
+  NPAIR: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+    if C >= 2 { NPAIR: NPAIR + 1 }
+  }
+  RUN: 0
+  CUR: 0
+  loop F over {1..6} {
+    CUR: (CUR + 1) * ((F = ROLL) >= 1)
+    if CUR > RUN { RUN: CUR }
+  }
+  if (MAXSAME = 2) & (NPAIR = 1) & (RUN < 4) {
+    if (1 = ROLL) >= 2 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: two pair ROLL:s {
+  MAXSAME: 0
+  NPAIR: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+    if C >= 2 { NPAIR: NPAIR + 1 }
+  }
+  RUN: 0
+  CUR: 0
+  loop F over {1..6} {
+    CUR: (CUR + 1) * ((F = ROLL) >= 1)
+    if CUR > RUN { RUN: CUR }
+  }
+  if (MAXSAME = 2) & (NPAIR = 2) & (RUN < 4) {
+    if (1 = ROLL) >= 2 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: three pair ROLL:s {
+  MAXSAME: 0
+  NPAIR: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+    if C >= 2 { NPAIR: NPAIR + 1 }
+  }
+  if (MAXSAME = 2) & (NPAIR = 3) {
+    if (1 = ROLL) >= 2 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: one triple ROLL:s {
+  MAXSAME: 0
+  NPAIR: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+    if C >= 2 { NPAIR: NPAIR + 1 }
+  }
+  RUN: 0
+  CUR: 0
+  loop F over {1..6} {
+    CUR: (CUR + 1) * ((F = ROLL) >= 1)
+    if CUR > RUN { RUN: CUR }
+  }
+  if (MAXSAME = 3) & (NPAIR = 1) & (RUN < 4) {
+    if (1 = ROLL) >= 3 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: full house ROLL:s {
+  MAXSAME: 0
+  NPAIR: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+    if C >= 2 { NPAIR: NPAIR + 1 }
+  }
+  if (MAXSAME = 3) & (NPAIR >= 2) {
+    if (1 = ROLL) >= 2 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: poker ROLL:s {
+  MAXSAME: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+  }
+  if MAXSAME = 4 {
+    if (1 = ROLL) >= 4 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: five of a kind ROLL:s {
+  MAXSAME: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+  }
+  if MAXSAME = 5 {
+    if (1 = ROLL) >= 5 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: six of a kind ROLL:s {
+  MAXSAME: 0
+  loop F over {1..6} {
+    C: (F = ROLL)
+    if C > MAXSAME { MAXSAME: C }
+  }
+  if MAXSAME = 6 {
+    if (1 = ROLL) >= 6 { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: small straight ROLL:s {
+  RUN: 0
+  CUR: 0
+  loop F over {1..6} {
+    CUR: (CUR + 1) * ((F = ROLL) >= 1)
+    if CUR > RUN { RUN: CUR }
+  }
+  if RUN = 4 {
+    if ((1=ROLL)>=1) & ((2=ROLL)>=1) & ((3=ROLL)>=1) & ((4=ROLL)>=1) { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+function: large straight ROLL:s {
+  RUN: 0
+  CUR: 0
+  loop F over {1..6} {
+    CUR: (CUR + 1) * ((F = ROLL) >= 1)
+    if CUR > RUN { RUN: CUR }
+  }
+  if RUN >= 5 {
+    if ((1=ROLL)>=1) & ((2=ROLL)>=1) & ((3=ROLL)>=1) & ((4=ROLL)>=1) { result: -1 }
+    result: 1
+  }
+  result: 0
+}
+
+output [one pair 6d6] named "Pair"
+output [one triple 6d6] named "Triple"
+output [poker 6d6] named "Poker"
+output [two pair 6d6] named "Two Pair"
+output [three pair 6d6] named "Three Pair"
+output [full house 6d6] named "Full House"
+output [small straight 6d6] named "Small Straight"
+output [large straight 6d6] named "Large Straight"

@@ -1,0 +1,60 @@
+\********** basic curves of Highest/Lowest vs Target Count **********\
+
+Q: {0,1,1,1,1,1}    \XdQ=Xd(d6>=2) : used for the sum of successes (on 2+) instead of the sum of face's values\
+\output [highest 10 of 16dQ] named "H10 of 16"
+output 10d(d6>=2) named "10d6 on 2+"
+output [lowest 10 of 16dQ] named "L10 of 16"\
+
+
+
+\********** curves of Highest/Lowest then Target Count **********\
+\Ex : roll x dices, keep highest/lowest y dices, then removes all under the target.\
+
+KEEP: 3
+POOL: 10
+SUM: 0
+
+\output SUMd6+ [highest KEEP of POOLd(d6>=2)] named "T(2+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [highest KEEP of POOLd(d6>=4)] named "T(4+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [highest KEEP of POOLd(d6>=6)] named "T(6+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=2)] named "T(2+) from [POOL] then L[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=4)] named "T(4+) from [POOL] then L[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=6)] named "T(6+) from [POOL] then L[KEEP] + Sum of [SUM]d6"\
+
+
+\********** use of a Generic Chart (based on 8d6) **********\
+function: chart ROLL:n MODS:s{              \with post-roll modifiers\
+ CHART: {3, 5, 6, 7}                        \for 4 Life pts, based on 8d6(on4+)\
+\ if (ROLL >= 7@CHART){result: 7}
+ if (ROLL >= 6@CHART){result: 6}
+ if (ROLL >= 5@CHART){result: 5}\
+ if (ROLL >= 4@CHART){result: 4}
+ if (ROLL >= 3@CHART){result: 3}
+ if (ROLL >= 2@CHART){result: 2}
+ if (ROLL >= 1@CHART){result: 1}
+ if (ROLL+1@MODS < 1@CHART){result: 0}
+ result: 0
+}
+
+     \TODO\
+function: roll modified DICES:n DIR_KEEP:n KEEP:n T:n DIR_MODS:n MODS:s{
+\with pre-roll modifiers : POOL, Low/Hight, Target\
+ FINAL_POOL: DICES + 1@MODS
+ if (DIR_MODS){                                       \use lowest/highest before(1) or after(0) target count\
+  if (DIR_KEEP){result: [highest KEEP of FINAL_POOLd(d6>=T)]}
+  else{result: [lowest KEEP of FINAL_POOLd(d6>=T)]}
+ } else{
+  if (DIR_KEEP){result: [highest KEEP of FINAL_POOLd6]d(d6>=T)}
+  else{result: [lowest KEEP of FINAL_POOLd6]d(d6>=T)}
+ }
+ result: 0
+}
+
+
+
+KEEP: 5
+POOL: 10
+SUM: 0
+
+output [chart [highest KEEP of POOLd(d6>=2)] 0]
+output [chart [highest KEEP of POOLdQ]d(d6>=2) 0]

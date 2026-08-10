@@ -1,0 +1,41 @@
+\ Permet de calculer le nombre de succÃ¨s avec la mÃ©canique des "Doubles succÃ¨s" \
+function: doublesuccess ROLL:s {
+  COUNT: 0
+  loop N over {6..1@ROLL} {
+    S: [count N in ROLL]
+    if S/2 > 0 { \If there are doubles, then double the number of these successes\
+      COUNT: COUNT + 2*S
+    } else {
+      COUNT: COUNT + S
+    }
+  }
+  result: COUNT
+}
+
+\ Permet de calculer le nombre de succÃ¨s avec la mÃ©canique des "Doubles succÃ¨s" \
+function: regularsuccess ROLL:s {
+  result: [count {6, 7, 8, 9, 10} in ROLL]
+}
+
+\ Permet de calculer les chances d'avoir AUÂ MOINSÂ n succÃ¨s dans un jet sans la rÃ¨gle des doubles succÃ¨s\
+function: regularsuccessrate REQUIREDSUCCESSES:n in DICE:s {
+  SUCCESSES: [regularsuccess DICE]
+  result: SUCCESSES >= REQUIREDSUCCESSES
+}
+
+\ Permet de calculer les chances d'avoir AUÂ MOINSÂ n succÃ¨s dans un jet avec la rÃ¨gle des doubles succÃ¨s\
+function: doublesuccessrate REQUIREDSUCCESSES:n in DICE:s {
+  SUCCESSES: [doublesuccess DICE]
+  result: SUCCESSES >= REQUIREDSUCCESSES
+}
+
+\ output [critsuccess 4d10] named "With Crit Rolls" \
+\ output [count {6, 7, 8, 9, 10} in 4d10] named "Without Crits" \
+
+ROLL: 5d10
+THRESHOLD: 4
+
+output [regularsuccessrate THRESHOLD in ROLL] named "Chance de RÃ©ussite de Base"
+output [doublesuccessrate THRESHOLD in ROLL] named "Chance de RÃ©ussite avec Doubles Critiques"
+output [regularsuccess ROLL] named "DÃ©tail du Jet de Base"
+output [doublesuccess ROLL] named "DÃ©tail du Jet avec Doubles Critiques"

@@ -1,0 +1,85 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  result: CRITICALHIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: advantageattack FIRSTROLL:n and SECONDROLL:n vs DEFENSE:n {
+ if FIRSTROLL= 20 | SECONDROLL= 20{
+ result: CRITICALHIT }
+ if FIRSTROLL+ ATTACK >= DEFENSE | SECONDROLL+ ATTACK >= DEFENSE{
+ result: HIT}
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for ([attack d20 vs DEFENSE])]
+}
+
+function: advantageattack {
+ result: [damage for ([advantageattack d20 and d20 vs DEFENSE])]
+}
+
+
+
+DEFENSE: d{12..16}
+
+ATTACK: 4 + 2+1
+HITDAMAGE: d4+2
+CRITICALDAMAGE: 2d4+2
+MISSDAMAGE: 0
+output 4d[attack] named "4S Spheres"
+
+ATTACK: 4 + 2+1
+HITDAMAGE: d6 + 3
+CRITICALDAMAGE: 2d6 + 3
+output 2d[attack] named "2 M Spheres"
+
+ATTACK: 4 + 2+1
+HITDAMAGE: d8 + 6
+CRITICALDAMAGE: 2d8 + 4
+output [attack] named "1 L Sphere"
+
+ATTACK: 10
+HITDAMAGE: d8 + 5
+CRITICALDAMAGE: 2d8 + 5
+output [attack] named "LongBow"
+
+ATTACK: 4 + 2+1
+HITDAMAGE: d6 + 4 + 1
+CRITICALDAMAGE: 2d6 + 4
+output 2d[attack] named "2 Hand Axe"
+
+ATTACK: 4 + 2 + 1
+HITDAMAGE: d4 + d6 + 4 + 1
+CRITICALDAMAGE: 2d6 + 4
+output 2d[attack] named "2 Hand Ice Axe"
+
+ATTACK: 4 + 2 + 1
+HITDAMAGE: d4 + 4 + 1
+CRITICALDAMAGE: 2d4 + 4
+output 2d[attack] named "2 Daggers"
+
+ATTACK: 4 + 2 + 1
+HITDAMAGE: d6 + d4 + 4+1
+CRITICALDAMAGE: 2d6 + 2d4 + 4
+output 2d[attack] named "2 Daggers Sneak"
+
+output 2d[advantageattack] named "2 Daggers Sneak advantage"

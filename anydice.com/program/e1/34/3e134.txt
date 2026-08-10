@@ -1,0 +1,33 @@
+\AD&D Henchmen locating calculator (implementing the rules on page 35 of the 1979 DMG)\
+
+\Fill out the variables below\
+
+NUM_TAVERNS:6    \Number of Taverns visited, this calculator assumes that you are spending 50 g.p. at each tavern (word to the wise: never go to more than 6 taverns)\
+BOOL_NOTICES:1   \Set to 1 if you have posted notices, 0 otherwise\
+BOOL_AGENTS:1    \Set to 1 if you have hired agents, 0 otherwise\
+BOOL_CRIER:0     \Set to 1 if you have hired a crier, 0 otherwise\
+
+\You don't need to mess with anything below here\
+
+if NUM_TAVERNS > 0 { \Determining if taverns are being used\
+   BOOL_TAVERNS:1
+}else {
+   BOOL_TAVERNS:0
+}
+
+NUM_METHODS:BOOL_TAVERNS+BOOL_NOTICES+BOOL_AGENTS+BOOL_CRIER \summing the number of methods used for the effort duplication penalty\
+
+if NUM_METHODS = 1 { \Determine if there should be a duplication penalty\
+   BOOL_DUPLICATION_PENALTY:0
+}else {
+   BOOL_DUPLICATION_PENALTY:1
+}
+
+TAVERNS:(((NUM_TAVERNS*5)d4)-(NUM_TAVERNS^2)) \assuming 50 g.p. per tavern, at each 5d4 is rolled and the total number of taverns visited is subtracted\
+NOTICES:BOOL_NOTICES*(1d31+9)                 \using a weird die to get an easy flat set of chances as well as the variable from before to toggle activity\
+AGENTS:BOOL_AGENTS*(1d31+19)                  \same trick\
+CRIER:BOOL_CRIER*(1d10)                       \simple, bad odds, but simple\
+
+DUPLICATION_PENALTY:BOOL_DUPLICATION_PENALTY*NUM_METHODS*5 \the penalty is 5% taken away from each method but is summed here because it's easier\
+
+output TAVERNS + NOTICES + AGENTS + CRIER - DUPLICATION_PENALTY \final sum\

@@ -1,0 +1,105 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: images IMAGES:n imageac DEXAC:n imageroll IROLL:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n use USE:d pass PASS:d {
+   if IMAGES = 3 {
+        if IROLL >= 6 {
+		if ROLL = 1{ result: PASS }
+                if ROLL >= CRIT_RANGE { result: USE }
+		if ROLL + BONUS >= DEXAC { result: USE }
+		if ROLL + BONUS < DEXAC { result: PASS }		
+	}
+	if IROLL < 6 {
+		if ROLL = 1{ result: PASS  }
+		if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }
+	}
+    }
+    if IMAGES = 2 {
+        if IROLL >= 8{
+		if ROLL = 1{ result: PASS  }
+                if ROLL >= CRIT_RANGE { result: USE }
+		if ROLL + BONUS >= DEXAC { result: USE }
+		if ROLL + BONUS < DEXAC { result: PASS }		
+	}
+	if IROLL < 8{
+		if ROLL = 1{ result: PASS  }
+		if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }	
+	}
+	
+    }
+    if IMAGES = 1 {
+        if IROLL >= 11{
+	        if ROLL = 1{ result: PASS }
+                if ROLL >= CRIT_RANGE { result: USE }
+	        if ROLL + BONUS >= DEXAC { result: USE }
+	        if ROLL + BONUS < DEXAC { result: PASS }
+	}
+	if IROLL < 11{
+		if ROLL = 1{ result: PASS  }
+	        if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }
+	}
+    }
+    if IMAGES = 0 {
+        if ROLL = 1{ result: PASS  }
+		if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }
+    }
+}
+
+function: images IMAGES:n imageac DEXAC:d imageroll IROLL:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d {
+
+    A: 0
+    B: 0
+    C: 0
+    D: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        D: [images 3 imageac DEXAC imageroll IROLL roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use C pass D] 
+        C: [images 2 imageac DEXAC imageroll IROLL roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use B pass C] 
+        B: [images 1 imageac DEXAC imageroll IROLL roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use A pass B] 
+        A: ATTACK + A
+    }
+
+    if IMAGES = 3 {
+        result: D
+    }
+    if IMAGES = 2 {
+        result: C
+    }
+    if IMAGES = 1 {
+        result: B
+    }
+    if IMAGES = 0 {
+        result: A
+    }
+}
+
+ATTACKS: 6
+
+output 
+[images 3 imageac 11 imageroll 1d20 attacks 5 roll 1d20 plus 3 vs 21 for 1d8+1 crit 1d8 on 20] named "Damage Taken With Mirror Image (AC 21)"
+
+output 
+[images 0 imageac 11 imageroll 1d20 attacks 5 roll 1d20 plus 3 vs 21 for 1d8+1 crit 1d8 on 20] named "Damage Taken Without Mirror Image (AC 21)"
+
+output 
+[images 0 imageac 11 imageroll 1d20 attacks 5 roll [lowest 1 of 2d20] plus 3 vs 21 for 1d8+1 crit 1d8 on 20] named "Damage Taken With Blur (AC 21)"

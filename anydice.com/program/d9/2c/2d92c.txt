@@ -1,0 +1,68 @@
+\RED ja BLUE on noppien mÃ¤Ã¤rÃ¤. HIT, STAR ja LIGHTNING ovat haluttuja vÃ¤himmÃ¤ismÃ¤Ã¤riÃ¤\
+
+ RED: 2         \MAX 3\
+ BLUE: 2        \MAX 3\
+ HIT: 4         \0:T EI TOIMI YHDISTELMÃ„TULOKSISSA\
+ STAR: 1        \0:T EI TOIMI YHDISTELMÃ„TULOKSISSA\
+ LIGHTNING: 1   \0:T EI TOIMI YHDISTELMÃ„TULOKSISSA\
+
+
+\FUNKTIOT ALLA------------------------------------------------------------------------------------FUNKTIOT ALLA\
+
+set "position order" to "lowest first"
+
+\--------------------------------------------------------------------------------------------------------TÃ„HDET\
+
+output REDd{0:8,1:2} + BLUEd{0:7,1:3} >=STAR named "VÃ„HINTÃ„Ã„N TÃ„HDET:"
+
+\-------------------------------------------------------------------------------------------------------SALAMAT\
+
+output REDd{0:6,1:3,2:1} + BLUEd{0:8,1:2} >=LIGHTNING named "VÃ„HINTÃ„Ã„N SALAMAT:"
+
+\----------------------------------------------------------------------------------------------TÃ„HDET + SALAMAT\
+
+\(POSITIOT ON KÃ„Ã„NNETTY - LOWEST FIRST)\
+\TÃ„HDET ON KYMPPEJÃ„ JA SALAMAT ON YKKÃ–SIÃ„\
+
+function: starlightning A:n {
+ if 1@A >= LIGHTNING & 2@A >= STAR {result: 1}
+ result: 0
+}
+
+output [starlightning REDd{0:4,1:3,2:1,10:2} + BLUEd{0:5,1:2,10:3}] named "VÃ„HINTÃ„Ã„N TÃ„HDET+SALAMAT (EI TOIMI NOLLILLA)"
+
+\-------------------------------------------------------------------------------------------------HITIT + TÃ„HDET\
+
+\(POSITIOT ON KÃ„Ã„NNETTY - LOWEST FIRST)\
+\KYMPIT HITTEJÃ„, YKKÃ–SET HITTITÃ„HTIÃ„\
+
+function: hitstar A:n {
+ if (1@A + 2@A) >= HIT & 2@A >= STAR {result: 1}
+ result: 0
+}
+
+output [hitstar REDd{0:3,10:4,20:1,1:2} + BLUEd{0:5,10:2,1:3}] named "HITIT + TÃ„HDET (EI TOIMI NOLLILLA)"
+
+\-------------------------------------------------------------------------------------------------HITIT + TÃ„HDET\
+
+\(POSITIOT ON KÃ„Ã„NNETTY - LOWEST FIRST)\
+\SATASET TUPLASALAMA, KYMPIT HITTEJÃ„, YKKÃ–SET HITTISALAMOITA\
+
+function: hitlightning A:n {
+ if (1@A + 3@A) >= LIGHTNING & (2@A + 1@A) >= HIT {result: 1}
+ result: 0
+}
+
+output [hitlightning REDd{0:2,10:3,20:1,1:3,100:1} + BLUEd{0:5,10:3,1:2}] named "HITIT + TÃ„HDET (EI TOIMI NOLLILLA)"
+
+\---------------------------------------------------------------------------------------HITIT + TÃ„HDET + SALAMAT\
+
+\(POSITIOT ON KÃ„Ã„NNETTY - LOWEST FIRST)\
+\2TONNIA ON TUPLAHITTI, TONNI ON HITTI, SATASET ON TÃ„HTIHITTI, KYMPIT ON SALAMAHITTI, YKKÃ–SET ON TUPLASALAMA\
+
+function: hitstarlightning A:n {
+ if (2@A + 3@A + 4@A) >= HIT & 3@A >= STAR & ((1@A * 2) + 2@A) >= LIGHTNING {result: 1}
+ result: 0
+}
+
+output [hitstarlightning REDd{0:2,2000:1,1000:1,100:2,10:3,1:1} + BLUEd{0:5,100:3,10:2}] named "VÃ„HINTÃ„Ã„N HITIT+TÃ„HDET+SALAMAT (EI TOIMI NOLLILLA)"

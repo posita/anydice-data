@@ -1,0 +1,22 @@
+function: check TARGET:n DICE:s {
+  result: [check TARGET DICE helper 1]
+}
+
+function: check TARGET:n DICE:s helper MAX:n {
+  REROLLS: [count 1 in DICE]
+
+  if MAX != 0 & REROLLS != 0 {
+    if REROLLS > 2 {
+      REROLLS: 3
+    }
+    result: [count {1..TARGET} in DICE] + [check TARGET REROLLSd12 helper MAX - 1]
+  } else {
+    result: [count {1..TARGET} in DICE]
+  }
+}
+
+loop SIDES over {2,4,6,8,10,12,20} {
+  loop TARGET over {2,6,10} {
+    output [check TARGET 3dSIDES] named "d[SIDES] vs [TARGET]"
+  }
+}

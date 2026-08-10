@@ -1,0 +1,37 @@
+AC:15 \enemy AC\
+ZOMBIES:8 \Assuming small- or medium-size target\
+SKELETONS:130 \130 is the theoretical maximum, 148 if Undead Thralls also allows Animate Dead to reassert control over an additional undead\
+EBATTACKS:4 \4 at level 20\
+CHA:5
+PB:6 \6 at level 20\
+
+DPR:0
+function: X:n zombieattack{
+  if X = 1 {result: 0}
+  if X+3 < AC {result: 0}
+  if X = 20 {result: 2d6 + 1}
+  result: 1d6 + 1 + PB
+}
+loop A over {1..ZOMBIES}{
+  DPR: DPR + [d20 zombieattack]
+}
+function: X:n skeletonattack{
+  if X = 1 {result: 0}
+  if X+4 < AC {result: 0}
+  if X = 20 {result: 2d6 + 2 + PB}
+  result: 1d6 + 2 + PB
+}
+loop A over {1..SKELETONS}{
+  DPR: DPR + [d20 skeletonattack]
+}
+function: X:n ebattack{
+  if X = 1 {result: 0}
+  if X+CHA+PB < AC {result: 0}
+  if X = 20 {result: 2d10}
+  result: 1d10
+}
+loop A over {1..EBATTACKS}{
+  DPR: DPR + [d20 ebattack]
+}
+
+output DPR

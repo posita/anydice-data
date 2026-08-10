@@ -1,0 +1,242 @@
+\---------------------------------------------------------------------------------------------------------------------------\
+\                                                                                                                           \
+\------------------  Seja bem-vindo ao programa de cÃ¡lculo de dano e ataque para o D&D Quinta EdiÃ§Ã£o.  -------------------- \
+\                                                                                                                           \
+\                                                                                                  VersÃ£o: 0.4 - 22/11/2017 \
+\---------------------------------------------------------------------------------------------------------------------------\
+\  ----- Como usar -----                                                                                                    \
+\---------------------------------------------------------------------------------------------------------------------------\
+\                                                                                                                           \
+\ Modifique as variÃ¡veis abaixo para encontrar o dano para o tipo de personagem. Clique em "Calculate" em seguida.          \
+\     2                                                                                                                      \
+\ --- Resultados:                                                                                                           \
+\ Em "Graph" vocÃª poderÃ¡ ver grÃ¡ficos de linhas de dano.                                                                    \
+\   * Eixo horizontal: dano causado. Marque a opÃ§Ã£o "At Least" se quiser saber "Pelo menos x de dano"                       \
+\   * Eixo vertical: porcentagem de chance de causar tal dano.                                                              \
+\   * Legenda: (MÃ©dia/Desvio PadrÃ£o) de dano causado contra cada CA, em ataques normais, com vantagem ou com desvantagem.   \
+\                                                                                                                           \
+\ Em "Tables" vocÃª poderÃ¡ ver tabelas e grÃ¡ficos de colunas de dano.                                                        \
+\   * Coluna #: Cada quantidade de dano causado                                                                             \
+\   * TÃ­tulo da tabela: contra qual CA este dano estÃ¡ tabelado. TambÃ©m inclui (MÃ©dia/Desvio PadrÃ£o)                         \
+\   * Coluna %: Chance de causar tal quantidade de dano. As colunas dos grÃ¡ficos tambÃ©m indicam esta chance.                \
+\                                                                                                                           \
+\ Caso utilize a opÃ§Ã£o "ATTACKONLY", para ver apenas a chance de acerto, 0 significa erro, 1 significa acerto, e 2 significa\
+\ acerto crÃ­tico. Marque a opÃ§Ã£o "Transposed" para poder observar melhor os resultados.                                     \
+\                                                                                                                           \
+\---------------------------------------------------------------------------------------------------------------------------\
+
+\---------------------------------------------------------------------------------------------------------------------------\
+\    VariÃ¡veis, ajuste estas para mudar o resultado.                                                                        \
+\                                                                                                                           \
+\    Exemplo: No programa padrÃ£o, as variÃ¡veis abaixo constituem:                                                           \
+\      Um ataque +5 que causa 1d8 + 3, testado contra CAs de 11 a 14.                                                       \
+\---------------------------------------------------------------------------------------------------------------------------\
+ATTACK: 5                         \ Aqui Ã© o modificador de ataque do personagem. \
+NUMDIE: 1                         \ Este Ã© o nÃºmero de dados rolados no dano. Exemplo: 2 para uma greatsword (2d6)\
+DIE: 8                            \ Este Ã© o tipo de dado rolado no dano. Exemplo: 8 para d8. \
+MOD: 3                            \ Este Ã© o modificador de dano do personagem.\
+ACRANGE: {11..14}                 \ Insira aqui o intervalo de CAs contra as quais vocÃª quer testar o dano. Ex: {10..16} testarÃ¡ contra as CAs 10,11,12,(...),16. \
+
+\---------------------------------------------------------------------------------------------------------------------------\
+\    VariÃ¡veis opcionais: Feats, habilidades de classe, etc.; e modos diferentes do programa.                               \
+\---------------------------------------------------------------------------------------------------------------------------\
+ATTACKONLY: 0                      \ Coloque 0 (NÃ£o) ou 1 (Sim) se quiser ver apenas a chance de acerto, e nÃ£o o dano causado. \
+XDIE: 0                            \ Este Ã© o tipo do segundo dado do ataque (exemplo: ladino com furtivo: d6. Deixe 0 para ataques que sÃ³ possuem um tipo de dado. \
+NUMXDIE: 0                         \ Esta Ã© a quantidade de dados rolados do segundo tipo. \
+LUCKY: 0                           \ Coloque 0 (NÃ£o) ou 1 (Sim) se seu personagem possui a caracterÃ­stica da raÃ§a Halfling "Lucky". \
+GREATWEAPONFIGHTING: 0             \ Coloque 0 (NÃ£o) ou 1 (Sim) se seu personagem possui o estilo de luta "Great Weapon Fighting". \
+BRUTALCRITICAL: 0                  \ Coloque 0 (NÃ£o) caso seu personagem nÃ£o possua a habilidade "Brutal Critical" do BÃ¡rbaro, ou o nÃ­vel de tal habilidade se possuir. \
+SAVAGEATTACKER: 0                  \ Coloque 0 (NÃ£o) ou 1 (Sim) se seu personagem tem o Feat "Savage Attacker". \ 
+ELVENACCURACY: 0                   \ Coloque 0 (NÃ£o) ou 1 (Sim) se seu personagem tem o Feat "Elven Accuracy" (Xanathar's Guide to Everything, p. 74). \
+CRITRANGE: 20                      \ Insira aqui o limiar inferior do alcance crÃ­tico do personagem. Isto Ã© 20 para a maior parte dos personagens. \
+MISSDMG: 0                         \ Este Ã© o dano causado pelo personagem em um erro. \
+NUMCRITSONLY: 0                    \ Coloque (1)Sim se quiser o cÃ¡lculo apenas da quantidade de crÃ­ticos por turno. \
+ATTACKS: 1                         \ Coloque a quantidade de ataques em um turno. VÃ¡lido **APENAS** para o cÃ¡lculo da quantidade de crÃ­ticos por turno (acima).\
+NOAVERAGE: 0                       \ Coloque (1) Sim se quiser desativar a funÃ§Ã£o de cÃ¡lculo contra CAs distribuÃ­das uniformemente dentro do intervalo. \
+\---------------------------------------------------------------------------------------------------------------------------\
+
+\ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \
+
+\ NÃ£o toque o cÃ³digo abaixo a menos que queira alterar o programa! \
+
+\ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \
+
+if NUMCRITSONLY = 1 {
+ADVANTAGE: 2 + ELVENACCURACY
+
+function: roll DIE:n above CRITRANGE:n {
+ if DIE = 1 {
+  if LUCKY = 1 {result: [luckyroll 1d20]
+  } else {result: 0}
+}
+ if DIE >= CRITRANGE {result: 1
+ } else {result: 0} 
+}
+
+function: luckyroll LUCKYROLL:n {
+ if LUCKYROLL >= CRITRANGE {result: 1
+ } else {result: 0} 
+}
+
+
+
+function: number of crits nor {
+ A: 0
+ loop N over {1..ATTACKS} {
+  A: A + [roll 1d20 above CRITRANGE]
+ }
+ result: A
+}
+
+function: number of crits adv {
+ A: 0
+ loop N over {1..ATTACKS} {
+  A: A + [roll 1@ADVANTAGEd20 above CRITRANGE]
+ }
+ result: A
+}
+
+function: number of crits dis {
+ A: 0
+ loop N over {1..ATTACKS} {
+  A: A + [roll 2@2d20 above CRITRANGE]
+ }
+ result: A
+}
+
+
+output [number of crits nor] named "Quantidade de CrÃ­ticos por turno: Normal"
+output [number of crits adv] named "Quantidade de CrÃ­ticos por turno: Vantagem"
+output [number of crits dis] named "Quantidade de CrÃ­ticos por turno: Desvantagem"
+
+} else {
+
+
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+if ROLL = 1 {
+ if LUCKY = 1 {result: [luckyroll 1d20]
+ } else {result: MISS}
+}
+if ROLL = {CRITRANGE..20} {result: CRIT}
+if ROLL + ATTACK >= DEFENSE {result: HIT}
+else {result: MISS}
+}
+
+
+function: luckyroll LUCKYROLL:n {
+if LUCKYROLL = 1 {result: MISS}
+if LUCKYROLL = {CRITRANGE..20} {result: CRIT}
+if LUCKYROLL + ATTACK >= DEFENSE {result: HIT}
+else {result: MISS}
+}
+
+
+if ATTACKONLY = 0 {
+
+NUMCRITDIE: 2*(NUMDIE) + BRUTALCRITICAL
+
+HITDMG: NUMDIEdDIE + NUMXDIEdXDIE + MOD
+CRITDMG: NUMCRITDIEdDIE + (2*NUMXDIE)dXDIE + MOD
+
+\---- GREAT WEAPON FIGHTING FUNCTIONS ----\
+
+if GREATWEAPONFIGHTING = 1 {
+
+ function: reroll DIEDMG:n DIESIZE:n{
+  if DIEDMG <= 2 {
+   DIEDMG: 1dDIESIZE
+  }
+  result: DIEDMG
+ }
+
+ function: gwf rerolls DIENUM:n {
+  HITDMG: 0
+  loop N over {1..DIENUM} {
+   HITDMG: HITDMG + [reroll 1dDIE DIE]
+  }
+  result: HITDMG
+ }
+}
+\-----------------------------------------\
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = MISS {result: MISSDMG}
+ if SAVAGEATTACKER = 1 {
+    if ATTACKRESULT = HIT {
+     if GREATWEAPONFIGHTING = 1 {result: [highest of ([gwf rerolls NUMDIE] + NUMXDIEdXDIE + MOD) and ([gwf rerolls NUMDIE] + NUMXDIEdXDIE + MOD)]
+     } else {result: [highest of HITDMG and HITDMG]}  
+    } 
+    if ATTACKRESULT = CRIT {
+     if GREATWEAPONFIGHTING = 1 {result: [highest of ([gwf rerolls NUMCRITDIE] + (2*NUMXDIE)dXDIE + MOD) and ([gwf rerolls NUMCRITDIE] + (2*NUMXDIE)dXDIE + MOD)]
+     } else {result: [highest of CRITDMG and CRITDMG]}
+    }  
+  } else {
+    if ATTACKRESULT = HIT {
+     if GREATWEAPONFIGHTING = 1 {result: [gwf rerolls NUMDIE] + NUMXDIEdXDIE + MOD
+     }  else {result: HITDMG}  
+    } 
+    if ATTACKRESULT = CRIT {
+     if GREATWEAPONFIGHTING = 1 {result: [gwf rerolls NUMCRITDIE] + (2*NUMXDIE)dXDIE + MOD
+     } else {result: CRITDMG}
+    }	   
+  }   
+}
+
+
+loop AC over ACRANGE {
+output [damage for [attack 1d20 vs AC]] named "CA:[AC]"
+}
+
+if ELVENACCURACY = 0 {
+loop AC over ACRANGE {
+output [damage for [attack 1@2d20 vs AC]] named "CA:[AC]/Vantagem"
+}
+} else {
+loop AC over ACRANGE {
+output [damage for [attack 1@3d20 vs AC]] named "CA:[AC]/Vantagem"
+}
+}
+
+loop AC over ACRANGE {
+output [damage for [attack 2@2d20 vs AC]] named "CA:[AC]/Desvantagem"
+}
+
+
+if NOAVERAGE = 0 {
+
+output [damage for [attack 1d20 vs dACRANGE]] named "CA: DistribuÃ­da uniformemente dentro do alcance."
+
+if ELVENACCURACY = 0 {
+output [damage for [attack 1@2d20 vs dACRANGE]] named "CA: DistribuÃ­da uniformemente dentro do alcance./Vantagem"
+} else {
+output [damage for [attack 1@3d20 vs dACRANGE]] named "CA: DistribuÃ­da uniformemente dentro do alcance./Vantagem"
+}
+
+output [damage for [attack 2@2d20 vs dACRANGE]] named "CA: DistribuÃ­da uniformemente dentro do alcance./Desvantagem"
+}
+
+} else {
+loop AC over ACRANGE {
+output [attack 1d20 vs AC] named "CA:[AC]"
+}
+
+if ELVENACCURACY = 0 {
+loop AC over ACRANGE {
+output [attack 1@2d20 vs AC] named "CA:[AC]/V"
+}
+} else {
+loop AC over ACRANGE {
+output [attack 1@3d20 vs AC] named "CA:[AC]/V"
+}
+}
+
+loop AC over ACRANGE {
+output [attack 2@2d20 vs AC] named "CA:[AC]/D"
+}
+}
+
+}

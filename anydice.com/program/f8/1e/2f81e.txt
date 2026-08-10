@@ -1,0 +1,44 @@
+\
+Player rolls 2d6 with modifiers --> ROLL
+if ROLL >= HEIST --> Success (3)
+if ROLL >= HEIST & ROLL == BONUS --> Critical win (4) Needs to be something like 15-20%?
+?? Critical loss? like a 2-5? What is the probability of this? Needs to be something like <~5-8% (0)
+if ROLL < HEIST --> Loss --> Police rolls (1)
+------
+if PROLL >= JAIL --> Success, player is caught with loss (1)
+if PROLL >= JAIL & PROLL == PBONUS --> Critical loss (0)
+if PROLL < JAIL --> Fail, Player gets away (with minimal additional loss too) (2)
+\
+
+
+function: heist LOCATION:s player PLAYER:s bonus BONUS:n vs police POLICE:s jail JAIL:s hit HIT:n {	
+  R: 0
+  if PLAYER >= LOCATION & PLAYER = BONUS { R: 4 }     \ Critical Player Win \
+  else if PLAYER >= LOCATION { R: 3 }      \ Player Win \
+  \else if PLAYER = CL { R: 0 }\    \ Critical Player Loss defined globally like 2-4 \
+
+  else { \ Loss Scenarios -- Police Rolls \
+    if POLICE >= JAIL & POLICE = HIT { R: 0 }  \ Critical Catch from Police \
+    else if POLICE >= JAIL { R: 1 }   \ Police Win, Player is caught - deal loss \
+    else { R : 2 }       \ Neutral - Player escapes \
+  }
+  result: R
+}
+
+K: d6 + d6
+MAX: [maximum of K]
+BONUS: {4}
+MODIFIERS: {4} \ Player can play an attack card which is a -modifier next roll \
+MAX_MOD: [maximum of MODIFIERS]
+LOCATION: {3..15}
+POLICE: d6
+JAIL: {1..[maximum of POLICE]}
+HIT: 4
+
+loop L over LOCATION {
+  loop M over MODIFIERS { \Player modifiers\
+    loop B over BONUS {
+    output [heist L player K+M bonus B vs police POLICE jail JAIL hit HIT] named "heists at location [L]+ with Player mods +[M] bonus [B]"
+  }
+}
+}

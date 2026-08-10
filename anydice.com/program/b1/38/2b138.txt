@@ -1,0 +1,126 @@
+DICETYPE: 1d6
+EXPLODE: 6
+REROLL: 1
+
+DICETOROLL: 3
+TRAINING: 6
+DC: 3
+
+set "maximum function depth" to 10
+
+function: roll ROLL:n {
+ result: ROLL >= TRAINING
+}
+
+function: rollexploding ROLL:n {
+ RES: 0
+ if ROLL >= EXPLODE {
+  RES: 1 + [rollexploding DICETYPE]
+ }
+ else {
+  RES: [roll ROLL]
+ }
+ result: RES
+}
+
+function: rerollones ROLL:n {
+ if ROLL <= REROLL {
+  result: [rerollones DICETYPE]
+ }
+ else {
+  result: [roll ROLL]
+ }
+}
+
+function: rollexplodingandrerollones ROLL:n {
+ if ROLL >= EXPLODE {
+  result: 1 + [rollexplodingandrerollones DICETYPE]
+ }
+ else {
+  if ROLL <= REROLL {
+   result: [rollexplodingandrerollones DICETYPE]
+  }
+  else {
+   result: [roll ROLL]
+  }
+ }
+}
+
+function: rerollall RESULT:n under TARGET:n else FALLBACK:n {
+ if RESULT < TARGET {
+  result: FALLBACK
+ }
+ else {
+  result: RESULT
+ }
+}
+
+function: normal DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [roll DICETYPE]
+ }
+ result: RES
+}
+
+function: vigor DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [rollexploding DICETYPE]
+ }
+ result: RES
+}
+
+function: instinct DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [rerollones DICETYPE]
+ }
+ result: RES
+}
+
+function: focus DICE:n {
+ FIRSTROLL: [normal DICE]
+ SECONDROLL: [normal DICE]
+ result: [rerollall FIRSTROLL under DC else SECONDROLL]
+}
+
+
+function: vigorandinstinct DICE:n {
+ RES: 0
+ loop N over {1..DICE} {
+  RES: RES + [rollexplodingandrerollones DICETYPE]
+ }
+ result: RES
+}
+
+function: vigorandfocus DICE:n {
+ FIRSTROLL: [vigor DICE]
+ SECONDROLL: [vigor DICE]
+ result: [rerollall FIRSTROLL under DC else SECONDROLL]
+}
+
+function: instinctandfocus DICE:n {
+ FIRSTROLL: [instinct DICE]
+ SECONDROLL: [instinct DICE]
+ result: [rerollall FIRSTROLL under DC else SECONDROLL]
+}
+
+function: allmodifiers DICE:n {
+ FIRSTROLL: [vigorandinstinct DICE]
+ SECONDROLL: [vigorandinstinct DICE]
+ result: [rerollall FIRSTROLL under DC else SECONDROLL]
+}
+
+
+output [normal DICETOROLL] named "[DICETOROLL][DICETYPE] Normal dice against [TRAINING]+"
+
+output [vigor DICETOROLL] named "[DICETOROLL][DICETYPE] Vigor dice against [TRAINING]+"
+output [instinct DICETOROLL] named "[DICETOROLL][DICETYPE] Instinct dice against [TRAINING]+"
+output [focus DICETOROLL] named "[DICETOROLL][DICETYPE] Focus dice against [TRAINING]+"
+
+output [vigorandinstinct DICETOROLL] named "[DICETOROLL][DICETYPE] Vigor & Instinct dice against [TRAINING]+"
+output [vigorandfocus DICETOROLL] named "[DICETOROLL][DICETYPE] Vigor & Focus dice against [TRAINING]+"
+output [instinctandfocus DICETOROLL] named "[DICETOROLL][DICETYPE] Instinct & Focus dice against [TRAINING]+"
+
+output [allmodifiers DICETOROLL] named "[DICETOROLL][DICETYPE] Vigor & Instinct & Focus dice against [TRAINING]+"

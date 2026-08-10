@@ -1,0 +1,73 @@
+\
+Detail Flag, switch between outputs.
+\\
+DETAIL: 1
+SAMPLE: 8
+
+function: DICE:s and a N:n keep X:n
+{
+  ROLL: {}
+  ROLL: [sort {DICE, N}]
+  result: {1..X}@ROLL
+}
+
+function: DICE:s and a N:n drop X:n
+{
+  ROLL: {}
+  ROLL: [sort {DICE, N}]
+  FROM: X+1
+  TO: #ROLL
+  result: {FROM..TO}@ROLL
+}
+
+function: high
+{ result: [4d6 and a 5 keep 3] }
+
+function: low
+{ result: [3d6 and a 2 keep 3] }
+
+function: mid
+{ result: {1..3}@4d6 }
+
+function: char roll T:n
+{
+  if T = -1 { result: [low] }
+  if T = 1 { result: [high] }
+  result: [mid]
+}
+
+
+if DETAIL
+{  
+  
+  output [char roll d{-1..1}] named "Character Roll"
+  output {1..3}@4d6 named "Reference (4d6k3)"
+  output [low] named "Low Roll"
+  output [mid] named "Mid Roll"
+  output [high] named "High Roll"
+  
+} 
+if !DETAIL
+{
+  output [char roll d{-1..1}] named "Ref"
+  Z: SAMPLEd{-1..1}
+  loop I over {1..SAMPLE}
+  { 
+    J: (I@Z)
+    output [char roll I@Z] named "[I] ([J])"
+  }
+}\
+
+output {4}@4d4 named "4d4k1"
+output {3}@3d4 named "3d4k1"
+output {2}@2d4 named "2d4k1"
+output d4 named "d4"
+output {3,4}@4d4 named "4d4k2"
+output {2,3}@3d4 named "3d4k2"
+output 2d4 named "2d4"
+output {2,3,4}@4d4 named "4d4k3"
+output 3d4 named "3d4"
+output 4d4 named "4d4"
+
+
+

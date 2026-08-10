@@ -1,0 +1,49 @@
+EVASION: 10
+ATTACK: 1@(2d20)+1+1d6
+DDN: 3
+DF: 3
+
+D: DDNd6+DF
+DC: {1..DDN}@((2*DDN)d6)+DF
+
+function: dmg NUMBER:n BONUS:n {
+ result: NUMBERd6+BONUS
+}
+
+function: critdmg NUMBER:n BONUS:n {
+ result: {1..NUMBER}@((2*NUMBER)d6)+BONUS
+}
+
+function: resolvedmg ROLL:n E:n NUMBER:n BONUS:n{
+ if ROLL >= E {
+  if ROLL >= 20 {
+   result: [critdmg NUMBER BONUS]
+  }
+  else {
+   result: [dmg NUMBER BONUS]
+  }
+ }
+ else {
+  result: 0
+ }
+}
+
+
+function: resolve ROLL:n with DAM:d crit CDAM:d evasion E:n {
+ if ROLL >= E {
+  if ROLL >= 20 {
+   result: CDAM
+  }
+  else {
+   result: DAM
+  }
+ }
+ else {
+  result: 0
+ }
+}
+
+output [resolvedmg 1d20+1d6 EVASION DDN DF] named "Normal"
+output [resolvedmg 1d20+1+1@(2d6) EVASION DDN DF] named "Lock On"
+output [resolvedmg 1@(2d20)+1+1@(2d6) EVASION DDN DF] named "Particularize"
+

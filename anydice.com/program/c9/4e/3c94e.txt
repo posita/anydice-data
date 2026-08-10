@@ -1,0 +1,115 @@
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n half{
+if SAVE >= DC {result: DAMAGE/2}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n for DAMAGE:n suck{
+if SAVE >= DC {result: 0}
+if SAVE < DC {result: DAMAGE}
+}
+
+function: savethrow SAVE:n vs dc DC:n fail FAIL:n success SUCCESS{
+if SAVE >= DC {result: SUCCESS}
+if SAVE < DC {result: FAIL}
+}
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n{
+if ROLL = 20 {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+
+function: attack ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n onhit ONHIT onmiss ONMISS{
+if ROLL = 20 {result: DICE + DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT + ONHIT}
+if (TOHIT + ROLL) < AC {result: ONMISS}
+}
+
+function: attackcrit ROLL:n plus TOHIT:n vs ac AC:n for DICE:d plus FLOAT:n crange CRANGE:n{
+if ROLL >= CRANGE {result: DICE + DICE + FLOAT}
+if (TOHIT + ROLL) >= AC {result: DICE + FLOAT}
+if (TOHIT + ROLL) < AC {result: 0}
+}
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL = 20 {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: reroll DIE:n as REROLL:n if less than MIN:n{
+if DIE >= MIN {result: DIE}
+if DIE < MIN {result: REROLL}
+}
+
+function: lucky DIEA:n DIEB:n{
+if DIEA >= DIEB {result: DIEA}
+if DIEA < DIEB {result: DIEB}
+}
+
+
+function: attack ROLL:n plus BONUS:n vs ac AC:n hit HIT:d miss MISS:d crit CRIT:d crange CRANGE:n{
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attackpf ROLL:n plus TOHIT:n vs ac AC:n for DAMAGE:d map MAP:n{
+if ROLL = 20 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC+10 {result: DAMAGE + DAMAGE}
+if (TOHIT + ROLL - 5*MAP) >= AC {result: DAMAGE}
+if (TOHIT + ROLL - 5*MAP) < AC {result: 0}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n crit CRIT:n fail FAIL:n success SUCCESS:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: SUCCESS}
+if ROLL = 1 {result: CRIT}
+if ROLL + FLOAT < DC-10 {result: CRIT}
+if ROLL + FLOAT < DC {result: FAIL}
+}
+
+function: savethrowpf ROLL:n plus FLOAT:n vs dc DC:n for DAMAGE:n{
+if ROLL + FLOAT >= DC+10 {result: 0}
+if ROLL = 20 {result: 0}
+if ROLL + FLOAT >= DC {result: DAMAGE/2}
+if ROLL = 1 {result: DAMAGE*2}
+if ROLL + FLOAT < DC-10 {result: DAMAGE*2}
+if ROLL + FLOAT < DC {result: DAMAGE}
+}
+
+function: successchance ROLL:n TN:n {
+if ROLL >= TN {result: 1}
+if ROLL < TN {result: 0}
+}
+
+DECK:d{2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,11,11,11}
+
+loop TN over {1..30}{
+  output [successchance 1dDECK TN] named "Rank 1 TN [TN]"
+}
+
+loop TN over {1..30}{
+  output [successchance 2dDECK TN] named "Rank 2 TN [TN]"
+}
+
+loop TN over {1..30}{
+  output [successchance 3dDECK TN] named "Rank 3 TN [TN]"
+}
+

@@ -1,0 +1,44 @@
+function: len SEQ:s                 {result: #SEQ}
+function: sum SEQ:s                 {TOTAL: 0 loop EL over SEQ{TOTAL: TOTAL + EL} result: TOTAL}
+function: gte SEQ:s NUM:n           {IS: 0 if [sum SEQ] >= NUM {IS: 1} result: IS}
+function: lte SEQ:s NUM:n           {IS: 0 if [sum SEQ] <= NUM {IS: 1} result: IS}
+function: gt SEQ:s NUM:n            {IS: 0 if [sum SEQ] > NUM {IS: 1} result: IS}
+function: lt SEQ:s NUM:n            {IS: 0 if [sum SEQ] < NUM {IS: 1} result: IS}
+function: at least N:n X:n in SEQ:s {loop EL over SEQ{ if [count X in SEQ] >= N {result: 1}} result: 0}
+function: at least N:n clones in SEQ:s {loop EL over SEQ{loop EL over SEQ{if [count EL in SEQ] >= N{result: 1}}}result: 0}
+
+function: reroll doubles SEQ:s {
+    BONUS: 0
+    if [at least 2 0 in SEQ] {BONUS: -1}
+    if [at least 2 5 in SEQ] {BONUS: 1}
+    result: SEQ + BONUS
+}
+function: reroll edges a SEQ:s {
+    BONUS: 0
+    if [sum SEQ] <=  2 {BONUS: -[lowest 1 of 2d{0..5}]}
+    if [sum SEQ] >= 13 {BONUS:  [lowest 1 of 2d{0..5}]}
+    result: SEQ + BONUS
+}
+function: reroll edges b SEQ:s {
+    BONUS: 0
+    if [sum SEQ] <=  2 {BONUS: -[lowest 1 of 1d{0..5}]}
+    if [sum SEQ] >= 13 {BONUS:  [lowest 1 of 1d{0..5}]}
+    result: SEQ + BONUS
+}
+function: reroll edges c SEQ:s {
+    BONUS: 0
+    if [sum SEQ] <=  1 {BONUS: -[lowest 1 of 1d{0..5}]}
+    if [sum SEQ] >= 14 {BONUS:  [lowest 1 of 1d{0..5}]}
+    result: SEQ + BONUS
+}
+function: reroll edges e SEQ:s {
+    BONUS: 0
+    if [sum SEQ] <= 0  {BONUS: -[lowest 1 of d{0..5}]}
+    if [sum SEQ] >= 15 {BONUS:  [lowest 1 of d{0..5}]}
+    result: SEQ + BONUS
+}
+output 3d{0..5}
+output [reroll edges a 3d{0..5}] named "edges a"
+output [reroll edges b 3d{0..5}] named "edges b"
+output [reroll edges c 3d{0..5}] named "edges c"
+output [reroll edges e 3d{0..5}] named "edges e"

@@ -1,0 +1,119 @@
+function: crop SEQUENCE:n {
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+function: limits SEQUENCE:n ZERO:n MAX:n {
+ if (SEQUENCE < ZERO){result: 0}
+ if (SEQUENCE >= MAX){result: MAX}
+ result: SEQUENCE
+}
+
+function: count negativepositive target number SEQUENCE:s TARGET:n {
+ if (TARGET >= 1){result: SEQUENCE >= TARGET}
+ if (TARGET <= -1){result: SEQUENCE <= [absolute TARGET]}
+ result: 0
+}
+
+
+\************************** Functions : Highest/Lowest into Target Count (& vice versa) *******************\
+
+\apply Highest then Positive Target Number\
+function: highest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLL >= TARGET) }
+ result: COUNT
+}
+\apply Lowest then Positive Target Number\
+function: lowest NUMBER:n of ROLL:s on TARGET:n {
+ COUNT: 0
+ ROLLR: [reverse ROLL]
+ loop P over {1..NUMBER} { COUNT: COUNT + (P@ROLLR >= TARGET) }
+ result: COUNT
+}
+
+\apply Highest then Positive/Negative Target Number\
+function: count TARGET:n in highest NUMBER:n of ROLL:s {
+  TARGET_SEQ: {}
+  loop P over {1..NUMBER} { TARGET_SEQ: {TARGET_SEQ, P@ROLL} }
+  result: [count negativepositive target number TARGET_SEQ TARGET]
+}
+\apply Lowest then Positive/Negative Target Number\
+function: count TARGET:n in lowest NUMBER:n of ROLL:s {
+  ROLLR: [reverse ROLL]
+  TARGET_SEQ: {}
+  loop P over {1..NUMBER} { TARGET_SEQ: {TARGET_SEQ, P@ROLLR} }
+  result: [count negativepositive target number TARGET_SEQ TARGET]
+}
+
+\apply Target Number then limit the max (Highest or Lowest doesn't matter)\
+function: count from ROLL:s on TARGET:n keep NUMBER:n {
+ COUNT: ROLL >= TARGET
+ if(COUNT > NUMBER) { COUNT: NUMBER }
+ result: COUNT
+}
+
+\********** basic curves of Highest/Lowest vs Target Count **********\
+
+Q: {0,1,1,1,1,1}    \XdQ=Xd(d6>=2) : used for the sum of successes (on 2+) instead of the sum of face's values\
+\output [highest 10 of 16dQ] named "H10 of 16"
+output 10d(d6>=2) named "10d6 on 2+"
+output [lowest 10 of 16dQ] named "L10 of 16"\
+
+
+
+\********** curves of Highest/Lowest then Target Count + Partial Sum **********\
+\Ex : roll x dices, keep highest/lowest y dices, then removes all under the target.\
+
+KEEP: 3
+POOL: 10
+SUM: 2d6
+
+\output SUMd6+ [highest KEEP of POOLd(d6>=2)] named "T(2+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [highest KEEP of POOLd(d6>=4)] named "T(4+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [highest KEEP of POOLd(d6>=6)] named "T(6+) from [POOL] then H[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=2)] named "T(2+) from [POOL] then L[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=4)] named "T(4+) from [POOL] then L[KEEP] + Sum of [SUM]d6"
+output SUMd6+ [lowest KEEP of POOLd(d6>=6)] named "T(6+) from [POOL] then L[KEEP] + Sum of [SUM]d6"\
+
+\***************************************************************************\
+
+\
+POOL: 10
+KEEP: 5
+T: 4\
+
+\Results Validated :
+H then T = T then H (without Fails) = T then L (without Fails) = T then H (with Fails)
+L then T = T then L (with Fails)\
+
+\output [count from POOLd6 on T keep KEEP] named "Target Number then Limit (don't considers Failures : H/L same)"
+output [highest KEEP of POOLd(d6>=T)] named "Target Number then H (considers Failures)"
+output [highest KEEP of POOLd6 on T] named "H then Target Number"
+output [limits POOLd(d6>=T) 0 (POOL-KEEP)] named "equivalent of 'H then Target Number' without H"
+
+output [lowest  KEEP of POOLd(d6>=T)] named "Target Number then L (considers Failures)"
+output [lowest  KEEP of POOLd6 on T] named "L then Target Number"
+output [crop POOLd(d6>=T)-(POOL-KEEP)] named "equivalent of 'L then Target Number' without L"
+\
+
+\***************************************************************************\
+
+POOL: 4
+KEEP: 2
+T: 6
+
+output [count 4 in highest 9 of 10d6] named "Improve: +1HL,+1d, T+"
+output [count -3 in lowest 9 of 10d6] named "Improve: -1HL,+1d, T-"
+
+output 9d(d6>=4) named "Improve: +1d : 9d6(on 4+)"
+
+output [count 4 in highest 8 of 9d6] named "~Improve: +1HL, T+"                        \same as : Lim 8 of 9\
+output [count -3 in lowest 8 of 9d6] named "~Improve: -1HL, T-"                        \same as : Lim 8 of 9\
+
+output 8d(d6>=4) named "Base : 8d6(on 4+)"
+
+output [count 4 in lowest 9 of 10d6] named "~Improve: -1HL,+1d, T+"
+output [count -3 in highest 9 of 10d6] named "~Improve: +1HL,+1d, T-"
+
+output [count 4 in lowest 8 of 9d6] named "Worsen: -1HL, T+ : 9d6(on 4+) -1"       \same as : output 9d(d6>=4) -1\
+output [count -3 in highest 8 of 9d6] named "Worsen: +1HL, T- : 9d6(on 4+) -1"     \same as : output 9d(d6>=4) -1\

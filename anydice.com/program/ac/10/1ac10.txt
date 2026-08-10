@@ -1,0 +1,40 @@
+AC: 17
+WIS: -5
+
+CHA: 4
+PROF: 3
+
+DC: 8 + CHA + PROF
+SPELL: CHA + PROF
+
+function: cast DAMAGE:d if CHECK:n succeeds with MOD:d {
+ if CHECK = 20 {result: 2dDAMAGE + MOD}
+ else if CHECK = 0 {result: 0}
+ else if CHECK + SPELL < AC {result: 0}
+ else {result: DAMAGE + MOD}
+}
+
+function: save with SAVE:n against DAMAGE:d {
+ if SAVE = 0 {result: DAMAGE}
+ else if SAVE = 20 {result: DAMAGE/2}
+ else if SAVE + WIS >= DC {result: DAMAGE/2}
+ result: DAMAGE
+}
+
+BLASTDMG: 1d10
+HEXDMG: 1d6
+SPIKEDMG: 4d8
+
+BLAST: BLASTDMG+HEXDMG
+BLAST: [cast BLAST if 1@2d20 succeeds with CHA]
+
+SPIKE: [save with d20 against SPIKEDMG]
+
+output 2dSPIKE named "Spam Mind Spike"
+
+output 2dBLAST + SPIKE + HEXDMG named "Hex adv Eldritch Blast and Mind Spike"
+
+output 4dBLAST named "Spam Hex adv Eldritch Blast"
+
+
+

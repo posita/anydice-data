@@ -1,0 +1,29 @@
+SIEGE_RATE: 1
+FORT_BASE: 20
+CITY_BASE: 15 
+TOWN_BASE: 10
+
+function: A:n bettor B:n {
+  if A {
+    result: A
+  }
+  result: B
+}
+
+function: siege BASE_THRESHOLD:n by RATE:n {
+  THRESHOLD: BASE_THRESHOLD - RATE
+  RESULT: 2d6 > THRESHOLD
+  loop WEEKS over {2..BASE_THRESHOLD} {
+    THRESHOLD: THRESHOLD - RATE
+    WEEK_RESULT: (2d6 > THRESHOLD) * WEEKS
+    RESULT : [RESULT bettor WEEK_RESULT]
+  }
+  result: RESULT
+}
+
+
+output [siege TOWN_BASE by SIEGE_RATE] named "Weeks to siege town"
+output [siege CITY_BASE by SIEGE_RATE] named "Weeks to siege city"
+output [siege FORT_BASE by SIEGE_RATE] named "Weeks to siege fortress"
+
+

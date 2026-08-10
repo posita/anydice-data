@@ -1,0 +1,52 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= 19 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack 1@2d20 vs DEFENSE]]
+}
+
+PROF: 5
+STR: 5
+AC: 20
+DEFENSE: d{13..AC}
+RAGE: 8
+RAGE_DICE: 1d6 
+POWER_HIT: -5
+POWER_DMG: 10
+DUELING: 2
+ATTACK: 10
+MISSDAMAGE: 0 
+
+
+HITDAMAGE: 1d12 + 1d6 + STR + RAGE + RAGE_DICE
+CRITICALDAMAGE: 4d12 + 2d6 + STR + RAGE + 2dRAGE_DICE
+output [attack] named "greataxe"
+ATTACK: 10 + POWER_HIT
+HITDAMAGE: 1d12 + 1d6 + STR + RAGE + RAGE_DICE + POWER_DMG
+CRITICALDAMAGE: 4d12 + 2d6 + STR + RAGE + 2dRAGE_DICE + POWER_DMG
+output [attack] named "power_greataxe"
+
+ATTACK: 12
+HITDAMAGE: 1d8 + STR + RAGE + RAGE_DICE + DUELING + 3
+CRITICALDAMAGE: 4d8 + STR + RAGE + 2dRAGE_DICE + DUELING + 3
+output [attack] named "trident"
+ATTACK: 12 + POWER_HIT
+HITDAMAGE:  1d8 + STR + RAGE + RAGE_DICE + DUELING + 3 + POWER_DMG
+CRITICALDAMAGE: 4d8 + STR + RAGE + 2dRAGE_DICE + DUELING + 3 + POWER_DMG
+output [attack] named "power_trident"

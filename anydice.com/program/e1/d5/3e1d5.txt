@@ -1,0 +1,58 @@
+
+\**********************************************************************************************\
+
+\**********************************************************************************************\
+
+function: roll ATT:n {
+ result: [test ATTd6]
+}
+
+function: test ROLL:s {
+ MAX_ROLLED: 1@ROLL
+ MIN_ROLLED: #ROLL@ROLL
+ DIFF: MAX_ROLLED - MIN_ROLLED
+
+ SUBSETS: {ROLL=MIN_ROLLED}                     \count the size of the min value rolled\
+ loop M over {1..DIFF}{                         \assemble only the counts of values between min/max of the roll\
+   SUBSETS: {SUBSETS, ROLL=(MIN_ROLLED+M)}
+ }
+
+ TEMP: 1@SUBSETS
+ RES: MIN_ROLLED
+ loop N over {1..DIFF}{                         \find the highest count & its associated face value\
+   if (TEMP <= ((N+1)@SUBSETS)) {
+     RES: MIN_ROLLED + N
+     TEMP:(N+1)@SUBSETS
+   }
+ }
+ result: RES
+}
+
+\**********************************************************************************************\
+
+function: highest of A:n idx IDX_A and B:n idx IDX_B {
+ if A > B { result: {A,IDX_A} }
+ result: {B,IDX_B}
+}
+
+function: sum all I in ROLL:s{
+ result: ROLL=I
+}
+
+function: rollbis ROLL:s{
+ A: [sum all 1 in ROLL] \1@SUBSETS\
+ IDX: 1
+ loop N over {2..6}{
+  B: [sum all N in ROLL] \N@SUBSETS\
+  VAL: [highest of A idx IDX and B idx N]
+  A: 1@VAL
+  IDX: 2@VAL
+ }
+ result: IDX
+}
+
+\**********************************************************************************************\
+
+output [roll 15]         \max 18d6 : best version\
+\output [rollbis 15d6]\  \max 15d6\
+

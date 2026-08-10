@@ -1,0 +1,78 @@
+\simplified\
+
+A: 8
+AT: 3
+
+D: 8
+DT: 4
+
+CHART:  {3, 5, 6, 8}           \Standard Bell\
+
+\**********************************************************************************************\
+function: crop SEQUENCE:n {                  \ limit the display range between [min;max] \
+ if (SEQUENCE < 0){result: 0}
+ result: SEQUENCE
+}
+
+function: use chart ROLL:n CHART:s{
+ if (ROLL >= 4@CHART){result: 4}
+ if (ROLL >= 3@CHART){result: 3}
+ if (ROLL >= 2@CHART){result: 2}
+ if (ROLL >= 1@CHART){result: 1}
+ if (ROLL < 1@CHART){result: 0}
+ result: 0
+}
+\**********************************************************************************************\
+
+function: hit A:n AT:n D:n DT:n {
+  result: [hit roll Ad6 AT D DT]
+}
+
+function: hit roll DICES:s AT:n D:n DT:n {
+  HITS: DICES >= AT
+  result: [wound Dd6 DT HITS]
+}
+
+function: wound DICES:s DT:n HITS:n {
+  WOUNDS: DICES >= DT
+  result: [use chart HITS CHART]-[use chart WOUNDS CHART]
+  \result: [use chart HITS-WOUNDS CHART]\
+}
+
+
+output [hit 6 5 3 5] named "test 1"
+
+\**********************************************************************************************\
+
+function: roll DICES:n TARGET:n {
+  result: [res roll DICESd6 TARGET]
+}
+function: res roll DICES:s TARGET:n {
+  RES: DICES >= AT
+  result: RES
+}
+
+function: damages HITS:n WOUNDS:n {
+  \UNSAVED: HITS - WOUNDS\ \[crop HITS - WOUNDS]\
+  UNSAVED: [use chart HITS CHART]-[use chart WOUNDS CHART]
+  \UNSAVED: [use chart HITS-WOUNDS CHART]\
+  result: UNSAVED
+}
+
+\**********************************************************************************************\
+
+output [damages [roll 6 5] [roll 3 5]] named "test 2"
+
+\
+loop M over {2..6}{
+ loop N over {2..6}{
+  output [hit 5 M 5 N] named "AT: [M], DT: [N]"
+}}\
+
+Q: {0,0,0,0,1,1}
+\output 6d(d6>=5) - 3d(d6>=5)
+output 6dQ - 3dQ\
+output [use chart 6dQ CHART]-[use chart 3dQ CHART] named "test 3 : Charts then Diff"
+output [use chart 6dQ-3dQ CHART] named "test 4 : Diff then Chart"
+
+

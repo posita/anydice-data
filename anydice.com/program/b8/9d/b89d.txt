@@ -1,0 +1,44 @@
+function: roll S:n x X:n over T:n {
+ R: 0
+ loop N over {1..S} { R: R + [rolltester [rolloverexploder d6 X] T] }
+ result: R
+}
+function: rolloverexploder S:n X:n {
+ if S >= X { result: S + d6 }
+ result: S
+}
+function: roll S:n x X:n vs T:n {
+ result: [roll S x X vs] - [roll T x 7 vs]
+}
+function: roll S:n x X:n vs {
+ result: [roll S x X vs over 3]
+}
+function: roll S:n x X:n vs over T:n {
+ R: 0
+ loop N over {1..S} { R: R + [rollvsexploder d6 T X] }
+ result: R
+}
+function: rollvsexploder S:n T:n X:n {
+ R: 0
+ if S > T  { R: R + 1 }
+ if S >= X { R: R + [rolltester d6 T] }
+ result: R
+}
+function: rolltester S:n T:n {
+ if S > T { result: 1 }
+ result: 0
+}
+function: limit NUMBER:n {
+ if NUMBER < 0 { result: 0 }
+ result: NUMBER
+}
+function: clip NUMBER:n M:n {
+ if NUMBER > M { result: M }
+ result: NUMBER
+}
+
+loop T over {3..8} {
+ loop S over {T} {
+  output [clip [limit [roll S x 6 vs T]] - [roll S x 6 over T] 8] named "[S]ov[T]"
+ }
+}

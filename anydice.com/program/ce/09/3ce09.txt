@@ -1,0 +1,31 @@
+ML: 90
+TL: 0
+MC: 90
+TC: 2
+SL: 20
+
+ROLL_RANGE: {1..5}
+
+function: skill S:n talent T:n roll N:n {
+  if N <= S {
+    result: (S - N) / 10 + T
+  }
+  result: (S - N) / 10
+}
+
+C_ROLL: [skill MC talent TC roll d100]
+L_ROLL: d100 <= ML
+
+function: channel R:n roll N:n {
+  if N >= SL {
+   result: 1
+  }
+  if R > 1 {
+    result: [channel R - 1 roll [highest of 0 and N + C_ROLL]]
+  }
+  result: 0
+}
+
+loop ROLLS over ROLL_RANGE {
+  output [channel ROLLS roll C_ROLL] * L_ROLL named "Max [ROLLS] rounds"
+}

@@ -1,0 +1,39 @@
+ATTR: 7
+DISC: 3
+FOCU: 1
+POOL: 3
+RERO: 2
+TN: ATTR + DISC
+
+function: roll attr ATTR:n disc DISC:n focus FOCU:n {
+  TN: ATTR + DISC
+  DOUBLE: 1
+  if FOCU = 1 {
+    DOUBLE: DISC
+  }
+  result: d{2:DOUBLE, 1:(TN-DOUBLE), 0:(20-TN)}
+}
+
+function: reroll ROLL rerolls RERO:n {
+  if ROLL = 0 {
+    if RERO > 0 {
+      TMP: [reroll ROLL rerolls RERO-1]
+      result: {1@TMP+1, 2@TMP}
+    } else {
+      result: {0, 0}
+    }
+  } else {
+    result: {0, ROLL}
+  }
+}
+
+function: multiroll DICE:n attr ATTR:n disc DISC:n focus FOCU:n rerolls RERO:n {
+  TOTAL: 0
+  loop N over {1..DICE+RERO} {
+    ROLL: [roll attr ATTR disc DISC focus FOCU]
+    TOTAL: TOTAL + ROLL
+  }
+  result: TOTAL
+}
+
+output [reroll [roll attr ATTR disc DISC focus FOCU] rerolls RERO] named "[POOL]d20"

@@ -1,0 +1,45 @@
+A: 2 \ # of Attribute Dice \
+S: 0 \ # of Skill Dice \
+B: 0 \ Bonus modifier \
+N: 0 \ Negative modifier \
+
+AN: A + S + B + N \ Action Number \
+
+D: 2 \ Difficulty Level \
+
+DEG: {-1, 0, 0, 1, 1, 2}                   \ Degenesis sequence \
+                                           \ -1 = failure and blotch \
+                                           \  0 = failure \
+                                           \  1 = success \
+                                           \  2 = success and trigger \
+
+DEGDRAW: ANdDEG                            \ drawing AN number of degenesis dice \
+
+function: degensuccess ROLL:s vs D:n {
+ SUCCESSES: ROLL > 0
+ if SUCCESSES >= D {
+  result: 1
+ }
+ if SUCCESSES < D {
+  result: 0
+ }
+}
+
+function: degendetails ROLL:s vs D:n {
+ SUCCESSES: ROLL > 0
+ if SUCCESSES >= D {
+  result: 1 + (ROLL = 2)
+ }
+ if (ROLL = -1) > SUCCESSES {
+  result: -1
+ }
+ result: 0
+}
+
+output [degensuccess DEGDRAW vs D] named "Successes (1) vs Fails(0); AN = [AN] vs D=[D]"
+output [degendetails DEGDRAW vs D] named "Botches(-1), Fails(0), Successes(1), Triggers (Above 1 minus 1); AN = [AN] vs D=[D]"
+
+output [count 6 in ANd6] named "Distribution of Triggers, Action Number = [AN]"
+
+\with thanks to Jasper for helping me sorting it out ! :) \
+

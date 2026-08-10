@@ -1,0 +1,54 @@
+\ Rolling dice to determine degree of success: \
+function: auxroll D:d rolled N:n vs TN:n {
+  RES: 0
+  if N>=(TN+10) { RES: 2}
+  if N>=TN { RES: 1 }
+  if N<=(TN-10) { RES: -1 }
+  if N=(1@[reverse {D}]) { RES: [lowest of RES+1 and 2] }
+  if N=(1@{D}) { RES: [highest of RES-1 and -1] }
+  result: RES
+}
+function: roll D:d vs TN:n {
+  result: [auxroll D rolled D vs TN]
+}
+FORTUNE: 1@2d20
+MISSFORTUNE: 2@2d20
+\ Examples: 
+    level 1 fighter strikes goblin warrior
+      [roll d20+9 vs 16]
+    level 1 magus strikes goblin warrior with sure strike
+      [roll FORTUNE+7 vs 16]
+      or
+      [roll 1@2d20+7 vs 16]
+    level 1 fighter strikes pugwampi inside unluck aura
+      [roll MISSFORTUNE+9 vs 14]
+      or
+      [rill 2@2d20+9 vs 14]
+\
+
+\ Striking for damage: \
+function: strike SUCCESS:n for DMG:n on crit CRIT:n on miss MISS:n {
+  if SUCCESS=2 { result: 2*DMG+CRIT }
+  if SUCCESS=1 { result: DMG }
+  if SUCCESS=0 { result: MISS }
+  result: 0
+}
+function: strike SUCCESS:n for DMG:n on crit CRIT:n {
+  result: [strike SUCCESS for DMG on crit CRIT on miss 0]
+}
+function: strike SUCCESS:n for DMG:n on miss MISS:n {
+  result: [strike SUCCESS for DMG on crit 0 on miss MISS]
+}
+function: strike SUCCESS:n for DMG:n {
+  result: [strike SUCCESS for DMG on crit 0 on miss 0]
+}
+\ Examples:
+    level 1 fighter strikes goblin warrior with a greatsword
+      [strike [roll d20+9 vs 16] for d12+4]
+    with a scythe
+      [strike [roll d20+9 vs 16] for d10+4 on crit d10]
+    swashbuckler with panache uses confident finisher with a rapier
+      [strike [roll d20+7 vs 16] for 3d6 on crit d8 on miss 2d6/2]
+\
+
+output [strike [roll d20+7 vs 16] for 3d6 on crit d8 on miss 2d6/2]

@@ -1,0 +1,100 @@
+\Atyla-Ouroboros\
+Q: {0..3}
+
+function: halve SEQUENCE:n {                  \ divide per 2, rounded up \
+ DIV: SEQUENCE/2
+ TEMP: DIV*2
+ if (DIV=TEMP){result: DIV}
+ result: (SEQUENCE+1)/2
+}
+function: sets in DICES:s {
+  ZEROS:  [count 0 in DICES]
+  ONES:   [count 1 in DICES]
+  TWOS:   [count 2 in DICES]
+  THREES: [count 3 in DICES]
+  SETS: {ZEROS,ONES,TWOS,THREES}
+  result: SETS
+}
+function: compare VAL_X:n with VAL_Y:n {
+  if(VAL_X > VAL_Y) { result: 1}
+  if(VAL_X = VAL_Y) { result: 0}
+  if(VAL_X < VAL_Y) { result: -1}
+  result: 0
+}
+
+\***********************************************************************************\
+
+function: phaseone ATT:s DEF:s {
+  SIZE_MODS: [compare 15@ATT with 15@DEF]                 \compare the nbr of bodies\
+  ATT_ROLL: (1@ATT +SIZE_MODS) dQ + 6@ATT                      \freeze the hits-dices sequence\
+
+  VELOCITY_MODS: [compare 14@DEF with 13@ATT]             \compare the velocity for the dodge capacity\
+  DEF_ROLL: (7@DEF +VELOCITY_MODS) dQ + 12@DEF
+
+  result: [phasetwo ATT_ROLL DEF_ROLL ATT DEF]
+}
+
+function: phasetwo ATT_ROLL:n DEF_ROLL:n  ATT:s DEF:s {
+  HITS: [attack curve ATT from ATT_ROLL]
+  SAVES: [save curve DEF from DEF_ROLL]
+  HIT_SETS: [sets in ATT_ROLL]
+  SAVE_SETS: [sets in DEF_ROLL]
+
+  DAMAGES: HITS - SAVES
+  \DAMAGES: [halve HITS] - [halve SAVES]\
+  result: DAMAGES
+}
+
+function: attack curve THRESHOLDS:s from POOL:n{
+  if(POOL >= 5@THRESHOLDS) { result: 4}
+  if(POOL >= 4@THRESHOLDS) { result: 3}
+  if(POOL >= 3@THRESHOLDS) { result: 2}
+  if(POOL >= 2@THRESHOLDS) { result: 1}
+  result: 0
+}
+function: save curve THRESHOLDS:s from POOL:n{
+  if(POOL >= 11@THRESHOLDS) { result: 4}
+  if(POOL >= 10@THRESHOLDS) { result: 3}
+  if(POOL >= 9@THRESHOLDS) { result: 2}
+  if(POOL >= 8@THRESHOLDS) { result: 1}
+  result: 0
+}
+
+\ TEST Functions ************************************************************************\
+
+function: attack DATAS:s with TYPE:n {           \TYPE = 1 for thresholds & 0 for basic\
+  ATT_ROLL: (1@DATAS) dQ + 6@DATAS                 \freeze the hits-dices sequence\
+  if (TYPE=1){result: [attack curve DATAS from ATT_ROLL]}
+  result: ATT_ROLL
+}
+function: defense DATAS:s with TYPE:n {
+  DEF_ROLL: (7@DATAS) dQ + 12@DATAS
+  if (TYPE=1){result: [save curve DATAS from DEF_ROLL]}
+  result: DEF_ROLL
+}
+
+
+\****************************************************************************************\
+\PD, PD_Seuils (4), PD_MODS, RD, RD_Seuils (4), RD_MODS, ATT_VELOCITY, DEF_VELOCITY, Nbr of Bodies\
+
+A: {6, 2,5,10,16, 0,   5, 2,5,10,14, 0,   150, 9, 1}      \Mono, Light Armor, Sniper, Knife\
+B: {8, 5,10,14,16, 0,   5, 2,8,12,14, 0,   0, 9, 1}       \Mono, VeryLight Armor, Double Swords\
+C: {12, 0,50, 0,   10, 0,50, 0,   80, 4, 2}     \Multi, Heavy Armor, Shotgun, HandPunch\
+D: {8, 0,50, 0,   8, 0,50, 0,   90, 5, 4}     \Multi, Middle Armor, Fusils, Bayonet\
+E: {4, 0,50, 0,   6, 0,50, 0,   80, 9, 1}      \Mono, Light Armor, Wooden Bow, Sword\
+F: {8, 0,50, 0,   14, 0,50, 0,   50, 3, 1}      \Mono, Tank, Flamer Sponsons, TankFront\
+G: {12, 0,50, 0,   14, 0,50, 0,   80, 3, 1}      \Mono, Tank, Main Canon, TankFront\
+H: {15, 0,50, 0,   10, 0,50, 0,   200, 3, 1}      \Mono, Drone, Heavy Laser Canon, DroneFront\
+
+\************************************************************************\
+
+output [phaseone A B] named "lone Sniper VS lone Sword Master"
+\output [phaseone A G] named "lone Sniper VS Tank"
+output [phaseone E A] named "lone Archer VS lone Sniper"
+output [phaseone H G] named "Laser Canon VS Tank"\
+
+output [attack A with 0] named "lone Sniper base attack roll"
+output [defense B with 0] named "lone Sword Master base defense roll"
+output [attack A with 1] named "lone Sniper thresholds attack roll"
+output [defense B with 1] named "lone Sword Master thresholds defense roll"
+

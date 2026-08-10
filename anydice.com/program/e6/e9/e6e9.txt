@@ -1,0 +1,37 @@
+ATTACK: 5
+MODIFIER: 2
+AC: 15
+CRITRANGE: 20
+WEAPONDAMAGE: 8
+NOWEAPONDICE: 1
+BONUSALL: 1d6
+BONUSFIRST: 0
+ATTACKS: 2
+
+function: attack MULTI:n times with ADVANTAGE:n {
+ROLL: 0
+DAMAGE: 0
+  if ADVANTAGE = 2 { ROLL: ([highest 1 of 2d20]+ATTACK+MODIFIER>AC)
+  } else {
+    if ADVANTAGE = 0 { ROLL: ([lowest 1 of 2d20]+ATTACK+MODIFIER>AC)
+    } else { ROLL: (1d20+ATTACK+MODIFIER>AC) }
+  }
+  DAMAGEFIRST: (((NOWEAPONDICE+(NOWEAPONDICEd(20+ATTACK+MODIFIER-AC)<(22-CRITRANGE))))dWEAPONDAMAGE+ATTACK+BONUSALL+BONUSFIRST)
+  DAMAGEALL: (((NOWEAPONDICE+(NOWEAPONDICEd(20+ATTACK+MODIFIER-AC)<(22-CRITRANGE))))dWEAPONDAMAGE+ATTACK+BONUSALL)
+
+
+TOTAL:0
+  loop N over {1..MULTI}{
+   if N = 1 { TOTAL: TOTAL+(ROLL*(DAMAGEFIRST)) }
+     else { TOTAL: TOTAL+(ROLL*DAMAGEALL) }
+  }
+  result: TOTAL
+}
+
+loop X over {1..ATTACKS} {
+  output [attack X times with 0] named "[X] Attacks with Disadvantage"
+  output [attack X times with 1] named "[X] Attacks with Nothing"
+  output [attack X times with 2] named "[X] Attacks with Advantage"
+}
+
+

@@ -1,0 +1,181 @@
+\ == PbtA Standard Resolution (psr) == \
+\ === Definition:
+This is the standard way to read outcomes
+in PbtA games with 2d6 system.
+- Hit: 10+
+- Mixed: 7-9
+- Failure: 6- 
+\
+function: pbta X:n {
+   if (X <= 6) { result: -1 }
+   if (X <= 9) { result: 0 }
+   else { result: 1 }
+}
+
+\ == D20 With Fixed Middle Tier (fmt) == \
+\ === Definition:
+This method defines a fixed threshold for tier,
+similar to PSR, however, since the distribution
+is liniar, the mixed tier is fixed on 45%.
+To counter that we use another die in place of
+modifiers following the table below:
+
+| Mod | Die  |
+|-----|------|
+| -2  | -d6  |
+| -1  | -d4  |
+| 0   | d6   |
+| 1   | d8   |
+| 2   | d10  |
+| 3   | d12  |
+| 4   | 2d12 |
+
+- Hit: 20+
+- Mixed: 11-19
+- Failure: 10- 
+\
+function: alt X:n {
+   if (X <= 10) { result: -1 }
+   if (X <= 19) { result: 0 }
+   else { result: 1 }
+}
+
+\ == Dynamic Middle Tier Based on LVL (lvl) == \
+\ === Definition:
+We introduce a new modifier based on the level.
+The modifier is calculated by dividing the Level 
+by 2 and rounding down.
+
+> LVL = floor(Level / 2)
+
+Then we adjust the Mixed outcome upper threshold
+by subtracting the modifier + 1 from 20. A natural
+20 is always a Success. The Failure threshold is 
+always the same. When rolling, we also add the LVL
+modifier to the roll together with any other
+modifiers.
+
+| Level | LVL | Mixed Upper Threshold |
+|-------|-----|-----------------------|
+| 1     | 0   | 19                    |
+| 2     | 1   | 18                    |
+| 3     | 1   | 18                    |
+| 4     | 2   | 17                    |
+| 5     | 2   | 17                    |
+| 6     | 3   | 16                    |
+| 7     | 3   | 16                    |
+| 8     | 4   | 15                    |
+| 9     | 4   | 15                    |
+| 10    | 5   | 14                    |
+
+- Hit: Target+
+- Mixed: 11-Target
+- Failure: 10- 
+\
+function: alt X:n for Y:n {
+   if ((X) <= 10) { result: -1 }
+   if ((X) <= (19 - Y)) { result: 0 }
+   else { result: 1 }
+}
+
+\ == 2d20 Roll Under Stat (rus) == \
+\ Definition:
+I first saw this resolution system in
+one of Troy Press' blog posts.
+
+Roll 2d20 and compare to the Ability Score,
+not the modifier.
+
+- Hit: Both d20 roll under
+- Mixed: One rolls under and one over
+- Failure: Both roll over
+\
+function: alt X:n and Y:n for Z:n {
+   if (X <= Z & Y <= Z) { result: 1 }
+   if (X <= Z | Y <= Z) { result: 0 }
+   else { result: -1 }
+}
+
+
+\ --- \
+\ = Scenarios = \
+
+
+\ == Worst Case Scenario == \\
+output [pbta 2d6 - 2] named "psr"
+output [alt d20 - d6] named "fmt"
+output [alt d20 - 2 for 0] named "lvl"
+output [alt d20 and d20 for 3] named "rus"\
+\ === Comments:
+I used a modifier of -2 as the worst-case scenario, even though, 
+technically it would be a -3.
+RUS is gets the closest to PSR.
+\
+
+\ == Neutral/Initial State == \\
+output [pbta 2d6] named "psr"
+output [alt d20 + d4] named "fmt"
+output [alt d20 for 0] named "lvl"
+output [alt d20 and d20 for 10] named "rus"\
+\ === Comments:
+This is the initial state of a level 1
+character and modifier 0. 
+RUS has a higher, but close, chance of Success,
+and a much lower chance of Failure, with a higher chance
+of a Mixed outcome. So it is more favourable towards
+the player.
+FMT gets almost the same chances as PSR, but is slightly
+more lenient in favor of the player.
+LVL has similar Failure and Mixed outcome chances to 
+PbtA Standard Resolution, but considerably less chance 
+of Success. It's more punitive to the player.
+\
+
+\ == Halfway There == \\
+output [pbta 2d6 + 2] named "psr"
+output [alt d20 + d10] named "fmt"
+output [alt d20 + 2 for 2] named "lvl"
+output [alt d20 and d20 for 14] named "rus"\
+\ === Comments:
+In this situation, the PC is leveled halfway to max
+with a considerable modifier.
+Again, RUS gets close while being more friendly to the player.
+FMT also gets close while being more punitive.
+LVL is the farthest off and is a lot more punitive.
+\
+
+\ == Best Case Scenario == \\
+output [pbta 2d6 + 4] named "psr"
+output [alt d20 + 2d12] named "fmt"
+output [alt d20 + 4 for 5] named "lvl"
+output [alt d20 and d20 for 18] named "rus"\
+\ === Comments:
+The PC is maxed out.
+All alternatives get pretty close.
+RUS is again more lenient. FMT and LVL are very
+similar, but LVL has a higher chance of both 
+Success and Failure, with a lower chance of Mixed.
+FMT gets the closest this round.
+\
+
+\ = Reflections:
+
+- LVL: It is harder at lower levels, but can become OP at higher levels.
+- FMT: After a few tests, I noticed that using a pool of d6 gets almost the same probability distribution. For example, 2d6 + 3 versus d20 + 3d6. That said, we'd be rolling more dice and doing more math just to get the same results.
+\
+
+\
+psr | fmt
+----|----
+-3  | -d8
+-2  | -d4
+-1  | 0
+0   | d4
+1   | d8
+2   | d12
+3   | d20
+4   | 2d12; d20+d8
+\
+
+output [pbta 2d6 - 3]
+output [alt d20 - d8]

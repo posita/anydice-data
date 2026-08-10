@@ -1,0 +1,38 @@
+set "maximum function depth" to 4
+
+function: roll DICE:d against dr DIFFICULTY:n {
+  result: [count {DIFFICULTY..10} in DICE]
+}
+
+function: roll DICE:d against dr DIFFICULTY:n with disadvantage of DIS:n {
+  result: [roll DICE against dr DIFFICULTY] - DIS
+}
+
+function: get successes for ROLLEDVALUE:n DIE:n against dr DIFFICULTY:n {
+  if ROLLEDVALUE = DIE { result: 1 + [get successes for dDIE DIE against dr DIFFICULTY] }
+  if ROLLEDVALUE >= DIFFICULTY { result: 1 }
+  result: 0
+}
+
+function: roll exploded COUNT:n de DIE:n against dr DIFFICULTY:n {
+  RES: 0
+  loop N over {1..COUNT} {
+    RES: RES + [get successes for dDIE DIE against dr DIFFICULTY]
+  }
+  result: RES
+}
+
+function: roll exploded COUNT:n de DIE:n against dr DIFFICULTY:n with disadvantage of DIS:n {
+  RES: 0
+  loop N over {1..COUNT} {
+    RES: RES + [get successes for dDIE DIE against dr DIFFICULTY]
+  }
+  result: RES - DIS
+}
+
+\ output [roll 7d10 against dr 7 with disadvantage of 2] \
+
+output [roll exploded 6 de 10 against dr 6] named "exploding 6d10 vs DR 6"
+output [roll 6d10 against dr 6] named "non-exploding 6d10 vs DR 6"
+output [roll exploded 9 de 10 against dr 6 with disadvantage of 3] named "exploding 6d10-3 vs DR 6"
+output [roll 9d10 against dr 6 with disadvantage of 3] named "non-exploding 6d10-3 vs DR 6"

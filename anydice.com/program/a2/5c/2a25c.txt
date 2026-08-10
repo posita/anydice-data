@@ -1,0 +1,19 @@
+MAJORSETBACK: -1
+MINORSETBACK: 0
+PROGRESS: 1
+EX:1  \Expertise: 1=yes/2=no \
+
+function: check ROLL:n plus TRAIT:n and BOONS:s vs SR:n and TN:n{
+ if ROLL + TRAIT >= TN { result: PROGRESS}
+ if ROLL = 1 { result: MAJORSETBACK }
+ if ROLL + TRAIT <= TN {
+  if ROLL + TRAIT <= SR { result: MAJORSETBACK }
+  if EX = 1 {if [count 6 in BOONS] { result: PROGRESS } }
+  result: MINORSETBACK
+ }
+}
+
+TD:4  \number of trait dice\
+loop SCALE over {1..10} {
+ output [check d20 plus [highest 1 of TDd6] and TDd6 vs SCALE and SCALE + 10] named "[SCALE]"
+}

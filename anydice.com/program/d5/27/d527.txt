@@ -1,0 +1,75 @@
+\d4 custom dice\
+function: count successes dfours DICE:s{
+  result: [count {1,2,3} in DICE]
+}
+function: count focus dfours DICE:s{
+  result: [count {4} in DICE]
+}
+
+\d8 custom dice\
+function: count successes deights DICE:s{
+  result: [count {1,2,3,4} in DICE]
+}
+function: count focus deights DICE:s{
+  result: [count {5} in DICE]
+}
+function: count support deights DICE:s{
+  result: [count {6} in DICE]
+}
+function: count double support deights DICE:s{
+  result: [count {7} in DICE]
+}
+function: count crit deights DICE:s{
+  result: [count {8} in DICE]
+}
+
+\d12 custom dice\
+function: count successes dtwelves DICE:s{
+  result: [count {1,2,3,4} in DICE]
+}
+function: count focus dtwelves DICE:s{
+  result: [count {5,6} in DICE]
+}
+function: count support dtwelves DICE:s{
+  result: [count {7} in DICE]
+}
+function: count double support dtwelves DICE:s{
+  result: [count {8,9} in DICE]
+}
+function: count crit dtwelves DICE:s{
+  result: [count {10,11,12} in DICE]
+}
+
+\SUCCESSES ROLL FUNCTION\
+function: get successes DFOURS:s DEIGHTS:s DTWELVES:s with ALLYCOUNT:n allies and TOKENS:n tokens {
+  SUCCESS: [count successes dfours DFOURS] + [count successes deights DEIGHTS] + [count successes dtwelves DTWELVES]
+  FOCUS: [count focus dfours DFOURS] + [count focus deights DEIGHTS] + [count focus dtwelves DTWELVES]
+  if FOCUS > TOKENS {
+    FOCUS: TOKENS
+  }
+  SUPPORT: 0
+  if ALLYCOUNT >= 1 {
+    SUPPORT: [count support deights DEIGHTS] + [count support dtwelves DTWELVES]
+  }
+  DOUBLESUPPORT: 0
+  if ALLYCOUNT >= 2 {
+    DOUBLESUPPORT: [count double support deights DEIGHTS] + [count double support dtwelves DTWELVES]
+  }
+  result: SUCCESS + FOCUS + SUPPORT + DOUBLESUPPORT
+}
+
+\CRIT SUMATION\
+function: get crits DEIGHTS:s DTWELVES:s {
+  result: [count crit deights DEIGHTS] + [count crit dtwelves DTWELVES]
+}
+
+\MAIN ATTACK CALCULATION\
+function: attack A_DFOURS:s A_DEIGHTS:s A_DTWELVES:s with A_ALLYCOUNT:n allies and A_TOKENS:n tokens against defense D_DFOURS:s D_DEIGHTS:s D_DTWELVES:s with D_ALLYCOUNT:n allies and D_TOKENS:n tokens {
+  ATTACK_SUCCESSES: [get successes A_DFOURS A_DEIGHTS A_DTWELVES with A_ALLYCOUNT allies and A_TOKENS tokens]
+  DEFENSE_SUCCESSES: [get successes D_DFOURS D_DEIGHTS D_DTWELVES with D_ALLYCOUNT allies and D_TOKENS tokens]
+  ATTACK_CRITS: [get crits A_DEIGHTS A_DTWELVES]
+  DEFENSE_CRITS: [get crits D_DEIGHTS D_DTWELVES]
+  result: (ATTACK_SUCCESSES - DEFENSE_SUCCESSES) + (ATTACK_CRITS - DEFENSE_CRITS)
+}
+
+output [attack 0d4 1d8 1d12 with 2 allies and 1 tokens against defense 0d4 0d8 1d12 with 1 allies and 2 tokens]

@@ -1,0 +1,120 @@
+BAB: 3
+DEX: 4
+WIS: 2
+STR: 2
+
+\ Standard action buffs \
+CATS_GRACE: 4 \ +4 to-hit \
+WAR_BLESSING: 1 \ +1 to-hit \
+BLESS: 1 \ +1 to-hit \
+DIVINE_FAVOR: 2 \ +2 to-hit, +2 dmg \
+
+\ Permanent buffs \
+WEAPON_FOCUS: 1
+WEAPON_TRAINING: 1
+ENHANCEMENT: 1
+POINT_BLANK: 1
+SACRED_DAMAGE: d6
+
+\ Penalties \
+PENALTY_DEADLY_AIM: -1
+PENALTY_RAPID_SHOT: -2
+PENALTY_DUAL_WIELD: -2
+
+\ Other \
+DEADLY_AIM: 2
+
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+
+  result: SUM
+}
+
+\ TODO: confirm crits \
+function: attack AC:n ac roll ROLL:n plus BONUS:n for DAMAGE:d and EXTRA_DAMAGE:d crit CRIT_MULTI:n on CRIT_THREAT:n {
+  TO_HIT: ROLL + BONUS
+
+  if (ROLL = 1 | TO_HIT < AC) {
+    result: 0
+  } else if (ROLL >= CRIT_THREAT) {
+    result: [crit CRIT_MULTI DAMAGE] + EXTRA_DAMAGE
+  } else {
+    result: DAMAGE + EXTRA_DAMAGE
+  }
+}
+
+output
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT+1
+    for d6 + WEAPON_TRAINING + ENHANCEMENT+1
+    and 0
+    crit 3 on 19
+  ]
+  named "Lawgiver (Unempowered)"
+
+output
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR
+    for d6 + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR
+    and 0
+    crit 3 on 19
+  ]
+  named "Lawgiver (Standard Execution)"
+
+output
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + POINT_BLANK
+    and 0
+    crit 3 on 19
+  ] +
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + POINT_BLANK + PENALTY_RAPID_SHOT
+    for d6 + WEAPON_TRAINING + ENHANCEMENT+1 + DIVINE_FAVOR + POINT_BLANK
+    and 0
+    crit 3 on 19
+  ]
+  named "Lawgiver (Rapid-Fire)"
+
+output
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + ENHANCEMENT + POINT_BLANK + PENALTY_RAPID_SHOT + PENALTY_DEADLY_AIM
+    for d6 + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK + DEADLY_AIM
+    and SACRED_DAMAGE
+    crit 3 on 19
+  ] +
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + DIVINE_FAVOR + ENHANCEMENT + POINT_BLANK + PENALTY_RAPID_SHOT + PENALTY_DEADLY_AIM
+    for d6 + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + POINT_BLANK + DEADLY_AIM
+    and SACRED_DAMAGE
+    crit 3 on 19
+  ]
+  named "Lawgiver (Rapid-Fire, Incendiary)"
+
+output
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT + POINT_BLANK + DIVINE_FAVOR + PENALTY_DUAL_WIELD
+    for d6 + WEAPON_TRAINING + ENHANCEMENT + POINT_BLANK + DIVINE_FAVOR
+    and d6
+    crit 3 on 19
+  ] + 
+  [attack 16 ac
+    roll d20 plus BAB + STR + WEAPON_FOCUS + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + PENALTY_DUAL_WIELD
+    for d6 + (STR/2) + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR
+    and d6
+    crit 2 on 20
+  ]
+  named "Lawgiver (Incendiary) + Power Gavel (Off-hand)"
+
+output
+  [attack 16 ac
+    roll d20 plus BAB + DEX + WEAPON_TRAINING + ENHANCEMENT + DIVINE_FAVOR + WAR_BLESSING + BLESS
+    for d10 + WEAPON_TRAINING + DIVINE_FAVOR
+    and 0
+    crit 2 on 19
+  ]
+  named "Lawrod Crossbow"

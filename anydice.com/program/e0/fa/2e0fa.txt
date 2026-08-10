@@ -1,0 +1,275 @@
+\_________________________________________REROLLPRIOT_____________________________________________\
+\VALITSE NÃ„ISTÃ„ YKSI LAITTAMALLA SIIHEN "1" JA MUIHIN "0"\
+\FULLSTUN REROLLAA MYÃ–S TÃ„HTIHITIT, HITIT JA TUPLAHITIT\
+
+STUNPRIO: 1
+FULLSTUNPRIO: 0
+HITPRIO: 0
+FIVEHITPRIO: 0
+
+\__________________________________________HYÃ–KKÃ„YS_______________________________________________\
+\SOTANUIJASSA ON 3 SINISTÃ„ JA 1 PUNAINEN - SALAMALLA REROLLA JA KAHDELLA STUN\
+\LAITA STUNNI 10:KSI JOS HALUAT NÃ„HDÃ„ TULOKSET STUNNIN KANSSA ERIKSEEN\
+
+AUTOHIT: 0
+STUN: 0
+
+\__________________________________________PUOLUSTUS______________________________________________\
+
+BLUED: 2
+ARMOR: 0
+MAGICSHIELD: 0
+LAMOUNT: 0
+LBONUS: 0
+SAMOUNT: 0
+SBONUS: 0
+
+\___________________________________________________________________________________________________\
+
+set "position order" to "lowest first"
+
+\_________________________________VIHOLLISEN PUOLUSTUSHEITTO________________________________________\
+
+\1 = HITTITÃ„HTI, 2 = HITTISALAMA, 3 = KILPI, 4 = GREMLIN, 5 = HITIT, 6 = TUPLASALAMA, 7 = SS\
+
+function: def DEF:n {
+ if 1@DEF >= SAMOUNT & 2@DEF >= LAMOUNT {result: (3@DEF + LBONUS + SBONUS + ARMOR + MAGICSHIELD)}
+ if 2@DEF >= LAMOUNT {result: (3@DEF + LBONUS + ARMOR + MAGICSHIELD)}
+ if 1@DEF >= SAMOUNT {result: (3@DEF + SBONUS + ARMOR + MAGICSHIELD)}
+
+result: 3@DEF + ARMOR + MAGICSHIELD
+}
+
+\______________________________________________________SOTANUIJA_STUNPRIO__________________________________________________\
+
+function: macedefa MB:n and MR:n {
+
+L_AMOUNT: (2@MB + 2@MR + 6@MR)
+REROLL_TOTAL: (3@MB + 4@MB + 4@MR + 7@MR)
+REROLL_BLUE: (3@MB + 4@MB)
+REROLL_RED: (4@MR + 7@MR)
+HITS_MINUS_MS_ARMOR: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_STUN: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + STUN + AUTOHIT)
+HITS: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + AUTOHIT)
+
+ if L_AMOUNT = 5 {result: [rerollmacea 0d{1:3,10:2,100:4,1000:1} and 1d{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT > 2 & REROLL_TOTAL >= 0 {result: [rerollmacea REROLL_BLUEd{1:3,10:2,100:4,1000:1} and REROLL_REDd{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT = 2 & HITS_MINUS_MS_ARMOR >= BLUED {result: HITS_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 2 & HITS_MINUS_MS_ARMOR < 0 {result: STUN}
+
+ if L_AMOUNT = 2 & HITS_MINUS_MS_ARMOR < BLUED {result: HITS_STUN - [def HITS_MINUS_MS_ARMORd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 1 & REROLL_TOTAL >= 0 {result: [rerollmaceb REROLL_BLUEd{1:3,10:2,100:4,1000:1} and REROLL_REDd{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR >= BLUED {result: HITS - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < 0 {result: 0}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < BLUED {result: HITS - [def HITS_MINUS_MS_ARMORd{1:3,10:2,100:4,1000:1}]}
+
+result: 1000
+}
+
+function: rerollmacea MBR:n and MRR:n {
+
+HITS_MINUS_ARMOR_MS: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_WITH_STUN: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + STUN + AUTOHIT)
+
+ if HITS_MINUS_ARMOR_MS >= BLUED {result: HITS_WITH_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 {result: HITS_WITH_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < 0 {result: STUN}
+
+result: 1000
+}
+
+function: rerollmaceb MBR:n and MRR:n {
+
+HITS_MINUS_ARMOR_MS: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_WITH_STUN: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + STUN + AUTOHIT)
+HITS_NO_STUN: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT)
+LIGHTNING_AMOUNT: ((2@MB + 2@MR + 6@MR) + (2@MBR + 2@MRR + 6@MRR))
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < 0 & LIGHTNING_AMOUNT > 2 {result: STUN}
+
+ if HITS_MINUS_ARMOR_MS < 0 {result: 0}
+
+result: 100
+}
+
+if STUNPRIO > 0 {output [macedefa 3d{1:3,10:2,100:4,1000:1} and 1d{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}] named "Mace vastaan puolustus (Stun Priority):"}
+
+\______________________________________________________SOTANUIJA_HITPRIO__________________________________________________\
+
+function: macedefb MB:n and MR:n {
+
+L_AMOUNT: (2@MB + 2@MR + 6@MR)
+REROLL_TOTAL: (3@MB + 4@MB + 4@MR + 6@MR + 7@MR)
+REROLL_BLUE: (3@MB + 4@MB)
+REROLL_RED: (4@MR + 6@MR + 7@MR)
+HITS_MINUS_MS_ARMOR: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_TOTAL: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + AUTOHIT)
+
+ if L_AMOUNT > 0 & REROLL_TOTAL >= 0 {result: [rerollmacec REROLL_BLUEd{1:3,10:2,100:4,1000:1} and REROLL_REDd{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR >= BLUED {result: HITS_TOTAL - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < 0 {result: 0}
+ 
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < BLUED {result: HITS_TOTAL - [def HITS_MINUS_MS_ARMORd{1:3,10:2,100:4,1000:1}]}
+
+result: 1000
+}
+
+function: rerollmacec MBR:n and MRR:n {
+
+HITS_MINUS_ARMOR_MS: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_WITH_STUN: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + STUN + AUTOHIT)
+HITS_NO_STUN: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT)
+LIGHTNING_AMOUNT: ((2@MB + 2@MR) + (2@MBR + 2@MRR + 6@MRR))
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < 0 & LIGHTNING_AMOUNT > 2 {result: STUN}
+
+ if HITS_MINUS_ARMOR_MS < 0 {result: 0} 
+
+result: 100
+}
+
+if HITPRIO > 0 {output [macedefb 3d{1:3,10:2,100:4,1000:1} and 1d{1:2,10:3,1000:1,10000:1,20000:1,100000:1,1000000:1}] named "Mace vastaan puolustus (Hit Priority):"}
+
+\______________________________________________________SOTANUIJA_FULLHIT__________________________________________________\
+
+function: macedefc MB:n and MR:n {
+
+L_AMOUNT: (2@MB + 2@MR + 6@MR)
+REROLL_TOTAL: (3@MB + 4@MB + 1@MR + 2@MR + 4@MR + 5@MR + 6@MR + 7@MR)
+REROLL_BLUE: (3@MB + 4@MB)
+REROLL_RED: (1@MR + 2@MR + 4@MR + 5@MR + 6@MR + 7@MR)
+HITS_MINUS_MS_ARMOR: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR + (8@MR * 2)) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_TOTAL: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR + (8@MR * 2)) + AUTOHIT)
+
+ if L_AMOUNT > 0 & REROLL_TOTAL >= 0 {result: [rerollmaced REROLL_BLUEd{1:3,10:2,100:4,1000:1} and REROLL_REDd{1:2,10:3,1000:1,10000:1,20000000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR >= BLUED {result: HITS_TOTAL - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < 0 {result: 0}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < BLUED {result: HITS_TOTAL - [def HITS_MINUS_MS_ARMORd{1:3,10:2,100:4,1000:1}]}
+
+result: 1000
+}
+
+function: rerollmaced MBR:n and MRR:n {
+
+HITS_MINUS_ARMOR_MS: ((1@MB + 2@MB + (8@MR*2)) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR + 8@MRR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_WITH_STUN: (((1@MB + 2@MB + (8@MR*2)) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR + 8@MRR)) + STUN + AUTOHIT)
+HITS_NO_STUN: (((1@MB + 2@MB + (8@MR*2)) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR + 8@MRR)) + AUTOHIT)
+LIGHTNING_AMOUNT: (2@MB + (2@MBR + 2@MRR + 6@MRR))
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < 0 & LIGHTNING_AMOUNT > 2 {result: STUN}
+
+ if HITS_MINUS_ARMOR_MS < 0 {result: 0} 
+
+result: 100
+}
+
+if FIVEHITPRIO > 0 {output [macedefc 3d{1:3,10:2,100:4,1000:1} and 1d{1:2,10:3,1000:1,10000:1,10000000:1,100000:1,1000000:1}] named "Mace vastaan puolustus (Five Hit Priority):"}
+
+\______________________________________________________SOTANUIJA_FULLSTUN_________________________________________________\
+
+function: macedefd MB:n and MR:n {
+
+L_AMOUNT: (2@MB + 2@MR + 6@MR)
+REROLL_TOTAL: (1@MB + 3@MB + 4@MB + 1@MR + 4@MR + 5@MR + 7@MR)
+REROLL_BLUE: (1@MB + 3@MB + 4@MB)
+REROLL_RED: (1@MR + 4@MR + 5@MR + 7@MR + 8@MR)
+HITS_MINUS_MS_ARMOR: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR + (8@MR*2)) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_STUN: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR + (8@MR*2)) + STUN + AUTOHIT)
+HITS: ((1@MB + 2@MB + 1@MR + 2@MR + 5@MR + (8@MR*2)) + AUTOHIT)
+
+ if L_AMOUNT = 5 {result: [rerollmacee 0d{1:3,10:2,100:4,1000:1} and 1d{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT > 2 & REROLL_TOTAL >= 0 {result: [rerollmacee REROLL_BLUEd{1:3,10:2,100:4,1000:1} and REROLL_REDd{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT = 2 & HITS_MINUS_MS_ARMOR >= BLUED {result: HITS_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 2 & HITS_MINUS_MS_ARMOR < 0 {result: STUN}
+
+ if L_AMOUNT = 2 & HITS_MINUS_MS_ARMOR < BLUED {result: HITS_STUN - [def HITS_MINUS_MS_ARMORd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 1 {result: [rerollmacef REROLL_BLUEd{1:3,10:2,100:4,1000:1} and REROLL_REDd{1:2,10:3,1000:1,10000:1,20000:1,200000:1,1000000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR >= BLUED {result: HITS - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < 0 {result: 0}
+
+ if L_AMOUNT = 0 & HITS_MINUS_MS_ARMOR < BLUED {result: HITS - [def HITS_MINUS_MS_ARMORd{1:3,10:2,100:4,1000:1}]}
+
+result: 1000
+}
+
+function: rerollmacee MBR:n and MRR:n {
+
+HITS_MINUS_ARMOR_MS: ((2@MB + 2@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_WITH_STUN: ((2@MB + 2@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + STUN + AUTOHIT)
+
+ if HITS_MINUS_ARMOR_MS >= BLUED {result: HITS_WITH_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 {result: HITS_WITH_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < 0 {result: STUN}
+
+result: 1000
+}
+
+function: rerollmacef MBR:n and MRR:n {
+
+HITS_MINUS_ARMOR_MS: ((2@MB + 2@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT - ARMOR - MAGICSHIELD)
+HITS_WITH_STUN: ((2@MB + 2@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + STUN + AUTOHIT)
+HITS_NO_STUN: ((2@MB + 2@MR) + (1@MBR + 2@MBR + 1@MRR + 2@MRR + 5@MRR) + AUTOHIT)
+LIGHTNING_AMOUNT: ((2@MB + 2@MR + 6@MR) + (2@MBR + 2@MRR + 6@MRR))
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS >= BLUED & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def BLUEDd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT > 2 {result: HITS_WITH_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < BLUED & HITS_MINUS_ARMOR_MS >= 0 & LIGHTNING_AMOUNT < 3 {result: HITS_NO_STUN - [def HITS_MINUS_ARMOR_MSd{1:3,10:2,100:4,1000:1}]}
+
+ if HITS_MINUS_ARMOR_MS < 0 & LIGHTNING_AMOUNT > 2 {result: STUN}
+
+ if HITS_MINUS_ARMOR_MS < 0 {result: 0}
+
+result: 100
+}
+
+if FULLSTUNPRIO > 0 {output [macedefd 3d{1:3,10:2,100:4,1000:1} and 1d{1:2,10:3,1000:1,10000:1,10000000:1,200000:1,1000000:1}] named "Mace vastaan puolustus (Full Stun Priority):"}

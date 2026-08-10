@@ -1,0 +1,39 @@
+\**** Halberd +2 Proficiency, +3 Attackmod with PoleArm ****\
+
+function: twfattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE + [polearmattackroll 1d20 vs ENEMYAC] + [secondtwfattackroll 1d20 vs ENEMYAC]} 
+ if ROLL = 1 { result: 0 + [secondtwfattackroll 1d20 vs ENEMYAC] + [polearmattackroll 1d20 vs ENEMYAC]}
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE + [secondtwfattackroll 1d20 vs ENEMYAC] +  [polearmattackroll 1d20 vs ENEMYAC]}
+ result: 0 + [secondtwfattackroll 1d20 vs ENEMYAC] +  [polearmattackroll 1d20 vs ENEMYAC]
+}
+
+
+function: secondtwfattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: TWFCRITDAMAGE + [polearmattackroll 1d20 vs ENEMYAC]} 
+ if ROLL = 1 { result: 0 + [polearmattackroll 1d20 vs ENEMYAC]}
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: TWFDAMAGE + [polearmattackroll 1d20 vs ENEMYAC]}
+ result: 0 + [polearmattackroll 1d20 vs ENEMYAC]
+}
+
+function: polearmattackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: POLEARM} 
+ if ROLL = 1 { result: 0 }
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: CRITPOLEARM}
+ result: 0
+}
+
+\looped against enemy AC from 15-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 20
+POLEARM: 1d4 + ATTACKMOD + DMGBONUS
+CRITPOLEARM: 2d4 + ATTACKMOD + DMGBONUS
+DAMAGE: 1d10 +  ATTACKMOD + DMGBONUS
+CRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS
+TWFDAMAGE: 1d10 + ATTACKMOD + DMGBONUS
+TWFCRITDAMAGE: 2d10 + ATTACKMOD + DMGBONUS
+output [secondtwfattackroll 1d20 vs ENEMYAC] named "Halberd +2 Proficiency, +3 Attackmod"

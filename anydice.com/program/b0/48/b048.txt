@@ -1,0 +1,48 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+ENEMYAC: 23
+TOHITMODS: 8+6+2
+
+function: gwf N:n on SIZE {
+ if N <= 2 { result: d(SIZE) }
+ result: N
+}
+
+function: bloodaxe for ATTACK:n {
+ if ATTACK = CRITICALHIT {
+  result: 2*([gwf d12 on 12]+[gwf d6 on 6]+[gwf d4 on 4])+2d[gwf d12 on 12]+13
+ }
+ if ATTACK = HIT {
+  result: [gwf d12 on 12]+[gwf d6 on 6]+[gwf d4 on 4]+13
+ }
+ result: 0
+}
+
+function: gwmbloodaxe for ATTACK:n {
+ if ATTACK = MISS {
+  result: 0
+ }
+ result: [bloodaxe for ATTACK]+10
+}
+
+function: attack ROLL:n plus MOD:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRITICALHIT }
+ if ROLL + MOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+\
+output 5d[gwmbloodaxe for [attack 1@2d20 plus TOHITMODS-5 vs 15]] named "vs AC 15"
+output 5d[gwmbloodaxe for [attack 1@2d20 plus TOHITMODS-5 vs 17]] named "vs AC 17"
+output 5d[gwmbloodaxe for [attack 1@2d20 plus TOHITMODS-5 vs 19]] named "vs AC 19"
+output 5d[gwmbloodaxe for [attack 1@2d20 plus TOHITMODS-5 vs 21]] named "vs AC 21"
+output 5d[gwmbloodaxe for [attack 1@2d20 plus TOHITMODS-5 vs 23]] named "vs AC 23"
+\
+
+output 5d[bloodaxe for [attack 1d20 plus TOHITMODS vs ENEMYAC]] named "Base"
+output 5d[bloodaxe for [attack 1@2d20 plus TOHITMODS vs ENEMYAC]] named "Reckless"
+output 5d[gwmbloodaxe for [attack 1d20 plus TOHITMODS-5 vs ENEMYAC]] named "GWM"
+output 5d[gwmbloodaxe for [attack 1@2d20 plus TOHITMODS-5 vs ENEMYAC]] named "Reckless/GWM"

@@ -1,0 +1,36 @@
+CHARISMA: 5
+PROF: 6
+
+ATTACK: CHARISMA + PROF
+MISS: 0
+HIT: 1d10 + d6 + CHARISMA + PROF
+CRITICALHIT: 2d10 + 2d6 + CHARISMA + PROF
+
+ENEMYAC: 20
+ROUNDS: 1
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+DAMAGE: 0
+loop P over {1..4*2*ROUNDS} {
+ DAMAGE: DAMAGE + [attack 1d20 vs ENEMYAC]
+}
+output DAMAGE
+
+function: save ROLL:n vs DC:n or DAMAGE:n {
+ if (ROLL < DC) {
+  result: DAMAGE
+ }
+ result: DAMAGE / 2
+}
+
+SAVE: 9
+output [save 1d20+SAVE vs 8+CHARISMA+PROF or 20d6+20d6]

@@ -1,0 +1,31 @@
+
+function : make DICE:s PLUS:n vs AC:n
+{
+	if (DICE = 20) {result : 2}
+	else if (DICE = 0) {result : 0}
+	else if (DICE + PLUS >= AC) {result : 1}
+	else {result : 0}
+}
+
+function : save DICE:s PLUS:s vs DC:n
+{
+	if (DICE = 20) {result : 0}
+	else if (DICE = 0) {result : 1}
+	else if (DICE + PLUS >= DC) {result : 0}
+	else {result : 1}
+}
+
+function : damage DAMAGE:d dc DC:n save DICE:s PLUS:s
+{
+	result : DAMAGE * ([save DICE PLUS vs DC] + 1)/2
+}
+
+D : 10d12
+
+loop N over {1..20}
+{
+ output [damage D dc N save [lowest 1 of 2d20] 0] named "Save [N] dc disadvantage"
+ output [damage D dc N save d20 0] named "Save [N] dc"
+ output [damage D dc N save [highest 1 of 2d20] 0] named "Save [N] dc advantage"
+
+}

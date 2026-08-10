@@ -1,0 +1,57 @@
+ROLL:1d20
+ATTACK_BONUS:5
+TARGET_AC:12
+ADVANTAGE:0
+DAMAGE: 1d8+3
+CRIT_RANGE:20
+CRIT_DAMAGE:1d8
+MULTIATTACK:1
+
+
+ADV:[highest 1 of 2d20]
+DADV:[lowest 1 of 2d20]
+TOTAL:0
+
+
+function: attack ROLL:n ADV:n DADV:n {
+ if ROLL = 1 {result:0 }
+ if ROLL >=CRIT_RANGE {result:DAMAGE+CRIT_DAMAGE }
+ if ROLL + ATTACK_BONUS >= TARGET_AC { result:DAMAGE }
+ result:0
+}
+
+function: advantage ROLL:n ADV:n DADV:n {
+ if ADV = 1 {result:0 }
+ if ADV >=CRIT_RANGE {result:DAMAGE+CRIT_DAMAGE }
+ if ADV + ATTACK_BONUS >= TARGET_AC { result:DAMAGE }
+ result:0
+}
+
+function: disadvantage ROLL:n ADV:n DADV:n {
+ if DADV = 1 {result:0 }
+ if DADV >=CRIT_RANGE {result:DAMAGE+CRIT_DAMAGE }
+ if DADV + ATTACK_BONUS >= TARGET_AC { result:DAMAGE }
+ result:0
+}
+
+function: multiattack MULTIATTACK:n {
+ TOTAL:0
+ if ADVANTAGE=0 {
+  loop N over {1..MULTIATTACK} {
+   TOTAL:TOTAL+[attack ROLL ADV DADV]
+  }
+ }
+ if ADVANTAGE=1 {
+  loop N over {1..MULTIATTACK} {
+   TOTAL:TOTAL+[advantage ROLL ADV DADV]
+  }
+ }
+ if ADVANTAGE=-1 {
+  loop N over {1..MULTIATTACK} {
+   TOTAL:TOTAL+[disadvantage ROLL ADV DADV]
+  }
+ }
+result:TOTAL
+}
+
+output [multiattack MULTIATTACK]

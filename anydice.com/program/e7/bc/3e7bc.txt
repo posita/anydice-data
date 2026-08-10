@@ -1,0 +1,42 @@
+ATTACK_MODIFIER: 0
+DEFENSE_MODIFIER: 0
+DAMAGE_DIE: d6
+ENDURANCE_MODIFIER: 0
+RESOLVE_MODIFIER: 0
+WOUNDS: 0
+STRESS: 0
+
+function: result of the attack roll ROLL:n {
+  if ROLL + ATTACK_MODIFIER >= 6 + DEFENSE_MODIFIER { result: 1 }
+  else { result: 0 }
+}
+HIT_RESULT: [ result of the attack roll d10 ]
+output HIT_RESULT named "Hit Result"
+
+function: result of the damage roll ROLL:n {
+  if ROLL = 1 { result: DAMAGE_DIE + WOUNDS }
+  else { result: 0 }
+}
+DAMAGE_RESULT: [ result of the damage roll HIT_RESULT ]
+output DAMAGE_RESULT named "Damage Result"
+
+function: result of the save roll ROLL:n versus DAMAGE_RESULT:n {
+  if ROLL + ENDURANCE_MODIFIER >= DAMAGE_RESULT { result: 1 }
+  else { result: 0 }
+}
+SAVE_RESULT: [ result of the save roll d10 versus DAMAGE_RESULT ]
+output SAVE_RESULT named "Save Result"
+
+function: update WOUNDS based on SAVE_RESULT:n {
+  if SAVE_RESULT = 1 { result: WOUNDS + 1 }
+  else { result: WOUNDS }
+}
+WOUNDS: [ update WOUNDS based on SAVE_RESULT ]
+output WOUNDS named "Wounds"
+
+function: update STRESS based on SAVE_RESULT:n {
+  if SAVE_RESULT = 1 { result: STRESS + 1 }
+  else { result: STRESS }
+}
+STRESS: [ update STRESS based on SAVE_RESULT ]
+output STRESS named "Stress"

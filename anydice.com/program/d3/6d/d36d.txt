@@ -1,0 +1,54 @@
+\**** Damage calculator ****\
+\------------------------ [HELPERS] ------------------------\
+function: minimum of DIE:d
+{
+  result: 1@{DIE}
+}
+\----------------------[Great Weapon Fighting]----------------\
+function: gwf DIE:d
+{
+  NUM_DICE: [minimum of DIE]
+  DIE_TYPE: [maximum of DIE] / NUM_DICE
+  FINAL_VALUE: 0
+  loop N over {1..NUM_DICE}
+  {
+    FINAL_VALUE: FINAL_VALUE + [get roll 1dDIE_TYPE]
+  }
+
+  result: FINAL_VALUE
+}
+function: get roll ROLL:n
+{
+  if ROLL > 2
+  {
+    result: ROLL
+  }
+  result: 1dDIE_TYPE
+}
+\----------------------[HIT]-----------------------\
+function: attackroll ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGE } 
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGE }
+
+}
+function: attackrollt ROLL:n vs AC:n {
+ if ROLL >= CRITROLL { result: CRITDAMAGET } 
+ if ROLL + PROFICIENCY + ATTACKMOD + ACCBONUS >= AC { result: DAMAGET }
+
+}
+
+\looped against enemy AC from 13-20\
+ENEMYAC: d{15..20}
+
+ATTACKMOD: 3
+DMGBONUS: 0
+PROFICIENCY: 2
+ACCBONUS: 0
+CRITROLL: 19
+ATTACKTIMES: 2
+DAMAGE: 2d6 + ATTACKMOD + DMGBONUS
+CRITDAMAGE: 4d6 + ATTACKMOD + DMGBONUS
+DAMAGET: 1d12 + ATTACKMOD + DMGBONUS
+CRITDAMAGET: 2d12 + ATTACKMOD + DMGBONUS
+output ATTACKTIMESd[attackroll d20 vs ENEMYAC] named "Maul"
+output ATTACKTIMESd[attackrollt d20 vs ENEMYAC] named "Great Axe"

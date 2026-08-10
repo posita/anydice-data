@@ -1,0 +1,131 @@
+Q: {0..3}
+
+A_R: 6
+D_R: 5
+
+function: freeze DICE:n {
+  ROLL: DICE dQ                       \freeze the hits-dices sequence\
+  result: [test freeze ROLL]
+}
+function: test freeze ROLL:s {
+  THREES: ROLL=3                          \test the value on each element of the Sequence parameter : optimized\
+  TWOS:   ROLL=2
+  ONES:   ROLL=1
+
+  \compare the sets to find the more numerous one, choosing the higher if equal\
+  if (THREES>0) & (THREES>=TWOS) & (THREES>=ONES) { result: 3}
+  if (TWOS>0) & (TWOS>=ONES) { result: 2}
+  if (ONES>0) { result: 1}
+  result: 0
+}
+
+function: test bis set of ROLL:s {
+  THREES: ROLL=3                          \test the value on each element of the Sequence parameter : optimized\
+  TWOS:   ROLL=2
+  ONES:   ROLL=1
+
+  \compare the sets to find the more numerous one, choosing the lower if equal\
+  if (THREES>0) & (THREES>TWOS) & (THREES>ONES) { result: 3}
+  if (TWOS>0) & (TWOS>ONES) { result: 2}
+  if (ONES>0) { result: 1}
+  result: 0
+}
+
+function: test tris set of ROLL:s {
+  THREES: ROLL=3                          \test the value on each element of the Sequence parameter : optimized\
+  TWOS:   ROLL=2
+  ONES:   ROLL=1
+
+  \compare the sets to find the more numerous one, being 0 if equal\
+  if (THREES>0) & (THREES>TWOS) & (THREES>ONES) { result: 3}
+  if (TWOS>0) & (TWOS>ONES) & (TWOS>THREES) { result: 2}
+  if (ONES>0) & (ONES>TWOS) & (ONES>THREES) { result: 1}
+  result: 0
+}
+
+output [test freeze A_RdQ] named "freeze: =+ dÃ©crÃ©mental : give most numerous set : main choice"
+output [test bis set of A_RdQ] named "bis: =- dÃ©crÃ©mental : give most numerous set"
+output [test tris set of A_RdQ] named "tris: =0 : give higher face set"
+
+
+\possibilities for 'freeze' 3dQ :   <- easiest to understand for new players.
+000
+100 110 111 211 311
+200 220 222 210 322 221
+300 330 333 310 320 331 332 321\
+\possibilities for 'bis' 3dQ :
+000
+100 110 211 311 111 310 321 210
+200 220 221 322 222 320
+300 330 331 332 333\
+\possibilities for 'tris' 3dQ :
+000 310 320 321 210
+100 110 211 311 111
+200 220 221 322 222
+300 330 331 332 333\
+
+
+function: compare sets ATT:s DEF:s {
+ A: [test freeze ATT]
+ A_SIZE: ATT=A
+ B: [test freeze DEF]
+ B_SIZE: DEF=B
+ if (A > B) { result: A-B }
+\ if (A = B) & (A_SIZE > B_SIZE) { result: 1 }\
+ result: 0
+}
+output [compare sets A_RdQ D_RdQ] named "bonus damage from : freeze =+ : main choice"
+
+
+function: compare bis sets ATT:s DEF:s {
+ A: [test bis set of ATT]
+ A_SIZE: ATT=A
+ B: [test bis set of DEF]
+ B_SIZE: DEF=B
+ if (A > B) { result: A-B }
+\ if (A = B) & (A_SIZE > B_SIZE) { result: 1 }\
+ result: 0
+}
+output [compare bis sets A_RdQ D_RdQ] named "bonus damage from : bis =-"
+
+
+function: compare tris sets ATT:s DEF:s {
+ A: [test tris set of ATT]
+ A_SIZE: ATT=A
+ D: [test tris set of DEF]
+ D_SIZE: DEF=D
+\if Attacker has a higher set's face than Defender\
+ if (A > D) { result: A-D }
+\if both sets have the same face but Attacker has a longer set than Defender : Dependent of each number of dices rolled \
+\ if (A = D) & (A_SIZE > D_SIZE) { result: 1 }\ 
+ result: 0
+}
+output [compare tris sets A_RdQ D_RdQ] named "bonus damage from : tris =0"
+
+
+\********Final Functions to compare Sets of Dices (Optimized at max) **********\
+
+function: find best sets ATT:s DEF:s {
+ ATT_SET: [test first ATTdQ]
+ DEF_SET: [test first DEFdQ]
+ result: [compare sets ATT_SET DEF_SET]
+}
+
+function: test first ROLL:s {
+  THREES: ROLL=3                          \test the value on each element of the Sequence parameter : optimized\
+  TWOS:   ROLL=2
+  ONES:   ROLL=1
+
+  \compare the sets to find the more numerous one, choosing the higher if equal\
+  if (THREES>0) & (THREES>=TWOS) & (THREES>=ONES) { result: 3}
+  if (TWOS>0) & (TWOS>=ONES) { result: 2}
+  if (ONES>0) { result: 1}
+
+  result: 0
+}
+
+function: compare sets ATT_SET:n DEF_SET:n {
+ if (ATT_SET>DEF_SET) { result: ATT_SET-DEF_SET }
+ result: 0
+}
+output [find best sets A_R D_R] named "bonus damage from : freeze =+ : main choice"

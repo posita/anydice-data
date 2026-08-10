@@ -1,0 +1,79 @@
+\ Pathfinder 2nd edition Weapon Damage Calculator
+created by /u/jtblin 2019 \
+
+function: ATTACKS:s vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n FORTUNE:n {
+  SUM: {0}
+  N: 0
+  F: 0
+  T: 0
+  FE: 0
+  LAST: 0
+  loop ATTACK over ATTACKS {
+    S: 0
+    N: N + 1
+    if LAST = 0 { LAST: ATTACK }
+    else if ATTACK < LAST { 
+      LAST: ATTACK
+      FE: FAILURE_EFFECT
+    }
+    if (N = 2) { 
+      F: FORCEFUL 
+      T: TWIN
+    } else if (N > 2) { 
+      F: 2*FORCEFUL 
+      T: TWIN
+    }
+if FORTUNE != 0 { SUM: SUM + [[highest of d20 and d20] plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL]} 
+   else { SUM: SUM + [1d20 plus ATTACK vs AC with FE for DAMAGE FORCEFUL TWIN DEADLY FATAL] }
+  }
+  result: SUM
+}
+
+function: ROLL:n plus ATTACK:n vs AC:n with FAILURE_EFFECT:n for DAMAGE:d FORCEFUL:n TWIN:n DEADLY:d FATAL:n {
+  if (ROLL + ATTACK >= (AC+10)) { 
+     if FATAL != 0 { result: 2*FATAL+DEADLY+FORCEFUL+TWIN }
+     result: 2*DAMAGE+DEADLY+FORCEFUL+TWIN 
+  }
+  if (ROLL + ATTACK >= AC) {
+    if (ROLL = 20){ 
+      if FATAL != 0 { result: 2*FATAL+DEADLY+FORCEFUL+TWIN }
+      result: 2*DAMAGE+DEADLY+FORCEFUL+TWIN 
+    }
+    result: DAMAGE+FORCEFUL+TWIN
+  }
+  if (ROLL = 20){ result: DAMAGE+FORCEFUL+TWIN }
+  result: FAILURE_EFFECT
+}
+
+output [{23} vs 29 with 0 for 2d8+5+4d12 0 0 1d10 0 0] named "Fighter Wizard Eldritch Archer 10, Shocking Grasp"
+output [{23} vs 29 with 0 for 2d8+5+5d6+4 0 0 1d10 0 0] named "Fighter Wizard Eldritch Archer 10, Gouging Claw"
+output [{23} vs 29 with 0 for 2d8+5+5d12+4 0 0 1d10 0 0] named "Fighter Psychic Eldritch Archer 10, Amped Produce Flame"
+output [{23} vs 29 with 0 for 2d8+5+9d8+2 0 0 1d10 0 0] named "Fighter Psychic Eldritch Archer 10, Amped Imaginary Weapon"
+
+output [{21} vs 27 with 0 for 2d6+4+4d12+4d6 0 0 1d10 0 0] named "Rogue Eldritch Archer 10, Shocking Grasp"
+output [{21} vs 27 with 0 for 2d6+4+6d4+4d6 0 0 1d10 0 0] named "Rogue Eldritch Archer 10, Gouging Claw"
+
+output [{16} vs 27 with 0 for 5d6+4+2d6 0 0 0 0 0] named "Eldritch Trickster 10, Magical Trickster, Gouging Claw, Sneak Attack"
+output [{21,16,11} vs 27 with 0 for 2d8+6+2d6 2 0 0 0 0] named "Eldritch Trickster 10, Strikes, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d4+4+2d6 0 0 0 0 0] named "Eldritch Trickster 10, Spellstrike, Produce Flame, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d4+4+2d6 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Produce Flame, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d6+4+2d6 0 0 0 0 0] named "Eldritch Trickster 10, Spellstrike, Gouging Claw, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d6+4+2d6 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Gouging Claw, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d12+4+2d6 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Amped Produce Flame, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+9d8+4+2d6 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Amped Imaginary Weapon, Sneak Attack"
+output [{21} vs 27 with 0 for 2d8+6+5d6+9+2d6 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Gouging Claw, Dangerous Sorcery, Sneak Attack"
+output [{23} vs 27 with 0 for 2d8+6+4d12+3+2d6+1d4+2 0 0 0 0 1] named "Eldritch Trickster 10, True Strike, Spellstrike, Shocking Grasp, Dangerous Sorcery, Heroism, Sneak Attack"
+
+output [{21,16,11} vs 29 with 0 for 2d10+7 0 0 0 0 0] named "Martial 10, Gill Hook"
+output [{21,16,11} vs 29 with 0 for 2d8+7 0 0 1d8 0 0] named "Martial 10, Glaive"
+output [{21,16,11} vs 29 with 0 for 2d10+7 2 0 0 0 0] named "Martial 10, Falchion"
+
+output [{23,18,13} vs 27 with 0 for 2d10+20 0 0 0 0 0] named "Fighter 10, Rage, Barbarian Dedication"
+output [{23,18,13} vs 27 with 0 for 2d10+20 0 0 0 0 0]+[{23,23} vs 29 with 0 for 2d10+16 0 0 0 0 0] named "Fighter 10, Rage, Barbarian Dedication, With AoOs"
+
+output [{21} vs 27 with 0 for 2d8+6+2d12 0 0 0 0 0] named "Magus 10, Spellstrike, Staff's Shocking Grasp"
+output [{21} vs 27 with 0 for 2d8+6+5d6+4 0 0 0 0 0] named "Magus 10, Spellstrike, Gouging Claw"
+output [{21} vs 27 with 0 for 2d8+6+5d6+4 0 0 0 0 1] named "Magus 10, True Strike, Spellstrike, Gouging Claw"
+
+
+

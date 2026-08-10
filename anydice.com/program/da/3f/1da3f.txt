@@ -1,0 +1,154 @@
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: precise SUP:n attack ROLL:n vs AC:n for DMG:d {
+    if ROLL + SUP >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:s to AFTER_CRIT:d use USE:d pass PASS:d {
+    if ROLL = 1 {
+        result: PASS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG + 2dSUP + AFTER_CRIT
+    }
+    if [PRECISE_RANGE contains (ROLL + BONUS)] {
+        result: [precise SUP attack ROLL + BONUS vs AC for DMG] + USE
+    }
+    if ROLL + BONUS >= AC {
+        if SUP_DICE >= ATTACKS {
+            result: DMG + SUP + USE
+        }
+        result: DMG + PASS
+    }
+
+    result: PASS
+}
+
+function: gloombattlepam SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG_BONUS:d crit on CRIT_RANGE:d extra EXTRA:d {
+
+    \A B C D E F G are previous attack with 0, 1, 2, 3, 4, 5, or 6 superiority dice remaining\
+    \X has extra damage still to assign\
+
+    A: 0
+    AX: 0
+    B: 0
+    BX: 0
+    C: 0
+    CX: 0
+    D: 0
+    DX: 0
+    E: 0
+    EX: 0
+    F: 0
+    FX: 0
+    G: 0
+    GX: 0
+
+    loop N over {1 .. ATTACKS}{
+
+        \ hacked in changing the damage for different attacks \
+        DMG: d10 + DMG_BONUS
+        CRIT: d10
+
+        if N = 1 {
+            \ PAM attack \
+            DMG: d4 + DMG_BONUS
+            CRIT: d4
+        }
+
+        if N = 4 {
+            \ gloomstalker attack \
+            DMG: DMG + d8
+            CRIT: CRIT + d8
+        }
+
+        if N = 7 {
+            \ gloomstalker attack \
+            DMG: DMG + d8
+            CRIT: CRIT + d8
+        }
+
+        if N = 1 {
+           \ extra damage on both crit and hit on last attack \
+           CRITX: CRIT + EXTRA
+           DMGX: DMG + EXTRA
+        }
+        else {
+           \ before the last attack the extra damage is only used on a crit \
+           CRITX: CRIT + 2dEXTRA
+           DMGX: DMG
+        } 
+
+        GX: [battlemaster 6 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to F use FX pass GX]
+        G:  [battlemaster 6 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to F use F pass G]
+        FX: [battlemaster 5 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to E use EX pass FX]
+        F:  [battlemaster 5 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to E use E pass F]
+        EX: [battlemaster 4 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to D use DX pass EX]
+        E:  [battlemaster 4 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to D use D pass E]
+        DX: [battlemaster 3 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to C use CX pass DX]
+        D:  [battlemaster 3 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to C use C pass D]
+        CX: [battlemaster 2 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to B use BX pass CX]
+        C:  [battlemaster 2 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to B use B pass C]
+        BX: [battlemaster 1 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMGX crit CRITX on CRIT_RANGE to A use AX pass BX]
+        B:  [battlemaster 1 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE to A use A pass B]
+        AX: [attack ROLL plus BONUS vs AC hit DMGX + AX miss AX crit DMGX + CRITX + A on CRIT_RANGE]
+        A:  [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE] + A
+    }
+
+    if SUP_DICE = 6 {
+        result: GX
+    }
+    if SUP_DICE = 5 {
+        result: FX
+    }
+    if SUP_DICE = 4 {
+        result: EX
+    }
+    if SUP_DICE = 3 {
+        result: DX
+    }
+    if SUP_DICE = 2 {
+        result: CX
+    }
+    if SUP_DICE = 1 {
+        result: BX
+    }
+    if SUP_DICE = 0 {
+        result: AX
+    }
+}
+
+AC: 17
+PROF: 4
+
+output
+[gloombattlepam 4 superiority d8 precise {AC-8 .. AC-1} attacks 7 roll d20 plus PROF + 4 - 5 vs AC for 4 + 10 crit on 20 extra 4d8] named "[11] Battlemaster eldritch smite PAM GWM gloomstalker"

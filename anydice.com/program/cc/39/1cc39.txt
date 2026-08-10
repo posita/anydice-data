@@ -1,0 +1,63 @@
+MISS: 0
+HIT: 1
+CRIT: 2
+
+function: chance to hit ROLL:n plus AMOD:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 { result: CRIT }
+ if ROLL + AMOD >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage WEAPON:n plus DMOD:n for ATTACKRESULT:n {
+ if ATTACKRESULT = HIT { result: WEAPON + DMOD }
+ if ATTACKRESULT = CRIT { result: WEAPON + CRITDICEd(WEAPON) + DMOD }
+ result: 0
+}
+
+function: attack {
+ result: [damage WEAPON plus DMOD for [chance to hit 1d20 plus AMOD vs DEFENSE]]
+}
+function: attack advantage {
+ result: [damage WEAPON plus DMOD for [chance to hit 1@2d20 plus AMOD vs DEFENSE]]
+}
+function: attack disadvantage {
+ result: [damage WEAPON plus DMOD for [chance to hit 2@2d20 plus AMOD vs DEFENSE]]
+}
+
+WEAPON: 1d10+1d6
+PROF: {2:4,3:4,4:4,5:4,6:4}
+ATT: {3:3,4:4,5:13}
+DMODS: {0,3:2,4:4,5:13}
+ATKS: {1:4,2:6,3:6,4:4}
+DEFENSES: {13:3,14,15,16:2,17:3,18:3,19:7}
+
+loop LEVEL over {1..20} {
+ AMOD: LEVEL@PROF + LEVEL@ATT
+ DEFENSE: LEVEL@DEFENSES
+ DMOD: LEVEL@DMODS
+ CRITDICE: 1
+ output (LEVEL@ATKS)d[attack] named "WARLOCK BASELINE L:[LEVEL] vs [DEFENSE]"
+}
+
+WEAPON: 1d12
+ATT: {3:3,4:4,5:12,7}
+RAGEBONUS: {2:8,3:7,4:5}
+RECKLESS: {0,1:19}
+ATKS: {1:2,2:2,3:16}
+RETALIATIONS: {0:13,1:7}
+CRITICALDICES: {2:8,3:4,4:4,5:4}
+
+loop LEVEL over {1..20} {
+ AMOD: LEVEL@PROF + LEVEL@ATT
+ DEFENSE: LEVEL@DEFENSES
+ DMOD: LEVEL@ATT + LEVEL@RAGEBONUS
+ CRITDICE: LEVEL@CRITICALDICES
+ ATKSPERROUND: (LEVEL@ATKS)+(LEVEL@RETALIATIONS)
+ if LEVEL@RECKLESS = 0 {
+  output ATKSPERROUNDd[attack] named "BARBARIAN RAGE RECKLESS FRENZY L:[LEVEL] vs [DEFENSE]"
+ }
+ else {
+  output ATKSPERROUNDd[attack advantage] named "BARBARIAN RAGE RECKLESS FRENZY L:[LEVEL] vs [DEFENSE]"
+ }
+}

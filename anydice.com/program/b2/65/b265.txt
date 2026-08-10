@@ -1,0 +1,76 @@
+\This is a function to roll an attack roll and output the damage. If the attack roll misses, the output will be zero.\
+
+function: ATTACK:n vs DC:n rolling two DAMAGE:n sided dice plus CRIT:n{
+ THRESH: DC/10
+ if ATTACK < DC { result: 0 }
+ if ATTACK > 60+4*THRESH { result: 4dDAMAGE+CRIT }
+ result: 2dDAMAGE
+}
+
+\This is a list of variables to hold Team RWBY's attack rolls against Salem in particular.\
+
+RUBY: [1d100 vs 56 rolling two 8 sided dice plus 7]
+WEISS: [1d100 vs 56 rolling two 10 sided dice plus 7]
+BLAKE: [1d100 vs 56 rolling two 7 sided dice plus 7]
+YANG: [1d100 vs 56 rolling two 12 sided dice plus 7]
+_YANG: [1d100 vs 44 rolling two 12 sided dice plus 10]+3
+
+
+\This is a list of variables to hold a whole round's worth of attacks, given all the possible configurations of RWBY members who could still be fighting as of that round.\
+
+RWBY: RUBY+WEISS+BLAKE+YANG
+
+RWB: RUBY+WEISS+BLAKE
+RWY: RUBY+WEISS+YANG
+RBY: RUBY+BLAKE+YANG
+WBY: WEISS+BLAKE+YANG
+
+RW: RUBY+WEISS
+RB: RUBY+BLAKE
+RY: RUBY+YANG
+WB: WEISS+BLAKE
+WY: WEISS+YANG
+BY: BLAKE+YANG
+
+RWB_Y: RUBY+WEISS+BLAKE+_YANG
+RW_Y: RUBY+WEISS+_YANG
+RB_Y: RUBY+BLAKE+_YANG
+WB_Y: WEISS+BLAKE+_YANG
+R_Y: RUBY+_YANG
+W_Y: WEISS+_YANG
+B_Y: BLAKE+_YANG
+
+\These are output commands. I've commented them out, but if you remove the backslashes on either side and hit "Calculate," the output window will display each team member's damage probabilities against Salem.
+
+output RUBY named "Ruby's damage vs. Salem"
+output WEISS named "Weiss's damage vs. Salem"
+output BLAKE named "Blake's damage vs. Salem"
+output YANG named "Yang's damage vs. Salem"
+output _YANG named "Semblance!Yang's damage vs. Salem"
+
+This is all still part of a comment block, which ends with this backslash:\
+
+ 
+\These are dice to represent Salem's chance of knocking out a given team member within three rounds.\
+
+TARGET_R: 1+[lowest of 1d{{0}:57, {3}:43} and 1d[lowest of 1d{{1}:57, {3}:43} and 1d{{2}:57, {3}:43}]]
+TARGET_W: 1+[lowest of 1d{{0}:65, {3}:35} and 1d[lowest of 1d{{1}:65, {3}:35} and 1d{{2}:65, {3}:35}]]
+TARGET_B: 1+[lowest of 1d{{0}:54, {3}:46} and 1d[lowest of 1d{{1}:54, {3}:46} and 1d{{2}:54, {3}:46}]]
+TARGET_Y: TARGET_B
+TARGET__Y: 1+[lowest of 1d{{0}:91, {3}:9} and 1d[lowest of 1d{{1}:91, {3}:9} and 1d{{2}:91, {3}:9}]] 
+
+\Yang has less than full aura after her Semblance activates, so she drops a lot easier.\
+
+\***commenting out***
+output TARGET_R
+output TARGET_W
+output TARGET_B
+***commenting out***\
+
+
+output 199 < TARGET_W*RWBY + TARGET_Y*RBY + TARGET__Y*RB_Y + TARGET_R*RB + TARGET_B*BLAKE named "Salem targets Weiss>Yang>Ruby>Blake, no recoveries"  \25.26% chance to win\
+output 199 < TARGET_R*RWBY + TARGET_W*WBY + TARGET_Y*BY + TARGET__Y*B_Y + TARGET_B*BLAKE named "Salem targets Ruby>Weiss>Yang>Blake, no recoveries)"  \25.51% chance to win\
+output 199 < TARGET_Y*RWBY + TARGET__Y*RWB_Y + TARGET_W*RWB + TARGET_R*RB + TARGET_B*BLAKE named "Salem targets Yang>Weiss>Ruby>Blake, no recoveries" \29.11% chance to win\
+output 199 < TARGET_Y*RWBY + TARGET__Y*RWB_Y + TARGET_R*RWB + TARGET_W*WB + TARGET_B*BLAKE named "Salem targets Yang>Ruby>Weiss>Blake, no recoveries" \30.75% chance to win\
+output 199 < TARGET_B*RWBY + TARGET_R*RWY + TARGET_Y*WY + TARGET__Y*W_Y + TARGET_W*WEISS named "Salem targets Blake>Ruby>Yang>Weiss, no recoveries"   \31.99% chance to win\
+

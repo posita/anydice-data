@@ -1,0 +1,48 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: bonus of BONUS:d on hit with DMG:n {
+    if DMG > 0 {
+        result: DMG + BONUS
+    }
+    result: DMG
+}
+
+function: vidra ROLL:d vs AC:n {
+    SCOURGE:1
+    DAMAGE:
+     [attack ROLL plus 7 vs AC for 1d6+4 crit 1d6 on 20] +
+     [attack ROLL plus 7 vs AC for 1d6+4 crit 1d6 on 20] +
+     [attack ROLL plus 7 vs AC for 1d6+4 crit 1d6 on 20] +
+     [attack ROLL plus 7 vs AC for 1d6+4 crit 1d6 on 20]
+    if SCOURGE > 0 {
+        result: [bonus of 7 on hit with DAMAGE] + 4
+    }
+    result: DAMAGE
+}
+
+function: sandstone ROLL:d vs AC:n {
+    result: 
+       [attack ROLL plus 9 vs AC for 1d8+6 crit 1d8 on 20] +
+       [attack ROLL plus 9 vs AC for 1d8+6 crit 1d8 on 20]
+}
+
+AC:19
+
+output [vidra  [lowest 1 of 2d20] vs AC] named "vidra dis"
+output [vidra                1d20 vs AC] named "vidra"
+output [vidra [highest 1 of 2d20] vs AC] named "vidra adv"
+
+output [sandstone  [lowest 1 of 2d20] vs AC] named "sandstone dis"
+output [sandstone                1d20 vs AC] named "sandstone"
+output [sandstone [highest 1 of 2d20] vs AC] named "sandstone adv"

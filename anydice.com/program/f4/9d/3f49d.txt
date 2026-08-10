@@ -1,0 +1,111 @@
+B: 2 \ # of boost die \
+S: 1 \ # of setback die \
+A: 4 \ # of ability die \
+D: 1 \ # of difficulty die \
+P: 0 \ # of proficiency die \
+C: 1 \ # of challenge die \
+SOAK: 3
+LAZAXDAMAGE: 3
+LAZAXPIERCE: 3
+
+BOOW: {0, 0, 100, 101, 2, 1}
+ABIW: {0, 100, 100, 200, 1, 1, 101, 2}
+DIFW: {0, 100, 200, 1, 1, 1, 2, 101}
+PROW: {0, 100, 100, 200, 200, 1, 101, 101, 101, 2, 2, 102}
+SETW: {0, 0, 100, 100, 1, 1}
+CHAW: {0, 100, 100, 200, 200, 1, 1, 101, 101, 2, 2, 100}
+
+\ Success and Failure Faces \ 
+BOOS: {0, 0, 1, 1, 0, 0}
+ABIS: {0, 1, 1, 2, 0, 0, 1, 0}
+PROS: {0, 1, 1, 2, 2, 0, 1, 1, 1, 0, 0, 1}
+SETF: {0, 0, 1, 1, 0, 0}
+DIFF: {0, 1, 2, 0, 0, 0, 0, 1}
+CHAF: {0, 1, 1, 2, 2, 0, 0, 1, 1, 0, 0, 1}
+
+\ Advantage and Threat Faces \
+BOOA: {0, 0, 0, 1, 2, 1}
+ABIA: {0, 0, 0, 0, 1, 1, 1, 2}
+PROA: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+SETT: {0, 0, 0, 0, 1, 1}
+DIFT: {0, 0, 0, 1, 1, 1, 2, 1}
+CHAT: {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 0}
+
+function: A:n mod B:n {
+ result: A-(A/B)*B
+}
+
+function: successes from pickle A:n {
+ R: [A mod 100]
+ S: A / 100
+ if R > 50 {result: S+1}
+ if R < -50 {result: S-1}
+ result: S
+
+}
+
+function: advantages from pickle A:n {
+  R: [A mod 100]
+  if R > 50 {result: R-100}
+  if R < -50 {result: R+100}
+  result: R
+}
+
+function: link damage A:n {
+ S: [successes from pickle A]
+ ESOAK: [highest of 0 and SOAK-LAZAXPIERCE]
+ R: [highest of [advantages from pickle A] and 0]
+ if S < 1 {result: 0}
+ if S < ESOAK - LAZAXDAMAGE + 1 {result:0}
+ C: [lowest of R and 6]
+ result: (S+LAZAXDAMAGE-ESOAK)*(1+C/2)
+}
+
+
+function: plasma damage A:n {
+ S: [successes from pickle A]
+ R: [advantages from pickle A]
+ if S < 1 {result:0}
+ if S < SOAK - 9 {result:0}
+ if R > 1 {result: 20 + S - SOAK - SOAK}
+ result: 10 + S - SOAK
+}
+
+function: pistol damage R:n {
+ S: [successes from pickle R]
+ A: [advantages from pickle R]
+ BASEDAMAGE: 6
+ PIERCE: 0
+ ESOAK: [highest of SOAK - PIERCE and 0]
+ if S<1 {result:0}
+ DAMAGE: BASEDAMAGE + S - ESOAK
+ result: [highest of DAMAGE and 0]
+}
+
+function: dual pistol damage R:n {
+ S: [successes from pickle R]
+ A: [advantages from pickle R]
+ BASEDAMAGE: 6
+ PIERCE: 0
+ ESOAK: [highest of SOAK - PIERCE and 0]
+ if S<1 {result:0}
+ DAMAGE: BASEDAMAGE + S - ESOAK
+ if A > 1 {result: [highest of DAMAGE * 2 and 0]}
+ result: [highest of DAMAGE and 0]
+}
+
+ADVANTAGES: BdBOOA + AdABIA + PdPROA - SdSETT - DdDIFT - CdCHAT
+
+WORKA: [advantages from pickle PdPROW + AdABIW + BdBOOW - CdCHAW - SdSETW - DdDIFW]
+SUCCESSES: BdBOOS + AdABIS + PdPROS - SdSETF - DdDIFF - CdCHAF 
+WORKS: [successes from pickle (PdPROW + AdABIW + BdBOOW - CdCHAW - SdSETW - DdDIFW)]
+
+output [link damage PdPROW + AdABIW + BdBOOW - SdSETW - CdCHAW - DdDIFW] named "link damage"
+output [plasma damage PdPROW + AdABIW + BdBOOW - SdSETW - CdCHAW - DdDIFW] named "plasma damage"
+output [pistol damage PdPROW + AdABIW + BdBOOW - SdSETW - CdCHAW - DdDIFW] named "pistol damage"
+output [dual pistol damage PdPROW + AdABIW + BdBOOW - SdSETW - CdCHAW - (D+1)dDIFW] named "dual pistol damage"
+
+output WORKS named "workspace sic"
+output SUCCESSES named "Successes"
+output WORKA named "workspace a"
+output ADVANTAGES named "Advantages"

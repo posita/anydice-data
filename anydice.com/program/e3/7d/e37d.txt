@@ -1,0 +1,106 @@
+DEFENSE: 1
+LEVEL: 20
+WEAPON_DICE: 2d6
+OTHER_DAMAGE_MOD: 0
+OTHER_DAMAGE_DICE: 0
+CRITRANGE: 20
+
+MOD: (LEVEL+3)/8+3
+MAGIC: (LEVEL+3)/6+0
+PROF: (LEVEL+7)/4
+GWMATTACK: -5
+GWMDAMAGE: 10
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: attackadv ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: gwmattack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: gwmattackadv ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL >= CRITRANGE {
+  if ROLL + ATTACK >= 0 { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+
+function: attackadv {
+ result: [damage for [attackadv [highest 1 of 2d20] vs DEFENSE]]
+}
+
+function: gwmattack {
+ result: [damage for [gwmattack d20 vs DEFENSE]]
+}
+
+function: gwmattackadv {
+ result: [damage for [gwmattackadv [highest 1 of 2d20] vs DEFENSE]]
+}
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2dWEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE
+MISSDAMAGE: 0
+output [attack] named "Normal"
+
+ATTACK: MOD + MAGIC + PROF
+HITDAMAGE: WEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE
+CRITICALDAMAGE: 2dWEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE
+MISSDAMAGE: 0
+output [attackadv] named "Adv Normal"
+
+ATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: WEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2dWEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE  + GWMDAMAGE
+MISSDAMAGE: 0
+output [gwmattack] named "GWM"
+
+ATTACK: MOD + MAGIC + PROF + GWMATTACK
+HITDAMAGE: WEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + OTHER_DAMAGE_DICE + GWMDAMAGE
+CRITICALDAMAGE: 2dWEAPON_DICE + MOD + MAGIC + OTHER_DAMAGE_MOD + 2dOTHER_DAMAGE_DICE + GWMDAMAGE
+MISSDAMAGE: 0
+output [gwmattackadv] named "Adv GWM"

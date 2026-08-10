@@ -1,0 +1,45 @@
+\ any dice over the target number is a success \
+\ any dice equal or lower is a failure \
+\ odd dice over the target number are advantages \
+\ odd dice equal or lower are threats \
+TARGET: 4
+
+function: odd NUM:n {
+  \ hack to calculate whether a number is odd - there may be a better way \
+  result: ((NUM / 2) * 2) != NUM
+}
+
+\ calculate all the advantages for a pool of dice of a single kind \
+\ (anydice can't seem to cope with heterogeneous pools, so splitting \
+\ all the dice types up and rolling each one works instead) \
+function: advantages one ROLL:s {
+  ADV: 0
+  loop D over ROLL {
+    if [odd D] {
+      if D > TARGET {
+        ADV: ADV + 1
+      } else {
+        ADV: ADV - 1
+      }
+    }
+  }
+  
+  result: ADV
+}
+
+\ calculate the advantages that can be rolled from a dice pool of \
+\ different dice. \
+function: advantages ROLLSIX:n ROLLEIGHT:n ROLLTEN:n ROLLTWELVE:n {
+  ADV: 0
+  ADV: ADV + [advantages one ROLLSIXd6]
+  ADV: ADV + [advantages one ROLLEIGHTd8]
+  ADV: ADV + [advantages one ROLLTENd10]
+  ADV: ADV + [advantages one ROLLTWELVEd12]
+  result: ADV
+}
+
+
+                 \ d6 d8 d10 d12 \
+output [advantages  0  3   4   3] named "3d8 + 4d10 + 3d12"
+output [advantages  3  1   0   0] named "3d6 + 1d8"
+output [advantages  1  4   3   0] named "1d6 + 4d8 + 3d10"

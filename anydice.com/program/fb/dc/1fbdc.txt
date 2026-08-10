@@ -1,0 +1,78 @@
+function: highest of A:n and B:n {
+ if A > B { result: A }
+ result: B
+}
+
+function: highest of A:n and B:n and C:n {
+ if A > B & A > C { result: A }
+ if B > A & B > C { result: B }
+result: C
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: multiattack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: turn ROLL:n vs CHANCE:n for ATTACK_YES:d vs ATTACK_NO:d {
+    if ROLL > CHANCE{
+          result: ATTACK_NO
+    }
+    result: ATTACK_YES
+}  
+
+
+ROUNDS_OF_COMBAT: 4
+
+TARGET_AC: 10 + d3 + d4 
+
+ROGUE_ADVANTAGE_CHANCE: 8
+
+MONK_BONUS_ATTACK_CHANCE: 8
+
+ROGUE_NO_ADVANTAGE: [attack d20 plus 5 vs TARGET_AC for 1d8 + 2d6 + 3 crit 1d8 + 2d6 on 20] 
+
+ROGUE_ADVANTAGE: [attack [highest 1 of 2d20] plus 5 vs TARGET_AC for 1d8 + 2d6 + 3 crit 1d8 + 2d6 on 20] 
+
+MONK_ONE_ATTACK: [attack d20 plus 5 vs TARGET_AC for 1d8 + 1d6 + 3 crit 1d8 + 1d6 on 20] 
+
+MONK_TWO_ATTACKS:  [attack d20 plus 5 vs TARGET_AC for 1d8 + 1d6 + 3 crit 1d8 + 1d6 on 20] 
+                 + [attack d20 plus 5 vs TARGET_AC for 1d4 + 1d6 + 3 crit 1d4 + 1d6 on 20] 
+
+
+\first turn is assumed to consume bonus action\
+
+MONK_DAMAGE: MONK_ONE_ATTACK
+
+ROGUE_DAMAGE: ROGUE_NO_ADVANTAGE 
+
+loop TURN over {1..(ROUNDS_OF_COMBAT-1)}{
+     ROGUE_DAMAGE: ROGUE_DAMAGE + [turn d10 vs ROGUE_ADVANTAGE_CHANCE for ROGUE_ADVANTAGE vs ROGUE_NO_ADVANTAGE]
+     
+     MONK_DAMAGE: MONK_DAMAGE + [turn d10 vs MONK_BONUS_ATTACK_CHANCE for MONK_TWO_ATTACKS vs MONK_ONE_ATTACK]
+}
+
+output ROGUE_DAMAGE named "Rogue total damage" 
+output MONK_DAMAGE named "Monk total damage" 
+

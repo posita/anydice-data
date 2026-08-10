@@ -1,0 +1,32 @@
+function: DIE:n hits TARGET:n {
+  VAL: 0
+  if DIE >= TARGET { VAL: VAL + 1 }
+  if (DIE >= (TARGET + 10)) | (DIE = 20) { VAL: VAL + 1 }
+  result: VAL
+}
+
+function: attackreal ATTACK:n AC:n DAMAGE:d DEADLY:d {
+  HITS: [ATTACK hits AC]
+  TOTAL: (HITS * DAMAGE) + ([HITS hits 2] * DEADLY)  
+  result: TOTAL
+}
+
+function: attack AC:n for DAMAGE:d deadly DEADLY:d {
+  result: [attackreal 1d20 AC DAMAGE DEADLY]
+}
+
+TARGET_AC: 11
+
+output [attack TARGET_AC for 1d6 deadly 1d8] + [attack TARGET_AC+5 for 1d6 deadly 1d8] + [attack TARGET_AC+10 for 1d6 deadly 1d8] named "Shortbow With Crits"
+output [attack TARGET_AC+2 for 1d6 deadly 1d8] + [attack TARGET_AC+2 for 1d6 deadly 1d8] + [attack TARGET_AC+10 for 1d6 deadly 1d8] named "Shortbow Double Shot"
+output [attack TARGET_AC+4 for 1d6 deadly 1d8] + [attack TARGET_AC+4 for 1d6 deadly 1d8] + [attack TARGET_AC+4 for 1d6 deadly 1d8] named "Shortbow Triple Shot"
+
+output [attack TARGET_AC for 1d6+2 deadly 1d8] + [attack TARGET_AC+5 for 1d6+2 deadly 1d8] + [attack TARGET_AC+10 for 1d6+2 deadly 1d8] named "Point Blank Shortbow With Crits"
+
+
+output [attack TARGET_AC for 1d6 deadly 0] + [attack TARGET_AC for 1d6 deadly 0] named "Salvo with crits"
+output [attack TARGET_AC for 1d6+2 deadly 0] + [attack TARGET_AC for 1d6+2 deadly 0] named "Point Blank Salvo with crits"
+
+output [attack TARGET_AC for 0 deadly 1] + [attack TARGET_AC+5 for 0 deadly 1] + [attack TARGET_AC+10 for 0 deadly 1] named "count crits shortbow"
+output [attack TARGET_AC for 0 deadly 1] + [attack TARGET_AC for 0 deadly 1] named "count crits salvo"
+

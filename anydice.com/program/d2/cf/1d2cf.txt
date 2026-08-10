@@ -1,0 +1,121 @@
+\ Pathfinder Weapon Damage Calculator
+created by /u/57r4wb3rry 2013 modified by Quaffles \
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA dr DR] named "My Weapon"
+This function calculates how much damage you do on an attack
+ATTACKS is your attack bonus (e.g. 10), this can include iterative attacks (e.g. {6,1})
+AC is the opponent's armor class (e.g. 17)
+THREAT is the lower number of the critical threat range (e.g. 19 if your threat is 19-20)
+MULT is your critical multiplier (e.g. 2)
+CRITEXTRA is extra damage dice only on a critical hit (e.g. 1d10 for a flaming burst sword) otherwise leave blank
+DAMAGE is the damage you deal with your weapon not including extra dice (e.g. 1d8+2)
+EXTRA is extra damage dice (e.g. 1d6 for a sneak attack) otherwise leave blank 
+DR is damage resistance \
+
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d dr DR:n{
+  SUM: {0}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 conf 1d20 plus ATTACK ac AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA dr DR]
+  }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d dr DR:n{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0 dr DR]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d dr DR:n{
+  result: [ATTACKS vs AC crit THR
+EAT MULT CRITEXTRA dmg DAMAGE 0 dr DR]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d dr DR:n{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA dr DR]
+}
+function: ROLL:n conf CONFIRM:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d dr DR:n {
+  if ((ROLL = 20) & (CONFIRM + ATTACK >= AC)) { result: [highest of ([crit MULT DAMAGE] + EXTRA + CRITEXTRA - DR) and 0] } 
+  if (ROLL = 20) { result: [highest of ((DAMAGE + EXTRA) - DR) and 0] }
+  if (ROLL = 1) { result: 0 }
+  if ((ROLL >= THREAT) & (CONFIRM + ATTACK >= AC)) { result: [highest of ([crit MULT DAMAGE] + EXTRA + CRITEXTRA - DR) and 0] }
+  result: [highest of ((ROLL + ATTACK >= AC) * (DAMAGE + EXTRA - DR)) and 0]
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Here are some examples: \
+\output [9 vs 17 crit 19 2 dmg 2d6+13] named "greatsword"\
+\output [15 vs 17 crit 19 2 1d10 dmg 3d6+20 1d6] named "flaming burst greatsword raging bull strength enlarged"\
+\output [{10,10} vs 17 crit 20 2 dmg 1d6+10] named "2 claw attacks"\
+\output [6 vs 17 crit 20 2 dmg 1d6+1 1d6] named "javelin sneak attack"\
+
+\ADA Ally L1 Commoner\
+\output [4 vs 15 crit 20 2 dmg 1d3+2d6+4 dr 0] named "ADA Minor Ally L1 Commoner unarmed strike +0 bab 12 dex vs L4 mook"
+output [7 vs 15 crit 20 2 dmg 1d3+2d6+4 dr 0]+[4 vs 15 crit 20 2 dmg 1d3+2d6+1 dr 0] named "ADA Major Ally  L1 Commoner hasted unarmed strike vs L4 mook both attacks"
+output [9 vs 15 crit 20 2 dmg 1d8+2d6+6 dr 0]+[4 vs 15 crit 20 2 dmg 1d8+2d6+1 dr 0] named "ADA Greater Ally L1 Commoner hasted unarmed strike vs L4 mook both attacks"\
+
+\output [6 vs 18 crit 20 4 dmg 1d10 dr 5] named "Mook L4 Fighter 14 dex Rifle vs ADA Minor L1 Commoner"
+output [6 vs 22 crit 20 4 dmg 1d10 dr 5] named "Mook L4 Fighter 14 dex Rifle vs ADA Major hasted L1 Commoner"\
+
+\output [{11,6} vs 18 crit 20 4 dmg 1d10+6 dr 5] named "Rifle Soldier L6 Fighter 14 Rifle x2 vs ADA Minor L1 Commoner"
+output [{11,6} vs 22 crit 20 4 dmg 1d10+6 dr 5] named "Rifle Soldier L6 Fighter 14 Rifle x2 vs ADA Major hasted L1 Commoner"
+output [{11,6} vs 29 crit 20 4 dmg 1d10+6 dr 5] named "Rifle Soldier L6 Fighter 14 Rifle x2 vs ADA Greater hasted L1 Commoner"\
+
+
+\MCADA Ally L1 Commoner\
+output [7 vs 14 crit 20 2 dmg 1d8+2d6+4 dr 0]+[5 vs 14 crit 20 2 dmg 1d8+2d6+2 dr 0] named "MCADA Major Ally L1 Commoner hasted unarmed strike vs Rifleman both attacks"
+output [7+2 vs 14 crit 20 2 dmg 1d8+2d6+4 dr 0]+[5+2 vs 14 crit 20 2 dmg 1d8+2d6+2 dr 0] named "MCADA Major Ally L1 Commoner hasted flanking unarmed strike vs Rifleman both attacks"
+output [10 vs 14 crit 20 2 dmg 1d8+2d6+7 dr 0]+[6 vs 14 crit 20 2 dmg 1d8+2d6+3 dr 0] named "MCADA Greater Ally L1 Commoner hasted unarmed strike vs Rifleman both attacks"
+output [10+2 vs 14 crit 20 2 dmg 1d8+2d6+7 dr 0]+[6+2 vs 14 crit 20 2 dmg 1d8+2d6+3 dr 0] named "MCADA Greater Ally L1 Commoner hasted flanking unarmed strike vs Rifleman both attacks"
+
+\Rifleman L6 Fighter vs MCADA Ally L1 Commoner\
+output [{11,6} vs 27 crit 20 4 dmg 1d10+6 dr 10] named "Rifle Soldier L6 Fighter 14 Rifle x2 vs MCADA Major hasted L1 Commoner"
+output [{11,6} vs 34 crit 20 4 dmg 1d10+6 dr 10] named "Rifle Soldier L6 Fighter 14 Rifle x2 vs MCADA Greater hasted L1 Commoner"
+
+output [{9,9,4} vs 27 crit 20 4 dmg 1d10+6 dr 10] named "Rifle Soldier L6 Fighter 14 Rifle x3 rapidshot vs MCADA Major hasted L1 Commoner"
+output [{9,9,4} vs 34 crit 20 4 dmg 1d10+6 dr 10] named "Rifle Soldier L6 Fighter 14 Rifle x3 rapidshot vs MCADA Greater hasted L1 Commoner"
+
+output [{7,2} vs 27 crit 20 4 dmg 1d6+1 dr 10] named "Rifle Soldier L6 Fighter 14 Bayonet x2 vs MCADA Major hasted L1 Commoner"
+output [{7+2,2+2} vs 27 crit 20 4 dmg 1d6+1 dr 10] named "Rifle Soldier L6 Fighter 14 Bayonet flanking x2 vs MCADA Major hasted L1 Commoner"
+output [{7,2} vs 34 crit 20 4 dmg 1d6+1 dr 10] named "Rifle Soldier L6 Fighter 14 Bayonet x2 vs MCADA Greater hasted L1 Commoner"
+output [{7+2,2+2} vs 34 crit 20 4 dmg 1d6+1 dr 10] named "Rifle Soldier L6 Fighter 14 Bayonet x2 flanking vs MCADA Greater hasted L1 Commoner"
+
+
+\ DUNVIS DPR \
+\ ********** \
+\output [8 vs 15 crit 19 2 dmg 1d4+5 dr 0] named "Zalore MW dagger nonrisky"
+output [7 vs 15 crit 19 2 dmg 1d4+7 dr 0] named "Zalore MW dagger risky"\
+
+
+
+\ RUNELORDS DPR \
+\ ************* \
+\output [4 vs 16 crit 19 2 dmg 1d4+3 dr 0] named "Ori dagger nonrisky"
+output [3 vs 16 crit 19 2 dmg 1d4+5 dr 0] named "Ori dagger risky"
+
+output [5 vs 16 crit 19 2 dmg 1d4+2 dr 0] named "Ori mw dagger nonrisky"
+output [4 vs 16 crit 19 2 dmg 1d4+4 dr 0] named "Ori mw silver dagger risky"
+
+output [4 vs 16 crit 19 2 dmg 1d4+4 dr 0] named "Ori dagger sharp nonrisky"
+output [3 vs 16 crit 19 2 dmg 1d4+6 dr 0] named "Ori dagger sharp risky"
+
+output [5 vs 16 crit 19 2 dmg 1d4+3 dr 0] named "Ori mw dagger sharp nonrisky"
+output [4 vs 16 crit 19 2 dmg 1d4+5 dr 0] named "Ori mw silver sharp dagger risky"
+
+output [4 vs 16 crit 19 2 dmg 1d8+1 dr 0] named "Ori crossbow sharp"
+output [3 vs 16 crit 19 2 dmg 1d8+3 dr 0] named "Ori crossbow sharp risky"\
+
+
+\ Once you've added a few attacks, press the Calculate button below
+View=Table and Data=Normal shows you a histogram
+View=Table and Data=Summary gives you mean and standard deviation
+View=Roller allows you to roll some damage (0 means you missed) \
+
+\output 8d6+1 named "Tank main gun"
+output 40d6 named "disintegrate"\
+
+\output 5d8+9 named "Life's Breath CL9"
+output 3d8+5 named "Cure Serious Wounds CL5"
+output 4d8+7 named "Healing Power Talisman"
+output 10+3d10+(4*2) named "L4 Fighter Con 14"\

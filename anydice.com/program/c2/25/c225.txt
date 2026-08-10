@@ -1,0 +1,84 @@
+\\
+NO:0
+YES:1
+\ attacker: \
+SHOTS: 10
+BS: 3
+S: 4
+
+REROLLS_ONES_TO_HIT: NO
+REROLLS_FAILED_TO_HIT: NO
+REROLLS_ONES_TO_WOUND: NO
+REROLLS_FAILED_TO_WOUND: NO
+
+\ target: \
+T: 3
+W: 1
+SAVE: 3
+
+\ No need to go below this line. Just press "Calculate" \
+set "maximum function depth" to SHOTS+4
+\DEBUG WARIABLES\
+HITS:0
+WOUNDS:0
+
+function: X:n save
+{
+  if X >= SAVE {result: 0}
+  else { result: 1}
+}
+
+function: wound roll
+{
+  if 2*T <= S {result:2}
+  if 2*S <= T {result:6}
+  if S > T {result:3}
+  if T > S {result:5}
+  result:4
+}
+
+function: X:n wound
+{
+  if X < [wound roll]{result: 0}
+  else 
+  {
+    WOUNDS: WOUNDS + 1 
+    result: [d6 save]
+  }
+}
+
+function: X:n hit without reroll
+{
+  if X < BS{result: 0}
+  else 
+  {
+    HITS: HITS +1
+    result: [d6 wound]
+  }
+}
+
+
+function: X:n hit
+{
+  if X < BS{
+    Y: 0
+    if REROLLS_ONES_TO_HIT & X=1 {Y: 1}
+    if REROLLS_FAILED_TO_HIT {Y: 1}
+    if Y < BS {result: [d6 hit without reroll]}
+    result: 0
+  }
+    else 
+  {
+    HITS: HITS +1
+    result: [d6 wound]
+  }
+}
+
+function: shoot X:n times{
+  if X>0
+    {result: [d6 hit] + [shoot X-1 times]}
+  else {result: 0}
+}
+output [shoot SHOTS times] named "Failed saves"
+output HITS named "Succesfull hits"
+output WOUNDS named "Succesfull wounds"

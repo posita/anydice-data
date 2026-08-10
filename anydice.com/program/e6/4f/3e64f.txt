@@ -1,0 +1,40 @@
+\ Defining Cyberpunk's Exploding D10 \
+function: cyberexplode N:n {
+if N = 10 { result: 10 + 1d10 }
+if N = 1 { result: 1 - 1d10 }
+result: N }
+
+function: autodmg DMG_ROLL:d ROLL_RESULT:n vs TGT:n {
+MARGIN: ROLL_RESULT - TGT
+if MARGIN >= 4 {result: DMG_ROLL * 4}
+if MARGIN = 3 {result: DMG_ROLL * 3}
+if MARGIN = 2 {result: DMG_ROLL * 2}
+if MARGIN = 1 {result: DMG_ROLL}
+result: 0}
+
+BASE: 14
+DV: 17
+SOLO_ATK: 0 \Attack bonus for Precision Attack\
+function: attackroll {result: [cyberexplode 1d10] + BASE + SOLO_ATK}
+DMG_DIE: 5
+SOLO_DMG: 0  \Damage bonus for Spot Weakness\
+function: dmgroll {result: DMG_DIE d 6 + SOLO_DMG}
+MAX: 20 + BASE - DV
+
+BASE: 14
+DV: 17
+SOLO_ATK: 0
+SOLO_DMG: 0
+output [autodmg [dmgroll] [attackroll] vs DV] named "Autofire [BASE] vs DV[DV]"
+
+BASE: 14
+DV: 17
+SOLO_ATK: 1
+SOLO_DMG: 1
+output [autodmg [dmgroll] [attackroll] vs DV] named "P1W1 Autofire [BASE] vs DV[DV]"
+
+BASE: 14
+DV: 17
+SOLO_ATK: 0
+SOLO_DMG: 4
+output [autodmg [dmgroll] [attackroll] vs DV] named "P0W4 Autofire [BASE] vs DV[DV]"

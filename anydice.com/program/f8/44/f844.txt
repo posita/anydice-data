@@ -1,0 +1,50 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [[highest 1 of 2d20] plus ATTACK vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ROLL:n plus ATTACK:n vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if ROLL = 1 { result: 0 }
+  if ROLL >= THREAT & ROLL + ATTACK >= AC | ROLL = 20 { result: [threat d20]  }
+  if ROLL + ATTACK >= AC {result: DAMAGE + EXTRA}
+  result: 0
+}
+
+function: threat ROLL:n {
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA
+ }
+ result: DAMAGE + EXTRA
+}
+
+function: crit MULT:n DAMAGE:d {
+  SUM: {}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Normalize input \
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+
+
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon" \
+
+AC: 20
+output [{11} vs AC crit 18 2 0 dmg 4d4+18 0] named "Falchion"
+output [{11} vs AC crit 19 2 0 dmg 4d6+18 0] named "Greatsword"
+
+
+

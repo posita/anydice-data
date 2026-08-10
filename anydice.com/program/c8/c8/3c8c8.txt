@@ -1,0 +1,82 @@
+SIX:      d{0,50,50,50,100,101}
+EIGHT:    d{0,50,50,50,100,100,150,151}
+TEN:      d{0,50,50,50,100,100,150,150,150,200}
+TWELVE:   d{0,50,50,50,100,100,150,150,150,200,200,250}
+FOURTEEN: d{0,50,50,50,100,100,150,150,150,200,200,250,250,251}
+
+\
+SIX:      d{0,0,0,50,50,51}
+EIGHT:    d{0,0,0,0,50,50,100,101}
+TEN:      d{0,0,0,0,50,50,100,100,100,150}
+TWELVE:   d{0,0,0,0,50,50,100,100,100,150,150,200}
+FOURTEEN: d{0,0,0,0,50,50,100,100,100,150,150,200,200,201}
+\
+\
+ORD:      d{1,2,3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14}
+SIX:      d{0,0,0,100,100,101}
+EIGHT:    d{0,0,0,100,100,100,100,200}
+TEN:      d{0,0,0,100,100,100,100,100,200,200}
+TWELVE:   d{0,0,0,100,100,100,100,100,200,200,200,201}
+FOURTEEN: d{0,0,0,100,100,100,100,200,200,200,200,200,200,300}
+\
+
+function: succ SUM:n {
+  if SUM > 0 {
+    S: SUM/100 + 1
+    if S > 9 {result: 9}
+    result: S
+  }
+  if SUM > -10 {result: 1}  
+  result: 0
+}
+
+function: oldsucc SUM:n {
+  if SUM = 0 {result: 1}
+  if SUM > 0 {result: SUM/5 + 1}
+  result: 0
+}
+
+function: roll ATTR:d with SKILL:d vs DIFFICULTY:n {
+  SUM: ([explode ATTR] + [explode SKILL] - DIFFICULTY)
+  result: [succ SUM]
+}
+
+\
+output 2d[explode 1dSIX]/100 named "new D6"
+output 2d[explode 1d6]/5 named "old D6"
+output 2d[explode 1dEIGHT]/100 named "new D8"
+output 2d[explode 1d8]/5 named "old D8"
+output 2d[explode 1dTEN]/100 named "new D10"
+output 2d[explode 1d10]/5 named "old D10"
+output 2d[explode 1dTWELVE]/100 named "new D12"
+output 2d[explode 1d12]/5 named "old D12"
+output 2d[explode 1dFOURTEEN]/100 named "new D14"
+output 4d[explode 1dSIX]/100 named "new 2D6"
+output 2d[explode 1d14]/5 named "old D14"
+\
+
+\
+output [roll 1dSIX with 1dSIX vs 2dSIX] named "new 2D6 vs 2D6"
+output [oldsucc ([explode d6] + [explode d6] - 2d6)] named "2D6 vs 2D6"
+output [roll 1dTEN with 1dTEN vs 2dTEN] named "new 2D10 vs 2D10"
+output [oldsucc ([explode d10] + [explode d10] - 2d10)] named "2D10 vs 2D10"
+output [roll 1dFOURTEEN with 1dFOURTEEN vs 2dFOURTEEN] named "new 2D14 vs 2D14"
+output [oldsucc ([explode d14] + [explode d14] - 2d14)] named "2D14 vs 2D14"
+\
+
+output [roll 1dSIX with 1dSIX vs 2dTEN] named "d6,d6 vs 2D10"
+output [roll 1dSIX with 1dEIGHT vs 2dTEN] named "d8,d6 vs 2D10"
+output [roll 1dEIGHT with 1dEIGHT vs 2dTEN] named "d8,d8 vs 2D10"
+output [roll 1dEIGHT with 1dTEN vs 2dTEN] named "d10,d8 vs 2D10"
+output [roll 1dTEN with 1dTEN vs 2dTEN] named "d10,d10 vs 2D10"
+output [roll 1dTWELVE with 1dTEN vs 2dTEN] named "d12,d10 vs 2D10"
+output [roll 1dTWELVE with 1dTWELVE vs 2dTEN] named "d12,d12 vs 2D10"
+output [roll 1dFOURTEEN with 1dTWELVE vs 2dTEN] named "d14,d12 vs 2D10"
+output [roll 1dFOURTEEN with 1dFOURTEEN vs 2dTEN] named "d14,d14 vs 2D10"
+output [roll 1dSIX with 1dFOURTEEN + 100 vs 2dTEN] named "1,d6,d14 vs 2D10"
+output [roll 1dEIGHT + 100 with 1dFOURTEEN vs 2dTEN] named "1,d8,d14 vs 2D10"
+output [roll 1dTEN + 100 with 1dFOURTEEN vs 2dTEN] named "1,d10,d14 vs 2D10"
+output [roll 1dTWELVE + 100 with 1dFOURTEEN vs 2dTEN] named "1,d12,d14 vs 2D10"
+output [roll 1dFOURTEEN + 100 with 1dFOURTEEN vs 2dTEN] named "1,d14,d14 vs 2D10"
+output [roll 1dTEN + 200 with 1dTEN vs 2dTEN] named "2,d6,d14 vs 2D10"
+

@@ -1,0 +1,52 @@
+\ https://anydice.com/program/2afaf \
+CRIT: 0
+set "maximum function depth" to 9
+
+function: brilliant of DICE:d {
+  MAX: [maximum of DICE] +2
+  if MAX = 8 { result: { 6 } } 
+  BR: {}
+  loop N over {1..#DICE} {
+    if N = 1 {
+      BR: BR
+    }
+    else {
+      BR: {BR, MAX-N}
+    }
+  }
+  result: {BR}
+}
+function: critical of DICE:d {
+  result: #DICE
+}
+function: critplusone of DICE:d {
+  result: {#DICE,#DICE+1}
+}
+function: explodeb ROLLEDVALUE:n {
+ if ROLLEDVALUE = 6 { result: 2 + [explodeb d6] }
+ result: ROLLEDVALUE
+}
+function: explode ROLLEDVALUE:n crit CRITR:s bril BRIL:s {
+ if ROLLEDVALUE = BRIL { result: ROLLEDVALUE + [explodeb d6] }
+ if ROLLEDVALUE = CRITR { result: CRIT }
+ result: ROLLEDVALUE
+}
+function: explode DICE:d {
+  if [maximum of DICE] = 6 {
+    result: [explode DICE crit 1 bril 6]
+  }
+  result: [explode DICE crit [critical of DICE] bril [brilliant of DICE]]
+}
+function: atune DICE:d {
+  NUM: #(DICE)
+  MORE: NUM+1
+  result: [explode [highest NUM of MOREd6] crit [critplusone of DICE] bril [brilliant of DICE]]
+}
+
+\ Main Program \
+loop N over {1..5} {
+  TEST: Nd6
+  output [explode TEST] named "explode [TEST]"
+  output [atune TEST] named "atunement [TEST]"
+}
+

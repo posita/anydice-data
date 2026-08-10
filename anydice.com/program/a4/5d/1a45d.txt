@@ -1,0 +1,38 @@
+DC: 16
+DEXSAVEMOD: +2
+SAVETARGET: DC - DEXSAVEMOD
+
+AC: 16
+TOHITMOD: +6
+HITTARGET: AC - TOHITMOD
+
+DAMAGEDIE: 1d8
+DAMAGEMOD: +4
+HEXDIE: 1d6
+
+function: damage ROLL:n {
+  if ROLL = 20 {result: 2dDAMAGEDIE + DAMAGEMOD}
+  if ROLL >= HITTARGET {result: DAMAGEDIE + DAMAGEMOD}
+  result: 0
+}
+output [damage d20] named "Normal"
+
+function: bless ROLL:n {
+  if ROLL = 20 {result: 2dDAMAGEDIE + DAMAGEMOD}
+  if {ROLL + 1d4} >= HITTARGET {result: DAMAGEDIE + DAMAGEMOD}
+  result: 0
+}
+output [bless d20] named "Bless"
+
+function: faerie SAVE:n {
+  if SAVE >= SAVETARGET {result: [damage 1d20]}
+  result: [damage [highest 1 of 2d20]]
+}
+output [faerie 1d20] named "Faerie"
+
+function: hex ROLL:n {
+  if ROLL = 20 {result: 2dDAMAGEDIE + DAMAGEMOD + HEXDIE}
+ if {ROLL} >= HITTARGET {result: DAMAGEDIE + DAMAGEMOD + HEXDIE}
+ result: 0
+}
+output [hex 1d20] named "hex"

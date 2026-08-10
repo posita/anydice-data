@@ -1,0 +1,60 @@
+TO_HIT_MODIFIER: 7
+DAMAGE_MODIFIER: 3
+NO_OF_ATTACKS: 1
+DAMAGE: {8, 6}
+AC: 15
+SAVING_THROW_MODIFIER: 2
+SAVING_THROW_DC: 15
+TYPE: 1
+\ TYPE: 0 == attack roll, TYPE: 1 == saving throw \
+SAVING_THROW_SUCCESS_TYPE: 1
+\ 0 == successful save does no damage, 1 == successful save does half damage, only relevant if TYPE == 1 \
+
+TOTAL_DAMAGE_DEALT: 0
+
+function: damage calculator CRIT:n{
+ loop I over {1..#(DAMAGE)}{
+  if I/2*2 != I {
+   TOTAL_DAMAGE_DEALT: TOTAL_DAMAGE_DEALT + (((CRIT+1)*I@DAMAGE)d((I+1)@DAMAGE))
+  }
+ }
+ result: TOTAL_DAMAGE_DEALT + DAMAGE_MODIFIER
+}
+
+function: attack ROLL:n{
+ if ROLL = 1 { result: 0 }
+ if ROLL = 20 { 
+  result: [damage calculator 1]
+ }
+ if ROLL + TO_HIT_MODIFIER >= AC { 
+  result: [damage calculator 0]
+ }
+ result: 0
+}
+
+function: saving throw ROLL:n{
+ if ROLL + SAVING_THROW_MODIFIER >= SAVING_THROW_DC{ 
+  if SAVING_THROW_SUCCESS_TYPE = 0{
+   result: 0
+  }
+  result: [damage calculator 0]/2
+ }
+ result: [damage calculator 0]
+}
+
+function: multiple attacks ROLL:n{
+ DAMAGE_THUSFAR: 0
+ loop J over {1..NO_OF_ATTACKS}{
+  if TYPE = 0{
+   DAMAGE_THUSFAR: DAMAGE_THUSFAR + [attack ROLL]
+  }
+  if TYPE = 1{
+   DAMAGE_THUSFAR: DAMAGE_THUSFAR + [saving throw ROLL]
+  }
+ }
+ result: DAMAGE_THUSFAR
+}
+
+output [multiple attacks [highest 1 of 2d20]] named "Advantage"
+output [multiple attacks d20] named "Flat"
+output [multiple attacks [lowest 1 of 2d20]] named "Disadvantage"

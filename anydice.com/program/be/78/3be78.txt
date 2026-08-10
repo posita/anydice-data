@@ -1,0 +1,95 @@
+D: 1d8
+
+function: dhpm N:n M:n {
+ if N = M {
+  result: N * 3
+ }
+ result: N + M
+}
+
+function: dhpe N:n M:n O:n {
+ if N = M {
+  result: N * 2 + O
+ }
+ result: N + M
+}
+
+function: dhpm adv N:n M:n O:n {
+ E: 0
+ if N = M {
+  E: N
+ }
+ result: 1 @ [sort {N, M, O}] + 2@[sort {N, M, O}] + E
+}
+
+function: dhpm damage N:n M:n {
+ result: ([dhpm N M] + 5) / 5
+}
+
+function: dhpm dodge damage N:n M:n {
+ R: [dhpm N M]
+ if R >= 10 {
+  result: (R + 5) / 5
+ }
+ result: 0
+}
+
+
+function: dhpm light weapon dodge damage N:n M:n {
+ R: ([dhpm N M])
+ if R >=10 {
+  result: R/5
+ }
+ result: 0
+}
+
+function: dhpm heavy weapon dodge damage N:n M:n {
+ R: ([dhpm N M])
+ if R >=10 {
+  result: (R+10)/5
+ }
+ result: 0
+}
+
+
+function: dhpm brace damage N:n M:n {
+ result: ([dhpm N M]) / 5
+}
+
+function: dhpm light weapon dual attack damage N:n M:n O:n P:n {
+ result: [dhpm light weapon damage M N] + [dhpm light weapon damage O P]
+}
+
+function: dhpm light weapon damage N:n M:n {
+ R: ([dhpm N M])
+ if R >=5 {
+  result: R/5
+ }
+ result: (R+5)/5
+}
+
+function: dhpm heavy weapon damage N:n M:n {
+ R: ([dhpm N M])
+ if R >=5 {
+  result: (R+10)/5
+ }
+ result: (R+5)/5
+}
+
+
+output [dhpm damage D D] named "medium weapon"
+\ output [dhpm light weapon damage D D] named "light weapon" \
+output [dhpm light weapon dual attack damage D D D D] named "light weapon multiattack"
+output [dhpm heavy weapon damage D D] named "heavy weapon"
+
+output [dhpm dodge damage D D] named "medium dodge"
+output [dhpm brace damage D D] named "medium brace"
+
+
+output [dhpm light weapon dodge damage D D] + [dhpm light weapon dodge damage D D] named "light weapon multiattack dodge"
+output [dhpm heavy weapon dodge damage D D] named "heavy weapon dodge"
+
+output [dhpm D D]
+output [dhpm adv D D D ]
+\ output [dhpe 1d10 1d10 3] \
+output [dhpm 1d10 1d10]

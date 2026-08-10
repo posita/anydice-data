@@ -1,0 +1,60 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n {
+  SUM: {0}
+  loop ATTACK over ATTACKS { SUM: SUM + [[highest 1 of TRIESd20] plus ATTACK ac AC crit THREAT MULT dmg DAMAGE mod EXTRA] }
+  result: SUM
+}
+function: ROLL:n plus ATTACK:n ac AC:n crit THREAT:n MULT:n dmg DAMAGE:d mod EXTRA:d {
+  if (ROLL >= THREAT) { result: [crit MULT DAMAGE] + EXTRA }
+  if (ROLL = 1) { result: 0 }
+  result: (ROLL + ATTACK >= AC) * (DAMAGE + EXTRA)
+}
+function: crit MULT:n DAMAGE:d {
+  SUM: {0}
+  loop N over {1..MULT} { SUM: SUM + DAMAGE }
+  result: SUM
+}
+function: ATTACKS:s vs AC:n dmg DAMAGE:d { result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod 0 tries 1] }
+function: ATTACKS:s vs AC:n dmg DAMAGE:d mod EXTRA:d { result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod EXTRA tries 1] }
+function: ATTACKS:s vs AC:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n { result: [ATTACKS vs AC crit 20 2 dmg DAMAGE mod EXTRA tries TRIES] }
+function: ATTACKS:s vs AC:n crit THREAT:n dmg DAMAGE:d { result: [ATTACKS vs AC crit THREAT mult 2 dmg DAMAGE mod 0 tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n dmg DAMAGE:d mod EXTRA:d { result: [ATTACKS vs AC crit THREAT mult 2 dmg DAMAGE mod EXTRA tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n { result: [ATTACKS vs AC crit THREAT mult 2 dmg DAMAGE mod EXTRA tries TRIES] }
+function: ATTACKS:s vs AC:n crit THREAT:n mult MULT:n dmg DAMAGE:d { result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod 0 tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n mult MULT:n dmg DAMAGE:d mod EXTRA:d { result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod EXTRA tries 1] }
+function: ATTACKS:s vs AC:n crit THREAT:n mult MULT:n dmg DAMAGE:d mod EXTRA:d tries TRIES:n { result: [ATTACKS vs AC crit THREAT MULT dmg DAMAGE mod EXTRA tries TRIES] }
+
+function: DC:n save SAVE:n dmg DMG:d half ROLL:n {
+  if (ROLL + SAVE >= DC) { result: DMG / 2 }
+  if (ROLL + SAVE < DC) { result: DMG }  
+}
+function: DC:n save SAVE:n dmg DMG:d none { result: (1d20 + SAVE >= DC) * DMG }
+function: dc DCS:s save SAVE:n dmg DMG:d half {
+  SUM: {0}
+  loop DC over DCS { SUM: SUM + [DC save SAVE dmg DMG half 1d20] }
+  result: SUM
+}
+function: dc DCS:s save SAVE:n dmg DMG:d none {
+  SUM: {0}
+  loop DC over DCS { SUM: SUM + [DC save SAVE dmg DMG none] }
+  result: SUM
+}
+
+\ Add some styling to the legends table \
+output 0 named "<style>table.jqplot-table-legend > tbody > tr:first-child { display: none; } .jqplot-table-legend p { margin: 0px; display: inline-block; width: 250px; overflow: hidden; text-overflow: ellipsis; } .jqplot-table-legend td { white-space: nowrap; }</style>"
+
+ATK: 5
+DC: 13
+DMG: 1d10
+MOD: +5
+
+AC: 15
+SDEX: 3
+
+\ Examples \
+output [ATK vs AC dmg DMG mod MOD] named "<p>Attack [ATK]</p><p>[DMG] + [MOD]</p> vs AC [AC]"
+output [ATK vs AC dmg DMG mod MOD tries 2] named "<p>Attack [ATK] with advantage</p><p>[DMG] + [MOD]</p> vs AC [AC]"
+output [ATK vs AC crit 19 dmg DMG mod MOD tries 2] named "<p>Attack [ATK]</p><p>[DMG] + [MOD] crit 19-20 x 2</p> vs AC [AC]"
+output [ATK vs AC crit 19 mult 3 dmg DMG mod MOD tries 2] named "<p>Attack [ATK]</p><p>[DMG] + [MOD] crit 19-20 x 3</p> vs AC [AC]"
+output [{ATK, ATK} vs AC dmg DMG mod MOD] named "<p>Attack [ATK] twice</p><p>[DMG] + [MOD]</p> vs AC [AC]"
+output [dc 15 save SDEX dmg DMG+MOD none] named "<p>Spell DC [DC]</p><p>[DMG] + [MOD] (save negates)</p> vs Save [SDEX]"
+output [dc 15 save SDEX dmg DMG+MOD half] named "<p>Spell DC [DC]</p><p>[DMG] + [MOD] (save halves)</p> vs Save [SDEX]"

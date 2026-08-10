@@ -1,0 +1,65 @@
+function: halfonsave ROLL:n DC:n DAMAGE {
+  if (ROLL>= DC) { result: DAMAGE/2 }
+  result: DAMAGE
+}
+
+function: dtwenty ROLL:n {
+  if ROLL=20 { result: 99 }
+  if ROLL=1 { result: -99 }
+  result: ROLL
+}
+
+function: attackroll ROLL:n ATTBON AC DMGDIE DMGBON {
+  if ROLL=20 { result: 2dDMGDIE+DMGBON }
+  if ROLL=1 { result: 0 }
+  if ROLL+ATTBON>=AC { result: DMGDIE + DMGBON }
+  result: 0
+}
+
+\
+loop DC over {11,13,15,19} {
+  output [dtwenty 2@2d20]-4>=DC named "[DC]"
+}
+output 36d(1d4+2) + 15d(1d10+2) + 22d(1d8+2) + 21d(1d6+2)
+output [dtwenty 1@2d20]+3>=10
+
+
+\
+
+ATTBON: 6
+DMGBON: 4
+SSBON: 5
+SSDMG: 10
+
+
+\
+SPEED: 120
+PCTREVERB: 80
+
+loop PCTREVERB over {100,90,75,50,0} {
+output (SPEED/3)d{2,2,3,4} + (((SPEED*PCTREVERB)/100)/9)d(1d{2,2,3,4}) named "EA:Th [PCTREVERB]"
+output (((SPEED*110)/100)/3)d4 + ((((SPEED*110*PCTREVERB)/100)/100)/9)d(1d4) named "Mob [PCTREVERB]"
+}
+output 100d[highest of 0 and [halfonsave 1d20+6-4 13 3d6] - 4]
+
+\
+
+SPEED: 54
+REVERB: 0
+BASE: 1d4
+output (SPEED/3)d(BASE) + (SPEED/9)d(REVERB) named "1"
+SPEED:72
+output (SPEED/3)d(BASE) + (SPEED/9)d(REVERB) named "2"
+SPEED:135
+output (SPEED/3)d(BASE) + (SPEED/9)d(REVERB) named "3"
+REVERB: 1d4
+output (SPEED/3)d(BASE) + (SPEED/9)d(REVERB) named "4"
+BASE: {2,2,3,4}
+REVERB: {2,2,3,4}
+output (SPEED/3)d(BASE) + (SPEED/9)d(REVERB) named "5"
+SPEED: 126
+REVERB: {4,4,5,6}
+output (SPEED/3)d(BASE) + (SPEED/9)d(REVERB) named "6"
+SPEED: 144
+output (SPEED/3)d(BASE) + (SPEED/9)d(REVERB) named "7"
+

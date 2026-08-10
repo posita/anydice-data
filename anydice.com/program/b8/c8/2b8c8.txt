@@ -1,0 +1,55 @@
+\This program calculates successes when doing downtime things in XGE.\
+
+PB: 3 \your PB\
+MOD_ONE: 4 \Mod for 1st skill check, in this case, deception, with my cha of +4 \
+MOD_TWO: 4 \Mod for 2nd skill check, in this case, intimidation, with my cha of +4 \
+MOD_THREE: 2 \Mod for 3rd skill check, in this case, insight, with my wis of +2 \
+
+\Use this if the roll has advantage and guidance\
+function: outcome adv guide MOD:n{
+DC: 5+2d10
+ROLL: 1@2d20+MOD+1d4
+A: ROLL>=DC
+result: A
+}
+
+\Use this if the roll does not have advantage and guidance\
+function: outcome guide MOD:n {
+DC: 5+2d10
+ROLL: 1@1d20+MOD+1d4
+A: ROLL>=DC
+result: A
+}
+
+\Use this if the roll has advantage \
+function: outcome adv MOD:n{
+DC: 5+2d10
+ROLL: 1@2d20+MOD
+A: ROLL>=DC
+result: A
+}
+
+\Use this if the roll does not have advantage \
+function: outcome MOD:n {
+DC: 5+2d10
+ROLL: 1@1d20+MOD
+A: ROLL>=DC
+result: A
+}
+
+output [outcome 7]+[outcome 7]+[outcome  5] named "XXX"
+
+\Example 1: Normal rolls, not proficient in anything\
+output [outcome PB+MOD_ONE]+[outcome PB+MOD_TWO]+[outcome PB+MOD_THREE] named "Normal roll"
+
+\Example 2: Replace 3rd roll (PB+stat = 5) with expertise tool instead (PBx2)\
+output [outcome PB+MOD_ONE]+[outcome PB+MOD_TWO]+[outcome PB+PB] named "Normal roll, tool/expertise replacement"
+
+\Example 3: Proficient in all skills, adding guidance\
+output [outcome guide PB+MOD_ONE]+[outcome guide PB+MOD_TWO]+[outcome guide PB+MOD_THREE] named "Guidance roll"
+
+\Example 4: As per 3, adding advantage\
+output [outcome adv guide PB+MOD_ONE]+[outcome adv guide PB+MOD_TWO]+[outcome adv guide PB+MOD_THREE] named "Guidance+advantage roll"
+
+\Example 5: first roll is normal, second is with advantage, 3rd is with guidance + advantage\
+output [outcome PB+MOD_ONE]+[outcome adv PB+MOD_TWO]+[outcome adv guide PB+MOD_THREE] named "Mixed rolls"

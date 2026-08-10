@@ -1,0 +1,26 @@
+function: truecheck R:n B:n DC:n{
+X: 0
+if R + B >= DC {X: 1}
+if (R + B >= DC + 10) + (R = 20) {X: X + 1}
+if (R + B <= DC - 10) + (R = 1) {X: X - 1}
+result: X
+}
+function: check B:n DC:n {result: [truecheck 1d20 B DC]}
+function: rita P:n S:n DC:n{
+A: [check S DC]
+result: [highest of ([check (P + (2 * (A = 2)) - (4 * (A = 0))) (DC+5)] - (A = -1)) and -1]
+}
+function: ritb P:n SA:n SB:n DC:n{
+A: [check SA DC]
+B: [check SB DC]
+result: [highest of ([check (P + (2 * ((A = 2) + (B = 2))) - (4 * ((A = 0) + (B = 0)))) (DC+5)] - ((A = -1)+(B = -1))) and -1]
+}
+
+output [rita 20 20 27]
+output [ritb 22 16 16 24]
+
+function: tillresult N:n {
+if N = 0 {result: [tillresult [ritb 22 16 16 24]]}
+result: N
+}
+output [tillresult [ritb 22 16 16 24]]

@@ -1,0 +1,43 @@
+MISS:0
+HIT:1
+CRITICALHIT:2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = {20} {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: attack {
+ result: [damage for [attack d20 vs DEFENSE]]
+}
+function: advattack {
+ result: [damage for [attack [highest 2 of 2d20] vs DEFENSE]]
+}
+
+DEFENSE: d{17}
+
+ATTACK: 8
+HITDAMAGE: 1d10 + 5
+CRITICALDAMAGE: 2d10 + 5
+MISSDAMAGE: 0
+output 2d[attack] named "Masterwork Glaive"
+
+ATTACK: 3
+HITDAMAGE: 1d10 + 15
+CRITICALDAMAGE: 2d10 + 15
+output 2d[attack] named "GWM"

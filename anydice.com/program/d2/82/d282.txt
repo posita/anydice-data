@@ -1,0 +1,56 @@
+STR: 3
+FIN: 3
+MELEE:3
+DEFENSEBONUS: 6
+ARMOR: 0
+ATTACK: STR + MELEE
+DEFENSE: 4 + DEFENSEBONUS
+
+function: floor NUM:n {
+     if NUM < 0 { result: 0 }
+     result: NUM
+}
+
+function: bound NUM:n { \Floors numbers below 0 to 0\
+     if NUM > 0 { result: 0 }
+     result: NUM
+}
+
+function: damage of DAMAGE:n PIERCING:n { \Generic damage calculation\
+     result: [floor DAMAGE + [bound PIERCING - ARMOR]]
+}
+
+function: battack ROLL:n damage DAM:n pierce PIERCE:n{ \Blunt Weapon attack\
+ if ROLL + ATTACK >= DEFENSE { result: [damage of DAM+STR PIERCE] }
+ result: 0
+}
+
+function: sattack ROLL:n damage DAM:n pierce PIERCE:n{ \Sharp weapon attack\
+ if ROLL + ATTACK >= DEFENSE { result: [damage of DAM+FIN PIERCE] }
+ result: 0
+}
+
+function: aattack ROLL:n damage DAM:n pierce PIERCE:n { \Sneak attack with Assassin\
+ if ROLL + ATTACK >= DEFENSE { result: [damage of DAM+(2*FIN) PIERCE] }
+ result: 0
+}
+
+function: fattack ROLL:n damage DAM:n { \IRON FIST STRONK!\
+ if ROLL + ATTACK - 2 >= DEFENSE { result: DAM+(2*STR) }
+ result: 0
+}
+
+
+output [battack 2d4+2 damage 1 pierce 4] named "Fist"
+output [battack 2d4+2 damage 0 pierce 4]+[battack 2d4-2 damage 0 pierce 4]+[battack 2d4-2 damage 0 pierce 4]+[battack 2d4-2 damage 0 pierce 4] named "Fist with Flurry"
+output [battack 2d4+1 damage 1d4 pierce 8] named "Small Blunt"
+output [battack 2d4+1 damage 1d4-1 pierce 8]+[battack 2d4-2 damage 1d4-1 pierce 8]+[battack 2d4-2 damage 1d4-1 pierce 8] named "Small Blunt with Flurry"
+output [sattack 2d4 damage 1d4+3 pierce 0] named "Small Blade"
+output [sattack 2d4 damage 1d4+2 pierce 0]+[sattack 2d4-3 damage 1d4+2 pierce 0]+[sattack 2d4-3 damage 1d4+2 pierce 0] named "Small Blade with Flurry"
+output [battack 2d4+1 damage 2d4 pierce 8] named "Medium Blunt"
+output [battack 2d4+1 damage 2d4-1 pierce 8]+[battack 2d4-1 damage 2d4-1 pierce 8] named "Medium Blunt with Flurry"
+output [sattack 2d4 damage 3d4+4 pierce 0] named "Medium Blade"
+output [sattack 2d4 damage 3d4+3 pierce 0]+[sattack 2d4-2 damage 3d4+3 pierce 0] named "Medium Blade with Flurry"
+output [battack 2d4+1 damage 3d4+2 pierce 12] named "Large Blunt"
+output [sattack 2d4 damage 3d4+9 pierce 2] named "Large Blade"
+output [aattack 2d4+1 damage 2*1d4+6 pierce 4] named "Small Blade with Assassin"

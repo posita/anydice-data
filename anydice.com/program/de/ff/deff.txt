@@ -1,0 +1,56 @@
+ABILITY: [highest 3 of 4d6]
+
+\
+function: ROLL:n high curve {
+  if ROLL <= 101 { result: 15 }
+  if ROLL <= 174 { result: 16 }
+  if ROLL <= 216 { result: 17 }
+  result: 18
+}
+
+HIGHABILITY: [1d232 high curve]
+\
+
+function: ROLL:n low VAL:n {
+  if ROLL > VAL { result: ROLL }
+  result: VAL
+}
+
+HIGHABILITY: [ ABILITY low 15 ]
+
+ABILITIES: 6 d HIGHABILITY
+
+loop P over {1..2} {
+ output P@ABILITIES named "Ability [P]"
+}
+
+ABILITIES: 6 d ABILITY
+
+loop P over {3..6} {
+ output P@ABILITIES named "Ability [P]"
+}
+
+function: ROLL:n point cost {
+  if ROLL <= 13 {
+    result: ROLL - 8
+  }
+  if ROLL <= 15 {
+    result: 5 + ((ROLL - 13) * 2)
+  }
+  if ROLL <= 17 {
+    result: 9 + ((ROLL - 15) * 3)
+  }
+  result: 17
+}
+
+function: ROLLS:s total point cost {
+  S: 0
+  loop P over {1..#ROLLS} {
+    S: S + [P@ROLLS point cost]
+  }
+  result: S
+}
+
+output 6 d [ABILITY point cost] named "Point Cost 4d6"
+
+output [lowest 4 of 6 d [ABILITY point cost]] + [highest 2 of 6 d [HIGHABILITY point cost]] named "Point Cost 4d6 with two >= 15"

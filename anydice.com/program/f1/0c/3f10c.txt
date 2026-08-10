@@ -1,0 +1,156 @@
+
+\** Attack Roll Function **\
+function: attackrollevade ROLL:n vs EVADE:n {
+ if ROLL = 1 & EVADE != 1 { result: CRITDAMAGE } 
+ if ROLL = 1 & EVADE = 1 { result: 0 } 
+ if ROLL = 100 { result: 0 } 
+ if ROLL <= GREAT & EVADE = 100 { result: CRITDAMAGE } 
+ if ROLL <= NORMAL & EVADE = 100 { result: DAMAGE } 
+ if ROLL <= GREAT & EVADE > OPGREAT { result: CRITDAMAGE } 
+ if ROLL <= GREAT & EVADE <= OPGREAT { result: 0 } 
+ if ROLL <= GOOD & EVADE > OPGOOD { result: DAMAGE } 
+ if ROLL <= GOOD & EVADE <= OPGOOD { result: 0 } 
+ if ROLL <= NORMAL & EVADE > OPNORMAL { result: DAMAGE } 
+ if ROLL <= NORMAL & EVADE <= OPNORMAL { result: 0 } 
+ if ROLL = 100 {result: 0}
+ result: 0
+}
+
+function: attackrollcounter ROLL:n vs EVADE:n {
+ if ROLL = 1 { result: CRITDAMAGE } 
+ if ROLL = 100 { result: -10 } 
+ if ROLL <= GREAT & EVADE = 100 { result: CRITDAMAGE } 
+ if ROLL <= NORMAL & EVADE = 100 { result: DAMAGE } 
+ if ROLL <= GREAT & EVADE > 1 { result: CRITDAMAGE } 
+ if ROLL <= GREAT & EVADE = 1 { result: -10 } 
+ if ROLL <= GOOD & EVADE > OPGREAT { result: DAMAGE } 
+ if ROLL <= GOOD & EVADE <= OPGREAT { result: -10 } 
+ if ROLL <= NORMAL & EVADE > OPGOOD { result: DAMAGE } 
+ if ROLL <= NORMAL & EVADE <= OPGOOD & EVADE != 100 { result: -10 } 
+ if ROLL > NORMAL & EVADE > OPNORMAL {result: 0}
+ if ROLL = 100 {result: -10}
+ result: -10
+}
+
+function: attackrollsave ROLL:n vs EVADE:n { \** Ataque mÃ¡gico com crit, crita 1.5 se der extremo ou alvo falhar. Conjurador ganha em tie**\
+ if ROLL = 1 { result: SPELLCRITDAMAGE } 
+ if ROLL = 100 { result: DAMAGE/2 } 
+ if ROLL <= GREAT & EVADE = 100 { result: SPELLCRITDAMAGE } 
+ if ROLL <= NORMAL & EVADE = 100 { result: DAMAGE } 
+ if ROLL <= NORMAL & EVADE < OPNORMAL {result: SPELLCRITDAMAGE}
+ if ROLL <= GREAT & EVADE > 1 { result: SPELLCRITDAMAGE } 
+ if ROLL <= GREAT & EVADE = 1 { result: (DAMAGE/2) } 
+ if ROLL <= GOOD & EVADE > OPGREAT { result: DAMAGE } 
+ if ROLL <= GOOD & EVADE <= OPGREAT { result: (DAMAGE/2) } 
+ if ROLL <= NORMAL & EVADE > OPGOOD { result: DAMAGE } 
+ if ROLL <= NORMAL & EVADE <= OPGOOD { result: (DAMAGE/2) } 
+ if ROLL > NORMAL & EVADE > OPNORMAL {result: (DAMAGE/2)}
+ if ROLL = 100 {result: (DAMAGE/2)}
+ result: (DAMAGE/2)
+}
+
+function: attackrolleff ROLL:n vs EVADE:n {  \** Acertar efeito de status (1 sucesso 0 falha) com tie conjurador ganha, caso ao menos normal **\
+ if ROLL = 1 { result: 1 } 
+ if ROLL = 100 & EVADE != 100{ result: 0 }
+ if ROLL = 100 & EVADE = 100{ result: 1 } 
+ if ROLL <= GREAT & EVADE = 100 { result: 1 } 
+ if ROLL <= NORMAL & EVADE = 100 { result: 1 } 
+ if ROLL <= GREAT & EVADE > 1 { result: 1 } 
+ if ROLL <= GREAT & EVADE = 1 { result: 0 } 
+ if ROLL <= GOOD & EVADE > OPGREAT { result: 1 } 
+ if ROLL <= GOOD & EVADE <= OPGREAT { result: 0 } 
+ if ROLL <= NORMAL & EVADE > OPGOOD { result: 1 } 
+ if ROLL <= NORMAL & EVADE <= OPGOOD { result: 0 } 
+ if ROLL = 100 {result: 0}
+ result: 0
+}
+
+function: attackrollefflosetie ROLL:n vs EVADE:n { \** Acertar efeito de status (1 sucesso 0 falha) com tie defensor ganha **\
+ if ROLL = 1 & EVADE != 1 { result: 1 } 
+ if ROLL = 1 & EVADE = 1 { result: 0 } 
+ if ROLL = 100 { result: 0 } 
+ if ROLL <= GREAT & EVADE = 100 { result: 1 } 
+ if ROLL <= NORMAL & EVADE = 100 { result: 1 } 
+ if ROLL <= GREAT & EVADE > OPGREAT { result: 1 } 
+ if ROLL <= GREAT & EVADE <= OPGREAT { result: 0 } 
+ if ROLL <= GOOD & EVADE > OPGOOD { result: 1 } 
+ if ROLL <= GOOD & EVADE <= OPGOOD { result: 0 } 
+ if ROLL <= NORMAL & EVADE > OPNORMAL { result: 1 } 
+ if ROLL <= NORMAL & EVADE <= OPNORMAL { result: 0 } 
+ if ROLL = 100 {result: 0}
+ result: 0
+}
+
+\** 
+FUNÃ‡Ã•ES ANTIGAS ONDE FALHA VS FALHA ERA POSSÃVEL GANHAR NO WINTIE
+function: attackrolleff ROLL:n vs EVADE:n {   Acertar efeito de status (1 sucesso 0 falha) com tie conjurador ganha 
+ if ROLL = 1 { result: 1 } 
+ if ROLL = 100 & EVADE != 100{ result: 0 }
+ if ROLL = 100 & EVADE = 100{ result: 1 } 
+ if ROLL <= GREAT & EVADE = 100 { result: 1 } 
+ if ROLL <= NORMAL & EVADE = 100 { result: 1 } 
+ if ROLL <= GREAT & EVADE > 1 { result: 1 } 
+ if ROLL <= GREAT & EVADE = 1 { result: 0 } 
+ if ROLL <= GOOD & EVADE > OPGREAT { result: 1 } 
+ if ROLL <= GOOD & EVADE <= OPGREAT { result: 0 } 
+ if ROLL <= NORMAL & EVADE > OPGOOD { result: 1 } 
+ if ROLL <= NORMAL & EVADE <= OPGOOD { result: 0 } 
+ if ROLL > NORMAL & EVADE > OPNORMAL {result: 1}
+ if ROLL > NORMAL & EVADE <= OPNORMAL {result: 0}
+ if ROLL = 100 {result: 0}
+ result: 0
+}
+
+function: attackrollefflosetie ROLL:n vs EVADE:n {  Acertar efeito de status (1 sucesso 0 falha) com tie defensor ganha 
+ if ROLL = 1 & EVADE != 1 { result: 1 } 
+ if ROLL = 1 & EVADE = 1 { result: 0 } 
+ if ROLL = 100 { result: 0 } 
+ if ROLL <= GREAT & EVADE = 100 { result: 1 } 
+ if ROLL <= NORMAL & EVADE = 100 { result: 1 } 
+ if ROLL <= GREAT & EVADE > OPGREAT { result: 1 } 
+ if ROLL <= GREAT & EVADE <= OPGREAT { result: 0 } 
+ if ROLL <= GOOD & EVADE > OPGOOD { result: 1 } 
+ if ROLL <= GOOD & EVADE <= OPGOOD { result: 0 } 
+ if ROLL <= NORMAL & EVADE > OPNORMAL { result: 1 } 
+ if ROLL <= NORMAL & EVADE <= OPNORMAL { result: 0 } 
+ if ROLL > NORMAL & EVADE = 100 {result: 1}
+ if ROLL = 100 {result: 0}
+ result: 0
+}
+**\
+
+\** Attack looped against enemy AC from 15-20 **\
+AC: d{80..90}
+
+\** Edit Here **\
+ABILITYMOD: 0
+DMGBONUS: 0
+ATTACKTIMES: 1
+DAMAGE: 10d8 + ABILITYMOD + DMGBONUS
+SPELLCRITDAMAGE: (DAMAGE)+(DAMAGE/2)
+CRITDAMAGE: (DAMAGE)+(DAMAGE)
+STATUS: 1
+GREAT: STATUS
+GOOD: STATUS*3
+NORMAL: STATUS*5
+OPSTATUS: 1
+OPGREAT: OPSTATUS
+OPGOOD: OPSTATUS*3
+OPNORMAL: OPSTATUS*5
+
+
+\** 
+output 3d8+1d10 named "3d8+1d10"
+output 3d12 named "3d12"
+output 2d8+2d10 named "2d8+2d10"
+output 4d10 named "4d10"
+output 6d6 named "6d6"**\
+
+
+
+\** 
+output 5d6 named "5d6"
+output 4d8 named "4d8"**\
+
+output[highest 1 of 2d12] named "2d12 vantagem"
+

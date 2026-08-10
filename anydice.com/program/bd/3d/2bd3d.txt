@@ -1,0 +1,86 @@
+function: advant ADVAR roll DI {
+if ADVAR > 0 {
+if DI > 0{
+   result: [highest 1 of 3d20]
+   }
+else {
+   result: [highest 1 of 2d20]
+   }
+}
+result: 1d{1..DI}
+}
+function: armor ARMOR with Z:n {
+if Z > ARMOR {
+    result: 1
+    }
+result: 0
+}
+function: same DIEONE:n and DIETWO:n {
+if DIEONE = DIETWO{
+result: 1
+   }
+result: 0
+}
+function: compare ONE:n to TWO:n {
+   if ONE = 1 {
+   result: 1
+   }
+   if TWO = 1{
+   result: 1
+   }
+result: 0
+}
+function: does M:n equal NUM {
+if M = NUM {
+   result: 1
+   }
+result: 0
+}
+function: multiply CHANCE:n and NUMBER:n {
+   if CHANCE = 1 {
+   result: NUMBER
+   }
+result: 0
+}
+function: adept NUMBER:n and VAR {
+   if VAR = 1{
+   if NUMBER = 1 {
+   result: 2
+   }
+   }
+result: NUMBER
+}
+
+ENEMIES: 5
+ADVANTAGE: 1 \ If we're calculating for AC, do we have advantage?\
+ELVEN: 1 \ Is the advantage Elven accuracied? \
+BONUS: 8 \ To Hit Bonus\
+ROLL: [advant ADVANTAGE roll ELVEN] + BONUS
+
+DOREROLL: 1\ Empowered spell or some such equivalent gives you another chance \
+
+DOADEPT: 1 \ You can take Elemental Adept (Cold) to make 1 + 2 be twos, and the spell jumps. \
+
+DOAC: 1 \ Do we want to calculate for AC? \
+AC: 12
+
+CONTINUE: {1}
+\ 2d8 is always the damage, but there's the extra d6s \
+NUMDICE: 3
+DAMAGE: 6
+DEIGHTONE: d8
+DEIGHTTWO: d8
+
+loop I over {1..ENEMIES} {
+   if DOAC = 1 {
+   CONTINUE: [multiply CONTINUE and [armor AC with ROLL]]
+}
+   output [multiply CONTINUE and [adept DEIGHTONE and DOADEPT]+ [adept DEIGHTTWO and DOADEPT] + NUMDICEd{1..DAMAGE}] named "Enemy [I] Damage"
+   output CONTINUE named "Chance to hit Enemy [I]"
+   if DOREROLL = 1{
+   CONTINUE: [multiply CONTINUE and [compare [same [adept DEIGHTONE and DOADEPT] and [adept DEIGHTTWO and DOADEPT] ] to [same [adept DEIGHTONE and DOADEPT] and [adept DEIGHTTWO and DOADEPT] ] ] ] 
+   } else {
+   CONTINUE: [multiply CONTINUE and [same [adept DEIGHTONE and DOADEPT] and [adept DEIGHTTWO and DOADEPT] ] ]  
+   }
+   
+}

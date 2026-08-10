@@ -1,0 +1,45 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+function: attack {
+ result: [damage for [attack ATTACK_ROLL vs DEFENSE]]
+}
+
+MISSDAMAGE: 0       \ damage dealt on a miss, can be changed if they have an ability like graze \
+BASE_AC: 22         \ set to whatever AC the adamantine would give you, the +1 and +2 versions increase this number \
+ATTACK_ROLL: 1d20   \ use 1d20 for normal rolls, 1@2d20 for advantage, and 2@2d20 for disadvantage \
+
+PROF: 4             \ proficiency bonus, used for attack modifier \
+STAT: 6             \ ability modifier, used for attack modifier and damage rolls \
+DAMAGEDICE: 4d8     \ damage dice rolled for a hit, automatically doubled for crits \
+
+ATTACK: PROF + STAT
+
+DEFENSE: BASE_AC
+HITDAMAGE: DAMAGEDICE + STAT
+CRITICALDAMAGE: DAMAGEDICE + STAT
+output [attack] named "adamantine"
+
+
+DEFENSE: BASE_AC+1
+CRITICALDAMAGE: 2dDAMAGEDICE + STAT
+output [attack] named "+1 plate"
+
+DEFENSE: BASE_AC+2
+output [attack] named "+2 plate"

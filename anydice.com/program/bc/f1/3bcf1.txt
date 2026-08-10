@@ -1,0 +1,81 @@
+function: hits on X:n dice {
+ result: [count {6} in Xd6]
+}
+
+function: X:n spaceship Y:n {
+ MARGIN: X - Y
+ if MARGIN > 0 { result: 1 }
+ if MARGIN < 0 { result: -1 }
+ result: 0
+}
+
+function: X:n strictly over Y:n {
+ MARGIN: X - Y
+ if MARGIN > 0 { result: 1 }
+ result: -1
+}
+
+function: fight X:n against Y:n {
+ result: [contest Xd6 against Yd6]
+}
+
+function: fight again MARGIN:n A:d against B:d {
+ if MARGIN = 0 {
+  result: [contest A against B]
+ }
+ result: MARGIN
+}
+
+function: contest A:d against B:d {
+ MARGIN: [[count {6} in A] spaceship [count {6} in B]]
+ result: [fight again MARGIN A against B]
+}
+
+function: fight X:n berserk against Y:n {
+ A: [hits on X+2 dice]
+ B: [hits on Y dice]
+ result: [A strictly over B]
+}
+
+SENSIBLE: 6d6
+
+function: sensible fight X:n against Y:n {
+ result: [sensible contest SENSIBLE+X against SENSIBLE+Y]
+}
+
+function: sensible contest A:d against B:d {
+ MARGIN: [A spaceship B]
+ result: [sensible fight again MARGIN A against B]
+}
+
+function: sensible fight again MARGIN:n A:d against B:d {
+ if MARGIN = 0 {
+  result: [sensible contest A against B]
+ }
+ result: MARGIN
+}
+
+function: sensible fight X:n berserk against Y:n {
+ result: [SENSIBLE+X+2 strictly over SENSIBLE+Y]
+}
+
+output [fight 4 against 6]
+output [sensible fight 4 against 6]
+
+output [fight 5 against 6]
+output [sensible fight 5 against 6]
+
+output [fight 7 against 6]
+output [sensible fight 7 against 6]
+
+output [fight 8 against 6]
+output [sensible fight 8 against 6]
+
+output [fight 10 against 6]
+output [sensible fight 10 against 6]
+
+
+output [fight 12 against 6]
+\output [fight 12 berserk against 6]\
+output [sensible fight 12 against 6]
+\output [sensible fight 12 berserk against 6]\

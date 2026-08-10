@@ -1,0 +1,44 @@
+\DM Damage Calculations\
+
+\variable definitions\
+ \Attack Modifier\       ATK:   8
+ \Advantage Toggle:\     ADV:   1  \0=Dis 1=normal 2=adv\
+ \Range of Critical Hit\  CR:  20
+ \Target AC\              AC:  15    
+ \Damage Modifier\       DMG:   0 
+ \Damage Dice\          DICE: 2d6 
+  
+
+\Advantage Function\
+if ADV >= 2 {
+ ROLL: [highest 1 of 2d20]
+ }
+else {
+ if ADV <= 0 {
+  ROLL: [lowest 1 of 2d20]
+  }
+else {
+ ROLL: 1d20
+}}
+
+\Main Attack Function\
+function: attack ROLL:n plus BONUS:n vs AC:n miss MISS:d hit HIT:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+\Outputs\
+
+output ROLL + ATK named "Chance to Hit"
+
+output [
+attack ROLL plus ATK vs AC
+    miss 0
+    hit  DICE + DMG
+    crit DICE + DICE + DMG on CR
+] named "Damage Rolls"

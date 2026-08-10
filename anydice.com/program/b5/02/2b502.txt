@@ -1,0 +1,46 @@
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if ROLL = 20 {
+  if ROLL + ATTACK >= DEFENSE { result: CRITICALHIT }
+  result: HIT
+ }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: explode N:n {
+ if N >= 7 { result: N + [explode d8] }
+ result: N
+}
+
+function: explodefour N:n {
+ if N >= 3 { result: N + [explodefour d4] }
+ result: N
+}
+
+
+
+set "maximum function depth" to 3
+
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+ATTACK: 12
+CRITICALDAMAGE: ((4d [explode d8] + 4d [explodefour d4]) + 7)
+HITDAMAGE: ((2d [explode d8] + 2d [explodefour d4]) + 7)
+MISSDAMAGE: 0
+
+loop AC over {10, 20, 30} {
+ output 3d[damage for [attack d20 vs AC]] named "at [AC] AC"
+}

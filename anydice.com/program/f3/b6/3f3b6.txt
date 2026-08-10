@@ -1,0 +1,49 @@
+
+function: base DICES:s bonus BONUS:n over LIMIT{
+  if 3@DICES = 10 {result: 30}
+  if 2@DICES = 10 {result: 20}
+  result: 2@DICES + BONUS > LIMIT
+}
+
+
+function: roll DICES:s bonus BONUS:n drama DRAMA:n {
+  if 3@DICES = 10 {result: 30}
+  if 2@DICES = 10 {result: 20}
+  if DRAMA = 1 {
+    if 1@DICES = 3@DICES = 3@DICES {result: {1,2,3}@DICES + BONUS}
+    if 1@DICES = 2@DICES {result: {1,2}@DICES + BONUS}
+    if 2@DICES = 3@DICES {
+      if {2,3}@DICES> 1@DICES {result: {2,3}@DICES + BONUS}
+    }
+     result: 1@DICES + BONUS
+  }
+  result: 2@DICES + BONUS
+}
+
+function: superar LIMIT:n dices DICES:s bonus BONUS:n drama DRAMA:n  {
+  if [roll DICES bonus BONUS drama DRAMA] < LIMIT {result: 0}
+  result: 1
+}
+
+function: locura DICES:s bonus BONUS:n drama DRAMA:n{
+ if [superar 25 dices DICES bonus BONUS drama DRAMA] {result: 3@DICES}
+ result:{1,2,3}@DICES
+}
+
+function: locuraf DICES:s bonus BONUS:n drama DRAMA:n{
+ if [superar 25 dices DICES bonus BONUS drama DRAMA] {result: 0}
+ result:{1,2,3}@DICES
+}
+
+function: locuraa DICES:s bonus BONUS:n drama DRAMA:n{
+ if [superar 25 dices DICES bonus BONUS drama DRAMA] {result: 3@DICES}
+ result:0
+}
+
+output [locura 3d10 bonus 10 drama 1]
+output [locuraf 3d10 bonus 10 drama 1]
+output [locuraa 3d10 bonus 10 drama 1]
+
+output [locura 3d10 bonus 10 drama 0]
+output [locuraf 3d10 bonus 10 drama 0]
+output [locuraa 3d10 bonus 10 drama 0]

@@ -1,0 +1,39 @@
+function: attack ROLL:n HITPLUS:n ATTACK:d DMGPLUS:n SNEAKATK:d AC:n{
+
+if ROLL = 1 {result: 0}
+if ROLL = 20 {result: ATTACK + ATTACK + SNEAKATK + SNEAKATK + DMGPLUS}
+if (ROLL + HITPLUS) >= AC {result: ATTACK + SNEAKATK + DMGPLUS}
+
+result: 0
+}
+
+function: calc X:n atk roll A:n atk bonus B:n dmg Y:d plus C:n and D:d sneak atk vs J:n{
+  TOTAL: 0
+  loop N over {1..X} {
+    DAMAGE: [attack A B Y C D J]
+    TOTAL: TOTAL + DAMAGE
+  }
+  result: TOTAL
+}
+
+TIMES: 1
+DMGDIE: 1d8
+DMGBONUS: 6
+TOHITDIE: [highest 1 of 3d20]
+TOHITBONUS: 6
+SNEAK: 5d6
+
+loop I over {17..19}{
+output [calc TIMES atk roll TOHITDIE atk bonus TOHITBONUS dmg DMGDIE plus DMGBONUS and SNEAK sneak atk vs I] named "Normal vs AC of [I]"
+}
+
+TIMES: 2
+DMGDIE: 1d6
+DMGBONUS: 2
+TOHITDIE: [highest 1 of 3d20]
+TOHITBONUS: 3
+SNEAK: 5d6
+
+loop Z over {17..19}{
+output [calc TIMES atk roll TOHITDIE atk bonus TOHITBONUS dmg DMGDIE plus DMGBONUS and SNEAK sneak atk vs I] named "Speed vs AC of [Z]"
+}

@@ -1,0 +1,53 @@
+function: set element I:n in SEQ:s to N:n {
+  NEW: {}
+  loop J over {1 .. #SEQ} {
+    if I = J { NEW: {NEW, N} }
+    else { NEW: {NEW, J@SEQ} }
+  }
+  result: [sort NEW]
+}
+
+function: roll sequence length L:n{
+  T:1
+  NEW: {}
+  AVGABILITY: Ld[highest 3 of 4d6]
+  loop I over {1..L}{
+    NEW: {NEW,  I@AVGABILITY }
+  }
+  
+  result: AVGABILITY
+}
+
+ROLLED: [sort {16,15,14,13,11,10}] \{16,14,13,12,10,9}1roll {16,15,14,13,11,10}2rolls {9,9,10,13,18,12}{10,13,13,13,13,11}{10,6,13,9,15,12}{16,13,12,13,10,13}\
+AVGA: [roll sequence length #ROLLED ]
+AVGB: [roll sequence length #ROLLED ]
+ loop I over {1..#ROLLED}{
+output I@ROLLED - [highest of I@AVGA and I@AVGB]                named "[I]th highest score...."
+}
+output 1@ROLLED - [highest of 1@AVGA and 1@AVGB] +
+       2@ROLLED - [highest of 2@AVGA and 2@AVGB] +
+       3@ROLLED - [highest of 3@AVGA and 3@AVGB] +
+       4@ROLLED - [highest of 4@AVGA and 4@AVGB] +
+       5@ROLLED - [highest of 5@AVGA and 5@AVGB] +
+       6@ROLLED - [highest of 6@AVGA and 6@AVGB] named "above or below average score"
+
+
+ loop I over {1..#ROLLED}{
+output (I@ROLLED-10)/2 - ([highest of I@AVGA and I@AVGB]-10)/2  named "[I]th highest modifier"
+}
+
+output (1@ROLLED-10)/2 - ([highest of 1@AVGA and 1@AVGB]-10)/2 +
+       (2@ROLLED-10)/2 - ([highest of 2@AVGA and 2@AVGB]-10)/2 +
+       (3@ROLLED-10)/2 - ([highest of 3@AVGA and 3@AVGB]-10)/2 +
+       (4@ROLLED-10)/2 - ([highest of 4@AVGA and 4@AVGB]-10)/2 +
+       (5@ROLLED-10)/2 - ([highest of 5@AVGA and 5@AVGB]-10)/2 +
+       (6@ROLLED-10)/2 - ([highest of 6@AVGA and 6@AVGB]-10)/2 named "above or below average modifiers"
+
+output (1@ROLLED-10)/2+
+       (2@ROLLED-10)/2+
+       (3@ROLLED-10)/2+
+       (4@ROLLED-10)/2+
+       (5@ROLLED-10)/2+
+       (6@ROLLED-10)/2 named "total modifiers"
+
+

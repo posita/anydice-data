@@ -1,0 +1,37 @@
+function: count past VALUES:n in SEQUENCE:s {
+ COUNT:(VALUES <= SEQUENCE)
+ result: COUNT
+}
+
+function: pool DICESEQ:s threshold THRESH:n crit CRIT:n maxcrit MAX:n bonus BONUS{
+ COUNT: 0
+ CRITCOUNT: [count past CRIT in DICESEQ]
+if THRESH >=7{CRITCOUNT : 0}
+ if CRITCOUNT = 0{ 
+   COUNT: [count past THRESH in DICESEQ]
+ }else if CRITCOUNT >= MAX{
+   COUNT: [count past (THRESH - 1) in DICESEQ]
+   COUNT: COUNT + [count past THRESH in MAX d6]
+ }else{
+   COUNT: [count past (THRESH - 1) in DICESEQ]
+   COUNT: COUNT + [count past THRESH in CRITCOUNT d6]
+ }
+ COUNT : COUNT + [count past THRESH in BONUS d6]
+ result: COUNT
+}
+
+function: limit SEQUENCE:s to NUMBER:n {
+ loop P over {1..#SEQUENCE}{
+  if (P@SEQUENCE > NUMBER){
+  SEQUENCE : NUMBER
+ }
+}
+result: SEQUENCE
+}
+
+\output [pool 5d6 threshold 4 crit 5 maxcrit 3] named "crits, unlimited"\
+loop X over {1..6}{
+ output [limit [pool 4d6 threshold X crit 6 maxcrit 4 bonus 1] to 7] named "with crits threshold [X]"
+}
+
+\output [count past 2 in 5d6] named "no crits"\

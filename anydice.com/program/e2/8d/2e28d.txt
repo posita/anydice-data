@@ -1,0 +1,42 @@
+P_PERSUASION: 14+1@2d20
+P_INSIGHT:    10+1@2d20
+
+P_DECEPTION:  14+1@2d20
+P_INTIMIDATE: 0 \11+1@2d20\
+P_MAGIC: 0
+
+P_INTDEX: 4+1@1d20
+
+MARK: 100
+DC_BASE: 20
+
+function: daily max MAX:n PERSUASIONROLL:n {
+ if PERSUASIONROLL <= 6 {result:  (MAX*1)/2}
+ if PERSUASIONROLL <= 9 {result:  (MAX*2)/2}
+ if PERSUASIONROLL <= 15 {result: (MAX*3)/2}
+ if PERSUASIONROLL <= 20 {result: (MAX*4)/2}
+ if PERSUASIONROLL <= 25 {result: (MAX*5)/2}
+ if PERSUASIONROLL <= 30 {result: (MAX*6)/2}
+ result: (MAX*7)/2
+}
+
+function: dc calculate DC:n{
+HOLDER: ((P_DECEPTION + P_INSIGHT + P_INTIMIDATE + P_MAGIC)*3)/DC
+result: DC-HOLDER
+}
+
+function: check SKILLROLL:n {
+if SKILLROLL = 0 {result: MARK/2*(-1)}
+result: DAILY_MAX
+}
+
+
+DAILY_MAX: [daily max MARK P_PERSUASION]
+
+loop DC_BASE over {10..25}{
+DC_MODIFIED: [dc calculate DC_BASE]
+output [check P_INTDEX>=DC_MODIFIED] named "[DC_BASE]"
+output DC_MODIFIED named ""
+}
+X:19/3
+output ((1@1d20+14)+X/2)/X

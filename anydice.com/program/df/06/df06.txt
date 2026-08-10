@@ -1,0 +1,50 @@
+ATKMOD: 5
+PROF: 6
+WPNBONUS: 0
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+CRITRANGE: 20
+
+function: attack ROLL:n vs DEFENSE:n {
+if ROLL = 1 { result: MISS }
+if ROLL >= CRITRANGE { result: CRITICALHIT }
+if ROLL + ATKMOD + PROF + WPNBONUS >= DEFENSE { result: HIT }
+result: MISS
+}
+
+function: sneak damage for ATTACKRESULT:n {
+if ATTACKRESULT = CRITICALHIT {
+result: 3d8 + 18d6 + ATKMOD + WPNBONUS
+}
+if ATTACKRESULT = HIT {
+result: 1d8 + 9d6 + ATKMOD + WPNBONUS
+}
+result: 0
+}
+
+function: damage for ATTACKRESULT:n {
+if ATTACKRESULT = CRITICALHIT {
+result: 3d8 + ATKMOD + WPNBONUS
+}
+if ATTACKRESULT = HIT {
+result: 1d8 + ATKMOD + WPNBONUS
+}
+result: 0
+}
+
+function: basic attack vs AC:n {
+result: [damage for [attack d20 vs AC]]
+}
+
+function: sneak attack vs AC:n {
+result: [sneak damage for [attack d20 vs AC]]
+}
+
+function: adv attack vs AC:n {
+result: [sneak damage for [attack 1@2d20 vs AC]]
+}
+
+loop ARMORCLASS over {10..24} {
+output [adv attack vs ARMORCLASS] named "[ARMORCLASS]"
+}

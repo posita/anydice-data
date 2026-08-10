@@ -1,0 +1,38 @@
+
+SPELL_LEVEL:0
+
+DC: 12
+INT_MOD: 4
+PROFICIENCY: 3
+EXPERTISE: PROFICIENCY*2
+ARCANA_MOD: EXPERTISE+INT_MOD
+CRITFAIL_TOGGLE: 1
+
+function: overflow A:n over B:n {
+if A > B { result: B }
+if B < 0 { result: 0 }
+result: A}
+
+function: cast A:n with B:n{
+if A = 0 {result: B} 
+if A <= B { result: 1 }
+result: 0}
+
+function: miz A:n B:n C:n {
+if A = 1 & C = 1 { result: -1 }
+result: [cast SPELL_LEVEL with [overflow ((A + B)/2) over 9]]
+}
+
+function: starmiz A:n B:n C:n{
+if A = 1 & C = 1{ result: -1 }
+if A < 10 { result: 10 }
+result: [cast SPELL_LEVEL with [overflow ((A + B)/2) over 9]]
+}
+
+output [starmiz 1d20 (1d4+ARCANA_MOD-DC) CRITFAIL_TOGGLE] named "Dragon Starry Form + Guidance"
+
+output [starmiz 1d20 (ARCANA_MOD-DC) CRITFAIL_TOGGLE] named "Dragon Starry Form"
+
+output [miz 1d20 (1d4+ARCANA_MOD-DC) CRITFAIL_TOGGLE] named "Guidance"
+
+output [miz 1d20 (ARCANA_MOD-DC) CRITFAIL_TOGGLE] named "Standard"

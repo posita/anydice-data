@@ -1,0 +1,50 @@
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  SUM: {}
+  loop ATTACK over ATTACKS {
+    SUM: SUM + [1d20 plus ATTACK vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA]
+  }
+  result: SUM
+}
+function: ROLL:n plus ATTACK:n vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d EXTRA:d {
+  if ROLL = 1 { result: 0 }
+  if ROLL >= THREAT & ROLL + ATTACK >= AC | ROLL = 20 { result: [threat d20]  }
+  if ROLL + ATTACK >= AC {result: DAMAGE + EXTRA}
+  result: 0
+}
+
+function: threat ROLL:n {
+ if ROLL + ATTACK >= AC | ROLL = 20 {
+  result: [crit MULT DAMAGE] + EXTRA + CRITEXTRA
+ }
+ result: DAMAGE + EXTRA
+}
+
+function: crit MULT:n DAMAGE:d {
+  SUM: {}
+  loop N over {1..MULT} {
+    SUM: SUM + DAMAGE
+  }
+  result: SUM
+}
+
+\ Normalize input \
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n CRITEXTRA:d dmg DAMAGE:d {
+  result: [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE 0]
+}
+function: ATTACKS:s vs AC:n crit THREAT:n MULT:n dmg DAMAGE:d EXTRA:d{
+  result: [ATTACKS vs AC crit THREAT MULT 0 dmg DAMAGE EXTRA]
+}
+
+
+
+\ output [ATTACKS vs AC crit THREAT MULT CRITEXTRA dmg DAMAGE EXTRA] named "My Weapon" \
+
+AC: 15
+output [{3} vs AC crit 20 2 0 dmg 1d4+3 0]+[{3} vs AC crit 20 2 0 dmg 1d4+3 0]+[{3} vs AC crit 20 2 0 dmg 1d3+3 0] named "Natral Oracle"
+
+output [{8} vs AC crit 20 1 1d6 dmg 6d6 0] named "Warrior"
+output [{9} vs AC crit 20 1 1d6 dmg 5d6 0] named "Jotun"
+

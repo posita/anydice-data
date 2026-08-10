@@ -1,0 +1,25 @@
+MAXRTG: 3
+MAXDGR: 3
+MAXRSK: 2
+W: 1       \ number of successes that you want to buy \
+
+function: rating RT:n danger D:n risk RK:n want S:n {
+  D: [highest of D-1 and 0]
+  R: (RT + D)d{0,0,0,0,0,1,1,1} + RKd{-1,0,0,0,0,1}
+  result: [ hits R danger D want S]
+}
+
+function: hits H:n danger D:n want S:n {
+  if H < S { result: -1 }
+  if H = S { result:  D }
+  if H > S { result: [highest of 0 and D - (H - S)]}
+}
+
+loop RTG over {2..MAXRTG} {
+  loop DGR over {0..MAXDGR} {
+    M: [lowest of MAXRSK and RTG]
+    loop RSK over {0..M} {
+      output [rating RTG danger DGR risk RSK want W] named "[RTG], [RSK]" 
+    }
+  }
+}

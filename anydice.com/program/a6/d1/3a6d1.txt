@@ -1,0 +1,104 @@
+\Attacker Simulator\
+
+\output 15 named "Action Success Chart : 2-6 Failure, 7-11 Success, 12 Critical Success"
+output 15 named "Injury Chart : 1 No Effect, 2-6 Minor Hit, 7-8 Down, 9+ Out of Action"\
+
+\**********************************************************\
+\**********************************************************\
+\**************************************************************************************\
+LIM: 13
+function: view crop SEQUENCE:n by MAX:n{                  \ limit the display range between [MIN;MAX] \
+ MIN: 7
+ if (SEQUENCE < MIN){result: {}}
+ if (SEQUENCE > MAX){result: MAX}
+ result: SEQUENCE
+}
+
+function: high low DIR:n for NUMBER:n of DICE:d{          \ switch between highest(1) & lowest(-1) roll \
+ if DIR<0 { result: {(#DICE - NUMBER + 1)..#DICE}@DICE }
+ if DIR>=0 { result: {1..NUMBER}@DICE }
+ result: 0
+}
+
+function: action roll from TDICES:d to RDICES:d{
+ ROLL: [view crop [high low TDICES for RDICES of (RDICES+[absolute TDICES])d6] by LIM]
+ if ROLL >= 12 { result: 2 } 
+ if ROLL >= 7 & ROLL < 12 { result: 1 } 
+ result: 0
+}             \ 0: Failure, 1: Success, 2: Critical\
+
+function: injury roll from TDICES:d to RDICES:d with RESMODS:n{             \ RESMODS=armor&ap \
+ ROLL: [view crop ([high low TDICES for RDICES of (RDICES+[absolute TDICES])d6] +RESMODS) by LIM]
+ if ROLL >= 9 { result: 3 } 
+ if ROLL >= 7 & ROLL < 9 { result: 2 } 
+ if ROLL >= 2 & ROLL < 7 { result: 1 } 
+ result: 0
+}             \ 0: Nothing, 1: Minor Hit, 2: Down, 3: Out of Action \
+
+function: do attacks sequence from PARAMS:s{
+ A: [action roll from 1@PARAMS to 2@PARAMS]
+ if A >= 1 { result: [injury roll from 3@PARAMS to 4@PARAMS with 5@PARAMS] }
+ result: 0
+}
+\**************************************************************************************\
+
+\Risky Action (%success : +1DICE=80%, +2DICES=91%, +3DICES=95% \
+\AD: 1
+output [highest 2 of 2d6]named "Basic Roll, No Mods, target 7+"
+output [highest 2 of (2+AD)d6]named "Reliable Risky Action (+[AD]DICES)"\
+
+\ ranged attack variables **************************************************\
+RANGE_ATT_BUFF:      0       \-X to X DICES attack roll (from model characteristic/special ability & weapon buff)\
+RANGE_INJ_BUFF:      0       \-X to X DICES injury roll (from weapon buff)\
+LONG_RANGE:          0       \0 or -1 DICE attack roll\
+UNDER_COVER:         0       \0 or -1 DICE attack roll\
+ELEVATED_POSITION:   0       \0 or 1 DICE attack roll\
+
+\ melee attack variables ***************************************************\
+MELEE_ATT_BUFF:      0       \-X to X DICES attack roll (from model characteristic/special ability & weapon buff)\
+MELEE_INJ_BUFF:      0       \-X to X DICES injury roll (from weapon buff)\
+DIVING_CHARGE:       0       \0 or 1 DICE attack&injury rolls\
+DEFENDED_OBSTABLE:   0       \0 or -1 DICE attack roll\
+FEAR:                0       \0 or -1 DICE attack roll\
+OFF_HAND:            0       \0 or -1 DICE attack roll\
+TARGET_DOWN:         0       \0 or 1 DICE injury roll\
+DEF_ARMOR:           0       \0 to -5 to injury roll result\
+AP:                  0       \0 to 2 to injury roll result\
+
+\ markers variables ********************************************************\
+BLOOD_M:             0       \0 to 6\
+INFECTION_M:         0       \0 to 6\
+BLESSING_M:          0       \0 to 6+\
+
+\**********************************************************\
+BLOODBATH_ACTIVATED: 0       \0 or 1\
+FINAL_XDICES_BUFF:   0       \-X to X Dices to apply to a roll\
+\**********************************************************\
+\**********************************************************\
+
+A_ROLLED_DICES: 0
+A_RESULT_DICES: 0
+I_ROLLED_DICES: 0
+I_RESULT_DICES: 0
+I_ARMOR_AP: 0
+
+
+\Hell Knight\
+\toHit: +2 model, +1 Aura of Wrath\
+
+\ADH: 0
+output 12 named "Hit: +[ADH]DICES used"
+output [highest 2 of (2+2+1+ADH)d6] named "to hit : +[ADH]DICES"\
+\toInjure: +1 ability + 1d6 Malebranche\
+\ARMOR: -3
+ADI: 0
+output [highest 3 of (3+ADI)d6]+ARMOR named "to injure : +[ADI]DICES"
+output [highest 3 of (3+ADI+1)d6]+ARMOR named "to injure : +[ADI]DICES + 1 Crit"\
+
+
+
+output [highest 3 of 4d6]-3
+TEMP: ([highest 3 of 4d6]-3) >= 9
+output TEMP named "injury 1roll : Bloodbath + 1DICES"
+output TEMP*TEMP named "injury 2roll : Bloodbath + 1DICES"
+output TEMP*TEMP*TEMP named "injury 2roll : Bloodbath + 1DICES"

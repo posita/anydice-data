@@ -1,0 +1,131 @@
+\--Input relevant attributes and stat modifiers.--\
+\--Calculations assume the attacker has basic proficiency in their weapon. (Adds ATK to Attack Power)--\
+\--You can use this for magic damage as well--substitute INT/MAG and WIS/RES for STR/ATK and CON/DEF,
+   and increase Accuracy Mod to an extremely high number such that it always hits (9999).--\
+\--Degree of Success outputs -1 for Miss, 0 for Graze, and 1 for Hit.--\
+\--Damage outputs possible damage numbers.--\
+
+\--Attacker stats--\
+ATTACKER_LV: 20
+
+ATTACKER_STR: 0
+ATK_MOD: 0
+
+ATTACK_POWER: 2d6
+ATK_PWR_CONSISTENCY: +0
+
+ATTACKER_DEX: 0
+ACCURACY_MOD: 0
+ACCURACY_CONSISTENCY: +0
+
+\--Defender stats--\
+DEFENDER_LV: 20
+
+DEFENDER_CON: 0
+DEF_MOD: 5
+
+DEFENDER_DEX: 0
+SPD_MOD: -3
+
+\-----The following parameters are auto-generated.-----\
+ATTACKER_ADV_BONUS: ATTACKER_LV/2
+DEFENDER_ADV_BONUS: DEFENDER_LV/2
+
+REDUCED_ATTACK_POWER: 1d6 \-Used if accuracy check failed-\
+if #ATTACK_POWER > 1 { \-Cannot reduce Attack Power below 1d6-\
+ REDUCED_ATTACK_POWER: (#ATTACK_POWER - 1)d6
+}
+
+function: apply consistency C:n to DICE:d {
+ if C > 0 {
+  result: [highest #DICE of (#DICE+[absolute C])d6]
+ }
+ else if C < 0 {
+  result: [lowest #DICE of (#DICE+[absolute C])d6]
+ }
+ else {
+  result: DICE
+ }
+}
+
+\-Attack Power Consistency modifications-\
+ATTACK_POWER: [apply consistency ATK_PWR_CONSISTENCY to ATTACK_POWER]
+REDUCED_ATTACK_POWER: [apply consistency ATK_PWR_CONSISTENCY to REDUCED_ATTACK_POWER]
+
+\-Accuracy Consistency modification-\
+HIT: 2d6
+HIT: [apply consistency ACCURACY_CONSISTENCY to HIT]
+HIT: HIT + ATTACKER_DEX + ATTACKER_ADV_BONUS + ACCURACY_MOD
+
+ATK: 10+ATTACKER_ADV_BONUS+ATTACKER_STR+ATK_MOD
+DEF: 10+DEFENDER_ADV_BONUS+DEFENDER_CON+DEF_MOD
+SPD: 10+DEFENDER_ADV_BONUS+DEFENDER_DEX+SPD_MOD
+
+\-Calculation to determine degree of success-\
+function: attack calc with A:n B C:n REDUCED_C:n D {
+
+ACC_CHECK_FAIL: 0
+SUCCESS: 1
+
+ if A < B { \-Accuracy Check-\
+  ACC_CHECK_FAIL: 1
+  SUCCESS: SUCCESS - 1
+ }
+
+ if ACC_CHECK_FAIL {
+  if REDUCED_C < D {
+   SUCCESS: SUCCESS - 1
+  }
+ }
+ else {
+  if C < D { \-Power Check-\
+   SUCCESS: SUCCESS - 1
+  }
+ }
+
+ result: SUCCESS
+}
+
+\-Identical function to attack calc, but outputs damage number-\
+function: damage calc with A:n B C:n REDUCED_C:n D {
+
+ACC_CHECK_FAIL: 0
+SUCCESS: 1
+
+ if A < B { \-Accuracy Check-\
+  ACC_CHECK_FAIL: 1
+  SUCCESS: SUCCESS - 1
+ }
+
+ if ACC_CHECK_FAIL {
+  if REDUCED_C < D {
+   SUCCESS: SUCCESS - 1
+  }
+ }
+ else {
+  if C < D { \-Power Check-\
+   SUCCESS: SUCCESS - 1
+  }
+ }
+
+ \-Factor degree of success into damage-\
+ if SUCCESS < 0 { \-If degree of success is -1, damage is always 0-\
+  result: 0
+ }
+ else {
+  if ACC_CHECK_FAIL { \-If acc check failed but success is at least 0, it means pwr check succeeded w/reduced die-\
+   result: REDUCED_C/2
+  }
+  else {
+   if SUCCESS = 0 { \-If acc check succeeded but success is 0, you failed pwr check w/full die-\
+    result: C/2
+   }
+   else { \-If acc check succeeded and success is not 0 or -1, you succeeded both checks-\
+    result: C
+   }
+  }
+ }
+}
+
+output [attack calc with HIT SPD ATTACK_POWER+ATK REDUCED_ATTACK_POWER+ATK DEF] named "Attack's Degree of Success"
+output [damage calc with HIT SPD ATTACK_POWER+ATK REDUCED_ATTACK_POWER+ATK DEF] named "Attack's Damage"

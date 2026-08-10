@@ -1,0 +1,33 @@
+ATK: 3
+DEF: 6
+
+\ 1 = hit/block \
+\ 2 = pierce/double block \
+\ 3 = loot \
+\ 4 = push hit \
+ATK_DIE: {1, 1, 1, 3, 0, 0}
+DEF_DIE: {1, 1, 0, 0, 0, 0}
+
+ATK_ROLL: ATK d ATK_DIE
+DEF_ROLL: DEF d DEF_DIE
+
+function: combat outcome of ATK vs DEF {
+  HITS: [count {1,2} in ATK]
+  PIERCE: [count 2 in ATK]
+
+  BLOCK: [count 1 in DEF]
+  DBL_BLOCK: 2*[count 2 in DEF]
+  TOTAL_BLOCK: [highest of BLOCK + DBL_BLOCK - PIERCE and 0]
+
+  result: [highest of HITS - TOTAL_BLOCK and 0]
+}
+
+function: loot outcome of ATK vs DEF {
+  LOOT_ATK: [count 3 in ATK]
+  LOOT_DEF: [count 3 in DEF]
+
+  result: LOOT_ATK - LOOT_DEF
+}
+
+output [combat outcome of ATK_ROLL vs DEF_ROLL] named "damage done"
+output [loot outcome of ATK_ROLL vs DEF_ROLL] named "looting incurred"

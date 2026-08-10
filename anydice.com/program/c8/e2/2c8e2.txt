@@ -1,0 +1,35 @@
+function: if CONDITION:n then A else B {
+  if CONDITION { result: A +1 } else { result: B }
+}
+
+function: HAB:n vs DIFF:n risk RISK:n refill REF:n {
+ CURR_PROB: d{1:HAB,0:DIFF}
+ if REF=0 {
+  if RISK=0 {
+   result: CURR_PROB
+  } else {
+   if HAB=1 {
+    result: [if CURR_PROB=1 then [HAB vs DIFF risk (RISK-1) refill 1] else 0]
+  }
+   result: [if CURR_PROB=1 then [(HAB-1) vs DIFF risk (RISK-1) refill 0] else 0]
+  }
+ } else {
+  if RISK=0 {
+   result: CURR_PROB
+  } else {
+   result: [if CURR_PROB=1 then [HAB vs DIFF risk (RISK-1) refill 1] else 0]
+  }
+ }
+}
+
+\output d12\
+RISK: 1
+loop D over {1,2,4,6} {
+loop H over {11} {
+DRAWS: RISK+1
+output [H vs D risk RISK refill 0] named "H[H] D[D] (con +[DRAWS] robos sin reponer)"
+\output [H vs D risk RISK refill 1] named "H[H] D[D] (con +[DRAWS] robos reponiendo)"\
+}}
+
+
+

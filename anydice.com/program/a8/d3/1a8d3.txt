@@ -1,0 +1,62 @@
+ADV: 1@2d20
+NORM: d20
+DADV: 2@d20
+
+ATT_DMG: d8+d6+d8
+ATT_MOD: 5
+ATT_BON: 11
+
+SNEAK_DMG: 4d6+d8
+
+SS_MOD: 10
+SS_BON: -5
+
+function: attack ROLL:n plus BON:n to AC on DMG plus MOD{
+if ROLL = 1 {
+ result: 0
+}
+else if ROLL = 20 {
+ result: 2d(DMG) + MOD
+}
+else if ROLL + BON >= AC {
+ result: DMG + MOD
+}
+else {
+ result: 0
+}
+}
+
+loop ROLL over {1,2} {
+
+if ROLL = 1 {A_ROLL: ADV
+\ROLL_NAME: "Advantage."\}
+else if ROLL = 2 {A_ROLL: NORM
+\ROLL_NAME: "Normal."\}
+else if ROLL = 3 {A_ROLL: DADV
+\ROLL_NAME: "Disadvantage."\}
+
+\output [attack A_ROLL plus 11 to AC on (ATT_DMG+0*(4d6)) plus 5]\
+
+loop SNEAK over {0,1} {
+if SNEAK=1 {\SNEAK_NAME: "Sneak."\
+SNEAK_DMG_ROLL: SNEAK_DMG}
+else {\SNEAK_NAME: "No sneak."\
+SNEAK_DMG_ROLL: 0}
+
+loop AC over {17..27} {
+
+loop SS over {0,1} {
+\if SS=1 {SS_NAME: "Sharpshooter."}
+else {SS_NAME: "No Sharpshooter."}\
+
+output [attack A_ROLL plus ATT_BON+SSd(SS_BON) to AC on (ATT_DMG+SNEAKd(SNEAK_DMG)) plus ATT_MOD+SSd(SS_MOD)] named "AC:[AC].Roll:[ROLL].Sneak:[SNEAK].SS:[SS]"
+}
+}
+}
+
+
+
+
+\output [attack d20 plus 15 to 15 on 1 plus 5]\
+
+}

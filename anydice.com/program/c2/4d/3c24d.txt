@@ -1,0 +1,82 @@
+\Our Stats\
+OHP:110 \HP\ *2+141
+OPA:55 \P.Atk\ *2+36
+OSA:135 \S.Atk\ *2+36
+OPD:88 \P.Def\ *2+36
+OSD:108 \S.Def\ *2+36
+OSP:150 \Speed\ *2+36
+
+\Enemy Stats\
+EHP:126 \HP\ *2+141
+EPA:131 \p.atk\ *2+36
+ESA:131 \s.atk\ *2+36
+EPD:95 \p.def\ *2+36
+ESD:98 \s.def\ *2+36
+ESP:99 \Speed\ *2+36
+
+\Moves\
+MA:{OSA,ESD,
+\Power\95,
+\ACCURACY\100,
+\TYPE\16*2
+}
+\Enemy moves\
+CA:{EPA,OPD,
+\Power\70*4/3,
+\ACCURACY\100,
+\TYPE\16*3/2
+}
+
+\Math\
+function:attack NAME:s {
+ result:(\Power\3@NAME *\Atk\1@NAME *42 /(\Def\2@NAME *50)+2) *\RNG\1d{85..100}/100 *\TYPE\5@NAME/16 *\acc\1d{1:4@NAME,0:100-4@NAME}
+}
+function:minimum NAME:s{
+ result:(\Power\3@NAME *\Atk\1@NAME *42 /(\Def\2@NAME *50)+2) *\RNG\85/100 *\TYPE\5@NAME/16
+}
+function:maximum NAME:s{
+ result:(\Power\3@NAME *\Atk\1@NAME *42 /(\Def\2@NAME *50)+2) *\RNG\100/100 *\TYPE\5@NAME/16
+}
+
+function: battle{
+ \TURN 1\
+ EDAMAGE: [attack MA]
+ ODAMAGE: [attack CA]
+ \TURN 0\
+ if OSP >= ESP {EDAMAGE: EDAMAGE + [attack MA]}
+ STACK: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ result: [turntwo MA CA]
+}
+function: turntwo NAMEM NAMEC{
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ ODAMAGE: ODAMAGE + [attack NAMEC]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ STACK: STACK + CHECK*TURN
+ result: [turnthree MA CA]
+}
+function: turnthree NAMEM NAMEC{
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ ODAMAGE: ODAMAGE + [attack NAMEC]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ STACK: STACK + CHECK*TURN
+ result: [turnfour MA CA]
+}
+function: turnfour NAMEM NAMEC{
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ ODAMAGE: ODAMAGE + [attack NAMEC]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ STACK: STACK + CHECK*TURN
+ result: [turnfive MA CA]
+}
+function: turnfive NAMEM NAMEC{
+ CHECK: (EDAMAGE < EHP)*(ODAMAGE < OHP)
+ EDAMAGE: EDAMAGE + [attack NAMEM]
+ ODAMAGE: ODAMAGE + [attack NAMEC]
+ TURN: (EDAMAGE >= EHP)*(ODAMAGE < OHP)
+ STACK: STACK + CHECK*TURN
+ result: STACK
+}
+output 0 < [battle]

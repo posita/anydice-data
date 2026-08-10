@@ -1,0 +1,32 @@
+function: reroll R:n under N:n {
+   if R < N { result: 1d6 } else {result: R}
+}
+
+function: attack D:n vs AC:n for DMG:n {
+   if D = 20 {result: 2*DMG} 
+   else if (D + MOD) >= AC { result: DMG }
+   else { result: 0 }
+}
+
+GWF_DMG: 2d[reroll d6 under 3]
+NORM_DMG: 2d6
+
+MON_AC: {13,13,13,14,15,15,15,16,16}
+PROF: {6,6,6,7,8,8,8,8,9}
+
+loop CR over {1..4} {
+  MOD: CR@PROF
+  THE_AC: CR@MON_AC
+  GWF: [attack d20 vs THE_AC for GWF_DMG]
+  NORM: [attack d20 vs THE_AC for NORM_DMG]  
+  output NORM named "Normal: CR [CR]"
+  output GWF named "GWF: CR [CR]"
+}
+
+loop CR over {5..9} {
+  MOD: CR@PROF
+  GWF: [attack d20 vs CR@MON_AC for GWF_DMG] + [attack d20 vs CR@MON_AC for GWF_DMG]
+  NORM: [attack d20 vs CR@MON_AC for NORM_DMG] + [attack d20 vs CR@MON_AC for NORM_DMG]
+  output NORM named "Normal: CR [CR]"
+  output GWF named "GWF: CR [CR]"
+}

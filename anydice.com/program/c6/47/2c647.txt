@@ -1,0 +1,48 @@
+function: strS tT svSAVE apAP rapid RAPID shock SHOCK shred SHRED power POWER crit CRIT:s saveroll TO_SAVE:s rapidroll RAPID_ROLL:s
+{
+if RAPID
+{
+RAPID: RAPID_ROLL
+if RAPID_ROLL = 6
+{X:3}
+else if RAPID > 3
+{X:2}
+else {X:1}
+}
+else {X:1}
+
+TO_WOUND:Xd6
+
+if SHRED & (CRIT=6) {AP:AP-1}
+if POWER & (CRIT=6) {AP:AP-7}
+
+if X>1
+{loop Y over {1..X}
+{if TO_SAVE >= (SAVE-AP) {Y:Y+1}}
+X:X-Y}
+else {if TO_SAVE >= (SAVE-AP)
+{result: 0}}
+
+
+if SHOCK & (CRIT=6)
+{if X>1
+{X:X-1 TO_WOUND:Xd6}
+else {result: 1}
+}
+else {SHOCK:0}
+
+
+if S >= T * 2
+{result: SHOCK+[count {2..6} in TO_WOUND]}
+if S > T
+{result: SHOCK+[count {3..6} in TO_WOUND]}
+if S = T
+{result: SHOCK+[count {4..6} in TO_WOUND]}
+if S <= T / 2
+{result: SHOCK+[count {6} in TO_WOUND]}
+if S < T
+{result: SHOCK+[count {5..6} in TO_WOUND]}
+
+}
+
+output [str3 t3 sv4 ap0 rapid 1 shock 0 shred 0 power 0 crit d6 saveroll d6 rapidroll d6] named "+RAPID FIXED+ STR3 T3 SV4 AP-1"

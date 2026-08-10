@@ -1,0 +1,143 @@
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+function: images IMAGES:n imageac DEXAC:n imageroll IROLL:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n use USE:d pass PASS:d {
+   if IMAGES = 3 {
+        if IROLL >= 6 {
+		if ROLL = 1{ result: PASS }
+                if ROLL >= CRIT_RANGE { result: USE }
+		if ROLL + BONUS >= DEXAC { result: USE }
+		if ROLL + BONUS < DEXAC { result: PASS }		
+	}
+	if IROLL < 6 {
+		if ROLL = 1{ result: PASS  }
+		if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }
+	}
+    }
+    if IMAGES = 2 {
+        if IROLL >= 8{
+		if ROLL = 1{ result: PASS  }
+                if ROLL >= CRIT_RANGE { result: USE }
+		if ROLL + BONUS >= DEXAC { result: USE }
+		if ROLL + BONUS < DEXAC { result: PASS }		
+	}
+	if IROLL < 8{
+		if ROLL = 1{ result: PASS  }
+		if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }	
+	}
+	
+    }
+    if IMAGES = 1 {
+        if IROLL >= 11{
+	        if ROLL = 1{ result: PASS }
+                if ROLL >= CRIT_RANGE { result: USE }
+	        if ROLL + BONUS >= DEXAC { result: USE }
+	        if ROLL + BONUS < DEXAC { result: PASS }
+	}
+	if IROLL < 11{
+		if ROLL = 1{ result: PASS  }
+	        if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }
+	}
+    }
+    if IMAGES = 0 {
+        if ROLL = 1{ result: PASS  }
+		if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + PASS }
+		if ROLL + BONUS >= AC { result: DMG + PASS}
+		if ROLL + BONUS < AC { result: PASS }
+    }
+}
+
+function: images IMAGES:n imageac DEXAC:d imageroll IROLL:d attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d {
+
+    A: 0
+    B: 0
+    C: 0
+    D: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        D: [images 3 imageac DEXAC imageroll IROLL roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use C pass D] 
+        C: [images 2 imageac DEXAC imageroll IROLL roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use B pass C] 
+        B: [images 1 imageac DEXAC imageroll IROLL roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use A pass B] 
+        A: ATTACK + A
+    }
+
+    if IMAGES = 3 {
+        result: D
+    }
+    if IMAGES = 2 {
+        result: C
+    }
+    if IMAGES = 1 {
+        result: B
+    }
+    if IMAGES = 0 {
+        result: A
+    }
+}
+
+TO_HIT_BONUS: 3
+BASE_DMG: 1d6
+MODIFIER: 1
+ATTACKS: 16
+\
+output [images 3 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 17 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken With 3 Mirror Images (AC 17)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 17 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 17)"
+\
+
+\
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 19 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 19)"
+\
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 20 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 20)"
+\
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 21 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 21)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 22 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 22)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 23 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 23)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 24 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 24)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 25 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 25)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 26 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 26)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 27 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 27)"
+
+output [images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll 1d20 plus TO_HIT_BONUS vs 28 for BASE_DMG+MODIFIER crit BASE_DMG on 20] named "Damage Taken Without Mirror Image (AC 28)"
+\
+
+
+
+
+
+
+
+
+
+
+\
+output 
+[images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll [highest 1 of 2d20] plus TO_HIT_BONUS vs 23 for 2d6+3 crit 2d6 on 20] named "Damage Taken Without Mirror Image (AC 23) - Atk w/Adv"
+
+output 
+[images 0 imageac 13 imageroll 1d20 attacks ATTACKS roll [highest 1 of 2d20] plus TO_HIT_BONUS vs 24 for 2d6+3 crit 2d6 on 20] named "Damage Taken Without Mirror Image (AC 24) - Atk w/Adv"
+\

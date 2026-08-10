@@ -1,0 +1,96 @@
+\
+Shadowrun Anarchy 2nd Edition
+Hit- and Wound Probability Calculator 
+By Impleione, modified from code by Slippery_Chicken and Insaniac99
+\
+
+FALSE:0
+TRUE:1
+\ Attacker Regular dice \ A: 0
+\ Attacker Risk dice \    R: 12
+\ Attacker RR \          RR: 3
+\ Advantage? \           AD: FALSE
+\ Disadvantage? \        DA: TRUE
+\ Use Edge? \             E: FALSE 
+\ Weapon Damage Value \   V: 0
+\ Attacker Threshold \   AT: 0
+
+\ Defender Nonrisk Dice\  D: 0
+\ Defender Risk \        RD: 0
+\ Def. Advantage? \     DAD: FALSE
+\ Def. Disadvantage? \  DDA: FALSE
+\ Defender Threshold \    T: 0
+\ D's Wound Threshold\    W: 4
+
+
+
+function: reroll N:n {
+ if N > 4 { result: 1} 
+ result: d(d6>4)
+}
+
+
+function: calculatedamage DAMAGE:n plus NETHITS:n {
+ if NETHITS < 0 { result: 0 }
+ result: DAMAGE + NETHITS
+}
+
+\ Advantage and Disadvantage cancel out \
+if AD & DA { 
+AD: 0
+DA: 0
+}
+
+\Attacker's Roll Result\ 
+AR: AT
+if E { 
+AR: Ad[reroll d6] + 2 * Rd[reroll d6] + AT
+} else if AD {
+AR: Ad(d6 > 3) + 2 * Rd(d6 > 3) + AT
+} else if DA {
+AR: Ad(d6 > 5) + 2 * Rd(d6 > 5) + AT
+} else {
+AR: Ad(d6 > 4) + 2 * Rd(d6 > 4) + AT
+}
+
+
+\Glitches return the odds of one, two or three+ ones, ignoring RR of them \
+ G: Rd(d6 = 1)
+ THREE: G > RR + 2
+ TWO:   G = RR + 2
+ ONE:   G = RR + 1
+ NONE:  G < RR + 1
+
+
+\Defender's Roll Result\ 
+DR: 0
+if DAD {
+DR: Dd(d6 > 3) + 2 * RDd(d6 > 3) + T
+} else if DDA {
+DR: Dd(d6 > 5) + 2 * RDd(d6 > 5) + T
+} else {
+DR: Dd(d6 > 4) + 2 * RDd(d6 > 4) + T
+}
+
+\Attacker Net Hits\       X: AR - DR
+\Modified Damage\        SD: [calculatedamage V plus X]
+\Wounding the target\ SW: W + 3
+                      DW: W + 6
+                      LWOUND:  SD = W +1 | SD = W +2 | SD = W +3
+                      SWOUND:  SD = SW +1 | SD = SW +2 | SD = SW +3
+                        DEAD:  SD > DW
+                       WHIFF:  SD <= W
+
+
+output LWOUND named "Odds of Light Wound"
+output SWOUND named "Odds of Serious Wound"
+output DEAD named "Odds of Incapacitating"
+output WHIFF named "Odds of no damage"
+output ONE named "Odds of Glitching" 
+output TWO named "Odds of Crit Glitch"
+output THREE named "Odds of Catastrophe"
+output X >= 0 named "Attacker's chance to hit"
+\output AR named "Attacker's Hits Rolled"
+output DR  named "Defender's Hits Rolled"
+output X   named "Attacker's net hits"
+output SD named "Damage Value taken"\

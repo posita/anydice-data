@@ -1,0 +1,27 @@
+EVASION: 16
+ARMOR: 0
+INVISIBLE: 0
+
+\ Do not edit below this line \
+function: attack A:n {
+  result: (1d20 + 6 + ((A < 0) * (-A) + (A > 0))@Ad6)*1d{INVISIBLE = 0, 1}
+}
+
+function: mod N:n by D:n {
+  result: N - D * (N / D)
+}
+
+function: smartgun R:n {
+  if (R < EVASION) {
+    result: 0
+  } else if (R < 20) {
+    result: 2 * [highest of 4+1d6-ARMOR and 0]
+  } else {
+    result: 2 * [highest of 4+1@2d6+1d6-ARMOR and 0] + 1
+  }
+}
+
+SG: [smartgun [attack 1]]
+
+output SG / 2 named "Smartgun damage"
+output [mod SG by 2] named "Smartgun crit"

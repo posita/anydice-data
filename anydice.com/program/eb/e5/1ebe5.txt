@@ -1,0 +1,55 @@
+\These results are only the 95% of rolls
+ that weren't a natural 1 on the first die.
+ Since those always fail and don't produce
+ a numerical modifier to be averaged in.
+
+ If you want to instead treat them as some
+ specific number, just put that in at the
+ top of the 'bonus' function and replace
+ 'FIRS' and "FUNS' with 'NORM' and 'UNSK'
+ in the output section, respectively.\
+
+function: torgdie R:n with O:n min MIN:n reroll RE:s {
+  if R = RE {
+    result: [torgdie d20 with R + O min 0 reroll RE]
+  }
+  if R < MIN {result: MIN + O}
+  result: R + O
+}
+
+function: bonus R:n {
+  if R = 1 { result: -10 }
+  if R = 2 { result: -8 }
+  if R = 3 | R = 4 {result: -6 }
+  if R = 5 | R = 6 {result: -4 }
+  if R = 7 | R = 8 {result: -2 }
+  if R = 9 | R = 10 {result: -1 }
+  if R = 11 | R = 12 {result: 0 }
+  if R = 13 | R = 14 {result: 1 }
+  if R = 15 { result: 2 }
+  if R = 16 { result: 3 }
+  if R = 17 { result: 4 }
+  if R = 18 { result: 5 }
+  if R = 19 { result: 6 }
+  if R = 20 { result: 7 }
+  
+  result: 8 + (R - 21) / 5
+}
+
+\The d{2..20} below is just simulating a d20
+ where we throw ones out of the equation entirely.\
+FIRS: [torgdie d{2..20} with 0 min 0 reroll {10,20}]
+NORM: [torgdie d20 with 0 min 0 reroll {10, 20}]
+POSS: [torgdie d20 with 0 min 10 reroll {10,20}]
+FUNS: [torgdie d{2..20} with 0 min 0 reroll {10}]
+UNSK: [torgdie d20 with 0 min 0 reroll {10}]
+UNSP: [torgdie d20 with 0 min 10 reroll {10}]
+
+output [lowest of FIRS and 60] named "Normal"
+output [lowest of FIRS + POSS and 60] named "Poss"
+output [lowest of FIRS + 2dPOSS and 60] named "2 Poss"
+output [lowest of FIRS + 3dPOSS and 60] named "3 Poss"
+output [lowest of FIRS + NORM and 60] named "Up"
+output [lowest of FIRS + NORM + POSS and 60] named "Up + Poss"
+output [lowest of FIRS + NORM + 2dPOSS and 60] named "Up + 2 Poss"
+output [lowest of FIRS + NORM + 3dPOSS and 60] named "Up + 3 Poss"

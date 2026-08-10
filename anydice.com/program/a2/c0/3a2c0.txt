@@ -1,0 +1,38 @@
+function: successes in ROLL:d vs TN:n {
+  result: [count {TN..6} in ROLL]
+}
+function: duds in ROLL:d vs TN:n {
+  result: [count {1..TN-1} in ROLL]
+}
+function: push ROLL:d vs TN:n {
+  DUDS: [duds in ROLL vs TN]
+  result: [successes in ROLL vs TN] + [successes in DUDSd6 vs TN]
+}
+function: successes in ROLL:s vs TN:n with LEV:n leverage {
+  SUCC: 0
+  REM: LEV
+  loop X over {1..(#ROLL)}{
+    N: X@ROLL
+    if N >= TN {
+      SUCC: SUCC + 1
+    }
+    else {
+      REQ: TN - N
+      if REQ <= REM {
+        REM: REM - REQ
+        SUCC: SUCC + 1
+      }
+    }
+  }
+  result: SUCC
+}
+      
+
+TN: 6
+SKILL: 3
+
+output [successes in SKILLd6 vs TN] named "Normal"
+output [push SKILLd6 vs TN] named "Pushed"
+loop L over {1..6}{
+  output [successes in SKILLd6 vs TN with L leverage] named "Normal ([L] Leverage)"
+}

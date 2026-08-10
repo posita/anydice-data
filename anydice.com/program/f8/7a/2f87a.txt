@@ -1,0 +1,42 @@
+function: match pairs DICE:s {
+  ONES: [count 1 in DICE]
+  TWOS: [count 2 in DICE]
+  THREES: [count 3 in DICE]
+
+  MATCHES: ONES + TWOS + THREES
+
+  if MATCHES < 2 { result: MATCHES }
+  
+  else if MATCHES = 2 {
+    if ONES = 2 { result: 3 }
+    else { result: 2 }
+  }
+  
+  else if MATCHES = 3 {
+    if (ONES & ONES) { result: 4 }
+    else { result: 3 }
+  }
+  
+  else if MATCHES = 4 { result: 5 }
+  
+  else if MATCHES = 5 { result: 6 }
+  
+  else if MATCHES = 6 { result: 8 }
+  
+  else {
+    loop N over {2..N} {
+      REROLLED: {1..N} = 1 & [count {1..N} in DICE] = 1
+      if REROLLED = {1} {
+        DICE: {1..6} & REROLLED
+        MATCHES: [match pairs DICE]
+        if (ONES & ONES) { result: 4 }
+        else if MATCHES = 6 { result: 8 }
+      }
+    }
+  }
+}
+
+output [match pairs 1d6] named "ONE DIE"
+output [match pairs 2d6] named "TWO DICE"
+output [match pairs 3d6] named "THREE DICE"
+output [match pairs 4d6] named "FOUR DICE"

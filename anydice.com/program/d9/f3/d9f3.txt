@@ -1,0 +1,22 @@
+POOL:3
+MULTI:0
+
+output [count 9 in POOL d{0..9}] named "9er im 1.durchgang"
+output [highest POOL of d{0..9}] named "hÃ¶chster aus pool"
+
+function: helper {
+POOL:POOL-1
+MULTI:MULTI+1
+result:[count 9 in POOL d{0..9}]
+}
+
+function: count VALUES:s in SEQUENCE:s {
+ COUNT: 0
+ loop P over {1..#VALUES} {
+  COUNT: COUNT + (P@VALUES = SEQUENCE)
+ }
+ if COUNT >= 2 { result: [helper] }
+ result: MULTI*9  + [highest POOL of d{0..9}] 
+}
+output [count 9 in POOL d{0..9}] named "ergebnis"
+

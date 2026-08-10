@@ -1,0 +1,36 @@
+\set "explode depth" to 10\
+
+RANGE: 8
+D: {0,1}
+
+function: clamp N:n between MIN:n and MAX:n {
+  if N > MAX { result: MAX }
+  if N < MIN { result: MIN }
+  result: N
+}
+
+function: roll N:n tn TN:n crit CRIT:n {
+  result: [roll N adv 1 tn TN crit CRIT]
+}
+function: roll N:n adv A:n tn TN:n crit CRIT:n {
+  if N < TN { result: 0 }
+  if TN > CRIT { CRIT: TN }
+  if N >= CRIT {
+    if A > 1 { A: A - 1 }
+    result: 1 + [roll Ad6 adv A tn TN crit CRIT]
+  }
+  result: 1
+}
+
+loop X over {0..1} {
+  CRIT: 6 - X
+  loop TN over {2..6} {
+    loop N over {-4..-2} {
+      output [clamp [roll [lowest 1 of -Nd6] tn TN crit CRIT] between -RANGE and RANGE] named "[N]d [TN]/[CRIT]"
+    }
+    loop N over {1..8} {
+      output [clamp [roll [highest 1 of Nd6] tn TN crit CRIT] between -RANGE and RANGE] named "[N]d [TN]/[CRIT]"
+    }
+  }
+}
+

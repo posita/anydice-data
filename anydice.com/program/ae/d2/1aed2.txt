@@ -1,0 +1,38 @@
+ACRANGE: {0..50}
+WISRANGE: {-5..5}
+
+CHA: 5
+PROF: 3
+
+DC: 8 + CHA + PROF
+SPELL: CHA + PROF
+
+function: cast DAMAGE:d if CHECK:n succeeds with MOD:d against AC:n ac {
+ if CHECK = 20 {result: 2dDAMAGE + MOD}
+ else if CHECK = 0 {result: 0}
+ else if CHECK + SPELL < AC {result: 0}
+ else {result: DAMAGE + MOD}
+}
+
+function: save with SAVE:n against DAMAGE:d with WIS:n wisdom {
+ if SAVE + WIS >= DC {result: DAMAGE/2}
+ else {result: DAMAGE}
+}
+
+BLASTDMG: 1d10
+HEXDMG: 1d6
+SPIKEDMG: 4d8
+
+BLAST: BLASTDMG+HEXDMG
+BLAST: [cast BLAST if 1@2d20 succeeds with CHA against dACRANGE ac]
+
+output 4dBLAST named "Eldritch Blast only"
+
+SPIKE: [save with d20 against SPIKEDMG with dWISRANGE wisdom]
+SPIKE: SPIKE + HEXDMG 
+
+output 2dBLAST + SPIKE named "Eldritch Blast then Mind Spike"
+
+SPIKE: [save with d20 against SPIKEDMG with dWISRANGE wisdom]
+
+output 2dSPIKE named "Mind Spike only"

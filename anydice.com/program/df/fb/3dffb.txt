@@ -1,0 +1,118 @@
+#!/bin/bash
+
+# Source profile
+. /etc/profile.CA
+
+# Set Variables
+autosys_version=$(autoflags -a | grep -o '[0-9]*\.[0-9]*' | head -1); export autosys_version
+export AUTOSERV
+
+SERVER_NAME=""
+USER=""
+ENC_PWD_FILE=enc_aews_pwd.$AUTOSERV
+enc_key=$AUTOSERV
+PASS=$(openssl aes-256-cbc -a -d -in ${ENC_PWD_FILE} -k $enc_key | awk '{print $1}')
+
+case $AUTOSERV in
+C1D)
+        USER=system_waae_job_dev
+        case $autosys_version in
+        11.3)
+                SERVER_NAME=cb1773874.mpcwest.cloud1.cibc.com;;
+        12.1)
+                SERVER_NAME=cb4597588.dcc.cloud1.cibc.com;;
+        esac
+        ;;
+C1U)
+        USER=system_waae_job_uat
+        case $autosys_version in
+        11.3)
+                SERVER_NAME=cb1794552.mpcwest.cloud1.cibc.com;;
+        12.1)
+                SERVER_NAME=cb4597813.dcc.cloud1.cibc.com;;
+        esac
+        ;;
+C1P)
+        USER=system_waae_job_prod
+        case $autosys_version in
+        11.3)
+                SERVER_NAME=cb1818676.mpceast.cloud1.cibc.com;;
+        12.1)
+                SERVER_NAME=cb4597771.dcc.cloud1.cibc.com;;
+        esac
+        ;;
+*)
+        echo "AUTOSERV variable not set. Set before continuing"
+        exit 1
+esac
+export SERVER_NAME
+
+OUTPUT_DIR="R${autosys_version%.*}Data/"; export OUTPUT_DIR
+JOB_OUTPUT_FILE="${OUTPUT_DIR}autosys_${AUTOSERV}_alljobs.txt"; export JOB_OUTPUT_FILE
+MACH_OUTPUT_FILE="${OUTPUT_DIR}autosys_${AUTOSERV}_allmachines.txt"; export MACH_OUTPUT_FILE
+RES_OUTPUT_FILE="${OUTPUT_DIR}autosys_${AUTOSERV}_allresources.txt"; export RES_OUTPUT_FILE
+GVAR_OUTPUT_FILE="${OUTPUT_DIR}autosys_${AUTOSERV}_allgvars.txt"; export GVAR_OUTPUT_FILE
+EXT_CAL_OUTPUT_FILE="${OUTPUT_DIR}autosys_${AUTOSERV}_extendedcalendars.txt"; export EXT_CAL_OUTPUT_FILE
+CYC_CAL_OUTPUT_FILE="${OUTPUT_DIR}autosys_${AUTOSERV}_cycliccalendars.txt"; export CYC_CAL_OUTPUT_FILE
+STD_CAL_OUTPUT_FILE="${OUTPUT_DIR}autosys_${AUTOSERV}_standardcalendars.txt"; export STD_CAL_OUTPUT_FILE
+
+P3=$(which python3)
+if [[ $? == 0 ]]; then
+        PYTHON=python3
+else
+        PV=$(which python)
+        if [[ $? == 0 ]]; then
+                PYTHON=python
+        else
+                echo "No Python installed. This script requires Python."
+                exit 1
+        fi
+fi; export PYTHON
+echo "Running script with $($PYTHON -V)."
+
+gather_webservice_data() {
+	local dist_set="$1"
+	local user="$2"
+	local pass="$3"
+	local out_file="$4"
+	local data_type="$5"
+	echo "$dist_set $user -pass- $out_file $data_type"
+	
+	echo "Gathering data for ${data_type}s that start with $dist_set"
+	
+	$PYTHON aews-get-generic.py $SERVER_NAME "${data_type}?filter=name==${dist_set}" "$user" "$pass" | tee "${OUTPUT_DIR}autosys_${AUTOSERV}_all_${dist_set}_${data_type}s.txt" | tee -a "$out_file" >/dev/null
+	
+	echo ""
+	echo "Finished gathering data for ${data_type}s that start with $dist_set"
+	echo ""
+}; export -f gather_webservice_data
+
+### Begin Script ###
+echo "Gathering Autosys Object details..."
+
+#Job statuses
+echo "DEBUG: OUTPUT_DIR = ${OUTPUT_DIR}"
+echo "DEBUG: AUTOSERV = ${AUTOSERV}"
+echo "DEBUG: JOB_OUTPUT_FILE = ${JOB_OUTPUT_FILE}"
+parallel gather_webservice_data {} "$USER" "$PASS" "$JOB_OUTPUT_FILE" job ::: {a..c}
+exit
+
+#Machine statuses
+$PYTHON aews-get-generic.py $SERVER_NAME machine $USER $PASS >> $MACH_OUTPUT_FILE
+
+#Resources
+autorep -V ALL >> $RES_OUTPUT_FILE
+
+#Gvars
+$PYTHON aews-get-generic.py $SERVER_NAME gvar $USER $PASS >> $GVAR_OUTPUT_FILE
+
+#Calendars
+autocal_asc -E $EXT_CAL_OUTPUT_FILE -e ALL
+autocal_asc -E $CYC_CAL_OUTPUT_FILE -c ALL
+autocal_asc -E $STD_CAL_OUTPUT_FILE -s ALL
+
+#Job JIL
+autorep -J ALL >> $JOB_JIL_OUTPUT_FILE
+
+#Machine JIL
+autorep -M ALL >> $MACH_JIL_OUTPUT_FILE

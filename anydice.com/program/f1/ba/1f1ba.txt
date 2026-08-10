@@ -1,0 +1,425 @@
+\ Monk Challenge Build \
+
+MISS: 0
+HIT: 1
+BGWF: {{1..4}, {5..8}:5}
+SGWF: {{1..2}, {3..4}:3}
+CRITICALHIT: 2
+BIGATTACK: 2 + 3
+SMALLATTACK: 2 + 3
+SKELEATTACK: 4
+MOUNTATTACK: 4
+BIGHITDAMAGE: 1d6 + 3
+BIGCRITICALDAMAGE: 2d6 + 3 
+SMALLHITDAMAGE: 1d6 + 3
+SMALLCRITICALDAMAGE: 2d4 + 3
+SKELEHITDAMAGE: 1d6 + 2
+SKELECRITICALDAMAGE: 2d6 + 2
+MOUNTBIGHITDAMAGE: 1d6 + 2
+MOUNTBIGCRITICALDAMAGE: 2d6 + 2
+MOUNTSMALLHITDAMAGE: 1d4 + 2
+MOUNTSMALLCRITICALDAMAGE: 2d4 + 2 
+CHARACTERSPELLSAVEONE: 15
+CHARACTERSPELLSAVETWO: 12
+SAVESPELLHITDAMAGEONE: 5d8
+SAVESPELLMISSDAMAGEONE: (5d8)/2 
+SAVESPELLHITDAMAGETWO: 1d12
+SAVESPELLMISSDAMAGETWO: 0
+MISSDAMAGE: 0
+MONSTERSAVEONE: -1
+MONSTERSAVETWO: -1
+AC: 10
+
+function:  ROLL:n vs DEFENSE:n ATTACK:n {
+ if ROLL = 1 {result: MISS}
+ if ROLL = 20 {result: CRITICALHIT}
+ if ROLL + ATTACK>= DEFENSE {result: HIT}
+ result: MISS
+}
+
+
+function: save spell one ROLL:n {
+ if ROLL + MONSTERSAVEONE >= CHARACTERSPELLSAVEONE {result: SAVESPELLMISSDAMAGEONE}
+ result: SAVESPELLHITDAMAGEONE
+}
+
+function: save spell two ROLL:n {
+ if ROLL + MONSTERSAVEONE >= CHARACTERSPELLSAVETWO {result: SAVESPELLMISSDAMAGETWO}
+ result: SAVESPELLHITDAMAGETWO
+}
+
+
+
+\ Damage functions \
+
+function: damage for big ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: BIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: BIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for skele ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: SKELECRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: SKELEHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for big mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTBIGCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTBIGHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+function: damage for small mount ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: MOUNTSMALLCRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: MOUNTSMALLHITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+\ Multi attacks \
+
+function: bigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [d20 vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 2d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: bigmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big [[highest 1 of 3d20] vs AC BIGATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [d20 vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 2d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: smallmultiattackdoubleadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small [[highest 1 of 3d20] vs AC SMALLATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [d20 vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: skelemultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for skele [[highest 1 of 2d20] vs AC SKELEATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattack NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [d20 vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountbigmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for big mount [[highest 1 of 2d20] vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: mountsmallmultiattackadvantage NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [damage for small mount [[highest 1 of 2d20] vs AC MOUNTATTACK]]
+  }
+  result: TOTAL
+}
+
+function: multiattackspo NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell one d20]
+  }
+  result: TOTAL
+}
+
+function: multiattackspt NUMBEROFATTACKS:n {
+  TOTAL: 0
+  loop N over {1..NUMBEROFATTACKS} {
+    TOTAL: TOTAL + [save spell two d20]
+  }
+  result: TOTAL
+}
+
+\ Level 1 \
+BIGATTACK: 2 + 3
+BIGHITDAMAGE: 1d8 + 3
+BIGCRITICALDAMAGE: 2d8 + 3
+SMALLATTACK: 2 + 3
+SMALLHITDAMAGE: 1d6 + 3
+SMALLCRITICALDAMAGE: 2d6 + 3
+AC:14
+output [bigmultiattack 1] + [smallmultiattack 1] named "1 Monk w/ Yklwa, bite vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6
+BIGHITCRITICALDAMAGE: 2d10 + 2d6
+output [bigmultiattack 1]named "1 Warlock w/ Eldritch Blast, Hex vs AC[AC]"
+
+\ Level 2 \
+BIGHITDAMAGE: 1d8 + 3
+BIGCRITICALDAMAGE: 2d8 + 3
+output [bigmultiattack 1] + [smallmultiattack 2] named "2 Monk w/ Yklwa, 2x bite vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 3
+output [bigmultiattack 1]named "2 Warlock w/ Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 3 \
+BIGHITDAMAGE: 1d10 + 3
+BIGCRITICALDAMAGE: 2d10 + 3
+output [bigmultiattack 1] + [smallmultiattack 2] named "3 Monk w/ longsword, 2x bite vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 3
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 3
+output [bigmultiattack 1] named "3 Warlock w/ Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 4 \
+BIGATTACK: 2 + 4
+SMALLATTACK: 2 + 4
+BIGHITDAMAGE: 1dBGWF + 4
+BIGCRITICALDAMAGE: 1dBGWF + 1d8 + 4
+AC: 15
+output [bigmultiattack 1] + [smallmultiattack 2] named "4 Monk w/ yklwa, 2x bite, piercer vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 4
+output [bigmultiattack 1] named "4 Warlock w/ Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 5 \
+BIGATTACK: 3 + 4
+SMALLATTACK: 3 + 4
+BIGHITDAMAGE: 1d10 + 4
+BIGCRITICALDAMAGE: 2d10 + 4
+AC: 16
+output [bigmultiattack 2] + [smallmultiattack 2] named "5 Monk w/ 2x longsword, 2x bite vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 4
+output [bigmultiattack 2] named "5 Warlock w/ 2x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 6 \
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 4
+output [bigmultiattack 2] + [smallmultiattack 2] named "6 Monk w/ 2x longsword, 2x bite, deft strike vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 4
+output [bigmultiattack 2] named "6 Warlock w/ 2x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 7 \
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 4
+output [bigmultiattack 2] + [smallmultiattack 2] named "7 Monk w/ 2x longsword, 2x bite, deft strike vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 4
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 4
+output [bigmultiattack 2] named "7 Warlock w/ 2x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 8 \
+BIGATTACK: 3 + 5
+SMALLATTACK: 3 + 5
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+AC: 17
+output [bigmultiattack 2] + [smallmultiattack 2] named "8 Monk w/ 2x longsword, 2x bite, deft strike vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 2] named "8 Warlock w/ 2x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 9 \
+BIGATTACK: 4 + 5
+SMALLATTACK: 4 + 5
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+AC: 18
+output [bigmultiattack 2] + [smallmultiattack 2] named "9 Monk w/ 2x longsword, 2x bite, deft strike vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 2] named "9 Warlock w/ 2x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 10 \
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 2] + [smallmultiattack 2] named "10 Monk w/ 2x longsword, 2x bite, deft strike vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 2] named "10 Warlock w/ 2x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 11 \
+BIGATTACK: 4 + 5 + 3
+BIGHITDAMAGE: 1d10 + 1d8 + 5 + 3
+BIGCRITICALDAMAGE: 2d10 + 2d8 + 5 + 3
+SMALLHITDAMAGE: 1d8 + 5
+SMALLCRITICALDAMAGE: 2d8 + 5
+output [bigmultiattack 2] + [smallmultiattack 2] named "11 Monk w/ 2x longsword, 2x bite, deft strike, sharpen the blade +3 vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 3] named "11 Warlock w/ 3x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 12 \
+BGWF: {{1..4}, {5..8}:5}
+BIGHITDAMAGE: 1dBGWF + 1d8 + 5 + 2 + 3
+BIGCRITICALDAMAGE: 1dBGWF + 1d8 + 1d8 + 5 + 2 + 3
+SKELEATTACK: 4 + 5 + 3
+SKELEHITDAMAGE: 1d8 + 1d8 + 5 + 2 + 3
+SKELECRITICALDAMAGE: 2d8 + 2d8 + 5 + 2 + 3
+output [bigmultiattack 1] + [skelemultiattack 1] + [smallmultiattack 2] named "12 Monk w/ 2x yklwa, 2x bite, piercer, deft strike, dueling, sharpen the blade vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 3] named "12 Warlock w/ 3x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 13 \
+BIGATTACK: 5 + 5 + 3
+SMALLATTACK: 5 + 5
+SKELEATTACK: 5 + 5 + 3
+BIGHITDAMAGE: 1dBGWF + 1d8 + 5 + 2 + 3
+BIGCRITICALDAMAGE: 1dBGWF + 1d8 + 2d8 + 5 + 2 + 3
+AC:19
+output [bigmultiattack 1] + [skelemultiattack 1] + [smallmultiattack 2] named "13 Monk w/ 2x yklwa, 2x bite, piercer, deft strike, dueling, sharpen the blade vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 3] named "13 Warlock w/ 3x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 14 \
+BIGHITDAMAGE: 1dBGWF + 1d8 + 5 + 2 + 3
+BIGCRITICALDAMAGE: 1dBGWF + 1d8 + 2d8 + 5 + 2 + 3
+output [bigmultiattack 1] + [skelemultiattack 1] + [smallmultiattack 2] named "14 Monk w/ 2x yklwa, 2x bite, piercer, deft strike, dueling, sharpen the blade vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 3] named "14 Warlock w/ 3x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 15 \
+BIGHITDAMAGE: 1dBGWF + 1d8 + 5 + 2
+BIGCRITICALDAMAGE: 1dBGWF + 1d8 + 2d8 + 5 + 2
+output [bigmultiattack 1] + [skelemultiattack 1] + [smallmultiattack 2] named "15 Monk w/ 2x yklwa, 2x bite, piercer, deft strike, dueling, sharpen the blade vs AC[AC]"
+
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 3] named "15 Warlock w/ 3x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 16 \
+BIGHITDAMAGE: 1dBGWF + 1d6 + 1d8 + 5 + 2 + 3
+BIGCRITICALDAMAGE: 1dBGWF + 1d8 + 2d6 + 2d8 + 5 + 2 + 3
+SMALLHITDAMAGE: 1d10 + 1d6 + 5
+SMALLCRITICALDAMAGE: 2d10 + 2d6 + 5
+SKELEHITDAMAGE: 1d8 + 1d6 + 1d8 + 5 + 3
+SKELECRITICALDAMAGE: 2d8 + 2d6 + 2d8 + 5 + 3
+output [bigmultiattack 1] + [skelemultiattack 1] + [smallmultiattack 2] named "16 Monk w/ 2x yklwa, 2x bite, piercer, deft strike, dueling, sharpen the blade, hex vs AC[AC]"
+
+BIGATTACK: 5 + 5
+SMALLATTACK: 5 + 5
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 3] named "16 Warlock w/ 3x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+\ Level 17 \
+BIGATTACK: 5 + 6 + 3
+SMALLATTACK: 5 + 6
+SKELEATTACK: 5 + 6 + 3
+BIGHITDAMAGE: 1dBGWF + 1d10 + 1d6 + 5 + 2 + 3
+BIGCRITICALDAMAGE: 1dBGWF + 1d8 + 2d10 + 2d6 + 5 + 2 + 3
+SMALLHITDAMAGE: 1d10 + 1d6 + 5
+SMALLCRITICALDAMAGE: 2d10 + 2d6 + 5
+SKELEHITDAMAGE: 1d8 + 1d8 + 1d6 + 5 + 3
+SKELECRITICALDAMAGE: 2d8 + 2d8 + 2d6 + 5 + 3
+AC:20
+output [bigmultiattackadvantage 1] + [skelemultiattack 1] + [smallmultiattack 2] named "17 Monk w/ 2x yklwa, 2x bite, piercer, deft strike, dueling, sharpen the blade, hex, Unerring Accuracy vs AC[AC]"
+
+BIGATTACK: 5 + 6
+SMALLATTACK: 5 + 6
+BIGHITDAMAGE: 1d10 + 1d6 + 5
+BIGHITCRITICALDAMAGE: 2d10 + 2d6 + 5
+output [bigmultiattack 4] named "17 Warlock w/ 4x Eldritch Blast, Agonizing Blast, Hex vs AC[AC]"
+
+
+
+
+
+
+
+
+
+
+

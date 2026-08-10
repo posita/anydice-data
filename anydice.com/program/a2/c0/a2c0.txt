@@ -1,0 +1,128 @@
+MISS: 0
+HIT: 1
+MAGICMISS: 2
+
+SMALLHIT: 3
+REGHIT: 4
+BIGHIT: 5
+VBIGHIT: 6
+
+DFOUR: 0
+DSIX: 0
+DEIGHT: 0
+DTEN: 0
+DTWELVE: 0
+
+function: magic ROLL:n against DIE:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL + ATTACK >= DEFENSE { 
+  if DIE > 1{result: 1}
+  result: 0
+ }
+ if [lowest 1 of 2dDIE] > 1 {result: 1}
+ result: 0
+}
+
+function: magic save ROLL:n plus SAVE:n vs DC:n {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 {
+  result: MISS
+ }
+ if ROLL + SAVE >= DC
+ {
+  result: MAGICMISS
+ }
+ result: HIT
+}
+
+function: save ROLL:n plus SAVE:n vs DC:n {
+ if ROLL = 1 { result: HIT }
+ if ROLL = 20 {
+  result: MISS
+ }
+ if ROLL + SAVE >= DC
+ {
+  result: MISS
+ }
+ result: HIT
+}
+
+function: magic damage for DIE:n rolling ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL + ATTACK >= DEFENSE { 
+  result: [check wound 1dDIE]
+ }
+ result: [check wound [lowest 1 of 2dDIE]]
+}
+
+function: check wound ROLL:n{
+ if ROLL > 1 {result: 1}
+ result: 0
+}
+
+function: damage for DIE:n rolling ROLL:n plus ATTACK:n vs DEFENSE:n {
+ if ROLL + ATTACK >= DEFENSE { 
+  if DIE > 1{result: 1}
+  result: 0
+ }
+ result: 0
+}
+
+function: check die step DIE:n for HITSIZE:n{
+ if HITSIZE = SMALLHIT{
+  result: DIE-2
+ }
+ if HITSIZE = BIGHIT{
+  if DIE = 12{
+   result: 20
+  }
+  result: DIE+2
+ }
+ result: DIE
+}
+
+function: multiattack against DIE with NUM:n attacks doing NUMWOUNDS:n DAMAGE:n with CHANCE:n to hit against AC:n{
+ RESULT: 0
+
+ loop N over{1..NUM}{
+  RESULT: RESULT + NUMWOUNDSd[damage for 1d[check die step DIE for DAMAGE] rolling 1d20 plus CHANCE vs AC]
+ }
+ result: RESULT
+}
+
+function: magic attack against DIE doing NUMWOUNDS:n DAMAGE:n with CHANCE:n to hit against AC:n{
+ RESULT: 0
+
+ RESULT: NUMWOUNDSd[magic damage for [check die step DIE for DAMAGE] rolling 1d20 plus CHANCE vs AC]
+
+ result: RESULT
+}
+
+function: area magic hit NUM:n targets using DIE:d with CHANCE:n against DC:n{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE when [magic save 1d20 plus CHANCE vs DC]]
+ }
+ result: RESULT
+}
+
+function: area effect hit NUM:n targets using DIE:d with CHANCE:n against DC:n{
+ RESULT: 0
+ loop N over{1..NUM}{
+  RESULT: RESULT + [damage for DIE when [save 1d20 plus CHANCE vs DC]]
+ }
+ result: RESULT
+}
+
+output [magic attack against 4 doing 1 REGHIT with 3 to hit against 15] named "Magic Test"
+output [multiattack against 4 with 1 attacks doing 1 REGHIT with 3 to hit against 15] named "Weapon Benchmark"
+
+output [multiattack against 4 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d4 doing 2sW"
+output [multiattack against 6 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d6 doing 2sW"
+output [multiattack against 8 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d8 doing 2sW"
+output [multiattack against 10 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d10 doing 2sW"
+output [multiattack against 12 with 1 attacks doing 2 SMALLHIT with 3 to hit against 18] named "1 attack against 1d12 doing 2sW"
+
+output [multiattack against 4 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attacks against 1d4 doing 1W"
+output [multiattack against 6 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d6 doing 1W"
+output [multiattack against 8 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d8 doing 1W"
+output [multiattack against 10 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d10 doing 1W"
+output [multiattack against 12 with 2 attacks doing 1 REGHIT with 2 to hit against 18] named "2 attack against 1d12 doing 1W"

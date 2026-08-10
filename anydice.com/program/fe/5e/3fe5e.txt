@@ -1,0 +1,174 @@
+\ =============    ATTACK   ============ \
+
+function: roll ROLL:n damage DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+function: roll ROLL:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    if ROLL = 1 | ROLL < AC {
+        result: 0
+    }
+    if ROLL = 20 | ROLL >= AC {
+        if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+    }
+    \if ROLL = AC {
+        if [CRITS contains ROLL] {result: CRIT/2} else {result: DMG/2}
+    }\
+}
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s {
+    result: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+}
+
+function: massroll ROLLS:s plus MODS:s against AC:n damage DMGS:s crit CRITS:s on CRIT_RANGE:s {
+    ACCUM: 0
+    loop NUM over {1..#ROLLS} {
+        ACCUM: ACCUM + [roll NUM@ROLLS against AC-NUM@MODS damage NUM@DMGS crit NUM@CRITS on CRIT_RANGE]
+    }
+    result: ACCUM
+}
+
+
+function: massroll ROLLS:s plus MODS:s against AC:n damage DMGS:s crit CRITS:s on CRIT_RANGE:s plus EXTRA:d crit EXTRA_CRIT:d per turn {
+
+    HAS_CRIT: 0
+    loop NUM over {1..#ROLLS} {
+        if [CRIT_RANGE contains NUM@ROLLS] { HAS_CRIT: 1 }
+    }
+
+    ACCUM: [roll 1@ROLLS against AC-(1@MODS) damage 1@DMGS crit 1@CRITS on CRIT_RANGE]
+    if #ROLLS > 1 { ACCUM: ACCUM + [roll 1@ROLLS against AC-(1@MODS) damage 1@DMGS crit 1@CRITS on CRIT_RANGE] }
+    if #ROLLS > 2 { ACCUM: ACCUM + [roll 2@ROLLS against AC-(2@MODS) damage 2@DMGS crit 2@CRITS on CRIT_RANGE] }
+    if #ROLLS > 3 { ACCUM: ACCUM + [roll 3@ROLLS against AC-(3@MODS) damage 3@DMGS crit 3@CRITS on CRIT_RANGE] }
+    if #ROLLS > 4 { ACCUM: ACCUM + [roll 4@ROLLS against AC-(4@MODS) damage 4@DMGS crit 4@CRITS on CRIT_RANGE] }
+    if #ROLLS > 5 { ACCUM: ACCUM + [roll 5@ROLLS against AC-(5@MODS) damage 5@DMGS crit 5@CRITS on CRIT_RANGE] }
+    if #ROLLS > 6 { ACCUM: ACCUM + [roll 6@ROLLS against AC-(6@MODS) damage 6@DMGS crit 6@CRITS on CRIT_RANGE] }
+    if #ROLLS > 7 { ACCUM: ACCUM + [roll 7@ROLLS against AC-(7@MODS) damage 7@DMGS crit 7@CRITS on CRIT_RANGE] }
+    if #ROLLS > 8 { ACCUM: ACCUM + [roll 8@ROLLS against AC-(8@MODS) damage 8@DMGS crit 8@CRITS on CRIT_RANGE] }
+    if #ROLLS > 9 { ACCUM: ACCUM + [roll 9@ROLLS against AC-(9@MODS) damage 9@DMGS crit 9@CRITS on CRIT_RANGE] }
+    if #ROLLS > 10 { ACCUM: ACCUM + [roll 10@ROLLS against AC-(10@MODS) damage 10@DMGS crit 10@CRITS on CRIT_RANGE] }
+    
+
+    if HAS_CRIT = 0 { result: ACCUM + EXTRA }
+    else { result: ACCUM + EXTRA_CRIT}
+
+}
+
+\ ====================================== \
+
+\ ==============   SAVES   ============= \
+
+function: save ROLL:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    if ROLL >= DC {
+        result: S_DMG
+    }
+    if ROLL < DC {
+        result: F_DMG
+    }
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success {
+    result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for half {
+    result: [save ROLL vs DC-MOD for F_DMG damage or F_DMG/2 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or save for none {
+    result: [save ROLL vs DC-MOD for F_DMG damage or 0 on success]
+}
+
+function: save ROLL:n plus MOD:n vs DC:n for F_DMG:d damage or S_DMG:d on success with crit fail on CRITS:s for CRIT_DMG:d {
+  if [CRITS contains ROLL] {
+    result: CRIT_DMG
+  } 
+
+  result: [save ROLL vs DC-MOD for F_DMG damage or S_DMG on success]
+} 
+
+\ ====================================== \
+
+\ ==============   MISC    ============= \
+
+function: roll ROLL:n plus MOD:n against AC:n damage DMG:d crit CRIT:d on CRITS:s then save SAVE:n plus S_MOD:n vs DC:n for F_DMG:n or S_DMG:n on success{
+    
+    if ROLL = 20 | ROLL >= (AC-MOD) {
+        HIT_DMG: [roll ROLL against AC-MOD damage DMG crit CRIT on CRITS]
+        RIDER_DMG: [save SAVE vs DC-S_MOD for F_DMG damage or S_DMG on success]
+        result: HIT_DMG + RIDER_DMG
+    }
+    result: 0
+}
+
+function: DMG:n plus EXTRA:d per turn {
+    if DMG = 0 { result: 0 }
+    result: DMG + EXTRA
+}
+
+function: twist DE:n DIE:d {
+  if DE <= 1 {
+    result: 1@{DIE}
+  } 
+  if DE = 2 {
+    result: [lowest of DIE and DIE]
+  }
+  if DE = 3 {
+    result: [highest of DIE and DIE]
+  }
+  if DE >= 4 {
+    result: 1@[reverse {DIE}]
+  }
+}
+
+function: ttf DIE:d {
+  result: (DIE-1)/5+1
+}
+
+function: reroll REROLL:s on ROLL:n to REPLACEMENT:d {
+    if [REROLL contains ROLL] {
+        result: REPLACEMENT
+    }
+    result: ROLL
+}
+
+function: DICE:d reroll REROLL:s {
+    result: [reroll REROLL on DICE to DICE]
+}
+
+function: roll ROLL:n for DMG:d crit CRIT:d on CRITS:s {
+    if [CRITS contains ROLL] {result: CRIT} else {result: DMG}
+}
+
+\ ====================================== \
+
+LEVEL: 3
+PB: 2 + (LEVEL - 1)/4
+EXDIE: d(LEVEL@{0,4,6,6,8,8,8,8,8,8,10,10,10,10,10,10,12,12,12,12})
+SNEAK: 1 + (LEVEL-1)/2
+
+
+SAVE_ROLL: [lowest 1 of d20]
+SAVE_MOD: 2
+AC: 16
+DC: 8 + PB + 5
+
+
+HIT_ROLL: [highest 1 of 2d20]
+HIT_MOD: 3 + PB
+F_DMG: 3
+DMG: d4
+
+output [roll [highest 1 of 2d20] plus HIT_MOD against AC damage d4+3+SNEAKd6 crit 2d4+3+2d(SNEAKd6) on {20}] named "TEST: Dagger + BA:Hide"
+output [roll [highest 1 of 2d20] plus HIT_MOD against AC damage d4+3 crit 2d4+3 on {20}] named "TEST: Dagger + BA:Hide"
+
+output [
+    massroll {HIT_ROLL:1} plus {HIT_MOD:1} against AC damage {DMG+F_DMG:1} crit {2d(DMG)+F_DMG:1} on {20}
+] named "Dagger + BA:Hide"
+
+
+output [
+    massroll {HIT_ROLL:3} plus {HIT_MOD:3} against AC damage {DMG+F_DMG:3} crit {2d(DMG)+F_DMG:3} on {20}
+    plus SNEAKd6 crit 2d(SNEAKd6) per turn
+] named "Dagger + BA:Hide V2"
+

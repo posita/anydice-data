@@ -1,0 +1,98 @@
+MOBAC: 15
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: MISS
+    }
+    if ROLL >= CRIT_RANGE {
+        result: CRIT
+    }
+    if ROLL + BONUS >= AC {
+        result: HIT
+    }
+    result: MISS
+}
+
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    if ROLL = 1 {
+        result: 0
+    }
+    if ROLL >= CRIT_RANGE {
+        result: DMG + CRIT_DMG
+    }
+    if ROLL + BONUS >= AC {
+        result: DMG
+    }
+    result: 0
+}
+
+
+\------MAJIN---------------------------\
+PROF: 3
+MOD: 4
+WPN: 1
+WPNDIE: 1d10
+
+output [
+  attack 1d20
+  plus PROF + MOD + WPN
+  vs MOBAC 
+  for WPNDIE + MOD + WPN
+  crit WPNDIE on 20
+] + [
+  attack 1d20
+  plus PROF + MOD + WPN
+  vs MOBAC 
+  for WPNDIE + MOD + WPN
+  crit WPNDIE on 20
+]
+named "Majin Attack Round"
+
+
+output [
+  attack 1d20
+  plus PROF + MOD + WPN + 1d4 \Bless\
+  vs MOBAC 
+  for WPNDIE + MOD + WPN
+  crit WPNDIE on 20
+] 
+named "Attack w/ Bless"
+
+
+\------RIGGS---------------------------\
+PROF: 3
+MOD: 4
+WPN: 1
+WPNDIE: 1d8
+
+output [
+\  attack [highest 1 of 2d20] \
+  attack 1d20
+  plus PROF + MOD + WPN
+  vs MOBAC 
+  for WPNDIE + MOD + WPN
+    + 1d8 \Booming Blade\
+  crit WPNDIE + 1d8 
+    + 4d8 \Smite\ on 20
+] 
+named "Riggs (smite on crit)"
+
+
+\------CHEG---------------------------\
+PROF: 3
+MOD: 3 
+WPN: 1
+WPNDIE: 1d6
+RAGE: 2
+
+\output [
+  attack d20 
+  plus PROF + MOD + WPN
+  vs MOBAC
+  hit  1d6 + 5 + 5d6  + [attack d20 plus PROF + MOD + WPN vs 16 for 1d6       crit 1d6       on 20]
+  miss                  [attack d20 plus 4 + 5 vs 16 for 1d6 + 5d6 crit 1d6 + 5d6 on 20]
+  crit 2d6 + 5 + 10d6 + [attack d20 plus 4 + 5 vs 16 for 1d6       crit 1d6       on 20] on 20
+] named "[9] Two-weapon rogue"\
+
+
+

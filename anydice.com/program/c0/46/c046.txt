@@ -1,0 +1,42 @@
+MISS: 0
+HIT: 1
+CRITICALHIT: 2
+
+function: attack ROLL:n vs DEFENSE:n {
+ if ROLL = 1 { result: MISS }
+ if (CRITRANGE = ROLL) >= 1 {result: CRITICALHIT }
+ if ROLL + ATTACK >= DEFENSE { result: HIT }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n {
+ if ATTACKRESULT = CRITICALHIT {
+  result: CRITICALDAMAGE
+ }
+ if ATTACKRESULT = HIT {
+  result: HITDAMAGE
+ }
+ result: MISSDAMAGE
+}
+
+
+
+MISSDAMAGE: 0
+ATTACK: 5 + 3
+
+
+loop AC over {16..18} {
+ HITDAMAGE: 2d8 + 1d6 + 6
+ CRITICALDAMAGE: 3d8 + 1d6 + 6
+ CRITRANGE: {19..20}
+ output [damage for [attack d20 vs AC]] named "AC[AC] GF Blade"
+ output [damage for [attack [highest 1 of 2d20] vs AC]] named "AC[AC] GF Blade advantage"
+
+ HITDAMAGE: 1d8 + 1d6 + 6
+ CRITICALDAMAGE: 2d8 + 1d6 + 6
+ CRITRANGE: {19..20}
+ output [damage for [attack d20 vs AC]] + [damage for [attack d20 vs AC]] named "AC[AC] Thirsting Blade"
+ output [damage for [attack [highest 1 of 2d20] vs AC]] + [damage for [attack [highest 1 of 2d20] vs AC]] named "AC[AC] Thirsting Blade advantage"
+}
+
+
