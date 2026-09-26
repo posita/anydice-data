@@ -18,7 +18,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from anydyce.anydice.fetch import (
+from dyceum.anydice.fetch import (
     extract_program_id_hex_and_url,
     fetch_anydice_program,
     sharded_subpath_from_program_id,

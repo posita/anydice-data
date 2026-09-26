@@ -1,7 +1,7 @@
 # `anydice-data` maintenance guidance
 
 This repository contains the AnyDice program corpus and the tools used to assemble, annotate, and verify it.
-It is the empirical reference for the AnyDice-compatible interpreter in `anydyce`.
+It is the empirical reference for the AnyDice-compatible interpreter in `dyceum`.
 
 Read `README.md` before corpus maintenance.
 It defines the current layout, setup, assembly, packing, and verification commands.
