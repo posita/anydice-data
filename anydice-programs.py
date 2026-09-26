@@ -40,10 +40,10 @@ from urllib.parse import urlparse
 
 from dyce import H
 
-from anydyce.anydice import DEFAULT_PRECISION, Settings, format_results
-from anydyce.anydice import parse as anydyce_parse
-from anydyce.anydice import unparse as anydyce_unparse
-from anydyce.anydice.ast_ import (
+from dyceum.anydice import DEFAULT_PRECISION, Settings, format_results
+from dyceum.anydice import parse as dyceum_parse
+from dyceum.anydice import unparse as dyceum_unparse
+from dyceum.anydice.ast_ import (
     BinOp,
     Call,
     DiceBinOp,
@@ -67,7 +67,7 @@ from anydyce.anydice.ast_ import (
     ValueRepeatElem,
     VarAssign,
 )
-from anydyce.anydice.fetch import (
+from dyceum.anydice.fetch import (
     ANYDICE_HOST,
     DEFAULT_HEADERS,
     BadOrMissingProgramIdError,
@@ -78,7 +78,7 @@ from anydyce.anydice.fetch import (
     fetch_anydice_program,
     program_id_as_int,
 )
-from anydyce.anydice.interpreter import (
+from dyceum.anydice.interpreter import (
     AnyDiceInterpreter,
     AnyDiceResultsT,
     _call_shape,
@@ -120,7 +120,7 @@ def _extract_json(body: str) -> str:
 def _canonicalize(program: str) -> str | None:
     r"""Return the canonical form of *program*, or `None` if it does not parse."""
     try:
-        return anydyce_unparse(anydyce_parse(program))
+        return dyceum_unparse(dyceum_parse(program))
     except Exception:  # noqa: BLE001
         return None
 
@@ -1252,7 +1252,7 @@ def cmd_compare(ids: list[str], db_path: Path, *, timeout_s: float) -> None:
     short-circuit on the first mismatch -- all dists are printed in order, with
     a per-dist match indicator.
     """
-    from anydyce.anydice import run
+    from dyceum.anydice import run
 
     conn = _open_db(db_path)
     for arg in ids:
@@ -1337,14 +1337,14 @@ def cmd_compare(ids: list[str], db_path: Path, *, timeout_s: float) -> None:
 
 
 def cmd_run(source: str, *, timeout_s: float, short: bool, precision: int) -> None:
-    r"""Run *source* through the anydyce interpreter and print each output's
+    r"""Run *source* through the dyceum interpreter and print each output's
     distribution. Bounded by `timeout_s` of CPU time via SIGVTALRM. Exits 1 on parse error,
     2 on interpreter error or timeout. Output formatting mirrors `H.format()`
     by default (multi-line with avg/std/var and per-outcome bars); `--short`
     switches to `H.format_short()`.
     """
     try:
-        program_ast = anydyce_parse(source)
+        program_ast = dyceum_parse(source)
     except Exception as exc:  # noqa: BLE001
         print(f"parse error: {type(exc).__name__}: {exc}", file=sys.stderr)
         sys.exit(1)
@@ -1366,7 +1366,7 @@ def cmd_run(source: str, *, timeout_s: float, short: bool, precision: int) -> No
         signal.signal(signal.SIGVTALRM, prev_handler)
 
     settings = Settings()
-    settings.set("anydyce: display precision", precision)
+    settings.set("dyceum: display precision", precision)
     print(format_results(results, settings=settings, short=short))
 
 
@@ -1638,7 +1638,7 @@ def _classify(
         return "anydice-empty", None
 
     try:
-        program_ast = anydyce_parse(program)
+        program_ast = dyceum_parse(program)
     except Exception as exc:  # noqa: BLE001
         detail = f"{type(exc).__name__}: {exc}"
         # Sub-bucket parse-fails for AnyDice features we deliberately don't
@@ -1948,7 +1948,7 @@ def cmd_verify(
         parse_failures = 0
         for _program_id, program, _output_json in rows:
             try:
-                program_ast = anydyce_parse(program)
+                program_ast = dyceum_parse(program)
             except Exception:  # noqa: BLE001
                 parse_failures += 1
                 continue
@@ -2283,7 +2283,7 @@ def main() -> None:
     # ---- run ---------------------------------------------------------------------
     run_parser = subparsers.add_parser(
         "run",
-        help="Run an AnyDice program through the anydyce.anydice interpreter and print each output's distribution. "
+        help="Run an AnyDice program through the dyceum.anydice interpreter and print each output's distribution. "
         "Source may be inline text, read from a file via --file, or read from stdin (positional `-`). "
         "Useful for ad-hoc debugging without round-tripping through the database.",
     )
@@ -2323,7 +2323,7 @@ def main() -> None:
     # ---- verify ------------------------------------------------------------------
     verify_parser = subparsers.add_parser(
         "verify",
-        help="Run each program through the anydyce.anydice interpreter and compare its result to the stored AnyDice output. "
+        help="Run each program through the dyceum.anydice interpreter and compare its result to the stored AnyDice output. "
         "Buckets each row as match, mismatch, parse-fail, interp-error, interp-timeout, or one of the AnyDice-side outcomes "
         "(error, 503 infrastructure failure, empty, resource exhaustion, unrun). "
         "With --isolate, two more buckets surface: interp-oom (worker hit RLIMIT_AS) and interp-killed (worker died unexpectedly). "

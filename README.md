@@ -16,7 +16,7 @@
 
 A corpus of [AnyDice](https://anydice.com/) programs, along with the tooling used to assemble and verify it.
 
-This corpus is the empirical reference used to reverse-engineer and validate the AnyDice-compatible interpreter in [`anydyce`](https://github.com/posita/anydyce/).
+This corpus is the empirical reference used to reverse-engineer and validate the [`dyceum`'s AnyDice-compatible interpreter](https://dyceum.org/latest/playground/).
 Every divergence between the cleanroom interpreter and AnyDice's own output has been triaged against programs in this corpus.
 The buckets are documented as annotations in the SQLite DBs.
 
@@ -81,7 +81,7 @@ uv run ./anydice-programs.py --help
 # Show the program saved to ID
 uv run ./anydice-programs.py --db anydice-programs-all.db show 4d2
 
-# Verify our anydyce interpreter against AnyDice's produced output for every program
+# Verify our dyceum interpreter against AnyDice's produced output for every program
 uv run ./anydice-programs.py --db anydice-programs-all.db verify --isolated-workers 2 --timeout 60 --all
 
 # List annotations (known AnyDice defect classes)
