@@ -61,7 +61,7 @@ def main() -> None:
 
     shard_dir: Path = args.shard_dir
     if not shard_dir.is_dir():
-        _LOGGER.info(f"creating shard dir: {shard_dir}")
+        _LOGGER.info("creating shard dir: %r", shard_dir)
         shard_dir.mkdir(exist_ok=True, parents=True)
 
     shard_dirs_seen: set[Path] = set()
@@ -69,27 +69,27 @@ def main() -> None:
         try:
             program_id, initial_url = extract_program_id_hex_and_url(html_file)
         except Exception as exc:
-            _LOGGER.error(f"{exc} (skipping {html_file})")
+            _LOGGER.error("%r (skipping %r)", exc, html_file)
             continue
         program_shard_file = shard_dir / sharded_subpath_from_program_id(program_id)
         program_shard_dir = program_shard_file.parent
         if program_shard_dir not in shard_dirs_seen:
             if not program_shard_dir.is_dir():
-                _LOGGER.info(f"creating shard dir: {program_shard_dir}")
+                _LOGGER.info("creating shard dir: %r", program_shard_dir)
                 program_shard_dir.mkdir(exist_ok=True, parents=True)
             shard_dirs_seen.add(program_shard_dir)
         if program_shard_file.exists():
-            _LOGGER.info(f"skipping existing program file: {program_shard_file}")
+            _LOGGER.info("skipping existing program file: %r", program_shard_file)
             continue
 
         try:
             _, _, _final_url, program = fetch_anydice_program(initial_url)
         except Exception as exc:
-            _LOGGER.error(f"{exc} (skipping {html_file})")
+            _LOGGER.error("%r (skipping %r)", exc, html_file)
             continue
 
-        _LOGGER.info(f"writing {program_id} to program file: {program_shard_file}")
-        _LOGGER.debug(program)
+        _LOGGER.info("writing %r to program file: %r", program_id, program_shard_file)
+        _LOGGER.debug("%r", program)
         program_shard_file_tmp = program_shard_file.with_suffix(".txt.tmp")
         program_shard_file_tmp.write_text(program, encoding="utf-8")
         program_shard_file_tmp.replace(program_shard_file)
