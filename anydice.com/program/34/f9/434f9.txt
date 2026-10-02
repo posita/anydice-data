@@ -1,0 +1,21 @@
+ATK_DMG_DICE: 1d6+0   \attack base damage\
+ATK_ARMOR_DIV: 1      \attack armor divisor, should be 1 if none\
+ATK_WOUND_NUM: 1      \numerator of attack wound modifier, convert from decimal\
+ATK_WOUND_DEN: 1      \denominator of attack wound modifier, convert from decimal\
+DEF_DMG_RESIST: 0     \defender damage resistance, should be 0 if none\
+DEF_DMG_REDUC: 1      \defender damage reduction factor, should be 1 if none\
+DEF_ARMOR_FLEX: 0     \crushing damage taken with flexible armor, see below for values\
+
+\flex armor values:\
+\0: armor is not flexible\
+\5: attack did crushing damage\
+\10: attack did other type of damage\
+
+T_RESIST: DEF_DMG_RESIST/ATK_ARMOR_DIV
+T_RESISTED_DMG: ATK_DMG_DICE - T_RESIST
+T_ARMOR_FLEX_DMG: (ATK_DMG_DICE/DEF_ARMOR_FLEX)*[lowest of DEF_DMG_REDUC and 1]
+T_WOUND_DMG: (T_RESISTED_DMG*ATK_WOUND_NUM)/ATK_WOUND_DEN
+T_REDUCED_DMG: (T_WOUND_DMG + T_ARMOR_FLEX_DMG)/DEF_DMG_REDUC
+T_FINAL_DMG: [highest of 0 and T_REDUCED_DMG]
+
+output T_FINAL_DMG

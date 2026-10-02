@@ -1,0 +1,55 @@
+ATK_SKILL: 14      \ skill of attacker \
+DEF_DR: 0          \ damage reduction of defender \
+DMG_DICE: 6        \ dice of raw explosive damage\
+DMG_ADDS: 0        \ adds for raw explosive damage\
+DMG_MULT: 2        \ multiplier for raw explosive damage\
+DMG_DIVISOR: 1     \ armor divisor of explosion \
+FRAG_DICE: 3       \ dice of frag damage\
+FRAG_ADDS: 0       \ adds for frag damage\
+FRAG_MULT: 1       \ multiplier for frag damage\
+FRAG_WOUND_NUM: 3  \ wound modifier for frag damage, 1.5x for cutting (p. B379) \
+FRAG_WOUND_DEM: 2
+DIST_LIMIT: -1     \ max distance for which to calculate damage (-1 for no limit)\
+
+\ distance and damage calculations for explosion \
+DMG: (DMG_DICE d 6)*DMG_MULT + DMG_ADDS
+DMG_DIST: 2*DMG_DICE*DMG_MULT
+
+\ distance and damage calculations for single fragment hit \
+\ includes wound modifier \
+FRAG_DMG: ((FRAG_DICE d 6 + FRAG_ADDS)*FRAG_MULT*FRAG_WOUND_NUM)/FRAG_WOUND_DEM
+FRAG_DIST: 5*FRAG_DICE*FRAG_MULT
+
+function: range mod for D:n {
+  if D < 3 { result: 0 }
+  if D < 5 { result: 1 }
+  if D < 7 { result: 2 }
+  if D < 10 { result: 3 }
+  if D < 15 { result: 4 }
+  if D < 20 { result: 5 }
+  if D < 30 { result: 6 }
+  if D < 50 { result: 7 }
+  result: 8
+}
+
+function: limit distance D:n to N:n {
+  if N < 0 { result: D }
+  result: [lowest of D and N]
+}
+
+MAX_DIST: [limit distance [highest of DMG_DIST and FRAG_DIST] to DIST_LIMIT]
+loop DIST over {0..MAX_DIST} {
+  if DIST = 0 {
+    \ direct hit, full explosive damage and at least one fragment \
+    ATK_MARGIN: [highest of 0 and (ATK_SKILL - 3d6)]
+    FRAG_HITS: 1 + ATK_MARGIN/3
+    output DMG + (FRAG_HITS d FRAG_DMG) - DEF_DR/DMG_DIVISOR named "[DIST] yds"
+  }
+  else {
+    \ blast damage, explosive damage with falloff and possible frag hits \
+    FRAGGED: (DIST <= FRAG_DIST)
+    FRAG_HITS: ((15-[range mod for DIST]) - 3d6)
+    FRAG: FRAGGED*FRAG_DMG
+    output (DMG/(3*DIST) - DEF_DR) + FRAG named "[DIST] yds"
+  }
+}

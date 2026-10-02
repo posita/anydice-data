@@ -1,0 +1,104 @@
+function: hit V:n M:n {
+if V+M >5 {
+result: 1
+}
+result:0
+}
+
+function: hitcount D:n M:n {
+H: 0
+loop N over {1..D}
+{
+H: H+[hit 1d10 M]
+
+}
+result: H
+}
+
+
+function: hitcounter N:n and D:d and M:n {
+H: 0
+loop N over {1..N}
+{
+H: H+[hit D M]
+
+}
+result: H
+}
+
+function: routcheck V {
+if V < 0 {result: 1}
+result: 0
+}
+function: morale check V:n and M:n
+{
+if V+M > 18 {result: 0}
+if V+M >16 {result: -1}
+if V+M >14 {result: -2}
+if V+M >12 {result: -3}
+if V+M >10 {result: -4}
+if V+M >8 {result: -5}
+if V+M >6 {result: -6}
+if V+M >4 {result: -7}
+if V+M >2 {result: -8}
+if V+M >0 {result: -9}
+result: -20
+}
+function: morale cap I:n
+{
+if I < -20 {I: -20}
+result: I
+}
+
+function: morale check roll I:n and M:n
+{
+T: [morale check I and M]
+T: [morale cap T]
+result: M+T
+}
+function: morale rolls N:n and M:n
+{
+S: 0
+loop C over {1..N}
+{
+M: [morale check roll 1d20 and M]
+}
+M: [morale cap M]
+result: M
+}
+function: morale roller N:n and D:d and M:n
+{
+S: 0
+loop C over {1..N}
+{
+M: [morale check roll D and M]
+}
+M: [morale cap M]
+result: M
+}
+
+function: damage roll N:n 
+{
+V:0
+if (N <4) {V: 1}
+else if (N = 4) {V:2}
+else if (N=9) {V:3}
+else if (N= 13 |N =14) {V:4}
+else if (N=15 | N=16) {V:5}
+else if (N=17 | N=18) {V:6}
+result: V
+}
+function: damage check D:d and C:n and E:n and A:n
+{
+if (E < 0) {E: 0}
+EC : 10^E
+
+
+result:EC
+}
+output [hitcounter 20 and [highest 1 of 3d10] and -2+3-5] named "1. Rifle attack"
+output [morale roller 2 and 1d20 and 3] named "Ambush check"
+output [morale roller 2 and [lowest 1 of 1d20] and -1] named "Ambush check"
+output [damage check 0 and 0 and 0 and 1]
+output [morale rolls 3 and 1]
+output [hitcount 1 1]

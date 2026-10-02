@@ -1,0 +1,53 @@
+\ -- parameters -- \
+AC: 10 \target's AC\
+CON_SAVE: 0 \target's CON save modifier\
+COUNT: 1 \number of creatures attacking\
+ADV: 0 \-1 = disadvantage; 0 = normal; 1 = advantage\
+
+
+
+
+
+\ -- code -- \
+
+\Multiple creatures attacking. C = number of creatures; R = damage roll for 1 creature \
+function: attack C:n roll R:d {
+  T: 0
+  
+  loop I over {1..C}{
+    T: T + R
+  }
+  
+  result: T
+}
+
+
+\Simple attack. NAR = natural roll; AMOD = attack mod; DD = damage dice; DM = damage modifier; DC = save dc; SM = save modifier; SD = damage on failed save (0 on success \
+function: sar NAR:n am AMOD:n dd DD:d dm DM:n {
+  if NAR = 20 {result: DD + DD + DM}
+  if NAR = 1 {result: 0}
+  if NAR + AMOD >= AC {result: DD + DM}
+  result: 0
+}
+
+\Complex attack with save for extra damage. NAR = natural roll; AMOD = attack mod; DD = damage dice; DM = damage modifier; DC = save dc; SM = save modifier; SD = damage on failed save (0 on success \
+function: car NAR:n am AMOD:n dd DD:d dm DM:n dc DC:n sm SM:n sd SD:n {
+  if NAR = 20 {result: DD + DD + DM + (d20 + SM >= DC)*SD}
+  if NAR = 1 {result: 0}
+  if NAR + AMOD >= AC {result: DD + DM + (d20 + SM >= DC)*SD}
+  result: 0
+}
+
+
+\ Damage outputs \
+ROLL: d20
+if ADV = 1 {ROLL: [highest 1 of 2d20]}
+if ADV = -1 {ROLL: [lowest 1 of 2d20]}
+
+output [attack COUNT roll [sar ROLL am 6 dd 1d6 dm 4]] named "Cow Normal"
+output [attack COUNT roll [sar ROLL am 6 dd 3d6 dm 4]] named "Cow Ram"
+output [attack COUNT roll [sar ROLL am 4 dd 1d6 dm 2] + [sar ROLL am 4 dd 1d4 dm 2]] named "Velociraptor"
+output [attack COUNT roll [car ROLL am 6 dd 1d4 dm 4 dc 11 sm CON_SAVE sd 3d6]] named "Giant Poisonous Snake"
+output [attack COUNT roll [sar ROLL am 4 dd 1d8 dm 2]] named "Constrictor Snake (auto grapple on hit)" 
+output [attack COUNT roll [sar ROLL am 6 dd 2d4 dm 4]] named "Draft Horse"
+output [attack COUNT roll [sar ROLL am 3 dd 2d6 dm 1]] named "Giant Owl" 

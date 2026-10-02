@@ -1,0 +1,43 @@
+set "maximum function depth" to 6
+X: 12 \Dice Pool Total\
+Y: 0 \Edge Dice\
+DISPLAYMAX: 20
+function: glitch ROLL:s {
+ ONES: [count 1 in ROLL]
+ HITS: [count {5, 6} in ROLL]
+ result: (ONES * 2 >= #ROLL) & (HITS > 0)
+}
+function: critical glitch ROLL:s {
+ ONES: [count 1 in ROLL]
+ HITS: [count {5, 6} in ROLL]
+ result: (ONES * 2 >= #ROLL) & (HITS = 0)
+}
+function: edge hit N:n {
+ if N = 6 {
+  result: 1 + [edge hit d6]
+ }
+ if N = 5 {
+  result: 1
+ }
+ result: 0
+}
+function: reroll hit N:n {
+ if N >= 5 {
+  result: 1
+ }
+ result: d6 >= 5
+}
+function: cap RESULT:n at MAX:n {
+ if RESULT >= MAX {
+  result: MAX
+ }
+ result: RESULT
+}
+EDGE: (X + Y)d[edge hit d6]
+EDGEAFTER: [count {5, 6} in Xd6] + Yd[edge hit d6]
+output [count {5, 6} in Xd6] named "Hits"
+output [glitch Xd6] named "Glitch"
+output [critical glitch Xd6] named "Critical Glitch"
+output [cap EDGE at DISPLAYMAX] named "Edge"
+output [cap EDGEAFTER at DISPLAYMAX] named "Edge After Roll"
+output Xd[reroll hit d6] named "Edge Reroll"

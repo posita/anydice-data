@@ -1,0 +1,44 @@
+\params\
+A_SKILL: 5
+D_SKILL: 5
+A_DMG: 3
+D_DMG: 3
+A_DR: 0
+D_DR: 0
+A_UPGRADES: 0
+D_UPGRADES: 0
+
+
+\code\
+function: roll N:n up U:n {
+  UG_PER_DIE: U / N 
+  UG_INIT: [mod U mod N]
+  T: 0
+  loop I over {1..N} {
+    T: T + [die U]
+  }
+  result: T
+}
+
+function: mod A:n mod B:n {
+  result: A - B * (A / B)
+}
+
+function: die U:n {
+  S: U*2 + 6
+  result: 1dS >= 5
+}
+
+function: dmg ROLL:n for A_DAMAGE:d dr D_DMGR:n {
+  if ROLL >= 1 {
+    result: A_DAMAGE - D_DMGR + ROLL
+  }
+  if ROLL <= 0 {
+    result: ROLL
+  }
+}
+
+A_DIE: [roll A_SKILL up A_UPGRADES]
+D_DIE: [roll D_SKILL up D_UPGRADES]
+
+output [dmg A_DIE - D_DIE for A_DMG dr D_DR] - [dmg D_DIE - A_DIE for D_DMG dr A_DR]

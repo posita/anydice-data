@@ -1,0 +1,27 @@
+\ Step 1: Define a custom die for the BASE score of a single d6 (1, 2, or 3 = 1 point; 4, 5, or 6 = 2 points) \
+BASE_DIE: {1, 1, 1, 2, 2, 2}
+
+\ Step 2: Define a custom die representing how many extra points a single d6's EXPLOSIONS generate \
+\ We construct this by hardcoding the exact mathematical odds of sequential 6s exploding \
+\ 0 extra points (rolls 1-5 initially) = 5 out of 6 times \
+\ 1 extra points (rolls 6, then 1-3) = 3 out of 36 times \
+\ 2 extra points (rolls 6, 4-5) = 2 out of 36 times \
+\ 3 extra points (rolls 6, 6, 1-3) = 3 out of 216 times \
+\ ... and so on, multiplied by 7776 to clear the fractional denominators \
+EXPLOSION_DIE: {
+  0:6480, 
+  1:648, 2:432, 
+  3:108, 4:72, 
+  5:18, 6:12, 
+  7:3,  8:3
+}
+
+\ Step 3: Roll 8 dice for the base scores and 8 dice for the global explosion potential \
+TOTAL_BASE: 8dBASE_DIE
+TOTAL_EXPLOSIONS: 8dEXPLOSION_DIE
+
+\ Step 4: Constrain the explosion pool to a maximum cap of 4 explosions (which equals 8 points) \
+CAP_EXPLOSIONS: [lowest of 8 and TOTAL_EXPLOSIONS]
+
+\ Step 5: Output the combined result \
+output TOTAL_BASE + CAP_EXPLOSIONS named "8d6 Pool (Max 4 Global Explosions)"

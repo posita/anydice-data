@@ -1,0 +1,87 @@
+\JHC (and DRL) Damage Simulator!\
+\***INPUTS***\
+TIMES: 1     \this is how many consecutive attacks you want to make with the weapon\
+WEP: 1d6     \this is the weapon roll (w/ mods), i.e. 3d3\
+SOB: 0       \this is your flat extra damage from Son of a Bitch (or Ammochain 3/Entrenchment 3)\
+NUM: 6       \this is how many shots the weapon does, i.e. pistol does 1, auto-rifle does 3\
+SFR: 2       \this is your current level in Sustained Fire. first shot assumes you have no SF bonus.\
+SPL: 1       \this is if your weapon is a rotary or not, 1 for YES or 0 for NO\
+ACC: 13      \this is your current total accuracy adjusted for distance and slither/gaze! you have a base of 10 accuracy\
+DMG: 100000  \this will be your total multiplicative damage bonus, later divided by 100,000. So for 20% damage bonus, use 120000\
+RES: 0      \this is the target's resistance to your damage type, later divided by 100.\
+ARM: 3       \this is the target's EFFECTIVE armor value, if you're doing pierce/plasma it is HALF rounded down\
+
+\everything below this is just nerd stuff, you can probably ignore\
+
+
+\***FUNCTIONS***\
+\banker's rounding= round to nearest integer, halfs go to even\
+function: bround A:n div B:n {
+  BASE: A / B
+  REMAINDER: A - (BASE * B)
+  
+  \ Case 1: Exact tie (halfway point) \
+  if REMAINDER * 2 = B {
+    if BASE - (BASE / 2 * 2) = 0 {
+      result: BASE       \ BASE is already even (e.g., 2.5 goes to 2) \
+    } else {
+      result: BASE + 1   \ BASE is odd, so the higher integer is even (e.g., 3.5 goes to 4) \
+    }
+  }
+  
+  \ Case 2: Above halfway point \
+  if (REMAINDER * 2) > B {
+    result: BASE + 1
+  }
+  
+  \ Case 3: Below halfway point \
+  result: BASE
+}
+
+\accuracy check against 3d6; rolls of 3,4 always hit; rolls of 17,18 always miss\
+function: accuracy ROLL:n vs ACC:n {
+  \ Rule 1: Auto-miss on 17 or 18 \
+  if ROLL >= 17 { result: 0 } 
+  
+  \ Rule 2: Auto-hit on 3 or 4 \
+  if ROLL <= 4 { result: 1 }   
+  
+  \ Rule 3: Normal hit if accuracy is greater than or equal to the roll \
+  if ACC >= ROLL { result: 1 } 
+  
+  \ Default: If ACC is lower than the roll, it's a miss \
+  result: 0 
+}
+
+\consecutive attacks... SF and Spool make this a big goddamn headache!\
+function: full attack sequence ATTACKS:n {
+  TOTAL_DAMAGE: 0
+  
+  loop ATTACK_NUM over {1..ATTACKS} {
+    \ 1. Establish the base damage for a standard attack \
+    BASE_DMG: WEP
+    BONUS: 0
+    
+    \ 2. Apply 2nd attack specific perks \
+    if ATTACK_NUM = 2 {
+      if SPL >= 1 { BASE_DMG: 2d6 }
+      if SFR > 0  { BONUS: SFR }
+    }
+    
+    \ 3. Calculate this specific attack's result (Accuracy * [Damage + Bonus]) \
+    CURRENT_ATTACK: [accuracy 3d6 vs ACC] * (BASE_DMG + BONUS)
+    
+    \ 4. Add to the running total \
+    TOTAL_DAMAGE: TOTAL_DAMAGE + CURRENT_ATTACK
+  }
+  
+  result: TOTAL_DAMAGE
+}
+
+\***OUTPUTS***\
+ATK: [highest of 1 and [bround (((WEP+SOB)*DMG)/100000)*(100-RES) div 100] - ARM]  
+ADJ: [accuracy 3d6 vs ACC]dATK
+
+output ATK named "damage of a single successful hit in the volley"
+output NUMdADJ named "damage of full volley adjusting for accuracy"
+output NUMdATK named "damage of full volley if everything hits"

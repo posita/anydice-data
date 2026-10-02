@@ -1,0 +1,308 @@
+TIER_ONE: {1..4}
+TIER_TWO: {5..10}
+TIER_THREE: {11..16}
+TIER_FOUR: {17..20}
+IDROTF: {1..12}
+
+LOOP_RANGE: {1..6}
+
+\output 1d12 named "1d12"   output 2d6 named "2d6"   output 3d4 named "3d4"
+\
+
+HIDE: 0 SHOW: 1 
+OUTPUT_MELEE: SHOW 
+OUTPUT_RANGED: HIDE
+OUTPUT_SPELLS: HIDE
+
+USE_MAGIC: 1
+USE_HASTE: 0
+
+function: mod SCORE:n { result: (SCORE - 10) / 2 }
+function: if X:n reached MINIMUM:n then Y:s else Z:s { if MINIMUM>0 & X >= MINIMUM { result: Y } result: Z }
+function: if X:n reached MINIMUM:n then Y:s { result: [if X reached MINIMUM then Y else 0] }
+function: attack ROLL:n plus BONUS:n vs AC:n hitdice HIT_DICE:d bonus BONUS_DAMAGE:n miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { 
+      result: (HIT_DICE + BONUS_DAMAGE + CRIT) + [attack RECKLESS_ATTACK plus BONUS vs AC hit HIT_DICE miss MISS crit CRIT on CRIT_RANGE]
+    }
+    if ROLL + BONUS >= AC { 
+      result: HIT_DICE + BONUS_DAMAGE + (FEAT_GREAT_WEAPON_MASTER * [attack RECKLESS_ATTACK plus BONUS vs AC hit HIT_DICE miss MISS crit CRIT on CRIT_RANGE]/10)
+    }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: HIT + CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit CRIT_DMG on CRIT_RANGE]
+}
+function: attack ROLL:n plus ATTACK_BONUS:n vs ACS:s {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + ATTACK_BONUS >= ACS
+}
+
+\ ARMOR \
+BASE_ARMOR: 10
+LEATHER: 11
+STUDDED_LEATHER: 12 
+GLAMOURED_STUDDED_LEATHER: STUDDED_LEATHER + 1 
+MAGE_ARMOR: 13
+CHAIN_SHIRT: 13
+SCALE_MAIL: 14
+
+ARTIFICER: 0  BARBARIAN: 1  BARD: 0  CLERIC: 0  DRUID: 0  FIGHTER: 0  MONK: 0  
+PALADIN: 0  RANGER: 0  ROGUE: 0  SORCERER: 0  WARLOCK: 0  WIZARD: 0
+HIT_DICE: 12
+DWARVEN_TOUGHNESS: 1
+\ Ability Scores \
+STRENGTH: 15+2  DEXTERITY: 14  CONSTITUTION: 15+1  INTELLIGENCE: 8  WISDOM: 10  CHARISMA: 8 
+\ Critical Hit \
+CRIT: {20}
+
+
+\ --LOOP LOOP LOOP--\
+loop LEVEL over [reverse LOOP_RANGE] {
+
+PROFICIENCY: (LEVEL - 1) / 4 + 2    \range is {2..6}\
+EXPERTISE: PROFICIENCY * 2
+
+BARBARIAN: LEVEL \ Straight Barbarian \
+BERSERKER: [if BARBARIAN reached 3 then 1]  \ For Barbarian Berserker sub-class \
+RAGE_DAMAGE: [if BARBARIAN reached 16 then 4 else [if BARBARIAN reached 9 then 3 else 2]]
+
+\ ASI & Feats by level : 4,8,10,12,16 : 2024 \
+FEAT_GREAT_WEAPON_MASTER: [ if BARBARIAN reached 4 then 1 ]
+FEAT_MAGE_SLAYER: [ if BARBARIAN reached 12 then 1 ]
+FEAT_SPEEDY: [ if BARBARIAN reached 16 then 1 ]
+
+STR: STRENGTH + FEAT_GREAT_WEAPON_MASTER + [if BARBARIAN reached 8 then 2]
+DEX: DEXTERITY + FEAT_MAGE_SLAYER + FEAT_SPEEDY
+CON: CONSTITUTION
+INT: INTELLIGENCE
+WIS: WISDOM
+CHA: CHARISMA
+
+ATTACK_ABILITY: STR
+ATTACK_MOD: [mod ATTACK_ABILITY]
+
+\ Reckless Attack - Level 2 - Always attacking with Reckless Attack if available \
+RECKLESS_ATTACK: [highest 1 of [if BARBARIAN reached 2 then 2 else 1]d20]
+\ Frenzy - Level 3 \
+FRENZY: [ if BARBARIAN reached 3 then (RAGE_DAMAGE)d6 ]
+\ Extra Attack - Level 5 \
+EXTRA_ATTACK: [ if BARBARIAN reached 5 then 1 ]
+ATTACKS: 1 + EXTRA_ATTACK
+\ Retaliation - Level 10 \
+RETALIATION: [ if BARBARIAN reached 10 then 1 ]
+
+\ Weapon Damage \
+GREATSWORD_HIT: 2d6
+GRAZE: ATTACK_MOD
+GREATSWORD_MISS: GRAZE
+
+GREATAXE_HIT: 1d12
+GREATAXE_MISS: 0
+CLEAVE: GREATAXE_HIT
+
+WARHAMMER_HIT: 1d8
+SHORTBOW: 1d6
+LONGBOW: 1d8
+HAND_CROSSBOW: 1d6
+LIGHT_CROSSBOW: 1d8
+HEAVY_CROSSBOW: 1d10
+DAGGER: 1d4
+
+\ Magic Items \
+GREATSWORD_MAGIC: [if BARBARIAN reached 7 then 2 else [if BARBARIAN reached 2 then 1]]
+GREATAXE_MAGIC: [if BARBARIAN reached 7 then 2 else [if BARBARIAN reached 2 then 1]]
+
+\ Cantrips \
+
+\ Hit Points \
+HP: HIT_DICE + [mod CON] + (LEVEL - 1)*((HIT_DICE+1+1)/2 + [mod CON])
+MAXHP: HIT_DICE + [mod CON] + (LEVEL - 1) * HIT_DICE + [mod CON]
+\HP_RISK: (HP * (1 + UNCANNY_DODGE)) - (EVASION * HP)/2 \
+HP_RISK: HP 
+
+
+\ Magic Items (please) \
+
+
+\ ARMOR CLASS \
+SHIELD_BONUS: 0
+UNARMORED_DEFENSE: [if BARBARIAN reached 1 then (10 + [mod DEX] + [mod CON])]
+ARMOR_CLASS: UNARMORED_DEFENSE + SHIELD_BONUS
+
+\ Enemy Armor Class by Level \
+ACL:  8 + PROFICIENCY + ATTACK_MOD  \| 8+PROFICIENCY+ATTACK_MOD  or  12+((LEVEL-1)*(22-12)/20) |\
+AC_DEVIATION: 2
+AC: d{(ACL-AC_DEVIATION)..(ACL+AC_DEVIATION)}
+
+HAS_ADVANTAGE: 1
+ADVANTAGE: [highest 1 of {1,2,2}d20] 
+DISADVANTAGE: [lowest 1 of 2d20]
+
+\* ATTACK_ROLL *\ 
+if (HAS_ADVANTAGE > 0) { ATTACK_ROLL: ADVANTAGE } else { ATTACK_ROLL: 1d20 }
+
+\Rapier, primary weapon\
+WPN_ONE_DICE:   1d8  \ damage rolled on successful hit \
+WPN_ONE_MAGIC: USE_MAGIC * [if LEVEL reached 12 then 2 else [if LEVEL reached 5 then 1]] 
+WPN_ONE_ABONUS: ATTACK_MOD + PROFICIENCY + WPN_ONE_MAGIC
+WPN_ONE_DBONUS: ATTACK_MOD + WPN_ONE_MAGIC
+WPN_ONE_HIT: [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+WPN_TWO_DICE:   DAGGER  \ damage rolled on successful hit \
+WPN_TWO_MAGIC: USE_MAGIC * [if LEVEL reached 9 then 1] 
+WPN_TWO_ABONUS: ATTACK_MOD + PROFICIENCY + WPN_TWO_MAGIC
+WPN_TWO_DBONUS: ATTACK_MOD + WPN_TWO_MAGIC
+WPN_TWO_HIT: [attack ATTACK_ROLL plus WPN_TWO_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+ATTACK_DAMAGE_DICE: WPN_ONE_DICE
+ATTACK_BOOMING_DAMAGE_DICE: ATTACK_DAMAGE_DICE
+BONUS_ACTION_DAMAGE_DICE: WPN_TWO_DICE
+REACTION_ATTACK: 1d{5}
+
+function: multiattack N:n times {
+  result: [roll WPN_ONE_HIT to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (ATTACK_BOOMING_DAMAGE_DICE + d0)) + WPN_ONE_DBONUS 
+    if N >= 2 {
+      loop I over {2..N} {
+        DAMAGE: DAMAGE + (WPN_ONE_HIT d (WPN_ONE_DICE + d0)) + WPN_ONE_DBONUS  
+      }
+    }
+    result: DAMAGE
+  } else {
+    \ since I missed with the first weapon, will try an offhand bonus action attack with a dagger \
+    \DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + d0)) + WPN_TWO_MAGIC 
+    \result: DAMAGE
+  }
+  result: 0
+}
+function: cleave ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+  if ROLL + BONUS >= AC { 
+    result: [attack ROLL plus BONUS vs AC hit (DMG + FRENZY) miss 0 crit CRIT_DMG on CRIT_RANGE]
+  } else {
+    result: [attack ROLL plus BONUS vs AC hit (DMG - [mod STR] + FRENZY) miss 0 crit CRIT_DMG on CRIT_RANGE]
+  }
+}
+function: roll FIRSTHIT:n to handcrossbows N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (HAND_CROSSBOW_DICE + d0)) + HAND_CROSSBOW_DBONUS 
+    if LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+      DAMAGE: DAMAGE + HAND_CROSSBOW_HIT d (HAND_CROSSBOW_DICE + d0) + HAND_CROSSBOW_DBONUS 
+    }
+    result: DAMAGE
+  } else {
+    \ since I missed with the first weapon, try sneak attack with second attack \
+    DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + d0)) + WPN_TWO_DBONUS 
+    result: DAMAGE
+  }
+  result: 0
+}
+function: offhand FIRSTHIT:n {
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (1d4 + ATTACK_MOD + PROFICIENCY + d0)) + ATTACK_MOD
+    DAMAGE: DAMAGE + WPN_TWO_HIT d (WPN_TWO_DICE + d0) + WPN_TWO_DBONUS 
+    result: DAMAGE
+  } else {
+    \ since I missed with the rapier, will try an offhand bonus action attack with a dagger \
+    DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + d0)) + WPN_TWO_MAGIC 
+    result: DAMAGE
+  }
+  result: 0
+}
+
+ if LEVEL >=17 { TIER: 4 } else {if LEVEL >= 11 {TIER: 3} else {if LEVEL >= 5 {TIER: 2} else {TIER: 1}}}
+ HPVAC: HP_RISK / ACL  \ Hit Point Risk vs Armor Class \
+
+ HASTE: USE_HASTE * [if LEVEL reached 5 then 1]  \ No Haste before level 5 \
+ ATKRES: [multiattack (1 + HASTE) times]
+ if OUTPUT_MELEE > 0 {
+   HERE: 1
+ }
+
+function: berserker ATTACK_ROLL:n plus ATTACK_BONUS:n vs AC:n weapon WEAPON_DICE:d magic WEAPON_MAGIC:n miss WEAPON_MISS:d{
+
+  USE_FRENZY: 1
+  USE_CLEAVE: 1
+  HEAVY_MASTERY: FEAT_GREAT_WEAPON_MASTER * PROFICIENCY
+  DAMAGE_BONUS: ATTACK_MOD + WEAPON_MAGIC + RAGE_DAMAGE + HEAVY_MASTERY
+  
+  DAMAGE: 0
+  loop I over {1..ATTACKS} {
+    if (ATTACK_ROLL = 1) { DAMAGE: DAMAGE + WEAPON_MISS }
+    if (ATTACK_ROLL >= CRIT) { 
+      DAMAGE: DAMAGE + (2*(WEAPON_DICE + (USE_FRENZY * FRENZY))) + DAMAGE_BONUS
+      if USE_FRENZY { USE_FRENZY: 0 }
+      DAMAGE: DAMAGE + USE_CLEAVE * [attack RECKLESS_ATTACK plus ATTACK_BONUS vs AC hitdice WEAPON_DICE bonus WEAPON_MAGIC + HEAVY_MASTERY miss WEAPON_MISS crit WEAPON_DICE on CRIT]
+      if USE_CLEAVE { USE_CLEAVE: 0 }
+    }
+    if (ATTACK_ROLL + ATTACK_BONUS >= AC) { 
+      DAMAGE: DAMAGE + (WEAPON_DICE + (USE_FRENZY * FRENZY) + [mod STR] + WEAPON_MAGIC + HEAVY_MASTERY)
+      if USE_FRENZY { USE_FRENZY: 0 }
+      DAMAGE: DAMAGE + USE_CLEAVE * [attack RECKLESS_ATTACK plus ATTACK_BONUS vs AC hitdice WEAPON_DICE bonus WEAPON_MAGIC + HEAVY_MASTERY miss WEAPON_MISS crit WEAPON_DICE on CRIT]
+      if USE_CLEAVE { USE_CLEAVE: 0 }
+    }
+  }
+  if RETALIATION > 0 {
+    DAMAGE: DAMAGE + [attack RECKLESS_ATTACK plus ATTACK_BONUS vs AC hitdice WEAPON_DICE bonus DAMAGE_BONUS miss WEAPON_MISS crit WEAPON_DICE on CRIT]
+  }
+  result: DAMAGE
+}
+
+ if OUTPUT_MELEE {
+  MELEE_ATTACK_BONUS: PROFICIENCY + ATTACK_MOD + GREATSWORD_MAGIC
+  MISS_DMG: GREATSWORD_MISS
+  DICE_DMG: GREATSWORD_HIT + FRENZY
+  BONUS_DMG: ATTACK_MOD + GREATSWORD_MAGIC + (FEAT_GREAT_WEAPON_MASTER * PROFICIENCY)
+  HIT_DMG: DICE_DMG + ATTACK_MOD + (FEAT_GREAT_WEAPON_MASTER * PROFICIENCY)
+  CRIT_DMG: DICE_DMG
+  output [attack RECKLESS_ATTACK plus MELEE_ATTACK_BONUS vs AC hitdice DICE_DMG bonus BONUS_DMG miss MISS_DMG crit DICE_DMG on CRIT] 
+    + [if BARBARIAN reached 5 then [attack RECKLESS_ATTACK plus MELEE_ATTACK_BONUS vs AC hit DICE_DMG + ATTACK_MOD miss MISS_DMG crit DICE_DMG on CRIT]]
+    + [if BARBARIAN reached 10 then [attack RECKLESS_ATTACK plus MELEE_ATTACK_BONUS vs AC hit DICE_DMG + ATTACK_MOD miss MISS_DMG crit DICE_DMG on CRIT]]
+    named "Greatsword L[BARBARIAN] [ARMOR_CLASS]vs[ACL]"
+
+  DICE_DMG: GREATAXE_HIT + FRENZY
+  MELEE_ATTACK_BONUS: PROFICIENCY + ATTACK_MOD + GREATAXE_MAGIC
+  BONUS_DMG: ATTACK_MOD + GREATAXE_MAGIC + (FEAT_GREAT_WEAPON_MASTER * PROFICIENCY)
+  HIT_DMG: DICE_DMG + ATTACK_MOD + (FEAT_GREAT_WEAPON_MASTER * PROFICIENCY)
+  CRIT_DMG: DICE_DMG
+
+  output [berserker RECKLESS_ATTACK plus MELEE_ATTACK_BONUS vs AC weapon GREATAXE_HIT magic GREATAXE_MAGIC miss 0] named "GreatAxe L[BARBARIAN] [ARMOR_CLASS]vs[ACL] [ATTACKS]x"
+
+ }
+
+ if OUTPUT_RANGED {
+  ATTACK_ABILITY: INT
+  ATTACK_MOD: [mod ATTACK_ABILITY]
+  RANGED_DICE: [if LEVEL reached 7 then HEAVY_CROSSBOW else [if LEVEL reached 3 then LIGHT_CROSSBOW else SHORTBOW]]
+  RANGED_DICE: LIGHT_CROSSBOW
+  LIGHTCROSSBOW_MAGIC: [if LEVEL reached 8 then 2 else [if LEVEL reached 3 then 1]]
+  RANGED_MAGIC: USE_MAGIC * LIGHTCROSSBOW_MAGIC
+  RANGED_ATTACK_BONUS: ATTACK_MOD + PROFICIENCY + RANGED_MAGIC
+  RANGED_DAMAGE_BONUS: ATTACK_MOD + RANGED_MAGIC
+
+  output [attack ADVANTAGE plus RANGED_ATTACK_BONUS vs AC for RANGED_DICE + RANGED_DAMAGE_BONUS crit RANGED_DICE on CRIT] named 
+  "Wizard L[LEVEL] +[RANGED_MAGIC] Ranged (+[RANGED_ATTACK_BONUS]) vs [ACL]"
+
+ }
+
+}

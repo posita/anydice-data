@@ -1,0 +1,299 @@
+\ =========================================================
+  메이저배틀 확률 계산기
+========================================================= \
+\ TIER: 굴리는 주사위의 티어입니다. 1부터 6티어까지 각각 D4, D6, D8, D10, D12, D20을 사용합니다. \
+\ BONUS: 보너스(B) 수치입니다. 앞주사위와 뒷주사위가 같으면 성공도가 더해집니다. \
+\ LEVEL: 숙련도 수치입니다. 강성도의 한계치가 낮아집니다. 기본값은 0입니다.\
+\ DICE_COUNT: 뒷주사위가 추가됩니다. 기본값은 2입니다. \
+\ GROUP_SIZE: 그룹화 판정, 앞주사위가 추가됩니다. 1이 기본값입니다. \
+
+TIER: 4
+BONUS: 3
+LEVEL: 0
+DICE_COUNT: 1
+GROUP_SIZE: 1
+
+\ ========================================================= \
+
+function: sides for tier T:n {
+ if T = 1 { result: 4 }
+ if T = 2 { result: 6 }
+ if T = 3 { result: 8 }
+ if T = 4 { result: 10 }
+ if T = 5 { result: 12 }
+ if T = 6 { result: 20 }
+
+ result: 0
+}
+
+
+\ =========================================================
+  GROUP - ONE DIE
+
+  Every die is both the front die and its own S.
+
+  Roll 1:
+    failure, S = 0
+
+  Roll 2+:
+    S = FRONT
+
+  Critical success:
+    add BONUS to S
+
+  There is no Success+ on a one-die roll.
+
+  Total S = sum of every unit's S.
+========================================================= \
+
+function: resolve group one FRONTS:s
+ sides N:n
+ bonus B:n
+ level L:n {
+
+ TOTAL: 0
+
+ loop P over {1..#FRONTS} {
+
+  F: P@FRONTS
+
+  if F != 1 {
+
+   S: F
+
+   \ Critical success \
+   if F >= N - L {
+    S: S + B
+   }
+
+   TOTAL: TOTAL + S
+  }
+
+ }
+
+ result: TOTAL
+}
+
+\ =========================================================
+  GROUP - TWO DICE
+
+  Each unit has:
+    one FRONT die
+    one shared LAST back die
+
+  Example:
+    fronts = 4,2,1
+    last   = 2
+
+    => (4,2), (2,2), (1,2)
+
+  Normal success:
+    S = LAST
+
+  Critical:
+    S = FRONT + LAST
+
+  Success+:
+    if FRONT = LAST, add BONUS
+
+  FRONT = 1 always fails.
+========================================================= \
+
+function: resolve group two FRONTS:s
+ last LAST:n
+ sides N:n
+ bonus B:n
+ level L:n {
+
+ TOTAL: 0
+
+ loop P over {1..#FRONTS} {
+
+  F: P@FRONTS
+
+  if F != 1 {
+
+   S: LAST
+
+   \ Critical success \
+   if F >= N - L {
+    S: S + F
+   }
+
+   \ Success+ \
+   if F = LAST {
+    S: S + B
+   }
+
+   TOTAL: TOTAL + S
+  }
+
+ }
+
+ result: TOTAL
+}
+
+
+\ =========================================================
+  GROUP - THREE OR MORE DICE
+
+  Each unit has:
+    one individual FRONT die
+    shared MIDDLE back dice
+    one shared LAST back die
+
+  MIDDLE is already the sum of all middle back dice.
+
+  Example:
+    fronts = 4,6
+    backs  = 6,2
+
+    MIDDLE = 6
+    LAST   = 2
+
+    Shared back total = 8
+
+    => (4,6,2)
+       (6,6,2)
+
+  Success:
+    S = MIDDLE + LAST
+
+  Critical:
+    add FRONT
+
+  Success+:
+    compare FRONT only to LAST
+    and add BONUS if equal
+
+  FRONT = 1 always fails.
+========================================================= \
+
+function: resolve group many FRONTS:s
+ middle MIDDLE:n
+ last LAST:n
+ sides N:n
+ bonus B:n
+ level L:n {
+
+ TOTAL: 0
+
+ loop P over {1..#FRONTS} {
+
+  F: P@FRONTS
+
+  if F != 1 {
+
+   S: MIDDLE + LAST
+
+   \ Critical success \
+   if F >= N - L {
+    S: S + F
+   }
+
+   \ Success+ uses the LAST back die only \
+   if F = LAST {
+    S: S + B
+   }
+
+   TOTAL: TOTAL + S
+  }
+
+ }
+
+ result: TOTAL
+}
+
+
+\ =========================================================
+  OUTPUT
+========================================================= \
+
+SIDES: [sides for tier TIER]
+
+
+if SIDES = 0 {
+
+ output 0
+ named "ERROR: TIER must be 1 to 6"
+
+}
+
+else {
+
+ if GROUP_SIZE < 1 {
+
+  output 0
+  named "ERROR: GROUP_SIZE must be at least 1"
+
+ }
+
+ else {
+
+  if DICE_COUNT < 1 {
+
+   output 0
+   named "ERROR: DICE_COUNT must be at least 1"
+
+  }
+
+  else {
+
+   \ -------------------------------------------------------
+     ONE DIE PER UNIT
+   ------------------------------------------------------- \
+   if DICE_COUNT = 1 {
+
+    output
+  [   resolve group one
+      GROUP_SIZE d(SIDES)
+      sides SIDES
+      bonus BONUS
+      level LEVEL]
+     named "Tier [TIER] D[SIDES] | Group [GROUP_SIZE] | [DICE_COUNT] die | B [BONUS] Lv [LEVEL]"
+
+   }
+
+   else {
+
+    \ -------------------------------------------------------
+      TWO DICE PER UNIT
+    ------------------------------------------------------- \
+
+    if DICE_COUNT = 2 {
+
+     output
+      [resolve group two
+       GROUP_SIZE d(SIDES)
+       last d(SIDES)
+       sides SIDES
+       bonus BONUS
+       level LEVEL]
+      named "Tier [TIER] D[SIDES] | Group [GROUP_SIZE] | [DICE_COUNT] dice | B [BONUS] Lv [LEVEL]"
+
+    }
+
+    else {
+
+     \ -------------------------------------------------------
+       THREE OR MORE DICE PER UNIT
+     ------------------------------------------------------- \
+
+     output
+      [resolve group many
+       GROUP_SIZE d(SIDES)
+       middle (DICE_COUNT - 2)d(SIDES)
+       last d(SIDES)
+       sides SIDES
+       bonus BONUS
+       level LEVEL]
+      named "Tier [TIER] D[SIDES] | Group [GROUP_SIZE] | [DICE_COUNT] dice | B [BONUS] Lv [LEVEL]"
+
+    }
+
+   }
+
+  }
+
+ }
+}

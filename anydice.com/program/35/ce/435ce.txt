@@ -1,0 +1,51 @@
+function: injury result ROLL:n ARMOR:n{
+    ROLL: ROLL - ARMOR
+    if ROLL >= 9 {
+        result: 3
+    }
+    else {
+         if ROLL >= 7 {
+             result: 2
+         }
+         else {
+               if ROLL >= 3 {
+               result: 1
+         }
+    }
+        result: 0
+    }
+}
+
+function: injury ID:n ARMOR:n DEADLY:n{
+    if DEADLY = 1 {
+        ROLL: [highest 3 of (3 + ID)d6]
+        }
+        else {
+            ROLL: [highest 2 of (2 + ID)d6]
+        }
+    result: [injury result ROLL ARMOR]
+}
+
+function: attack result ROLL:n ID:n CRIT:n ARMOR:n{
+    if ROLL < 7 {
+        result: -1
+    }
+
+    if ROLL = 12 {
+        if CRIT = 1 {
+            result: [injury ID + 2 ARMOR DEADLY]
+        }
+        else {
+            result: [injury ID + 1 ARMOR DEADLY]
+        }
+    }
+
+    result: [injury ID ARMOR DEADLY]
+}
+
+function: attack AD:n ID:n CRIT:n ARMOR:n DEADLY:n{
+    ROLL: [highest 2 of (2 + AD)d6]
+    result: [attack result ROLL ID CRIT ARMOR]
+}
+
+output [attack 1 0 0 0 1]

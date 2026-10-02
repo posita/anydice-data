@@ -1,0 +1,52 @@
+DICE: 12 \ Dice pool before edge \
+LIMIT: 10 \ Limit on the pool \
+EDGE: 8 \ Edge to add for Push the Limit \
+PTL: 1 \ Push the limit 1 TRUE 0 FALSE \
+SC: 1 \ Second Chance 1 TRUE 0 FALSE \
+EXTEND: 0 \ Extended Test 1 TRUE 0 FALSE \
+\ --- Enter Values Above This Line --- \
+
+EDICE: DICE + EDGE \ Dice variable used for PTL \
+HITS: 0 \ Hits variable; set in code \
+HAL: 0 \ Hits after Limit variable; set in code \
+
+
+function: limit H:n by L:n { \ simple limit comparison \
+ if H>L {result: L} \ if Hits are over Limit, return Limit \
+ result: H \ else return Hits \
+}
+function: secondchance N:n and M:n { \ function for a second chance roll. requires two numbers (two d6 results) \
+ if N > 4 {result: 1} \ if first die is a hit, return 1 \
+ if M >4 {result: 1}  \ else evaluate second die the same way \
+ result: 0 \ else return 0 \
+}
+function: ruleofsix N:n { \ function for rule of six \
+ if N = 6 {result: 1 + [ruleofsix d6]} \ if six, recursively check another die; add hits together until one does not result in 6 \
+ result: N = 5 \ else, boolean check if result is 5 return 1 (true) \
+}
+function: extended EXT:d { \ Function for Extended Tests \
+ EXTHITS: 0 \ Initialize sum hits as 0 \
+ loop X over {0..(#EXT-1)} { \ Looping over the size of the dice pool \
+  EXTROLL: (#EXT-X)d(d6>4) \ Rolling the dice pool, reduced by X so lowers by one each iteration \
+  EXTROLL: [limit EXTROLL by LIMIT] \ Apply Limit to each individual roll \
+  EXTHITS: EXTHITS + EXTROLL} \ Add outcome to sum hits \
+ result: EXTHITS
+}
+
+HITS: DICEd(d6>4) \ setting hits to a standard dice roll evaluating each die by greater than 4; 5 and 6 return 1 (true) = 1 hit \
+HAL: [limit HITS by LIMIT] \ apply limit \
+output HAL named "[DICE]d6 Standard"
+if SC {
+ HITS: DICEd[secondchance d6 and d6] \ the same as above but through the second chance function \
+ HAL: [limit HITS by LIMIT]
+ output HAL named "[DICE]d6 Second Chance"
+}
+if EXTEND {
+ HITS: [extended DICEd(d6<4)]
+ output HITS named "[DICE]d6 Extended"
+}
+if PTL {
+ HITS: EDICEd[ruleofsix d6] \ the same as above, but using the combined Hits + Edge value, and through the Rule of Six function \
+ HAL: [limit HITS by (EDICE)] \ limiting to the standard dice pool results in data loss but it does make the charts much more compact and readable \
+ output HAL named "[EDICE]d6 Push the Limit" 
+}

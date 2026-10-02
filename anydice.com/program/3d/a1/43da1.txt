@@ -1,0 +1,105 @@
+\ ---------------------------------------------------------
+  STANDARD DIFFICULTY MODEL
+
+  Roll interpretation:
+    1     = Miss
+    2-5   = Mixed / neutral
+    6+    = Hit
+
+  Hits and misses cancel one-for-one.
+
+  Final result:
+    More hits than misses   -> Success
+    More misses than hits   -> Failure
+    Equal hits and misses   -> Mixed
+
+  Outcome codes:
+    1 = Failure
+    2 = Mixed
+    3 = Success
+--------------------------------------------------------- \
+
+FAILURE: 1
+MIXED:   2
+SUCCESS: 3
+
+
+\ ---------------------------------------------------------
+  Evaluate an entire rolled dice pool.
+
+  ROLL:s passes the rolled dice into the function as
+  a sequence.
+
+  MISSES counts all dice showing exactly 1.
+
+  HITS counts all dice showing 6 or higher.
+
+  Because hits and misses cancel one-for-one, we only
+  need to compare the number of hits and misses.
+--------------------------------------------------------- \
+
+function: evaluate ROLL:s {
+
+  \ Count misses. \
+  MISSES: ROLL = 1
+
+  \ Count hits. \
+  HITS: ROLL >= 6
+
+  \ If hits outnumber misses, at least one hit remains
+    after cancellation. \
+  if HITS > MISSES {
+    result: SUCCESS
+  }
+
+  \ If misses outnumber hits, at least one miss remains
+    after cancellation. \
+  if MISSES > HITS {
+    result: FAILURE
+  }
+
+  \ Equal numbers of hits and misses cancel completely.
+    Any remaining 2-5 results are Mixed; an empty pool
+    is also treated as Mixed. \
+  result: MIXED
+}
+
+
+\ ---------------------------------------------------------
+  d6 pools
+--------------------------------------------------------- \
+
+loop DICE_COUNT over {1..4} {
+  output [evaluate DICE_COUNT d6]
+    named "[DICE_COUNT]d6"
+}
+
+
+\ ---------------------------------------------------------
+  d8 pools
+--------------------------------------------------------- \
+
+loop DICE_COUNT over {1..4} {
+  output [evaluate DICE_COUNT d8]
+    named "[DICE_COUNT]d8"
+}
+
+
+\ ---------------------------------------------------------
+  d10 pools
+--------------------------------------------------------- \
+
+loop DICE_COUNT over {1..4} {
+  output [evaluate DICE_COUNT d10]
+    named "[DICE_COUNT]d10"
+}
+
+
+\ ---------------------------------------------------------
+  d12 pools
+--------------------------------------------------------- \
+
+loop DICE_COUNT over {1..4} {
+  output [evaluate DICE_COUNT d12]
+    named "[DICE_COUNT]d12"
+}

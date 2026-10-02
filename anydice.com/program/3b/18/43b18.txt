@@ -1,0 +1,20 @@
+\ --- CONFIGURATION --- \
+TO_HIT: 5       \ Your total attack bonus (e.g., Proficiency + Strength/Dexterity) \
+AC: 15          \ The target's Armor Class \
+CRIT_RANGE: 20  \ Change to 19 if you are a Champion Fighter, Hexblade, etc. \
+
+\ --- DAMAGE DICE --- \
+DIE_SIZE: 8     \ Put 6 for d6, 8 for d8, 10 for d10, 12 for d12, etc. \
+NUM_DICE: 1     \ Number of weapon damage dice (e.g., 1 for a longsword, 2 for a greatsword) \
+FLAT_MOD: 3     \ Your flat damage bonus (e.g., Strength/Dexterity modifier) \
+
+\ --- THE FUNCTION --- \
+function: ATTACK d20:n {
+  if d20 = 1 { result: 0 } \ Natural 1 always misses \
+  if d20 >= CRIT_RANGE { result: (NUM_DICE * 2)dDIE_SIZE + FLAT_MOD } \ Critical Hit doubles dice \
+  if d20 + TO_HIT >= AC { result: NUM_DICE d DIE_SIZE + FLAT_MOD } \ Normal Hit \
+  result: 0 \ Normal Miss \
+}
+
+\ --- OUTPUT --- \
+output [ATTACK d20] named "Damage vs AC"

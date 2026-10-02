@@ -1,0 +1,60 @@
+set "maximum function depth" to 20
+
+H: 9
+A: 4
+E: 17
+M: 16
+S: 30
+
+
+function: damage D:n{
+ if D >= 2*S {
+  result: 4
+ }
+ if D >= S {
+  result: 3
+ }
+ if D >= M {
+  result: 2
+ }
+ result: 1
+}
+
+function: attack B:n {
+ if B >= E {
+  result: 1
+ }
+ result: 0
+}
+
+function: attack C:n damage D:n{
+ result: [attack d20+C] * [damage D]
+}
+
+function: hit pris P:n hp H:n num N:n {
+ R: H - P
+ if R > 0 {
+  T: [damage 4d10]
+  result: [hit pris T hp R num N+1]
+ }
+ result: N
+}
+
+function: hit pris P:n hp H:n armor A:n num N:n {
+ R: H - P
+ B: A
+ T: [damage 4d10]
+ if R > 0 {
+  if A > 0 {
+   T: [damage 4d10] - 1
+   B: A - 1
+  }
+  result: [hit pris T hp R armor B num N+1]
+ }
+ result: N
+}
+
+output[attack d20+7] named "evasion"
+output[attack 7 damage 4d10] named "average sustained damage"
+output[hit pris 0 hp H num 0] named "hit to kill (without evasion)"
+output[hit pris 0 hp H armor A num 0] named "hit to kill with armor (without evasion)"

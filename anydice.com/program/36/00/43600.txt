@@ -1,0 +1,28 @@
+SAVETABLE: {16, 16, 16, 16, 16, 14, 14, 14, 14}
+
+function: savingthrow LVL:n SAVEROLL:n DMG:n {
+  SAVETARGET: LVL@SAVETABLE
+  if SAVEROLL>=SAVETARGET {result: DMG/2}
+  else {result: DMG}
+}
+
+function: death LVL:n MISHAP:n {
+  HP: LVLd4*2/3
+  DMG:0
+  if MISHAP=2 { 
+    DMG: LVL * d4
+  }
+  if MISHAP=3 {
+    DMG: [savingthrow LVL 1d20 1d6]
+    result: DMG>=HP    
+  }
+  if MISHAP=4 {
+    DMG: 1d6
+    result: DMG>=HP    
+  }
+  result: 0
+}
+
+loop LVL over {1..9} {
+ output (1d20=1)*[death LVL 1d12] named "insta-death level-[LVL]"
+}

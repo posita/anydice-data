@@ -1,0 +1,147 @@
+\ --- ГЛОБАЛЬНЫЕ ПАРАМЕТРЫ ПЕРСОНАЖА И АТАКИ --- \
+ATTR: 8
+SKILL: 10
+MISC: 0
+DV: 5
+ROF: 2      \ Скорострельность для обычной атаки \
+AUTO: 3     \ Максимальный множитель для автоогня \
+RECOV: 0    \ 1 если есть восстановление на 1, иначе 0 \
+
+BODY_SP: 11 \ Защита тела \
+HEAD_SP: 0  \ Защита головы \
+DAMAGE_DICE: 4d6 \ Базовый урон оружия \
+
+\ МОДИФИКАТОРЫ И РЕЖИМЫ --- \
+EXPLOSIVE_AMMO: 0 \ 1 = РАЗРЫВНЫЕ ПАТРОНЫ (крит на 5 и 6), 0 = ОБЫЧНЫЕ (крит только на 6) \
+AIMED: 1   \ 1 = в голову, 0 = прицельно в тело, -1 = обычная атака \
+IS_AUTO: 0  \ 1 = автоогонь, 0 = одиночные \
+MELEE: 0    \ 1 = ближний бой (половина SP), 0 = дальний бой \
+
+\ --- КОРРЕКТИРОВКА БРОНИ (МЕХАНИКА БЛИЖНЕГО БОЯ) --- \
+if MELEE {
+  CURRENT_BODY_SP: BODY_SP - (BODY_SP / 2)
+  CURRENT_HEAD_SP: HEAD_SP - (HEAD_SP / 2)
+} else {
+  CURRENT_BODY_SP: BODY_SP
+  CURRENT_HEAD_SP: HEAD_SP
+}
+
+\ --- КУБИК CYBERPUNK (Взрывы 10 и провалы 1) --- \
+function: cyberdie ROLL:n {
+  if ROLL = 1 {
+    if RECOV { result: 1 }
+    else { result: 1 - 1d10 }
+  }
+  if ROLL = 10 { result: 10 + 1d10 }
+  result: ROLL
+}
+
+\ --- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ПРОВЕРКИ КРИТА (ДЛЯ УРОНА) --- \
+function: check crit DAM:s {
+  if EXPLOSIVE_AMMO {
+    CRIT_COUNT: (DAM = 5) + (DAM = 6)
+    if CRIT_COUNT >= 2 { result: 5 }
+  } else {
+    if (DAM = 6) >= 2 { result: 5 }
+  }
+  result: 0
+}
+
+\ --- ФУНКЦИЯ ДЛЯ ВЫВОДА ШАНСА КРИТА (ОДИН ВЫСТРЕЛ) --- \
+function: pure crit chance DAM:s {
+  if EXPLOSIVE_AMMO {
+    if ((DAM = 5) + (DAM = 6)) >= 2 { result: 1 }
+  } else {
+    if (DAM = 6) >= 2 { result: 1 }
+  }
+  result: 0
+}
+
+\ --- ОТДЕЛЬНЫЕ ФУНКЦИИ ДЛЯ КАЖДОГО ТИПА АТАКИ --- \
+function: normal attack ROLL:n DAM:s {
+  HIT: ROLL + ATTR + SKILL + MISC > DV
+  if !HIT { result: 0 }
+  WOUND: DAM - CURRENT_BODY_SP
+  TOTAL: 0
+  if WOUND > 0 { TOTAL: WOUND }
+  TOTAL: TOTAL + [check crit DAM]
+  result: TOTAL
+}
+
+function: aimed body attack ROLL:n DAM:s {
+  HIT: ROLL + ATTR + SKILL + MISC - 8 > DV
+  if !HIT { result: 0 }
+  WOUND: DAM - CURRENT_BODY_SP
+  TOTAL: 0
+  if WOUND > 0 { TOTAL: WOUND }
+  TOTAL: TOTAL + [check crit DAM]
+  result: TOTAL
+}
+
+function: aimed head attack ROLL:n DAM:s {
+  HIT: ROLL + ATTR + SKILL + MISC - 8 > DV
+  if !HIT { result: 0 }
+  WOUND: DAM - CURRENT_HEAD_SP
+  TOTAL: 0
+  if WOUND > 0 { TOTAL: WOUND * 2 }
+  TOTAL: TOTAL + [check crit DAM]
+  result: TOTAL
+}
+
+function: autofire ROLL:n {
+  MUL: ROLL + ATTR + SKILL + MISC - DV
+  if MUL > AUTO { result: AUTO }
+  if MUL > 0 { result: MUL }
+  result: 0
+}
+
+function: calc autofire damage BASE_DAM:n HITS:n SP:n {
+  TOTAL: BASE_DAM * HITS - SP
+  if TOTAL > 0 { result: TOTAL }
+  result: 0
+}
+
+
+\ --- ВЫВОД РЕЗУЛЬТАТОВ В ЗАВИСИМОСТИ ОТ РЕЖИМА --- \
+
+\ --- 1. РАСЧЕТ ОЖИДАЕМОГО УРОНА --- \
+if IS_AUTO = 1 {
+  HITS: [autofire [cyberdie 1d10]]
+  output [calc autofire damage DAMAGE_DICE HITS CURRENT_BODY_SP] named "Expected Damage (Autofire)"
+} 
+else if AIMED = 1 {
+  output [aimed head attack [cyberdie 1d10] DAMAGE_DICE] named "Expected Damage (Head)"
+} 
+else if AIMED = 0 {
+  output [aimed body attack [cyberdie 1d10] DAMAGE_DICE] named "Expected Damage (Aimed Body)"
+} 
+else {
+  TOTAL_DAMAGE: 0
+  loop X over {1..ROF} {
+    TOTAL_DAMAGE: TOTAL_DAMAGE + [normal attack [cyberdie 1d10] DAMAGE_DICE]
+  }
+  output TOTAL_DAMAGE named "Expected Damage (Body)"
+}
+
+\ --- 2. СТАТИСТИКА КРИТОВ --- \
+
+SINGLE_CRIT: [pure crit chance DAMAGE_DICE]
+
+\ График А: Базовый шанс крита ровно для одного выстрела \
+output SINGLE_CRIT named "Crit Chance: Single Shot (1 = Yes, 0 = No)"
+
+if (IS_AUTO = 0) & (AIMED < 0) {
+  if ROF > 1 {
+    TOTAL_CRITS_POOL: 0
+    loop X over {1..ROF} {
+      TOTAL_CRITS_POOL: TOTAL_CRITS_POOL + SINGLE_CRIT
+    }
+    
+    \ График Б: Распределение точного количества критов (0, 1, 2, 3...) \
+    output TOTAL_CRITS_POOL named "Crit Count: Distribution in ROF Series (0, 1, 2, 3...)"
+    
+    \ График В: Бинарный шанс получить ХОТЯ БЫ один крит за ход \
+    ANY_CRIT_FLAG: TOTAL_CRITS_POOL >= 1
+    output ANY_CRIT_FLAG named "Crit Chance: AT LEAST ONE in ROF Series (1 = Yes, 0 = No)"
+  }
+}

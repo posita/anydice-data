@@ -1,0 +1,35 @@
+function: minimum ROLL:n MIN:n {
+  if ROLL < MIN { result: MIN }
+  result: ROLL
+}
+
+function: bounce ROLL:n LOW:n {
+  if ROLL <= LOW { result: ROLL + LOW }
+  result: ROLL
+}
+
+function: reroll ROLL:n DIE:n FLR:n {
+  if ROLL < FLR { result: 1dDIE }
+  result: ROLL
+}
+
+function: combo DIE:d {
+ result: [combo DIE 0 helper]
+}
+
+function: combo N:n L:n helper {
+ if N >= L { result: N + [combo DIE N helper] }
+ result: N
+}
+
+set "maximum function depth" to 8
+
+output [combo d6] named "d6 combo"
+output 1d8+1d6 + [combo d6] named "Attack"
+
+if 1 = 0 {
+output 1d8+1d6 + [combo d6] named "d6 combo"
+output 2d8 + 2d4 + 1d6 + 5 named "2d8+1d6+2d4+5"
+output [reroll 1d8 8 3] + [reroll 1d8 8 3] + [reroll 1d4 4 3] + [reroll 1d4 4 3] + [reroll 1d6 6 3] + 5 named "One Reroll"
+output 2d{3,4,5,6,7,8} + 2d{3,4} + 1d{3,4,5,6} + 5 named "Infinite Rerolls"
+}

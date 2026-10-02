@@ -1,0 +1,24 @@
+function: minz N:n {
+if N < 0 {result: 0}
+result: N
+}
+
+function: sbhit D:n {
+if D = 16 {result: 16 + 1d8}
+result: D
+}
+
+function: sbattack D:n {
+if D > 16 {result: 0}
+result: [sbhit 1d16]
+}
+
+function: rangerchain D:n {
+if D > 16 {result: 0}
+result: [minz ([sbhit 1d16] - 1d12)] + [rangerchain 1d20]
+}
+
+set "maximum function depth" to 4
+output [minz ([sbattack 1d20] - 1d12)] named "shortbow vs shield"
+output [sbattack 1d20] named "shortbow vs no shield (never parry)"
+output [rangerchain 1d20] named "ranger vs shield (always parry)"

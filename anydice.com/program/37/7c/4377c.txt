@@ -1,0 +1,27 @@
+function: ROLL_A:n vs ROLL_B:n {
+  \ Check for Natural 20s \
+  if ROLL_A = 20 & ROLL_B = 20 { result: 0 } \ Tie or use modifiers \
+  if ROLL_A = 20 { result: 1 }  \ A wins automatically \
+  if ROLL_B = 20 { result: -1 } \ B wins automatically \
+  
+  \ Check for Natural 1s \
+  if ROLL_A = 1 & ROLL_B = 1 { result: 0 } \ Tie or use modifiers \
+  if ROLL_A = 1 { result: -1 }  \ A loses automatically \
+  if ROLL_B = 1 { result: 1 }   \ B loses automatically \
+  
+  \ If no natural crits apply, compare total scores \
+  TOTAL_A: ROLL_A + 0 \ Replace 5 with Side A's modifier \
+  TOTAL_B: ROLL_B + 10 \ Replace 3 with Side B's modifier \
+  
+  if TOTAL_A > TOTAL_B { result: 1 }
+  if TOTAL_A < TOTAL_B { result: -1 }
+  result: 0
+}
+
+output [d20 vs d20] named "1 = A Wins, 0 = Tie, -1 = B Wins"
+
+\ Change the modifiers after the + signs to match your stats \
+SIDE_A: 1d20 + 0
+SIDE_B: 1d20 + 10
+
+output SIDE_A - SIDE_B named "Result (Positive = A wins, Negative = B wins, 0 = Tie)"

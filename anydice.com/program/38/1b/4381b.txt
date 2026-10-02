@@ -1,0 +1,56 @@
+GRIT: 3
+EVASION: 12
+ACC: 1
+BRUTAL: 0
+OPCAL: 1
+
+function: accuracy A:n {
+  if (A = 0) {
+    result: 0
+  } else if (A > 0) {
+    result: 1@Ad6
+  } else {
+    result: -(1@(-A)d6)
+  }
+}
+
+function: attackres with D:n and A:n {
+  T: D + A + GRIT
+  if (T < EVASION) {
+    result: 0
+  } else if (T < 20) {
+    result: 1
+  } else {
+    result: 2 + (D = 20 & BRUTAL)
+  }
+}
+
+function: tetsubodam D:s {
+  C: D = 6
+  if (C = 0) {
+    result: D
+  } else if (C = 1) {
+    result: D + 4
+  } else if (C = 2) {
+    result: D + 7
+  } else {
+    result: D + 10
+  }
+}
+
+function: damage R:n {
+  if (R = 0) {
+    result: 0
+  } else if (R = 1) {
+    result: [tetsubodam 3d{2..6}] + OPCALd{2..6}
+  } else if (R = 2) {
+    result: [tetsubodam {1..3}@(6d{2..6})] + {1..OPCAL}@((2*OPCAL)d{2..6})
+  } else if (R = 3) {
+    result: [tetsubodam {6, 6, 6}] + OPCAL * 6
+  }
+}
+
+AR: [attackres with 1d20 and [accuracy ACC]]
+DR: [damage AR]
+output AR named "Attack result"
+output DR named "Damage result"

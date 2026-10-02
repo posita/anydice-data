@@ -1,0 +1,16 @@
+DICE: 16 <= 2@2d20 + 1
+
+function: roll ROLL:s until X:n successes or Y:n failures {
+    S: ROLL = 1           \ count successes in current roll \
+    F: ROLL = 0           \ count failures in current roll \
+    if S >= X | F >= Y { 
+        result: S 
+    } else if {S, F, X, Y} = {1, 0, 3, 3} {
+        result: 3
+    } else { 
+        result: S + [roll DICE until X-S successes or Y-F failures] 
+    }
+}
+
+set "maximum function depth" to 99
+output [roll DICE until 3 successes or 3 failures] named "successes"

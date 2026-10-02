@@ -1,0 +1,39 @@
+DICE: 22 \ Dice pool before edge \
+LIMIT: 10 \ Limit on the pool\
+PTL: 1 \ Push the limit 1 TRUE 0 FALSE \
+SC: 1 \ Second Chance 1 TRUE 0 FALSE \
+EDGE: 5 \ Edge to add for Push the Limit \
+HITS: 0
+HAL: 0 \ Hits after Limit \
+
+
+function: limit H:n by L:n {
+ if H>L {
+  result: L }
+ result: H
+}
+
+function: explode N:n {
+ if N = 6 { result: 1 + [explode d6] }
+ result: N = 5
+}
+
+function: secondchance N:n and M:n {
+ if N > 4 { result: 1 } \ if hit, terminate and return result \
+ if M >4 { result: 1}  
+ result: 0
+}
+
+HITS: DICEd(d6>4)
+HAL: [limit HITS by LIMIT]
+output HAL named "[DICE]d6 Standard"
+if PTL {
+ EDICE: DICE + EDGE
+ HITS: EDICEd[explode d6]
+ HAL: [limit HITS by (DICE*5/4)]
+ output HAL named "[EDICE]d6 Push the Limit" }
+if SC {
+ HITS: DICEd[secondchance d6 and d6]
+ HAL: [limit HITS by LIMIT]
+ output HAL named "[DICE]d6 Second Chance"
+}

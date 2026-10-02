@@ -1,0 +1,424 @@
+\ ============================================================
+  Mage CRM Comparison
+  MT = Mage Twenty / Mage: The Ascension 20th Anniversary Edition
+  MO = Mage Orphanatum draft model
+  ============================================================ \
+
+
+\ ============================================================
+  Shared constants
+  ============================================================ \
+
+COINCIDENTAL: 1
+VULGAR: 2
+WITNESSED: 3
+
+\ Change this to test d6, d8, d10, etc. \
+MAX: 10
+
+
+\ ============================================================
+  M20 CORE MODEL
+  ------------------------------------------------------------
+  M20 roll:
+  - Roll Arete d10.
+  - Each die >= difficulty gives +1 success.
+  - Each 1 gives -1 success.
+  - Net > 0 = success.
+  - Net = 0 = ordinary failure.
+  - Net < 0 = botch-like result.
+
+  Difficulty:
+  - Coincidental = highest Sphere + 3
+  - Vulgar       = highest Sphere + 4
+  - Witnessed    = highest Sphere + 5
+  ============================================================ \
+
+function: mt mod from TYPE:n {
+   if TYPE = COINCIDENTAL {
+      result: 3
+   }
+
+   if TYPE = VULGAR {
+      result: 4
+   }
+
+   \ witnessed vulgar \
+   result: 5
+}
+
+function: mt difficulty for SPHERE:n and TYPE:n {
+   result: SPHERE + [mt mod from TYPE]
+}
+
+function: mt fold DIE:n with DIFFICULTY:n {
+   if DIE = 1 {
+      result: -1
+   }
+
+   if DIE >= DIFFICULTY {
+      result: 1
+   }
+
+   result: 0
+}
+
+function: mt roll ARETE:n with DIFFICULTY:n {
+   result: ARETE d [mt fold d10 with DIFFICULTY]
+}
+
+function: mt paradox for SPHERE:n and NET:n and TYPE:n {
+   \ Coincidental: only botches generate Paradox. \
+   if TYPE = COINCIDENTAL {
+      if NET < 0 {
+         result: SPHERE
+      }
+
+      result: 0
+   }
+
+   \ Vulgar: ordinary vulgar magick generates 1 Paradox.
+     Botches generate Sphere + 1. \
+   if TYPE = VULGAR {
+      if NET < 0 {
+         result: SPHERE + 1
+      }
+
+      result: 1
+   }
+
+   \ Witnessed vulgar: ordinary witnessed vulgar magick generates 1 Paradox.
+     Botches are much worse. \
+   if NET < 0 {
+      result: 2 + (SPHERE * 2)
+   }
+
+   result: 1
+}
+
+
+\ ============================================================
+  MO: Mage Orphanatum Core Model
+  ------------------------------------------------------------
+  Raw roll:
+  - Roll Arete d MAX.
+  - Each die <= Sphere is a success.
+  - Each die > Sphere is a failure.
+  - The maximum face is the worst failure.
+
+  Type behavior (net side):
+  - Success threshold:
+      Coincidental / Vulgar : die <= Sphere
+      Witnessed             : die <= Sphere - 1  (harder to succeed)
+  - Cancellation: each MAX die cancels one success (all types).
+
+  This mirrors M20, where Witnessed does not cancel harder, it just
+  raises the difficulty (successes get rarer) while botch stays tied
+  to a single extreme face.
+  ============================================================ \
+
+
+\ ------------------------------------------------------------
+  MO effective success threshold
+  ------------------------------------------------------------
+  Witnessed magick is harder to pull off, so its success threshold
+  is one step tighter than the raw Sphere.
+  ------------------------------------------------------------ \
+
+function: mo success threshold for SPHERE:n and TYPE:n {
+   if TYPE = WITNESSED {
+      result: SPHERE - 1
+   }
+
+   result: SPHERE
+}
+
+
+\ ------------------------------------------------------------
+  MO success count
+  ------------------------------------------------------------
+  Counts all dice equal to or below Sphere.
+
+  Written explicitly up to 10 so MAX can be changed to 6, 8, or 10.
+  ------------------------------------------------------------ \
+
+function: mo success count in ROLL:s under SPHERE:n {
+   COUNT: 0
+
+   if SPHERE >= 1 {
+      COUNT: COUNT + [count 1 in ROLL]
+   }
+
+   if SPHERE >= 2 {
+      COUNT: COUNT + [count 2 in ROLL]
+   }
+
+   if SPHERE >= 3 {
+      COUNT: COUNT + [count 3 in ROLL]
+   }
+
+   if SPHERE >= 4 {
+      COUNT: COUNT + [count 4 in ROLL]
+   }
+
+   if SPHERE >= 5 {
+      COUNT: COUNT + [count 5 in ROLL]
+   }
+
+   if SPHERE >= 6 {
+      COUNT: COUNT + [count 6 in ROLL]
+   }
+
+   if SPHERE >= 7 {
+      COUNT: COUNT + [count 7 in ROLL]
+   }
+
+   if SPHERE >= 8 {
+      COUNT: COUNT + [count 8 in ROLL]
+   }
+
+   if SPHERE >= 9 {
+      COUNT: COUNT + [count 9 in ROLL]
+   }
+
+   if SPHERE >= 10 {
+      COUNT: COUNT + [count 10 in ROLL]
+   }
+
+   result: COUNT
+}
+
+
+\ ------------------------------------------------------------
+  MO failure count
+  ------------------------------------------------------------
+  Counts all dice above Sphere, up to MAX.
+
+  Important:
+  - If MAX = 6, only faces 1-6 matter.
+  - If MAX = 8, faces 1-8 matter.
+  - If MAX = 10, faces 1-10 matter.
+  ------------------------------------------------------------ \
+
+function: mo failure count in ROLL:s over SPHERE:n {
+   COUNT: 0
+
+   if MAX >= 1 {
+      if SPHERE < 1 {
+         COUNT: COUNT + [count 1 in ROLL]
+      }
+   }
+
+   if MAX >= 2 {
+      if SPHERE < 2 {
+         COUNT: COUNT + [count 2 in ROLL]
+      }
+   }
+
+   if MAX >= 3 {
+      if SPHERE < 3 {
+         COUNT: COUNT + [count 3 in ROLL]
+      }
+   }
+
+   if MAX >= 4 {
+      if SPHERE < 4 {
+         COUNT: COUNT + [count 4 in ROLL]
+      }
+   }
+
+   if MAX >= 5 {
+      if SPHERE < 5 {
+         COUNT: COUNT + [count 5 in ROLL]
+      }
+   }
+
+   if MAX >= 6 {
+      if SPHERE < 6 {
+         COUNT: COUNT + [count 6 in ROLL]
+      }
+   }
+
+   if MAX >= 7 {
+      if SPHERE < 7 {
+         COUNT: COUNT + [count 7 in ROLL]
+      }
+   }
+
+   if MAX >= 8 {
+      if SPHERE < 8 {
+         COUNT: COUNT + [count 8 in ROLL]
+      }
+   }
+
+   if MAX >= 9 {
+      if SPHERE < 9 {
+         COUNT: COUNT + [count 9 in ROLL]
+      }
+   }
+
+   if MAX >= 10 {
+      if SPHERE < 10 {
+         COUNT: COUNT + [count 10 in ROLL]
+      }
+   }
+
+   result: COUNT
+}
+
+
+\ ------------------------------------------------------------
+  MO cancellation count
+  ------------------------------------------------------------
+  All types: each MAX die cancels one success, mirroring M20's
+  "a 1 subtracts a success" botch rule. The types differ on the
+  success side (threshold) and on base Paradox, not on cancellation.
+  ------------------------------------------------------------ \
+
+function: mo cancellation count in ROLL:s under SPHERE:n and TYPE:n {
+   result: [count MAX in ROLL]
+}
+
+
+\ ------------------------------------------------------------
+  MO net result
+  ------------------------------------------------------------
+  Net = successes - cancellations.
+
+  Net > 0 = success.
+  Net = 0 = ordinary failure / marginal result, depending on design.
+  Net < 0 = botch-like result.
+  ------------------------------------------------------------ \
+
+function: mo net for ROLL:s under SPHERE:n and TYPE:n {
+   THRESHOLD: [mo success threshold for SPHERE and TYPE]
+   SUCCESSES: [mo success count in ROLL under THRESHOLD]
+   CANCELLATIONS: [mo cancellation count in ROLL under SPHERE and TYPE]
+
+   result: SUCCESSES - CANCELLATIONS
+}
+
+
+\ ============================================================
+  MO Paradox Model
+  ------------------------------------------------------------
+  Mental model:
+  Final Paradox = Base Paradox + Botch Surcharge
+
+  Base Paradox:
+  - Coincidental = 0
+  - Vulgar       = 1
+  - Witnessed    = 3
+
+  Botch Surcharge:
+  - All types:
+      +absolute net if net is below 0.
+      Negative net already measures how badly reality rejected the Effect.
+      Coincidental can now go negative because each MAX die cancels a
+      success, so it uses the same botch rule as Vulgar / Witnessed.
+  ============================================================ \
+
+function: mo base paradox for TYPE:n {
+   if TYPE = COINCIDENTAL {
+      result: 0
+   }
+
+   if TYPE = VULGAR {
+      result: 1
+   }
+
+   \ witnessed vulgar \
+   result: 3
+}
+
+function: mo botch surcharge for ROLL:s under SPHERE:n and TYPE:n {
+   NET: [mo net for ROLL under SPHERE and TYPE]
+
+   \ Botch for all types: cancellations exceeded successes. \
+   if NET < 0 {
+      result: [absolute NET]
+   }
+
+   result: 0
+}
+
+function: mo paradox for ROLL:s under SPHERE:n and TYPE:n {
+   result: [mo base paradox for TYPE] + [mo botch surcharge for ROLL under SPHERE and TYPE]
+}
+
+
+\ ------------------------------------------------------------
+  MO output wrappers
+  ------------------------------------------------------------
+  These roll ARETE d MAX and pass the raw sequence into the
+  net/paradox functions.
+
+  This preserves the same underlying roll logic for calculations.
+  ------------------------------------------------------------ \
+
+function: mo roll ARETE:n under SPHERE:n and TYPE:n {
+   result: [mo net for ARETE d d MAX under SPHERE and TYPE]
+}
+
+function: mo paradox roll ARETE:n under SPHERE:n and TYPE:n {
+   result: [mo paradox for ARETE d d MAX under SPHERE and TYPE]
+}
+
+
+\ ============================================================
+  Parameters
+  ============================================================ \
+
+\ARETE: 3
+SPHERE: 3
+TYPE: COINCIDENTAL\
+
+
+\ ============================================================
+  MT Outputs
+  ============================================================ \
+
+\MT_DIFFICULTY: [mt difficulty for SPHERE and TYPE]
+MT_NET: [mt roll ARETE with MT_DIFFICULTY]
+MT_PARADOX: [mt paradox for SPHERE and MT_NET and TYPE]
+
+output MT_NET named "MT net: Arete [[ARETE]], Difficulty [[MT_DIFFICULTY]]"
+output MT_PARADOX named "MT Paradox"\
+
+\loop ARETE over { 1..5 } {
+   loop SPHERE over { 0..5 } {
+      loop TYPE over { COINCIDENTAL, VULGAR, WITNESSED } {
+         MT_DIFFICULTY: [mt difficulty for SPHERE and TYPE]
+         MT_NET: [mt roll ARETE with MT_DIFFICULTY]
+         MT_PARADOX: [mt paradox for SPHERE and MT_NET and TYPE]
+
+         output MT_NET named "MT net: Arete [[ARETE]], Difficulty [[MT_DIFFICULTY]]"
+         output MT_PARADOX named "MT Paradox"
+      }
+   }
+}\
+
+
+
+\ ============================================================
+  MO Outputs
+  ============================================================ \
+
+\MO_NET: [mo roll ARETE under SPHERE and TYPE]
+MO_PARADOX: [mo paradox roll ARETE under SPHERE and TYPE]
+
+output MO_NET named "MO net: Arete [[ARETE]], Sphere [[SPHERE]], d[[MAX]], Type [[TYPE]]"
+output MO_PARADOX named "MO Paradox"\
+
+
+loop ARETE over { 1..5 } {
+   loop SPHERE over { 1..5 } {
+      loop TYPE over { COINCIDENTAL, VULGAR, WITNESSED } {
+         MO_NET: [mo roll ARETE under SPHERE and TYPE]
+         MO_PARADOX: [mo paradox roll ARETE under SPHERE and TYPE]
+
+         output MO_NET named "MO net: Arete [[ARETE]], Sphere [[SPHERE]], d[[MAX]], Type [[TYPE]]"
+         output MO_PARADOX named "MO Paradox"
+      }
+   }
+}

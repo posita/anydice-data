@@ -1,0 +1,55 @@
+\JHC (and DRL) Damage Simulator! Scroll down to the ***INPUTS*** section below!\
+
+\***FUNCTIONS*** pls skip all this\
+\banker's rounding= round to nearest integer, halfs go to even\
+function: bround A:n div B:n {
+  BASE: A / B
+  REMAINDER: A - (BASE * B)
+  
+  \ Case 1: Exact tie (halfway point) \
+  if REMAINDER * 2 = B {
+    if BASE - (BASE / 2 * 2) = 0 {
+      result: BASE       \ BASE is already even (e.g., 2.5 goes to 2) \
+    } else {
+      result: BASE + 1   \ BASE is odd, so the higher integer is even (e.g., 3.5 goes to 4) \
+    }
+  }
+  
+  \ Case 2: Above halfway point \
+  if (REMAINDER * 2) > B {
+    result: BASE + 1
+  }
+  
+  \ Case 3: Below halfway point \
+  result: BASE
+}
+\accuracy check against 3d6; rolls of 3,4 always hit; rolls of 17,18 always miss\
+function: accuracy ROLL:n vs ACC:n {
+  \ Rule 1: Auto-miss on 17 or 18 \
+  if ROLL >= 17 { result: 0 } 
+  
+  \ Rule 2: Auto-hit on 3 or 4 \
+  if ROLL <= 4 { result: 1 }   
+  
+  \ Rule 3: Normal hit if accuracy is greater than or equal to the roll \
+  if ACC >= ROLL { result: 1 } 
+  
+  \ Default: If ACC is lower than the roll, it's a miss \
+  result: 0 
+}
+
+\***INPUTS***\
+WEP: 1d5     \this is the weapon roll (w/ mods), i.e. 3d3\
+SOB: 0       \this is the flat extra damage, from SoB and SF\
+NUM: 11       \this is how many shots the weapon does, change for how many you actually want to hit\
+ACC: 7      \this is your current total accuracy adjusted for distance and slither/gaze! you have a base of 10 accuracy\
+DMG: 100000  \this will be your total multiplicative damage bonus, later divided by 100,000. So for 20% damage bonus, use 120000\
+RES: 0      \this is the target's resistance to your damage type, later divided by 100\
+ARM: 3       \this is the target's EFFECTIVE armor value, if you're doing pierce/plasma it is HALF rounded down\
+
+\***OUTPUTS***\
+ATK: [highest of 1 and [bround (((WEP+SOB)*DMG)/100000)*(100-RES) div 100] - ARM]
+ADJ: [accuracy 3d6 vs ACC]dATK
+
+output NUMdADJ named "damage counting for accuracy"
+output NUMdATK named "damage if full volley hits"

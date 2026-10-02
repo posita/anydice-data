@@ -1,0 +1,44 @@
+function: invisible X:n to Y:n {
+ if X=1{result: 1}
+ else {result: Y}
+}
+function: acd H:n mod M:n vs A:n {
+ if H+M>=A {
+  if H=1 {result: 0}
+  if H=20 {result: 2}
+  else {result: 1}
+ }
+ else {result: 0}
+}
+function: acl H:n vs A:n {
+ if H>=A {
+  if H>=20 {result: 2}
+  else {result: 1}
+ }
+ else {result: 0}
+}
+function: rel R:n for X:n to D:n or C:n {
+ if X>=1 {
+  if X=1 {result: D}
+  else {result: C}
+ }
+ else {result: R}
+}
+function: dmg X:n to D:n or C:n {
+ if X>=1 {
+  if X=1 {result: D}
+  else {result: C}
+ }
+ else {result: 0}
+}
+function: armor D:n vs A:n {
+ if D-A<0 {result: 0}
+ result: D-A
+}
+set "maximum function depth" to 5
+function: overkill heat X:n for D:d {
+ if X = 1 { result: 1 + [overkill heat D for D] }
+ result: 0
+}
+output [dmg [acl 1d20+2+d6 vs 10] to 2d{2..6} or [highest 2 of 2d{2..6}]] named "Dmg dealt"
+output [dmg [acl 1d20+2+d6 vs 10] to 2d[overkill heat 1d6 for 1d6] or 4d[overkill heat 1d6 for 1d6]] named "Heat Received"

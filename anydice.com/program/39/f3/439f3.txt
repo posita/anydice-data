@@ -1,0 +1,79 @@
+set "maximum function depth" to 20
+
+\ Function used for calculation \
+
+function: damage D:n{
+ if D >= 2*MAJOR_THRESHOLD {
+  result: 4
+ }
+ if D >= MAJOR_THRESHOLD {
+  result: 3
+ }
+ if D >= MINOR_THRESHOLD{
+  result: 2
+ }
+ result: 1
+}
+
+function: attack A:n {
+ if A >= EVASION {
+  result: 1
+ }
+ result: 0
+}
+
+function: average sustained damage{
+ result: [attack d20 + ATTACK_DICE_BONUS] * [damage DAMAGE_DICE_NUMBER d DAMAGE_DICE_VALUE + DAMAGE_DICE_BONUS]
+}
+
+function: hit taken P:n hp H:n num N:n {
+ R: H - P
+ if R > 0 {
+  T: [damage DAMAGE_DICE_NUMBER d DAMAGE_DICE_VALUE + DAMAGE_DICE_BONUS]
+  result: [hit taken T hp R num N+1]
+ }
+ result: N
+}
+
+function: average hit to die { \ no armor nor evasion \
+ result: [hit taken 0 hp HP num 0]
+}
+
+function: hit taken P:n hp H:n armor A:n num N:n {
+ R: H - P
+ B: A
+ T: [damage DAMAGE_DICE_NUMBER d DAMAGE_DICE_VALUE + DAMAGE_DICE_BONUS]
+ if R > 0 {
+  if A > 0 {
+   T: T - 1
+   B: A - 1
+  }
+  result: [hit taken T hp R armor B num N+1]
+ }
+ result: N
+}
+
+
+function: average hit to die with armor { \ no evasion \
+ result: [hit taken 0 hp HP armor ARMOR num 0]
+}
+
+\ Character statistic, used in previous function \
+HP: 9
+ARMOR: 4
+EVASION: 17
+MINOR_THRESHOLD: 16
+MAJOR_THRESHOLD: 30
+
+\ Enemy attack statistic, used in previous function \
+ATTACK_DICE_BONUS: 3
+DAMAGE_DICE_NUMBER: 3
+DAMAGE_DICE_VALUE: 8
+DAMAGE_DICE_BONUS: 2
+
+\ output, can change character stat/enemy stat by changing variables' value between outputs' calls. \
+
+output[attack d20 + ATTACK_DICE_BONUS] named "evasion"
+output[average sustained damage] named "average sustained damage"
+output[average hit to die] named "hit to kill (without evasion nor armor)"
+output[average hit to die with armor] named "hit to kill with armor (without evasion)"

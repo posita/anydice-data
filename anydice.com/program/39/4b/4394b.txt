@@ -1,0 +1,116 @@
+function: invisible X:n to Y:n {
+ if X=1{result: 1}
+ else {result: Y}
+}
+function: acd H:n mod M:n vs A:n cs C:n cf F:n {
+ if H+M>=A {
+  if H<=F {result: 0}
+  if H>=C {result: 2}
+  result: 1
+ }
+ else {result: 0}
+}
+function: acl H:n vs A:n {
+ if H>=A {
+  if H>=20 {result: 2}
+  result: 1
+ }
+ else {result: 0}
+}
+function: rel R:n for X:n to D:n or C:n {
+ if X>=1 {
+  if X=1 {
+   if D<R {result: R}
+   result: D
+  }
+  else {
+   if C<R {result: R}
+   result: C
+  }
+ }
+ else {result: R}
+}
+function: dmg X:n to D:n or C:n {
+ if X>=1 {
+  if X=1 {result: D}
+  result: C
+ }
+ else {result: 0}
+}
+function: armor D:n vs A:n {
+ if D-A<0 {result: 0}
+ result: D-A
+}
+set "maximum function depth" to 5
+function: okh T:n to X:n for D:d {
+ if X<=T {result: 1 + [okh T to D for D]}
+ result: 0
+}
+function: str X:n for Y:n {
+ if X>=2 {
+  if X>=5 {result: 3}
+  result: 2
+ }
+ if Y>=2 {result:0}
+ result: 1
+}
+function: mstr X:n for Y:n {
+ if X>=2 {
+  if X>=5 {result: 5}
+  result: 4
+ }
+ if Y>=2 {result: 1}
+ result: 3
+}
+function: stc X:n vs Y:n {
+ if X=1 {
+  if Y>=10 {result: 1}
+  result: 0
+ }
+ result: X
+}
+function: mstc X:n vs Y:n {
+ if X<=3 {
+  if X<=1 {
+   if Y>=10 {result: 1}
+   result: 0
+  }
+  if Y>=10 {result: 3}
+  result: 2
+ }
+ result: X
+}
+function: stm X:n {
+ if X>=1 {
+  if X=3 {result: 2}
+  result: 1
+ }
+ result: X
+}
+function: mstm X:n bn T:n vs R:n {
+ if X>=2 {
+  if X>=3 {
+   if X=5 {result: 3}
+   if T=1 {
+    if R>=10 {result: 2}
+    result: 1
+   }
+   else {result: 2}
+  }
+  else {result: 1}
+ }
+ result: 0
+}
+S:[str [lowest 1 of 2d6] for 2d[okh 1 to d6 for d6]]
+SM:[mstr [lowest 1 of 2d6] for 2d[okh 1 to d6 for d6]]
+B:[highest 1 of 2d6]
+output [str 1d6 for 0] named "3 higher structure standard and maria"
+output [stm [str 1d6 for 0]] named "3 higher standard stress"
+output [mstm [mstr 1d6 for 0] bn 1 vs 1d20] named "3 higher maria stress"
+output [stc S vs 1d20] named "standard 2 structure"
+output [mstc SM vs 1d20] named "maria 2 structure"
+output [stm [stc S vs 1d20]] named "standard 2 stress"
+output [mstm [mstc SM vs 1d20] bn 0 vs 0] named "maria 2 stress"
+SM:[mstr [lowest 1 of 3d6] for 3d[okh 1 to d6 for d6]]
+output [mstc SM vs 1d20] named "maria 1 structure"
+output [mstm [mstc SM vs 1d20] bn 0 vs 0] named "maria 1 stress"

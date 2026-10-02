@@ -1,0 +1,36 @@
+
+function: compare NUMBER:n against DIFF:n  { 
+ result: {(NUMBER-DIFF)}
+}
+
+function: qualitycompare NUMBER:n against DIFF:n  { 
+QUALITY: 5
+ result: {(NUMBER-DIFF)/ QUALITY}
+}
+
+A: 3
+SIZE: 20
+STANDARD: 2d12
+VALIDDIFF: {5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80}
+SWITCH: 0
+RELEVANTSKILLS: {0,1,2,4,6,10,14,18,22,26,30,40,50,60}
+loop N over {1..8}{
+                   OUTPUT: {1,2,3}@NdSIZE + 
+                   if SWITCH = 0 {output OUTPUT named "[N]d[SIZE] + 0 "}
+                   if SWITCH > 0 { loop 
+                                    SKILL over RELEVANTSKILLS { if SWITCH = 1 {
+                                                      output OUTPUT + SKILL named "[N]d[SIZE] + [SKILL]"
+                                                                       }
+                                                         if SWITCH = 3 {
+                                                                        loop DIFF over VALIDDIFF {
+                                                                                                  output [qualitycompare OUTPUT against DIFF] named "[N]d[SIZE] + [SKILL] vs [DIFF]"
+                                                                                                  }
+                                                                        }
+                                                        }
+       
+                                 }
+
+                    }
+ \output {1,2,3}@NdS + SKILL - 30 named "[N]d[S] + [SKILL] -30"\
+
+

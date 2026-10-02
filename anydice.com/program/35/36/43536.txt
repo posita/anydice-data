@@ -1,0 +1,25 @@
+OBJ_A_MAX_HP: 10
+OBJ_B_MAX_HP: 10
+VELOCITY: 5 \yards per sec\
+OBJ_A_DR: 0
+OBJ_B_DR: 0 \use for soft immobile surfaces\
+
+function: collision dmg with HP:n hp at VEL:n yds {
+  DMG_RAW: HP*VELOCITY
+  if DMG_RAW <= 25 { result: 1d6-3 }
+  if DMG_RAW <= 50 { result: 1d6-2 }
+  if DMG_RAW < 100 { result: 1d6-1 }
+  DICE: DMG_RAW/100
+  DICE_REM: DMG_RAW - DICE*100
+  if DICE_REM < 50 { result: DICEd6 }
+  result: (DICE+1)d6
+}
+
+function: hard collision dmg with HP:n hp at VEL:n yds {
+  result: [collision dmg with HP*2 hp at VEL yds]
+}
+
+OBJ_A_DMG: [collision dmg with OBJ_A_MAX_HP hp at VELOCITY yds]
+OBJ_B_DMG: [collision dmg with OBJ_B_MAX_HP hp at VELOCITY yds]
+output [highest of 0 and OBJ_A_DMG - OBJ_B_DR] named "Object A DMG"
+output [highest of 0 and OBJ_B_DMG - OBJ_A_DR] named "Object B DMG"

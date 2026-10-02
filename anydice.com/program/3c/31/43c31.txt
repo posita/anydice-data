@@ -1,0 +1,46 @@
+PDICE: 23 \ Our dice pool \
+PEDGE: 5 \ Our Edge \
+ODICE: 14 \ Opposition dice pool \
+OEDGE: 5 \ Opposition Edge \
+PLIMIT: 10 \ Our Limit; 0 ignores limit \
+OLIMIT: 0 \ Opposition Limit; 0 ignores limit \
+PSC: 1 \ Do we Second Chance? \
+PTL: 0 \ Do we Push The Limit? \
+OSC: 0 \ Does our opposition Second Chance? \
+OTL: 0 \ Does our opposition Push The Limit? \
+\ Priority is Second Chance, if no SC then Push the Limit, if no PTL then standard roll, having both set to 1 will Second Chance \
+\ --- Enter Values Above This Line --- \
+
+
+function: limit H:n by L:n { \ simple limit comparison \
+ if H>L {result: L} \ if Hits are over Limit, return Limit \
+ result: H \ else return Hits \
+}
+function: secondchance N:n and M:n { \ function for a second chance roll. requires two numbers (two d6 results) \
+ if N > 4 {result: 1} \ if first die is a hit, return 1 \
+ if M >4 {result: 1}  \ else evaluate second die the same way \
+ result: 0 \ else return 0 \
+}
+function: ruleofsix N:n { \ function for rule of six \
+ if N = 6 {result: 1 + [ruleofsix d6]} \ if six, recursively check another die; add hits together until one does not result in 6 \
+ result: N = 5 \ else, boolean check if result is 5 return 1 (true) \
+}
+
+
+if PSC {PHITS: PDICEd[secondchance d6 and d6]}
+else if PTL {
+ PEDICE: PDICE + PEDGE
+ PHITS: PEDICEd[ruleofsix d6]}
+else {PHITS: PDICEd(d6>4)}
+if PLIMIT > 0 & !PTL {PHITS: [limit PHITS by PLIMIT]}
+else if PTL {PHITS: [limit PHITS by PEDICE]}
+if OSC {OHITS: ODICEd[secondchance d6 and d6]}
+else if OTL {
+ OEDICE: ODICE + OEDGE
+ OHITS: OEDICEd[ruleofsix d6]}
+else {OHITS: ODICEd(d6>4)}
+if OLIMIT > 0 & !OTL {OHITS: [limit OHITS by OLIMIT]}
+else if OTL {OHITS: [limit OHITS by OEDICE]}
+NETHITS: PHITS - OHITS
+
+output NETHITS named "Opposed [PDICE]d6 against [ODICE]d6"

@@ -1,0 +1,55 @@
+function: mod A:n by B:n {
+ loop _ over {1..A/B}{
+  A: A - B
+ }
+ result: A
+}
+
+function: up side FACE:n DIE:n{
+ if DIE = FACE{
+  result: FACE + 1
+ }
+ else{
+  result: FACE
+ }
+}
+
+function: score START:n END:n {
+ RESULT: 0
+ loop SQUARE over {START+1..END} {
+  if [mod SQUARE by 2] = 0 {
+   RESULT: RESULT + EVEN
+  }
+  else{
+   RESULT: RESULT + ODD
+  }
+ }
+ result: RESULT
+}
+
+DIE: [up side 6 1d6]
+TILE: 58
+EVEN: 4
+ODD: 4
+
+output [score TILE TILE + DIE] named "Base"
+
+\
+EVEN: EVEN + 2
+output [score TILE TILE + DIE] named "Upgrade evens"
+EVEN: EVEN - 2
+\
+
+ODD: ODD + 2
+output [score TILE TILE + DIE] named "Upgrade odds"
+EVEN: ODD - 2
+
+EVEN: EVEN + 1
+ODD: ODD + 1
+output [score TILE TILE + DIE] named "Upgrade both"
+EVEN: EVEN - 1
+ODD: ODD - 1
+
+loop N over {1..6} {
+ output [score TILE TILE + [up side N 1d6]] named "Up side [N]"
+}

@@ -1,0 +1,77 @@
+# Funzione che identifica le 10 caselle "vuote" (0, 30, prigione, imprevisti)
+function: is_question POS:n {
+  if POS=4 | POS=7 | POS=8 | POS=12 | POS=16 | POS=20 | POS=24 | POS=28 | POS=30 | POS=0 | POS>30 { result: 0 }
+  result: 1
+}
+
+# Funzione del turno per 2 giocatori
+function: step STATE:n {
+  # Estrazione delle variabili dallo stato numerico (es: 30213021)
+  P1: STATE / 1000000
+  Q1: (STATE / 10000) - (P1 * 100)
+  P2: (STATE / 100) - (P1 * 10000) - (Q1 * 100)
+  Q2: STATE - (P1 * 1000000) - (Q1 * 10000) - (P2 * 100)
+  
+  # Se uno dei due ha già vinto, lo stato si congela
+  if P1 >= 30 | P2 >= 30 { result: STATE }
+  
+  # Turno Giocatore 1
+  N_P1: P1 + 1d3
+  if N_P1 > 30 { N_P1: 30 }
+  N_Q1: Q1 + [is_question N_P1]
+  
+  # Se il Giocatore 1 arriva a 30, il Giocatore 2 non tira
+  if N_P1 = 30 {
+     result: (N_P1 * 1000000) + (N_Q1 * 10000) + (P2 * 100) + Q2
+  }
+  
+  # Turno Giocatore 2
+  N_P2: P2 + 1d3
+  if N_P2 > 30 { N_P2: 30 }
+  N_Q2: Q2 + [is_question N_P2]
+  
+  # Ritorna il nuovo stato aggiornato
+  result: (N_P1 * 1000000) + (N_Q1 * 10000) + (N_P2 * 100) + N_Q2
+}
+
+# Simulazione sequenziale (fino a 30 turni massimi possibili per arrivare alla fine)
+S0: 0
+S1: [step S0]
+S2: [step S1]
+S3: [step S2]
+S4: [step S3]
+S5: [step S4]
+S6: [step S5]
+S7: [step S6]
+S8: [step S7]
+S9: [step S8]
+S10: [step S9]
+S11: [step S10]
+S12: [step S11]
+S13: [step S12]
+S14: [step S13]
+S15: [step S14]
+S16: [step S15]
+S17: [step S16]
+S18: [step S17]
+S19: [step S18]
+S20: [step S19]
+S21: [step S20]
+S22: [step S21]
+S23: [step S22]
+S24: [step S23]
+S25: [step S24]
+S26: [step S25]
+S27: [step S26]
+S28: [step S27]
+S29: [step S28]
+S30: [step S29]
+
+# Estraiamo le domande di P1 e P2 e le sommiamo
+FINAL_P1_POS: S30 / 1000000
+FINAL_P1_Q: (S30 / 10000) - (FINAL_P1_POS * 100)
+FINAL_P2_POS: (S30 / 100) - (FINAL_P1_POS * 10000) - (FINAL_P1_Q * 100)
+FINAL_P2_Q: S30 - (FINAL_P1_POS * 1000000) - (FINAL_P1_Q * 10000) - (FINAL_P2_POS * 100)
+
+TOTAL_QUESTIONS: FINAL_P1_Q + FINAL_P2_Q
+output TOTAL_QUESTIONS named "Totale carte domanda (2 Giocatori)"

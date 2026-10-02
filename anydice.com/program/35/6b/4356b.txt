@@ -1,0 +1,45 @@
+ATK_SKILL: 14      \ skill of attacker \
+DMG_DICE: 6        \ dice of raw explosive damage\
+DMG_ADDS: 0        \ adds for raw explosive damage\
+DMG_MULT: 2        \ multiplier for raw explosive damage\
+FRAG_DICE: 3       \ dice of frag damage\
+FRAG_ADDS: 0       \ adds for frag damage\
+FRAG_MULT: 1       \ multiplier for frag damage\
+FRAG_WOUND_NUM: 3  \ wound modifier for frag damage, 1.5x for cutting (p. B379) \
+FRAG_WOUND_DEM: 2
+
+\ distance and damage calculations for explosion \
+DMG: (DMG_DICE d 6)*DMG_MULT + DMG_ADDS
+DMG_DIST: 2*DMG_DICE*DMG_MULT
+
+\ distance and damage calculations for single fragment hit \
+\ includes wound modifier \
+FRAG_DMG: ((FRAG_DICE d 6 + FRAG_ADDS)*FRAG_MULT*FRAG_WOUND_NUM)/FRAG_WOUND_DEM
+FRAG_DIST: 5*FRAG_DICE*FRAG_MULT
+
+function: range mod for D:n {
+  if D < 3 { result: 0 }
+  if D < 5 { result: 1 }
+  if D < 7 { result: 2 }
+  if D < 10 { result: 3 }
+  if D < 15 { result: 4 }
+  if D < 20 { result: 5 }
+  if D < 30 { result: 6 }
+  if D < 50 { result: 7 }
+  result: 8
+}
+
+MAX_DIST: [highest of DMG_DIST and FRAG_DIST]
+loop DIST over {0..MAX_DIST} {
+  if DIST = 0 {
+    ATK_MARGIN: [highest of 0 and (ATK_SKILL - 3d6)]
+    FRAG_HITS: 1 + ATK_MARGIN/3
+    output (DMG + (FRAG_HITS d FRAG_DMG)) named "[DIST] yds"
+  }
+  else {
+    FRAGGED: (DIST <= FRAG_DIST)
+    FRAG_HITS: ((15-[range mod for DIST]) - 3d6)
+    FRAG: FRAG_DMG
+    output (DMG/(3*DIST) + FRAG) named "[DIST] yds"
+  }
+}

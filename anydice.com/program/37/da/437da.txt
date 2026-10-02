@@ -1,0 +1,101 @@
+LIGHTWEAPON: 0
+RANGEDWEAPON: 1
+REACHWEAPON: 2
+HEAVYWEAPON: 3
+VHEAVYWEAPON: 4
+NOARMOUR: 0
+LIGHTARMOUR: 1
+HEAVYARMOUR: 2
+VHEAVYARMOUR: 3
+CRITMISS: 0
+BIGMISS: 1
+MISS: 2
+BLANK: 3
+HIT: 4
+BIGHIT: 5
+CRITHIT: 6
+
+MONSTERWEAPON: LIGHTWEAPON
+HEROWEAPON: HEAVYWEAPON
+HEROARMOUR: VHEAVYARMOUR
+
+function: armourcheck {
+ if HEROARMOUR = VHEAVYARMOUR { result: [highest 1 of 3d8] >= 7 }
+ if HEROARMOUR = HEAVYARMOUR { result: [highest 1 of 2d8] >= 7 }
+ if HEROARMOUR = LIGHTARMOUR { result: [highest 1 of 1d8] >= 7 }
+ result: 0
+}
+output [armourcheck]
+
+function: attack ROLL:n vs TARGET:n {
+ if ROLL = 1 { result: CRITMISS }
+ if ROLL = 12 { result: CRITHIT }
+ if ROLL <= 3 { 
+  if MONSTERWEAPON = VHEAVYWEAPON {
+   if HEROWEAPON = REACHWEAPON {
+    if ROLL >= TARGET - 2 { result: MISS }
+    result: BIGMISS
+   }
+   result: BIGMISS 
+  }
+  result: MISS
+ }
+ if ROLL >= 10 {
+  if HEROWEAPON = VHEAVYWEAPON { result: BIGHIT }
+  result: HIT
+ }
+ if ROLL >= TARGET { result: HIT }
+ if HEROWEAPON = REACHWEAPON {
+  if ROLL >= TARGET - 2 { result: BLANK }
+  result: MISS
+ }
+ result: MISS
+}
+
+function: damage for ATTACKRESULT:n with ARMOUR:n {
+ if ATTACKRESULT = BIGHIT { result: 3 }
+ if ATTACKRESULT = BIGMISS {
+  if ARMOUR = 1 { result: -2 }
+  result: -3 
+ }
+ if ATTACKRESULT = CRITHIT {
+  if HEROWEAPON = VHEAVYWEAPON { result: 4 }
+  if HEROWEAPON = HEAVYWEAPON { result: 3 }
+  result: 2
+ }
+ if ATTACKRESULT = CRITMISS {
+  if MONSTERWEAPON = VHEAVYWEAPON {
+   if ARMOUR = 1 { result: -3 }
+   result: -4 
+  }
+  if MONSTERWEAPON = HEAVYWEAPON {
+   if ARMOUR = 1 { result: -2 }
+   result: -3 
+  }
+  if ARMOUR = 1 { result: -1 }
+  result: -2
+ }
+ if ATTACKRESULT = HIT {
+  if HEROWEAPON = VHEAVYWEAPON { result: 2 }
+  if HEROWEAPON = HEAVYWEAPON { result: 2 }
+  result: 1
+ }
+ if ATTACKRESULT = MISS {
+  if MONSTERWEAPON = VHEAVYWEAPON {
+   if ARMOUR = 1 { result: -1 } 
+   result: -2
+  }
+  if MONSTERWEAPON = HEAVYWEAPON {
+   if ARMOUR = 1 { result: -1 }
+   result: -2
+  }
+  if ARMOUR = 1 { result: 0 }
+  result: -1
+ }
+ result: 0
+}
+
+loop STRAIN over {6..10} {
+ output [damage for [attack [highest 1 of 1d12] vs STRAIN] with [armourcheck]] named "[STRAIN]"
+}
+

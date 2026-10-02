@@ -1,0 +1,71 @@
+\ FORTUNE DICE FUNCTIONS \
+\ Each face-resolver takes the roll (D) as a plain number parameter. \
+\ Passing d12 into it from the wrapper below makes AnyDice loop over all 12 faces automatically. \
+
+\ ----- TRAIT die (Attribute and Skill) ----- \
+\ Toll mode here is FLAT-1. For "reads as 10" mode, change the "-1" line to "-(10-MARK)" \
+function: tface D:n at MARK:n {
+  if D < MARK {
+    result: D
+  } else {
+    if D = MARK {
+      result: 2*D
+    } else {
+      if D <= 10 {
+        result: -(D-MARK)
+      } else {
+        if D = 11 {
+          result: 2*MARK
+        } else {
+          result: -1
+        }
+      }
+    }
+  }
+}
+function: trait MARK:n {
+  result: [tface d12 at MARK]
+}
+
+\ ----- BENEFICE die - both symbol faces guarantee a full hit ----- \
+function: bface D:n at MARK:n {
+  if D < MARK {
+    result: D
+  } else {
+    if D = MARK {
+      result: 2*D
+    } else {
+      if D <= 10 {
+        result: 0
+      } else {
+        result: 2*MARK
+      }
+    }
+  }
+}
+function: benefice MARK:n {
+  result: [bface d12 at MARK]
+}
+
+\ ----- AFFLICTION die - mirrored polarity, both symbol faces are dead ----- \
+function: aface D:n at MARK:n {
+  if D < MARK {
+    result: -D
+  } else {
+    if D = MARK {
+      result: -(2*D)
+    } else {
+      result: 0
+    }
+  }
+}
+function: affliction MARK:n {
+  result: [aface d12 at MARK]
+}
+
+\ Example marks: Attribute 6, Skill 3, Benefice 3, Affliction 3 - edit as needed \
+
+output [trait 6] + [trait 3] named "T (Attribute+Skill)"
+output [trait 6] + [trait 3] + [benefice 3] named "TB (+Benefice)"
+output [trait 6] + [trait 3] + [affliction 3] named "TA (+Affliction)"
+output [trait 6] + [trait 3] + [benefice 3] + [affliction 3] named "TBA (full pool)"

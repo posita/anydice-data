@@ -1,0 +1,143 @@
+TIER_ONE: {1..4}  TIER_TWO: {5..10}  TIER_THREE: {11..16}  TIER_FOUR: {17..20}  TWENTY: {1..20}
+IDROTF: {1..12}
+
+CLASS_FIGHTER: 1
+SUBCLASS_BATTLE_MASTER: 1  SUBCLASS_CHAMPION: 0  SUBCLASS_ELDRITCH_KNIGHT: 0  SUBCLASS_PSI_WARRIOR: 0
+
+LOOP_RANGE: {2}
+
+HIDE: 0 SHOW: 1 
+OUTPUT_MELEE: SHOW 
+OUTPUT_RANGED: HIDE
+OUTPUT_SPELLS: HIDE
+
+USE_MAGIC: 1
+USE_HASTE: 0
+
+\ Critical Hit \
+CRIT: {20}
+
+\ Ability Scores \
+STRENGTH: 15+2  DEXTERITY: 14  CONSTITUTION: 15+1  INTELLIGENCE: 8  WISDOM: 10  CHARISMA: 8 
+
+function: mod SCORE:n { result: (SCORE - 10) / 2 }
+function: if X:n reached MINIMUM:n then Y:s else Z:s { if MINIMUM>0 & X >= MINIMUM { result: Y } result: Z }
+function: if X:n reached MINIMUM:n then Y:s { result: [if X reached MINIMUM then Y else 0] }
+function: attack ROLL:n plus BONUS:n vs AC:n hitdice HIT_DICE:d bonus BONUS_DAMAGE:n miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { 
+      result: (HIT_DICE + BONUS_DAMAGE + CRIT) + [attack RECKLESS_ATTACK plus BONUS vs AC hit HIT_DICE miss MISS crit CRIT on CRIT_RANGE]
+    }
+    if ROLL + BONUS >= AC { 
+      result: HIT_DICE + BONUS_DAMAGE + (FEAT_GREAT_WEAPON_MASTER * [attack RECKLESS_ATTACK plus BONUS vs AC hit HIT_DICE miss MISS crit CRIT on CRIT_RANGE]/10)
+    }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: HIT + CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit CRIT_DMG on CRIT_RANGE]
+}
+
+function: precise SUP:n attack ROLL:n vs AC:n for DMG:d {
+    if ROLL + SUP >= AC { result: DMG }
+    result: 0
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:s use USE:d pass PASS:d {
+    if ROLL = 1 { result: PASS }
+    if ROLL >= CRIT_RANGE { result: DMG + CRIT_DMG + 2dSUP + USE }
+    if [PRECISE_RANGE contains (ROLL + BONUS)] {
+        result: [precise SUP attack ROLL + BONUS vs AC for DMG] + USE
+    }
+    if ROLL + BONUS >= AC {
+        if SUP_DICE >= ATTACKS { result: DMG + SUP + USE }
+        result: DMG + PASS
+    }
+
+    result: PASS
+}
+
+function: battlemaster SUP_DICE:n superiority SUP:d precise PRECISE_RANGE:s attacks ATTACKS:n roll ROLL:d plus BONUS:d vs AC:d for DMG:d crit CRIT:d on CRIT_RANGE:d {
+
+    \ {A..G} are previous attack with {0..6} superiority dice remaining \
+    A: 0  B: 0   C: 0  D: 0  E: 0  F: 0  G: 0
+
+    ATTACK: [attack ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE]
+
+    loop N over {1 .. ATTACKS}{
+        G: [battlemaster 6 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use F pass G]
+        F: [battlemaster 5 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use E pass F]
+        E: [battlemaster 4 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use D pass E]
+        D: [battlemaster 3 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use C pass D]
+        C: [battlemaster 2 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use B pass C]
+        B: [battlemaster 1 superiority SUP precise PRECISE_RANGE attacks N roll ROLL plus BONUS vs AC for DMG crit CRIT on CRIT_RANGE use A pass B]
+        A: ATTACK + A
+    }
+
+    if SUP_DICE = 6 { result: G }
+    if SUP_DICE = 5 { result: F }
+    if SUP_DICE = 4 { result: E }
+    if SUP_DICE = 3 { result: D }
+    if SUP_DICE = 2 { result: C }
+    if SUP_DICE = 1 { result: B }
+    if SUP_DICE = 0 { result: A }
+}
+
+loop LEVEL over {1..LOOP_RANGE} {
+
+  PROFICIENCY: (LEVEL - 1) / 4 + 2    \range is {2..6}\
+  
+  \ Enemy Armor Class by Level \
+  ACL_MIN: 13  ACL_MAX: 20
+  ACL: ACL_MIN+((LEVEL-1)*(ACL_MAX-ACL_MIN)/20)  \| 8+PROFICIENCY+ATTACK_MOD  or  ACL_MIN+((LEVEL-1)*(ACL_MAX-ACL_MIN)/20) |\
+
+  FIGHTER: LEVEL \ Straight Fighter \
+  SECOND_WIND: [if FIGHTER reached 10 then 4 else [if FIGHTER reached 4 then 3 else 2]]
+  WEAPON_MASTERY: [if FIGHTER reached 16 then 6 else [if FIGHTER reached 10 then 5 else [if FIGHTER reached 4 then 4 else 3]]]
+
+  BATTLEMASTER: SUBCLASS_BATTLE_MASTER * [if FIGHTER reached 3 then 1]  \ For Fighter Battle Master sub-class \
+  CHAMPION: SUBCLASS_CHAMPION * [if FIGHTER reached 3 then 1]  \ For Fighter Champion sub-class \
+
+  \ Battle Master \
+  SUPERIORITY_COUNT: 1@[if FIGHTER reached 15 then 6 else [if FIGHTER reached 7 then 5 else [if FIGHTER reached 3 then 4]]]
+  SUPERIORITY_PIPS: 1@[if FIGHTER reached 18 then 12 else [if FIGHTER reached 10 then 10 else [if FIGHTER reached 3 then 8]]]
+
+  \ ASI & Feats by level : 4,8,10,12,16 : 2024 \
+  FEAT_GREAT_WEAPON_MASTER: [ if FIGHTER reached 4 then 1 ]
+  FEAT_MAGE_SLAYER: [ if FIGHTER reached 12 then 1 ]
+  FEAT_SPEEDY: [ if FIGHTER reached 14 then 1 ]
+
+  STR: STRENGTH + FEAT_GREAT_WEAPON_MASTER + [if FIGHTER reached 8 then 2]
+  DEX: DEXTERITY + FEAT_MAGE_SLAYER + FEAT_SPEEDY
+  CON: CONSTITUTION
+  INT: INTELLIGENCE
+  WIS: WISDOM
+  CHA: CHARISMA
+
+  \ Extra Attack - Level 5, 11, & 20 \
+  EXTRA_ATTACK: [ if FIGHTER reached 20 then 3 else [ if FIGHTER reached 11 then 2 else [ if FIGHTER reached 5 then 1 ]]]
+  ATTACKS: 1 + EXTRA_ATTACK
+
+  \* ATTACK_ROLL *\ 
+  ATTACK_ABILITY: STR
+  ATTACK_MOD: [mod ATTACK_ABILITY]
+
+  \ archery fighting style, giving them a +2 bonus to attack \
+  ARCHERY_FIGHTING: 2
+
+  AC: ACL
+  ATTACK_BONUS: PROFICIENCY + ATTACK_MOD + ARCHERY_FIGHTING
+
+  output 1d6 + FIGHTER
+\
+  output
+  [battlemaster SUPERIORITY_COUNT superiority d{1..SUPERIORITY_PIPS} precise {AC-10 .. AC-1} attacks ATTACKS roll d20 plus ATTACK_BONUS vs AC for 1d6 + ATTACK_MOD crit 1d6 on CRIT] 
+  named "[FIGHTER] Battlemaster sharpshooter"
+\
+
+} \ *** End of Loop *** \

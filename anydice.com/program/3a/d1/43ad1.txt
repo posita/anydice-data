@@ -1,0 +1,31 @@
+function: ndfv res GROLL:s good BROLL:s bad KEEP keep {
+  HITS: {0, 0, 0}
+  loop I over {1..#GROLL} {
+    if I@GROLL >= 1 { HITS: { 1@HITS + 1, 2@HITS, 3@HITS } }
+  }
+  loop I over {1..#BROLL} {
+    if I@BROLL >= 1 { HITS: {1@HITS, 2@HITS + 1} }
+    if I@BROLL >= 2 { HITS: {1@HITS - 1, 2@HITS } }
+  }
+  if 2@HITS > 0 & 1@HITS < 2@HITS { HITS: {-1, 0} }
+  if 1@HITS > KEEP { HITS: {KEEP, 0} }
+
+  result: 1@HITS
+}
+
+function: ndfv roll GOOD:n good BAD:n bad THRES thres KEEP keep{
+  THRES: THRES - 1
+  RGOOD: GOODd{0:THRES, 1:6-THRES}
+  RBAD: BADd{0:THRES, 1:6-THRES-1, 2:1}
+  result: [ ndfv res RGOOD good RBAD bad KEEP keep ]
+}
+
+loop A over {1..5} {
+  loop B over {0..5} {
+    GOOD: A
+    BAD: B
+    THRES: 4
+    KEEP: 3
+    output [ndfv roll GOOD good BAD bad THRES thres KEEP keep] named "NDFV [GOOD][+] [BAD][-] [THRES]+"
+  }
+}

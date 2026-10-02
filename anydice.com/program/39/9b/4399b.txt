@@ -1,0 +1,44 @@
+function: damage A:n mt B:n st C:n {
+ if A >= C {
+  result: 3
+ }
+ if A >= B {
+  result: 2
+ }
+ result: 1
+}
+
+function: attack A:n evasion E:n {
+ if A >= E {
+  result: 1
+ }
+ result: 0
+}
+
+function: attack A:n damage B:n mt C:n st D:n evasion E:n {
+ result: [attack d20+A evasion E] * [damage B mt C st D]
+}
+
+function: maverick atk A:n dmg D:n {
+ result: [attack A damage D mt 16 st 30 evasion 16]
+}
+
+function: geoffrey atk A:n dmg D:n {
+ result: [attack A damage D mt 23 st 50 evasion 15]
+}
+d1
+function: hit maverick atk A:n dmg D:n hp H:n num N:n {
+ R: H - [attack A damage D mt 16 st 30 evasion 16]
+ if R > 0 {
+  result: [hit maverick atk A dmg D hp R num N+1]
+ }
+ result: N+1
+}
+
+function: max hit maverick atk A:n dmg D:n {
+ result: [hit maverick atk A dmg D hp 8 num 0]
+}
+
+ A: 7
+ D: 4d10
+ output[max hit maverick atk A dmg D]

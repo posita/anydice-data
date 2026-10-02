@@ -1,0 +1,65 @@
+\----------------------------------------
+Simulates various 3LA dice rolling situations.
+
+TIP:
+To view a stacked comparison:
+* View: Table
+* Data: Summary
+
+BASIC ROLL:
+Roll Nd8 and count successes
+(N = Talent Used (max 5) + Committed Leads)
+
+| ROLL |   TOTAL    |
+|------|------------|
+|   1  | Subtract 1 |
+| 2-4  | No change  |
+| 5-7  | Add 1      |
+|   8  | Add 2      | 
+
+RESULT OF ROLLING:
+Compare roll total to CR. A higher number is more difficult.
+
+* Total < 0  -> CRIT FAIL
+* Total < TN -> BASIC FAIL
+* Total = TN -> BASIC SUCCESS
+* Total > TN -> CRIT SUCCESS
+
+EASE AND DIFFICULTY:
+If your roll has EASE or DIFFICULTY, roll one additional die. Then, 
+immediately after rolling but before calculating the total, drop
+one die from the pool: either the lowest (for Ease) or the 
+highest (for Difficulty). Do not count this die towards the total.
+
+Tip: CR scales exponentially compared to player odds
+
+AUTHOR:
+Written and coded by Alice Witchfire
+----------------------------------------\
+
+MAP: {-1,0,0,0,1,1,1,2}
+NONE: 0
+EASY: 10
+HARD: 20
+
+function: roll N:n MODE:n {
+  if MODE = EASY {
+    result: [highest N of (N+1)dMAP]
+  }
+  if MODE = HARD {
+    result: [lowest N of (N+1)dMAP]
+  }
+  result: NdMAP
+}
+
+function: test N:n CR:n MODE:n {
+  result: [roll N MODE] >= CR
+}
+
+loop N over {1..6}{
+  loop CR over {1..[lowest of 5 and N+1]}{
+    output [test N CR NONE] named "[N] vs CR [CR]"
+    output [test N CR EASY] named "[N] vs CR [CR]/E"
+    output [test N CR HARD] named "[N] vs CR [CR]/D"
+  }
+}

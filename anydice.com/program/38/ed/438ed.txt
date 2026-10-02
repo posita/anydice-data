@@ -1,0 +1,20 @@
+set "position order" to "highest first"
+function: deplete DIEA:d and DIEB:d at CUT:n{
+ TOTAL: #{DIEA}*#{DIEB}
+ FAIL: (#{DIEA}+#{DIEB})*CUT
+ WIN: TOTAL - FAIL
+ TRANS: d{0:FAIL,1:WIN}
+ result: [deplete TRANS helper]
+}
+function: deplete N:n helper {
+ if N = 1 { result: N + [deplete TRANS helper] }
+ result: N 
+}
+
+set "maximum function depth" to 15
+
+loop N over {4,6,8,10,12}{
+ loop I over {4,6,8,10,12}{
+  output [deplete dI and dN at 1] named "deplete d[I] and d[N] at 1"
+ }
+}

@@ -1,0 +1,43 @@
+RAWDICE:   3d20 \ attack roll: use 1@3d20 for advantage or 2@2d20 for disadvantage \
+HIT:   +10    \ bonus to attack roll \
+AC:    10     \ target AC, headshot gives +6 \
+CRIT:  20     \ minimum attack roll to crit \
+DMG:   1d12 + 6d6 + 2d4 \  \
+SDMG:  1d{1..5,{6..10}:2}+6d{1..3,{4..6}:2}+2d{1,2,{3,4}:2}   \ reroll take highest if below half \
+BDMG:  1d10+1d4
+FLAT:  9      \ Dex mod + Magic Weapon mod + Level if first round \
+
+ACH:   AC + 6
+ATKRES: [highest 1 of RAWDICE]
+LUCKYRES: [RAWDICE contains 1]
+
+function: resolveinitial INIROLL:n against DEFENCE:n {
+if INIROLL >= CRIT {result: 2}
+if INIROLL+HIT >= DEFENCE {result: 1}
+if INIROLL+HIT < DEFENCE {result: 0}
+if INIROLL = 1 {result: 0}
+}
+
+ATKFRES: [resolveinitial ATKRES against ACH]
+
+function: resolvelucky DICE:n against HITRESULT:n {
+if {HITRESULT,DICE} = {0,1} {result: 1d20}
+else {result: ATKRES}
+}
+
+ATKFLRES: [resolvelucky LUCKYRES against ATKFRES]
+FINALATK: [resolveinitial ATKFLRES against ACH]
+
+function: dmgapply HITSTATUS:n for DAMAGE:n {
+ if HITSTATUS = 0 {result: 0}
+ else {result: (HITSTATUS d DAMAGE) + FLAT}
+}
+
+FDMG: [dmgapply FINALATK for DMG]
+FSDMG: [dmgapply FINALATK for SDMG]
+
+set "maximum function depth" to 999
+
+output FINALATK named "snipe chance"
+output FDMG named "damage"
+output FSDMG named "scoped damage"

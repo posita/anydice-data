@@ -1,0 +1,356 @@
+TIER_ONE: {1..4}
+TIER_TWO: {5..10}
+TIER_THREE: {11..16}
+TIER_FOUR: {17..20}
+IDROTF: {1..12}
+
+LOOP_RANGE: {IDROTF}
+
+HIDE: 0 SHOW: 1 
+OUTPUT_MELEE: HIDE 
+OUTPUT_RANGED: SHOW
+OUTPUT_SPELLS: HIDE
+
+USE_MAGIC: 1
+USE_HASTE: 0
+
+function: attack ROLL:n plus BONUS:n vs AC:n hit HIT:d miss MISS:d crit CRIT:d on CRIT_RANGE:n {
+    if ROLL = 1 { result: MISS }
+    if ROLL >= CRIT_RANGE { result: CRIT }
+    if ROLL + BONUS >= AC { result: HIT }
+    result: MISS
+}
+function: attack ROLL:n plus BONUS:n vs AC:n for DMG:d crit CRIT_DMG:d on CRIT_RANGE:n {
+    result: [attack ROLL plus BONUS vs AC hit DMG miss 0 crit DMG + CRIT_DMG on CRIT_RANGE]
+}
+function: fireball SPELL_SAVE_DC:n vs DEX_SAVE:n for DMG:d {
+  if DEX_SAVE >= SPELL_SAVE_DC { result: DMG / 2 }
+  result: DMG
+}
+function: mod SCORE:n { result: (SCORE - 10) / 2 }
+function: if X:n reached MINIMUM:n then Y:s else Z:s { if MINIMUM>0 & X >= MINIMUM { result: Y } result: Z }
+function: if X:n reached MINIMUM:n then Y:s { result: [if X reached MINIMUM then Y else 0] }
+function: attack ROLL:n plus ATTACK_BONUS:n vs ACS:s {
+  \ return the number of times damage is applied on an attack roll of ROLL \
+  if ROLL <= 1 { result: 0 }     \ natural 1 is always a miss \
+  if ROLL >= CRIT { result: 2 }  \ critical hit deals damage damage twice \
+  result: ROLL + ATTACK_BONUS >= ACS
+}
+function: downtime crime DC:n PAYOUT:n CHECKA:n CHECKB:n CHECKC:n {
+  SUCCESS: 0
+  if CHECKA >= DC { SUCCESS: SUCCESS + 1 }
+  if CHECKB >= DC { SUCCESS: SUCCESS + 1 }
+  if CHECKC >= DC { SUCCESS: SUCCESS + 1 }
+  if SUCCESS >= 3 {
+    result: PAYOUT 
+  } else if SUCCESS >= 2 {
+    result: PAYOUT / 2 
+  } else if SUCCESS >= 1 {
+    result: 0 
+  } else {
+    result: -PAYOUT
+  }
+}
+function: downtime pitfighting DC:n CHECKA:n CHECKB:n CHECKC:n {
+  SUCCESS: 0
+  if CHECKA >= DC { SUCCESS: SUCCESS + 1 }
+  if CHECKB >= DC { SUCCESS: SUCCESS + 1 }
+  if CHECKC >= DC { SUCCESS: SUCCESS + 1 }
+  result: SUCCESS
+}
+
+function: acrobatics PROFICIENT:n EXPERTISE:n MAGIC:n { result: [mod INT] + PROFICIENT + EXPERTISE + MAGIC }
+function: arcana PROFICIENT:n EXPERTISE:n MAGIC:n { result: [mod INT] + PROFICIENT + EXPERTISE + MAGIC }
+function: history PROFICIENT:n EXPERTISE:n MAGIC:n { result: [mod INT] + PROFICIENT + EXPERTISE + MAGIC }
+function: investigation PROFICIENT:n EXPERTISE:n MAGIC:n { result: [mod INT] + PROFICIENT + EXPERTISE + MAGIC }
+
+ARTIFICER: 0  BARBARIAN: 0  BARD: 0  CLERIC: 0  DRUID: 0  FIGHTER: 0  MONK: 0  
+PALADIN: 0  RANGER: 0  ROGUE: 0  SORCERER: 0  WARLOCK: 0  WIZARD: 1
+HIT_DICE: 6
+DIVINER: 1  \ For Diviner Wizard sub-class \
+DWARVEN_TOUGHNESS: 1
+\ Ability Scores \
+STR: 8  DEX: 14  CON: 13+1  INT: 15+2  WIS: 12  CHA: 10 
+\ Critical Hit \
+CRIT: {20}
+
+
+\ --LOOP LOOP LOOP--\
+loop LEVEL over [reverse LOOP_RANGE] {
+
+WIZARD: LEVEL \ Straight Wizard \
+
+PROFICIENCY: (LEVEL - 1) / 4 + 2    \range is {2..6}\
+EXPERTISE: PROFICIENCY * 2
+
+\ ASI & Feats by level : 4,8,10,12,16 : 2024 \
+\ Level 4 \
+WARCASTER_FEAT_LEVEL: 4
+WARCASTER: [if WIZARD reached WARCASTER_FEAT_LEVEL then 1]
+
+\ Magic Items \
+ARCANE_GRIMOIRE: [if WIZARD reached 10 then 2 else [if WIZARD reached 2 then 1]]
+WAND_WAR_MAGE: [if WIZARD reached 11 then 2 else [if WIZARD reached 6 then 1]]
+SPELL_CASTING_BONUS: ARCANE_GRIMOIRE + WAND_WAR_MAGE
+
+ELVEN_ACCURACY: 0
+CROSSBOW_EXPERT_FEAT_LEVEL: 28
+SHARPSHOOTER_FEAT_LEVEL: 28
+RITUAL_CASTER_FEAT_LEVEL: 28 
+
+SNEAK_ATTACK_DICE: [if ROGUE reached 1 then ((LEVEL + 1) / 2)]
+SNEAK_DMG: SNEAK_ATTACK_DICEd6
+\ Level 4 \
+if ROGUE >= 4 { WIS: WIS + 1 }
+INT: 15 + 2 + [ if WIZARD reached 8 then 2+1 else [if WIZARD reached 4 then 1 ] ]
+\ Level 8 \
+if ROGUE >= 08 { WIS: WIS + 2 }
+\ Level 10 \
+if ROGUE >= 10 { DEX: DEX + 2 }
+\ Level 12 \
+if ROGUE >= 12 { CON: CON + 2 }
+\ Level 16 \
+if ROGUE >= 16 { WIS: WIS + 2 }
+
+\ Cantrips \
+HAS_TRUE_STRIKE: 1  \via cantrip from Wizard\
+HAS_BOOMING_BLADE: 0  \via cantrip from Wizard\
+\\
+TRUE_STRIKE_DICE : (WIZARD + 1) / 6
+TRUE_STRIKE_DMG : (HAS_TRUE_STRIKE * TRUE_STRIKE_DICE)d6        \range is {0..3}\
+\\
+BOOMING_BLADE_HIT_DICE : (LEVEL + 1) / 6
+BOOMING_BLADE_MOVE_DICE : BOOMING_BLADE_HIT_DICE + 1
+BOOMING_BLADE_HIT : (HAS_BOOMING_BLADE * BOOMING_BLADE_HIT_DICE)d8   \range is {0..3}\
+BOOMING_BLADE_MOVE: (HAS_BOOMING_BLADE * BOOMING_BLADE_MOVE_DICE)d8  \range is {1..4}\
+
+WAILS_DICE:0
+WAILS_DMG: 0
+ENVENOM: 0
+ASSASSINATE: 0
+RELIABLE_TALENT:0
+
+\ LEVEL 1 \
+ARCANA:          [mod INT] + PROFICIENCY
+HISTORY:         [mod INT] + PROFICIENCY
+INVESTIGATION:   [mod INT] + PROFICIENCY
+NATURE:          [mod INT] + PROFICIENCY
+
+\ LEVEL 2 \
+SCHOLAR: [if WIZARD reached 2 then 1]
+ARCANA: [mod INT] + [if SCHOLAR reached 1 then EXPERTISE else PROFICIENCY]
+
+\ LEVEL 3 \
+
+\ LEVEL 4 \ \ Ability Score Improvement feat or another feat \
+WARCASTER_FEAT_LEVEL: 4
+WARCASTER: [if WIZARD reached WARCASTER_FEAT_LEVEL then 1]
+
+\ LEVEL 5 - Memorize Spell\
+\ LEVEL 6 - Subclass Feature - Expert Divination\
+\ LEVEL 7 \
+\ LEVEL 8 - Ability Score Improvement feat or another feat \
+
+\ LEVEL 9 \
+\ LEVEL 10 - Subclass Feature - The Third Eye \
+\ LEVEL 11 \
+\ LEVEL 12 - Ability Score Improvement feat or another feat \
+\ LEVEL 13 \
+\ LEVEL 14 - Subclass Feature - Greater Portent \
+\ LEVEL 15 \
+\ LEVEL 16 - Ability Score Improvement feat or another feat \
+\ LEVEL 17 \
+\ LEVEL 18 - Spell Mastery \
+\ LEVEL 19 - Epic Boon Feat \
+\ LEVEL 20 - Signature Spells \
+
+HP: HIT_DICE + [mod CON] + (LEVEL - 1)*((HIT_DICE+1+1)/2 + [mod CON])
+MAXHP: HIT_DICE + [mod CON] + (LEVEL - 1) * HIT_DICE + [mod CON]
+\HP_RISK: (HP * (1 + UNCANNY_DODGE)) - (EVASION * HP)/2 \
+HP_RISK: HP 
+
+
+\ Magic Items (please) \
+STONE_OF_GOOD_LUCK:    [if LEVEL reached  5 then 1]
+MANUAL_OF_QUICKNESS:   [if ROGUE reached 12 then 2]   DEX: DEX + MANUAL_OF_QUICKNESS 
+TOME_OF_UNDERSTANDING: [if ROGUE reached 12 then 2]   WIS: WIS + TOME_OF_UNDERSTANDING 
+
+
+\ ARMOR CLASS \
+BASE_ARMOR: 10
+LEATHER: 11
+STUDDED_LEATHER: 12 
+GLAMOURED_STUDDED_LEATHER: STUDDED_LEATHER + 1 
+MAGE_ARMOR: 13
+ARMOR_CLASS: [mod DEX] + [if ROGUE reached 7 then GLAMOURED_STUDDED_LEATHER else [if ROGUE reached 2 then STUDDED_LEATHER else LEATHER]] 
+CLOAK_OF_PROTECTION: [if ROGUE reached 4 then 1]
+ARMOR_CLASS: ARMOR_CLASS + CLOAK_OF_PROTECTION 
+
+if HAS_TRUE_STRIKE>0 { ATTACK_MOD: [mod INT] } else { ATTACK_MOD: [mod DEX] }
+\ Armor Class by Level \
+ACL:  8 + PROFICIENCY + ATTACK_MOD  \| 8+PROFICIENCY+ATTACK_MOD  or  12+((LEVEL-1)*(22-12)/20) |\
+AC_DEVIATION: 2
+AC: d{(ACL-AC_DEVIATION)..(ACL+AC_DEVIATION)}
+
+HAS_ADVANTAGE: 1
+ADVANTAGE: [highest 1 of (2 + ELVEN_ACCURACY)d20] 
+ADVANTAGE: [highest 1 of {1,2,2}d20] 
+DISADVANTAGE: [lowest 1 of 2d20]
+
+\* ATTACK_ROLL *\ 
+if (HAS_ADVANTAGE > 0) { ATTACK_ROLL: ADVANTAGE } else { ATTACK_ROLL: 1d20 }
+
+\Rapier, primary weapon\
+WPN_ONE_DICE:   1d8  \ damage rolled on successful hit \
+WPN_ONE_MAGIC: USE_MAGIC * [if LEVEL reached 12 then 2 else [if LEVEL reached 5 then 1]] 
+WPN_ONE_ABONUS: ATTACK_MOD + PROFICIENCY + WPN_ONE_MAGIC
+WPN_ONE_DBONUS: ATTACK_MOD + WPN_ONE_MAGIC
+WPN_ONE_HIT: [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+SHORTBOW: 1d6
+LONGBOW: 1d8
+HAND_CROSSBOW: 1d6
+LIGHT_CROSSBOW: 1d8
+HEAVY_CROSSBOW: 1d10
+if LEVEL >= 11 { RANGED_WEAPON: HAND_CROSSBOW}
+else if LEVEL >= 3 { RANGED_WEAPON: LIGHT_CROSSBOW}
+else { RANGED_WEAPON: SHORTBOW}
+\Hand Crossbow, secondary weapon\
+DAGGER: 1d4
+WPN_TWO_DICE:   DAGGER  \ damage rolled on successful hit \
+WPN_TWO_MAGIC: USE_MAGIC * [if LEVEL reached 9 then 1] 
+WPN_TWO_ABONUS: ATTACK_MOD + PROFICIENCY + WPN_TWO_MAGIC
+WPN_TWO_DBONUS: ATTACK_MOD + WPN_TWO_MAGIC
+if SHARPSHOOTER_FEAT_LEVEL > 0 & LEVEL >= SHARPSHOOTER_FEAT_LEVEL {
+  WPN_TWO_ABONUS: WPN_TWO_ABONUS - 5
+  WPN_TWO_DBONUS: WPN_TWO_DBONUS + 10
+}
+WPN_TWO_HIT: [attack ATTACK_ROLL plus WPN_TWO_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+
+if CROSSBOW_EXPERT_FEAT_LEVEL > 0 & LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+  HAND_CROSSBOW_DICE: HAND_CROSSBOW
+  HAND_CROSSBOW_MAGIC: 0
+  HAND_CROSSBOW_ABONUS: ATTACK_MOD + PROFICIENCY + HAND_CROSSBOW_MAGIC
+  HAND_CROSSBOW_DBONUS: ATTACK_MOD + HAND_CROSSBOW_MAGIC
+  HAND_CROSSBOW_HIT: [attack ATTACK_ROLL plus HAND_CROSSBOW_ABONUS vs AC]  \ optimization: precalculate the miss/hit/crit odds \
+}
+
+ATTACK_DAMAGE_DICE: WPN_ONE_DICE
+ATTACK_BOOMING_DAMAGE_DICE: ATTACK_DAMAGE_DICE + BOOMING_BLADE_HIT
+BONUS_ACTION_DAMAGE_DICE: WPN_TWO_DICE
+REACTION_ATTACK: 1d{5}
+
+function: multiattack N:n times {
+  result: [roll WPN_ONE_HIT to multiattack N times]
+}
+function: roll FIRSTHIT:n to multiattack N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (ATTACK_BOOMING_DAMAGE_DICE + SNEAK_DMG + d0)) + WPN_ONE_DBONUS + WAILS_DMG + BOOMING_BLADE_MOVE 
+    if N >= 2 {
+      loop I over {2..N} {
+        DAMAGE: DAMAGE + (WPN_ONE_HIT d (WPN_ONE_DICE + SNEAK_DMG + d0)) + WPN_ONE_DBONUS  
+      }
+    }
+    result: DAMAGE
+  } else {
+    \ since I missed with the first weapon, will try an offhand bonus action attack with a dagger \
+    \DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + SNEAK_DMG + d0)) + WPN_TWO_MAGIC + WAILS_DMG 
+    \result: DAMAGE
+  }
+  result: 0
+}
+function: roll FIRSTHIT:n to handcrossbows N:n times {
+  if N <= 0 {
+    result: 0
+  }
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (HAND_CROSSBOW_DICE + SNEAK_DMG + d0)) + HAND_CROSSBOW_DBONUS + WAILS_DMG 
+    if LEVEL >= CROSSBOW_EXPERT_FEAT_LEVEL {
+      DAMAGE: DAMAGE + HAND_CROSSBOW_HIT d (HAND_CROSSBOW_DICE + d0) + HAND_CROSSBOW_DBONUS 
+    }
+    result: DAMAGE
+  } else {
+    \ since I missed with the first weapon, try sneak attack with second attack \
+    DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + SNEAK_DMG + d0)) + WPN_TWO_DBONUS + WAILS_DMG 
+    result: DAMAGE
+  }
+  result: 0
+}
+function: offhand FIRSTHIT:n {
+  DAMAGE: 0
+  if FIRSTHIT > 0 {
+    DAMAGE: DAMAGE + (FIRSTHIT d (1d4 + ATTACK_MOD + PROFICIENCY + SNEAK_DMG + d0)) + ATTACK_MOD + WAILS_DMG 
+    DAMAGE: DAMAGE + WPN_TWO_HIT d (WPN_TWO_DICE + d0) + WPN_TWO_DBONUS 
+    result: DAMAGE
+  } else {
+    \ since I missed with the rapier, will try an offhand bonus action attack with a dagger \
+    DAMAGE: DAMAGE + (WPN_TWO_HIT d (WPN_TWO_DICE + SNEAK_DMG + d0)) + WPN_TWO_MAGIC + WAILS_DMG 
+    result: DAMAGE
+  }
+  result: 0
+}
+
+ if LEVEL >=17 { TIER: 4 } else {if LEVEL >= 11 {TIER: 3} else {if LEVEL >= 5 {TIER: 2} else {TIER: 1}}}
+ HPVAC: HP_RISK / ACL  \ Hit Point Risk vs Armor Class \
+
+ HASTE: USE_HASTE * [if LEVEL reached 5 then 1]  \ No Haste before level 5 \
+ ATKRES: [multiattack (1 + HASTE) times]
+ if OUTPUT_MELEE > 0 {
+   output ATKRES named "L[LEVEL] [HP]:[HPVAC] Rapier+[WPN_ONE_MAGIC] BB[BOOMING_BLADE_HIT_DICE]-[BOOMING_BLADE_MOVE_DICE] Dex[DEX] [ARMOR_CLASS]vAC[ACL]" 
+\ if #LOOP_RANGE <= 2 {
+   HIT_CRIT_DICE: WPN_ONE_DICE + SNEAK_DMG + BOOMING_BLADE_HIT
+   output [attack ATTACK_ROLL plus WPN_ONE_ABONUS vs AC for HIT_CRIT_DICE + WPN_ONE_DBONUS + WAILS_DMG + BOOMING_BLADE_MOVE*2/3 crit HIT_CRIT_DICE on CRIT] named "L[LEVEL] Rapier Sneak[SNEAK_ATTACK_DICE]d6 BB[BOOMING_BLADE_HIT_DICE] WftG[WAILS_DICE]d6"
+  }
+\
+ }
+
+
+
+ if OUTPUT_RANGED {
+  ATTACK_ABILITY: INT
+  ATTACK_MOD: [mod ATTACK_ABILITY]
+  \ output [attack ATTACK_ROLL plus WPN_TWO_ABONUS vs AC for WPN_TWO_DICE + SNEAK_DMG + WPN_TWO_DBONUS + WAILS_DMG crit WPN_TWO_DICE + SNEAK_DMG on CRIT] named "L[LEVEL] RANGED Sneak[SNEAK_ATTACK_DICE]" \
+  RANGED_DICE: [if LEVEL reached 7 then HEAVY_CROSSBOW else [if LEVEL reached 3 then LIGHT_CROSSBOW else SHORTBOW]]
+  RANGED_DICE: LIGHT_CROSSBOW
+  if ENVENOM>0 { SNEAK_ATTACK_DICE: (SNEAK_ATTACK_DICE - 1) }
+  SNEAK_DMG: SNEAK_ATTACK_DICEd6
+  RANGED_DICE: RANGED_DICE + SNEAK_DMG + TRUE_STRIKE_DMG + WAILS_DMG + (ENVENOM * 2)d6
+  LIGHTCROSSBOW_MAGIC: [if LEVEL reached 8 then 2 else [if LEVEL reached 3 then 1]]
+  RANGED_MAGIC: USE_MAGIC * LIGHTCROSSBOW_MAGIC
+  RANGED_ATTACK_BONUS: ATTACK_MOD + PROFICIENCY + RANGED_MAGIC
+  RANGED_DAMAGE_BONUS: ATTACK_MOD + RANGED_MAGIC + ASSASSINATE
+  if SHARPSHOOTER_FEAT_LEVEL > 0 & LEVEL >= SHARPSHOOTER_FEAT_LEVEL {
+    RANGED_ATTACK_BONUS: RANGED_ATTACK_BONUS - 5
+    RANGED_DAMAGE_BONUS: RANGED_DAMAGE_BONUS + 10
+  }
+\  output [attack 1d20 plus RANGED_ATTACK_BONUS vs AC for RANGED_DICE + RANGED_DAMAGE_BONUS crit RANGED_DICE on CRIT] named "Phantom L[LEVEL] Ranged+[RANGED_MAGIC]@[RANGED_ATTACK_BONUS] TrueStrike[TRUE_STRIKE_DICE]d6"
+\
+ if HAS_TRUE_STRIKE {
+  output [attack ADVANTAGE plus RANGED_ATTACK_BONUS vs AC for RANGED_DICE + RANGED_DAMAGE_BONUS crit RANGED_DICE on CRIT] named 
+  "Wizard L[LEVEL] +[RANGED_MAGIC] Ranged (+[RANGED_ATTACK_BONUS]) vs [ACL] TS[TRUE_STRIKE_DICE]d6"
+ }
+
+if OUTPUT_SPELLS {
+\ Fireball \
+  ATTACK_ABILITY: INT
+  ATTACK_MOD: [mod ATTACK_ABILITY]
+  SPELL_CAST_MAGIC: USE_MAGIC * SPELL_CASTING_BONUS
+  SPELL_ATTACK_BONUS: ATTACK_MOD + PROFICIENCY + SPELL_CAST_MAGIC
+  SPELL_SAVE_DC: 8 + SPELL_ATTACK_BONUS
+  WIZARD_MAX_SPELL_LEVEL: (WIZARD + 1) / 2
+  FIREBALL_LEVEL: 3
+  ENEMY_COUNT: 2d4
+  FIREBALL_DAMAGE: [if WIZARD reached 6 then (8d6 + (WIZARD_MAX_SPELL_LEVEL-FIREBALL_LEVEL)d6)]
+  if WIZARD >= 6 {
+    output ENEMY_COUNT*[fireball SPELL_SAVE_DC vs (1d20 + (1d4-1)) for FIREBALL_DAMAGE] named "Wizard L[WIZARD] Fireball [ATTACK_MOD],[PROFICIENCY],[SPELL_CAST_MAGIC],[SPELL_ATTACK_BONUS]"
+    }
+  }
+
+ }
+
+}
